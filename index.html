@@ -22,27 +22,38 @@
       --accent2: #f59e0b;
       --green: #10b981;
       --danger: #dc2626;
+      --blue: #2563eb;
       --shadow: 0 20px 40px rgba(15, 23, 42, 0.08);
       --radius-xl: 28px;
       --radius-lg: 22px;
       --radius-md: 18px;
     }
     * { box-sizing: border-box; }
-    html, body { margin:0; padding:0; font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Noto Sans KR", "Segoe UI", sans-serif; background: linear-gradient(180deg, #f8fafc 0%, #eef2ff 100%); color: var(--text); }
+    html, body {
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Noto Sans KR", "Segoe UI", sans-serif;
+      background: linear-gradient(180deg, #f8fafc 0%, #eef2ff 100%);
+      color: var(--text);
+    }
     body { max-width: 480px; margin: 0 auto; }
     button, input, select, textarea { font: inherit; }
     a { color: inherit; text-decoration:none; }
+
     .app { min-height: 100dvh; padding: 16px 16px 110px; }
     .shell { display:flex; flex-direction:column; gap:14px; }
+
     .topbar { display:flex; justify-content:space-between; align-items:center; }
     .brand { display:flex; align-items:center; gap:12px; }
-    .brand img { width:48px; height:48px; border-radius:16px; box-shadow: var(--shadow); }
+    .brand img { width:48px; height:48px; border-radius:16px; box-shadow: var(--shadow); object-fit: cover; }
     .brand h1 { margin:0; font-size:24px; letter-spacing:-0.05em; }
     .brand p { margin:4px 0 0; color: var(--muted); font-size:13px; }
+
     .icon-btn {
       width:44px; height:44px; border:none; border-radius:16px; cursor:pointer;
       background: rgba(255,255,255,0.8); box-shadow: var(--shadow); color: var(--text);
     }
+
     .hero {
       position:relative; overflow:hidden; padding:22px; border-radius:30px; color:#fff;
       background: radial-gradient(circle at top right, rgba(255,255,255,0.28), transparent 30%), linear-gradient(135deg, #111827 0%, #1f2937 46%, #ef4444 100%);
@@ -52,20 +63,37 @@
       content:""; position:absolute; right:-26px; top:-12px; width:118px; height:118px;
       border-radius:34px; background: rgba(255,255,255,0.14); transform: rotate(18deg);
     }
-    .eyebrow { display:inline-flex; align-items:center; gap:8px; padding:8px 12px; border-radius:999px; background: rgba(255,255,255,0.14); font-size:12px; }
-    .hero h2 { margin:14px 0 8px; font-size:28px; line-height:1.18; letter-spacing:-0.05em; max-width:280px; }
-    .hero p { margin:0; max-width:300px; line-height:1.55; color: rgba(255,255,255,0.92); }
+    .eyebrow {
+      display:inline-flex; align-items:center; gap:8px; padding:8px 12px;
+      border-radius:999px; background: rgba(255,255,255,0.14); font-size:12px;
+    }
+    .hero h2 {
+      margin:14px 0 8px; font-size:28px; line-height:1.18; letter-spacing:-0.05em; max-width:280px;
+    }
+    .hero p {
+      margin:0; max-width:300px; line-height:1.55; color: rgba(255,255,255,0.92);
+    }
+
     .stats { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-top:18px; }
-    .stat { padding:14px; border-radius:18px; background: rgba(255,255,255,0.14); border:1px solid rgba(255,255,255,0.16); backdrop-filter: blur(10px); }
+    .stat {
+      padding:14px; border-radius:18px; background: rgba(255,255,255,0.14);
+      border:1px solid rgba(255,255,255,0.16); backdrop-filter: blur(10px);
+    }
     .stat strong { display:block; font-size:20px; }
     .stat span { font-size:12px; color: rgba(255,255,255,0.84); }
+
     .panel {
-      background: var(--surface); border:1px solid rgba(255,255,255,0.65); box-shadow: var(--shadow);
-      backdrop-filter: blur(18px); border-radius: var(--radius-xl); padding:16px;
+      background: var(--surface);
+      border:1px solid rgba(255,255,255,0.65);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(18px);
+      border-radius: var(--radius-xl);
+      padding:16px;
     }
+
     .searchbox { display:flex; align-items:center; gap:10px; padding: 14px 16px; }
     .searchbox input { border:none; outline:none; background:transparent; flex:1; color: var(--text); }
-    .toolbar { display:grid; grid-template-columns:1fr auto; gap:10px; }
+
     .chips { display:flex; gap:8px; overflow:auto; padding:2px 0 4px; scrollbar-width:none; }
     .chips::-webkit-scrollbar { display:none; }
     .chip {
@@ -73,26 +101,54 @@
       background:#fff; color:var(--muted); border:1px solid var(--line);
     }
     .chip.active { background: var(--primary); color:#fff; font-weight:700; }
+
     .section-head { display:flex; justify-content:space-between; align-items:center; margin:2px 2px 0; }
     .section-head h3 { margin:0; font-size:18px; letter-spacing:-0.03em; }
     .section-head small { color: var(--muted); }
+
     .list { display:grid; gap:12px; }
+
     .card {
-      background: #fff; border:1px solid var(--line-soft); border-radius: 24px; padding: 16px; box-shadow: var(--shadow);
-      transition: transform .15s ease, box-shadow .15s ease; cursor:pointer;
+      background: #fff;
+      border:1px solid var(--line-soft);
+      border-radius: 24px;
+      padding: 16px;
+      box-shadow: var(--shadow);
+      transition: transform .15s ease, box-shadow .15s ease;
+      cursor:pointer;
     }
     .card:hover { transform: translateY(-1px); }
+
     .card-top { display:flex; gap:12px; align-items:flex-start; }
     .badge {
       min-width:72px; padding:12px 10px; border-radius:18px; text-align:center; color:#fff; font-weight:800;
       background: linear-gradient(135deg, var(--accent2), var(--accent));
+      flex: 0 0 auto;
     }
     .badge.service { background: linear-gradient(135deg, #22c55e, #0f766e); font-size:14px; }
     .badge.low { background: linear-gradient(135deg, #64748b, #334155); }
+
     .card h4 { margin:0 0 6px; font-size:18px; letter-spacing:-0.03em; }
     .meta { color: var(--muted); font-size:13px; line-height:1.45; }
+
     .tags { display:flex; flex-wrap:wrap; gap:8px; margin-top:12px; }
-    .tag { padding:7px 10px; border-radius:999px; background:#f8fafc; border:1px solid var(--line); color:#475569; font-size:12px; }
+    .tag {
+      padding:7px 10px; border-radius:999px; background:#f8fafc; border:1px solid var(--line);
+      color:#475569; font-size:12px;
+    }
+    .tag.rec {
+      background: #eff6ff;
+      border-color: #bfdbfe;
+      color: var(--blue);
+      font-weight: 700;
+    }
+    .tag.hidden-tag {
+      background: #fef2f2;
+      border-color: #fecaca;
+      color: #b91c1c;
+      font-weight: 700;
+    }
+
     .actions { display:flex; gap:8px; margin-top:14px; }
     .btn {
       border:none; border-radius:16px; padding:12px 14px; cursor:pointer; font-weight:700;
@@ -102,10 +158,14 @@
     .btn-primary { background: var(--primary); color:#fff; }
     .btn-soft { background:#fff; color: var(--text); border:1px solid var(--line); }
     .btn-danger { background: #fee2e2; color: var(--danger); }
+
     .grid-2 { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+    .grid-3 { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; }
+
     .auth-box { display:flex; gap:14px; align-items:center; }
     .qr {
-      width:92px; height:92px; border-radius:20px; background:
+      width:92px; height:92px; border-radius:20px;
+      background:
       linear-gradient(90deg, #111 12px, transparent 12px) 0 0/24px 24px,
       linear-gradient(#111 12px, transparent 12px) 0 0/24px 24px,
       #fff;
@@ -113,8 +173,10 @@
       flex: 0 0 auto;
     }
     .helper { color: var(--muted); font-size:13px; line-height:1.5; }
+
     .admin-grid { display:grid; gap:12px; }
     .admin-card { background:#fff; border:1px solid var(--line); border-radius:22px; padding:14px; }
+
     .form-grid { display:grid; gap:10px; }
     .field { display:grid; gap:6px; }
     .field label { font-size:13px; color:#334155; font-weight:700; }
@@ -122,11 +184,22 @@
       border:1px solid var(--line); border-radius:14px; padding:12px 14px; outline:none; background:#fff;
     }
     .field textarea { min-height: 82px; resize: vertical; }
+
+    .check-row {
+      display:flex; gap:18px; align-items:center; flex-wrap:wrap;
+      padding: 12px 14px; border:1px solid var(--line); border-radius:14px; background:#fff;
+    }
+    .check-row label {
+      display:flex; align-items:center; gap:8px; cursor:pointer; font-size:14px; color:#334155; font-weight:700;
+    }
+
     .mini-list { display:grid; gap:10px; }
     .mini-item { border:1px solid var(--line); border-radius:18px; padding:12px; background:#fff; }
     .mini-item-head { display:flex; justify-content:space-between; gap:10px; align-items:start; }
     .mini-item h5 { margin:0; font-size:15px; }
+
     .hidden { display:none !important; }
+
     .bottom-nav {
       position:fixed; left:50%; transform:translateX(-50%); bottom:14px; width:min(440px, calc(100% - 20px));
       display:grid; grid-template-columns:repeat(4, 1fr); gap:8px; padding:10px; border-radius:26px;
@@ -134,20 +207,31 @@
     }
     .nav-btn { border:none; background:transparent; color:inherit; border-radius:18px; padding:10px 8px; cursor:pointer; }
     .nav-btn.active { background: rgba(255,255,255,0.12); color:#fff; }
+
     .empty { text-align:center; color: var(--muted); padding:32px 14px; }
+
     dialog {
-      width:min(440px, calc(100% - 20px)); border:none; border-radius:28px; padding:0; color:var(--text); background:#fff; box-shadow:0 30px 60px rgba(15,23,42,0.24);
+      width:min(440px, calc(100% - 20px));
+      border:none; border-radius:28px; padding:0; color:var(--text); background:#fff;
+      box-shadow:0 30px 60px rgba(15,23,42,0.24);
     }
     dialog::backdrop { background: rgba(15,23,42,0.42); backdrop-filter: blur(4px); }
+
     .modal-head { display:flex; justify-content:space-between; align-items:center; padding:18px 18px 8px; }
     .modal-body { padding:0 18px 18px; }
     .close-btn { width:40px; height:40px; border:none; border-radius:14px; background:#f8fafc; cursor:pointer; }
+
     .install-banner { display:none; }
     .install-banner.show { display:block; }
-    .pill { display:inline-flex; align-items:center; gap:8px; border-radius:999px; padding:8px 12px; background:#f8fafc; color:#475569; border:1px solid var(--line); }
+
+    .pill {
+      display:inline-flex; align-items:center; gap:8px; border-radius:999px; padding:8px 12px;
+      background:#f8fafc; color:#475569; border:1px solid var(--line);
+    }
+
     @media (max-width: 370px) {
       .stats { grid-template-columns: 1fr; }
-      .grid-2 { grid-template-columns:1fr; }
+      .grid-2, .grid-3 { grid-template-columns:1fr; }
     }
   </style>
 </head>
@@ -232,7 +316,7 @@
         <div class="panel">
           <div class="section-head" style="margin-bottom:8px;">
             <h3>관리자 등록 화면</h3>
-            <small>정적 배포용</small>
+            <small>비밀번호 잠금</small>
           </div>
           <div class="helper">이 버전은 서버 없이 동작하므로 변경 내용은 현재 기기 브라우저에 저장됩니다. 실운영에서는 API 또는 DB와 연결하면 공동 관리가 가능합니다.</div>
         </div>
@@ -245,10 +329,12 @@
             </div>
             <form id="benefitForm" class="form-grid">
               <input type="hidden" id="editIndex" value="" />
+
               <div class="field">
                 <label for="name">매장명</label>
                 <input id="name" required />
               </div>
+
               <div class="grid-2">
                 <div class="field">
                   <label for="category">카테고리</label>
@@ -259,6 +345,7 @@
                   <input id="discountText" placeholder="예: 10% 또는 서비스" required />
                 </div>
               </div>
+
               <div class="grid-2">
                 <div class="field">
                   <label for="discountValue">할인 수치</label>
@@ -272,18 +359,30 @@
                   </select>
                 </div>
               </div>
+
+              <div class="field">
+                <label>운영 옵션</label>
+                <div class="check-row">
+                  <label><input type="checkbox" id="visible" checked> 노출</label>
+                  <label><input type="checkbox" id="recommended"> 추천</label>
+                </div>
+              </div>
+
               <div class="field">
                 <label for="condition">혜택 조건</label>
                 <textarea id="condition" required></textarea>
               </div>
+
               <div class="field">
                 <label for="address">주소</label>
                 <input id="address" required />
               </div>
+
               <div class="field">
                 <label for="phone">전화번호</label>
                 <input id="phone" required />
               </div>
+
               <div class="grid-2">
                 <button type="submit" class="btn btn-primary">저장</button>
                 <button type="button" class="btn btn-soft" id="cancelEditBtn">입력 초기화</button>
@@ -306,6 +405,24 @@
               <button class="btn btn-danger" id="resetDataBtn">기본값 복원</button>
             </div>
             <div class="helper" style="margin-top:12px;">정적 웹 배포 시에는 현재 저장된 데이터를 JSON으로 백업해 두는 방식을 권장합니다.</div>
+          </div>
+
+          <div class="admin-card">
+            <div class="section-head" style="margin-bottom:12px;">
+              <h3 style="font-size:16px;">관리자 설정</h3>
+              <small>브라우저 저장</small>
+            </div>
+            <div class="form-grid">
+              <div class="field">
+                <label for="adminPasswordInput">관리자 비밀번호 변경</label>
+                <input id="adminPasswordInput" type="password" placeholder="새 비밀번호 입력" />
+              </div>
+              <div class="grid-2">
+                <button class="btn btn-primary" id="savePasswordBtn" type="button">비밀번호 저장</button>
+                <button class="btn btn-soft" id="lockAdminBtn" type="button">관리 잠금</button>
+              </div>
+              <div class="helper">초기 비밀번호는 <strong>1234</strong> 입니다. 최초 접속 후 변경을 권장합니다.</div>
+            </div>
           </div>
 
           <div class="admin-card">
@@ -335,50 +452,108 @@
     <div class="modal-body" id="modalBody"></div>
   </dialog>
 
+  <dialog id="adminLoginModal">
+    <div class="modal-head">
+      <div class="pill">관리자 비밀번호</div>
+      <button class="close-btn" id="closeAdminLoginModal">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="field">
+          <label for="adminPasswordCheck">비밀번호 입력</label>
+          <input id="adminPasswordCheck" type="password" placeholder="관리자 비밀번호를 입력하세요" />
+        </div>
+        <div class="grid-2">
+          <button class="btn btn-primary" id="adminLoginBtn" type="button">확인</button>
+          <button class="btn btn-soft" id="adminLoginCancelBtn" type="button">취소</button>
+        </div>
+        <div class="helper">관리 화면은 비밀번호 입력 후 접근할 수 있습니다.</div>
+      </div>
+    </div>
+  </dialog>
+
   <script>
     const DEFAULT_BENEFITS = [
-      { name:'엘스킨케어', category:'피부관리', discountValue:50, discountText:'50%', condition:'첫방문 50% / 입주민 정액권 최대 30%', address:'경기 파주시 경의로 1242 209호, 210호', phone:'0507-1433-5760' },
-      { name:'미스터피자 일산탄현점', category:'음식', discountValue:30, discountText:'30%', condition:'포장 30% / 매장식사 20% + 샐러드 증정', address:'경기 고양시 일산서구 탄현로 136 상가동 2층 204호', phone:'031-911-9296' },
-      { name:'아레볼', category:'운동', discountValue:15, discountText:'15%', condition:'주말까지 적용, 평일 오전 15% 할인 행사와 중복 안됨', address:'경기 파주시 소라지로 309-12', phone:'0507-1438-5678' },
-      { name:'이가자 미용실', category:'미용', discountValue:30, discountText:'30%', condition:'전품목 30%, 부분 시술 제외 [클리닉]', address:'경기 파주시 와석순환로515번길 70 3층', phone:'0507-1468-8328' },
-      { name:'아티장 베이커스', category:'베이커리', discountValue:10, discountText:'10%', condition:'19~22시', address:'경기 파주시 와석순환로515번길 70 1층', phone:'031-8035-0818' },
-      { name:'테이블린', category:'음식', discountValue:10, discountText:'10%', condition:'입주민 할인', address:'경기 파주시 와석순환로515번길 70 105동 2층 1512호', phone:'0507-1367-9845' },
-      { name:'지파시 젤라또', category:'디저트', discountValue:10, discountText:'10%', condition:'입주민 할인', address:'경기 파주시 와석순환로515번길 70 P1동 2층 C268호', phone:'031-8035-0872' },
-      { name:'인생우동', category:'음식', discountValue:10, discountText:'10%', condition:'입주민 할인', address:'경기 파주시 책향기로 824 118호 인생우동 파주운정점', phone:'0507-1354-0828' },
-      { name:'노가리세상', category:'주점', discountValue:10, discountText:'10%', condition:'5만원 이상', address:'경기 파주시 와석순환로515번길 91 운정프라임타워 1층', phone:'0507-1411-3404' },
-      { name:'띠아트헤어', category:'미용', discountValue:10, discountText:'10%', condition:'첫방문 할인', address:'경기 파주시 와석순환로515번길 21 2층 띠아트헤어 운정', phone:'0507-1357-5818' },
-      { name:'생마차', category:'주점', discountValue:10, discountText:'10%', condition:'입주민 할인', address:'경기 파주시 경의로1240번길 14-11 월드로데오 104, 105호', phone:'031-935-5697' },
-      { name:'맷차', category:'카페', discountValue:10, discountText:'10%', condition:'입주민 할인', address:'경기 파주시 와석순환로515번길 70 엘1층 2157호', phone:'031-8035-0750' },
-      { name:'더첸의 중식주점첸', category:'중식주점', discountValue:10, discountText:'10%', condition:'3만원 이상', address:'주소 정보 확인 필요', phone:'031-944-9469' },
-      { name:'뚝심', category:'음식', discountValue:10, discountText:'10%', condition:'입주민 할인', address:'경기 파주시 소라지로 309-12', phone:'0507-1438-5678' },
-      { name:'운정막창', category:'음식', discountValue:10, discountText:'10%', condition:'3만원 이상', address:'경기 파주시 운정역길 370-3 1층', phone:'031-947-9092' },
-      { name:'필스너하우스', category:'주점', discountValue:5, discountText:'5%', condition:'입주민 할인', address:'경기 파주시 경의로 1246 유은타워 8차 106호, 107호', phone:'0507-1300-4798' },
-      { name:'신깡통뒷고기 파주운정점', category:'음식', discountValue:5, discountText:'5%', condition:'입주민 할인', address:'경기 파주시 경의로1240번길 30 1층 104, 105호', phone:'0507-1306-1538' },
-      { name:'대선집', category:'주점', discountValue:0, discountText:'서비스', condition:'음료 또는 주류 1병 서비스', address:'경기 파주시 경의로1240번길 14-5 1층 112호', phone:'031-949-6698', service:true },
-      { name:'김치옥', category:'음식', discountValue:5, discountText:'5%', condition:'입주민 할인', address:'경기 파주시 경의로1240번길 36-36', phone:'0507-1327-4584' },
-      { name:'땡초우동인포차 운정점', category:'주점', discountValue:5, discountText:'5%', condition:'입주민 할인', address:'경기 파주시 경의로 1246 유은타워8차 1층 101호', phone:'0507-1395-1370' },
-      { name:'치킨플러스 일산탄현점', category:'치킨', discountValue:0, discountText:'서비스', condition:'배달 또는 매장 이용 시 떡볶이 증정 / 배달앱 요청 사항에 “힐스입주민이예요.” 기입', address:'경기 고양시 일산서구 탄현로 136', phone:'031-911-9295', service:true }
+      { name:'엘스킨케어', category:'피부관리', discountValue:50, discountText:'50%', condition:'첫방문 50% / 입주민 정액권 최대 30%', address:'경기 파주시 경의로 1242 209호, 210호', phone:'0507-1433-5760', visible:true, recommended:true },
+      { name:'미스터피자 일산탄현점', category:'음식', discountValue:30, discountText:'30%', condition:'포장 30% / 매장식사 20% + 샐러드 증정', address:'경기 고양시 일산서구 탄현로 136 상가동 2층 204호', phone:'031-911-9296', visible:true, recommended:true },
+      { name:'아레볼', category:'운동', discountValue:15, discountText:'15%', condition:'주말까지 적용, 평일 오전 15% 할인 행사와 중복 안됨', address:'경기 파주시 소라지로 309-12', phone:'0507-1438-5678', visible:true, recommended:false },
+      { name:'이가자 미용실', category:'미용', discountValue:30, discountText:'30%', condition:'전품목 30%, 부분 시술 제외 [클리닉]', address:'경기 파주시 와석순환로515번길 70 3층', phone:'0507-1468-8328', visible:true, recommended:true },
+      { name:'아티장 베이커스', category:'베이커리', discountValue:10, discountText:'10%', condition:'19~22시', address:'경기 파주시 와석순환로515번길 70 1층', phone:'031-8035-0818', visible:true, recommended:false },
+      { name:'테이블린', category:'음식', discountValue:10, discountText:'10%', condition:'입주민 할인', address:'경기 파주시 와석순환로515번길 70 105동 2층 1512호', phone:'0507-1367-9845', visible:true, recommended:false },
+      { name:'지파시 젤라또', category:'디저트', discountValue:10, discountText:'10%', condition:'입주민 할인', address:'경기 파주시 와석순환로515번길 70 P1동 2층 C268호', phone:'031-8035-0872', visible:true, recommended:false },
+      { name:'인생우동', category:'음식', discountValue:10, discountText:'10%', condition:'입주민 할인', address:'경기 파주시 책향기로 824 118호 인생우동 파주운정점', phone:'0507-1354-0828', visible:true, recommended:false },
+      { name:'노가리세상', category:'주점', discountValue:10, discountText:'10%', condition:'5만원 이상', address:'경기 파주시 와석순환로515번길 91 운정프라임타워 1층', phone:'0507-1411-3404', visible:true, recommended:false },
+      { name:'띠아트헤어', category:'미용', discountValue:10, discountText:'10%', condition:'첫방문 할인', address:'경기 파주시 와석순환로515번길 21 2층 띠아트헤어 운정', phone:'0507-1357-5818', visible:true, recommended:false },
+      { name:'생마차', category:'주점', discountValue:10, discountText:'10%', condition:'입주민 할인', address:'경기 파주시 경의로1240번길 14-11 월드로데오 104, 105호', phone:'031-935-5697', visible:true, recommended:false },
+      { name:'맷차', category:'카페', discountValue:10, discountText:'10%', condition:'입주민 할인', address:'경기 파주시 와석순환로515번길 70 엘1층 2157호', phone:'031-8035-0750', visible:true, recommended:false },
+      { name:'더첸의 중식주점첸', category:'중식주점', discountValue:10, discountText:'10%', condition:'3만원 이상', address:'주소 정보 확인 필요', phone:'031-944-9469', visible:true, recommended:false },
+      { name:'뚝심', category:'음식', discountValue:10, discountText:'10%', condition:'입주민 할인', address:'경기 파주시 소라지로 309-12', phone:'0507-1438-5678', visible:true, recommended:false },
+      { name:'운정막창', category:'음식', discountValue:10, discountText:'10%', condition:'3만원 이상', address:'경기 파주시 운정역길 370-3 1층', phone:'031-947-9092', visible:true, recommended:false },
+      { name:'필스너하우스', category:'주점', discountValue:5, discountText:'5%', condition:'입주민 할인', address:'경기 파주시 경의로 1246 유은타워 8차 106호, 107호', phone:'0507-1300-4798', visible:true, recommended:false },
+      { name:'신깡통뒷고기 파주운정점', category:'음식', discountValue:5, discountText:'5%', condition:'입주민 할인', address:'경기 파주시 경의로1240번길 30 1층 104, 105호', phone:'0507-1306-1538', visible:true, recommended:false },
+      { name:'대선집', category:'주점', discountValue:0, discountText:'서비스', condition:'음료 또는 주류 1병 서비스', address:'경기 파주시 경의로1240번길 14-5 1층 112호', phone:'031-949-6698', service:true, visible:true, recommended:true },
+      { name:'김치옥', category:'음식', discountValue:5, discountText:'5%', condition:'입주민 할인', address:'경기 파주시 경의로1240번길 36-36', phone:'0507-1327-4584', visible:true, recommended:false },
+      { name:'땡초우동인포차 운정점', category:'주점', discountValue:5, discountText:'5%', condition:'입주민 할인', address:'경기 파주시 경의로 1246 유은타워8차 1층 101호', phone:'0507-1395-1370', visible:true, recommended:false },
+      { name:'치킨플러스 일산탄현점', category:'치킨', discountValue:0, discountText:'서비스', condition:'배달 또는 매장 이용 시 떡볶이 증정 / 배달앱 요청 사항에 “힐스입주민이예요.” 기입', address:'경기 고양시 일산서구 탄현로 136', phone:'031-911-9295', service:true, visible:true, recommended:true }
     ];
 
-    const BENEFITS_KEY = 'myhills_benefits_v2';
+    const BENEFITS_KEY = 'myhills_benefits_v3';
     const FAVORITES_KEY = 'myhills_favorites';
-    const state = { category: '전체', keyword: '', filter: 'all', view: 'home' };
+    const ADMIN_PASSWORD_KEY = 'myhills_admin_password';
+    const ADMIN_UNLOCK_KEY = 'myhills_admin_unlocked';
+
+    const DEFAULT_ADMIN_PASSWORD = '1234';
+
+    const state = {
+      category: '전체',
+      keyword: '',
+      filter: 'all',
+      view: 'home'
+    };
 
     const qs = (sel) => document.querySelector(sel);
     const qsa = (sel) => [...document.querySelectorAll(sel)];
 
-    const sanitizeBenefits = (arr) => Array.isArray(arr) ? arr.map(item => ({
-      name: item.name || '',
-      category: item.category || '음식',
-      discountValue: Number(item.discountValue || 0),
-      discountText: item.discountText || `${Number(item.discountValue || 0)}%`,
-      condition: item.condition || '',
-      address: item.address || '',
-      phone: item.phone || '',
-      service: !!item.service || String(item.discountText).trim() === '서비스'
-    })) : [];
+    function ensureAdminPassword() {
+      if (!localStorage.getItem(ADMIN_PASSWORD_KEY)) {
+        localStorage.setItem(ADMIN_PASSWORD_KEY, DEFAULT_ADMIN_PASSWORD);
+      }
+    }
 
-    const getBenefits = () => {
+    function getAdminPassword() {
+      ensureAdminPassword();
+      return localStorage.getItem(ADMIN_PASSWORD_KEY) || DEFAULT_ADMIN_PASSWORD;
+    }
+
+    function setAdminPassword(value) {
+      localStorage.setItem(ADMIN_PASSWORD_KEY, value);
+    }
+
+    function isAdminUnlocked() {
+      return localStorage.getItem(ADMIN_UNLOCK_KEY) === 'true';
+    }
+
+    function setAdminUnlocked(value) {
+      localStorage.setItem(ADMIN_UNLOCK_KEY, value ? 'true' : 'false');
+    }
+
+    const sanitizeBenefits = (arr) => {
+      if (!Array.isArray(arr)) return [];
+      return arr.map(item => ({
+        name: item.name || '',
+        category: item.category || '음식',
+        discountValue: Number(item.discountValue || 0),
+        discountText: item.discountText || `${Number(item.discountValue || 0)}%`,
+        condition: item.condition || '',
+        address: item.address || '',
+        phone: item.phone || '',
+        service: !!item.service || String(item.discountText).trim() === '서비스',
+        visible: item.visible !== false,
+        recommended: !!item.recommended
+      }));
+    };
+
+    function getBenefits() {
       const raw = localStorage.getItem(BENEFITS_KEY);
       if (!raw) return [...DEFAULT_BENEFITS];
       try {
@@ -387,19 +562,33 @@
       } catch {
         return [...DEFAULT_BENEFITS];
       }
-    };
-    const setBenefits = (items) => localStorage.setItem(BENEFITS_KEY, JSON.stringify(items));
-    const getFavorites = () => JSON.parse(localStorage.getItem(FAVORITES_KEY) || '[]');
-    const setFavorites = (items) => localStorage.setItem(FAVORITES_KEY, JSON.stringify(items));
-    const toggleFavorite = (name) => {
+    }
+
+    function setBenefits(items) {
+      localStorage.setItem(BENEFITS_KEY, JSON.stringify(items));
+    }
+
+    function getFavorites() {
+      return JSON.parse(localStorage.getItem(FAVORITES_KEY) || '[]');
+    }
+
+    function setFavorites(items) {
+      localStorage.setItem(FAVORITES_KEY, JSON.stringify(items));
+    }
+
+    function toggleFavorite(name) {
       const set = new Set(getFavorites());
       set.has(name) ? set.delete(name) : set.add(name);
       setFavorites([...set]);
       renderAll();
-    };
+    }
+
+    function getVisibleBenefits() {
+      return getBenefits().filter(item => item.visible !== false);
+    }
 
     function getCategories() {
-      return ['전체', ...new Set(getBenefits().map(v => v.category))];
+      return ['전체', ...new Set(getVisibleBenefits().map(v => v.category))];
     }
 
     function createChips() {
@@ -420,15 +609,27 @@
 
     function getFilteredBenefits(mode = 'normal') {
       const favorites = new Set(getFavorites());
-      return getBenefits().filter(item => {
+      return getVisibleBenefits().filter(item => {
         const matchCategory = state.category === '전체' || item.category === state.category;
         const q = state.keyword.trim().toLowerCase();
         const blob = [item.name, item.category, item.condition, item.address, item.phone].join(' ').toLowerCase();
         const matchKeyword = !q || blob.includes(q);
-        const matchFilter = state.filter === 'all' ? true : state.filter === 'high' ? item.discountValue >= 15 : true;
+        const matchFilter = state.filter === 'all'
+          ? true
+          : state.filter === 'high'
+            ? item.discountValue >= 15 || item.recommended
+            : true;
         const matchMode = mode === 'favorite' ? favorites.has(item.name) : true;
         return matchCategory && matchKeyword && matchFilter && matchMode;
-      }).sort((a, b) => (b.discountValue - a.discountValue) || a.name.localeCompare(b.name, 'ko'));
+      }).sort((a, b) => {
+        if ((b.recommended ? 1 : 0) !== (a.recommended ? 1 : 0)) {
+          return (b.recommended ? 1 : 0) - (a.recommended ? 1 : 0);
+        }
+        if (b.discountValue !== a.discountValue) {
+          return b.discountValue - a.discountValue;
+        }
+        return a.name.localeCompare(b.name, 'ko');
+      });
     }
 
     function getBadgeClass(item) {
@@ -438,6 +639,7 @@
     }
 
     function cardTemplate(item, isFavorite) {
+      const shortAddress = item.address.length > 20 ? item.address.slice(0, 20) + '…' : item.address;
       return `
         <div class="card-top">
           <div class="${getBadgeClass(item)}">${item.discountText}</div>
@@ -445,8 +647,9 @@
             <h4>${item.name} ${isFavorite ? '★' : ''}</h4>
             <div class="meta">${item.condition}</div>
             <div class="tags">
+              ${item.recommended ? '<span class="tag rec">추천</span>' : ''}
               <span class="tag">${item.category}</span>
-              <span class="tag">📍 ${item.address.length > 20 ? item.address.slice(0, 20) + '…' : item.address}</span>
+              <span class="tag">📍 ${shortAddress}</span>
             </div>
           </div>
         </div>
@@ -461,24 +664,36 @@
       const wrap = qs(targetSelector);
       const favorites = new Set(getFavorites());
       wrap.innerHTML = '';
+
       if (!items.length) {
         wrap.innerHTML = `<div class="panel empty">조건에 맞는 항목이 없습니다.</div>`;
         return;
       }
+
       items.forEach(item => {
         const card = document.createElement('article');
         card.className = 'card';
         card.innerHTML = cardTemplate(item, favorites.has(item.name));
+
         card.onclick = () => openDetail(item);
-        card.querySelector('.detail-btn').onclick = (e) => { e.stopPropagation(); openDetail(item); };
-        card.querySelector('.fav-btn').onclick = (e) => { e.stopPropagation(); toggleFavorite(item.name); };
+        card.querySelector('.detail-btn').onclick = (e) => {
+          e.stopPropagation();
+          openDetail(item);
+        };
+        card.querySelector('.fav-btn').onclick = (e) => {
+          e.stopPropagation();
+          toggleFavorite(item.name);
+        };
+
         wrap.appendChild(card);
       });
     }
 
     function renderHome() {
       const items = getFilteredBenefits();
-      qs('#sectionTitle').textContent = state.filter === 'high' ? '고할인 혜택' : (state.category === '전체' ? '전체 혜택' : `${state.category} 혜택`);
+      qs('#sectionTitle').textContent = state.filter === 'high'
+        ? '고할인 / 추천 혜택'
+        : (state.category === '전체' ? '전체 혜택' : `${state.category} 혜택`);
       qs('#resultCount').textContent = `${items.length}건`;
       renderList('#cardList', items);
     }
@@ -488,7 +703,7 @@
     }
 
     function renderStats() {
-      const items = getBenefits();
+      const items = getVisibleBenefits();
       qs('#statCount').textContent = items.length;
       qs('#statMax').textContent = `${Math.max(...items.map(v => v.discountValue), 0)}%`;
       qs('#statCat').textContent = new Set(items.map(v => v.category)).size;
@@ -497,9 +712,18 @@
     function fillCategoryOptions() {
       const select = qs('#category');
       const current = select.value;
-      select.innerHTML = [...new Set(getBenefits().map(v => v.category))].sort((a, b) => a.localeCompare(b, 'ko')).map(v => `<option value="${v}">${v}</option>`).join('');
-      if (!select.innerHTML.includes(`value="${current}"`)) select.value = select.options[0]?.value || '음식';
-      else select.value = current;
+      const allCategories = [...new Set(getBenefits().map(v => v.category))]
+        .sort((a, b) => a.localeCompare(b, 'ko'));
+
+      select.innerHTML = allCategories
+        .map(v => `<option value="${v}">${v}</option>`)
+        .join('');
+
+      if (!select.innerHTML.includes(`value="${current}"`)) {
+        select.value = select.options[0]?.value || '음식';
+      } else {
+        select.value = current;
+      }
     }
 
     function resetForm() {
@@ -509,11 +733,14 @@
       fillCategoryOptions();
       qs('#discountValue').value = 0;
       qs('#serviceType').value = 'discount';
+      qs('#visible').checked = true;
+      qs('#recommended').checked = false;
     }
 
     function editBenefit(index) {
       const item = getBenefits()[index];
       if (!item) return;
+
       qs('#editIndex').value = String(index);
       qs('#formModeLabel').textContent = '수정 중';
       fillCategoryOptions();
@@ -525,6 +752,9 @@
       qs('#condition').value = item.condition;
       qs('#address').value = item.address;
       qs('#phone').value = item.phone;
+      qs('#visible').checked = item.visible !== false;
+      qs('#recommended').checked = !!item.recommended;
+
       state.view = 'admin';
       updateView();
       window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -534,27 +764,38 @@
       const items = getBenefits();
       const target = items[index];
       if (!target) return;
+
       if (!confirm(`"${target.name}" 항목을 삭제할까요?`)) return;
+
       items.splice(index, 1);
       setBenefits(items);
+
       const favorites = getFavorites().filter(v => v !== target.name);
       setFavorites(favorites);
+
       renderAll();
     }
 
     function renderAdminList() {
       const list = qs('#adminList');
       const items = getBenefits();
+
       qs('#adminCount').textContent = `${items.length}건`;
       list.innerHTML = '';
+
       items.forEach((item, index) => {
         const el = document.createElement('div');
         el.className = 'mini-item';
+
         el.innerHTML = `
           <div class="mini-item-head">
             <div>
               <h5>${item.name}</h5>
               <div class="helper">${item.category} · ${item.discountText} · ${item.phone}</div>
+              <div class="tags" style="margin-top:8px;">
+                ${item.recommended ? '<span class="tag rec">추천</span>' : ''}
+                ${item.visible === false ? '<span class="tag hidden-tag">비노출</span>' : '<span class="tag">노출중</span>'}
+              </div>
             </div>
             <div class="tags" style="margin-top:0;">
               <button class="btn btn-soft edit-btn" style="padding:8px 10px;">수정</button>
@@ -562,34 +803,60 @@
             </div>
           </div>
         `;
+
         el.querySelector('.edit-btn').onclick = () => editBenefit(index);
         el.querySelector('.del-btn').onclick = () => deleteBenefit(index);
+
         list.appendChild(el);
       });
-      if (!items.length) list.innerHTML = `<div class="panel empty">등록된 항목이 없습니다.</div>`;
+
+      if (!items.length) {
+        list.innerHTML = `<div class="panel empty">등록된 항목이 없습니다.</div>`;
+      }
     }
 
     function openDetail(item) {
       const isFav = getFavorites().includes(item.name);
       const mapLink = `https://map.naver.com/v5/search/${encodeURIComponent(item.address)}`;
+
       qs('#modalBody').innerHTML = `
         <div class="${getBadgeClass(item)}" style="display:inline-block; min-width:auto; padding:12px 16px;">${item.discountText}</div>
         <h3 style="margin:12px 0 6px; font-size:26px; letter-spacing:-0.04em;">${item.name}</h3>
-        <div class="meta">${item.category}</div>
-        <div style="display:grid; gap:10px; margin:16px 0;">
-          <div class="panel"><strong style="display:block; margin-bottom:6px; font-size:13px; color:var(--muted);">혜택 조건</strong>${item.condition}</div>
-          <div class="panel"><strong style="display:block; margin-bottom:6px; font-size:13px; color:var(--muted);">주소</strong>${item.address}</div>
-          <div class="panel"><strong style="display:block; margin-bottom:6px; font-size:13px; color:var(--muted);">전화번호</strong>${item.phone}</div>
+        <div class="tags" style="margin-top:0; margin-bottom:10px;">
+          ${item.recommended ? '<span class="tag rec">추천 혜택</span>' : ''}
+          <span class="tag">${item.category}</span>
         </div>
+        <div class="meta">${item.category}</div>
+
+        <div style="display:grid; gap:10px; margin:16px 0;">
+          <div class="panel">
+            <strong style="display:block; margin-bottom:6px; font-size:13px; color:var(--muted);">혜택 조건</strong>
+            ${item.condition}
+          </div>
+          <div class="panel">
+            <strong style="display:block; margin-bottom:6px; font-size:13px; color:var(--muted);">주소</strong>
+            ${item.address}
+          </div>
+          <div class="panel">
+            <strong style="display:block; margin-bottom:6px; font-size:13px; color:var(--muted);">전화번호</strong>
+            ${item.phone}
+          </div>
+        </div>
+
         <div class="grid-2">
           <a class="btn btn-primary block" href="tel:${item.phone}">전화하기</a>
           <a class="btn btn-soft block" href="${mapLink}" target="_blank" rel="noopener">길찾기</a>
         </div>
+
         <div style="margin-top:10px;">
           <button class="btn btn-soft block" id="modalFavBtn">${isFav ? '★ 즐겨찾기 해제' : '☆ 즐겨찾기 추가'}</button>
         </div>
       `;
-      qs('#detailModal').showModal();
+
+      const modal = qs('#detailModal');
+      if (modal.open) modal.close();
+      modal.showModal();
+
       qs('#modalFavBtn').onclick = () => {
         toggleFavorite(item.name);
         openDetail(item);
@@ -599,9 +866,12 @@
     function updateView() {
       qsa('[id^="view-"]').forEach(v => v.classList.add('hidden'));
       qs(`#view-${state.view}`).classList.remove('hidden');
+
       qsa('.bottom-nav .nav-btn').forEach(btn => btn.classList.remove('active'));
+
       const activeViewBtn = qsa('.bottom-nav .nav-btn').find(btn => btn.dataset.view === state.view);
       if (activeViewBtn) activeViewBtn.classList.add('active');
+
       if (state.filter === 'high') {
         const highBtn = qsa('.bottom-nav .nav-btn').find(btn => btn.dataset.filter === 'high');
         if (highBtn) highBtn.classList.add('active');
@@ -616,6 +886,35 @@
       renderFavorites();
       renderAdminList();
       updateView();
+    }
+
+    function openAdminLoginModal() {
+      qs('#adminPasswordCheck').value = '';
+      const modal = qs('#adminLoginModal');
+      if (!modal.open) modal.showModal();
+      setTimeout(() => qs('#adminPasswordCheck').focus(), 50);
+    }
+
+    function closeAdminLoginModal() {
+      const modal = qs('#adminLoginModal');
+      if (modal.open) modal.close();
+    }
+
+    function verifyAdminPassword() {
+      const input = qs('#adminPasswordCheck').value;
+      const saved = getAdminPassword();
+
+      if (input !== saved) {
+        alert('관리자 비밀번호가 올바르지 않습니다.');
+        qs('#adminPasswordCheck').focus();
+        qs('#adminPasswordCheck').select();
+        return;
+      }
+
+      setAdminUnlocked(true);
+      closeAdminLoginModal();
+      state.view = 'admin';
+      renderAll();
     }
 
     qs('#searchInput').addEventListener('input', (e) => {
@@ -634,20 +933,34 @@
 
     qsa('.bottom-nav .nav-btn').forEach(btn => {
       btn.onclick = () => {
+        if (btn.dataset.view === 'admin') {
+          if (!isAdminUnlocked()) {
+            openAdminLoginModal();
+            return;
+          }
+          state.view = 'admin';
+          state.filter = 'all';
+          renderAll();
+          return;
+        }
+
         if (btn.dataset.view) {
           state.view = btn.dataset.view;
           if (btn.dataset.view !== 'home') state.filter = 'all';
         }
+
         if (btn.dataset.filter === 'high') {
           state.view = 'home';
           state.filter = state.filter === 'high' ? 'all' : 'high';
         }
+
         renderAll();
       };
     });
 
     qs('#benefitForm').addEventListener('submit', (e) => {
       e.preventDefault();
+
       const item = {
         name: qs('#name').value.trim(),
         category: qs('#category').value,
@@ -656,12 +969,20 @@
         condition: qs('#condition').value.trim(),
         address: qs('#address').value.trim(),
         phone: qs('#phone').value.trim(),
-        service: qs('#serviceType').value === 'service'
+        service: qs('#serviceType').value === 'service',
+        visible: qs('#visible').checked,
+        recommended: qs('#recommended').checked
       };
+
       const items = getBenefits();
       const editIndex = qs('#editIndex').value;
-      if (editIndex === '') items.unshift(item);
-      else items[Number(editIndex)] = item;
+
+      if (editIndex === '') {
+        items.unshift(item);
+      } else {
+        items[Number(editIndex)] = item;
+      }
+
       setBenefits(items);
       resetForm();
       renderAll();
@@ -682,6 +1003,7 @@
     qs('#importFile').addEventListener('change', async (e) => {
       const file = e.target.files[0];
       if (!file) return;
+
       try {
         const text = await file.text();
         const data = sanitizeBenefits(JSON.parse(text));
@@ -693,6 +1015,7 @@
       } catch {
         alert('올바른 JSON 파일이 아닙니다.');
       }
+
       e.target.value = '';
     });
 
@@ -707,9 +1030,39 @@
       alert('현재 폴더 전체(index.html, manifest.json, sw.js, icons)를 웹서버에 업로드하면 배포할 수 있습니다. 관리 화면의 변경 내용은 서버 연동 전까지 현재 브라우저에 저장됩니다.');
     };
 
+    qs('#savePasswordBtn').onclick = () => {
+      const newPassword = qs('#adminPasswordInput').value.trim();
+
+      if (newPassword.length < 4) {
+        alert('비밀번호는 4자 이상으로 입력해 주세요.');
+        qs('#adminPasswordInput').focus();
+        return;
+      }
+
+      setAdminPassword(newPassword);
+      qs('#adminPasswordInput').value = '';
+      alert('관리자 비밀번호가 저장되었습니다.');
+    };
+
+    qs('#lockAdminBtn').onclick = () => {
+      setAdminUnlocked(false);
+      state.view = 'home';
+      renderAll();
+      alert('관리 화면이 잠겼습니다.');
+    };
+
     qs('#closeModal').onclick = () => qs('#detailModal').close();
 
+    qs('#closeAdminLoginModal').onclick = closeAdminLoginModal;
+    qs('#adminLoginCancelBtn').onclick = closeAdminLoginModal;
+    qs('#adminLoginBtn').onclick = verifyAdminPassword;
+
+    qs('#adminPasswordCheck').addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') verifyAdminPassword();
+    });
+
     let deferredPrompt = null;
+
     window.addEventListener('beforeinstallprompt', (e) => {
       e.preventDefault();
       deferredPrompt = e;
@@ -721,6 +1074,7 @@
         alert('브라우저 메뉴에서 “홈 화면에 추가”를 선택하면 앱처럼 설치할 수 있습니다.');
         return;
       }
+
       deferredPrompt.prompt();
       await deferredPrompt.userChoice;
       deferredPrompt = null;
@@ -731,9 +1085,12 @@
     qs('#installTopBtn').onclick = triggerInstall;
 
     if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js'));
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js').catch(() => {});
+      });
     }
 
+    ensureAdminPassword();
     fillCategoryOptions();
     resetForm();
     renderAll();
