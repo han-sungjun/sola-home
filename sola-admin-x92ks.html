@@ -4,8 +4,9 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <meta name="theme-color" content="#0f172a" />
-  <meta name="description" content="힐스테이트 더 운정 입주민 전용 혜택 웹앱" />
-  <title>더운정 마이힐스</title>
+  <meta name="description" content="더운정 마이힐스 관리자 페이지" />
+  <meta name="robots" content="noindex, nofollow, noarchive" />
+  <title>더운정 마이힐스 관리자</title>
   <link rel="manifest" href="manifest.json" />
   <link rel="icon" href="icons/icon-192.png" />
   <style>
@@ -118,6 +119,8 @@
       color:#475569; font-size:12px;
     }
     .tag.rec { background:#eff6ff; border-color:#bfdbfe; color:var(--blue); font-weight:700; }
+    .tag.hidden-tag { background:#fef2f2; border-color:#fecaca; color:#b91c1c; font-weight:700; }
+    .tag.live-tag { background:#ecfdf5; border-color:#bbf7d0; color:#15803d; font-weight:700; }
 
     .actions { display:flex; gap:8px; margin-top:14px; }
     .btn {
@@ -127,6 +130,8 @@
     .btn.block { width:100%; }
     .btn-primary { background:var(--primary); color:#fff; }
     .btn-soft { background:#fff; color:var(--text); border:1px solid var(--line); }
+    .btn-danger { background:#fee2e2; color:var(--danger); }
+    .btn-blue { background:var(--blue); color:#fff; }
 
     .grid-2 { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
     .auth-box { display:flex; gap:14px; align-items:center; }
@@ -139,6 +144,29 @@
       flex:0 0 auto;
     }
     .helper { color:var(--muted); font-size:13px; line-height:1.5; }
+
+    .admin-grid { display:grid; gap:12px; }
+    .admin-card { background:#fff; border:1px solid var(--line); border-radius:22px; padding:14px; }
+    .form-grid { display:grid; gap:10px; }
+    .field { display:grid; gap:6px; }
+    .field label { font-size:13px; color:#334155; font-weight:700; }
+    .field input, .field select, .field textarea {
+      border:1px solid var(--line); border-radius:14px; padding:12px 14px; outline:none; background:#fff;
+    }
+    .field textarea { min-height:82px; resize:vertical; }
+
+    .check-row {
+      display:flex; gap:18px; align-items:center; flex-wrap:wrap;
+      padding:12px 14px; border:1px solid var(--line); border-radius:14px; background:#fff;
+    }
+    .check-row label {
+      display:flex; align-items:center; gap:8px; cursor:pointer; font-size:14px; color:#334155; font-weight:700;
+    }
+
+    .mini-list { display:grid; gap:10px; }
+    .mini-item { border:1px solid var(--line); border-radius:18px; padding:12px; background:#fff; }
+    .mini-item-head { display:flex; justify-content:space-between; gap:10px; align-items:start; }
+    .mini-item h5 { margin:0; font-size:15px; }
 
     .notice {
       padding:14px 16px; border-radius:18px; background:#eff6ff; border:1px solid #bfdbfe; color:#1d4ed8;
@@ -185,7 +213,7 @@
           <img src="icons/icon-192.png" alt="더운정 마이힐스 앱 아이콘">
           <div>
             <h1>더운정 마이힐스</h1>
-            <p>입주민 전용 혜택 웹앱</p>
+            <p>입주민 전용 혜택 관리자</p>
           </div>
         </div>
         <button class="icon-btn" id="installTopBtn" title="홈 화면에 추가">＋</button>
@@ -195,7 +223,7 @@
         <div class="hero">
           <div class="eyebrow">🏠 마이힐스 어플 제시 후 이용</div>
           <h2>입주민 혜택을 앱처럼 깔끔하게</h2>
-          <p>공개 혜택은 Firestore에서 실시간으로 불러옵니다.</p>
+          <p>공개 혜택은 Firestore에서 불러오고, 관리자는 Firebase 로그인 후 즉시 등록·수정·삭제할 수 있습니다.</p>
           <div class="stats">
             <div class="stat"><strong id="statMax">0%</strong><span>최대 할인</span></div>
             <div class="stat"><strong id="statCount">0</strong><span>전체 제휴</span></div>
@@ -235,7 +263,7 @@
             <div class="qr" aria-hidden="true"></div>
             <div>
               <strong style="display:block; margin-bottom:6px;">마이힐스 인증 화면</strong>
-              <div class="helper">실제 운영 시에는 QR 또는 입주민 인증번호를 연동하면 됩니다. 현재는 Firestore 조회형 공개 웹앱입니다.</div>
+              <div class="helper">실제 운영 시에는 QR 또는 입주민 인증번호를 연동하면 됩니다. 현재는 혜택 관리자 구조까지 포함한 Firebase 버전입니다.</div>
             </div>
           </div>
         </div>
@@ -258,13 +286,136 @@
         </div>
         <div class="list" id="favoriteList"></div>
       </section>
-</div>
+
+      <section id="view-admin" class="hidden">
+        <div class="panel">
+          <div class="section-head" style="margin-bottom:8px;">
+            <h3>관리자 등록 화면</h3>
+            <small id="authStatusText">로그인 필요</small>
+          </div>
+          <div class="helper">Firebase Authentication(이메일/비밀번호) + Firestore 기반입니다. 저장 즉시 서비스에 반영됩니다. 이 페이지 URL은 관리자 전용으로만 공유하세요.</div>
+        </div>
+
+        <div class="admin-grid" id="adminContent">
+          <div class="admin-card">
+            <div class="section-head" style="margin-bottom:12px;">
+              <h3 style="font-size:16px;">혜택 등록 / 수정</h3>
+              <small id="formModeLabel">새 항목</small>
+            </div>
+            <form id="benefitForm" class="form-grid">
+              <input type="hidden" id="editId" value="" />
+
+              <div class="field">
+                <label for="name">매장명</label>
+                <input id="name" required />
+              </div>
+
+              <div class="grid-2">
+                <div class="field">
+                  <label for="category">카테고리</label>
+                  <input id="category" placeholder="예: 음식, 미용, 카페" required />
+                </div>
+                <div class="field">
+                  <label for="discountText">혜택 표기</label>
+                  <input id="discountText" placeholder="예: 10% 또는 서비스" required />
+                </div>
+              </div>
+
+              <div class="grid-2">
+                <div class="field">
+                  <label for="discountValue">할인 수치</label>
+                  <input id="discountValue" type="number" min="0" placeholder="서비스면 0" required />
+                </div>
+                <div class="field">
+                  <label for="serviceType">혜택 유형</label>
+                  <select id="serviceType">
+                    <option value="discount">할인형</option>
+                    <option value="service">서비스형</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="field">
+                <label>운영 옵션</label>
+                <div class="check-row">
+                  <label><input type="checkbox" id="visible" checked> 노출</label>
+                  <label><input type="checkbox" id="recommended"> 추천</label>
+                </div>
+              </div>
+
+              <div class="field">
+                <label for="condition">혜택 조건</label>
+                <textarea id="condition" required></textarea>
+              </div>
+
+              <div class="field">
+                <label for="address">주소</label>
+                <input id="address" required />
+              </div>
+
+              <div class="field">
+                <label for="phone">전화번호</label>
+                <input id="phone" required />
+              </div>
+
+              <div class="grid-2">
+                <button type="submit" class="btn btn-primary">저장</button>
+                <button type="button" class="btn btn-soft" id="cancelEditBtn">입력 초기화</button>
+              </div>
+            </form>
+          </div>
+
+          <div class="admin-card">
+            <div class="section-head" style="margin-bottom:12px;">
+              <h3 style="font-size:16px;">관리자 로그인</h3>
+              <small>Firebase Auth</small>
+            </div>
+            <div class="form-grid">
+              <div class="field">
+                <label for="adminEmail">이메일</label>
+                <input id="adminEmail" type="email" placeholder="admin@example.com" />
+              </div>
+              <div class="field">
+                <label for="adminPassword">비밀번호</label>
+                <input id="adminPassword" type="password" placeholder="비밀번호 입력" />
+              </div>
+              <div class="grid-2">
+                <button class="btn btn-blue" type="button" id="loginBtn">로그인</button>
+                <button class="btn btn-soft" type="button" id="logoutBtn">로그아웃</button>
+              </div>
+              <div class="helper">Firebase Console에서 이메일/비밀번호 로그인 공급자를 켠 뒤 관리자 계정을 생성해 사용하세요.</div>
+            </div>
+          </div>
+
+          <div class="admin-card">
+            <div class="section-head" style="margin-bottom:12px;">
+              <h3 style="font-size:16px;">데이터 관리</h3>
+              <small>Firestore 전체 내보내기</small>
+            </div>
+            <div class="grid-2">
+              <button class="btn btn-soft" id="exportBtn" type="button">JSON 내보내기</button>
+              <button class="btn btn-soft" id="seedBtn" type="button">기본 데이터 업로드</button>
+            </div>
+            <div class="helper" style="margin-top:12px;">초기 세팅 시 기본 데이터 업로드를 한 번 실행하면 됩니다. 중복 업로드 방지를 위해 기존 데이터가 있으면 먼저 확인하세요.</div>
+          </div>
+
+          <div class="admin-card">
+            <div class="section-head" style="margin-bottom:12px;">
+              <h3 style="font-size:16px;">등록된 혜택 목록</h3>
+              <small id="adminCount">0건</small>
+            </div>
+            <div class="mini-list" id="adminList"></div>
+          </div>
+        </div>
+      </section>
+    </div>
   </div>
 
-  <nav class="bottom-nav" style="grid-template-columns:repeat(3, 1fr);">
+  <nav class="bottom-nav">
     <button class="nav-btn active" data-view="home">홈</button>
     <button class="nav-btn" data-view="favorite">즐겨찾기</button>
     <button class="nav-btn" data-filter="high">고할인</button>
+    <button class="nav-btn" data-view="admin">관리</button>
   </nav>
 
   <dialog id="detailModal">
@@ -278,10 +429,23 @@
   <script type="module">
     import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
     import {
+      getAuth,
+      onAuthStateChanged,
+      signInWithEmailAndPassword,
+      signOut
+    } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
     import {
       getFirestore,
       collection,
+      addDoc,
+      updateDoc,
+      deleteDoc,
+      doc,
+      getDocs,
+      getDoc,
       onSnapshot,
+      serverTimestamp,
+      writeBatch
     } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
 
     // ==========================
@@ -296,9 +460,24 @@
       appId: 'YOUR_APP_ID'
     };
 
+    // 관리자 계정용 이메일/비밀번호 로그인 공급자를 Firebase Console에서 활성화하세요.
     // Firestore 컬렉션 이름
     const BENEFITS_COLLECTION = 'benefits';
     const FAVORITES_KEY = 'myhills_favorites_firebase';
+
+    const DEFAULT_BENEFITS = [
+      { name:'엘스킨케어', category:'피부관리', discountValue:50, discountText:'50%', condition:'첫방문 50% / 입주민 정액권 최대 30%', address:'경기 파주시 경의로 1242 209호, 210호', phone:'0507-1433-5760', visible:true, recommended:true, service:false },
+      { name:'미스터피자 일산탄현점', category:'음식', discountValue:30, discountText:'30%', condition:'포장 30% / 매장식사 20% + 샐러드 증정', address:'경기 고양시 일산서구 탄현로 136 상가동 2층 204호', phone:'031-911-9296', visible:true, recommended:true, service:false },
+      { name:'아레볼', category:'운동', discountValue:15, discountText:'15%', condition:'주말까지 적용, 평일 오전 15% 할인 행사와 중복 안됨', address:'경기 파주시 소라지로 309-12', phone:'0507-1438-5678', visible:true, recommended:false, service:false },
+      { name:'이가자 미용실', category:'미용', discountValue:30, discountText:'30%', condition:'전품목 30%, 부분 시술 제외 [클리닉]', address:'경기 파주시 와석순환로515번길 70 3층', phone:'0507-1468-8328', visible:true, recommended:true, service:false },
+      { name:'아티장 베이커스', category:'베이커리', discountValue:10, discountText:'10%', condition:'19~22시', address:'경기 파주시 와석순환로515번길 70 1층', phone:'031-8035-0818', visible:true, recommended:false, service:false },
+      { name:'테이블린', category:'음식', discountValue:10, discountText:'10%', condition:'입주민 할인', address:'경기 파주시 와석순환로515번길 70 105동 2층 1512호', phone:'0507-1367-9845', visible:true, recommended:false, service:false },
+      { name:'지파시 젤라또', category:'디저트', discountValue:10, discountText:'10%', condition:'입주민 할인', address:'경기 파주시 와석순환로515번길 70 P1동 2층 C268호', phone:'031-8035-0872', visible:true, recommended:false, service:false },
+      { name:'인생우동', category:'음식', discountValue:10, discountText:'10%', condition:'입주민 할인', address:'경기 파주시 책향기로 824 118호 인생우동 파주운정점', phone:'0507-1354-0828', visible:true, recommended:false, service:false },
+      { name:'노가리세상', category:'주점', discountValue:10, discountText:'10%', condition:'5만원 이상', address:'경기 파주시 와석순환로515번길 91 운정프라임타워 1층', phone:'0507-1411-3404', visible:true, recommended:false, service:false },
+      { name:'대선집', category:'주점', discountValue:0, discountText:'서비스', condition:'음료 또는 주류 1병 서비스', address:'경기 파주시 경의로1240번길 14-5 1층 112호', phone:'031-949-6698', visible:true, recommended:true, service:true },
+      { name:'치킨플러스 일산탄현점', category:'치킨', discountValue:0, discountText:'서비스', condition:'배달 또는 매장 이용 시 떡볶이 증정 / 배달앱 요청 사항에 “힐스입주민이예요.” 기입', address:'경기 고양시 일산서구 탄현로 136', phone:'031-911-9295', visible:true, recommended:true, service:true }
+    ];
 
     const state = {
       category: '전체',
@@ -307,6 +486,7 @@
       view: 'home',
       benefits: [],
       loading: true,
+      isAdmin: false,
       initialized: false,
       firebaseReady: false
     };
@@ -352,6 +532,7 @@
     }
 
     let app = null;
+    let auth = null;
     let db = null;
     let unsubscribeBenefits = null;
 
@@ -365,8 +546,15 @@
 
       qs('#firebaseNotice').classList.add('hidden');
       app = initializeApp(firebaseConfig);
+      auth = getAuth(app);
       db = getFirestore(app);
       state.firebaseReady = true;
+
+      onAuthStateChanged(auth, (user) => {
+        state.isAdmin = !!user;
+        qs('#authStatusText').textContent = user ? `로그인됨: ${user.email}` : '로그인 필요';
+        renderAll();
+      });
 
       subscribeBenefits();
     }
@@ -513,6 +701,41 @@
       qs('#statCat').textContent = new Set(items.map(v => v.category)).size;
     }
 
+    function resetForm() {
+      qs('#benefitForm').reset();
+      qs('#editId').value = '';
+      qs('#formModeLabel').textContent = '새 항목';
+      qs('#discountValue').value = 0;
+      qs('#serviceType').value = 'discount';
+      qs('#visible').checked = true;
+      qs('#recommended').checked = false;
+    }
+
+    function fillForm(item) {
+      qs('#editId').value = item.id;
+      qs('#formModeLabel').textContent = '수정 중';
+      qs('#name').value = item.name;
+      qs('#category').value = item.category;
+      qs('#discountText').value = item.discountText;
+      qs('#discountValue').value = item.discountValue;
+      qs('#serviceType').value = item.service ? 'service' : 'discount';
+      qs('#condition').value = item.condition;
+      qs('#address').value = item.address;
+      qs('#phone').value = item.phone;
+      qs('#visible').checked = item.visible !== false;
+      qs('#recommended').checked = !!item.recommended;
+      state.view = 'admin';
+      updateView();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    async function saveBenefit(e) {
+      e.preventDefault();
+      if (!state.isAdmin || !db) {
+        alert('관리자 로그인 후 저장할 수 있습니다.');
+        return;
+      }
+
       const payload = {
         name: qs('#name').value.trim(),
         category: qs('#category').value.trim(),
@@ -537,12 +760,19 @@
             createdAt: serverTimestamp()
           });
         }
+        resetForm();
         alert('혜택 정보가 저장되었습니다.');
       } catch (error) {
         console.error(error);
         alert('저장에 실패했습니다. Firestore 권한 규칙을 확인해 주세요.');
       }
     }
+
+    async function deleteBenefit(id, name) {
+      if (!state.isAdmin || !db) {
+        alert('관리자 로그인 후 삭제할 수 있습니다.');
+        return;
+      }
       if (!confirm(`"${name}" 항목을 삭제할까요?`)) return;
 
       try {
@@ -554,6 +784,16 @@
         alert('삭제에 실패했습니다.');
       }
     }
+
+    function renderAdminList() {
+      const list = qs('#adminList');
+      qs('#adminCount').textContent = `${state.benefits.length}건`;
+      list.innerHTML = '';
+
+      if (!state.benefits.length) {
+        list.innerHTML = `<div class="panel empty">등록된 항목이 없습니다.</div>`;
+        return;
+      }
 
       const items = [...state.benefits].sort((a, b) => a.name.localeCompare(b.name, 'ko'));
       items.forEach(item => {
@@ -617,8 +857,7 @@
 
     function updateView() {
       qsa('[id^="view-"]').forEach(v => v.classList.add('hidden'));
-      const currentView = qs(`#view-${state.view}`) || qs('#view-home');
-      currentView.classList.remove('hidden');
+      qs(`#view-${state.view}`).classList.remove('hidden');
       qsa('.bottom-nav .nav-btn').forEach(btn => btn.classList.remove('active'));
 
       const activeViewBtn = qsa('.bottom-nav .nav-btn').find(btn => btn.dataset.view === state.view);
@@ -635,8 +874,20 @@
       renderStats();
       renderHome();
       renderFavorites();
+      renderAdminList();
       updateView();
+      qs('#adminContent').style.opacity = state.isAdmin ? '1' : '0.55';
+      qs('#benefitForm').querySelectorAll('input, select, textarea, button').forEach(el => {
+        if (el.id === 'loginBtn' || el.id === 'logoutBtn' || el.id === 'adminEmail' || el.id === 'adminPassword') return;
+        el.disabled = !state.isAdmin;
+      });
     }
+
+    async function loginAdmin() {
+      if (!auth) {
+        alert('Firebase 설정값을 먼저 입력해 주세요.');
+        return;
+      }
       const email = qs('#adminEmail').value.trim();
       const password = qs('#adminPassword').value;
       if (!email || !password) {
@@ -651,11 +902,35 @@
         console.error(error);
         alert('로그인에 실패했습니다. 이메일/비밀번호와 Firebase Auth 설정을 확인해 주세요.');
       }
-    } catch (error) {
+    }
+
+    async function logoutAdmin() {
+      if (!auth) return;
+      try {
+        await signOut(auth);
+        state.view = 'home';
+        renderAll();
+      } catch (error) {
         console.error(error);
         alert('로그아웃에 실패했습니다.');
       }
     }
+
+    async function exportBenefits() {
+      const data = state.benefits.map(({ id, ...rest }) => ({ id, ...rest }));
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'myhills-benefits-firebase.json';
+      a.click();
+      URL.revokeObjectURL(a.href);
+    }
+
+    async function seedDefaultData() {
+      if (!state.isAdmin || !db) {
+        alert('관리자 로그인 후 실행해 주세요.');
+        return;
+      }
       if (!confirm('기본 데이터를 Firestore에 업로드할까요? 기존 데이터와 중복될 수 있습니다.')) return;
 
       try {
@@ -711,6 +986,11 @@
     });
 
     qs('#benefitForm').addEventListener('submit', saveBenefit);
+    qs('#cancelEditBtn').onclick = resetForm;
+    qs('#loginBtn').onclick = loginAdmin;
+    qs('#logoutBtn').onclick = logoutAdmin;
+    qs('#exportBtn').onclick = exportBenefits;
+    qs('#seedBtn').onclick = seedDefaultData;
     qs('#closeModal').onclick = () => qs('#detailModal').close();
 
     let deferredPrompt = null;
@@ -739,8 +1019,33 @@
         navigator.serviceWorker.register('./sw.js').catch(() => {});
       });
     }
+
+    resetForm();
     renderAll();
     initFirebase();
   </script>
 </body>
+<script type="module">
+  // Import the functions you need from the SDKs you need
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-app.js";
+  import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-analytics.js";
+  // TODO: Add SDKs for Firebase products that you want to use
+  // https://firebase.google.com/docs/web/setup#available-libraries
+
+  // Your web app's Firebase configuration
+  // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+  const firebaseConfig = {
+    apiKey: "AIzaSyDhKr7oMSrLowJ47cqB4pvNXuIIdtW0HPI",
+    authDomain: "sola-home-4979a.firebaseapp.com",
+    projectId: "sola-home-4979a",
+    storageBucket: "sola-home-4979a.firebasestorage.app",
+    messagingSenderId: "337132471819",
+    appId: "1:337132471819:web:848cd357fecda459a2e90e",
+    measurementId: "G-E7R9JJGGJE"
+  };
+
+  // Initialize Firebase
+  const app = initializeApp(firebaseConfig);
+  const analytics = getAnalytics(app);
+</script>
 </html>
