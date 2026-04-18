@@ -1,65 +1,123 @@
 <!DOCTYPE html>
-<html lang="ko">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <meta name="theme-color" content="#0f172a" />
-  <meta name="description" content="더운정 마이힐스 입주민 전용 혜택 웹앱" />
-  <meta name="robots" content="index,follow" />
+<!-- saved from url=(0025)https://www.sola-home.kr/ -->
+<html lang="ko"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0f172a">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="더운정 마이힐스">
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="icons/icon-180.png">
+  <meta name="description" content="더운정 마이힐스 입주민 전용 혜택 웹앱">
+  <meta name="robots" content="index,follow">
   <title>더운정 마이힐스</title>
   <style>
     :root{--bg:#f5f7fb;--surface:rgba(255,255,255,.82);--line:#e5e7eb;--line-soft:rgba(15,23,42,.08);--text:#0f172a;--muted:#64748b;--primary:#0f172a;--accent:#ef4444;--accent2:#f59e0b;--blue:#2563eb;--shadow:0 20px 40px rgba(15,23,42,.08);--radius-xl:28px}
     *{box-sizing:border-box}html,body{margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Noto Sans KR","Segoe UI",sans-serif;background:linear-gradient(180deg,#f8fafc 0%,#eef2ff 100%);color:var(--text)}body{max-width:480px;margin:0 auto}button,input,select,textarea{font:inherit}a{color:inherit;text-decoration:none}
-    .app{min-height:100dvh;padding:16px 16px 110px}.shell{display:flex;flex-direction:column;gap:14px}.topbar{display:flex;justify-content:space-between;align-items:center}.brand{display:flex;align-items:center;gap:12px}.brand .logo{width:48px;height:48px;border-radius:16px;display:grid;place-items:center;background:#fff;box-shadow:var(--shadow);font-size:22px}.brand h1{margin:0;font-size:24px;letter-spacing:-.05em}.brand p{margin:4px 0 0;color:var(--muted);font-size:13px}.icon-btn{width:44px;height:44px;border:none;border-radius:16px;cursor:pointer;background:rgba(255,255,255,.8);box-shadow:var(--shadow);color:var(--text)}
-    .hero{position:relative;overflow:hidden;padding:22px;border-radius:30px;color:#fff;background:radial-gradient(circle at top right,rgba(255,255,255,.28),transparent 30%),linear-gradient(135deg,#111827 0%,#1f2937 46%,#ef4444 100%);box-shadow:var(--shadow)}.hero::after{content:"";position:absolute;right:-26px;top:-12px;width:118px;height:118px;border-radius:34px;background:rgba(255,255,255,.14);transform:rotate(18deg)}.eyebrow{display:inline-flex;align-items:center;gap:8px;padding:8px 12px;border-radius:999px;background:rgba(255,255,255,.14);font-size:12px}.hero h2{margin:14px 0 8px;font-size:28px;line-height:1.18;letter-spacing:-.05em;max-width:280px}.hero p{margin:0;max-width:300px;line-height:1.55;color:rgba(255,255,255,.92)}
-    .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:18px}.stat{padding:14px;border-radius:18px;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.16);backdrop-filter:blur(10px)}.stat strong{display:block;font-size:20px}.stat span{font-size:12px;color:rgba(255,255,255,.84)}
-    .panel{background:var(--surface);border:1px solid rgba(255,255,255,.65);box-shadow:var(--shadow);backdrop-filter:blur(18px);border-radius:var(--radius-xl);padding:16px}.notice{padding:14px 16px;border-radius:18px;background:#eff6ff;border:1px solid #bfdbfe;color:#1d4ed8;font-size:13px;line-height:1.5}.hidden{display:none!important}
-    .searchbox{display:flex;align-items:center;gap:10px;padding:14px 16px}.searchbox input{border:none;outline:none;background:transparent;flex:1;color:var(--text)}.chips{display:flex;gap:8px;overflow:auto;padding:2px 0 4px;scrollbar-width:none}.chips::-webkit-scrollbar{display:none}.chip{white-space:nowrap;border:none;border-radius:999px;padding:10px 14px;cursor:pointer;background:#fff;color:var(--muted);border:1px solid var(--line)}.chip.active{background:var(--primary);color:#fff;font-weight:700}
-    .section-head{display:flex;justify-content:space-between;align-items:center;margin:2px 2px 0}.section-head h3{margin:0;font-size:18px;letter-spacing:-.03em}.section-head small{color:var(--muted)}.list{display:grid;gap:12px}.card{background:#fff;border:1px solid var(--line-soft);border-radius:24px;padding:16px;box-shadow:var(--shadow);transition:transform .15s ease;cursor:pointer}.card:hover{transform:translateY(-1px)}.card-top{display:flex;gap:12px;align-items:flex-start}.badge{min-width:72px;padding:12px 10px;border-radius:18px;text-align:center;color:#fff;font-weight:800;background:linear-gradient(135deg,var(--accent2),var(--accent));flex:0 0 auto}.badge.service{background:linear-gradient(135deg,#22c55e,#0f766e);font-size:14px}.badge.low{background:linear-gradient(135deg,#64748b,#334155)}.card h4{margin:0 0 6px;font-size:18px;letter-spacing:-.03em}.meta{color:var(--muted);font-size:13px;line-height:1.45}
-    .tags{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}.tag{padding:7px 10px;border-radius:999px;background:#f8fafc;border:1px solid var(--line);color:#475569;font-size:12px}.tag.rec{background:#eff6ff;border-color:#bfdbfe;color:var(--blue);font-weight:700}.actions{display:flex;gap:8px;margin-top:14px}.btn{border:none;border-radius:16px;padding:12px 14px;cursor:pointer;font-weight:700;display:inline-flex;align-items:center;justify-content:center;gap:8px}.btn.block{width:100%}.btn-primary{background:var(--primary);color:#fff}.btn-soft{background:#fff;color:var(--text);border:1px solid var(--line)}
+    .app{min-height:100dvh;padding:18px 16px 160px}.shell{display:flex;flex-direction:column;gap:18px}.topbar{display:flex;justify-content:space-between;align-items:center}.brand{display:flex;align-items:center;gap:12px}.brand .logo{width:48px;height:48px;border-radius:16px;display:grid;place-items:center;background:#fff;box-shadow:var(--shadow);font-size:22px}.brand h1{margin:0;font-size:24px;letter-spacing:-.05em}.brand p{margin:4px 0 0;color:var(--muted);font-size:13px}.icon-btn{width:44px;height:44px;border:none;border-radius:16px;cursor:pointer;background:rgba(255,255,255,.8);box-shadow:var(--shadow);color:var(--text)}
+    .hero{position:relative;overflow:hidden;padding:24px;border-radius:30px;color:#fff;background:radial-gradient(circle at top right,rgba(255,255,255,.28),transparent 30%),linear-gradient(135deg,#111827 0%,#1f2937 46%,#ef4444 100%);box-shadow:var(--shadow)}.hero::after{content:"";position:absolute;right:-26px;top:-12px;width:118px;height:118px;border-radius:34px;background:rgba(255,255,255,.14);transform:rotate(18deg)}.eyebrow{display:inline-flex;align-items:center;gap:8px;padding:8px 12px;border-radius:999px;background:rgba(255,255,255,.14);font-size:12px}.hero h2{margin:14px 0 8px;font-size:28px;line-height:1.18;letter-spacing:-.05em;max-width:280px}.hero p{margin:0;max-width:320px;line-height:1.72;color:rgba(255,255,255,.92)}
+    .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:20px}.stat{padding:14px;border-radius:18px;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.16);backdrop-filter:blur(10px)}.stat strong{display:block;font-size:20px}.stat span{font-size:12px;color:rgba(255,255,255,.84)}
+    .panel{background:var(--surface);border:1px solid rgba(255,255,255,.65);box-shadow:var(--shadow);backdrop-filter:blur(18px);border-radius:var(--radius-xl);padding:18px}.notice{padding:14px 16px;border-radius:18px;background:#eff6ff;border:1px solid #bfdbfe;color:#1d4ed8;font-size:13px;line-height:1.5}.hidden{display:none!important}
+    .filter-sticky{position:sticky;top:0;z-index:30;display:flex;flex-direction:column;gap:12px;padding:12px 0 8px;background:linear-gradient(180deg,rgba(248,250,252,1) 0%,rgba(248,250,252,1) 82%,rgba(248,250,252,.98) 100%);backdrop-filter:blur(10px)}.searchbox{display:flex;align-items:center;gap:12px;padding:16px 18px}.searchbox input{border:none;outline:none;background:transparent;flex:1;color:var(--text)}.chips{display:flex;flex-wrap:wrap;gap:10px;padding:6px 2px 0;max-height:60px;overflow:hidden;transition:max-height .25s ease}.chips.expanded{max-height:320px}.chips::-webkit-scrollbar{display:none}.chips-toggle{text-align:center;margin-top:2px;margin-bottom:2px}.chips-toggle-btn{font-size:12px;padding:8px 14px}.chip{white-space:nowrap;border:none;border-radius:999px;padding:10px 14px;cursor:pointer;background:#fff;color:var(--muted);border:1px solid var(--line);display:inline-flex;align-items:center;gap:6px}.chip.active{background:var(--primary);color:#fff;font-weight:700}.chip-icon{font-size:13px;line-height:1;display:inline-flex;align-items:center}
+    .section-head{display:flex;justify-content:space-between;align-items:center;margin:6px 2px 2px}.section-head h3{margin:0;font-size:18px;letter-spacing:-.03em}.section-head small{color:var(--muted)}.list{display:grid;gap:14px}.card{background:#fff;border:1px solid var(--line-soft);border-radius:24px;padding:18px;box-shadow:var(--shadow);transition:transform .15s ease;cursor:pointer}.card:hover{transform:translateY(-1px)}.card-top{display:flex;gap:12px;align-items:flex-start}.badge{min-width:72px;padding:12px 10px;border-radius:18px;text-align:center;color:#fff;font-weight:800;background:linear-gradient(135deg,var(--accent2),var(--accent));flex:0 0 auto}.badge.service{background:linear-gradient(135deg,#22c55e,#0f766e);font-size:14px}.badge.low{background:linear-gradient(135deg,#64748b,#334155)}.card h4{margin:0 0 6px;font-size:18px;letter-spacing:-.03em}.meta{color:var(--muted);font-size:13px;line-height:1.45}
+    .tags{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}.tag{padding:7px 10px;border-radius:999px;background:#f8fafc;border:1px solid var(--line);color:#475569;font-size:12px}.tag.rec{background:#eff6ff;border-color:#bfdbfe;color:var(--blue);font-weight:700}.actions{display:flex;gap:10px;margin-top:16px}.btn{border:none;border-radius:16px;padding:12px 14px;cursor:pointer;font-weight:700;display:inline-flex;align-items:center;justify-content:center;gap:8px}.btn.block{width:100%}.btn-primary{background:var(--primary);color:#fff}.btn-soft{background:#fff;color:var(--text);border:1px solid var(--line)}
     .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:10px}.auth-box{display:flex;gap:14px;align-items:center}.qr{width:92px;height:92px;border-radius:20px;background:linear-gradient(90deg,#111 12px,transparent 12px) 0 0/24px 24px,linear-gradient(#111 12px,transparent 12px) 0 0/24px 24px,#fff;box-shadow:inset 0 0 0 10px #fff;flex:0 0 auto}.helper{color:var(--muted);font-size:13px;line-height:1.5}
-    .bottom-nav{position:fixed;left:50%;transform:translateX(-50%);bottom:14px;width:min(440px,calc(100% - 20px));display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:10px;border-radius:26px;background:rgba(15,23,42,.88);color:#cbd5e1;box-shadow:0 24px 40px rgba(15,23,42,.22);backdrop-filter:blur(18px)}.nav-btn{border:none;background:transparent;color:inherit;border-radius:18px;padding:10px 8px;cursor:pointer}.nav-btn.active{background:rgba(255,255,255,.12);color:#fff}.empty,.loading{text-align:center;color:var(--muted);padding:24px 14px}
+    .bottom-nav{position:fixed;left:0;right:0;bottom:0;width:100%;max-width:480px;margin:0 auto;display:grid;grid-template-columns:repeat(2,1fr);gap:8px;padding:10px 16px calc(14px + env(safe-area-inset-bottom,0px));border-radius:26px 26px 0 0;background:rgba(15,23,42,.92);color:#cbd5e1;box-shadow:0 10px 30px rgba(15,23,42,.18);backdrop-filter:blur(18px)}.nav-btn{border:none;background:transparent;color:inherit;border-radius:18px;padding:10px 0 12px;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;transition:transform .18s ease, background-color .18s ease, color .18s ease}.nav-btn .nav-icon{font-size:18px;line-height:1;display:block;transition:transform .22s ease, filter .22s ease, opacity .18s ease}.nav-btn .nav-label{font-size:14px;font-weight:700;letter-spacing:-.02em}.nav-btn:hover .nav-icon{transform:translateY(-1px)}.nav-btn.active{background:rgba(255,255,255,.12);color:#fff;transform:translateY(-1px)}.nav-btn.active .nav-icon{animation:navPop .25s ease}.nav-btn:active{transform:scale(.98)}@keyframes navPop{0%{transform:scale(.85)}60%{transform:scale(1.12)}100%{transform:scale(1)}}.empty,.loading{text-align:center;color:var(--muted);padding:24px 14px}
     dialog{width:min(440px,calc(100% - 20px));border:none;border-radius:28px;padding:0;color:var(--text);background:#fff;box-shadow:0 30px 60px rgba(15,23,42,.24)}dialog::backdrop{background:rgba(15,23,42,.42);backdrop-filter:blur(4px)}.modal-head{display:flex;justify-content:space-between;align-items:center;padding:18px 18px 8px}.modal-body{padding:0 18px 18px}.close-btn{width:40px;height:40px;border:none;border-radius:14px;background:#f8fafc;cursor:pointer}.pill{display:inline-flex;align-items:center;gap:8px;border-radius:999px;padding:8px 12px;background:#f8fafc;color:#475569;border:1px solid var(--line)}
     @media (max-width:370px){.stats,.grid-2{grid-template-columns:1fr}}
-  </style>
+  #cardList{padding-bottom:200px;}
+  
+#favoriteList{margin-top:14px;padding-bottom:200px;}
+</style>
 </head>
 <body>
   <div class="app"><div class="shell">
     <header class="topbar">
       <div class="brand"><div class="logo">🏠</div><div><h1>더운정 마이힐스</h1><p>입주민 전용 혜택 웹앱</p></div></div>
-      <button class="icon-btn" id="installTopBtn" title="홈 화면에 추가">＋</button>
+      <button class="icon-btn" id="installTopBtn" title="홈 화면에 추가">📲</button>
     </header>
-    <section id="view-home">
-      <div class="hero"><div class="eyebrow">🏠 마이힐스 어플 제시 후 이용</div><h2>입주민 혜택을 앱처럼 깔끔하게</h2><p>공개 혜택은 Firestore에서 실시간으로 불러옵니다.</p><div class="stats"><div class="stat"><strong id="statMax">0%</strong><span>최대 할인</span></div><div class="stat"><strong id="statCount">0</strong><span>전체 제휴</span></div><div class="stat"><strong id="statCat">0</strong><span>카테고리</span></div></div></div>
+    <section id="view-home" class="">
+      <div class="hero"><div class="eyebrow">🏠 마이힐스 어플 제시 후 이용</div><h2>입주민 혜택을 앱처럼 깔끔하게</h2><p>입주민 전용 제휴 혜택과 매장 정보를 한눈에 확인해보세요.</p><div class="stats"><div class="stat"><strong id="statMax">50%</strong><span>최대 할인</span></div><div class="stat"><strong id="statCount">21</strong><span>전체 제휴</span></div><div class="stat"><strong id="statCat">9</strong><span>카테고리</span></div></div></div>
       <div class="panel notice hidden" id="firebaseNotice">Firebase 설정값이 비어 있습니다. firebaseConfig를 확인해 주세요.</div>
-      <div class="panel searchbox"><span>🔍</span><input id="searchInput" type="text" placeholder="매장명, 카테고리, 조건 검색" /><button class="icon-btn" id="resetBtn" title="초기화">↺</button></div>
-      <div class="chips" id="chips"></div>
-      <div class="panel"><div class="section-head" style="margin-bottom:12px;"><h3>입주민 인증</h3><small>매장 제시용</small></div><div class="auth-box"><div class="qr" aria-hidden="true"></div><div><strong style="display:block; margin-bottom:6px;">마이힐스 인증 화면</strong><div class="helper">실제 운영 시에는 QR 또는 입주민 인증번호를 연동하면 됩니다. 현재는 Firestore 조회형 공개 웹앱입니다.</div></div></div></div>
-      <div class="section-head"><h3 id="sectionTitle">전체 혜택</h3><small id="resultCount">0건</small></div>
-      <div class="loading" id="homeLoading">데이터를 불러오는 중입니다...</div>
-      <div class="list" id="cardList"></div>
+      <div class="filter-sticky"><div class="panel searchbox"><span>🔍</span><input id="searchInput" type="text" placeholder="매장명, 카테고리, 조건 검색"><button class="icon-btn" id="resetBtn" title="초기화">↺</button></div>
+      <div class="chips" id="chips"><button class="chip active">전체</button><button class="chip ">음식</button><button class="chip ">베이커리</button><button class="chip ">주점</button><button class="chip ">중식당</button><button class="chip ">카페</button><button class="chip ">디저트</button><button class="chip ">피부관리</button><button class="chip ">치킨</button><button class="chip ">미용</button></div><div class="chips-toggle"><button id="chipsToggle" class="chip chips-toggle-btn hidden" type="button">더보기 ▾</button></div></div>
+      <div class="panel" style="margin-top:8px;"><div class="section-head" style="margin-bottom:12px;"><h3>입주민 인증</h3><small>매장 제시용</small></div><div class="auth-box"><div class="qr" aria-hidden="true"></div><div><strong style="display:block; margin-bottom:6px;">마이힐스 인증 화면</strong><div class="helper">실제 운영 시에는 QR 또는 입주민 인증번호를 연동할 수 있습니다. 현재는 입주민 혜택 안내용 시범 웹앱입니다.</div></div></div></div>
+      <div class="section-head"><h3 id="sectionTitle">전체 혜택</h3><small id="resultCount">21건</small></div>
+      <div class="loading hidden" id="homeLoading">데이터를 불러오는 중입니다...</div>
+      <div class="list" id="cardList"><article class="card"><div class="card-top"><div class="badge">50%</div><div style="flex:1;min-width:0;"><h4>엘스킨케어 </h4><div class="meta">첫방문 50% / 입주민 정액권 최대 30%</div><div class="tags"><span class="tag">피부관리</span><span class="tag">📍 경기 파주시 경의로 1242 209호…</span></div></div></div><div class="actions"><button class="btn btn-primary detail-btn">상세보기</button><button class="btn btn-soft fav-btn">즐겨찾기</button></div></article><article class="card"><div class="card-top"><div class="badge">30%</div><div style="flex:1;min-width:0;"><h4>미스터피자 일산탄현점 </h4><div class="meta">포장 30% / 매장식사 20% + 샐러드 증정</div><div class="tags"><span class="tag">음식</span><span class="tag">📍 경기 고양시 일산서구 탄현로 136 …</span></div></div></div><div class="actions"><button class="btn btn-primary detail-btn">상세보기</button><button class="btn btn-soft fav-btn">즐겨찾기</button></div></article><article class="card"><div class="card-top"><div class="badge">30%</div><div style="flex:1;min-width:0;"><h4>이가자 미용실 </h4><div class="meta">전품목 30%, 부분 시술 제외 [클리닉]</div><div class="tags"><span class="tag">미용</span><span class="tag">📍 경기 파주시 와석순환로515번길 70…</span></div></div></div><div class="actions"><button class="btn btn-primary detail-btn">상세보기</button><button class="btn btn-soft fav-btn">즐겨찾기</button></div></article><article class="card"><div class="card-top"><div class="badge">15%</div><div style="flex:1;min-width:0;"><h4>아레볼 </h4><div class="meta">주말까지 적용, 평일 오전 15% 할인 행사와 중복 안됨</div><div class="tags"><span class="tag">카페</span><span class="tag">📍 경기 파주시 소라지로 309-12</span></div></div></div><div class="actions"><button class="btn btn-primary detail-btn">상세보기</button><button class="btn btn-soft fav-btn">즐겨찾기</button></div></article><article class="card"><div class="card-top"><div class="badge">10%</div><div style="flex:1;min-width:0;"><h4>노가리세상 </h4><div class="meta">5만원 이상</div><div class="tags"><span class="tag">주점</span><span class="tag">📍 경기 파주시 와석순환로515번길 91…</span></div></div></div><div class="actions"><button class="btn btn-primary detail-btn">상세보기</button><button class="btn btn-soft fav-btn">즐겨찾기</button></div></article><article class="card"><div class="card-top"><div class="badge">10%</div><div style="flex:1;min-width:0;"><h4>더첸의 중식주점첸 </h4><div class="meta">3만원 이상</div><div class="tags"><span class="tag">중식당</span><span class="tag">📍 경기 파주시 소리천로8번길 46 하나…</span></div></div></div><div class="actions"><button class="btn btn-primary detail-btn">상세보기</button><button class="btn btn-soft fav-btn">즐겨찾기</button></div></article><article class="card"><div class="card-top"><div class="badge">10%</div><div style="flex:1;min-width:0;"><h4>뚝심 </h4><div class="meta">입주민 할인</div><div class="tags"><span class="tag">음식</span><span class="tag">📍 경기 파주시 소라지로 309-12</span></div></div></div><div class="actions"><button class="btn btn-primary detail-btn">상세보기</button><button class="btn btn-soft fav-btn">즐겨찾기</button></div></article><article class="card"><div class="card-top"><div class="badge">10%</div><div style="flex:1;min-width:0;"><h4>띠아트헤어 </h4><div class="meta">첫방문 할인</div><div class="tags"><span class="tag">미용</span><span class="tag">📍 경기 파주시 와석순환로515번길 21…</span></div></div></div><div class="actions"><button class="btn btn-primary detail-btn">상세보기</button><button class="btn btn-soft fav-btn">즐겨찾기</button></div></article><article class="card"><div class="card-top"><div class="badge">10%</div><div style="flex:1;min-width:0;"><h4>맷차 </h4><div class="meta">입주민 할인</div><div class="tags"><span class="tag">카페</span><span class="tag">📍 경기 파주시 와석순환로515번길 70…</span></div></div></div><div class="actions"><button class="btn btn-primary detail-btn">상세보기</button><button class="btn btn-soft fav-btn">즐겨찾기</button></div></article><article class="card"><div class="card-top"><div class="badge">10%</div><div style="flex:1;min-width:0;"><h4>생마차 </h4><div class="meta">입주민 할인</div><div class="tags"><span class="tag">주점</span><span class="tag">📍 경기 파주시 경의로1240번길 14-…</span></div></div></div><div class="actions"><button class="btn btn-primary detail-btn">상세보기</button><button class="btn btn-soft fav-btn">즐겨찾기</button></div></article><article class="card"><div class="card-top"><div class="badge">10%</div><div style="flex:1;min-width:0;"><h4>아티장 베이커스 </h4><div class="meta">19~22시</div><div class="tags"><span class="tag">베이커리</span><span class="tag">📍 경기 파주시 와석순환로515번길 70…</span></div></div></div><div class="actions"><button class="btn btn-primary detail-btn">상세보기</button><button class="btn btn-soft fav-btn">즐겨찾기</button></div></article><article class="card"><div class="card-top"><div class="badge">10%</div><div style="flex:1;min-width:0;"><h4>운정막창 </h4><div class="meta">3만원 이상</div><div class="tags"><span class="tag">음식</span><span class="tag">📍 경기 파주시 운정역길 370-3 1층</span></div></div></div><div class="actions"><button class="btn btn-primary detail-btn">상세보기</button><button class="btn btn-soft fav-btn">즐겨찾기</button></div></article><article class="card"><div class="card-top"><div class="badge">10%</div><div style="flex:1;min-width:0;"><h4>인생우동 </h4><div class="meta">입주민 할인</div><div class="tags"><span class="tag">음식</span><span class="tag">📍 경기 파주시 책향기로 824 118호…</span></div></div></div><div class="actions"><button class="btn btn-primary detail-btn">상세보기</button><button class="btn btn-soft fav-btn">즐겨찾기</button></div></article><article class="card"><div class="card-top"><div class="badge">10%</div><div style="flex:1;min-width:0;"><h4>지파시 젤라또 </h4><div class="meta">입주민 할인</div><div class="tags"><span class="tag">디저트</span><span class="tag">📍 경기 파주시 와석순환로515번길 70…</span></div></div></div><div class="actions"><button class="btn btn-primary detail-btn">상세보기</button><button class="btn btn-soft fav-btn">즐겨찾기</button></div></article><article class="card"><div class="card-top"><div class="badge">10%</div><div style="flex:1;min-width:0;"><h4>테이블린 </h4><div class="meta">입주민 할인</div><div class="tags"><span class="tag">음식</span><span class="tag">📍 경기 파주시 와석순환로515번길 70…</span></div></div></div><div class="actions"><button class="btn btn-primary detail-btn">상세보기</button><button class="btn btn-soft fav-btn">즐겨찾기</button></div></article><article class="card"><div class="card-top"><div class="badge low">5%</div><div style="flex:1;min-width:0;"><h4>김치옥 </h4><div class="meta">입주민 할인</div><div class="tags"><span class="tag">음식</span><span class="tag">📍 경기 파주시 경의로1240번길 36-…</span></div></div></div><div class="actions"><button class="btn btn-primary detail-btn">상세보기</button><button class="btn btn-soft fav-btn">즐겨찾기</button></div></article><article class="card"><div class="card-top"><div class="badge low">5%</div><div style="flex:1;min-width:0;"><h4>땡초우동인포차 운정점 </h4><div class="meta">입주민 할인</div><div class="tags"><span class="tag">주점</span><span class="tag">📍 경기 파주시 경의로 1246 유은타워…</span></div></div></div><div class="actions"><button class="btn btn-primary detail-btn">상세보기</button><button class="btn btn-soft fav-btn">즐겨찾기</button></div></article><article class="card"><div class="card-top"><div class="badge low">5%</div><div style="flex:1;min-width:0;"><h4>신깡통뒷고기 파주운정점 </h4><div class="meta">입주민 할인</div><div class="tags"><span class="tag">음식</span><span class="tag">📍 경기 파주시 경의로1240번길 30 …</span></div></div></div><div class="actions"><button class="btn btn-primary detail-btn">상세보기</button><button class="btn btn-soft fav-btn">즐겨찾기</button></div></article><article class="card"><div class="card-top"><div class="badge low">5%</div><div style="flex:1;min-width:0;"><h4>필스너하우스 </h4><div class="meta">입주민 할인</div><div class="tags"><span class="tag">주점</span><span class="tag">📍 경기 파주시 경의로 1246 유은타워…</span></div></div></div><div class="actions"><button class="btn btn-primary detail-btn">상세보기</button><button class="btn btn-soft fav-btn">즐겨찾기</button></div></article><article class="card"><div class="card-top"><div class="badge service">서비스</div><div style="flex:1;min-width:0;"><h4>대선집 </h4><div class="meta">음료 또는 주류 1병 서비스</div><div class="tags"><span class="tag">주점</span><span class="tag">📍 경기 파주시 경의로1240번길 14-…</span></div></div></div><div class="actions"><button class="btn btn-primary detail-btn">상세보기</button><button class="btn btn-soft fav-btn">즐겨찾기</button></div></article><article class="card"><div class="card-top"><div class="badge service">서비스</div><div style="flex:1;min-width:0;"><h4>치킨플러스 일산탄현점 </h4><div class="meta">배달 또는 매장 이용 시 떡볶이 증정 / 배달앱 요청 사항에 “힐스입주민이예요.” 기입</div><div class="tags"><span class="tag">치킨</span><span class="tag">📍 경기 고양시 일산서구 탄현로 136</span></div></div></div><div class="actions"><button class="btn btn-primary detail-btn">상세보기</button><button class="btn btn-soft fav-btn">즐겨찾기</button></div></article></div>
     </section>
-    <section id="view-favorite" class="hidden"><div class="panel"><div class="section-head" style="margin-bottom:12px;"><h3>즐겨찾기</h3><small>자주 쓰는 혜택</small></div><div class="helper">관심 있는 매장을 저장해 두고 빠르게 확인할 수 있습니다.</div></div><div class="list" id="favoriteList"></div></section>
+    <section id="view-favorite" class="hidden"><div class="panel" style="margin-bottom:14px;"><div class="section-head" style="margin-bottom:12px;"><h3>즐겨찾기</h3><small>자주 쓰는 혜택</small></div><div class="helper">관심 있는 매장을 저장해 두고 빠르게 확인할 수 있습니다.</div></div><div class="list" id="favoriteList"><div class="panel empty">조건에 맞는 항목이 없습니다.</div></div></section>
   </div></div>
-  <nav class="bottom-nav"><button class="nav-btn active" data-view="home">홈</button><button class="nav-btn" data-view="favorite">즐겨찾기</button><button class="nav-btn" data-filter="high">고할인</button></nav>
+  <nav class="bottom-nav"><button class="nav-btn active" data-view="home"><span class="nav-icon">🏠</span><span class="nav-label">홈</span></button><button class="nav-btn" data-view="favorite"><span class="nav-icon">⭐</span><span class="nav-label">즐겨찾기</span></button></nav>
   <dialog id="detailModal"><div class="modal-head"><div class="pill">혜택 상세</div><button class="close-btn" id="closeModal">✕</button></div><div class="modal-body" id="modalBody"></div></dialog>
   <script type="module">
     import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
     import { getFirestore, collection, onSnapshot } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
     const firebaseConfig = { apiKey:"AIzaSyDhKr7oMSrLowJ47cqB4pvNXuIIdtW0HPI", authDomain:"sola-home-4979a.firebaseapp.com", projectId:"sola-home-4979a", storageBucket:"sola-home-4979a.firebasestorage.app", messagingSenderId:"337132471819", appId:"1:337132471819:web:848cd357fecda459a2e90e" };
-    const BENEFITS_COLLECTION='benefits', FAVORITES_KEY='myhills_favorites_firebase';
-    const state={category:'전체',keyword:'',filter:'all',view:'home',benefits:[],loading:true};
+    const BENEFITS_COLLECTION='benefits', FAVORITES_KEY='myhills_favorites_firebase', LAST_CATEGORY_KEY='myhills_last_category', CHIPS_EXPANDED_KEY='myhills_chips_expanded';
+    const state={category:localStorage.getItem(LAST_CATEGORY_KEY)||'전체',keyword:'',filter:'all',view:'home',benefits:[],loading:true};
     const qs=(s)=>document.querySelector(s), qsa=(s)=>[...document.querySelectorAll(s)];
-    function sanitizeBenefit(item={},id=''){return {id,name:item.name||'',category:item.category||'기타',discountValue:Number(item.discountValue||0),discountText:item.discountText||`${Number(item.discountValue||0)}%`,condition:item.condition||'',address:item.address||'',phone:item.phone||'',url:item.url||'',service:!!item.service||String(item.discountText).trim()==='서비스',visible:item.visible!==false,recommended:!!item.recommended};}
+    const normalizeCategory = (v) => String(v || '기타').trim().replace(/\s+/g, ' ');
+    const CATEGORY_ICONS = {
+      '전체':'🏷️',
+      '음식':'🍜',
+      '카페':'☕',
+      '주점':'🍺',
+      '치킨':'🍗',
+      '피부관리':'🧴',
+      '미용':'💇',
+      '베이커리':'🥐',
+      '디저트':'🍨',
+      '중식당':'🥟',
+      '중식주점':'🥢',
+      '운동':'🏃',
+      '기타':'📍'
+    };
+    const getCategoryIcon = (category) => CATEGORY_ICONS[normalizeCategory(category)] || '📍';
+    function sanitizeBenefit(item={},id=''){return {id,name:item.name||'',category:normalizeCategory(item.category||'기타'),discountValue:Number(item.discountValue||0),discountText:item.discountText||`${Number(item.discountValue||0)}%`,condition:item.condition||'',address:item.address||'',phone:item.phone||'',url:item.url||'',service:!!item.service||String(item.discountText).trim()==='서비스',visible:item.visible!==false,recommended:!!item.recommended};}
     const getFavorites=()=>JSON.parse(localStorage.getItem(FAVORITES_KEY)||'[]');
     const setFavorites=(items)=>localStorage.setItem(FAVORITES_KEY,JSON.stringify(items));
     function toggleFavorite(id){const set=new Set(getFavorites());set.has(id)?set.delete(id):set.add(id);setFavorites([...set]);renderAll();}
     const hasFirebaseConfig=()=>firebaseConfig.apiKey&&firebaseConfig.projectId&&firebaseConfig.appId;
     function subscribeBenefits(){const app=initializeApp(firebaseConfig);const db=getFirestore(app);onSnapshot(collection(db,BENEFITS_COLLECTION),(snapshot)=>{state.benefits=snapshot.docs.map(d=>sanitizeBenefit(d.data(),d.id));state.loading=false;renderAll();},()=>{state.loading=false;qs('#homeLoading').textContent='데이터를 불러오지 못했습니다. Firestore 규칙과 설정을 확인해 주세요.';renderAll();});}
     const getVisibleBenefits=()=>state.benefits.filter(v=>v.visible!==false);
-    const getCategories=()=>['전체',...new Set(getVisibleBenefits().map(v=>v.category))];
-    function createChips(){const el=qs('#chips');el.innerHTML='';getCategories().forEach(cat=>{const b=document.createElement('button');b.className=`chip ${state.category===cat?'active':''}`;b.textContent=cat;b.onclick=()=>{state.category=cat;state.view='home';renderAll();};el.appendChild(b);});}
-    function getFilteredBenefits(mode='normal'){const favorites=new Set(getFavorites());return getVisibleBenefits().filter(item=>{const matchCategory=state.category==='전체'||item.category===state.category;const q=state.keyword.trim().toLowerCase();const blob=[item.name,item.category,item.condition,item.address,item.phone].join(' ').toLowerCase();const matchKeyword=!q||blob.includes(q);const matchFilter=state.filter==='all'?true:(item.discountValue>=15||item.recommended);const matchMode=mode==='favorite'?favorites.has(item.id):true;return matchCategory&&matchKeyword&&matchFilter&&matchMode;}).sort((a,b)=>((b.recommended?1:0)-(a.recommended?1:0))||(b.discountValue-a.discountValue)||a.name.localeCompare(b.name,'ko'));}
+    const getCategoryCounts=()=> {
+      const counts = {};
+      getVisibleBenefits().forEach(v => {
+        const key = normalizeCategory(v.category);
+        counts[key] = (counts[key] || 0) + 1;
+      });
+      return counts;
+    };
+    const getCategories=()=>['전체',...Object.keys(getCategoryCounts()).sort((a,b)=>a.localeCompare(b,'ko'))];
+    function createChips(){
+      const el=qs('#chips');
+      const counts = getCategoryCounts();
+      const total = getVisibleBenefits().length;
+      const categories = getCategories();
+      if(!categories.includes(state.category)){
+        state.category='전체';
+        localStorage.setItem(LAST_CATEGORY_KEY,'전체');
+      }
+      el.innerHTML='';
+      categories.forEach(cat=>{
+        const b=document.createElement('button');
+        b.className=`chip ${state.category===cat?'active':''}`;
+        const count = cat === '전체' ? total : (counts[cat] || 0);
+        b.innerHTML=`<span class="chip-icon">${getCategoryIcon(cat)}</span><span>${cat} ${count}</span>`;
+        b.onclick=()=>{
+          state.category=cat;
+          localStorage.setItem(LAST_CATEGORY_KEY, cat);
+          state.view='home';
+          renderAll();
+        };
+        el.appendChild(b);
+      });
+      updateToggle();
+      applyChipsState();
+    }
+    function getFilteredBenefits(mode='normal'){const favorites=new Set(getFavorites());return getVisibleBenefits().filter(item=>{const matchCategory=state.category==='전체'||normalizeCategory(item.category)===normalizeCategory(state.category);const q=state.keyword.trim().toLowerCase();const blob=[item.name,item.category,item.condition,item.address,item.phone].join(' ').toLowerCase();const matchKeyword=!q||blob.includes(q);const matchFilter=state.filter==='all'?true:(item.discountValue>=15||item.recommended);const matchMode=mode==='favorite'?favorites.has(item.id):true;return matchCategory&&matchKeyword&&matchFilter&&matchMode;}).sort((a,b)=>((b.recommended?1:0)-(a.recommended?1:0))||(b.discountValue-a.discountValue)||a.name.localeCompare(b.name,'ko'));}
     const getBadgeClass=(item)=>item.service?'badge service':(item.discountValue<=5?'badge low':'badge');
     function cardTemplate(item,isFavorite){const shortAddress=item.address.length>20?item.address.slice(0,20)+'…':item.address;return `<div class="card-top"><div class="${getBadgeClass(item)}">${item.discountText}</div><div style="flex:1;min-width:0;"><h4>${item.name} ${isFavorite?'★':''}</h4><div class="meta">${item.condition}</div><div class="tags">${item.recommended?'<span class="tag rec">추천</span>':''}<span class="tag">${item.category}</span><span class="tag">📍 ${shortAddress}</span></div></div></div><div class="actions"><button class="btn btn-primary detail-btn">상세보기</button><button class="btn btn-soft fav-btn">${isFavorite?'즐겨찾기 해제':'즐겨찾기'}</button></div>`;}
     function renderList(target,items){const wrap=qs(target),favorites=new Set(getFavorites());wrap.innerHTML='';if(!items.length){wrap.innerHTML='<div class="panel empty">조건에 맞는 항목이 없습니다.</div>';return;}items.forEach(item=>{const card=document.createElement('article');card.className='card';card.innerHTML=cardTemplate(item,favorites.has(item.id));card.onclick=()=>openDetail(item);card.querySelector('.detail-btn').onclick=(e)=>{e.stopPropagation();openDetail(item);};card.querySelector('.fav-btn').onclick=(e)=>{e.stopPropagation();toggleFavorite(item.id);};wrap.appendChild(card);});}
@@ -76,15 +134,51 @@
       modal.showModal();
       qs('#modalFavBtn').onclick=()=>{toggleFavorite(item.id);openDetail(item);};
     }
-    function updateView(){qsa('[id^="view-"]').forEach(v=>v.classList.add('hidden'));(qs(`#view-${state.view}`)||qs('#view-home')).classList.remove('hidden');qsa('.bottom-nav .nav-btn').forEach(btn=>btn.classList.remove('active'));const active=qsa('.bottom-nav .nav-btn').find(btn=>btn.dataset.view===state.view);if(active)active.classList.add('active');if(state.filter==='high'){const high=qsa('.bottom-nav .nav-btn').find(btn=>btn.dataset.filter==='high');if(high)high.classList.add('active');}}
+    function updateView(){qsa('[id^="view-"]').forEach(v=>v.classList.add('hidden'));(qs(`#view-${state.view}`)||qs('#view-home')).classList.remove('hidden');qsa('.bottom-nav .nav-btn').forEach(btn=>btn.classList.remove('active'));const active=qsa('.bottom-nav .nav-btn').find(btn=>btn.dataset.view===state.view);if(active)active.classList.add('active');}
     const renderAll=()=>{createChips();renderStats();renderHome();renderFavorites();updateView();};
     qs('#searchInput').addEventListener('input',(e)=>{state.keyword=e.target.value;renderAll();});
-    qs('#resetBtn').onclick=()=>{state.category='전체';state.keyword='';state.filter='all';state.view='home';qs('#searchInput').value='';renderAll();};
-    qsa('.bottom-nav .nav-btn').forEach(btn=>{btn.onclick=()=>{if(btn.dataset.view){state.view=btn.dataset.view;if(btn.dataset.view!=='home')state.filter='all';}if(btn.dataset.filter==='high'){state.view='home';state.filter=state.filter==='high'?'all':'high';}renderAll();};});
+    qs('#resetBtn').onclick=()=>{state.category='전체';localStorage.setItem(LAST_CATEGORY_KEY,'전체');state.keyword='';state.filter='all';state.view='home';qs('#searchInput').value='';renderAll();};
+    qsa('.bottom-nav .nav-btn').forEach(btn=>{btn.onclick=()=>{if(btn.dataset.view){state.view=btn.dataset.view;if(btn.dataset.view!=='home')state.filter='all';}renderAll();};});
     qs('#closeModal').onclick=()=>qs('#detailModal').close();
     let deferredPrompt=null;window.addEventListener('beforeinstallprompt',(e)=>{e.preventDefault();deferredPrompt=e;});
     qs('#installTopBtn').onclick=async()=>{if(!deferredPrompt){alert('브라우저 메뉴에서 “홈 화면에 추가”를 선택하면 앱처럼 설치할 수 있습니다.');return;}deferredPrompt.prompt();await deferredPrompt.userChoice;deferredPrompt=null;};
+    const chipsEl = qs('#chips');
+    const chipsToggleBtn = qs('#chipsToggle');
+    const CHIPS_COLLAPSED_HEIGHT = 84;
+
+    function applyChipsState(){
+      const expanded = localStorage.getItem(CHIPS_EXPANDED_KEY) === 'true';
+      chipsEl.classList.toggle('expanded', expanded);
+      chipsToggleBtn.textContent = expanded ? '접기 ▴' : '더보기 ▾';
+    }
+
+    function updateToggle(){
+      requestAnimationFrame(()=>{
+        const need = chipsEl.scrollHeight > CHIPS_COLLAPSED_HEIGHT;
+        chipsToggleBtn.classList.toggle('hidden', !need);
+        if(!need){
+          chipsEl.classList.remove('expanded');
+          localStorage.setItem(CHIPS_EXPANDED_KEY, 'false');
+          chipsToggleBtn.textContent = '더보기 ▾';
+        }
+      });
+    }
+
+    chipsToggleBtn.onclick = ()=>{
+      const expanded = !chipsEl.classList.contains('expanded');
+      chipsEl.classList.toggle('expanded', expanded);
+      localStorage.setItem(CHIPS_EXPANDED_KEY, expanded ? 'true' : 'false');
+      chipsToggleBtn.textContent = expanded ? '접기 ▴' : '더보기 ▾';
+    };
+
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('sw.js').catch(() => {});
+      });
+    }
+
     renderAll(); if(hasFirebaseConfig()){qs('#firebaseNotice').classList.add('hidden');subscribeBenefits();}else{qs('#firebaseNotice').classList.remove('hidden');state.loading=false;renderAll();}
   </script>
-</body>
-</html>
+
+
+</body></html>
