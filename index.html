@@ -169,12 +169,6 @@
       chipsToggleBtn.textContent = expanded ? '접기 ▴' : '더보기 ▾';
     };
 
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
-        navigator.serviceWorker.register('sw.js').catch(() => {});
-      });
-    }
-
     renderAll(); if(hasFirebaseConfig()){qs('#firebaseNotice').classList.add('hidden');subscribeBenefits();}else{qs('#firebaseNotice').classList.remove('hidden');state.loading=false;renderAll();}
   </script>
 
