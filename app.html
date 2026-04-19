@@ -382,11 +382,23 @@
     const firebaseConfig = { apiKey:"AIzaSyDhKr7oMSrLowJ47cqB4pvNXuIIdtW0HPI", authDomain:"sola-home-4979a.firebaseapp.com", projectId:"sola-home-4979a", storageBucket:"sola-home-4979a.firebasestorage.app", messagingSenderId:"337132471819", appId:"1:337132471819:web:848cd357fecda459a2e90e" };
     const LOGIN_PAGE_URL = './index.html';
     const BENEFITS_COLLECTION='benefits', BENEFIT_STATS_COLLECTION='benefit_stats', BENEFIT_EVENTS_COLLECTION='benefit_events', LAST_CATEGORY_KEY='myhills_last_category', CHIPS_EXPANDED_KEY='myhills_chips_expanded';
+    const LEGACY_KEYS_TO_REMOVE = ['myhills_favorites_firebase', 'myhills_admin_password'];
     const app=initializeApp(firebaseConfig);
     const auth=getAuth(app);
     const db=getFirestore(app);
     const state={category:localStorage.getItem(LAST_CATEGORY_KEY)||'전체',keyword:'',filter:'all',view:'home',benefits:[],loading:true,currentUser:null,currentUserProfile:null,popularItems:[],favoriteIds:[],scrollMap:{home:0,benefits:0,favorite:0,top5:0}};
     const qs=(s)=>document.querySelector(s), qsa=(s)=>[...document.querySelectorAll(s)];
+    function cleanupLegacyStorage(){
+      LEGACY_KEYS_TO_REMOVE.forEach((key) => {
+        try{
+          localStorage.removeItem(key);
+          sessionStorage.removeItem(key);
+        }catch(error){
+          console.error('레거시 저장값 삭제 실패', key, error);
+        }
+      });
+    }
+
     function saveCurrentViewScroll(){
       state.scrollMap[state.view] = window.scrollY || window.pageYOffset || 0;
     }
@@ -793,6 +805,7 @@
     qs('#logoutBtn').onclick=async()=>{const confirmed=await openModalConfirm('로그아웃 하시겠습니까?', qs('#logoutBtn'), '로그아웃', '로그아웃', '취소'); if(!confirmed) return; try{await signOut(auth);redirectToLogin();}catch(error){await openModalAlert('로그아웃 중 오류가 발생했습니다.', qs('#logoutBtn'));}};
 
     (async()=>{
+      cleanupLegacyStorage();
       const ok = await ensureAuthenticatedUser();
       if(!ok) return;
       renderAll();
