@@ -291,14 +291,31 @@
     .app-alert-confirm{min-width:92px;border:none;border-radius:16px;padding:12px 16px;background:var(--primary);color:#fff;font-weight:800;cursor:pointer}
     .app-alert-confirm{min-width:92px;border:none;border-radius:16px;padding:12px 16px;background:var(--primary);color:#fff;font-weight:800;cursor:pointer}
     
+
+/* 상단 로딩바 */
+.top-loader{
+  position:fixed;
+  top:0;
+  left:0;
+  height:3px;
+  width:0;
+  background:linear-gradient(90deg,#ef4444,#f59e0b);
+  z-index:9999;
+  opacity:1;
+  transition:width .35s ease, opacity .35s ease;
+}
+.top-loader.active{width:78%}
+.top-loader.done{width:100%;opacity:0}
+
 </style>
 </head>
 <body>
+  <div id="topLoader" class="top-loader"></div>
   <div class="wrap">
     <section class="hero">
       <div class="eyebrow">📝 입주민 회원가입</div>
       <h1>더운정 마이힐스<br>회원가입</h1>
-      <p>입주민 인증 정보를 제출하면 승인 후 혜택 웹앱을 이용할 수 있도록 구성한 별도 가입 화면입니다.</p>
+      <p>입주민 인증 후 승인되면 다양한 서비스 이용이 가능합니다.</p>
     </section>
 
     <section class="panel">
@@ -306,11 +323,11 @@
         <div class="logo">🏢</div>
         <div>
           <h2>가입 신청서</h2>
-          <p>Firebase Auth + Firestore + Storage 연동용</p>
+          <p>입주민 인증 후 이용 가능한 서비스입니다</p>
         </div>
       </div>
 
-      <div class="pill">현재 버전은 회원가입 신청 데이터를 저장하는 구조입니다.</div>
+      <div class="pill">회원가입 신청 후 관리자의 승인 절차가 진행됩니다.</div>
 
       <form id="signupForm">
         <div class="field">
@@ -365,7 +382,7 @@
           <div class="upload-box">
             <input id="residentProof" class="input" type="file" accept="image/*" />
             <div class="helper">
-              마이 힐스 또는 아파트너 화면에서 <strong>동·호수</strong>가 보이도록 캡처한 입주민 인증 이미지를 업로드해 주세요.
+              입주민 확인을 위해 <strong>동·호수</strong>가 보이는 화면을 캡처하여 업로드해 주세요.
             </div>
             <div id="fileMeta" class="upload-meta"></div>
           </div>
@@ -391,7 +408,7 @@
     </section>
 
     <div class="footer">
-      가입 신청이 완료되면 기본 상태는 <strong>승인 대기</strong>로 저장되도록 구성했습니다.
+      가입 신청 후 승인 완료 시 서비스 이용이 가능합니다.
     </div>
   </div>
 
@@ -418,10 +435,12 @@
 
     onAuthStateChanged(auth, (user) => {
       if (user) {
+        startLoading();
         window.location.replace('./app.html');
         return;
       }
       document.body.style.opacity = '1';
+      finishLoading();
     });
 
     const qs = (selector) => document.querySelector(selector);
@@ -431,6 +450,7 @@
     const noticeEl = qs('#notice');
     const fileInput = qs('#residentProof');
     const fileMeta = qs('#fileMeta');
+    const topLoader = qs('#topLoader');
 
     const alertEl = qs('#appAlert');
     const alertMsgEl = qs('#appAlertMessage');
@@ -497,6 +517,23 @@
     });
 
 
+    function startLoading(){
+      if (!topLoader) return;
+      topLoader.style.width = '0';
+      topLoader.classList.remove('done');
+      requestAnimationFrame(() => topLoader.classList.add('active'));
+    }
+
+    function finishLoading(){
+      if (!topLoader) return;
+      topLoader.classList.remove('active');
+      topLoader.classList.add('done');
+      setTimeout(() => {
+        topLoader.style.width = '0';
+        topLoader.classList.remove('done');
+      }, 420);
+    }
+
     function showNotice(message, type='info'){
       noticeEl.className = `notice show ${type}`;
       noticeEl.textContent = message;
@@ -527,7 +564,10 @@
       if (!hasTypedValue && !hasFile && !hasChecked) return;
       event.preventDefault();
       const confirmed = await openModalConfirm('작성 중인 내용이 있다면 저장되지 않습니다. 로그인 페이지로 이동할까요?', qs('#goLoginLink'), '페이지 이동', '이동', '계속 작성');
-      if (confirmed) window.location.href = './index.html';
+      if (confirmed) {
+        startLoading();
+        window.location.href = './index.html';
+      }
     });
 
     fileInput.addEventListener('change', () => {
@@ -569,6 +609,7 @@
       const proofFile = fileInput.files?.[0];
 
       const fail = async (message, element) => {
+        finishLoading();
         showNotice(message, 'error');
         await openModalAlert(message, element);
       };
@@ -633,6 +674,8 @@
         return;
       }
 
+      startLoading();
+
       try {
         setLoading(true);
 
@@ -667,7 +710,8 @@
           updatedAt: serverTimestamp()
         });
 
-        showNotice('회원가입 신청이 완료되었습니다.\n현재 상태는 승인 대기입니다.\n관리자 확인 후 index.html 로그인 페이지에서 이용해 주세요.', 'success');
+        showNotice('회원가입 신청이 완료되었습니다.\n현재 상태는 승인 대기입니다.\n관리자 확인 후 로그인 페이지에서 이용해 주세요.', 'success');
+        finishLoading();
         await openModalAlert('회원가입 신청이 완료되었습니다. 승인 후 로그인해주세요.');
         form.reset();
         fileMeta.className = 'upload-meta';
@@ -697,6 +741,7 @@
           focusTarget = qs('#email');
         }
 
+        finishLoading();
         showNotice(message, 'error');
         await openModalAlert(message, focusTarget);
       } finally {

@@ -37,7 +37,6 @@
       justify-content:center;
       align-items:center;
       padding:20px;
-      transition:opacity .18s ease;
     }
     .wrap{
       width:min(100%,420px);
@@ -166,15 +165,23 @@
       gap:8px;
       transition:transform .15s ease, opacity .15s ease, background-color .15s ease;
     }
-    .btn:active{ transform:scale(.985); }
-    .btn-primary{ background:var(--primary); color:#fff; }
+    .btn:active{
+      transform:scale(.985);
+    }
+    .btn-primary{
+      background:var(--primary);
+      color:#fff;
+    }
     .btn-soft{
       margin-top:10px;
       background:#fff;
       color:var(--text);
       border:1px solid var(--line);
     }
-    .btn[disabled]{ opacity:.65; cursor:not-allowed; }
+    .btn[disabled]{
+      opacity:.65;
+      cursor:not-allowed;
+    }
     .notice{
       display:none;
       margin-top:14px;
@@ -186,9 +193,21 @@
       white-space:pre-line;
     }
     .notice.show{display:block}
-    .notice.info{ background:#eff6ff; border-color:#bfdbfe; color:#1d4ed8; }
-    .notice.error{ background:#fef2f2; border-color:#fecaca; color:#b91c1c; }
-    .notice.success{ background:#f0fdf4; border-color:#bbf7d0; color:#166534; }
+    .notice.info{
+      background:#eff6ff;
+      border-color:#bfdbfe;
+      color:#1d4ed8;
+    }
+    .notice.error{
+      background:#fef2f2;
+      border-color:#fecaca;
+      color:#b91c1c;
+    }
+    .notice.success{
+      background:#f0fdf4;
+      border-color:#bbf7d0;
+      color:#166534;
+    }
     .footer{
       text-align:center;
       margin-top:14px;
@@ -197,7 +216,7 @@
       line-height:1.6;
     }
     .hidden{display:none!important}
-
+  
     .app-alert{position:fixed;inset:0;display:none;align-items:center;justify-content:center;padding:20px;z-index:9999;background:rgba(15,23,42,.46);backdrop-filter:blur(4px)}
     .app-alert.show{display:flex}
     .app-alert-card{width:min(100%,360px);background:#fff;border:1px solid rgba(255,255,255,.75);box-shadow:0 30px 60px rgba(15,23,42,.20);border-radius:26px;padding:22px}
@@ -208,14 +227,33 @@
     .app-alert-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:18px}
     .app-alert-cancel{min-width:92px;border:1px solid var(--line);border-radius:16px;padding:12px 16px;background:#fff;color:var(--text);font-weight:800;cursor:pointer}
     .app-alert-confirm{min-width:92px;border:none;border-radius:16px;padding:12px 16px;background:var(--primary);color:#fff;font-weight:800;cursor:pointer}
-  </style>
+    .app-alert-confirm{min-width:92px;border:none;border-radius:16px;padding:12px 16px;background:var(--primary);color:#fff;font-weight:800;cursor:pointer}
+    
+
+/* 상단 로딩바 */
+.top-loader{
+  position:fixed;
+  top:0;
+  left:0;
+  height:3px;
+  width:0;
+  background:linear-gradient(90deg,#ef4444,#f59e0b);
+  z-index:9999;
+  opacity:1;
+  transition:width .35s ease, opacity .35s ease;
+}
+.top-loader.active{width:78%}
+.top-loader.done{width:100%;opacity:0}
+
+</style>
 </head>
 <body>
+  <div id="topLoader" class="top-loader"></div>
   <div class="wrap">
     <section class="hero">
       <div class="eyebrow">🏠 입주민 전용 로그인</div>
       <h1>더운정 마이힐스<br>로그인</h1>
-      <p>승인된 사용자만 혜택 웹앱에 접근할 수 있도록 별도 로그인 화면을 준비했습니다.</p>
+      <p>입주민 전용 서비스 이용을 위해 로그인해 주세요.</p>
     </section>
 
     <section class="panel">
@@ -223,7 +261,7 @@
         <div class="logo">🔐</div>
         <div>
           <h2>계정 로그인</h2>
-          <p>Firebase Authentication 기반</p>
+          <p>입주민 전용 서비스 로그인</p>
         </div>
       </div>
 
@@ -239,7 +277,7 @@
         </div>
 
         <div class="helper">
-          현재는 지정된 승인 이메일만 로그인 가능하도록 제한해 두었습니다.
+          입주민 승인 완료된 계정만 이용 가능합니다.
         </div>
 
         <button id="loginBtn" class="btn btn-primary" type="submit">로그인</button>
@@ -251,21 +289,7 @@
     </section>
 
     <div class="footer">
-      로그인 성공 시 <strong>app.html</strong> 로 이동합니다.
-    </div>
-  </div>
-
-  <div class="app-alert" id="appAlert" aria-hidden="true">
-    <div class="app-alert-card" role="alertdialog" aria-modal="true" aria-labelledby="appAlertTitle" aria-describedby="appAlertMessage">
-      <div class="app-alert-head">
-        <div class="app-alert-icon" id="appAlertIcon">⚠️</div>
-        <h3 class="app-alert-title" id="appAlertTitle">안내</h3>
-      </div>
-      <p class="app-alert-message" id="appAlertMessage"></p>
-      <div class="app-alert-actions">
-        <button class="app-alert-cancel hidden" id="appAlertCancel" type="button">취소</button>
-        <button class="app-alert-confirm" id="appAlertConfirm" type="button">확인</button>
-      </div>
+      로그인 후 입주민 전용 서비스로 이동합니다.
     </div>
   </div>
 
@@ -308,6 +332,7 @@
     const logoutBtn = qs('#logoutBtn');
     const noticeEl = qs('#notice');
     const loginForm = qs('#loginForm');
+    const topLoader = qs('#topLoader');
 
     const alertEl = qs('#appAlert');
     const alertMsgEl = qs('#appAlertMessage');
@@ -317,6 +342,45 @@
     const alertCancelEl = qs('#appAlertCancel');
     let alertFocusTarget = null;
     let alertResolver = null;
+
+    function startLoading(){
+      if (!topLoader) return;
+      topLoader.style.width = '0';
+      topLoader.classList.remove('done');
+      requestAnimationFrame(() => topLoader.classList.add('active'));
+    }
+
+    function finishLoading(){
+      if (!topLoader) return;
+      topLoader.classList.remove('active');
+      topLoader.classList.add('done');
+      setTimeout(() => {
+        topLoader.style.width = '0';
+        topLoader.classList.remove('done');
+      }, 420);
+    }
+
+    function showNotice(message, type='info'){
+      noticeEl.className = `notice show ${type}`;
+      noticeEl.textContent = message;
+    }
+
+    function hideNotice(){
+      noticeEl.className = 'notice info';
+      noticeEl.textContent = '';
+    }
+
+    function setLoginLoading(isLoading){
+      loginBtn.disabled = isLoading;
+      loginBtn.textContent = isLoading ? '로그인 중...' : '로그인';
+      signupBtn.disabled = isLoading;
+      emailEl.disabled = isLoading;
+      passwordEl.disabled = isLoading;
+    }
+
+    function normalizeEmail(value=''){
+      return String(value).trim().toLowerCase();
+    }
 
     function openModalBase({
       title='안내',
@@ -371,65 +435,18 @@
       if(event.key === 'Escape') closeModal(false);
     });
 
-    function normalizeEmail(value=''){
-      return String(value).trim().toLowerCase();
-    }
-
-    function setLoading(isLoading){
-      loginBtn.disabled = isLoading;
-      logoutBtn.disabled = isLoading;
-      signupBtn.disabled = isLoading;
-      loginBtn.textContent = isLoading ? '로그인 중...' : '로그인';
-    }
-
-    function showNotice(message, type='info'){
-      noticeEl.className = `notice show ${type}`;
-      noticeEl.textContent = message;
-    }
-
-    function hideNotice(){
-      noticeEl.className = 'notice info';
-      noticeEl.textContent = '';
-    }
-
-    function isAllowedEmail(email){
-      return ALLOWED_EMAILS.includes(normalizeEmail(email));
-    }
-
-    function goToApp(){
-      window.location.replace(REDIRECT_AFTER_LOGIN);
-    }
-
-    await setPersistence(auth, browserLocalPersistence);
-
-    onAuthStateChanged(auth, async (user) => {
-      if (!user) {
-        logoutBtn.classList.add('hidden');
-        document.body.style.opacity = '1';
-        return;
-      }
-
-      const email = normalizeEmail(user.email);
-
-      if (!isAllowedEmail(email)) {
-        await signOut(auth);
-        showNotice('승인되지 않은 계정입니다.\n관리자에게 문의해 주세요.', 'error');
-        document.body.style.opacity = '1';
-        return;
-      }
-
-      showNotice('이미 로그인되어 있습니다. 메인 화면으로 이동합니다.', 'success');
-      logoutBtn.classList.remove('hidden');
-      goToApp();
-    });
-
     signupBtn.addEventListener('click', () => {
+      startLoading();
       window.location.href = './signup.html';
     });
 
     logoutBtn.addEventListener('click', async () => {
       const confirmed = await openModalConfirm('로그아웃 하시겠습니까?', logoutBtn, '로그아웃', '로그아웃', '취소');
       if (!confirmed) return;
+
+      startLoading();
+      logoutBtn.disabled = true;
+
       try {
         await signOut(auth);
         showNotice('로그아웃되었습니다.', 'success');
@@ -438,6 +455,9 @@
       } catch (error) {
         await openModalAlert('로그아웃 처리 중 오류가 발생했습니다.', logoutBtn);
         showNotice('로그아웃 처리 중 오류가 발생했습니다.', 'error');
+      } finally {
+        logoutBtn.disabled = false;
+        finishLoading();
       }
     });
 
@@ -449,55 +469,49 @@
       const password = passwordEl.value;
 
       if (!email) {
-        const message = '이메일을 입력해주세요.';
-        showNotice(message, 'error');
-        await openModalAlert(message, emailEl);
+        showNotice('이메일을 입력해주세요.', 'error');
+        await openModalAlert('이메일을 입력해주세요.', emailEl);
         return;
       }
 
       if (!password) {
-        const message = '비밀번호를 입력해주세요.';
-        showNotice(message, 'error');
-        await openModalAlert(message, passwordEl);
+        showNotice('비밀번호를 입력해주세요.', 'error');
+        await openModalAlert('비밀번호를 입력해주세요.', passwordEl);
         return;
       }
 
-      if (!isAllowedEmail(email)) {
-        const message = '허용된 사용자 계정이 아닙니다.';
-        showNotice(message, 'error');
-        await openModalAlert(message, emailEl);
-        return;
-      }
+      startLoading();
+      setLoginLoading(true);
 
       try {
-        setLoading(true);
-        const result = await signInWithEmailAndPassword(auth, email, password);
-        const signedInEmail = normalizeEmail(result.user?.email);
+        await setPersistence(auth, browserLocalPersistence);
+        const credential = await signInWithEmailAndPassword(auth, email, password);
+        const loginEmail = normalizeEmail(credential.user?.email || '');
 
-        if (!isAllowedEmail(signedInEmail)) {
+        if (ALLOWED_EMAILS.length && !ALLOWED_EMAILS.includes(loginEmail)) {
           await signOut(auth);
-          const message = '승인되지 않은 계정입니다.';
-          showNotice(message, 'error');
-          await openModalAlert(message, emailEl);
+          showNotice('승인된 입주민 계정만 이용 가능합니다.', 'error');
+          await openModalAlert('승인된 입주민 계정만 이용 가능합니다.', emailEl);
           return;
         }
 
-        showNotice('로그인에 성공했습니다. 메인 화면으로 이동합니다.', 'success');
-        goToApp();
+        showNotice('로그인되었습니다. 잠시 후 이동합니다.', 'success');
+        finishLoading();
+        window.location.href = REDIRECT_AFTER_LOGIN;
       } catch (error) {
         const code = error?.code || '';
-        let message = '로그인에 실패했습니다. 다시 확인해 주세요.';
-        let focusTarget = passwordEl;
+        let message = '로그인 중 오류가 발생했습니다. 다시 시도해 주세요.';
+        let focusTarget = emailEl;
 
-        if (code === 'auth/invalid-credential' || code === 'auth/wrong-password') {
-          message = '이메일 또는 비밀번호가 올바르지 않습니다.';
-          focusTarget = passwordEl;
-        } else if (code === 'auth/user-not-found') {
-          message = '등록되지 않은 계정입니다.';
+        if (code === 'auth/invalid-email') {
+          message = '이메일 형식이 올바르지 않습니다.';
           focusTarget = emailEl;
-        } else if (code === 'auth/too-many-requests') {
-          message = '로그인 시도가 너무 많습니다. 잠시 후 다시 시도해 주세요.';
+        } else if (code === 'auth/invalid-credential' || code === 'auth/wrong-password' || code === 'auth/user-not-found') {
+          message = '이메일 또는 비밀번호를 다시 확인해 주세요.';
           focusTarget = passwordEl;
+        } else if (code === 'auth/too-many-requests') {
+          message = '시도가 너무 많습니다. 잠시 후 다시 시도해 주세요.';
+          focusTarget = emailEl;
         } else if (code === 'auth/network-request-failed') {
           message = '네트워크 연결을 확인해 주세요.';
           focusTarget = emailEl;
@@ -505,10 +519,40 @@
 
         showNotice(message, 'error');
         await openModalAlert(message, focusTarget);
+        finishLoading();
       } finally {
-        setLoading(false);
+        setLoginLoading(false);
       }
     });
+
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        logoutBtn.classList.remove('hidden');
+        document.body.style.opacity = '1';
+        finishLoading();
+        window.location.replace(REDIRECT_AFTER_LOGIN);
+        return;
+      }
+
+      logoutBtn.classList.add('hidden');
+      document.body.style.opacity = '1';
+      finishLoading();
+    });
   </script>
+
+  <div class="app-alert" id="appAlert" aria-hidden="true">
+    <div class="app-alert-card" role="alertdialog" aria-modal="true" aria-labelledby="appAlertTitle" aria-describedby="appAlertMessage">
+      <div class="app-alert-head">
+        <div class="app-alert-icon" id="appAlertIcon">⚠️</div>
+        <h3 class="app-alert-title" id="appAlertTitle">안내</h3>
+      </div>
+      <p class="app-alert-message" id="appAlertMessage"></p>
+      <div class="app-alert-actions">
+        <button class="app-alert-cancel hidden" id="appAlertCancel" type="button">취소</button>
+        <button class="app-alert-confirm" id="appAlertConfirm" type="button">확인</button>
+      </div>
+    </div>
+  </div>
+
 </body>
 </html>
