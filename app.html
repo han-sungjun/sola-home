@@ -46,6 +46,17 @@
 .topbar-right{display:flex;align-items:center;gap:10px}
 .topbar-title{margin-top:6px}
 
+
+.popular-list{display:grid;gap:10px}
+.popular-item{display:flex;align-items:center;gap:12px;padding:14px 16px;border-radius:20px;background:#fff;border:1px solid var(--line-soft);box-shadow:var(--shadow);cursor:pointer}
+.popular-rank{width:36px;height:36px;border-radius:14px;display:grid;place-items:center;background:linear-gradient(135deg,#111827,#ef4444);color:#fff;font-weight:800;flex:0 0 auto}
+.popular-meta{min-width:0;flex:1}
+.popular-name{font-weight:800;font-size:15px;line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.popular-sub{font-size:12px;color:var(--muted);margin-top:4px}
+.popular-score{text-align:right;flex:0 0 auto}
+.popular-score strong{display:block;font-size:16px}
+.popular-score span{display:block;font-size:11px;color:var(--muted);margin-top:2px}
+
 </style>
 </head>
 <body>
@@ -78,6 +89,7 @@
       <div class="hero"><div class="eyebrow">🏠 마이힐스 어플 제시 후 이용</div><h2>입주민 혜택을 앱처럼 깔끔하게</h2><p>입주민 전용 제휴 혜택과 매장 정보를 한눈에 확인해보세요.</p><div class="stats"><div class="stat"><strong id="statMax">50%</strong><span>최대 할인</span></div><div class="stat"><strong id="statCount">21</strong><span>전체 제휴</span></div><div class="stat"><strong id="statCat">9</strong><span>카테고리</span></div></div></div>
       <div class="panel notice hidden" id="firebaseNotice">Firebase 설정값이 비어 있습니다. firebaseConfig를 확인해 주세요.</div>
       <div class="panel" id="popularPanel" style="margin-top:14px;"><div class="section-head" style="margin-bottom:12px;"><h3>인기 통계 안내</h3><small>Firebase 집계</small></div><div class="helper">상세보기, 카드 클릭, 즐겨찾기, 전화, 지도 클릭 수는 <strong>benefit_stats</strong>에 누적되고, 원본 이벤트는 <strong>benefit_events</strong>에 함께 기록됩니다.</div></div>
+      <div class="panel" id="top5Panel" style="margin-top:14px;"><div class="section-head" style="margin-bottom:12px;"><h3>인기 매장 TOP 5</h3><small id="popularUpdatedText">실시간 집계</small></div><div class="list popular-list" id="popularList"><div class="panel empty">아직 집계된 인기 매장이 없습니다.</div></div></div>
       <div class="filter-sticky"><div class="panel searchbox"><span>🔍</span><input id="searchInput" type="text" placeholder="매장명, 카테고리, 조건 검색"><button class="icon-btn" id="resetBtn" title="초기화">↺</button></div>
       <div class="chips" id="chips"><button class="chip active">전체</button><button class="chip ">음식</button><button class="chip ">베이커리</button><button class="chip ">주점</button><button class="chip ">중식당</button><button class="chip ">카페</button><button class="chip ">디저트</button><button class="chip ">피부관리</button><button class="chip ">치킨</button><button class="chip ">미용</button></div><div class="chips-toggle"><button id="chipsToggle" class="chip chips-toggle-btn hidden" type="button">더보기 ▾</button></div></div>
       
@@ -92,14 +104,14 @@
   <script type="module">
     import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
     import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
-    import { getFirestore, collection, onSnapshot, doc, getDoc, setDoc, updateDoc, increment, serverTimestamp, addDoc } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
+    import { getFirestore, collection, onSnapshot, doc, getDoc, setDoc, updateDoc, increment, serverTimestamp, addDoc, query, orderBy, limit } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
     const firebaseConfig = { apiKey:"AIzaSyDhKr7oMSrLowJ47cqB4pvNXuIIdtW0HPI", authDomain:"sola-home-4979a.firebaseapp.com", projectId:"sola-home-4979a", storageBucket:"sola-home-4979a.firebasestorage.app", messagingSenderId:"337132471819", appId:"1:337132471819:web:848cd357fecda459a2e90e" };
     const LOGIN_PAGE_URL = './index.html';
     const BENEFITS_COLLECTION='benefits', BENEFIT_STATS_COLLECTION='benefit_stats', BENEFIT_EVENTS_COLLECTION='benefit_events', FAVORITES_KEY='myhills_favorites_firebase', LAST_CATEGORY_KEY='myhills_last_category', CHIPS_EXPANDED_KEY='myhills_chips_expanded';
     const app=initializeApp(firebaseConfig);
     const auth=getAuth(app);
     const db=getFirestore(app);
-    const state={category:localStorage.getItem(LAST_CATEGORY_KEY)||'전체',keyword:'',filter:'all',view:'home',benefits:[],loading:true,currentUser:null,currentUserProfile:null};
+    const state={category:localStorage.getItem(LAST_CATEGORY_KEY)||'전체',keyword:'',filter:'all',view:'home',benefits:[],loading:true,currentUser:null,currentUserProfile:null,popularItems:[]};
     const qs=(s)=>document.querySelector(s), qsa=(s)=>[...document.querySelectorAll(s)];
     const alertEl = qs('#appAlert');
     const alertMsgEl = qs('#appAlertMessage');
@@ -262,6 +274,62 @@
     function toggleFavorite(id, name){const set=new Set(getFavorites());const isAdding=!set.has(id);if(isAdding){set.add(id);increaseStat(id, name, 'favoriteCount');logBenefitEvent(id, 'favorite');}else{set.delete(id);}setFavorites([...set]);renderAll();}
     const hasFirebaseConfig=()=>firebaseConfig.apiKey&&firebaseConfig.projectId&&firebaseConfig.appId;
     function subscribeBenefits(){onSnapshot(collection(db,BENEFITS_COLLECTION),(snapshot)=>{state.benefits=snapshot.docs.map(d=>sanitizeBenefit(d.data(),d.id));state.loading=false;renderAll();},()=>{state.loading=false;qs('#homeLoading').textContent='데이터를 불러오지 못했습니다. Firestore 규칙과 설정을 확인해 주세요.';renderAll();});}
+
+    function subscribePopularStats(){
+      const popularQuery = query(collection(db, BENEFIT_STATS_COLLECTION), orderBy('detailViewCount', 'desc'), limit(5));
+      onSnapshot(popularQuery, (snapshot) => {
+        state.popularItems = snapshot.docs.map((d) => {
+          const data = d.data() || {};
+          const benefit = state.benefits.find((item) => item.id === d.id);
+          const score = Number(data.detailViewCount || 0);
+          return {
+            id: d.id,
+            name: data.name || benefit?.name || '이름 없는 매장',
+            category: benefit?.category || '기타',
+            condition: benefit?.condition || '',
+            score,
+            benefit: benefit || null
+          };
+        }).filter((item) => item.score > 0);
+        renderPopularTop5();
+      }, () => {
+        const wrap = qs('#popularList');
+        if (wrap) {
+          wrap.innerHTML = '<div class="panel empty">인기 통계를 불러오지 못했습니다.</div>';
+        }
+      });
+    }
+
+    function renderPopularTop5(){
+      const wrap = qs('#popularList');
+      if(!wrap) return;
+      wrap.innerHTML = '';
+      if(!state.popularItems.length){
+        wrap.innerHTML = '<div class="panel empty">아직 집계된 인기 매장이 없습니다.</div>';
+        return;
+      }
+      state.popularItems.forEach((item, index) => {
+        const row = document.createElement('article');
+        row.className = 'popular-item';
+        row.innerHTML = `
+          <div class="popular-rank">${index + 1}</div>
+          <div class="popular-meta">
+            <div class="popular-name">${item.name}</div>
+            <div class="popular-sub">${item.category}${item.condition ? ' · ' + item.condition : ''}</div>
+          </div>
+          <div class="popular-score">
+            <strong>${item.score}</strong>
+            <span>상세조회</span>
+          </div>
+        `;
+        row.onclick = () => {
+          if(item.benefit){
+            openDetail(item.benefit);
+          }
+        };
+        wrap.appendChild(row);
+      });
+    }
     const getVisibleBenefits=()=>state.benefits.filter(v=>v.visible!==false);
     const getCategoryCounts=()=> {
       const counts = {};
@@ -319,7 +387,7 @@
       qs('#mapBtn').onclick=()=>{increaseStat(item.id, item.name, 'mapClickCount');logBenefitEvent(item.id, 'map_click');};
     }
     function updateView(){qsa('[id^="view-"]').forEach(v=>v.classList.add('hidden'));(qs(`#view-${state.view}`)||qs('#view-home')).classList.remove('hidden');qsa('.bottom-nav .nav-btn').forEach(btn=>btn.classList.remove('active'));const active=qsa('.bottom-nav .nav-btn').find(btn=>btn.dataset.view===state.view);if(active)active.classList.add('active');}
-    const renderAll=()=>{createChips();renderStats();renderHome();renderFavorites();updateView();};
+    const renderAll=()=>{createChips();renderStats();renderHome();renderFavorites();renderPopularTop5();updateView();};
     qs('#searchInput').addEventListener('input',(e)=>{state.keyword=e.target.value;renderAll();});
     qs('#resetBtn').onclick=()=>{state.category='전체';localStorage.setItem(LAST_CATEGORY_KEY,'전체');state.keyword='';state.filter='all';state.view='home';qs('#searchInput').value='';renderAll();};
     qsa('.bottom-nav .nav-btn').forEach(btn=>{btn.onclick=()=>{if(btn.dataset.view){state.view=btn.dataset.view;if(btn.dataset.view!=='home')state.filter='all';}renderAll();};});
@@ -364,6 +432,7 @@
       if(hasFirebaseConfig()){
         qs('#firebaseNotice').classList.add('hidden');
         subscribeBenefits();
+        subscribePopularStats();
       }else{
         qs('#firebaseNotice').classList.remove('hidden');
         state.loading=false;
