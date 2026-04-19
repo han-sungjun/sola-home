@@ -13,12 +13,29 @@ firebase.initializeApp({
 const messaging = firebase.messaging();
 
 messaging.onBackgroundMessage((payload) => {
-  const title = payload?.notification?.title || '새 알림';
+  const title =
+    payload?.notification?.title ||
+    payload?.data?.title ||
+    '새 알림';
+
+  const body =
+    payload?.notification?.body ||
+    payload?.data?.body ||
+    '';
+
+  const targetUrl =
+    payload?.data?.click_action ||
+    payload?.data?.url ||
+    '/';
+
   const options = {
-    body: payload?.notification?.body || '',
+    body,
     icon: '/icons/icon-192.png',
     badge: '/icons/icon-192.png',
-    data: payload?.data || {}
+    data: {
+      ...payload?.data,
+      click_action: targetUrl
+    }
   };
 
   self.registration.showNotification(title, options);
@@ -27,7 +44,10 @@ messaging.onBackgroundMessage((payload) => {
 self.addEventListener('notificationclick', (event) => {
   event.notification.close();
 
-  const targetUrl = event.notification?.data?.click_action || '/';
+  const targetUrl =
+    event.notification?.data?.click_action ||
+    event.notification?.data?.url ||
+    '/';
 
   event.waitUntil(
     clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clientList) => {
