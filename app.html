@@ -319,6 +319,17 @@
   .gnb-hero-emoji{font-size:64px}
 }
 
+
+.notice-list{display:grid;gap:12px}
+.notice-item{background:#fff;border:1px solid var(--line-soft);border-radius:22px;padding:16px;box-shadow:var(--shadow);cursor:pointer}
+.notice-item h4{margin:0 0 8px;font-size:16px;letter-spacing:-.03em}
+.notice-item p{margin:0;color:var(--muted);font-size:13px;line-height:1.6;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.notice-meta{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:10px}
+.notice-badge{display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border-radius:999px;background:#f8fafc;border:1px solid var(--line);font-size:12px;color:#475569}
+.notice-badge.pin{background:#fff7ed;border-color:#fed7aa;color:#c2410c;font-weight:700}
+.notice-date{font-size:12px;color:var(--muted)}
+.notice-empty{padding:18px;text-align:center;color:var(--muted)}
+
 </style>
 </head>
 <body>
@@ -358,6 +369,11 @@
         <div class="section-head" style="margin-bottom:12px;"><h3>공지</h3><small>입주민 안내</small></div>
         <div class="helper">입주민 전용 혜택과 인기 매장을 한눈에 확인할 수 있습니다. 최신 혜택은 하단 <strong>혜택</strong> 탭에서, 인기 매장은 <strong>TOP 5</strong> 탭에서 확인해 주세요.</div>
       </div>
+
+      <div class="panel" style="margin-top:14px;">
+        <div class="section-head" style="margin-bottom:12px;"><h3>최근 공지</h3><small>최신 안내</small></div>
+        <div class="notice-list" id="homeNoticeList"><div class="notice-empty">등록된 공지가 없습니다.</div></div>
+      </div>
     </section>
     <section id="view-benefits" class="hidden">
       <div class="panel" style="margin-bottom:14px;">
@@ -371,34 +387,24 @@
       <div class="list" id="cardList"><div class="panel empty">조건에 맞는 항목이 없습니다.</div></div>
     </section>
     <section id="view-favorite" class="hidden"><div class="panel" style="margin-bottom:14px;"><div class="section-head" style="margin-bottom:12px;"><h3>즐겨찾기</h3><small>자주 쓰는 혜택</small></div><div class="helper">관심 있는 매장을 계정에 저장해 두고 빠르게 확인할 수 있습니다. 로그인한 계정 기준으로 동기화됩니다.</div></div><div class="list" id="favoriteList"><div class="panel empty">조건에 맞는 항목이 없습니다.</div></div></section>
+    <section id="view-notices" class="hidden"><div class="panel" style="margin-bottom:14px;"><div class="section-head" style="margin-bottom:12px;"><h3>공지사항</h3><small>입주민 안내</small></div><div class="helper">관리자가 등록한 공지사항을 확인할 수 있습니다.</div></div><div class="notice-list" id="noticeList"><div class="notice-empty">등록된 공지가 없습니다.</div></div></section>
     <section id="view-top5" class="hidden"><div class="panel" style="margin-bottom:14px;"><div class="section-head" style="margin-bottom:12px;"><h3>인기 매장 TOP 5</h3><small id="popularUpdatedText">실시간 집계</small></div><div class="helper">상세조회 기준으로 가장 많이 본 매장을 따로 모아봤습니다.</div></div><div class="list popular-list" id="popularList"><div class="panel empty">아직 집계된 인기 매장이 없습니다.</div></div></section>
   </div></div>
   <nav class="bottom-nav"><button class="nav-btn active" data-view="home"><span class="nav-icon">🏠</span><span class="nav-label">홈</span></button><button class="nav-btn" data-view="benefits"><span class="nav-icon">🎁</span><span class="nav-label">혜택</span></button><button class="nav-btn" data-view="favorite"><span class="nav-icon">⭐</span><span class="nav-label">즐겨찾기</span></button><button class="nav-btn" data-view="top5"><span class="nav-icon">🏆</span><span class="nav-label">TOP 5</span></button></nav>
   <dialog id="detailModal"><div class="modal-head"><div class="pill">혜택 상세</div><button class="close-btn" id="closeModal">✕</button></div><div class="modal-body" id="modalBody"></div></dialog>
+  <dialog id="noticeModal"><div class="modal-head"><div class="pill">공지사항</div><button class="close-btn" id="closeNoticeModal">✕</button></div><div class="modal-body" id="noticeModalBody"></div></dialog>
   <script type="module">
     import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
     import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
     import { getFirestore, collection, onSnapshot, doc, getDoc, setDoc, updateDoc, increment, serverTimestamp, addDoc, query, orderBy, limit, deleteDoc } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
     const firebaseConfig = { apiKey:"AIzaSyDhKr7oMSrLowJ47cqB4pvNXuIIdtW0HPI", authDomain:"sola-home-4979a.firebaseapp.com", projectId:"sola-home-4979a", storageBucket:"sola-home-4979a.firebasestorage.app", messagingSenderId:"337132471819", appId:"1:337132471819:web:848cd357fecda459a2e90e" };
     const LOGIN_PAGE_URL = './index.html';
-    const BENEFITS_COLLECTION='benefits', BENEFIT_STATS_COLLECTION='benefit_stats', BENEFIT_EVENTS_COLLECTION='benefit_events', LAST_CATEGORY_KEY='myhills_last_category', CHIPS_EXPANDED_KEY='myhills_chips_expanded';
-    const LEGACY_KEYS_TO_REMOVE = ['myhills_favorites_firebase', 'myhills_admin_password'];
+    const BENEFITS_COLLECTION='benefits', NOTICES_COLLECTION='notices', BENEFIT_STATS_COLLECTION='benefit_stats', BENEFIT_EVENTS_COLLECTION='benefit_events', LAST_CATEGORY_KEY='myhills_last_category', CHIPS_EXPANDED_KEY='myhills_chips_expanded';
     const app=initializeApp(firebaseConfig);
     const auth=getAuth(app);
     const db=getFirestore(app);
-    const state={category:localStorage.getItem(LAST_CATEGORY_KEY)||'전체',keyword:'',filter:'all',view:'home',benefits:[],loading:true,currentUser:null,currentUserProfile:null,popularItems:[],favoriteIds:[],scrollMap:{home:0,benefits:0,favorite:0,top5:0}};
+    const state={category:localStorage.getItem(LAST_CATEGORY_KEY)||'전체',keyword:'',filter:'all',view:'home',benefits:[],notices:[],loading:true,currentUser:null,currentUserProfile:null,popularItems:[],favoriteIds:[],scrollMap:{home:0,benefits:0,favorite:0,top5:0,notices:0}};
     const qs=(s)=>document.querySelector(s), qsa=(s)=>[...document.querySelectorAll(s)];
-    function cleanupLegacyStorage(){
-      LEGACY_KEYS_TO_REMOVE.forEach((key) => {
-        try{
-          localStorage.removeItem(key);
-          sessionStorage.removeItem(key);
-        }catch(error){
-          console.error('레거시 저장값 삭제 실패', key, error);
-        }
-      });
-    }
-
     function saveCurrentViewScroll(){
       state.scrollMap[state.view] = window.scrollY || window.pageYOffset || 0;
     }
@@ -617,6 +623,109 @@
     }
     const hasFirebaseConfig=()=>firebaseConfig.apiKey&&firebaseConfig.projectId&&firebaseConfig.appId;
     function subscribeBenefits(){onSnapshot(collection(db,BENEFITS_COLLECTION),(snapshot)=>{state.benefits=snapshot.docs.map(d=>sanitizeBenefit(d.data(),d.id));state.loading=false;renderAll();},()=>{state.loading=false;qs('#homeLoading').textContent='데이터를 불러오지 못했습니다. Firestore 규칙과 설정을 확인해 주세요.';renderAll();});}
+    function formatDateTime(value){
+      try{
+        if(value?.toDate) return value.toDate().toLocaleDateString('ko-KR');
+      }catch(error){}
+      return '';
+    }
+
+    function sanitizeNotice(item={}, id=''){
+      return {
+        id,
+        title: String(item.title || '').trim(),
+        content: String(item.content || '').trim(),
+        category: String(item.category || '일반').trim(),
+        pinned: !!item.pinned,
+        visible: item.visible !== false,
+        createdAt: item.createdAt || null,
+        updatedAt: item.updatedAt || null
+      };
+    }
+
+    function subscribeNotices(){
+      onSnapshot(collection(db, NOTICES_COLLECTION), (snapshot) => {
+        state.notices = snapshot.docs
+          .map((d) => sanitizeNotice(d.data(), d.id))
+          .filter((item) => item.visible !== false)
+          .sort((a, b) => {
+            if (Number(b.pinned) !== Number(a.pinned)) return Number(b.pinned) - Number(a.pinned);
+            const aTime = a.updatedAt?.seconds || a.createdAt?.seconds || 0;
+            const bTime = b.updatedAt?.seconds || b.createdAt?.seconds || 0;
+            return bTime - aTime;
+          });
+        renderNotices();
+      }, (error) => {
+        console.error('공지 로드 실패', error);
+      });
+    }
+
+    function noticeCardTemplate(item){
+      const dateText = formatDateTime(item.updatedAt || item.createdAt);
+      return `
+        <div class="notice-meta">
+          ${item.pinned ? '<span class="notice-badge pin">📌 중요</span>' : ''}
+          <span class="notice-badge">${item.category}</span>
+          ${dateText ? `<span class="notice-date">${dateText}</span>` : ''}
+        </div>
+        <h4>${item.title}</h4>
+        <p>${item.content}</p>
+      `;
+    }
+
+    function openNotice(item){
+      const modal = qs('#noticeModal');
+      const dateText = formatDateTime(item.updatedAt || item.createdAt);
+      qs('#noticeModalBody').innerHTML = `
+        <div class="notice-meta" style="margin-bottom:12px;">
+          ${item.pinned ? '<span class="notice-badge pin">📌 중요</span>' : ''}
+          <span class="notice-badge">${item.category}</span>
+          ${dateText ? `<span class="notice-date">${dateText}</span>` : ''}
+        </div>
+        <h3 style="margin:0 0 12px;font-size:24px;letter-spacing:-.04em;">${item.title}</h3>
+        <div style="white-space:pre-wrap;line-height:1.75;color:#334155;">${item.content}</div>
+      `;
+      if(modal.open) modal.close();
+      modal.showModal();
+    }
+
+    function renderNotices(){
+      const listEl = qs('#noticeList');
+      const homeListEl = qs('#homeNoticeList');
+      const items = state.notices || [];
+
+      if(listEl){
+        listEl.innerHTML = '';
+        if(!items.length){
+          listEl.innerHTML = '<div class="notice-empty">등록된 공지가 없습니다.</div>';
+        }else{
+          items.forEach((item) => {
+            const el = document.createElement('article');
+            el.className = 'notice-item';
+            el.innerHTML = noticeCardTemplate(item);
+            el.onclick = () => openNotice(item);
+            listEl.appendChild(el);
+          });
+        }
+      }
+
+      if(homeListEl){
+        homeListEl.innerHTML = '';
+        const homeItems = items.slice(0, 3);
+        if(!homeItems.length){
+          homeListEl.innerHTML = '<div class="notice-empty">등록된 공지가 없습니다.</div>';
+        }else{
+          homeItems.forEach((item) => {
+            const el = document.createElement('article');
+            el.className = 'notice-item';
+            el.innerHTML = noticeCardTemplate(item);
+            el.onclick = () => openNotice(item);
+            homeListEl.appendChild(el);
+          });
+        }
+      }
+    }
+
 
     function subscribePopularStats(){
       const popularQuery = query(collection(db, BENEFIT_STATS_COLLECTION), orderBy('detailViewCount', 'desc'), limit(5));
@@ -729,7 +838,7 @@
       qs('#mapBtn').onclick=()=>{increaseStat(item.id, item.name, 'mapClickCount');logBenefitEvent(item.id, 'map_click');};
     }
     function updateView(){qsa('[id^="view-"]').forEach(v=>v.classList.add('hidden'));(qs(`#view-${state.view}`)||qs('#view-home')).classList.remove('hidden');qsa('.bottom-nav .nav-btn').forEach(btn=>btn.classList.remove('active'));const active=qsa('.bottom-nav .nav-btn').find(btn=>btn.dataset.view===state.view);if(active)active.classList.add('active');qs('#gnbSheet')?.classList.remove('show');qs('#gnbOverlay')?.classList.remove('show');}
-    const renderAll=()=>{createChips();renderStats();renderHome();renderFavorites();renderPopularTop5();updateView();};
+    const renderAll=()=>{createChips();renderStats();renderHome();renderFavorites();renderPopularTop5();renderNotices();updateView();};
     qs('#searchInput').addEventListener('input',(e)=>{state.keyword=e.target.value;renderAll();});
     qs('#resetBtn').onclick=()=>{state.category='전체';localStorage.setItem(LAST_CATEGORY_KEY,'전체');state.keyword='';state.filter='all';qs('#searchInput').value='';changeView('benefits');};
     qsa('.bottom-nav .nav-btn').forEach(btn=>{btn.onclick=()=>{if(btn.dataset.view){changeView(btn.dataset.view);}};});
@@ -771,6 +880,7 @@
     });
 
     qs('#closeModal').onclick=()=>qs('#detailModal').close();
+    qs('#closeNoticeModal').onclick=()=>qs('#noticeModal').close();
     let deferredPrompt=null;window.addEventListener('beforeinstallprompt',(e)=>{e.preventDefault();deferredPrompt=e;});
     qs('#installTopBtn').onclick=async()=>{if(!deferredPrompt){await openModalAlert('브라우저 메뉴에서 “홈 화면에 추가”를 선택하면 앱처럼 설치할 수 있습니다.', qs('#installTopBtn'));return;}deferredPrompt.prompt();await deferredPrompt.userChoice;deferredPrompt=null;};
     const chipsEl = qs('#chips');
@@ -805,13 +915,13 @@
     qs('#logoutBtn').onclick=async()=>{const confirmed=await openModalConfirm('로그아웃 하시겠습니까?', qs('#logoutBtn'), '로그아웃', '로그아웃', '취소'); if(!confirmed) return; try{await signOut(auth);redirectToLogin();}catch(error){await openModalAlert('로그아웃 중 오류가 발생했습니다.', qs('#logoutBtn'));}};
 
     (async()=>{
-      cleanupLegacyStorage();
       const ok = await ensureAuthenticatedUser();
       if(!ok) return;
       renderAll();
       if(hasFirebaseConfig()){
         qs('#firebaseNotice').classList.add('hidden');
         subscribeBenefits();
+        subscribeNotices();
         subscribePopularStats();
         subscribeFavorites();
       }else{
@@ -832,6 +942,7 @@
         <button class="gnb-icon-btn" type="button" data-view-link="home" title="홈">⌂</button>
         <button class="gnb-icon-btn" type="button" data-view-link="benefits" title="혜택">🎁</button>
         <button class="gnb-icon-btn" type="button" data-view-link="favorite" title="즐겨찾기">☆</button>
+        <button class="gnb-icon-btn" type="button" data-view-link="notices" title="공지사항">📢</button>
         <button class="gnb-icon-btn" type="button" data-view-link="top5" title="TOP 5">🏆</button>
         <button class="gnb-icon-btn gnb-close" id="gnbCloseBtn" type="button" title="닫기">✕</button>
       </div>
@@ -861,6 +972,7 @@
           <h4 class="gnb-menu-group-title">📌 새로 나왔어요</h4>
           <div class="gnb-menu-list">
             <button class="gnb-menu-item" type="button" data-view-link="benefits">혜택 전체보기</button>
+            <button class="gnb-menu-item" type="button" data-view-link="notices">공지사항 보기</button>
             <button class="gnb-menu-item" type="button" data-view-link="top5">인기 매장 TOP 5</button>
             <button class="gnb-menu-item" type="button" data-view-link="favorite">즐겨찾기 확인</button>
           </div>
@@ -872,6 +984,7 @@
             <button class="gnb-menu-subitem" type="button" data-view-link="home">홈</button>
             <button class="gnb-menu-subitem" type="button" data-view-link="benefits">혜택</button>
             <button class="gnb-menu-subitem" type="button" data-view-link="favorite">즐겨찾기</button>
+            <button class="gnb-menu-subitem" type="button" data-view-link="notices">공지사항</button>
             <button class="gnb-menu-subitem" type="button" data-view-link="top5">TOP 5</button>
           </div>
         </div>
