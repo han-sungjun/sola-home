@@ -8,9 +8,9 @@
   <meta name="robots" content="noindex, nofollow, noarchive" />
   <title>더운정 마이힐스 관리자</title>
   <style>
-    :root{--surface:rgba(255,255,255,.82);--line:#e5e7eb;--text:#0f172a;--muted:#64748b;--primary:#0f172a;--accent:#ef4444;--blue:#2563eb;--danger:#dc2626;--shadow:0 20px 40px rgba(15,23,42,.08);--radius-xl:28px}
-    *{box-sizing:border-box}html,body{margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Noto Sans KR","Segoe UI",sans-serif;background:linear-gradient(180deg,#f8fafc 0%,#eef2ff 100%);color:var(--text)}body{max-width:480px;margin:0 auto}button,input,select,textarea{font:inherit}
-    .app{min-height:100dvh;padding:16px 16px 110px}.shell{display:flex;flex-direction:column;gap:14px}.topbar{display:flex;justify-content:space-between;align-items:center}.brand{display:flex;align-items:center;gap:12px}.brand .logo{width:48px;height:48px;border-radius:16px;display:grid;place-items:center;background:#fff;box-shadow:var(--shadow);font-size:22px}.brand h1{margin:0;font-size:24px;letter-spacing:-.05em}.brand p{margin:4px 0 0;color:var(--muted);font-size:13px}.icon-btn{width:44px;height:44px;border:none;border-radius:16px;cursor:pointer;background:rgba(255,255,255,.8);box-shadow:var(--shadow);color:var(--text)}
+    :root{--surface:rgba(255,255,255,.82);--line:#e5e7eb;--text:#0f172a;--muted:#64748b;--primary:#0f172a;--accent:#ef4444;--blue:#2563eb;--danger:#dc2626;--shadow:0 20px 40px rgba(15,23,42,.08);--radius-xl:28px;--app-max:560px}
+    *{box-sizing:border-box}html,body{margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Noto Sans KR","Segoe UI",sans-serif;background:linear-gradient(180deg,#f8fafc 0%,#eef2ff 100%);color:var(--text);overflow-x:hidden}body{max-width:none;margin:0}button,input,select,textarea{font:inherit}
+    .app{min-height:100dvh;width:min(100%,var(--app-max));margin:0 auto;padding:16px 16px 110px;overflow-x:clip}.shell{display:flex;flex-direction:column;gap:14px;width:100%}.topbar{display:flex;justify-content:space-between;align-items:center}.brand{display:flex;align-items:center;gap:12px}.brand .logo{width:48px;height:48px;border-radius:16px;display:grid;place-items:center;background:#fff;box-shadow:var(--shadow);font-size:22px}.brand h1{margin:0;font-size:24px;letter-spacing:-.05em}.brand p{margin:4px 0 0;color:var(--muted);font-size:13px}.icon-btn{width:44px;height:44px;border:none;border-radius:16px;cursor:pointer;background:rgba(255,255,255,.8);box-shadow:var(--shadow);color:var(--text)}
     .hero{position:relative;overflow:hidden;padding:22px;border-radius:30px;color:#fff;background:radial-gradient(circle at top right,rgba(255,255,255,.28),transparent 30%),linear-gradient(135deg,#111827 0%,#1f2937 46%,#ef4444 100%);box-shadow:var(--shadow)}.hero::after{content:"";position:absolute;right:-26px;top:-12px;width:118px;height:118px;border-radius:34px;background:rgba(255,255,255,.14);transform:rotate(18deg)}.eyebrow{display:inline-flex;align-items:center;gap:8px;padding:8px 12px;border-radius:999px;background:rgba(255,255,255,.14);font-size:12px}.hero h2{margin:14px 0 8px;font-size:28px;line-height:1.18;letter-spacing:-.05em;max-width:280px}.hero p{margin:0;max-width:320px;line-height:1.55;color:rgba(255,255,255,.92)}
     .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:18px}.stat{padding:14px;border-radius:18px;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.16);backdrop-filter:blur(10px)}.stat strong{display:block;font-size:20px}.stat span{font-size:12px;color:rgba(255,255,255,.84)}
     .panel,.admin-card{background:var(--surface);border:1px solid rgba(255,255,255,.65);box-shadow:var(--shadow);backdrop-filter:blur(18px);border-radius:var(--radius-xl);padding:16px}.notice{padding:14px 16px;border-radius:18px;background:#eff6ff;border:1px solid #bfdbfe;color:#1d4ed8;font-size:13px;line-height:1.5}.hidden{display:none!important}
@@ -49,11 +49,25 @@
 .admin-view{display:none}
 .admin-view.active{display:block}
 .admin-bottom-nav{
-  position:fixed;left:0;right:0;bottom:0;width:100%;max-width:480px;margin:0 auto;
-  display:grid;grid-template-columns:repeat(4,1fr);gap:6px;
+  position:fixed;
+  left:16px;
+  right:16px;
+  bottom:0;
+  transform:none;
+  width:auto;
+  max-width:calc(var(--app-max) - 32px);
+  margin:0 auto;
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:6px;
   padding:10px 16px calc(14px + env(safe-area-inset-bottom,0px));
-  border-radius:26px 26px 0 0;background:rgba(15,23,42,.92);color:#cbd5e1;
-  box-shadow:0 10px 30px rgba(15,23,42,.18);backdrop-filter:blur(18px);z-index:120;
+  border-radius:26px 26px 0 0;
+  background:rgba(15,23,42,.92);
+  color:#cbd5e1;
+  box-shadow:0 10px 30px rgba(15,23,42,.18);
+  backdrop-filter:blur(18px);
+  z-index:120;
+  overflow:hidden;
 }
 .admin-nav-btn{
   border:none;background:transparent;color:inherit;border-radius:18px;padding:10px 0 12px;cursor:pointer;
@@ -80,10 +94,10 @@
 }
 .gnb-overlay.show{display:block}
 .gnb-sheet{
-  position:fixed;inset:0;background:#fff;z-index:210;display:flex;flex-direction:column;
-  transform:translateY(-100%);transition:transform .28s ease;
+  position:fixed;left:50%;top:0;bottom:0;transform:translate(-50%,-100%);width:min(100%,var(--app-max));background:#fff;z-index:210;display:flex;flex-direction:column;
+  transition:transform .28s ease;
 }
-.gnb-sheet.show{transform:translateY(0)}
+.gnb-sheet.show{transform:translate(-50%,0)}
 .gnb-top{
   background:linear-gradient(180deg,#334155 0%,#3b4752 100%);color:#fff;padding:22px 22px 26px;
 }
@@ -139,15 +153,14 @@
         <button class="icon-btn" id="adminGnbToggleBtn" title="메뉴">☰</button>
       </div>
     </header>
-    <div class="hero"><div class="eyebrow">🔐 관리자 전용</div><h2>혜택 등록과 수정을 한 번에</h2><p>관리자는 로그인 후 Firestore에 실시간으로 혜택을 등록, 수정, 삭제할 수 있습니다.</p><div class="stats"><div class="stat"><strong id="statMax">0%</strong><span>최대 할인</span></div><div class="stat"><strong id="statCount">0</strong><span>전체 제휴</span></div><div class="stat"><strong id="statCat">0</strong><span>카테고리</span></div></div></div>
-    <div class="panel notice hidden" id="firebaseNotice">Firebase 설정값이 비어 있습니다. firebaseConfig를 확인해 주세요.</div>
+    <div class="hero"><div class="eyebrow">🔐 관리자 전용</div><h2>혜택 등록과 수정을 한 번에</h2><p>관리자는 로그인 후 Firestore에 실시간으로 혜택을 등록, 수정, 삭제할 수 있습니다.</p><div class="stats"><div class="stat"><strong class="stat-max">0%</strong><span>최대 할인</span></div><div class="stat"><strong class="stat-count">0</strong><span>전체 제휴</span></div><div class="stat"><strong class="stat-cat">0</strong><span>카테고리</span></div></div></div>
     <div class="panel notice hidden" id="firebaseNotice">Firebase 설정값이 비어 있습니다. firebaseConfig를 확인해 주세요.</div>
     
     <div class="admin-view active" id="view-dashboard">
       <div class="dashboard-grid">
         <div class="admin-card"><div class="admin-card"><div class="section-head" style="margin-bottom:12px;"><h3 style="font-size:16px;">관리자 로그인</h3><small id="authStatusText">로그인 필요</small></div><div class="form-grid"><div class="field"><label for="adminEmail">이메일</label><input id="adminEmail" type="email" placeholder="admin@example.com" /></div><div class="field"><label for="adminPassword">비밀번호</label><input id="adminPassword" type="password" placeholder="비밀번호 입력" /></div><div class="grid-2"><button class="btn btn-blue" type="button" id="loginBtn">로그인</button><button class="btn btn-soft" type="button" id="logoutBtn">로그아웃</button></div></div></div>
       </div>
-        <div class="hero"><div class="eyebrow">🔐 관리자 전용</div><h2>관리 기능을 한 번에</h2><p>관리자는 혜택, 공지, 회원 승인을 이 화면에서 나눠 관리할 수 있습니다.</p><div class="stats"><div class="stat"><strong id="statMax">0%</strong><span>최대 할인</span></div><div class="stat"><strong id="statCount">0</strong><span>전체 제휴</span></div><div class="stat"><strong id="statCat">0</strong><span>카테고리</span></div></div></div>
+        <div class="hero"><div class="eyebrow">🔐 관리자 전용</div><h2>관리 기능을 한 번에</h2><p>관리자는 혜택, 공지, 회원 승인을 이 화면에서 나눠 관리할 수 있습니다.</p><div class="stats"><div class="stat"><strong class="stat-max">0%</strong><span>최대 할인</span></div><div class="stat"><strong class="stat-count">0</strong><span>전체 제휴</span></div><div class="stat"><strong class="stat-cat">0</strong><span>카테고리</span></div></div></div>
         <div class="admin-card">
           <div class="section-head" style="margin-bottom:12px;"><h3 style="font-size:16px;">빠른 작업</h3><small>바로가기</small></div>
           <div class="quick-actions">
@@ -158,11 +171,11 @@
           </div>
         </div>
         <div class="admin-card">
-          <div class="section-head" style="margin-bottom:12px;"><h3 style="font-size:16px;">최근 공지</h3><small id="noticeCount">0건</small></div>
+          <div class="section-head" style="margin-bottom:12px;"><h3 style="font-size:16px;">최근 공지</h3><small id="dashboardNoticeCount">0건</small></div>
           <div class="mini-list" id="dashboardNoticeList"></div>
         </div>
         <div class="admin-card">
-          <div class="section-head" style="margin-bottom:12px;"><h3 style="font-size:16px;">최근 혜택</h3><small id="adminCount">0건</small></div>
+          <div class="section-head" style="margin-bottom:12px;"><h3 style="font-size:16px;">최근 혜택</h3><small id="dashboardBenefitCount">0건</small></div>
           <div class="mini-list" id="dashboardBenefitList"></div>
         </div>
       </div>
@@ -174,7 +187,7 @@
         <div class="admin-card"><div class="section-head" style="margin-bottom:12px;"><h3 style="font-size:16px;">혜택 등록 / 수정</h3><small id="formModeLabel">새 항목</small></div><form id="benefitForm" class="form-grid"><input type="hidden" id="editId" value="" /><div class="field"><label for="name">매장명</label><input id="name" required /></div><div class="grid-2"><div class="field"><label for="category">카테고리</label><input id="category" placeholder="예: 음식, 미용, 카페" required /></div><div class="field"><label for="discountText">혜택 표기</label><input id="discountText" placeholder="예: 10% 또는 서비스" required /></div></div><div class="grid-2"><div class="field"><label for="discountValue">할인 수치</label><input id="discountValue" type="number" min="0" placeholder="서비스면 0" required /></div><div class="field"><label for="serviceType">혜택 유형</label><select id="serviceType"><option value="discount">할인형</option><option value="service">서비스형</option></select></div></div><div class="field"><label>운영 옵션</label><div class="check-row"><label><input type="checkbox" id="visible" checked> 노출</label><label><input type="checkbox" id="recommended"> 추천</label></div></div><div class="field"><label for="condition">혜택 조건</label><textarea id="condition" required></textarea></div><div class="field"><label for="address">주소</label><input id="address" required /></div><div class="field"><label for="url">길찾기 URL</label><input id="url" placeholder="네이버 지도 또는 카카오 지도 URL" /></div><div class="field"><label for="phone">전화번호</label><input id="phone" required /></div><div class="grid-2"><button type="submit" class="btn btn-primary">저장</button><button type="button" class="btn btn-soft" id="cancelEditBtn">입력 초기화</button></div></form></div>
       
       
-        <div class="admin-card"><div class="section-head" style="margin-bottom:12px;"><h3 style="font-size:16px;">등록된 혜택 목록</h3><small id="adminCount">0건</small></div><div class="mini-list" id="adminList"></div></div>
+        <div class="admin-card"><div class="section-head" style="margin-bottom:12px;"><h3 style="font-size:16px;">등록된 혜택 목록</h3><small id="benefitListCount">0건</small></div><div class="mini-list" id="adminList"></div></div>
     
       </div>
     </div>
@@ -184,7 +197,7 @@
       <div class="admin-groups">
         <div class="admin-card"><div class="section-head" style="margin-bottom:12px;"><h3 style="font-size:16px;">공지 등록 / 수정</h3><small id="noticeFormModeLabel">새 공지</small></div><form id="noticeForm" class="form-grid"><input type="hidden" id="noticeEditId" value="" /><div class="field"><label for="noticeTitle">공지 제목</label><input id="noticeTitle" required /></div><div class="grid-2"><div class="field"><label for="noticeCategory">공지 구분</label><input id="noticeCategory" placeholder="예: 일반, 점검, 이벤트" required /></div><div class="field"><label>공지 옵션</label><div class="check-row"><label><input type="checkbox" id="noticeVisible" checked> 노출</label><label><input type="checkbox" id="noticePinned"> 중요 공지</label></div></div></div><div class="field"><label for="noticeContent">공지 내용</label><textarea id="noticeContent" required></textarea></div><div class="field"><label>푸시 발송 옵션</label><div class="check-row"><label><input type="checkbox" id="sendPushWithNotice"> 저장 후 푸시 작업 생성</label><label><input type="checkbox" id="pushImportantOnly"> 중요 공지로 표시</label></div></div><div class="grid-2"><div class="field"><label for="pushTitle">푸시 제목</label><input id="pushTitle" placeholder="비워두면 공지 제목 사용" /></div><div class="field"><label for="pushBody">푸시 내용</label><input id="pushBody" placeholder="비워두면 공지 내용 앞부분 사용" /></div></div><div class="grid-2"><button type="submit" class="btn btn-primary">공지 저장</button><button type="button" class="btn btn-soft" id="cancelNoticeEditBtn">입력 초기화</button></div></form></div>
 
-        <div class="admin-card"><div class="section-head" style="margin-bottom:12px;"><h3 style="font-size:16px;">등록된 공지 목록</h3><small id="noticeCount">0건</small></div><div class="mini-list" id="noticeAdminList"></div></div>
+        <div class="admin-card"><div class="section-head" style="margin-bottom:12px;"><h3 style="font-size:16px;">등록된 공지 목록</h3><small id="noticeListCount">0건</small></div><div class="mini-list" id="noticeAdminList"></div></div>
       </div>
     </div>
 
@@ -223,6 +236,7 @@
     const BENEFITS_COLLECTION='benefits', NOTICES_COLLECTION='notices', PUSH_JOBS_COLLECTION='push_jobs';
     const DEFAULT_BENEFITS=[{name:'엘스킨케어',category:'피부관리',discountValue:50,discountText:'50%',condition:'첫방문 50% / 입주민 정액권 최대 30%',address:'경기 파주시 경의로 1242 209호, 210호',phone:'0507-1433-5760',url:'',visible:true,recommended:true,service:false},{name:'미스터피자 일산탄현점',category:'음식',discountValue:30,discountText:'30%',condition:'포장 30% / 매장식사 20% + 샐러드 증정',address:'경기 고양시 일산서구 탄현로 136 상가동 2층 204호',phone:'031-911-9296',url:'',visible:true,recommended:true,service:false}];
     const state={benefits:[],notices:[],pushJobs:[],isAdmin:false,view:'dashboard'}; const qs=(s)=>document.querySelector(s), qsa=(s)=>[...document.querySelectorAll(s)];
+    const setTextAll = (selector, text) => qsa(selector).forEach(el => el.textContent = text);
     function updateAdminHeader(user){
       qs('#adminTopUser').textContent = user?.email || '관리자 확인 중';
       qs('#adminTopStatus').textContent = user ? '관리자 로그인됨' : '로그인 필요';
@@ -243,7 +257,17 @@
     function sanitizeNotice(item={},id=''){return {id,title:item.title||'',content:item.content||'',category:item.category||'일반',visible:item.visible!==false,pinned:!!item.pinned,createdAt:item.createdAt||null,updatedAt:item.updatedAt||null};}
     const hasFirebaseConfig=()=>firebaseConfig.apiKey&&firebaseConfig.projectId&&firebaseConfig.appId;
     let auth=null,db=null;
-    function updateStats(){const items=state.benefits;qs('#statCount').textContent=items.length;qs('#statMax').textContent=`${Math.max(0,...items.map(v=>v.discountValue))}%`;qs('#statCat').textContent=new Set(items.map(v=>v.category)).size;qs('#adminCount').textContent=`${items.length}건`;qs('#noticeCount').textContent=`${state.notices.length}건`;const pushCountEl=qs('#pushJobCount'); if(pushCountEl) pushCountEl.textContent=`${state.pushJobs.length}건`;}
+    function updateStats(){
+      const items=state.benefits;
+      setTextAll('.stat-count', String(items.length));
+      setTextAll('.stat-max', `${Math.max(0,...items.map(v=>v.discountValue))}%`);
+      setTextAll('.stat-cat', String(new Set(items.map(v=>v.category)).size));
+      const dashboardBenefitCountEl=qs('#dashboardBenefitCount'); if(dashboardBenefitCountEl) dashboardBenefitCountEl.textContent=`${items.length}건`;
+      const benefitListCountEl=qs('#benefitListCount'); if(benefitListCountEl) benefitListCountEl.textContent=`${items.length}건`;
+      const dashboardNoticeCountEl=qs('#dashboardNoticeCount'); if(dashboardNoticeCountEl) dashboardNoticeCountEl.textContent=`${state.notices.length}건`;
+      const noticeListCountEl=qs('#noticeListCount'); if(noticeListCountEl) noticeListCountEl.textContent=`${state.notices.length}건`;
+      const pushCountEl=qs('#pushJobCount'); if(pushCountEl) pushCountEl.textContent=`${state.pushJobs.length}건`;
+    }
     function resetForm(){qs('#benefitForm').reset();qs('#editId').value='';qs('#formModeLabel').textContent='새 항목';qs('#discountValue').value=0;qs('#serviceType').value='discount';qs('#visible').checked=true;qs('#recommended').checked=false;}
     function resetNoticeForm(){qs('#noticeForm').reset();qs('#noticeEditId').value='';qs('#noticeFormModeLabel').textContent='새 공지';qs('#noticeVisible').checked=true;qs('#noticePinned').checked=false;qs('#noticeCategory').value='일반';qs('#sendPushWithNotice').checked=false;qs('#pushImportantOnly').checked=false;qs('#pushTitle').value='';qs('#pushBody').value='';}
     function fillForm(item){qs('#editId').value=item.id;qs('#formModeLabel').textContent='수정 중';qs('#name').value=item.name;qs('#category').value=item.category;qs('#discountText').value=item.discountText;qs('#discountValue').value=item.discountValue;qs('#serviceType').value=item.service?'service':'discount';qs('#condition').value=item.condition;qs('#address').value=item.address;qs('#url').value=item.url||'';qs('#phone').value=item.phone;qs('#visible').checked=item.visible!==false;qs('#recommended').checked=!!item.recommended;window.scrollTo({top:0,behavior:'smooth'});}
