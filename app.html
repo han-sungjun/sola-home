@@ -381,6 +381,9 @@
             <button class="btn btn-primary block" id="enablePushBtn" type="button">알림 받기</button>
             <button class="btn btn-soft block hidden" id="disablePushBtn" type="button">알림 해제</button>
           </div>
+          <div style="margin-top:10px;font-size:12px;color:var(--muted);line-height:1.6;">
+            ※ Firebase 콘솔의 웹 푸시 인증서(VAPID 키)를 아래 스크립트의 <strong>window.VAPID_PUBLIC_KEY</strong> 값에 넣어야 정상 동작합니다.
+          </div>
         </div>
       </div>
 
@@ -411,12 +414,66 @@
     import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
     import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
     import { getFirestore, collection, onSnapshot, doc, getDoc, setDoc, updateDoc, increment, serverTimestamp, addDoc, query, orderBy, limit, deleteDoc } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
+    import { getMessaging, getToken, onMessage, isSupported } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-messaging.js';
     const firebaseConfig = { apiKey:"AIzaSyDhKr7oMSrLowJ47cqB4pvNXuIIdtW0HPI", authDomain:"sola-home-4979a.firebaseapp.com", projectId:"sola-home-4979a", storageBucket:"sola-home-4979a.firebasestorage.app", messagingSenderId:"337132471819", appId:"1:337132471819:web:848cd357fecda459a2e90e" };
+    window.VAPID_PUBLIC_KEY = window.VAPID_PUBLIC_KEY || 'BJONnfKeKFN8SCWWlo_quJ9pjahri96uw9WZJq2774hBZ8um6edcRb-NP7uRwjmcwHNTTGMuPJX-MUdeThgu5Kw';
     const LOGIN_PAGE_URL = './index.html';
     const BENEFITS_COLLECTION='benefits', NOTICES_COLLECTION='notices', BENEFIT_STATS_COLLECTION='benefit_stats', BENEFIT_EVENTS_COLLECTION='benefit_events', LAST_CATEGORY_KEY='myhills_last_category', CHIPS_EXPANDED_KEY='myhills_chips_expanded';
     const app=initializeApp(firebaseConfig);
     const auth=getAuth(app);
     const db=getFirestore(app);
+    let messaging = null;
+
+    async function initPushSystem(){
+      try{
+        const supported = await isSupported().catch(() => false);
+        if(!supported){
+          window.firebaseMessaging = null;
+          window.getToken = null;
+          window.pushSwRegistration = null;
+          return false;
+        }
+        if(!('serviceWorker' in navigator)){
+          window.firebaseMessaging = null;
+          window.getToken = null;
+          window.pushSwRegistration = null;
+          return false;
+        }
+
+        const registration = await navigator.serviceWorker.register('./firebase-messaging-sw.js');
+        window.pushSwRegistration = registration;
+
+        messaging = getMessaging(app);
+        window.firebaseMessaging = messaging;
+        window.getToken = getToken;
+
+        onMessage(messaging, (payload) => {
+          try{
+            const title = payload?.notification?.title || '새 알림';
+            const body = payload?.notification?.body || '';
+            if(Notification.permission === 'granted'){
+              new Notification(title, {
+                body,
+                icon: '/icons/icon-192.png'
+              });
+            }else{
+              openModalAlert([title, body].filter(Boolean).join('\n\n'));
+            }
+          }catch(error){
+            console.error('포그라운드 푸시 처리 실패', error);
+          }
+        });
+
+        return true;
+      }catch(error){
+        console.error('푸시 초기화 실패', error);
+        window.firebaseMessaging = null;
+        window.getToken = null;
+        window.pushSwRegistration = null;
+        return false;
+      }
+    }
+
     const state={category:localStorage.getItem(LAST_CATEGORY_KEY)||'전체',keyword:'',filter:'all',view:'home',benefits:[],notices:[],loading:true,currentUser:null,currentUserProfile:null,popularItems:[],favoriteIds:[],currentPushToken:null,isPushEnabledForThisDevice:false,scrollMap:{home:0,benefits:0,favorite:0,top5:0,notices:0}};
     const qs=(s)=>document.querySelector(s), qsa=(s)=>[...document.querySelectorAll(s)];
     function setPushStatusUi(enabled){
@@ -544,12 +601,18 @@ async function enablePushNotifications(){
           await openModalAlert('로그인 후 이용해 주세요.');
           return;
         }
-        if(!window.firebaseMessaging || !window.getToken || !window.pushSwRegistration){
-          await openModalAlert('푸시 초기화가 완료되지 않았습니다. 페이지를 새로고침 후 다시 시도해 주세요.');
+        if(!window.VAPID_PUBLIC_KEY || String(window.VAPID_PUBLIC_KEY).includes('BJONnfKeKFN8SCWWlo_quJ9pjahri96uw9WZJq2774hBZ8um6edcRb-NP7uRwjmcwHNTTGMuPJX-MUdeThgu5Kw')){
+          await openModalAlert('VAPID 공개 키가 아직 설정되지 않았습니다. HTML 파일의 window.VAPID_PUBLIC_KEY 값을 실제 키로 바꿔 주세요.');
           return;
         }
-
-        const permission = await Notification.requestPermission();
+        if(!window.firebaseMessaging || !window.getToken || !window.pushSwRegistration){
+          const initialized = await initPushSystem();
+          if(!initialized || !window.firebaseMessaging || !window.getToken || !window.pushSwRegistration){
+            await openModalAlert('푸시 초기화가 완료되지 않았습니다. 페이지를 새로고침 후 다시 시도해 주세요.');
+            return;
+          }
+        }
+const permission = await Notification.requestPermission();
         if(permission !== 'granted'){
           state.currentPushToken = null;
           setPushStatusUi(false);
@@ -604,6 +667,7 @@ async function disablePushNotifications(){
         }
 
         await deleteDoc(doc(db, 'users', state.currentUser.uid, 'pushTokens', state.currentPushToken));
+        state.currentPushToken = null;
         setPushStatusUi(false);
         await openModalAlert('현재 기기에서 푸시 알림이 해제되었습니다.');
       }catch(error){
@@ -1057,14 +1121,13 @@ async function refreshPushStatus(){
       chipsToggleBtn.textContent = expanded ? '접기 ▴' : '더보기 ▾';
     };
 
-    qs('#enablePushBtn')?.addEventListener('click', enablePushNotifications);
-    qs('#disablePushBtn')?.addEventListener('click', disablePushNotifications);
-
     qs('#logoutBtn').onclick=async()=>{const confirmed=await openModalConfirm('로그아웃 하시겠습니까?', qs('#logoutBtn'), '로그아웃', '로그아웃', '취소'); if(!confirmed) return; try{await signOut(auth);redirectToLogin();}catch(error){await openModalAlert('로그아웃 중 오류가 발생했습니다.', qs('#logoutBtn'));}};
 
     (async()=>{
+      await initPushSystem();
       const ok = await ensureAuthenticatedUser();
       if(!ok) return;
+      await refreshPushStatus();
       renderAll();
       if(hasFirebaseConfig()){
         qs('#firebaseNotice').classList.add('hidden');
