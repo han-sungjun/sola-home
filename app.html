@@ -374,14 +374,6 @@
         <div class="section-head" style="margin-bottom:12px;"><h3>최근 공지</h3><small>최신 안내</small></div>
         <div class="notice-list" id="homeNoticeList"><div class="notice-empty">등록된 공지가 없습니다.</div></div>
       </div>
-      <div class="panel" style="margin-top:14px;">
-        <div class="section-head" style="margin-bottom:12px;"><h3>푸시 알림</h3><small id="pushStatusText">미설정</small></div>
-        <div class="helper" id="pushStatusHelper">중요 공지와 관리자 알림을 웹 푸시로 받을 수 있습니다.</div>
-        <div class="grid-2" style="margin-top:12px;">
-          <button class="btn btn-primary" type="button" id="enablePushBtn">알림 허용</button>
-          <button class="btn btn-soft" type="button" id="disablePushBtn">알림 해제</button>
-        </div>
-      </div>
     </section>
     <section id="view-benefits" class="hidden">
       <div class="panel" style="margin-bottom:14px;">
@@ -405,151 +397,34 @@
     import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
     import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
     import { getFirestore, collection, onSnapshot, doc, getDoc, setDoc, updateDoc, increment, serverTimestamp, addDoc, query, orderBy, limit, deleteDoc } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
-    import { getMessaging, getToken, onMessage, isSupported, deleteToken } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-messaging.js';
     const firebaseConfig = { apiKey:"AIzaSyDhKr7oMSrLowJ47cqB4pvNXuIIdtW0HPI", authDomain:"sola-home-4979a.firebaseapp.com", projectId:"sola-home-4979a", storageBucket:"sola-home-4979a.firebasestorage.app", messagingSenderId:"337132471819", appId:"1:337132471819:web:848cd357fecda459a2e90e" };
     const LOGIN_PAGE_URL = './index.html';
-    const BENEFITS_COLLECTION='benefits', NOTICES_COLLECTION='notices', BENEFIT_STATS_COLLECTION='benefit_stats', BENEFIT_EVENTS_COLLECTION='benefit_events', LAST_CATEGORY_KEY='myhills_last_category', CHIPS_EXPANDED_KEY='myhills_chips_expanded', PUSH_TOKENS_SUBCOLLECTION='pushTokens', PUSH_JOBS_COLLECTION='push_jobs';
-    const VAPID_PUBLIC_KEY = 'BJONnfKeKFN8SCWWlo_quJ9pjahri96uw9WZJq2774hBZ8um6edcRb-NP7uRwjmcwHNTTGMuPJX-MUdeThgu5Kw';
+    const BENEFITS_COLLECTION='benefits', NOTICES_COLLECTION='notices', BENEFIT_STATS_COLLECTION='benefit_stats', BENEFIT_EVENTS_COLLECTION='benefit_events', LAST_CATEGORY_KEY='myhills_last_category', CHIPS_EXPANDED_KEY='myhills_chips_expanded';
     const app=initializeApp(firebaseConfig);
     const auth=getAuth(app);
     const db=getFirestore(app);
-    const state={category:localStorage.getItem(LAST_CATEGORY_KEY)||'전체',keyword:'',filter:'all',view:'home',benefits:[],notices:[],loading:true,currentUser:null,currentUserProfile:null,popularItems:[],favoriteIds:[],pushToken:'',pushEnabled:false,scrollMap:{home:0,benefits:0,favorite:0,top5:0,notices:0}};
+    const state={category:localStorage.getItem(LAST_CATEGORY_KEY)||'전체',keyword:'',filter:'all',view:'home',benefits:[],notices:[],loading:true,currentUser:null,currentUserProfile:null,popularItems:[],favoriteIds:[],currentPushToken:null,isPushEnabledForThisDevice:false,scrollMap:{home:0,benefits:0,favorite:0,top5:0,notices:0}};
     const qs=(s)=>document.querySelector(s), qsa=(s)=>[...document.querySelectorAll(s)];
-    let messaging = null;
-    let foregroundUnsubscribe = null;
-
-    function hasValidVapidKey(){
-      return !!VAPID_PUBLIC_KEY && !VAPID_PUBLIC_KEY.includes('REPLACE_WITH');
-    }
-
-    function updatePushUi(){
+    function setPushStatusUi(enabled){
       const statusEl = qs('#pushStatusText');
-      const helperEl = qs('#pushStatusHelper');
+      const subEl = qs('#pushStatusSub');
       const enableBtn = qs('#enablePushBtn');
       const disableBtn = qs('#disablePushBtn');
-      if(!statusEl || !helperEl || !enableBtn || !disableBtn) return;
-      statusEl.textContent = state.pushEnabled ? '수신 중' : '미설정';
-      helperEl.textContent = state.pushEnabled
-        ? '이 기기는 웹 푸시 수신이 설정되어 있습니다.'
-        : '중요 공지와 관리자 알림을 웹 푸시로 받을 수 있습니다.';
-      enableBtn.disabled = state.pushEnabled;
-      disableBtn.disabled = !state.pushEnabled;
+
+      state.isPushEnabledForThisDevice = !!enabled;
+
+      if(statusEl){
+        statusEl.textContent = enabled ? '이 기기 수신 중' : '이 기기는 아직 미등록 상태입니다';
+      }
+      if(subEl){
+        subEl.textContent = enabled
+          ? '현재 브라우저에서 푸시 알림을 받을 수 있습니다.'
+          : '현재 브라우저/기기에서만 다시 알림 허용을 진행해 주세요.';
+      }
+      if(enableBtn) enableBtn.classList.toggle('hidden', !!enabled);
+      if(disableBtn) disableBtn.classList.toggle('hidden', !enabled);
     }
 
-    async function ensureMessagingReady(){
-      try{
-        const supported = await isSupported();
-        if(!supported) return null;
-        if(!messaging) messaging = getMessaging(app);
-        return messaging;
-      }catch(error){
-        console.error('메시징 지원 여부 확인 실패', error);
-        return null;
-      }
-    }
-
-    function getPushTokenDocRef(token){
-      if(!state.currentUser?.uid || !token) return null;
-      return doc(db, 'users', state.currentUser.uid, PUSH_TOKENS_SUBCOLLECTION, token);
-    }
-
-    function subscribePushTokens(){
-      if(!state.currentUser?.uid) return;
-      onSnapshot(collection(db, 'users', state.currentUser.uid, PUSH_TOKENS_SUBCOLLECTION), (snapshot) => {
-        const docs = snapshot.docs.map((d) => ({ id: d.id, ...(d.data() || {}) }));
-        const active = docs.find((item) => item.enabled !== false) || null;
-        state.pushToken = active?.token || active?.id || '';
-        state.pushEnabled = !!active;
-        updatePushUi();
-      }, (error) => {
-        console.error('푸시 토큰 구독 실패', error);
-      });
-    }
-
-    async function enablePushNotifications(){
-      if(!state.currentUser?.uid){
-        await openModalAlert('로그인 후 알림을 설정할 수 있습니다.');
-        return;
-      }
-      if(!('Notification' in window) || !('serviceWorker' in navigator)){
-        await openModalAlert('이 브라우저는 웹 푸시를 지원하지 않습니다.');
-        return;
-      }
-      if(!hasValidVapidKey()){
-        await openModalAlert('VAPID 공개 키를 먼저 설정해 주세요. Firebase 콘솔에서 Web Push 인증서를 생성한 뒤 VAPID_PUBLIC_KEY에 넣어야 합니다.');
-        return;
-      }
-      const messagingInstance = await ensureMessagingReady();
-      if(!messagingInstance){
-        await openModalAlert('이 환경에서는 Firebase 메시징을 사용할 수 없습니다.');
-        return;
-      }
-      try{
-        const permission = await Notification.requestPermission();
-        if(permission !== 'granted'){
-          await openModalAlert('알림 권한이 허용되지 않았습니다.');
-          return;
-        }
-        const registration = await navigator.serviceWorker.register('./firebase-messaging-sw.js');
-        const token = await getToken(messagingInstance, {
-          vapidKey: VAPID_PUBLIC_KEY,
-          serviceWorkerRegistration: registration
-        });
-        if(!token){
-          await openModalAlert('푸시 토큰을 발급받지 못했습니다.');
-          return;
-        }
-        await setDoc(doc(db, 'users', state.currentUser.uid, PUSH_TOKENS_SUBCOLLECTION, token), {
-          token,
-          platform: 'web',
-          enabled: true,
-          userAgent: navigator.userAgent || '',
-          createdAt: serverTimestamp(),
-          updatedAt: serverTimestamp()
-        }, { merge:true });
-        state.pushToken = token;
-        state.pushEnabled = true;
-        updatePushUi();
-        await openModalAlert('웹 푸시 알림이 설정되었습니다.');
-      }catch(error){
-        console.error('푸시 설정 실패', error);
-        await openModalAlert('푸시 설정 중 오류가 발생했습니다.');
-      }
-    }
-
-    async function disablePushNotifications(){
-      if(!state.currentUser?.uid){
-        await openModalAlert('로그인 후 알림을 해제할 수 있습니다.');
-        return;
-      }
-      try{
-        const messagingInstance = await ensureMessagingReady();
-        const token = state.pushToken;
-        if(token){
-          await deleteDoc(doc(db, 'users', state.currentUser.uid, PUSH_TOKENS_SUBCOLLECTION, token));
-        }
-        if(messagingInstance && token){
-          try{ await deleteToken(messagingInstance); }catch(error){ console.error('deleteToken 실패', error); }
-        }
-        state.pushToken = '';
-        state.pushEnabled = false;
-        updatePushUi();
-        await openModalAlert('웹 푸시 알림이 해제되었습니다.');
-      }catch(error){
-        console.error('푸시 해제 실패', error);
-        await openModalAlert('푸시 해제 중 오류가 발생했습니다.');
-      }
-    }
-
-    async function initForegroundMessaging(){
-      const messagingInstance = await ensureMessagingReady();
-      if(!messagingInstance || foregroundUnsubscribe) return;
-      foregroundUnsubscribe = onMessage(messagingInstance, async (payload) => {
-        const title = payload?.notification?.title || payload?.data?.title || '새 알림';
-        const body = payload?.notification?.body || payload?.data?.body || '새 메시지가 도착했습니다.';
-        await openModalAlert(`${title}\n\n${body}`);
-      });
-    }
 
     function saveCurrentViewScroll(){
       state.scrollMap[state.view] = window.scrollY || window.pageYOffset || 0;
@@ -649,6 +524,115 @@
       if(nicknameEl) nicknameEl.textContent = getDisplayNickname();
       if(unitInfoEl) unitInfoEl.textContent = getDisplayUnitInfo();
     }
+async function enablePushNotifications(){
+      try{
+        if(!state.currentUser?.uid){
+          await openModalAlert('로그인 후 이용해 주세요.');
+          return;
+        }
+        if(!window.firebaseMessaging || !window.getToken || !window.pushSwRegistration){
+          await openModalAlert('푸시 초기화가 완료되지 않았습니다. 페이지를 새로고침 후 다시 시도해 주세요.');
+          return;
+        }
+
+        const permission = await Notification.requestPermission();
+        if(permission !== 'granted'){
+          state.currentPushToken = null;
+          setPushStatusUi(false);
+          await openModalAlert('브라우저 알림 권한이 허용되지 않았습니다.');
+          return;
+        }
+
+        const token = await window.getToken(window.firebaseMessaging, {
+          vapidKey: window.VAPID_PUBLIC_KEY,
+          serviceWorkerRegistration: window.pushSwRegistration
+        }).catch(() => null);
+
+        if(!token){
+          state.currentPushToken = null;
+          setPushStatusUi(false);
+          await openModalAlert('푸시 토큰을 생성하지 못했습니다.');
+          return;
+        }
+
+        state.currentPushToken = token;
+
+        await setDoc(doc(db, 'users', state.currentUser.uid, 'pushTokens', token), {
+          token,
+          uid: state.currentUser.uid,
+          enabled: true,
+          platform: 'web',
+          userAgent: navigator.userAgent || '',
+          updatedAt: serverTimestamp(),
+          createdAt: serverTimestamp()
+        }, { merge:true });
+
+        setPushStatusUi(true);
+        await openModalAlert('현재 기기에서 푸시 알림이 설정되었습니다.');
+      }catch(error){
+        console.error('푸시 설정 실패', error);
+        state.currentPushToken = null;
+        setPushStatusUi(false);
+        await openModalAlert('푸시 알림 설정 중 오류가 발생했습니다.');
+      }
+    }
+
+async function disablePushNotifications(){
+      try{
+        if(!state.currentUser?.uid){
+          await openModalAlert('로그인 후 이용해 주세요.');
+          return;
+        }
+        if(!state.currentPushToken){
+          setPushStatusUi(false);
+          await openModalAlert('현재 기기에 등록된 푸시 토큰이 없습니다.');
+          return;
+        }
+
+        await deleteDoc(doc(db, 'users', state.currentUser.uid, 'pushTokens', state.currentPushToken));
+        setPushStatusUi(false);
+        await openModalAlert('현재 기기에서 푸시 알림이 해제되었습니다.');
+      }catch(error){
+        console.error('푸시 해제 실패', error);
+        await openModalAlert('푸시 알림 해제 중 오류가 발생했습니다.');
+      }
+    }
+
+async function refreshPushStatus(){
+      try{
+        if(!state.currentUser?.uid || !window.firebaseMessaging || !window.getToken || !window.pushSwRegistration){
+          state.currentPushToken = null;
+          setPushStatusUi(false);
+          return;
+        }
+
+        if(Notification.permission !== 'granted'){
+          state.currentPushToken = null;
+          setPushStatusUi(false);
+          return;
+        }
+
+        const token = await window.getToken(window.firebaseMessaging, {
+          vapidKey: window.VAPID_PUBLIC_KEY,
+          serviceWorkerRegistration: window.pushSwRegistration
+        }).catch(() => null);
+
+        state.currentPushToken = token || null;
+
+        if(!token){
+          setPushStatusUi(false);
+          return;
+        }
+
+        const snap = await getDoc(doc(db, 'users', state.currentUser.uid, 'pushTokens', token));
+        setPushStatusUi(snap.exists());
+      }catch(error){
+        console.error('푸시 상태 확인 실패', error);
+        state.currentPushToken = null;
+        setPushStatusUi(false);
+      }
+    }
+
     async function loadCurrentUserProfile(user){
       try{
         const snap = await getDoc(doc(db, 'users', user.uid));
@@ -670,6 +654,7 @@
           state.currentUser = user;
           state.currentUserProfile = await loadCurrentUserProfile(user);
           updateUserChip();
+          await refreshPushStatus();
           resolve(true);
         }, () => {
           redirectToLogin();
@@ -1027,9 +1012,6 @@
 
     qs('#closeModal').onclick=()=>qs('#detailModal').close();
     qs('#closeNoticeModal').onclick=()=>qs('#noticeModal').close();
-    qs('#enablePushBtn').onclick=enablePushNotifications;
-    qs('#disablePushBtn').onclick=disablePushNotifications;
-    updatePushUi();
     let deferredPrompt=null;window.addEventListener('beforeinstallprompt',(e)=>{e.preventDefault();deferredPrompt=e;});
     qs('#installTopBtn').onclick=async()=>{if(!deferredPrompt){await openModalAlert('브라우저 메뉴에서 “홈 화면에 추가”를 선택하면 앱처럼 설치할 수 있습니다.', qs('#installTopBtn'));return;}deferredPrompt.prompt();await deferredPrompt.userChoice;deferredPrompt=null;};
     const chipsEl = qs('#chips');
@@ -1073,8 +1055,6 @@
         subscribeNotices();
         subscribePopularStats();
         subscribeFavorites();
-        subscribePushTokens();
-        initForegroundMessaging();
       }else{
         qs('#firebaseNotice').classList.remove('hidden');
         state.loading=false;
