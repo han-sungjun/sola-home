@@ -278,7 +278,20 @@
     @media (max-width:460px){
       .grid-2,.btn-row{grid-template-columns:1fr}
     }
-  </style>
+  
+    .app-alert{position:fixed;inset:0;display:none;align-items:center;justify-content:center;padding:20px;z-index:9999;background:rgba(15,23,42,.46);backdrop-filter:blur(4px)}
+    .app-alert.show{display:flex}
+    .app-alert-card{width:min(100%,360px);background:#fff;border:1px solid rgba(255,255,255,.75);box-shadow:0 30px 60px rgba(15,23,42,.20);border-radius:26px;padding:22px}
+    .app-alert-head{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+    .app-alert-icon{width:42px;height:42px;border-radius:14px;display:grid;place-items:center;background:#fff7ed;color:#c2410c;font-size:20px;flex:0 0 auto;border:1px solid #fed7aa}
+    .app-alert-title{margin:0;font-size:18px;letter-spacing:-.03em}
+    .app-alert-message{margin:0;color:var(--muted);font-size:14px;line-height:1.65;white-space:pre-line}
+    .app-alert-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:18px}
+    .app-alert-cancel{min-width:92px;border:1px solid var(--line);border-radius:16px;padding:12px 16px;background:#fff;color:var(--text);font-weight:800;cursor:pointer}
+    .app-alert-confirm{min-width:92px;border:none;border-radius:16px;padding:12px 16px;background:var(--primary);color:#fff;font-weight:800;cursor:pointer}
+    .app-alert-confirm{min-width:92px;border:none;border-radius:16px;padding:12px 16px;background:var(--primary);color:#fff;font-weight:800;cursor:pointer}
+    
+</style>
 </head>
 <body>
   <div class="wrap">
@@ -370,7 +383,7 @@
 
         <div class="btn-row">
           <button id="submitBtn" class="btn btn-primary" type="submit">회원가입 신청</button>
-          <a class="btn btn-soft" href="./index.html">로그인으로 이동</a>
+          <a class="btn btn-soft" href="./index.html" id="goLoginLink">로그인으로 이동</a>
         </div>
       </form>
 
@@ -419,6 +432,71 @@
     const fileInput = qs('#residentProof');
     const fileMeta = qs('#fileMeta');
 
+    const alertEl = qs('#appAlert');
+    const alertMsgEl = qs('#appAlertMessage');
+    const alertTitleEl = qs('#appAlertTitle');
+    const alertIconEl = qs('#appAlertIcon');
+    const alertConfirmEl = qs('#appAlertConfirm');
+    const alertCancelEl = qs('#appAlertCancel');
+    let alertFocusTarget = null;
+    let alertResolver = null;
+    let alertMode = 'alert';
+
+    function openModalBase({
+      title='안내',
+      message='',
+      focusTarget=null,
+      mode='alert',
+      confirmText='확인',
+      cancelText='취소',
+      icon='⚠️'
+    } = {}){
+      alertMode = mode;
+      alertFocusTarget = focusTarget;
+      alertTitleEl.textContent = title;
+      alertMsgEl.textContent = message;
+      alertIconEl.textContent = icon;
+      alertConfirmEl.textContent = confirmText;
+      alertCancelEl.textContent = cancelText;
+      alertCancelEl.classList.toggle('hidden', mode !== 'confirm');
+      alertEl.classList.add('show');
+      alertEl.setAttribute('aria-hidden', 'false');
+      requestAnimationFrame(() => {
+        (mode === 'confirm' ? alertCancelEl : alertConfirmEl).focus();
+      });
+      return new Promise((resolve) => {
+        alertResolver = resolve;
+      });
+    }
+
+    function openModalAlert(message, focusTarget=null, title='안내'){
+      return openModalBase({ title, message, focusTarget, mode:'alert', confirmText:'확인', icon:'⚠️' });
+    }
+
+    function openModalConfirm(message, focusTarget=null, title='확인', confirmText='확인', cancelText='취소'){
+      return openModalBase({ title, message, focusTarget, mode:'confirm', confirmText, cancelText, icon:'❓' });
+    }
+
+    function closeModal(result=false){
+      alertEl.classList.remove('show');
+      alertEl.setAttribute('aria-hidden', 'true');
+      if(result === false && alertFocusTarget){ alertFocusTarget.focus(); }
+      const resolver = alertResolver;
+      alertResolver = null;
+      if(resolver) resolver(result);
+    }
+
+    alertConfirmEl.addEventListener('click', () => closeModal(true));
+    alertCancelEl.addEventListener('click', () => closeModal(false));
+    alertEl.addEventListener('click', (event) => {
+      if(event.target === alertEl) closeModal(false);
+    });
+    window.addEventListener('keydown', (event) => {
+      if(!alertEl.classList.contains('show')) return;
+      if(event.key === 'Escape') closeModal(false);
+    });
+
+
     function showNotice(message, type='info'){
       noticeEl.className = `notice show ${type}`;
       noticeEl.textContent = message;
@@ -441,6 +519,16 @@
     function sanitizeFileName(name='file'){
       return String(name).replace(/[^\w.\-가-힣]/g, '_');
     }
+
+    qs('#goLoginLink').addEventListener('click', async (event) => {
+      const hasTypedValue = ['#email','#password','#passwordConfirm','#name','#nickname','#building','#unit','#intro'].some((selector) => String(qs(selector).value || '').trim());
+      const hasFile = !!fileInput.files?.[0];
+      const hasChecked = qs('#agreePrivacy').checked || qs('#agreePolicy').checked;
+      if (!hasTypedValue && !hasFile && !hasChecked) return;
+      event.preventDefault();
+      const confirmed = await openModalConfirm('작성 중인 내용이 있다면 저장되지 않습니다. 로그인 페이지로 이동할까요?', qs('#goLoginLink'), '페이지 이동', '이동', '계속 작성');
+      if (confirmed) window.location.href = './index.html';
+    });
 
     fileInput.addEventListener('change', () => {
       const file = fileInput.files?.[0];
@@ -480,10 +568,9 @@
       const agreePolicy = agreePolicyEl.checked;
       const proofFile = fileInput.files?.[0];
 
-      const fail = (message, element) => {
+      const fail = async (message, element) => {
         showNotice(message, 'error');
-        alert(message);
-        if (element) element.focus();
+        await openModalAlert(message, element);
       };
 
       if (!email) {
@@ -581,7 +668,7 @@
         });
 
         showNotice('회원가입 신청이 완료되었습니다.\n현재 상태는 승인 대기입니다.\n관리자 확인 후 index.html 로그인 페이지에서 이용해 주세요.', 'success');
-        alert('회원가입 신청이 완료되었습니다. 승인 후 로그인해주세요.');
+        await openModalAlert('회원가입 신청이 완료되었습니다. 승인 후 로그인해주세요.');
         form.reset();
         fileMeta.className = 'upload-meta';
         fileMeta.textContent = '';
@@ -611,12 +698,26 @@
         }
 
         showNotice(message, 'error');
-        alert(message);
-        focusTarget.focus();
+        await openModalAlert(message, focusTarget);
       } finally {
         setLoading(false);
       }
     });
   </script>
+
+  <div class="app-alert" id="appAlert" aria-hidden="true">
+    <div class="app-alert-card" role="alertdialog" aria-modal="true" aria-labelledby="appAlertTitle" aria-describedby="appAlertMessage">
+      <div class="app-alert-head">
+        <div class="app-alert-icon" id="appAlertIcon">⚠️</div>
+        <h3 class="app-alert-title" id="appAlertTitle">안내</h3>
+      </div>
+      <p class="app-alert-message" id="appAlertMessage"></p>
+      <div class="app-alert-actions">
+        <button class="app-alert-cancel hidden" id="appAlertCancel" type="button">취소</button>
+        <button class="app-alert-confirm" id="appAlertConfirm" type="button">확인</button>
+      </div>
+    </div>
+  </div>
+
 </body>
 </html>

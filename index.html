@@ -216,7 +216,20 @@
       line-height:1.6;
     }
     .hidden{display:none!important}
-  </style>
+  
+    .app-alert{position:fixed;inset:0;display:none;align-items:center;justify-content:center;padding:20px;z-index:9999;background:rgba(15,23,42,.46);backdrop-filter:blur(4px)}
+    .app-alert.show{display:flex}
+    .app-alert-card{width:min(100%,360px);background:#fff;border:1px solid rgba(255,255,255,.75);box-shadow:0 30px 60px rgba(15,23,42,.20);border-radius:26px;padding:22px}
+    .app-alert-head{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+    .app-alert-icon{width:42px;height:42px;border-radius:14px;display:grid;place-items:center;background:#fff7ed;color:#c2410c;font-size:20px;flex:0 0 auto;border:1px solid #fed7aa}
+    .app-alert-title{margin:0;font-size:18px;letter-spacing:-.03em}
+    .app-alert-message{margin:0;color:var(--muted);font-size:14px;line-height:1.65;white-space:pre-line}
+    .app-alert-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:18px}
+    .app-alert-cancel{min-width:92px;border:1px solid var(--line);border-radius:16px;padding:12px 16px;background:#fff;color:var(--text);font-weight:800;cursor:pointer}
+    .app-alert-confirm{min-width:92px;border:none;border-radius:16px;padding:12px 16px;background:var(--primary);color:#fff;font-weight:800;cursor:pointer}
+    .app-alert-confirm{min-width:92px;border:none;border-radius:16px;padding:12px 16px;background:var(--primary);color:#fff;font-weight:800;cursor:pointer}
+    
+</style>
 </head>
 <body>
   <div class="wrap">
@@ -305,146 +318,102 @@
     const noticeEl = qs('#notice');
     const loginForm = qs('#loginForm');
 
-    function normalizeEmail(value=''){
-      return String(value).trim().toLowerCase();
+    const alertEl = qs('#appAlert');
+    const alertMsgEl = qs('#appAlertMessage');
+    const alertTitleEl = qs('#appAlertTitle');
+    const alertIconEl = qs('#appAlertIcon');
+    const alertConfirmEl = qs('#appAlertConfirm');
+    const alertCancelEl = qs('#appAlertCancel');
+    let alertFocusTarget = null;
+    let alertResolver = null;
+    let alertMode = 'alert';
+
+    function openModalBase({
+      title='안내',
+      message='',
+      focusTarget=null,
+      mode='alert',
+      confirmText='확인',
+      cancelText='취소',
+      icon='⚠️'
+    } = {}){
+      alertMode = mode;
+      alertFocusTarget = focusTarget;
+      alertTitleEl.textContent = title;
+      alertMsgEl.textContent = message;
+      alertIconEl.textContent = icon;
+      alertConfirmEl.textContent = confirmText;
+      alertCancelEl.textContent = cancelText;
+      alertCancelEl.classList.toggle('hidden', mode !== 'confirm');
+      alertEl.classList.add('show');
+      alertEl.setAttribute('aria-hidden', 'false');
+      requestAnimationFrame(() => {
+        (mode === 'confirm' ? alertCancelEl : alertConfirmEl).focus();
+      });
+      return new Promise((resolve) => {
+        alertResolver = resolve;
+      });
     }
 
-    function setLoading(isLoading){
-      loginBtn.disabled = isLoading;
-      logoutBtn.disabled = isLoading;
-      loginBtn.textContent = isLoading ? '로그인 중...' : '로그인';
+    function openModalAlert(message, focusTarget=null, title='안내'){
+      return openModalBase({ title, message, focusTarget, mode:'alert', confirmText:'확인', icon:'⚠️' });
     }
 
-    function showNotice(message, type='info'){
-      noticeEl.className = `notice show ${type}`;
-      noticeEl.textContent = message;
+    function openModalConfirm(message, focusTarget=null, title='확인', confirmText='확인', cancelText='취소'){
+      return openModalBase({ title, message, focusTarget, mode:'confirm', confirmText, cancelText, icon:'❓' });
     }
 
-    function hideNotice(){
-      noticeEl.className = 'notice info';
-      noticeEl.textContent = '';
+    function closeModal(result=false){
+      alertEl.classList.remove('show');
+      alertEl.setAttribute('aria-hidden', 'true');
+      if(result === false && alertFocusTarget){ alertFocusTarget.focus(); }
+      const resolver = alertResolver;
+      alertResolver = null;
+      if(resolver) resolver(result);
     }
 
-    function isAllowedEmail(email){
-      return ALLOWED_EMAILS.includes(normalizeEmail(email));
-    }
-
-    async function goToApp(){
-      window.location.replace(REDIRECT_AFTER_LOGIN);
-    }
-
-    await setPersistence(auth, browserLocalPersistence);
-
-    onAuthStateChanged(auth, async (user) => {
-      if (!user) {
-        logoutBtn.classList.add('hidden');
-        document.body.style.opacity = '1';
-        return;
-      }
-
-      const email = normalizeEmail(user.email);
-
-      if (!isAllowedEmail(email)) {
-        await signOut(auth);
-        showNotice('승인되지 않은 계정입니다.\n관리자에게 문의해 주세요.', 'error');
-        document.body.style.opacity = '1';
-        return;
-      }
-
-      showNotice('이미 로그인되어 있습니다. 메인 화면으로 이동합니다.', 'success');
-      logoutBtn.classList.remove('hidden');
-      window.location.replace('./app.html');
+    alertConfirmEl.addEventListener('click', () => closeModal(true));
+    alertCancelEl.addEventListener('click', () => closeModal(false));
+    alertEl.addEventListener('click', (event) => {
+      if(event.target === alertEl) closeModal(false);
+    });
+    window.addEventListener('keydown', (event) => {
+      if(!alertEl.classList.contains('show')) return;
+      if(event.key === 'Escape') closeModal(false);
     });
 
-    loginForm.addEventListener('submit', async (event) => {
-      event.preventDefault();
-      hideNotice();
-
-      const email = normalizeEmail(emailEl.value);
-      const password = passwordEl.value;
-
-      if (!email) {
-        const message = '이메일을 입력해주세요.';
-        showNotice(message, 'error');
-        alert(message);
-        emailEl.focus();
-        return;
-      }
-
-      if (!password) {
-        const message = '비밀번호를 입력해주세요.';
-        showNotice(message, 'error');
-        alert(message);
-        passwordEl.focus();
-        return;
-      }
-
-      if (!isAllowedEmail(email)) {
-        const message = '허용된 사용자 계정이 아닙니다.';
-        showNotice(message, 'error');
-        alert(message);
-        emailEl.focus();
-        return;
-      }
-
-      try {
-        setLoading(true);
-        const result = await signInWithEmailAndPassword(auth, email, password);
-        const signedInEmail = normalizeEmail(result.user?.email);
-
-        if (!isAllowedEmail(signedInEmail)) {
-          await signOut(auth);
-          const message = '승인되지 않은 계정입니다.';
-          showNotice(message, 'error');
-          alert(message);
-          emailEl.focus();
-          return;
-        }
-
-        showNotice('로그인에 성공했습니다. 메인 화면으로 이동합니다.', 'success');
-        setTimeout(() => {
-          goToApp();
-        }, 500);
-      } catch (error) {
-        const code = error?.code || '';
-        let message = '로그인에 실패했습니다. 다시 확인해 주세요.';
-        let focusTarget = passwordEl;
-
-        if (code === 'auth/invalid-credential' || code === 'auth/wrong-password') {
-          message = '이메일 또는 비밀번호가 올바르지 않습니다.';
-          focusTarget = passwordEl;
-        } else if (code === 'auth/user-not-found') {
-          message = '등록되지 않은 계정입니다.';
-          focusTarget = emailEl;
-        } else if (code === 'auth/too-many-requests') {
-          message = '로그인 시도가 너무 많습니다. 잠시 후 다시 시도해 주세요.';
-          focusTarget = passwordEl;
-        } else if (code === 'auth/network-request-failed') {
-          message = '네트워크 연결을 확인해 주세요.';
-          focusTarget = emailEl;
-        }
-
-        showNotice(message, 'error');
-        alert(message);
-        focusTarget.focus();
-      } finally {
-        setLoading(false);
-      }
-    });
 
     signupBtn.addEventListener('click', () => {
       window.location.href = './signup.html';
     });
 
     logoutBtn.addEventListener('click', async () => {
+      const confirmed = await openModalConfirm('로그아웃 하시겠습니까?', logoutBtn, '로그아웃', '로그아웃', '취소');
+      if (!confirmed) return;
       try {
         await signOut(auth);
         showNotice('로그아웃되었습니다.', 'success');
         logoutBtn.classList.add('hidden');
       } catch (error) {
+        await openModalAlert('로그아웃 처리 중 오류가 발생했습니다.', logoutBtn);
         showNotice('로그아웃 처리 중 오류가 발생했습니다.', 'error');
       }
     });
   </script>
+
+  <div class="app-alert" id="appAlert" aria-hidden="true">
+    <div class="app-alert-card" role="alertdialog" aria-modal="true" aria-labelledby="appAlertTitle" aria-describedby="appAlertMessage">
+      <div class="app-alert-head">
+        <div class="app-alert-icon" id="appAlertIcon">⚠️</div>
+        <h3 class="app-alert-title" id="appAlertTitle">안내</h3>
+      </div>
+      <p class="app-alert-message" id="appAlertMessage"></p>
+      <div class="app-alert-actions">
+        <button class="app-alert-cancel hidden" id="appAlertCancel" type="button">취소</button>
+        <button class="app-alert-confirm" id="appAlertConfirm" type="button">확인</button>
+      </div>
+    </div>
+  </div>
+
 </body>
 </html>
