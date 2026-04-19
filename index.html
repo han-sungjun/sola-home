@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#0f172a" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="description" content="더운정 마이힐스 로그인" />
+  <title>더운정 마이힐스 - 로그인</title>
+  <style>
+    :root{
+      --bg:#f5f7fb;
+      --surface:rgba(255,255,255,.88);
+      --line:#e5e7eb;
+      --line-soft:rgba(15,23,42,.08);
+      --text:#0f172a;
+      --muted:#64748b;
+      --primary:#0f172a;
+      --accent:#ef4444;
+      --accent2:#f59e0b;
+      --success:#16a34a;
+      --shadow:0 20px 40px rgba(15,23,42,.10);
+      --radius-xl:28px;
+    }
+    *{box-sizing:border-box}
+    html,body{
+      margin:0;
+      padding:0;
+      font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Noto Sans KR","Segoe UI",sans-serif;
+      background:linear-gradient(180deg,#f8fafc 0%,#eef2ff 100%);
+      color:var(--text);
+    }
+    body{
+      min-height:100dvh;
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      padding:20px;
+    }
+    .wrap{
+      width:min(100%,420px);
+    }
+    .hero{
+      position:relative;
+      overflow:hidden;
+      padding:24px;
+      border-radius:30px;
+      color:#fff;
+      background:
+        radial-gradient(circle at top right,rgba(255,255,255,.28),transparent 30%),
+        linear-gradient(135deg,#111827 0%,#1f2937 46%,#ef4444 100%);
+      box-shadow:var(--shadow);
+      margin-bottom:16px;
+    }
+    .hero::after{
+      content:"";
+      position:absolute;
+      right:-26px;
+      top:-12px;
+      width:118px;
+      height:118px;
+      border-radius:34px;
+      background:rgba(255,255,255,.14);
+      transform:rotate(18deg);
+    }
+    .eyebrow{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:8px 12px;
+      border-radius:999px;
+      background:rgba(255,255,255,.14);
+      font-size:12px;
+    }
+    .hero h1{
+      margin:14px 0 8px;
+      font-size:28px;
+      line-height:1.2;
+      letter-spacing:-.05em;
+    }
+    .hero p{
+      margin:0;
+      line-height:1.7;
+      color:rgba(255,255,255,.92);
+      font-size:14px;
+    }
+    .panel{
+      background:var(--surface);
+      border:1px solid rgba(255,255,255,.72);
+      box-shadow:var(--shadow);
+      backdrop-filter:blur(18px);
+      border-radius:var(--radius-xl);
+      padding:20px;
+    }
+    .brand{
+      display:flex;
+      align-items:center;
+      gap:12px;
+      margin-bottom:18px;
+    }
+    .logo{
+      width:52px;
+      height:52px;
+      border-radius:18px;
+      display:grid;
+      place-items:center;
+      background:#fff;
+      box-shadow:var(--shadow);
+      font-size:24px;
+      flex:0 0 auto;
+    }
+    .brand h2{
+      margin:0;
+      font-size:22px;
+      letter-spacing:-.04em;
+    }
+    .brand p{
+      margin:4px 0 0;
+      color:var(--muted);
+      font-size:13px;
+    }
+    .field{
+      display:grid;
+      gap:8px;
+      margin-bottom:14px;
+    }
+    .field label{
+      font-size:13px;
+      color:var(--muted);
+      font-weight:700;
+    }
+    .input{
+      width:100%;
+      border:1px solid var(--line);
+      background:#fff;
+      border-radius:18px;
+      padding:15px 16px;
+      outline:none;
+      font-size:15px;
+      color:var(--text);
+      transition:border-color .15s ease, box-shadow .15s ease;
+    }
+    .input:focus{
+      border-color:#94a3b8;
+      box-shadow:0 0 0 4px rgba(148,163,184,.16);
+    }
+    .helper{
+      font-size:12px;
+      color:var(--muted);
+      line-height:1.5;
+      margin:4px 2px 16px;
+    }
+    .btn{
+      width:100%;
+      border:none;
+      border-radius:18px;
+      padding:15px 16px;
+      cursor:pointer;
+      font-weight:800;
+      font-size:15px;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap:8px;
+      transition:transform .15s ease, opacity .15s ease, background-color .15s ease;
+    }
+    .btn:active{
+      transform:scale(.985);
+    }
+    .btn-primary{
+      background:var(--primary);
+      color:#fff;
+    }
+    .btn-soft{
+      margin-top:10px;
+      background:#fff;
+      color:var(--text);
+      border:1px solid var(--line);
+    }
+    .btn[disabled]{
+      opacity:.65;
+      cursor:not-allowed;
+    }
+    .notice{
+      display:none;
+      margin-top:14px;
+      padding:14px 16px;
+      border-radius:18px;
+      font-size:13px;
+      line-height:1.55;
+      border:1px solid transparent;
+      white-space:pre-line;
+    }
+    .notice.show{display:block}
+    .notice.info{
+      background:#eff6ff;
+      border-color:#bfdbfe;
+      color:#1d4ed8;
+    }
+    .notice.error{
+      background:#fef2f2;
+      border-color:#fecaca;
+      color:#b91c1c;
+    }
+    .notice.success{
+      background:#f0fdf4;
+      border-color:#bbf7d0;
+      color:#166534;
+    }
+    .footer{
+      text-align:center;
+      margin-top:14px;
+      color:var(--muted);
+      font-size:12px;
+      line-height:1.6;
+    }
+    .hidden{display:none!important}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <section class="hero">
+      <div class="eyebrow">🏠 입주민 전용 로그인</div>
+      <h1>더운정 마이힐스<br>로그인</h1>
+      <p>승인된 사용자만 혜택 웹앱에 접근할 수 있도록 별도 로그인 화면을 준비했습니다.</p>
+    </section>
+
+    <section class="panel">
+      <div class="brand">
+        <div class="logo">🔐</div>
+        <div>
+          <h2>계정 로그인</h2>
+          <p>Firebase Authentication 기반</p>
+        </div>
+      </div>
+
+      <form id="loginForm">
+        <div class="field">
+          <label for="email">이메일</label>
+          <input id="email" class="input" type="email" inputmode="email" autocomplete="email" placeholder="example@email.com" required />
+        </div>
+
+        <div class="field">
+          <label for="password">비밀번호</label>
+          <input id="password" class="input" type="password" autocomplete="current-password" placeholder="비밀번호 입력" required />
+        </div>
+
+        <div class="helper">
+          현재는 지정된 승인 이메일만 로그인 가능하도록 제한해 두었습니다.
+        </div>
+
+        <button id="loginBtn" class="btn btn-primary" type="submit">로그인</button>
+        <button id="signupBtn" class="btn btn-soft" type="button">회원가입</button>
+        <button id="logoutBtn" class="btn btn-soft hidden" type="button">로그아웃</button>
+      </form>
+
+      <div id="notice" class="notice info"></div>
+    </section>
+
+    <div class="footer">
+      로그인 성공 시 <strong>index.html</strong> 로 이동합니다.
+    </div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
+    import {
+      getAuth,
+      setPersistence,
+      browserLocalPersistence,
+      signInWithEmailAndPassword,
+      signOut,
+      onAuthStateChanged
+    } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDhKr7oMSrLowJ47cqB4pvNXuIIdtW0HPI",
+      authDomain: "sola-home-4979a.firebaseapp.com",
+      projectId: "sola-home-4979a",
+      storageBucket: "sola-home-4979a.firebasestorage.app",
+      messagingSenderId: "337132471819",
+      appId: "1:337132471819:web:848cd357fecda459a2e90e"
+    };
+
+    // 허용할 로그인 계정
+    // 여러 명 허용하려면 배열에 이메일을 계속 추가하면 됩니다.
+    const ALLOWED_EMAILS = [
+      'sungjun200@gmail.com'
+    ];
+
+    const REDIRECT_AFTER_LOGIN = './app.html';
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+
+    const qs = (selector) => document.querySelector(selector);
+
+    const emailEl = qs('#email');
+    const passwordEl = qs('#password');
+    const loginBtn = qs('#loginBtn');
+    const signupBtn = qs('#signupBtn');
+    const logoutBtn = qs('#logoutBtn');
+    const noticeEl = qs('#notice');
+    const loginForm = qs('#loginForm');
+
+    function normalizeEmail(value=''){
+      return String(value).trim().toLowerCase();
+    }
+
+    function setLoading(isLoading){
+      loginBtn.disabled = isLoading;
+      logoutBtn.disabled = isLoading;
+      loginBtn.textContent = isLoading ? '로그인 중...' : '로그인';
+    }
+
+    function showNotice(message, type='info'){
+      noticeEl.className = `notice show ${type}`;
+      noticeEl.textContent = message;
+    }
+
+    function hideNotice(){
+      noticeEl.className = 'notice info';
+      noticeEl.textContent = '';
+    }
+
+    function isAllowedEmail(email){
+      return ALLOWED_EMAILS.includes(normalizeEmail(email));
+    }
+
+    async function goToApp(){
+      window.location.href = REDIRECT_AFTER_LOGIN;
+    }
+
+    await setPersistence(auth, browserLocalPersistence);
+
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) {
+        logoutBtn.classList.add('hidden');
+        return;
+      }
+
+      const email = normalizeEmail(user.email);
+
+      if (!isAllowedEmail(email)) {
+        await signOut(auth);
+        showNotice('승인되지 않은 계정입니다.\n관리자에게 문의해 주세요.', 'error');
+        return;
+      }
+
+      showNotice('이미 로그인되어 있습니다. 메인 화면으로 이동합니다.', 'success');
+      logoutBtn.classList.remove('hidden');
+      setTimeout(() => {
+        goToApp();
+      }, 500);
+    });
+
+    loginForm.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      hideNotice();
+
+      const email = normalizeEmail(emailEl.value);
+      const password = passwordEl.value;
+
+      if (!email || !password) {
+        showNotice('이메일과 비밀번호를 모두 입력해 주세요.', 'error');
+        return;
+      }
+
+      if (!isAllowedEmail(email)) {
+        showNotice('허용된 사용자 계정이 아닙니다.', 'error');
+        return;
+      }
+
+      try {
+        setLoading(true);
+        const result = await signInWithEmailAndPassword(auth, email, password);
+        const signedInEmail = normalizeEmail(result.user?.email);
+
+        if (!isAllowedEmail(signedInEmail)) {
+          await signOut(auth);
+          showNotice('승인되지 않은 계정입니다.', 'error');
+          return;
+        }
+
+        showNotice('로그인에 성공했습니다. 메인 화면으로 이동합니다.', 'success');
+        setTimeout(() => {
+          goToApp();
+        }, 500);
+      } catch (error) {
+        const code = error?.code || '';
+        let message = '로그인에 실패했습니다. 다시 확인해 주세요.';
+
+        if (code === 'auth/invalid-credential' || code === 'auth/wrong-password') {
+          message = '이메일 또는 비밀번호가 올바르지 않습니다.';
+        } else if (code === 'auth/user-not-found') {
+          message = '등록되지 않은 계정입니다.';
+        } else if (code === 'auth/too-many-requests') {
+          message = '로그인 시도가 너무 많습니다. 잠시 후 다시 시도해 주세요.';
+        } else if (code === 'auth/network-request-failed') {
+          message = '네트워크 연결을 확인해 주세요.';
+        }
+
+        showNotice(message, 'error');
+      } finally {
+        setLoading(false);
+      }
+    });
+
+    signupBtn.addEventListener('click', () => {
+      window.location.href = './signup.html';
+    });
+
+    logoutBtn.addEventListener('click', async () => {
+      try {
+        await signOut(auth);
+        showNotice('로그아웃되었습니다.', 'success');
+        logoutBtn.classList.add('hidden');
+      } catch (error) {
+        showNotice('로그아웃 처리 중 오류가 발생했습니다.', 'error');
+      }
+    });
+  </script>
+</body>
+</html>
