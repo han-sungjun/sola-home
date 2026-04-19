@@ -307,11 +307,93 @@
 .top-loader.active{width:78%}
 .top-loader.done{width:100%;opacity:0}
 
+
+/* ===== 전체 화면 로더 ===== */
+.page-loader{
+  position:fixed;
+  inset:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:rgba(15,23,42,.52);
+  backdrop-filter:blur(2px);
+  -webkit-backdrop-filter:blur(2px);
+  z-index:10000;
+  opacity:0;
+  visibility:hidden;
+  pointer-events:none;
+  transition:opacity .22s ease, visibility .22s ease;
+}
+.page-loader.show{
+  opacity:1;
+  visibility:visible;
+  pointer-events:auto;
+}
+.loader-mark{
+  position:relative;
+  width:74px;
+  height:74px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+.loader-mark .arm{
+  position:absolute;
+  left:50%;
+  top:50%;
+  width:10px;
+  border-radius:999px;
+  transform-origin:center center;
+  box-shadow:0 3px 10px rgba(0,0,0,.08);
+}
+.loader-mark .arm.top{
+  height:34px;
+  background:#ffffff;
+  transform:translate(-50%,-72%) rotate(45deg);
+}
+.loader-mark .arm.left{
+  height:34px;
+  background:#ffffff;
+  transform:translate(-50%,-72%) rotate(-45deg);
+}
+.loader-mark .arm.mid{
+  width:42px;
+  height:8px;
+  background:linear-gradient(90deg,#ff4fc3 0%, #ff63d8 100%);
+  transform:translate(-50%,-2px);
+}
+.loader-mark .arm.bot{
+  width:42px;
+  height:8px;
+  background:linear-gradient(90deg,#ff4fc3 0%, #ff63d8 100%);
+  transform:translate(-50%,12px);
+}
+.loader-mark .arm.bot2{
+  width:42px;
+  height:8px;
+  background:linear-gradient(90deg,#ff4fc3 0%, #ff63d8 100%);
+  transform:translate(-50%,26px);
+}
+.loader-mark{
+  animation:loaderFloat .95s ease-in-out infinite;
+}
+.page-loader.show .loader-mark{
+  animation:loaderFloat .95s ease-in-out infinite, loaderPulse .9s ease-in-out infinite;
+}
+@keyframes loaderFloat{
+  0%,100%{ transform:translateY(0) scale(1); }
+  50%{ transform:translateY(-3px) scale(1.03); }
+}
+@keyframes loaderPulse{
+  0%{ opacity:.88; }
+  50%{ opacity:1; }
+  100%{ opacity:.9; }
+}
+
 </style>
 </head>
 <body>
-  <div id="topLoader" class="top-loader"></div>
-  <div class="wrap">
+    <div class="wrap">
     <section class="hero">
       <div class="eyebrow">📝 입주민 회원가입</div>
       <h1>더운정 마이힐스<br>회원가입</h1>
@@ -433,16 +515,6 @@
     const storage = getStorage(app);
     document.body.style.opacity = '0';
 
-    onAuthStateChanged(auth, (user) => {
-      if (user) {
-        startLoading();
-        window.location.replace('./app.html');
-        return;
-      }
-      document.body.style.opacity = '1';
-      finishLoading();
-    });
-
     const qs = (selector) => document.querySelector(selector);
 
     const form = qs('#signupForm');
@@ -450,8 +522,38 @@
     const noticeEl = qs('#notice');
     const fileInput = qs('#residentProof');
     const fileMeta = qs('#fileMeta');
-    const topLoader = qs('#topLoader');
 
+    let loadingCount = 0;
+
+    function startLoading(){
+      const pageLoader = document.getElementById('pageLoader');
+      if (!pageLoader) return;
+      loadingCount += 1;
+      pageLoader.classList.add('show');
+      pageLoader.setAttribute('aria-hidden', 'false');
+    }
+
+    function finishLoading(callback){
+      const pageLoader = document.getElementById('pageLoader');
+      loadingCount = Math.max(loadingCount - 1, 0);
+
+      if (!pageLoader){
+        if (typeof callback === 'function') callback();
+        return;
+      }
+
+      if (loadingCount > 0) {
+        if (typeof callback === 'function') callback();
+        return;
+      }
+
+      pageLoader.classList.remove('show');
+      pageLoader.setAttribute('aria-hidden', 'true');
+
+      if (typeof callback === 'function') {
+        setTimeout(() => callback(), 40);
+      }
+    }
     const alertEl = qs('#appAlert');
     const alertMsgEl = qs('#appAlertMessage');
     const alertTitleEl = qs('#appAlertTitle');
@@ -500,9 +602,17 @@
     function closeModal(result=false){
       alertEl.classList.remove('show');
       alertEl.setAttribute('aria-hidden', 'true');
-      if(result === false && alertFocusTarget){ alertFocusTarget.focus(); }
+      const focusTarget = alertFocusTarget;
       const resolver = alertResolver;
       alertResolver = null;
+      alertFocusTarget = null;
+
+      if (focusTarget) {
+        setTimeout(() => {
+          try { focusTarget.focus(); } catch (_) {}
+        }, 30);
+      }
+
       if(resolver) resolver(result);
     }
 
@@ -515,26 +625,7 @@
       if(!alertEl.classList.contains('show')) return;
       if(event.key === 'Escape') closeModal(false);
     });
-
-
-    function startLoading(){
-      if (!topLoader) return;
-      topLoader.style.width = '0';
-      topLoader.classList.remove('done');
-      requestAnimationFrame(() => topLoader.classList.add('active'));
-    }
-
-    function finishLoading(){
-      if (!topLoader) return;
-      topLoader.classList.remove('active');
-      topLoader.classList.add('done');
-      setTimeout(() => {
-        topLoader.style.width = '0';
-        topLoader.classList.remove('done');
-      }, 420);
-    }
-
-    function showNotice(message, type='info'){
+function showNotice(message, type='info'){
       noticeEl.className = `notice show ${type}`;
       noticeEl.textContent = message;
     }
@@ -557,6 +648,15 @@
       return String(name).replace(/[^\w.\-가-힣]/g, '_');
     }
 
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        document.body.style.opacity = '1';
+        return;
+      }
+      document.body.style.opacity = '1';
+      finishLoading();
+    });
+
     qs('#goLoginLink').addEventListener('click', async (event) => {
       const hasTypedValue = ['#email','#password','#passwordConfirm','#name','#nickname','#building','#unit','#intro'].some((selector) => String(qs(selector).value || '').trim());
       const hasFile = !!fileInput.files?.[0];
@@ -566,7 +666,9 @@
       const confirmed = await openModalConfirm('작성 중인 내용이 있다면 저장되지 않습니다. 로그인 페이지로 이동할까요?', qs('#goLoginLink'), '페이지 이동', '이동', '계속 작성');
       if (confirmed) {
         startLoading();
-        window.location.href = './index.html';
+        setTimeout(() => {
+          window.location.href = './index.html';
+        }, 80);
       }
     });
 
@@ -609,76 +711,74 @@
       const proofFile = fileInput.files?.[0];
 
       const fail = async (message, element) => {
-        finishLoading();
         showNotice(message, 'error');
         await openModalAlert(message, element);
       };
 
       if (!email) {
-        fail('이메일을 입력해주세요.', emailEl);
+        await fail('이메일을 입력해주세요.', emailEl);
         return;
       }
 
       if (!password) {
-        fail('비밀번호를 입력해주세요.', passwordEl);
+        await fail('비밀번호를 입력해주세요.', passwordEl);
         return;
       }
 
       if (!passwordConfirm) {
-        fail('비밀번호 확인을 입력해주세요.', passwordConfirmEl);
+        await fail('비밀번호 확인을 입력해주세요.', passwordConfirmEl);
         return;
       }
 
       if (!name) {
-        fail('성명을 입력해주세요.', nameEl);
+        await fail('성명을 입력해주세요.', nameEl);
         return;
       }
 
       if (!nickname) {
-        fail('닉네임을 입력해주세요.', nicknameEl);
+        await fail('닉네임을 입력해주세요.', nicknameEl);
         return;
       }
 
       if (!building) {
-        fail('동을 입력해주세요.', buildingEl);
+        await fail('동을 입력해주세요.', buildingEl);
         return;
       }
 
       if (!unit) {
-        fail('호수를 입력해주세요.', unitEl);
+        await fail('호수를 입력해주세요.', unitEl);
         return;
       }
 
       if (password.length < 6) {
-        fail('비밀번호는 6자 이상이어야 합니다.', passwordEl);
+        await fail('비밀번호는 6자 이상이어야 합니다.', passwordEl);
         return;
       }
 
       if (password !== passwordConfirm) {
-        fail('비밀번호와 비밀번호 확인이 일치하지 않습니다.', passwordConfirmEl);
+        await fail('비밀번호와 비밀번호 확인이 일치하지 않습니다.', passwordConfirmEl);
         return;
       }
 
       if (!proofFile) {
-        fail('입주민 인증 사진을 업로드해 주세요.', fileInput);
+        await fail('입주민 인증 사진을 업로드해 주세요.', fileInput);
         return;
       }
 
       if (!agreePrivacy) {
-        fail('개인정보 수집 및 검토 동의가 필요합니다.', agreePrivacyEl);
+        await fail('개인정보 수집 및 검토 동의가 필요합니다.', agreePrivacyEl);
         return;
       }
 
       if (!agreePolicy) {
-        fail('허위 정보 제출 관련 동의가 필요합니다.', agreePolicyEl);
+        await fail('허위 정보 제출 관련 동의가 필요합니다.', agreePolicyEl);
         return;
       }
 
+      setLoading(true);
       startLoading();
 
       try {
-        setLoading(true);
-
         const credential = await createUserWithEmailAndPassword(auth, email, password);
         const user = credential.user;
 
@@ -710,8 +810,9 @@
           updatedAt: serverTimestamp()
         });
 
-        showNotice('회원가입 신청이 완료되었습니다.\n현재 상태는 승인 대기입니다.\n관리자 확인 후 로그인 페이지에서 이용해 주세요.', 'success');
         finishLoading();
+        showNotice('회원가입 신청이 완료되었습니다.\n현재 상태는 승인 대기입니다.\n관리자 확인 후 로그인 페이지에서 이용해 주세요.', 'success');
+        await new Promise(resolve => setTimeout(resolve, 60));
         await openModalAlert('회원가입 신청이 완료되었습니다. 승인 후 로그인해주세요.');
         form.reset();
         fileMeta.className = 'upload-meta';
@@ -743,8 +844,10 @@
 
         finishLoading();
         showNotice(message, 'error');
+        await new Promise(resolve => setTimeout(resolve, 60));
         await openModalAlert(message, focusTarget);
       } finally {
+        loadingCount = 0;
         setLoading(false);
       }
     });
@@ -764,5 +867,17 @@
     </div>
   </div>
 
+
+  <div id="pageLoader" class="page-loader" aria-hidden="true">
+    <div class="loader-mark" aria-label="로딩 중" role="status">
+      <span class="arm top"></span>
+      <span class="arm left"></span>
+      <span class="arm mid"></span>
+      <span class="arm bot"></span>
+      <span class="arm bot2"></span>
+    </div>
+  </div>
+
 </body>
+
 </html>

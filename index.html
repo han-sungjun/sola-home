@@ -245,11 +245,93 @@
 .top-loader.active{width:78%}
 .top-loader.done{width:100%;opacity:0}
 
+
+/* ===== 전체 화면 로더 ===== */
+.page-loader{
+  position:fixed;
+  inset:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:rgba(15,23,42,.52);
+  backdrop-filter:blur(2px);
+  -webkit-backdrop-filter:blur(2px);
+  z-index:10000;
+  opacity:0;
+  visibility:hidden;
+  pointer-events:none;
+  transition:opacity .22s ease, visibility .22s ease;
+}
+.page-loader.show{
+  opacity:1;
+  visibility:visible;
+  pointer-events:auto;
+}
+.loader-mark{
+  position:relative;
+  width:74px;
+  height:74px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+.loader-mark .arm{
+  position:absolute;
+  left:50%;
+  top:50%;
+  width:10px;
+  border-radius:999px;
+  transform-origin:center center;
+  box-shadow:0 3px 10px rgba(0,0,0,.08);
+}
+.loader-mark .arm.top{
+  height:34px;
+  background:#ffffff;
+  transform:translate(-50%,-72%) rotate(45deg);
+}
+.loader-mark .arm.left{
+  height:34px;
+  background:#ffffff;
+  transform:translate(-50%,-72%) rotate(-45deg);
+}
+.loader-mark .arm.mid{
+  width:42px;
+  height:8px;
+  background:linear-gradient(90deg,#ff4fc3 0%, #ff63d8 100%);
+  transform:translate(-50%,-2px);
+}
+.loader-mark .arm.bot{
+  width:42px;
+  height:8px;
+  background:linear-gradient(90deg,#ff4fc3 0%, #ff63d8 100%);
+  transform:translate(-50%,12px);
+}
+.loader-mark .arm.bot2{
+  width:42px;
+  height:8px;
+  background:linear-gradient(90deg,#ff4fc3 0%, #ff63d8 100%);
+  transform:translate(-50%,26px);
+}
+.loader-mark{
+  animation:loaderFloat .95s ease-in-out infinite;
+}
+.page-loader.show .loader-mark{
+  animation:loaderFloat .95s ease-in-out infinite, loaderPulse .9s ease-in-out infinite;
+}
+@keyframes loaderFloat{
+  0%,100%{ transform:translateY(0) scale(1); }
+  50%{ transform:translateY(-3px) scale(1.03); }
+}
+@keyframes loaderPulse{
+  0%{ opacity:.88; }
+  50%{ opacity:1; }
+  100%{ opacity:.9; }
+}
+
 </style>
 </head>
 <body>
-  <div id="topLoader" class="top-loader"></div>
-  <div class="wrap">
+    <div class="wrap">
     <section class="hero">
       <div class="eyebrow">🏠 입주민 전용 로그인</div>
       <h1>더운정 마이힐스<br>로그인</h1>
@@ -332,8 +414,6 @@
     const logoutBtn = qs('#logoutBtn');
     const noticeEl = qs('#notice');
     const loginForm = qs('#loginForm');
-    const topLoader = qs('#topLoader');
-
     const alertEl = qs('#appAlert');
     const alertMsgEl = qs('#appAlertMessage');
     const alertTitleEl = qs('#appAlertTitle');
@@ -343,21 +423,36 @@
     let alertFocusTarget = null;
     let alertResolver = null;
 
+    let loadingCount = 0;
+
     function startLoading(){
-      if (!topLoader) return;
-      topLoader.style.width = '0';
-      topLoader.classList.remove('done');
-      requestAnimationFrame(() => topLoader.classList.add('active'));
+      const pageLoader = document.getElementById('pageLoader');
+      if (!pageLoader) return;
+      loadingCount += 1;
+      pageLoader.classList.add('show');
+      pageLoader.setAttribute('aria-hidden', 'false');
     }
 
-    function finishLoading(){
-      if (!topLoader) return;
-      topLoader.classList.remove('active');
-      topLoader.classList.add('done');
-      setTimeout(() => {
-        topLoader.style.width = '0';
-        topLoader.classList.remove('done');
-      }, 420);
+    function finishLoading(callback){
+      const pageLoader = document.getElementById('pageLoader');
+      loadingCount = Math.max(loadingCount - 1, 0);
+
+      if (!pageLoader){
+        if (typeof callback === 'function') callback();
+        return;
+      }
+
+      if (loadingCount > 0) {
+        if (typeof callback === 'function') callback();
+        return;
+      }
+
+      pageLoader.classList.remove('show');
+      pageLoader.setAttribute('aria-hidden', 'true');
+
+      if (typeof callback === 'function') {
+        setTimeout(() => callback(), 40);
+      }
     }
 
     function showNotice(message, type='info'){
@@ -419,9 +514,17 @@
     function closeModal(result=false){
       alertEl.classList.remove('show');
       alertEl.setAttribute('aria-hidden', 'true');
-      if(result === false && alertFocusTarget){ alertFocusTarget.focus(); }
+      const focusTarget = alertFocusTarget;
       const resolver = alertResolver;
       alertResolver = null;
+      alertFocusTarget = null;
+
+      if (focusTarget) {
+        setTimeout(() => {
+          try { focusTarget.focus(); } catch (_) {}
+        }, 30);
+      }
+
       if(resolver) resolver(result);
     }
 
@@ -437,7 +540,9 @@
 
     signupBtn.addEventListener('click', () => {
       startLoading();
-      window.location.href = './signup.html';
+      setTimeout(() => {
+        window.location.href = './signup.html';
+      }, 120);
     });
 
     logoutBtn.addEventListener('click', async () => {
@@ -480,8 +585,8 @@
         return;
       }
 
-      startLoading();
       setLoginLoading(true);
+      startLoading();
 
       try {
         await setPersistence(auth, browserLocalPersistence);
@@ -490,14 +595,18 @@
 
         if (ALLOWED_EMAILS.length && !ALLOWED_EMAILS.includes(loginEmail)) {
           await signOut(auth);
+          finishLoading();
           showNotice('승인된 입주민 계정만 이용 가능합니다.', 'error');
+          await new Promise(resolve => setTimeout(resolve, 60));
           await openModalAlert('승인된 입주민 계정만 이용 가능합니다.', emailEl);
           return;
         }
 
-        showNotice('로그인되었습니다. 잠시 후 이동합니다.', 'success');
         finishLoading();
-        window.location.href = REDIRECT_AFTER_LOGIN;
+        showNotice('로그인되었습니다. 잠시 후 이동합니다.', 'success');
+        setTimeout(() => {
+          window.location.href = REDIRECT_AFTER_LOGIN;
+        }, 80);
       } catch (error) {
         const code = error?.code || '';
         let message = '로그인 중 오류가 발생했습니다. 다시 시도해 주세요.';
@@ -517,9 +626,9 @@
           focusTarget = emailEl;
         }
 
+        finishLoading();
         showNotice(message, 'error');
         await openModalAlert(message, focusTarget);
-        finishLoading();
       } finally {
         setLoginLoading(false);
       }
@@ -529,8 +638,6 @@
       if (user) {
         logoutBtn.classList.remove('hidden');
         document.body.style.opacity = '1';
-        finishLoading();
-        window.location.replace(REDIRECT_AFTER_LOGIN);
         return;
       }
 
@@ -554,5 +661,17 @@
     </div>
   </div>
 
+
+  <div id="pageLoader" class="page-loader" aria-hidden="true">
+    <div class="loader-mark" aria-label="로딩 중" role="status">
+      <span class="arm top"></span>
+      <span class="arm left"></span>
+      <span class="arm mid"></span>
+      <span class="arm bot"></span>
+      <span class="arm bot2"></span>
+    </div>
+  </div>
+
 </body>
+
 </html>
