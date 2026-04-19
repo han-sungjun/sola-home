@@ -13,52 +13,39 @@ firebase.initializeApp({
 const messaging = firebase.messaging();
 
 messaging.onBackgroundMessage((payload) => {
+  const data = payload?.data || {};
+  const title = data.title || payload?.notification?.title || '새 알림';
+  const body = data.body || payload?.notification?.body || '';
+  const url = data.url || data.click_action || '/';
 
-  const title =
-    payload?.notification?.title ||
-    payload?.data?.title ||
-    '새 알림';
-
-  const body =
-    payload?.notification?.body ||
-    payload?.data?.body ||
-    '';
-
-  const targetUrl =
-    payload?.data?.click_action ||
-    payload?.data?.url ||
-    '/';
-
-  const options = {
+  self.registration.showNotification(title, {
     body,
     icon: '/icons/icon-192.png',
     badge: '/icons/icon-192.png',
     data: {
-      ...payload?.data,
-      click_action: targetUrl
+      url
     }
-  };
-
-  self.registration.showNotification(title, options);
+  });
 });
 
 self.addEventListener('notificationclick', (event) => {
   event.notification.close();
 
-  const targetUrl =
-    event.notification?.data?.click_action ||
-    event.notification?.data?.url ||
-    '/';
+  const targetUrl = event.notification?.data?.url || '/';
 
   event.waitUntil(
     clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clientList) => {
       for (const client of clientList) {
         if ('focus' in client) {
-          client.navigate(targetUrl);
+          try {
+            client.navigate(targetUrl);
+          } catch (e) {}
           return client.focus();
         }
       }
-      return clients.openWindow(targetUrl);
+      if (clients.openWindow) {
+        return clients.openWindow(targetUrl);
+      }
     })
   );
 });
