@@ -361,9 +361,45 @@ body.gnb-open .admin-bottom-nav{
   .gnb-hero-emoji{font-size:64px}
 }
 
+
+/* ===== global loading bar ===== */
+.global-loading{
+  position:fixed;
+  top:0;
+  left:0;
+  right:0;
+  height:3px;
+  background:transparent;
+  z-index:99999;
+  pointer-events:none;
+  opacity:0;
+  transition:opacity .18s ease;
+}
+.global-loading.show{
+  opacity:1;
+}
+.global-loading::before{
+  content:"";
+  position:absolute;
+  top:0;
+  left:-35%;
+  width:35%;
+  height:100%;
+  border-radius:999px;
+  background:linear-gradient(90deg,#60a5fa 0%, #93c5fd 100%);
+  box-shadow:0 0 12px rgba(96,165,250,.35);
+  animation:globalLoadingMove 1s ease-in-out infinite;
+}
+@keyframes globalLoadingMove{
+  0%{left:-35%;width:35%}
+  50%{left:30%;width:42%}
+  100%{left:100%;width:30%}
+}
+
 </style>
 </head>
 <body>
+  <div class="global-loading" id="globalLoadingBar" aria-hidden="true"></div>
   <div class="app"><div class="shell">
     <header class="admin-topbar">
       <div class="admin-topbar-right">
@@ -467,6 +503,35 @@ body.gnb-open .admin-bottom-nav{
     const BENEFITS_COLLECTION='benefits', NOTICES_COLLECTION='notices', PUSH_JOBS_COLLECTION='push_jobs';
     const DEFAULT_BENEFITS=[{name:'엘스킨케어',category:'피부관리',discountValue:50,discountText:'50%',condition:'첫방문 50% / 입주민 정액권 최대 30%',address:'경기 파주시 경의로 1242 209호, 210호',phone:'0507-1433-5760',url:'',visible:true,recommended:true,service:false},{name:'미스터피자 일산탄현점',category:'음식',discountValue:30,discountText:'30%',condition:'포장 30% / 매장식사 20% + 샐러드 증정',address:'경기 고양시 일산서구 탄현로 136 상가동 2층 204호',phone:'031-911-9296',url:'',visible:true,recommended:true,service:false}];
     const state={benefits:[],notices:[],pushJobs:[],isAdmin:false,view:'dashboard'}; const qs=(s)=>document.querySelector(s), qsa=(s)=>[...document.querySelectorAll(s)];
+    const globalLoadingBar = qs('#globalLoadingBar');
+    let globalLoadingTimer = null;
+
+    function showGlobalLoading(){
+      if(!globalLoadingBar) return;
+      globalLoadingBar.classList.add('show');
+      clearTimeout(globalLoadingTimer);
+      globalLoadingTimer = setTimeout(() => {
+        hideGlobalLoading();
+      }, 900);
+    }
+
+    function hideGlobalLoading(delay=160){
+      if(!globalLoadingBar) return;
+      clearTimeout(globalLoadingTimer);
+      globalLoadingTimer = setTimeout(() => {
+        globalLoadingBar.classList.remove('show');
+      }, delay);
+    }
+
+    function bindGlobalLoadingTriggers(){
+      document.addEventListener('click', (event) => {
+        const target = event.target.closest('button, a, .mini-item');
+        if(!target) return;
+        if(target.matches('#adminGnbCloseBtn, .gnb-close')) return;
+        showGlobalLoading();
+      }, true);
+    }
+
     const setTextAll = (selector, text) => qsa(selector).forEach(el => el.textContent = text);
     function updateAdminHeader(user){
       qs('#adminTopUser').textContent = user?.email || '관리자 확인 중';
@@ -474,6 +539,7 @@ body.gnb-open .admin-bottom-nav{
     }
     function changeAdminView(view){
       if(!view) return;
+      showGlobalLoading();
       state.view = view;
       qsa('.admin-view').forEach(el => el.classList.remove('active'));
       (qs(`#view-${view}`) || qs('#view-dashboard'))?.classList.add('active');
@@ -483,7 +549,9 @@ body.gnb-open .admin-bottom-nav{
       qs('#adminGnbOverlay')?.classList.remove('show');
       document.body.style.overflow = '';
       document.body.classList.remove('gnb-open');
+      hideGlobalLoading(220);
       window.scrollTo({ top: 0, behavior: 'auto' });
+      hideGlobalLoading(220);
     }
 
     function sanitizeBenefit(item={},id=''){return {id,name:item.name||'',category:item.category||'기타',discountValue:Number(item.discountValue||0),discountText:item.discountText||`${Number(item.discountValue||0)}%`,condition:item.condition||'',address:item.address||'',url:item.url||'',phone:item.phone||'',service:!!item.service||String(item.discountText).trim()==='서비스',visible:item.visible!==false,recommended:!!item.recommended};}
@@ -527,6 +595,7 @@ body.gnb-open .admin-bottom-nav{
     const adminGnbOverlay = qs('#adminGnbOverlay');
     const adminGnbCloseBtn = qs('#adminGnbCloseBtn');
     function openAdminGnb(){
+      showGlobalLoading();
       adminGnbSheet?.classList.add('show');
       adminGnbOverlay?.classList.add('show');
       adminGnbSheet?.setAttribute('aria-hidden','false');
@@ -534,6 +603,7 @@ body.gnb-open .admin-bottom-nav{
       requestAnimationFrame(() => adminGnbSheet?.classList.add('gnb-enter'));
       document.body.style.overflow='hidden';
       document.body.classList.add('gnb-open');
+      hideGlobalLoading(220);
       const homeBtn = adminGnbSheet?.querySelector('.gnb-home-active');
       if(homeBtn){
         homeBtn.animate(
@@ -543,6 +613,7 @@ body.gnb-open .admin-bottom-nav{
       }
     }
     function closeAdminGnb(){
+      showGlobalLoading();
       adminGnbCloseBtn?.animate(
         [{ transform:'scale(1) rotate(0deg)' }, { transform:'scale(.94) rotate(-8deg)' }, { transform:'scale(1) rotate(0deg)' }],
         { duration:180, easing:'ease-out' }

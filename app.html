@@ -512,9 +512,45 @@ body.gnb-open .bottom-nav{
   color:var(--muted);
 }
 
+
+/* ===== global loading bar ===== */
+.global-loading{
+  position:fixed;
+  top:0;
+  left:0;
+  right:0;
+  height:3px;
+  background:transparent;
+  z-index:99999;
+  pointer-events:none;
+  opacity:0;
+  transition:opacity .18s ease;
+}
+.global-loading.show{
+  opacity:1;
+}
+.global-loading::before{
+  content:"";
+  position:absolute;
+  top:0;
+  left:-35%;
+  width:35%;
+  height:100%;
+  border-radius:999px;
+  background:linear-gradient(90deg,#60a5fa 0%, #93c5fd 100%);
+  box-shadow:0 0 12px rgba(96,165,250,.35);
+  animation:globalLoadingMove 1s ease-in-out infinite;
+}
+@keyframes globalLoadingMove{
+  0%{left:-35%;width:35%}
+  50%{left:30%;width:42%}
+  100%{left:100%;width:30%}
+}
+
 </style>
 </head>
 <body>
+  <div class="global-loading" id="globalLoadingBar" aria-hidden="true"></div>
   <div class="app"><div class="shell">
     <header class="topbar">
       <div class="topbar-row">
@@ -676,6 +712,36 @@ body.gnb-open .bottom-nav{
 
     const state={category:localStorage.getItem(LAST_CATEGORY_KEY)||'전체',keyword:'',filter:'all',view:'home',benefits:[],notices:[],loading:true,currentUser:null,currentUserProfile:null,popularItems:[],favoriteIds:[],currentPushToken:null,isPushEnabledForThisDevice:false,scrollMap:{home:0,benefits:0,favorite:0,top5:0,notices:0}};
     const qs=(s)=>document.querySelector(s), qsa=(s)=>[...document.querySelectorAll(s)];
+    const globalLoadingBar = qs('#globalLoadingBar');
+    let globalLoadingTimer = null;
+
+    function showGlobalLoading(){
+      if(!globalLoadingBar) return;
+      globalLoadingBar.classList.add('show');
+      clearTimeout(globalLoadingTimer);
+      globalLoadingTimer = setTimeout(() => {
+        hideGlobalLoading();
+      }, 900);
+    }
+
+    function hideGlobalLoading(delay=160){
+      if(!globalLoadingBar) return;
+      clearTimeout(globalLoadingTimer);
+      globalLoadingTimer = setTimeout(() => {
+        globalLoadingBar.classList.remove('show');
+      }, delay);
+    }
+
+    function bindGlobalLoadingTriggers(){
+      document.addEventListener('click', (event) => {
+        const target = event.target.closest('button, a, .card, .notice-item, .popular-item');
+        if(!target) return;
+        if(target.matches('#closeModal, #closeNoticeModal, #gnbCloseBtn, .close-btn, .gnb-close')) return;
+        if(target.closest('#detailModal') || target.closest('#noticeModal')) return;
+        showGlobalLoading();
+      }, true);
+    }
+
     function setPushStatusUi(enabled){
       const statusEl = qs('#pushStatusText');
       const subEl = qs('#pushStatusSub');
@@ -710,11 +776,13 @@ body.gnb-open .bottom-nav{
 
     function changeView(nextView){
       if(!nextView) return;
+      showGlobalLoading();
       saveCurrentViewScroll();
       state.view = nextView;
       if(nextView === 'favorite' || nextView === 'top5') state.filter = 'all';
       renderAll();
       restoreViewScroll(nextView);
+      hideGlobalLoading(220);
     }
 
     function updateGnbActive(){
@@ -1264,6 +1332,7 @@ async function refreshPushStatus(){
     const gnbCloseBtn = qs('#gnbCloseBtn');
 
     function openGnb(){
+      showGlobalLoading();
       gnbSheet?.classList.add('show');
       gnbOverlay?.classList.add('show');
       gnbSheet?.setAttribute('aria-hidden', 'false');
@@ -1271,6 +1340,7 @@ async function refreshPushStatus(){
       requestAnimationFrame(() => gnbSheet?.classList.add('gnb-enter'));
       document.body.style.overflow = 'hidden';
       document.body.classList.add('gnb-open');
+      hideGlobalLoading(220);
       const homeBtn = gnbSheet?.querySelector('.gnb-home-active');
       if(homeBtn){
         homeBtn.animate(
@@ -1281,6 +1351,7 @@ async function refreshPushStatus(){
     }
 
     function closeGnb(){
+      showGlobalLoading();
       const closeBtn = gnbCloseBtn;
       closeBtn?.animate(
         [{ transform:'scale(1) rotate(0deg)' }, { transform:'scale(.94) rotate(-8deg)' }, { transform:'scale(1) rotate(0deg)' }],
@@ -1291,6 +1362,7 @@ async function refreshPushStatus(){
       gnbSheet?.setAttribute('aria-hidden', 'true');
       document.body.style.overflow = '';
       document.body.classList.remove('gnb-open');
+      hideGlobalLoading(220);
       gnbSheet?.style.removeProperty('transform');
     }
 
@@ -1421,6 +1493,8 @@ async function refreshPushStatus(){
     qs('#disablePushBtn')?.addEventListener('click', disablePushNotifications);
 
     qs('#logoutBtn').onclick=async()=>{const confirmed=await openModalConfirm('로그아웃 하시겠습니까?', qs('#logoutBtn'), '로그아웃', '로그아웃', '취소'); if(!confirmed) return; try{await signOut(auth);redirectToLogin();}catch(error){await openModalAlert('로그아웃 중 오류가 발생했습니다.', qs('#logoutBtn'));}};
+
+    bindGlobalLoadingTriggers();
 
     (async()=>{
       await initPushSystem();
