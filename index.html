@@ -238,12 +238,12 @@
       <form id="loginForm">
         <div class="field">
           <label for="email">이메일</label>
-          <input id="email" class="input" type="email" inputmode="email" autocomplete="email" placeholder="example@email.com" required />
+          <input id="email" class="input" type="email" inputmode="email" autocomplete="email" placeholder="example@email.com" />
         </div>
 
         <div class="field">
           <label for="password">비밀번호</label>
-          <input id="password" class="input" type="password" autocomplete="current-password" placeholder="비밀번호 입력" required />
+          <input id="password" class="input" type="password" autocomplete="current-password" placeholder="비밀번호 입력" />
         </div>
 
         <div class="helper">
@@ -259,7 +259,7 @@
     </section>
 
     <div class="footer">
-      로그인 성공 시 <strong>app.html</strong> 로 이동합니다.
+      로그인 성공 시 <strong>index.html</strong> 로 이동합니다.
     </div>
   </div>
 
@@ -363,13 +363,27 @@
       const email = normalizeEmail(emailEl.value);
       const password = passwordEl.value;
 
-      if (!email || !password) {
-        showNotice('이메일과 비밀번호를 모두 입력해 주세요.', 'error');
+      if (!email) {
+        const message = '이메일을 입력해주세요.';
+        showNotice(message, 'error');
+        alert(message);
+        emailEl.focus();
+        return;
+      }
+
+      if (!password) {
+        const message = '비밀번호를 입력해주세요.';
+        showNotice(message, 'error');
+        alert(message);
+        passwordEl.focus();
         return;
       }
 
       if (!isAllowedEmail(email)) {
-        showNotice('허용된 사용자 계정이 아닙니다.', 'error');
+        const message = '허용된 사용자 계정이 아닙니다.';
+        showNotice(message, 'error');
+        alert(message);
+        emailEl.focus();
         return;
       }
 
@@ -380,7 +394,10 @@
 
         if (!isAllowedEmail(signedInEmail)) {
           await signOut(auth);
-          showNotice('승인되지 않은 계정입니다.', 'error');
+          const message = '승인되지 않은 계정입니다.';
+          showNotice(message, 'error');
+          alert(message);
+          emailEl.focus();
           return;
         }
 
@@ -391,18 +408,25 @@
       } catch (error) {
         const code = error?.code || '';
         let message = '로그인에 실패했습니다. 다시 확인해 주세요.';
+        let focusTarget = passwordEl;
 
         if (code === 'auth/invalid-credential' || code === 'auth/wrong-password') {
           message = '이메일 또는 비밀번호가 올바르지 않습니다.';
+          focusTarget = passwordEl;
         } else if (code === 'auth/user-not-found') {
           message = '등록되지 않은 계정입니다.';
+          focusTarget = emailEl;
         } else if (code === 'auth/too-many-requests') {
           message = '로그인 시도가 너무 많습니다. 잠시 후 다시 시도해 주세요.';
+          focusTarget = passwordEl;
         } else if (code === 'auth/network-request-failed') {
           message = '네트워크 연결을 확인해 주세요.';
+          focusTarget = emailEl;
         }
 
         showNotice(message, 'error');
+        alert(message);
+        focusTarget.focus();
       } finally {
         setLoading(false);
       }

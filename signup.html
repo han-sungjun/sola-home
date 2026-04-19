@@ -302,42 +302,42 @@
       <form id="signupForm">
         <div class="field">
           <label for="email">이메일 주소</label>
-          <input id="email" class="input" type="email" inputmode="email" autocomplete="email" placeholder="example@email.com" required />
+          <input id="email" class="input" type="email" inputmode="email" autocomplete="email" placeholder="example@email.com" />
         </div>
 
         <div class="grid-2">
           <div class="field">
             <label for="password">비밀번호</label>
-            <input id="password" class="input" type="password" autocomplete="new-password" minlength="6" placeholder="6자 이상 입력" required />
+            <input id="password" class="input" type="password" autocomplete="new-password" placeholder="6자 이상 입력" />
           </div>
 
           <div class="field">
             <label for="passwordConfirm">비밀번호 확인</label>
-            <input id="passwordConfirm" class="input" type="password" autocomplete="new-password" minlength="6" placeholder="비밀번호 다시 입력" required />
+            <input id="passwordConfirm" class="input" type="password" autocomplete="new-password" placeholder="비밀번호 다시 입력" />
           </div>
         </div>
 
         <div class="grid-2">
           <div class="field">
             <label for="name">성명</label>
-            <input id="name" class="input" type="text" autocomplete="name" placeholder="홍길동" required />
+            <input id="name" class="input" type="text" autocomplete="name" placeholder="홍길동" />
           </div>
 
           <div class="field">
             <label for="nickname">닉네임</label>
-            <input id="nickname" class="input" type="text" placeholder="앱에서 표시될 이름" required />
+            <input id="nickname" class="input" type="text" placeholder="앱에서 표시될 이름" />
           </div>
         </div>
 
         <div class="grid-2">
           <div class="field">
             <label for="building">동</label>
-            <input id="building" class="input" type="text" inputmode="numeric" placeholder="예: 101" required />
+            <input id="building" class="input" type="text" inputmode="numeric" placeholder="예: 101" />
           </div>
 
           <div class="field">
             <label for="unit">호수</label>
-            <input id="unit" class="input" type="text" inputmode="numeric" placeholder="예: 1203" required />
+            <input id="unit" class="input" type="text" inputmode="numeric" placeholder="예: 1203" />
           </div>
         </div>
 
@@ -350,7 +350,7 @@
         <div class="field">
           <label for="residentProof">입주민 인증 사진 업로드</label>
           <div class="upload-box">
-            <input id="residentProof" class="input" type="file" accept="image/*" required />
+            <input id="residentProof" class="input" type="file" accept="image/*" />
             <div class="helper">
               마이 힐스 또는 아파트너 화면에서 <strong>동·호수</strong>가 보이도록 캡처한 입주민 인증 이미지를 업로드해 주세요.
             </div>
@@ -359,12 +359,12 @@
         </div>
 
         <label class="check">
-          <input id="agreePrivacy" type="checkbox" required />
+          <input id="agreePrivacy" type="checkbox" />
           <span>입주민 인증, 승인 심사 및 서비스 이용을 위해 제출한 정보를 저장하고 검토하는 데 동의합니다.</span>
         </label>
 
         <label class="check">
-          <input id="agreePolicy" type="checkbox" required />
+          <input id="agreePolicy" type="checkbox" />
           <span>허위 정보 제출 시 가입이 거절되거나 계정이 제한될 수 있음에 동의합니다.</span>
         </label>
 
@@ -458,40 +458,91 @@
       event.preventDefault();
       hideNotice();
 
-      const email = normalizeEmail(qs('#email').value);
-      const password = qs('#password').value;
-      const passwordConfirm = qs('#passwordConfirm').value;
-      const name = qs('#name').value.trim();
-      const nickname = qs('#nickname').value.trim();
-      const building = qs('#building').value.trim();
-      const unit = qs('#unit').value.trim();
+      const emailEl = qs('#email');
+      const passwordEl = qs('#password');
+      const passwordConfirmEl = qs('#passwordConfirm');
+      const nameEl = qs('#name');
+      const nicknameEl = qs('#nickname');
+      const buildingEl = qs('#building');
+      const unitEl = qs('#unit');
+      const agreePrivacyEl = qs('#agreePrivacy');
+      const agreePolicyEl = qs('#agreePolicy');
+
+      const email = normalizeEmail(emailEl.value);
+      const password = passwordEl.value;
+      const passwordConfirm = passwordConfirmEl.value;
+      const name = nameEl.value.trim();
+      const nickname = nicknameEl.value.trim();
+      const building = buildingEl.value.trim();
+      const unit = unitEl.value.trim();
       const intro = qs('#intro').value.trim();
-      const agreePrivacy = qs('#agreePrivacy').checked;
-      const agreePolicy = qs('#agreePolicy').checked;
+      const agreePrivacy = agreePrivacyEl.checked;
+      const agreePolicy = agreePolicyEl.checked;
       const proofFile = fileInput.files?.[0];
 
-      if (!email || !password || !passwordConfirm || !name || !nickname || !building || !unit) {
-        showNotice('필수 입력 항목을 모두 작성해 주세요.', 'error');
+      const fail = (message, element) => {
+        showNotice(message, 'error');
+        alert(message);
+        if (element) element.focus();
+      };
+
+      if (!email) {
+        fail('이메일을 입력해주세요.', emailEl);
+        return;
+      }
+
+      if (!password) {
+        fail('비밀번호를 입력해주세요.', passwordEl);
+        return;
+      }
+
+      if (!passwordConfirm) {
+        fail('비밀번호 확인을 입력해주세요.', passwordConfirmEl);
+        return;
+      }
+
+      if (!name) {
+        fail('성명을 입력해주세요.', nameEl);
+        return;
+      }
+
+      if (!nickname) {
+        fail('닉네임을 입력해주세요.', nicknameEl);
+        return;
+      }
+
+      if (!building) {
+        fail('동을 입력해주세요.', buildingEl);
+        return;
+      }
+
+      if (!unit) {
+        fail('호수를 입력해주세요.', unitEl);
         return;
       }
 
       if (password.length < 6) {
-        showNotice('비밀번호는 6자 이상이어야 합니다.', 'error');
+        fail('비밀번호는 6자 이상이어야 합니다.', passwordEl);
         return;
       }
 
       if (password !== passwordConfirm) {
-        showNotice('비밀번호와 비밀번호 확인이 일치하지 않습니다.', 'error');
+        fail('비밀번호와 비밀번호 확인이 일치하지 않습니다.', passwordConfirmEl);
         return;
       }
 
       if (!proofFile) {
-        showNotice('입주민 인증 사진을 업로드해 주세요.', 'error');
+        fail('입주민 인증 사진을 업로드해 주세요.', fileInput);
         return;
       }
 
-      if (!agreePrivacy || !agreePolicy) {
-        showNotice('필수 동의 항목을 모두 체크해 주세요.', 'error');
+      if (!agreePrivacy) {
+        fail('개인정보 수집 및 검토 동의가 필요합니다.', agreePrivacyEl);
+        return;
+      }
+
+      if (!agreePolicy) {
+        fail('허위 정보 제출 관련 동의가 필요합니다.', agreePolicyEl);
         return;
       }
 
@@ -530,28 +581,38 @@
         });
 
         showNotice('회원가입 신청이 완료되었습니다.\n현재 상태는 승인 대기입니다.\n관리자 확인 후 index.html 로그인 페이지에서 이용해 주세요.', 'success');
+        alert('회원가입 신청이 완료되었습니다. 승인 후 로그인해주세요.');
         form.reset();
         fileMeta.className = 'upload-meta';
         fileMeta.textContent = '';
       } catch (error) {
         const code = error?.code || '';
         let message = '회원가입 처리 중 오류가 발생했습니다. 다시 시도해 주세요.';
+        let focusTarget = qs('#email');
 
         if (code === 'auth/email-already-in-use') {
           message = '이미 가입된 이메일입니다.';
+          focusTarget = qs('#email');
         } else if (code === 'auth/invalid-email') {
           message = '이메일 형식이 올바르지 않습니다.';
+          focusTarget = qs('#email');
         } else if (code === 'auth/weak-password') {
           message = '비밀번호가 너무 약합니다. 더 안전한 비밀번호를 사용해 주세요.';
+          focusTarget = qs('#password');
         } else if (code === 'storage/unauthorized') {
           message = '인증 사진 업로드 권한이 없습니다. Storage 규칙을 확인해 주세요.';
+          focusTarget = fileInput;
         } else if (code === 'permission-denied') {
           message = '회원 정보 저장 권한이 없습니다. Firestore 규칙을 확인해 주세요.';
+          focusTarget = qs('#name');
         } else if (code === 'auth/network-request-failed') {
           message = '네트워크 연결을 확인해 주세요.';
+          focusTarget = qs('#email');
         }
 
         showNotice(message, 'error');
+        alert(message);
+        focusTarget.focus();
       } finally {
         setLoading(false);
       }
