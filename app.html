@@ -381,8 +381,28 @@
     const app=initializeApp(firebaseConfig);
     const auth=getAuth(app);
     const db=getFirestore(app);
-    const state={category:localStorage.getItem(LAST_CATEGORY_KEY)||'전체',keyword:'',filter:'all',view:'home',benefits:[],loading:true,currentUser:null,currentUserProfile:null,popularItems:[]};
+    const state={category:localStorage.getItem(LAST_CATEGORY_KEY)||'전체',keyword:'',filter:'all',view:'home',benefits:[],loading:true,currentUser:null,currentUserProfile:null,popularItems:[],scrollMap:{home:0,benefits:0,favorite:0,top5:0}};
     const qs=(s)=>document.querySelector(s), qsa=(s)=>[...document.querySelectorAll(s)];
+    function saveCurrentViewScroll(){
+      state.scrollMap[state.view] = window.scrollY || window.pageYOffset || 0;
+    }
+
+    function restoreViewScroll(view){
+      const nextY = Number(state.scrollMap[view] || 0);
+      requestAnimationFrame(() => {
+        window.scrollTo({ top: nextY, behavior: 'auto' });
+      });
+    }
+
+    function changeView(nextView){
+      if(!nextView) return;
+      saveCurrentViewScroll();
+      state.view = nextView;
+      if(nextView === 'favorite' || nextView === 'top5') state.filter = 'all';
+      renderAll();
+      restoreViewScroll(nextView);
+    }
+
     const alertEl = qs('#appAlert');
     const alertMsgEl = qs('#appAlertMessage');
     const alertTitleEl = qs('#appAlertTitle');
@@ -628,8 +648,7 @@
         b.onclick=()=>{
           state.category=cat;
           localStorage.setItem(LAST_CATEGORY_KEY, cat);
-          state.view='benefits';
-          renderAll();
+          changeView('benefits');
         };
         el.appendChild(b);
       });
@@ -659,8 +678,8 @@
     function updateView(){qsa('[id^="view-"]').forEach(v=>v.classList.add('hidden'));(qs(`#view-${state.view}`)||qs('#view-home')).classList.remove('hidden');qsa('.bottom-nav .nav-btn').forEach(btn=>btn.classList.remove('active'));const active=qsa('.bottom-nav .nav-btn').find(btn=>btn.dataset.view===state.view);if(active)active.classList.add('active');qs('#gnbSheet')?.classList.remove('show');qs('#gnbOverlay')?.classList.remove('show');}
     const renderAll=()=>{createChips();renderStats();renderHome();renderFavorites();renderPopularTop5();updateView();};
     qs('#searchInput').addEventListener('input',(e)=>{state.keyword=e.target.value;renderAll();});
-    qs('#resetBtn').onclick=()=>{state.category='전체';localStorage.setItem(LAST_CATEGORY_KEY,'전체');state.keyword='';state.filter='all';state.view='benefits';qs('#searchInput').value='';renderAll();};
-    qsa('.bottom-nav .nav-btn').forEach(btn=>{btn.onclick=()=>{if(btn.dataset.view){state.view=btn.dataset.view;if(btn.dataset.view==='favorite'||btn.dataset.view==='top5')state.filter='all';}renderAll();};});
+    qs('#resetBtn').onclick=()=>{state.category='전체';localStorage.setItem(LAST_CATEGORY_KEY,'전체');state.keyword='';state.filter='all';qs('#searchInput').value='';changeView('benefits');};
+    qsa('.bottom-nav .nav-btn').forEach(btn=>{btn.onclick=()=>{if(btn.dataset.view){changeView(btn.dataset.view);}};});
     const gnbToggleBtn = qs('#gnbToggleBtn');
     const gnbSheet = qs('#gnbSheet');
     const gnbOverlay = qs('#gnbOverlay');
@@ -692,9 +711,7 @@
       btn.addEventListener('click', () => {
         const view = btn.dataset.viewLink;
         if(view){
-          state.view = view;
-          if(view === 'favorite' || view === 'top5') state.filter = 'all';
-          renderAll();
+          changeView(view);
         }
         closeGnb();
       });
