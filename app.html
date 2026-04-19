@@ -447,7 +447,7 @@
         window.firebaseMessaging = messaging;
         window.getToken = getToken;
 
-        onMessage(messaging, (payload) => {
+        onMessage(messaging, async (payload) => {
 		  try {
 			const title =
 			  payload?.data?.title ||
@@ -459,9 +459,31 @@
 			  payload?.notification?.body ||
 			  '';
 
+			const targetUrl =
+			  payload?.data?.url ||
+			  payload?.data?.click_action ||
+			  '/';
+
 			console.log('포그라운드 푸시 수신', payload);
 
-			openModalAlert([title, body].filter(Boolean).join('\n\n'));
+			if (window.pushSwRegistration) {
+			  await window.pushSwRegistration.showNotification(title, {
+				body,
+				icon: '/icons/icon-192.png',
+				badge: '/icons/icon-192.png',
+				data: {
+				  url: targetUrl
+				}
+			  });
+			  return;
+			}
+
+			if (Notification.permission === 'granted') {
+			  new Notification(title, {
+				body,
+				icon: '/icons/icon-192.png'
+			  });
+			}
 		  } catch (error) {
 			console.error('포그라운드 푸시 처리 실패', error);
 		  }
