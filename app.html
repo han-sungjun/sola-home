@@ -370,6 +370,20 @@
         <div class="helper">입주민 전용 혜택과 인기 매장을 한눈에 확인할 수 있습니다. 최신 혜택은 하단 <strong>혜택</strong> 탭에서, 인기 매장은 <strong>TOP 5</strong> 탭에서 확인해 주세요.</div>
       </div>
 
+
+      <div class="panel" style="margin-top:14px;">
+        <div class="section-head" style="margin-bottom:12px;"><h3>푸시 알림 설정</h3><small>현재 기기 기준</small></div>
+        <div class="helper" style="margin-bottom:14px;">공지사항이나 주요 안내를 이 기기에서 바로 받을 수 있습니다. 알림은 <strong>현재 브라우저/기기 기준</strong>으로 등록됩니다.</div>
+        <div class="panel" style="padding:16px;border-radius:20px;background:#fff;">
+          <div style="font-weight:800;font-size:16px;" id="pushStatusText">상태 확인 중</div>
+          <div style="margin-top:6px;color:var(--muted);line-height:1.6;font-size:13px;" id="pushStatusSub">현재 브라우저의 푸시 알림 상태를 확인하고 있습니다.</div>
+          <div class="grid-2" style="margin-top:14px;">
+            <button class="btn btn-primary block" id="enablePushBtn" type="button">알림 받기</button>
+            <button class="btn btn-soft block hidden" id="disablePushBtn" type="button">알림 해제</button>
+          </div>
+        </div>
+      </div>
+
       <div class="panel" style="margin-top:14px;">
         <div class="section-head" style="margin-bottom:12px;"><h3>최근 공지</h3><small>최신 안내</small></div>
         <div class="notice-list" id="homeNoticeList"><div class="notice-empty">등록된 공지가 없습니다.</div></div>
@@ -1042,6 +1056,9 @@ async function refreshPushStatus(){
       localStorage.setItem(CHIPS_EXPANDED_KEY, expanded ? 'true' : 'false');
       chipsToggleBtn.textContent = expanded ? '접기 ▴' : '더보기 ▾';
     };
+
+    qs('#enablePushBtn')?.addEventListener('click', enablePushNotifications);
+    qs('#disablePushBtn')?.addEventListener('click', disablePushNotifications);
 
     qs('#logoutBtn').onclick=async()=>{const confirmed=await openModalConfirm('로그아웃 하시겠습니까?', qs('#logoutBtn'), '로그아웃', '로그아웃', '취소'); if(!confirmed) return; try{await signOut(auth);redirectToLogin();}catch(error){await openModalAlert('로그아웃 중 오류가 발생했습니다.', qs('#logoutBtn'));}};
 
