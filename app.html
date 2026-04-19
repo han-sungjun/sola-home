@@ -46,59 +46,38 @@
 .topbar-right{display:flex;align-items:center;gap:10px}
 .topbar-title{margin-top:6px}
 
-
-.topbar{display:flex;flex-direction:column;gap:10px}
-.topbar-row{display:flex;justify-content:space-between;align-items:flex-start}
-.topbar-spacer{flex:1}
-.topbar-right{display:flex;align-items:center;justify-content:flex-end;gap:10px}
-.topbar-title{display:flex;justify-content:center;margin-top:4px}
-.brand.center{flex-direction:column;align-items:center;text-align:center;gap:8px}
-.brand.center .logo{margin-bottom:2px}
-.brand.center h1{font-size:22px}
-.brand.center p{font-size:12px}
-.topbar .brand{flex:unset;min-width:0}
-.user-chip{max-width:180px}
-.user-name{max-width:92px}
-@media (max-width:420px){
-  .topbar-right{gap:8px}
-  .logout-btn{padding:0 12px;font-size:12px}
-  .user-chip{max-width:160px;padding:8px 10px}
-  .user-name{max-width:80px}
-}
-
 </style>
 </head>
 <body>
   <div class="app"><div class="shell">
     <header class="topbar">
       <div class="topbar-row">
-        <div class="topbar-spacer"></div>
+        <div class="topbar-left">
+          <div class="brand">
+            <div class="logo">🏠</div>
+            <div>
+              <h1>더운정 마이힐스</h1>
+              <p>입주민 전용 혜택 웹앱</p>
+            </div>
+          </div>
+        </div>
         <div class="topbar-right">
-          <div class="user-chip" id="userChip" title="내 정보 보기">
+          <div class="user-chip" id="userChip">
             <div class="user-avatar">👤</div>
             <div class="user-meta">
               <strong class="user-name" id="userNickname">로그인 확인 중</strong>
               <span class="user-sub" id="userUnitInfo">입주민 계정</span>
             </div>
           </div>
-          <button class="icon-btn logout-btn" id="logoutBtn" title="로그아웃">로그아웃</button>
-          <button class="icon-btn" id="installTopBtn" title="홈 화면에 추가">📲</button>
-        </div>
-      </div>
-      <div class="topbar-title">
-        <div class="brand center">
-          <div class="logo">🏠</div>
-          <div>
-            <h1>더운정 마이힐스</h1>
-            <p>입주민 전용 혜택 웹앱</p>
-          </div>
+          <button class="icon-btn logout-btn" id="logoutBtn">로그아웃</button>
+          <button class="icon-btn" id="installTopBtn">📲</button>
         </div>
       </div>
     </header>
     <section id="view-home" class="">
       <div class="hero"><div class="eyebrow">🏠 마이힐스 어플 제시 후 이용</div><h2>입주민 혜택을 앱처럼 깔끔하게</h2><p>입주민 전용 제휴 혜택과 매장 정보를 한눈에 확인해보세요.</p><div class="stats"><div class="stat"><strong id="statMax">50%</strong><span>최대 할인</span></div><div class="stat"><strong id="statCount">21</strong><span>전체 제휴</span></div><div class="stat"><strong id="statCat">9</strong><span>카테고리</span></div></div></div>
       <div class="panel notice hidden" id="firebaseNotice">Firebase 설정값이 비어 있습니다. firebaseConfig를 확인해 주세요.</div>
-      <div class="panel" id="popularPanel" style="margin-top:14px;"><div class="section-head" style="margin-bottom:12px;"><h3>인기 통계 안내</h3><small>Firebase 집계</small></div><div class="helper">상세보기, 카드 클릭, 즐겨찾기, 전화, 지도 클릭 수가 <strong>benefit_stats</strong> 컬렉션에 누적됩니다.</div></div>
+      <div class="panel" id="popularPanel" style="margin-top:14px;"><div class="section-head" style="margin-bottom:12px;"><h3>인기 통계 안내</h3><small>Firebase 집계</small></div><div class="helper">상세보기, 카드 클릭, 즐겨찾기, 전화, 지도 클릭 수는 <strong>benefit_stats</strong>에 누적되고, 원본 이벤트는 <strong>benefit_events</strong>에 함께 기록됩니다.</div></div>
       <div class="filter-sticky"><div class="panel searchbox"><span>🔍</span><input id="searchInput" type="text" placeholder="매장명, 카테고리, 조건 검색"><button class="icon-btn" id="resetBtn" title="초기화">↺</button></div>
       <div class="chips" id="chips"><button class="chip active">전체</button><button class="chip ">음식</button><button class="chip ">베이커리</button><button class="chip ">주점</button><button class="chip ">중식당</button><button class="chip ">카페</button><button class="chip ">디저트</button><button class="chip ">피부관리</button><button class="chip ">치킨</button><button class="chip ">미용</button></div><div class="chips-toggle"><button id="chipsToggle" class="chip chips-toggle-btn hidden" type="button">더보기 ▾</button></div></div>
       
@@ -113,10 +92,10 @@
   <script type="module">
     import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
     import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
-    import { getFirestore, collection, onSnapshot, doc, getDoc, setDoc, updateDoc, increment, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
+    import { getFirestore, collection, onSnapshot, doc, getDoc, setDoc, updateDoc, increment, serverTimestamp, addDoc } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
     const firebaseConfig = { apiKey:"AIzaSyDhKr7oMSrLowJ47cqB4pvNXuIIdtW0HPI", authDomain:"sola-home-4979a.firebaseapp.com", projectId:"sola-home-4979a", storageBucket:"sola-home-4979a.firebasestorage.app", messagingSenderId:"337132471819", appId:"1:337132471819:web:848cd357fecda459a2e90e" };
     const LOGIN_PAGE_URL = './index.html';
-    const BENEFITS_COLLECTION='benefits', BENEFIT_STATS_COLLECTION='benefit_stats', FAVORITES_KEY='myhills_favorites_firebase', LAST_CATEGORY_KEY='myhills_last_category', CHIPS_EXPANDED_KEY='myhills_chips_expanded';
+    const BENEFITS_COLLECTION='benefits', BENEFIT_STATS_COLLECTION='benefit_stats', BENEFIT_EVENTS_COLLECTION='benefit_events', FAVORITES_KEY='myhills_favorites_firebase', LAST_CATEGORY_KEY='myhills_last_category', CHIPS_EXPANDED_KEY='myhills_chips_expanded';
     const app=initializeApp(firebaseConfig);
     const auth=getAuth(app);
     const db=getFirestore(app);
@@ -246,6 +225,20 @@
       }
     }
 
+    async function logBenefitEvent(benefitId, type){
+      if(!benefitId || !type || !state.currentUser?.uid) return;
+      try{
+        await addDoc(collection(db, BENEFIT_EVENTS_COLLECTION), {
+          benefitId,
+          uid: state.currentUser.uid,
+          type,
+          createdAt: serverTimestamp()
+        });
+      }catch(error){
+        console.error('이벤트 기록 실패', type, benefitId, error);
+      }
+    }
+
     const normalizeCategory = (v) => String(v || '기타').trim().replace(/\s+/g, ' ');
     const CATEGORY_ICONS = {
       '전체':'🏷️',
@@ -266,7 +259,7 @@
     function sanitizeBenefit(item={},id=''){return {id,name:item.name||'',category:normalizeCategory(item.category||'기타'),discountValue:Number(item.discountValue||0),discountText:item.discountText||`${Number(item.discountValue||0)}%`,condition:item.condition||'',address:item.address||'',phone:item.phone||'',url:item.url||'',service:!!item.service||String(item.discountText).trim()==='서비스',visible:item.visible!==false,recommended:!!item.recommended};}
     const getFavorites=()=>JSON.parse(localStorage.getItem(FAVORITES_KEY)||'[]');
     const setFavorites=(items)=>localStorage.setItem(FAVORITES_KEY,JSON.stringify(items));
-    function toggleFavorite(id, name){const set=new Set(getFavorites());const isAdding=!set.has(id);if(isAdding){set.add(id);increaseStat(id, name, 'favoriteCount');}else{set.delete(id);}setFavorites([...set]);renderAll();}
+    function toggleFavorite(id, name){const set=new Set(getFavorites());const isAdding=!set.has(id);if(isAdding){set.add(id);increaseStat(id, name, 'favoriteCount');logBenefitEvent(id, 'favorite');}else{set.delete(id);}setFavorites([...set]);renderAll();}
     const hasFirebaseConfig=()=>firebaseConfig.apiKey&&firebaseConfig.projectId&&firebaseConfig.appId;
     function subscribeBenefits(){onSnapshot(collection(db,BENEFITS_COLLECTION),(snapshot)=>{state.benefits=snapshot.docs.map(d=>sanitizeBenefit(d.data(),d.id));state.loading=false;renderAll();},()=>{state.loading=false;qs('#homeLoading').textContent='데이터를 불러오지 못했습니다. Firestore 규칙과 설정을 확인해 주세요.';renderAll();});}
     const getVisibleBenefits=()=>state.benefits.filter(v=>v.visible!==false);
@@ -308,12 +301,13 @@
     function getFilteredBenefits(mode='normal'){const favorites=new Set(getFavorites());return getVisibleBenefits().filter(item=>{const matchCategory=state.category==='전체'||normalizeCategory(item.category)===normalizeCategory(state.category);const q=state.keyword.trim().toLowerCase();const blob=[item.name,item.category,item.condition,item.address,item.phone].join(' ').toLowerCase();const matchKeyword=!q||blob.includes(q);const matchFilter=state.filter==='all'?true:(item.discountValue>=15||item.recommended);const matchMode=mode==='favorite'?favorites.has(item.id):true;return matchCategory&&matchKeyword&&matchFilter&&matchMode;}).sort((a,b)=>((b.recommended?1:0)-(a.recommended?1:0))||(b.discountValue-a.discountValue)||a.name.localeCompare(b.name,'ko'));}
     const getBadgeClass=(item)=>item.service?'badge service':(item.discountValue<=5?'badge low':'badge');
     function cardTemplate(item,isFavorite){const shortAddress=item.address.length>20?item.address.slice(0,20)+'…':item.address;return `<div class="card-top"><div class="${getBadgeClass(item)}">${item.discountText}</div><div style="flex:1;min-width:0;"><h4>${item.name} ${isFavorite?'★':''}</h4><div class="meta">${item.condition}</div><div class="tags">${item.recommended?'<span class="tag rec">추천</span>':''}<span class="tag">${item.category}</span><span class="tag">📍 ${shortAddress}</span></div></div></div><div class="actions"><button class="btn btn-primary detail-btn">상세보기</button><button class="btn btn-soft fav-btn">${isFavorite?'즐겨찾기 해제':'즐겨찾기'}</button></div>`;}
-    function renderList(target,items){const wrap=qs(target),favorites=new Set(getFavorites());wrap.innerHTML='';if(!items.length){wrap.innerHTML='<div class="panel empty">조건에 맞는 항목이 없습니다.</div>';return;}items.forEach(item=>{const card=document.createElement('article');card.className='card';card.innerHTML=cardTemplate(item,favorites.has(item.id));card.onclick=()=>{increaseStat(item.id, item.name, 'cardClickCount');openDetail(item);};card.querySelector('.detail-btn').onclick=(e)=>{e.stopPropagation();openDetail(item);};card.querySelector('.fav-btn').onclick=(e)=>{e.stopPropagation();toggleFavorite(item.id, item.name);};wrap.appendChild(card);});}
+    function renderList(target,items){const wrap=qs(target),favorites=new Set(getFavorites());wrap.innerHTML='';if(!items.length){wrap.innerHTML='<div class="panel empty">조건에 맞는 항목이 없습니다.</div>';return;}items.forEach(item=>{const card=document.createElement('article');card.className='card';card.innerHTML=cardTemplate(item,favorites.has(item.id));card.onclick=()=>{increaseStat(item.id, item.name, 'cardClickCount');logBenefitEvent(item.id, 'card_click');openDetail(item);};card.querySelector('.detail-btn').onclick=(e)=>{e.stopPropagation();openDetail(item);};card.querySelector('.fav-btn').onclick=(e)=>{e.stopPropagation();toggleFavorite(item.id, item.name);};wrap.appendChild(card);});}
     function renderHome(){const items=getFilteredBenefits();qs('#sectionTitle').textContent=state.filter==='high'?'고할인 / 추천 혜택':(state.category==='전체'?'전체 혜택':`${state.category} 혜택`);qs('#resultCount').textContent=`${items.length}건`;qs('#homeLoading').classList.toggle('hidden',!state.loading);renderList('#cardList',items);} 
     const renderFavorites=()=>renderList('#favoriteList',getFilteredBenefits('favorite'));
     function renderStats(){const items=getVisibleBenefits();qs('#statCount').textContent=items.length;qs('#statMax').textContent=`${Math.max(0,...items.map(v=>v.discountValue))}%`;qs('#statCat').textContent=new Set(items.map(v=>v.category)).size;}
     function openDetail(item){
       increaseStat(item.id, item.name, 'detailViewCount');
+      logBenefitEvent(item.id, 'detail_view');
       const isFav=getFavorites().includes(item.id);
       const naverMapLink=item.url || `https://map.naver.com/v5/search/${encodeURIComponent(item.address)}`;
       qs('#modalBody').innerHTML=`<div class="${getBadgeClass(item)}" style="display:inline-block;min-width:auto;padding:12px 16px;">${item.discountText}</div><h3 style="margin:12px 0 6px;font-size:26px;letter-spacing:-.04em;">${item.name}</h3><div class="tags" style="margin-top:0;margin-bottom:10px;">${item.recommended?'<span class="tag rec">추천 혜택</span>':''}<span class="tag">${item.category}</span></div><div style="display:grid;gap:10px;margin:16px 0;"><div class="panel"><strong style="display:block;margin-bottom:6px;font-size:13px;color:var(--muted);">혜택 조건</strong>${item.condition}</div><div class="panel"><strong style="display:block;margin-bottom:6px;font-size:13px;color:var(--muted);">주소</strong>${item.address}</div><div class="panel"><strong style="display:block;margin-bottom:6px;font-size:13px;color:var(--muted);">전화번호</strong>${item.phone}</div></div><div class="grid-2"><a class="btn btn-primary block" id="callBtn" href="tel:${item.phone}">전화하기</a><a class="btn btn-soft block" id="mapBtn" href="${naverMapLink}" target="_blank" rel="noopener">📍 네이버 지도</a></div><div style="margin-top:8px;"><button class="btn btn-soft block" id="modalFavBtn">${isFav?'★ 즐겨찾기 해제':'☆ 즐겨찾기 추가'}</button></div>`;
@@ -321,8 +315,8 @@
       if(modal.open)modal.close();
       modal.showModal();
       qs('#modalFavBtn').onclick=()=>{toggleFavorite(item.id, item.name);openDetail(item);};
-      qs('#callBtn').onclick=()=>increaseStat(item.id, item.name, 'callClickCount');
-      qs('#mapBtn').onclick=()=>increaseStat(item.id, item.name, 'mapClickCount');
+      qs('#callBtn').onclick=()=>{increaseStat(item.id, item.name, 'callClickCount');logBenefitEvent(item.id, 'call_click');};
+      qs('#mapBtn').onclick=()=>{increaseStat(item.id, item.name, 'mapClickCount');logBenefitEvent(item.id, 'map_click');};
     }
     function updateView(){qsa('[id^="view-"]').forEach(v=>v.classList.add('hidden'));(qs(`#view-${state.view}`)||qs('#view-home')).classList.remove('hidden');qsa('.bottom-nav .nav-btn').forEach(btn=>btn.classList.remove('active'));const active=qsa('.bottom-nav .nav-btn').find(btn=>btn.dataset.view===state.view);if(active)active.classList.add('active');}
     const renderAll=()=>{createChips();renderStats();renderHome();renderFavorites();updateView();};
