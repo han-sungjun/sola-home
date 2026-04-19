@@ -601,7 +601,7 @@ async function enablePushNotifications(){
           await openModalAlert('로그인 후 이용해 주세요.');
           return;
         }
-        if(!window.VAPID_PUBLIC_KEY || String(window.VAPID_PUBLIC_KEY).includes('BJONnfKeKFN8SCWWlo_quJ9pjahri96uw9WZJq2774hBZ8um6edcRb-NP7uRwjmcwHNTTGMuPJX-MUdeThgu5Kw')){
+        if(!window.VAPID_PUBLIC_KEY || String(window.VAPID_PUBLIC_KEY).includes('여기에_Firebase_콘솔_VAPID_Public_Key_입력')){
           await openModalAlert('VAPID 공개 키가 아직 설정되지 않았습니다. HTML 파일의 window.VAPID_PUBLIC_KEY 값을 실제 키로 바꿔 주세요.');
           return;
         }
@@ -1120,6 +1120,9 @@ async function refreshPushStatus(){
       localStorage.setItem(CHIPS_EXPANDED_KEY, expanded ? 'true' : 'false');
       chipsToggleBtn.textContent = expanded ? '접기 ▴' : '더보기 ▾';
     };
+
+    qs('#enablePushBtn')?.addEventListener('click', enablePushNotifications);
+    qs('#disablePushBtn')?.addEventListener('click', disablePushNotifications);
 
     qs('#logoutBtn').onclick=async()=>{const confirmed=await openModalConfirm('로그아웃 하시겠습니까?', qs('#logoutBtn'), '로그아웃', '로그아웃', '취소'); if(!confirmed) return; try{await signOut(auth);redirectToLogin();}catch(error){await openModalAlert('로그아웃 중 오류가 발생했습니다.', qs('#logoutBtn'));}};
 
