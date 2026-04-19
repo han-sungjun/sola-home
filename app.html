@@ -449,15 +449,25 @@
 
         onMessage(messaging, (payload) => {
           try{
-            const title = payload?.notification?.title || '새 알림';
-            const body = payload?.notification?.body || '';
+            const title =
+              payload?.data?.title ||
+              payload?.notification?.title ||
+              '새 알림';
+
+            const body =
+              payload?.data?.body ||
+              payload?.notification?.body ||
+              '';
+
             console.log('포그라운드 푸시 수신', payload);
 
-            // 앱이 열려 있을 때는 시스템 알림을 중복 표시하지 않음
-            // 필요 시 앱 내부 안내만 표시
-            if(document.visibilityState === 'visible'){
-              // openModalAlert([title, body].filter(Boolean).join('\n\n'));
-              return;
+            if(Notification.permission === 'granted'){
+              new Notification(title, {
+                body,
+                icon: '/icons/icon-192.png'
+              });
+            }else{
+              openModalAlert([title, body].filter(Boolean).join('\n\n'));
             }
           }catch(error){
             console.error('포그라운드 푸시 처리 실패', error);
