@@ -513,44 +513,106 @@ body.gnb-open .bottom-nav{
 }
 
 
-/* ===== global loading bar ===== */
+
+/* ===== full screen loading overlay ===== */
 .global-loading{
   position:fixed;
-  top:0;
-  left:0;
-  right:0;
-  height:3px;
-  background:transparent;
+  inset:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:rgba(15,23,42,.52);
+  backdrop-filter:blur(2px);
+  -webkit-backdrop-filter:blur(2px);
   z-index:99999;
   pointer-events:none;
   opacity:0;
-  transition:opacity .18s ease;
+  visibility:hidden;
+  transition:opacity .22s ease, visibility .22s ease;
 }
 .global-loading.show{
   opacity:1;
+  visibility:visible;
+  pointer-events:auto;
 }
 .global-loading::before{
-  content:"";
-  position:absolute;
-  top:0;
-  left:-35%;
-  width:35%;
-  height:100%;
-  border-radius:999px;
-  background:linear-gradient(90deg,#60a5fa 0%, #93c5fd 100%);
-  box-shadow:0 0 12px rgba(96,165,250,.35);
-  animation:globalLoadingMove 1s ease-in-out infinite;
+  content:none;
 }
-@keyframes globalLoadingMove{
-  0%{left:-35%;width:35%}
-  50%{left:30%;width:42%}
+.global-loading .loader-mark{
+  position:relative;
+  width:74px;
+  height:74px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  animation:loaderFloat .95s ease-in-out infinite;
+}
+.global-loading.show .loader-mark{
+  animation:loaderFloat .95s ease-in-out infinite, loaderPulse .9s ease-in-out infinite;
+}
+.global-loading .loader-mark .arm{
+  position:absolute;
+  left:50%;
+  top:50%;
+  width:10px;
+  border-radius:999px;
+  transform-origin:center center;
+  box-shadow:0 3px 10px rgba(0,0,0,.08);
+}
+.global-loading .loader-mark .arm.top{
+  height:34px;
+  background:#ffffff;
+  transform:translate(-50%,-72%) rotate(45deg);
+}
+.global-loading .loader-mark .arm.left{
+  height:34px;
+  background:#ffffff;
+  transform:translate(-50%,-72%) rotate(-45deg);
+}
+.global-loading .loader-mark .arm.mid{
+  width:42px;
+  height:8px;
+  background:linear-gradient(90deg,#ff4fc3 0%, #ff63d8 100%);
+  transform:translate(-50%,-2px);
+}
+.global-loading .loader-mark .arm.bot{
+  width:42px;
+  height:8px;
+  background:linear-gradient(90deg,#ff4fc3 0%, #ff63d8 100%);
+  transform:translate(-50%,12px);
+}
+.global-loading .loader-mark .arm.bot2{
+  width:42px;
+  height:8px;
+  background:linear-gradient(90deg,#ff4fc3 0%, #ff63d8 100%);
+  transform:translate(-50%,26px);
+}
+@keyframes loaderFloat{
+  0%,100%{ transform:translateY(0) scale(1); }
+  50%{ transform:translateY(-3px) scale(1.03); }
+}
+@keyframes loaderPulse{
+  0%{ opacity:.88; }
+  50%{ opacity:1; }
+  100%{ opacity:.9; }
+}
+
+50%{left:30%;width:42%}
   100%{left:100%;width:30%}
 }
 
 </style>
 </head>
 <body>
-  <div class="global-loading" id="globalLoadingBar" aria-hidden="true"></div>
+  <div class="global-loading" id="globalLoadingBar" aria-hidden="true">
+    <div class="loader-mark" aria-label="로딩 중" role="status">
+      <span class="arm top"></span>
+      <span class="arm left"></span>
+      <span class="arm mid"></span>
+      <span class="arm bot"></span>
+      <span class="arm bot2"></span>
+    </div>
+  </div>
   <div class="app"><div class="shell">
     <header class="topbar">
       <div class="topbar-row">
@@ -714,14 +776,18 @@ body.gnb-open .bottom-nav{
     const qs=(s)=>document.querySelector(s), qsa=(s)=>[...document.querySelectorAll(s)];
     const globalLoadingBar = qs('#globalLoadingBar');
     let globalLoadingTimer = null;
+    const initialLoadState = {
+      benefits: false,
+      notices: false,
+      popular: false
+    };
+
 
     function showGlobalLoading(){
       if(!globalLoadingBar) return;
-      globalLoadingBar.classList.add('show');
       clearTimeout(globalLoadingTimer);
-      globalLoadingTimer = setTimeout(() => {
-        hideGlobalLoading();
-      }, 900);
+      globalLoadingBar.classList.add('show');
+      globalLoadingBar.setAttribute('aria-hidden', 'false');
     }
 
     function hideGlobalLoading(delay=160){
@@ -729,20 +795,27 @@ body.gnb-open .bottom-nav{
       clearTimeout(globalLoadingTimer);
       globalLoadingTimer = setTimeout(() => {
         globalLoadingBar.classList.remove('show');
+        globalLoadingBar.setAttribute('aria-hidden', 'true');
       }, delay);
     }
 
-    function bindGlobalLoadingTriggers(){
-      document.addEventListener('click', (event) => {
-        const target = event.target.closest('button, a, .card, .notice-item, .popular-item');
-        if(!target) return;
-        if(target.matches('#closeModal, #closeNoticeModal, #gnbCloseBtn, .close-btn, .gnb-close')) return;
-        if(target.closest('#detailModal') || target.closest('#noticeModal')) return;
-        showGlobalLoading();
-      }, true);
+    function markInitialDataLoaded(key){
+      if(!(key in initialLoadState)) return;
+      initialLoadState[key] = true;
+
+      const allLoaded = Object.values(initialLoadState).every(Boolean);
+      if(allLoaded){
+        hideGlobalLoading(120);
+      }
     }
 
-    function setPushStatusUi(enabled){
+
+    function bindGlobalLoadingTriggers(){
+      // 공개앱은 버튼/메뉴 클릭마다 로더를 띄우지 않습니다.
+      // 실제 데이터 조회가 시작될 때만 showGlobalLoading()을 사용합니다.
+    }
+
+function setPushStatusUi(enabled){
       const statusEl = qs('#pushStatusText');
       const subEl = qs('#pushStatusSub');
       const enableBtn = qs('#enablePushBtn');
@@ -776,13 +849,11 @@ body.gnb-open .bottom-nav{
 
     function changeView(nextView){
       if(!nextView) return;
-      showGlobalLoading();
       saveCurrentViewScroll();
       state.view = nextView;
       if(nextView === 'favorite' || nextView === 'top5') state.filter = 'all';
       renderAll();
       restoreViewScroll(nextView);
-      hideGlobalLoading(220);
     }
 
     function updateGnbActive(){
@@ -1106,7 +1177,19 @@ async function refreshPushStatus(){
       }
     }
     const hasFirebaseConfig=()=>firebaseConfig.apiKey&&firebaseConfig.projectId&&firebaseConfig.appId;
-    function subscribeBenefits(){onSnapshot(collection(db,BENEFITS_COLLECTION),(snapshot)=>{state.benefits=snapshot.docs.map(d=>sanitizeBenefit(d.data(),d.id));state.loading=false;renderAll();},()=>{state.loading=false;qs('#homeLoading').textContent='데이터를 불러오지 못했습니다. Firestore 규칙과 설정을 확인해 주세요.';renderAll();});}
+    function subscribeBenefits(){
+      onSnapshot(collection(db, BENEFITS_COLLECTION), (snapshot) => {
+        state.benefits = snapshot.docs.map(d => sanitizeBenefit(d.data(), d.id));
+        state.loading = false;
+        renderAll();
+        markInitialDataLoaded('benefits');
+      }, () => {
+        state.loading = false;
+        qs('#homeLoading').textContent = '데이터를 불러오지 못했습니다. Firestore 규칙과 설정을 확인해 주세요.';
+        renderAll();
+        markInitialDataLoaded('benefits');
+      });
+    }
     function formatDateTime(value){
       try{
         if(value?.toDate) return value.toDate().toLocaleDateString('ko-KR');
@@ -1139,8 +1222,10 @@ async function refreshPushStatus(){
             return bTime - aTime;
           });
         renderNotices();
+        markInitialDataLoaded('notices');
       }, (error) => {
         console.error('공지 로드 실패', error);
+        markInitialDataLoaded('notices');
       });
     }
 
@@ -1228,11 +1313,13 @@ async function refreshPushStatus(){
           };
         }).filter((item) => item.score > 0);
         renderPopularTop5();
+        markInitialDataLoaded('popular');
       }, () => {
         const wrap = qs('#popularList');
         if (wrap) {
           wrap.innerHTML = '<div class="panel empty">인기 통계를 불러오지 못했습니다.</div>';
         }
+        markInitialDataLoaded('popular');
       });
     }
 
@@ -1332,7 +1419,6 @@ async function refreshPushStatus(){
     const gnbCloseBtn = qs('#gnbCloseBtn');
 
     function openGnb(){
-      showGlobalLoading();
       gnbSheet?.classList.add('show');
       gnbOverlay?.classList.add('show');
       gnbSheet?.setAttribute('aria-hidden', 'false');
@@ -1340,7 +1426,6 @@ async function refreshPushStatus(){
       requestAnimationFrame(() => gnbSheet?.classList.add('gnb-enter'));
       document.body.style.overflow = 'hidden';
       document.body.classList.add('gnb-open');
-      hideGlobalLoading(220);
       const homeBtn = gnbSheet?.querySelector('.gnb-home-active');
       if(homeBtn){
         homeBtn.animate(
@@ -1351,7 +1436,6 @@ async function refreshPushStatus(){
     }
 
     function closeGnb(){
-      showGlobalLoading();
       const closeBtn = gnbCloseBtn;
       closeBtn?.animate(
         [{ transform:'scale(1) rotate(0deg)' }, { transform:'scale(.94) rotate(-8deg)' }, { transform:'scale(1) rotate(0deg)' }],
@@ -1362,7 +1446,6 @@ async function refreshPushStatus(){
       gnbSheet?.setAttribute('aria-hidden', 'true');
       document.body.style.overflow = '';
       document.body.classList.remove('gnb-open');
-      hideGlobalLoading(220);
       gnbSheet?.style.removeProperty('transform');
     }
 
@@ -1504,6 +1587,7 @@ async function refreshPushStatus(){
       renderAll();
       if(hasFirebaseConfig()){
         qs('#firebaseNotice').classList.add('hidden');
+        showGlobalLoading();
         subscribeBenefits();
         subscribeNotices();
         subscribePopularStats();
