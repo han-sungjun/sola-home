@@ -1,6 +1,15 @@
 importScripts('https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js');
 importScripts('https://www.gstatic.com/firebasejs/10.12.2/firebase-messaging-compat.js');
 
+// 🔥 워커 강제 최신화 (중요)
+self.addEventListener('install', () => {
+  self.skipWaiting();
+});
+
+self.addEventListener('activate', (event) => {
+  event.waitUntil(self.clients.claim());
+});
+
 firebase.initializeApp({
   apiKey: 'AIzaSyDhKr7oMSrLowJ47cqB4pvNXuIIdtW0HPI',
   authDomain: 'sola-home-4979a.firebaseapp.com',
@@ -12,22 +21,24 @@ firebase.initializeApp({
 
 const messaging = firebase.messaging();
 
+// ✅ 백그라운드 푸시 수신
 messaging.onBackgroundMessage((payload) => {
+  console.log('[SW] background message:', payload);
+
   const data = payload?.data || {};
   const title = data.title || payload?.notification?.title || '새 알림';
   const body = data.body || payload?.notification?.body || '';
-  const url = data.url || data.click_action || '/';
+  const url = data.url || payload?.fcmOptions?.link || '/';
 
   self.registration.showNotification(title, {
     body,
     icon: '/icons/icon-192.png',
     badge: '/icons/icon-192.png',
-    data: {
-      url
-    }
+    data: { url }
   });
 });
 
+// ✅ 알림 클릭 처리
 self.addEventListener('notificationclick', (event) => {
   event.notification.close();
 
@@ -36,16 +47,11 @@ self.addEventListener('notificationclick', (event) => {
   event.waitUntil(
     clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clientList) => {
       for (const client of clientList) {
-        if ('focus' in client) {
-          try {
-            client.navigate(targetUrl);
-          } catch (e) {}
+        if (client.url.includes(self.location.origin) && 'focus' in client) {
           return client.focus();
         }
       }
-      if (clients.openWindow) {
-        return clients.openWindow(targetUrl);
-      }
+      return clients.openWindow(targetUrl);
     })
   );
 });
