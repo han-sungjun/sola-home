@@ -42,10 +42,15 @@
     .app-alert-confirm{min-width:92px;border:none;border-radius:16px;padding:12px 16px;background:var(--primary);color:#fff;font-weight:800;cursor:pointer}
     
 
-.topbar-row{display:flex;justify-content:space-between;align-items:center}
+.topbar-row{display:flex;flex-direction:column;align-items:stretch;gap:12px}
 .topbar-left{display:flex;align-items:center;gap:10px}
-.topbar-right{display:flex;align-items:center;gap:10px}
+.topbar-right{display:flex;align-items:center;justify-content:flex-end;gap:10px;flex-wrap:nowrap}
 .topbar-title{margin-top:6px}
+.brand{align-items:flex-start}
+.brand .logo{flex:0 0 auto}
+.brand h1{line-height:1.2}
+.brand p{line-height:1.45}
+.topbar-left,.topbar-right{width:100%}
 
 
 .popular-list{display:grid;gap:10px}
@@ -317,6 +322,8 @@
   .nav-btn .nav-label{font-size:11px}
   .gnb-copy strong{font-size:20px}
   .gnb-hero-emoji{font-size:64px}
+  .topbar-row{gap:10px}
+  .topbar-right{gap:8px}
 }
 
 
@@ -336,15 +343,6 @@
   <div class="app"><div class="shell">
     <header class="topbar">
       <div class="topbar-row">
-        <div class="topbar-left">
-          <div class="brand">
-            <div class="logo">🏠</div>
-            <div>
-              <h1>더운정 마이힐스</h1>
-              <p>입주민 전용 혜택 웹앱</p>
-            </div>
-          </div>
-        </div>
         <div class="topbar-right">
           <div class="user-chip" id="userChip">
             <div class="user-avatar">👤</div>
@@ -357,6 +355,15 @@
           <button class="icon-btn" id="installTopBtn">📲</button>
           <div class="gnb-wrap">
             <button class="icon-btn" id="gnbToggleBtn" title="메뉴">☰</button>
+          </div>
+        </div>
+        <div class="topbar-left">
+          <div class="brand">
+            <div class="logo">🏠</div>
+            <div>
+              <h1>더운정<br>마이힐스</h1>
+              <p>입주민 전용 혜택 웹앱</p>
+            </div>
           </div>
         </div>
       </div>
