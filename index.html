@@ -259,7 +259,7 @@
     </section>
 
     <div class="footer">
-      로그인 성공 시 <strong>index.html</strong> 로 이동합니다.
+      로그인 성공 시 <strong>app.html</strong> 로 이동합니다.
     </div>
   </div>
 
@@ -293,6 +293,7 @@
 
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
+    document.body.style.opacity = '0';
 
     const qs = (selector) => document.querySelector(selector);
 
@@ -329,7 +330,7 @@
     }
 
     async function goToApp(){
-      window.location.href = REDIRECT_AFTER_LOGIN;
+      window.location.replace(REDIRECT_AFTER_LOGIN);
     }
 
     await setPersistence(auth, browserLocalPersistence);
@@ -337,6 +338,7 @@
     onAuthStateChanged(auth, async (user) => {
       if (!user) {
         logoutBtn.classList.add('hidden');
+        document.body.style.opacity = '1';
         return;
       }
 
@@ -345,14 +347,13 @@
       if (!isAllowedEmail(email)) {
         await signOut(auth);
         showNotice('승인되지 않은 계정입니다.\n관리자에게 문의해 주세요.', 'error');
+        document.body.style.opacity = '1';
         return;
       }
 
       showNotice('이미 로그인되어 있습니다. 메인 화면으로 이동합니다.', 'success');
       logoutBtn.classList.remove('hidden');
-      setTimeout(() => {
-        goToApp();
-      }, 500);
+      window.location.replace('./app.html');
     });
 
     loginForm.addEventListener('submit', async (event) => {

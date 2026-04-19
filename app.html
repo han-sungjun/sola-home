@@ -14,7 +14,7 @@
   <style>
     :root{--bg:#f5f7fb;--surface:rgba(255,255,255,.82);--line:#e5e7eb;--line-soft:rgba(15,23,42,.08);--text:#0f172a;--muted:#64748b;--primary:#0f172a;--accent:#ef4444;--accent2:#f59e0b;--blue:#2563eb;--shadow:0 20px 40px rgba(15,23,42,.08);--radius-xl:28px}
     *{box-sizing:border-box}html,body{margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Noto Sans KR","Segoe UI",sans-serif;background:linear-gradient(180deg,#f8fafc 0%,#eef2ff 100%);color:var(--text)}body{max-width:480px;margin:0 auto}button,input,select,textarea{font:inherit}a{color:inherit;text-decoration:none}
-    .app{min-height:100dvh;padding:18px 16px 80px}.shell{display:flex;flex-direction:column;gap:18px}.topbar{display:flex;justify-content:space-between;align-items:center}.brand{display:flex;align-items:center;gap:12px}.brand .logo{width:48px;height:48px;border-radius:16px;display:grid;place-items:center;background:#fff;box-shadow:var(--shadow);font-size:22px}.brand h1{margin:0;font-size:24px;letter-spacing:-.05em}.brand p{margin:4px 0 0;color:var(--muted);font-size:13px}.icon-btn{width:44px;height:44px;border:none;border-radius:16px;cursor:pointer;background:rgba(255,255,255,.8);box-shadow:var(--shadow);color:var(--text)}
+    .app{min-height:100dvh;padding:18px 16px 80px}.shell{display:flex;flex-direction:column;gap:18px}.topbar{display:flex;justify-content:space-between;align-items:center}.brand{display:flex;align-items:center;gap:12px}.brand .logo{width:48px;height:48px;border-radius:16px;display:grid;place-items:center;background:#fff;box-shadow:var(--shadow);font-size:22px}.brand h1{margin:0;font-size:24px;letter-spacing:-.05em}.brand p{margin:4px 0 0;color:var(--muted);font-size:13px}.icon-btn{width:44px;height:44px;border:none;border-radius:16px;cursor:pointer;background:rgba(255,255,255,.8);box-shadow:var(--shadow);color:var(--text)}.topbar-actions{display:flex;align-items:center;gap:10px}.user-chip{display:flex;align-items:center;gap:10px;padding:8px 12px;border-radius:18px;background:rgba(255,255,255,.88);box-shadow:var(--shadow);border:1px solid rgba(255,255,255,.7);min-width:0}.user-avatar{width:34px;height:34px;border-radius:12px;display:grid;place-items:center;background:#eef2ff;color:#334155;font-size:16px;flex:0 0 auto}.user-meta{min-width:0}.user-name{display:block;font-size:13px;font-weight:800;line-height:1.1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:120px}.user-sub{display:block;font-size:11px;color:var(--muted);margin-top:2px}.logout-btn{width:auto;padding:0 14px;font-size:13px;font-weight:800}
     .hero{position:relative;overflow:hidden;padding:24px;border-radius:30px;color:#fff;background:radial-gradient(circle at top right,rgba(255,255,255,.28),transparent 30%),linear-gradient(135deg,#111827 0%,#1f2937 46%,#ef4444 100%);box-shadow:var(--shadow)}.hero::after{content:"";position:absolute;right:-26px;top:-12px;width:118px;height:118px;border-radius:34px;background:rgba(255,255,255,.14);transform:rotate(18deg)}.eyebrow{display:inline-flex;align-items:center;gap:8px;padding:8px 12px;border-radius:999px;background:rgba(255,255,255,.14);font-size:12px}.hero h2{margin:14px 0 8px;font-size:28px;line-height:1.18;letter-spacing:-.05em;max-width:280px}.hero p{margin:0;max-width:320px;line-height:1.72;color:rgba(255,255,255,.92)}
     .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:20px}.stat{padding:14px;border-radius:18px;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.16);backdrop-filter:blur(10px)}.stat strong{display:block;font-size:20px}.stat span{font-size:12px;color:rgba(255,255,255,.84)}
     .panel{background:var(--surface);border:1px solid rgba(255,255,255,.65);box-shadow:var(--shadow);backdrop-filter:blur(18px);border-radius:var(--radius-xl);padding:18px}.notice{padding:14px 16px;border-radius:18px;background:#eff6ff;border:1px solid #bfdbfe;color:#1d4ed8;font-size:13px;line-height:1.5}.hidden{display:none!important}
@@ -34,7 +34,17 @@
   <div class="app"><div class="shell">
     <header class="topbar">
       <div class="brand"><div class="logo">🏠</div><div><h1>더운정 마이힐스</h1><p>입주민 전용 혜택 웹앱</p></div></div>
-      <button class="icon-btn" id="installTopBtn" title="홈 화면에 추가">📲</button>
+      <div class="topbar-actions">
+        <div class="user-chip" id="userChip" title="로그인 사용자">
+          <div class="user-avatar">👤</div>
+          <div class="user-meta">
+            <strong class="user-name" id="userNickname">로그인 확인 중</strong>
+            <span class="user-sub" id="userUnitInfo">입주민 계정</span>
+          </div>
+        </div>
+        <button class="icon-btn logout-btn" id="logoutBtn" title="로그아웃">로그아웃</button>
+        <button class="icon-btn" id="installTopBtn" title="홈 화면에 추가">📲</button>
+      </div>
     </header>
     <section id="view-home" class="">
       <div class="hero"><div class="eyebrow">🏠 마이힐스 어플 제시 후 이용</div><h2>입주민 혜택을 앱처럼 깔끔하게</h2><p>입주민 전용 제휴 혜택과 매장 정보를 한눈에 확인해보세요.</p><div class="stats"><div class="stat"><strong id="statMax">50%</strong><span>최대 할인</span></div><div class="stat"><strong id="statCount">21</strong><span>전체 제휴</span></div><div class="stat"><strong id="statCat">9</strong><span>카테고리</span></div></div></div>
@@ -52,11 +62,60 @@
   <dialog id="detailModal"><div class="modal-head"><div class="pill">혜택 상세</div><button class="close-btn" id="closeModal">✕</button></div><div class="modal-body" id="modalBody"></div></dialog>
   <script type="module">
     import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
-    import { getFirestore, collection, onSnapshot } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
+    import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
+    import { getFirestore, collection, onSnapshot, doc, getDoc } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
     const firebaseConfig = { apiKey:"AIzaSyDhKr7oMSrLowJ47cqB4pvNXuIIdtW0HPI", authDomain:"sola-home-4979a.firebaseapp.com", projectId:"sola-home-4979a", storageBucket:"sola-home-4979a.firebasestorage.app", messagingSenderId:"337132471819", appId:"1:337132471819:web:848cd357fecda459a2e90e" };
+    const LOGIN_PAGE_URL = './index.html';
     const BENEFITS_COLLECTION='benefits', FAVORITES_KEY='myhills_favorites_firebase', LAST_CATEGORY_KEY='myhills_last_category', CHIPS_EXPANDED_KEY='myhills_chips_expanded';
-    const state={category:localStorage.getItem(LAST_CATEGORY_KEY)||'전체',keyword:'',filter:'all',view:'home',benefits:[],loading:true};
+    const app=initializeApp(firebaseConfig);
+    const auth=getAuth(app);
+    const db=getFirestore(app);
+    const state={category:localStorage.getItem(LAST_CATEGORY_KEY)||'전체',keyword:'',filter:'all',view:'home',benefits:[],loading:true,currentUser:null,currentUserProfile:null};
     const qs=(s)=>document.querySelector(s), qsa=(s)=>[...document.querySelectorAll(s)];
+    const redirectToLogin=()=>window.location.replace(LOGIN_PAGE_URL);
+    function getDisplayNickname(){
+      return state.currentUserProfile?.nickname || state.currentUser?.displayName || state.currentUser?.email || '입주민';
+    }
+    function getDisplayUnitInfo(){
+      const building = state.currentUserProfile?.building;
+      const unit = state.currentUserProfile?.unit;
+      if(building && unit) return `${building}동 ${unit}호`;
+      return '입주민 계정';
+    }
+    function updateUserChip(){
+      const nicknameEl = qs('#userNickname');
+      const unitInfoEl = qs('#userUnitInfo');
+      if(nicknameEl) nicknameEl.textContent = getDisplayNickname();
+      if(unitInfoEl) unitInfoEl.textContent = getDisplayUnitInfo();
+    }
+    async function loadCurrentUserProfile(user){
+      try{
+        const snap = await getDoc(doc(db, 'users', user.uid));
+        if(!snap.exists()) return null;
+        return snap.data() || null;
+      }catch(error){
+        console.error('사용자 정보 로드 실패', error);
+        return null;
+      }
+    }
+    async function ensureAuthenticatedUser(){
+      return new Promise((resolve) => {
+        onAuthStateChanged(auth, async (user) => {
+          if(!user){
+            redirectToLogin();
+            resolve(false);
+            return;
+          }
+          state.currentUser = user;
+          state.currentUserProfile = await loadCurrentUserProfile(user);
+          updateUserChip();
+          resolve(true);
+        }, () => {
+          redirectToLogin();
+          resolve(false);
+        });
+      });
+    }
     const normalizeCategory = (v) => String(v || '기타').trim().replace(/\s+/g, ' ');
     const CATEGORY_ICONS = {
       '전체':'🏷️',
@@ -79,7 +138,7 @@
     const setFavorites=(items)=>localStorage.setItem(FAVORITES_KEY,JSON.stringify(items));
     function toggleFavorite(id){const set=new Set(getFavorites());set.has(id)?set.delete(id):set.add(id);setFavorites([...set]);renderAll();}
     const hasFirebaseConfig=()=>firebaseConfig.apiKey&&firebaseConfig.projectId&&firebaseConfig.appId;
-    function subscribeBenefits(){const app=initializeApp(firebaseConfig);const db=getFirestore(app);onSnapshot(collection(db,BENEFITS_COLLECTION),(snapshot)=>{state.benefits=snapshot.docs.map(d=>sanitizeBenefit(d.data(),d.id));state.loading=false;renderAll();},()=>{state.loading=false;qs('#homeLoading').textContent='데이터를 불러오지 못했습니다. Firestore 규칙과 설정을 확인해 주세요.';renderAll();});}
+    function subscribeBenefits(){onSnapshot(collection(db,BENEFITS_COLLECTION),(snapshot)=>{state.benefits=snapshot.docs.map(d=>sanitizeBenefit(d.data(),d.id));state.loading=false;renderAll();},()=>{state.loading=false;qs('#homeLoading').textContent='데이터를 불러오지 못했습니다. Firestore 규칙과 설정을 확인해 주세요.';renderAll();});}
     const getVisibleBenefits=()=>state.benefits.filter(v=>v.visible!==false);
     const getCategoryCounts=()=> {
       const counts = {};
@@ -169,7 +228,21 @@
       chipsToggleBtn.textContent = expanded ? '접기 ▴' : '더보기 ▾';
     };
 
-    renderAll(); if(hasFirebaseConfig()){qs('#firebaseNotice').classList.add('hidden');subscribeBenefits();}else{qs('#firebaseNotice').classList.remove('hidden');state.loading=false;renderAll();}
+    qs('#logoutBtn').onclick=async()=>{try{await signOut(auth);redirectToLogin();}catch(error){alert('로그아웃 중 오류가 발생했습니다.');}};
+
+    (async()=>{
+      const ok = await ensureAuthenticatedUser();
+      if(!ok) return;
+      renderAll();
+      if(hasFirebaseConfig()){
+        qs('#firebaseNotice').classList.add('hidden');
+        subscribeBenefits();
+      }else{
+        qs('#firebaseNotice').classList.remove('hidden');
+        state.loading=false;
+        renderAll();
+      }
+    })();
   </script>
 
 
