@@ -13,6 +13,7 @@ firebase.initializeApp({
 const messaging = firebase.messaging();
 
 messaging.onBackgroundMessage((payload) => {
+
   const title =
     payload?.notification?.title ||
     payload?.data?.title ||
