@@ -109,55 +109,256 @@
 .summary-row strong{font-size:14px}
 .summary-row span{font-size:12px;color:var(--muted)}
 .admin-groups{display:grid;gap:14px}
-.gnb-overlay{
-  position:fixed;inset:0;background:rgba(15,23,42,.42);backdrop-filter:blur(6px);z-index:200;display:none;
-}
-.gnb-overlay.show{display:block}
-.gnb-sheet{
-  position:fixed;left:50%;top:0;bottom:0;transform:translate(-50%,-100%);width:min(100%,var(--app-max));background:#fff;z-index:210;display:flex;flex-direction:column;
-  transition:transform .28s ease;
-}
-.gnb-sheet.show{transform:translate(-50%,0)}
-.gnb-top{
-  background:linear-gradient(180deg,#334155 0%,#3b4752 100%);color:#fff;padding:22px 22px 26px;
-}
-.gnb-icons{display:flex;align-items:center;gap:18px;margin-bottom:26px}
-.gnb-icon-btn{
-  width:30px;height:30px;display:grid;place-items:center;border:none;background:transparent;color:#fff;
-  font-size:24px;cursor:pointer;padding:0;
-}
-.gnb-close{margin-left:auto;font-size:22px}
-.gnb-hero{display:flex;align-items:flex-end;justify-content:space-between;gap:16px}
-.gnb-copy small{display:block;font-size:14px;color:rgba(255,255,255,.82);margin-bottom:6px}
-.gnb-copy strong{display:block;font-size:22px;line-height:1.35;letter-spacing:-.04em}
-.gnb-hero-emoji{font-size:74px;line-height:1;flex:0 0 auto}
-.gnb-body{flex:1;overflow:auto;padding:22px 22px 120px;background:#fff}
-.gnb-banner{
-  display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 16px;border-radius:20px;
-  background:#edf8f7;margin-bottom:28px;font-weight:800;color:#1f2937;
-}
-.gnb-section{margin-bottom:30px}
-.gnb-section-title{margin:0 0 16px;font-size:20px;letter-spacing:-.04em}
-.gnb-chip-row{display:flex;flex-wrap:wrap;gap:10px}
-.gnb-chip{
-  border:none;border-radius:14px;background:#f3f4f6;color:#374151;padding:12px 16px;font-weight:700;cursor:pointer;
-}
-.gnb-menu-list,.gnb-menu-sublist{display:grid;gap:10px}
-.gnb-menu-item,.gnb-menu-subitem{
-  border:none;background:transparent;color:var(--text);text-align:left;font-size:17px;padding:6px 0;cursor:pointer;
-}
-.gnb-menu-group{margin-top:18px}
-.gnb-menu-group-title{
-  display:flex;align-items:center;gap:10px;margin:0 0 14px;font-size:18px;font-weight:900;letter-spacing:-.03em;
-}
-.quick-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-@media (max-width:420px){
-  .admin-bottom-nav{padding-left:10px;padding-right:10px}
+
   .admin-nav-btn .nav-label{font-size:11px}
   .gnb-copy strong{font-size:20px}
   .gnb-hero-emoji{font-size:64px}
   .admin-topbar{gap:10px}
   .admin-topbar-right{gap:8px}
+}
+
+
+/* ===== Admin GNB upgraded to public-app style ===== */
+.gnb-overlay{
+  opacity:0;
+  visibility:hidden;
+  transition:opacity .22s ease, visibility .22s ease;
+}
+.gnb-overlay.show{
+  display:block;
+  opacity:1;
+  visibility:visible;
+}
+.gnb-sheet{
+  position:fixed;
+  top:0;
+  right:0;
+  bottom:0;
+  left:0;
+  width:100%;
+  background:#fff;
+  z-index:210;
+  display:flex;
+  flex-direction:column;
+  max-width:none;
+  transform:translateX(100%);
+  transition:transform .28s ease, box-shadow .28s ease;
+  box-shadow:none;
+  will-change:transform;
+}
+.gnb-sheet.show{
+  transform:translateX(0);
+}
+.gnb-top{
+  background:linear-gradient(180deg,#425168 0%,#39485d 100%);
+  color:#fff;
+  padding:18px 22px 26px;
+  border-bottom:1px solid rgba(255,255,255,.08);
+}
+.gnb-icons{
+  position:relative;
+  display:flex;
+  align-items:center;
+  gap:12px;
+  margin-bottom:22px;
+  padding-right:56px;
+}
+.gnb-icon-btn{
+  min-width:42px;
+  height:42px;
+  display:grid;
+  place-items:center;
+  border:none;
+  background:transparent;
+  color:rgba(255,255,255,.92);
+  font-size:24px;
+  cursor:pointer;
+  padding:0 8px;
+  border-radius:14px;
+  position:relative;
+  transition:background-color .18s ease, color .18s ease, transform .18s ease, opacity .18s ease;
+  -webkit-tap-highlight-color:transparent;
+}
+.gnb-icon-btn:hover{background:rgba(255,255,255,.08)}
+.gnb-icon-btn:active{transform:scale(.96)}
+.gnb-icon-btn.gnb-home-active{color:#fff}
+.gnb-icon-btn.gnb-home-active::after{
+  content:"";
+  position:absolute;
+  left:10px;
+  right:10px;
+  bottom:-6px;
+  height:3px;
+  border-radius:999px;
+  background:#60a5fa;
+  box-shadow:0 0 12px rgba(96,165,250,.35);
+}
+.gnb-close{
+  position:absolute;
+  top:0;
+  right:0;
+  width:42px;
+  height:42px;
+  display:grid;
+  place-items:center;
+  border:none;
+  border-radius:14px;
+  background:rgba(255,255,255,.04);
+  color:rgba(255,255,255,.95);
+  font-size:22px;
+  cursor:pointer;
+  transition:background-color .18s ease, transform .18s ease, opacity .18s ease;
+  -webkit-tap-highlight-color:transparent;
+  z-index:2;
+}
+.gnb-close:hover{background:rgba(255,255,255,.10)}
+.gnb-close:active{transform:scale(.96) rotate(-6deg)}
+.gnb-hero{
+  display:flex;
+  align-items:flex-end;
+  justify-content:space-between;
+  gap:16px;
+  padding-top:4px;
+}
+.gnb-copy small{
+  display:block;
+  font-size:14px;
+  color:rgba(255,255,255,.82);
+  margin-bottom:6px;
+}
+.gnb-copy strong{
+  display:block;
+  font-size:22px;
+  line-height:1.35;
+  letter-spacing:-.04em;
+}
+.gnb-hero-emoji{
+  font-size:74px;
+  line-height:1;
+  flex:0 0 auto;
+  filter:drop-shadow(0 10px 24px rgba(0,0,0,.14));
+}
+.gnb-body{
+  flex:1;
+  overflow:auto;
+  padding:22px 22px 120px;
+  background:#fff;
+  scroll-behavior:smooth;
+}
+.gnb-banner{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  padding:14px 16px;
+  border-radius:20px;
+  background:#edf8f7;
+  margin-bottom:28px;
+  font-weight:800;
+  color:#1f2937;
+  transition:transform .18s ease, box-shadow .18s ease;
+}
+.gnb-banner:hover{
+  transform:translateY(-1px);
+  box-shadow:0 12px 28px rgba(15,23,42,.08);
+}
+.gnb-section{margin-bottom:30px}
+.gnb-section-title{
+  margin:0 0 16px;
+  font-size:20px;
+  letter-spacing:-.04em;
+}
+.gnb-chip-row,
+.gnb-menu-list,
+.gnb-menu-sublist{
+  display:flex;
+  flex-wrap:wrap;
+  gap:10px;
+}
+.gnb-chip,
+.gnb-menu-item,
+.gnb-menu-subitem{
+  border:none;
+  border-radius:18px;
+  background:#f3f4f6;
+  color:#111827;
+  font-size:15px;
+  font-weight:800;
+  text-align:left;
+  padding:14px 16px;
+  cursor:pointer;
+  line-height:1;
+  box-shadow:inset 0 0 0 1px rgba(15,23,42,.04);
+  transition:transform .16s ease, background-color .16s ease, opacity .16s ease;
+  -webkit-tap-highlight-color:transparent;
+}
+.gnb-chip:hover,
+.gnb-menu-item:hover,
+.gnb-menu-subitem:hover{
+  transform:translateY(-1px);
+  background:#eceff3;
+}
+.gnb-chip:active,
+.gnb-menu-item:active,
+.gnb-menu-subitem:active{
+  transform:scale(.98);
+}
+.gnb-new-section{
+  background:#f8fafc;
+  border-radius:20px;
+  padding:14px;
+  margin-top:10px;
+  margin-bottom:20px;
+  border:1px solid rgba(15,23,42,.04);
+}
+.gnb-enter .gnb-chip,
+.gnb-enter .gnb-menu-item,
+.gnb-enter .gnb-menu-subitem,
+.gnb-enter .gnb-banner,
+.gnb-enter .gnb-section-title{
+  animation:gnbFadeUp .28s ease both;
+}
+.gnb-enter .gnb-chip:nth-child(2),
+.gnb-enter .gnb-menu-item:nth-child(2),
+.gnb-enter .gnb-menu-subitem:nth-child(2){animation-delay:.03s}
+.gnb-enter .gnb-chip:nth-child(3),
+.gnb-enter .gnb-menu-item:nth-child(3),
+.gnb-enter .gnb-menu-subitem:nth-child(3){animation-delay:.06s}
+.gnb-enter .gnb-chip:nth-child(4),
+.gnb-enter .gnb-menu-item:nth-child(4),
+.gnb-enter .gnb-menu-subitem:nth-child(4){animation-delay:.09s}
+.gnb-enter .gnb-chip:nth-child(5),
+.gnb-enter .gnb-menu-item:nth-child(5),
+.gnb-enter .gnb-menu-subitem:nth-child(5){animation-delay:.12s}
+@keyframes gnbFadeUp{
+  from{opacity:0;transform:translateY(8px)}
+  to{opacity:1;transform:translateY(0)}
+}
+.shell,
+.admin-topbar,
+.admin-bottom-nav{
+  transition:transform .28s ease, filter .28s ease, opacity .28s ease;
+  transform-origin:center center;
+}
+body.gnb-open .shell,
+body.gnb-open .admin-topbar,
+body.gnb-open .admin-bottom-nav{
+  transform:scale(.985);
+  filter:blur(.4px);
+}
+.admin-view{
+  transition:opacity .18s ease, transform .18s ease;
+}
+.admin-view.active{
+  animation:adminViewFade .22s ease;
+}
+@keyframes adminViewFade{
+  from{opacity:.75;transform:translateY(6px)}
+  to{opacity:1;transform:translateY(0)}
+}
+@media (max-width:420px){
+  .gnb-copy strong{font-size:20px}
+  .gnb-hero-emoji{font-size:64px}
 }
 
 </style>
@@ -277,9 +478,11 @@
       qsa('.admin-view').forEach(el => el.classList.remove('active'));
       (qs(`#view-${view}`) || qs('#view-dashboard'))?.classList.add('active');
       qsa('.admin-nav-btn').forEach(btn => btn.classList.toggle('active', btn.dataset.adminView === view));
+      qsa('[data-admin-view]').forEach(btn => btn.classList.toggle('gnb-home-active', btn.dataset.adminView === view && btn.classList.contains('gnb-icon-btn')));
       qs('#adminGnbSheet')?.classList.remove('show');
       qs('#adminGnbOverlay')?.classList.remove('show');
       document.body.style.overflow = '';
+      document.body.classList.remove('gnb-open');
       window.scrollTo({ top: 0, behavior: 'auto' });
     }
 
@@ -323,29 +526,57 @@
     const adminGnbSheet = qs('#adminGnbSheet');
     const adminGnbOverlay = qs('#adminGnbOverlay');
     const adminGnbCloseBtn = qs('#adminGnbCloseBtn');
-    function openAdminGnb(){adminGnbSheet?.classList.add('show');adminGnbOverlay?.classList.add('show');document.body.style.overflow='hidden';}
-    function closeAdminGnb(){adminGnbSheet?.classList.remove('show');adminGnbOverlay?.classList.remove('show');document.body.style.overflow='';}
+    function openAdminGnb(){
+      adminGnbSheet?.classList.add('show');
+      adminGnbOverlay?.classList.add('show');
+      adminGnbSheet?.setAttribute('aria-hidden','false');
+      adminGnbSheet?.classList.remove('gnb-enter');
+      requestAnimationFrame(() => adminGnbSheet?.classList.add('gnb-enter'));
+      document.body.style.overflow='hidden';
+      document.body.classList.add('gnb-open');
+      const homeBtn = adminGnbSheet?.querySelector('.gnb-home-active');
+      if(homeBtn){
+        homeBtn.animate(
+          [{ transform:'translateY(0)', opacity:1 }, { transform:'translateY(-1px)', opacity:1 }],
+          { duration:180, easing:'ease-out' }
+        );
+      }
+    }
+    function closeAdminGnb(){
+      adminGnbCloseBtn?.animate(
+        [{ transform:'scale(1) rotate(0deg)' }, { transform:'scale(.94) rotate(-8deg)' }, { transform:'scale(1) rotate(0deg)' }],
+        { duration:180, easing:'ease-out' }
+      );
+      adminGnbSheet?.classList.remove('show');
+      adminGnbOverlay?.classList.remove('show');
+      adminGnbSheet?.setAttribute('aria-hidden','true');
+      document.body.style.overflow='';
+      document.body.classList.remove('gnb-open');
+    }
     adminGnbToggleBtn?.addEventListener('click', openAdminGnb);
     adminGnbCloseBtn?.addEventListener('click', closeAdminGnb);
     adminGnbOverlay?.addEventListener('click', closeAdminGnb);
+    window.addEventListener('keydown', (event) => {
+      if(event.key === 'Escape' && adminGnbSheet?.classList.contains('show')){
+        closeAdminGnb();
+      }
+    });
 
     qs('#benefitForm').addEventListener('submit',saveBenefit);qs('#noticeForm').addEventListener('submit',saveNotice);qs('#cancelEditBtn').onclick=resetForm;qs('#cancelNoticeEditBtn').onclick=resetNoticeForm;qs('#loginBtn').onclick=loginAdmin;qs('#logoutBtn').onclick=logoutAdmin;qs('#exportBtn').onclick=exportBenefits;qs('#seedBtn').onclick=seedDefaultData;resetForm();resetNoticeForm();changeAdminView('dashboard');
   </script>
 
+  
   <div class="gnb-overlay" id="adminGnbOverlay"></div>
   <aside class="gnb-sheet" id="adminGnbSheet" aria-hidden="true">
     <div class="gnb-top">
       <div class="gnb-icons">
-        <button class="gnb-icon-btn" type="button" data-admin-view="dashboard" title="대시보드">📊</button>
-        <button class="gnb-icon-btn" type="button" data-admin-view="benefits" title="혜택">🎁</button>
-        <button class="gnb-icon-btn" type="button" data-admin-view="notices" title="공지">📢</button>
-        <button class="gnb-icon-btn" type="button" data-admin-view="members" title="회원">👥</button>
-        <button class="gnb-icon-btn gnb-close" id="adminGnbCloseBtn" type="button" title="닫기">✕</button>
+        <button class="gnb-icon-btn gnb-home-active" type="button" data-admin-view="dashboard" title="대시보드">⌂</button>
+        <button class="gnb-close" id="adminGnbCloseBtn" type="button" title="닫기">✕</button>
       </div>
       <div class="gnb-hero">
         <div class="gnb-copy">
-          <small>관리 기능을 더 넓게 준비해두세요</small>
-          <strong>관리자 메뉴<br>전체보기</strong>
+          <small>관리 기능을 더 빠르게 이동해보세요</small>
+          <strong>관리자 서비스<br>전체보기</strong>
         </div>
         <div class="gnb-hero-emoji">🛠️</div>
       </div>
@@ -357,26 +588,38 @@
       </div>
 
       <section class="gnb-section">
-        <h3 class="gnb-section-title">바로 이동</h3>
+        <h3 class="gnb-section-title">최근에 봤어요</h3>
         <div class="gnb-chip-row">
           <button class="gnb-chip" type="button" data-admin-view="dashboard">대시보드</button>
-          <button class="gnb-chip" type="button" data-admin-view="benefits">혜택 관리</button>
-          <button class="gnb-chip" type="button" data-admin-view="notices">공지 관리</button>
-          <button class="gnb-chip" type="button" data-admin-view="members">회원 관리</button>
         </div>
       </section>
 
       <section class="gnb-section">
-        <div class="gnb-menu-group">
-          <h4 class="gnb-menu-group-title">📌 추가 메뉴</h4>
+        <h3 class="gnb-section-title">📌 새로 나왔어요</h3>
+        <div class="gnb-new-section">
           <div class="gnb-menu-list">
+            <button class="gnb-menu-item" type="button" data-admin-view="benefits">혜택 관리</button>
+            <button class="gnb-menu-item" type="button" data-admin-view="notices">공지 관리</button>
+            <button class="gnb-menu-item" type="button" data-admin-view="members">회원 관리</button>
             <button class="gnb-menu-item" type="button" data-admin-view="dashboard-data">데이터 관리</button>
-            <button class="gnb-menu-item" type="button" onclick="location.href='/'">공개 앱으로 이동</button>
           </div>
+        </div>
+      </section>
+
+      <section class="gnb-section">
+        <h3 class="gnb-section-title">🛠️ 더운정 마이힐스 관리자</h3>
+        <div class="gnb-menu-sublist">
+          <button class="gnb-menu-subitem" type="button" data-admin-view="dashboard">대시보드</button>
+          <button class="gnb-menu-subitem" type="button" data-admin-view="benefits">혜택</button>
+          <button class="gnb-menu-subitem" type="button" data-admin-view="notices">공지</button>
+          <button class="gnb-menu-subitem" type="button" data-admin-view="members">회원</button>
+          <button class="gnb-menu-subitem" type="button" data-admin-view="dashboard-data">데이터</button>
+          <button class="gnb-menu-subitem" type="button" onclick="location.href='/'">공개 앱</button>
         </div>
       </section>
     </div>
   </aside>
+
 
 </body>
 </html>
