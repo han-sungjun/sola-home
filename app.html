@@ -28,6 +28,18 @@
   #cardList{padding-bottom:70px;}
   
 #favoriteList{margin-top:14px;padding-bottom:70px;}
+
+    .app-alert{position:fixed;inset:0;display:none;align-items:center;justify-content:center;padding:20px;z-index:9999;background:rgba(15,23,42,.46);backdrop-filter:blur(4px)}
+    .app-alert.show{display:flex}
+    .app-alert-card{width:min(100%,360px);background:#fff;border:1px solid rgba(255,255,255,.75);box-shadow:0 30px 60px rgba(15,23,42,.20);border-radius:26px;padding:22px}
+    .app-alert-head{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+    .app-alert-icon{width:42px;height:42px;border-radius:14px;display:grid;place-items:center;background:#fff7ed;color:#c2410c;font-size:20px;flex:0 0 auto;border:1px solid #fed7aa}
+    .app-alert-title{margin:0;font-size:18px;letter-spacing:-.03em}
+    .app-alert-message{margin:0;color:var(--muted);font-size:14px;line-height:1.65;white-space:pre-line}
+    .app-alert-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:18px}
+    .app-alert-cancel{min-width:92px;border:1px solid var(--line);border-radius:16px;padding:12px 16px;background:#fff;color:var(--text);font-weight:800;cursor:pointer}
+    .app-alert-confirm{min-width:92px;border:none;border-radius:16px;padding:12px 16px;background:var(--primary);color:#fff;font-weight:800;cursor:pointer}
+    
 </style>
 </head>
 <body>
@@ -72,6 +84,68 @@
     const db=getFirestore(app);
     const state={category:localStorage.getItem(LAST_CATEGORY_KEY)||'전체',keyword:'',filter:'all',view:'home',benefits:[],loading:true,currentUser:null,currentUserProfile:null};
     const qs=(s)=>document.querySelector(s), qsa=(s)=>[...document.querySelectorAll(s)];
+    const alertEl = qs('#appAlert');
+    const alertMsgEl = qs('#appAlertMessage');
+    const alertTitleEl = qs('#appAlertTitle');
+    const alertIconEl = qs('#appAlertIcon');
+    const alertConfirmEl = qs('#appAlertConfirm');
+    const alertCancelEl = qs('#appAlertCancel');
+    let alertFocusTarget = null;
+    let alertResolver = null;
+
+    function openModalBase({
+      title='안내',
+      message='',
+      focusTarget=null,
+      mode='alert',
+      confirmText='확인',
+      cancelText='취소',
+      icon='⚠️'
+    } = {}){
+      alertFocusTarget = focusTarget;
+      alertTitleEl.textContent = title;
+      alertMsgEl.textContent = message;
+      alertIconEl.textContent = icon;
+      alertConfirmEl.textContent = confirmText;
+      alertCancelEl.textContent = cancelText;
+      alertCancelEl.classList.toggle('hidden', mode !== 'confirm');
+      alertEl.classList.add('show');
+      alertEl.setAttribute('aria-hidden', 'false');
+      requestAnimationFrame(() => {
+        (mode === 'confirm' ? alertCancelEl : alertConfirmEl).focus();
+      });
+      return new Promise((resolve) => {
+        alertResolver = resolve;
+      });
+    }
+
+    function openModalAlert(message, focusTarget=null, title='안내'){
+      return openModalBase({ title, message, focusTarget, mode:'alert', confirmText:'확인', icon:'⚠️' });
+    }
+
+    function openModalConfirm(message, focusTarget=null, title='확인', confirmText='확인', cancelText='취소'){
+      return openModalBase({ title, message, focusTarget, mode:'confirm', confirmText, cancelText, icon:'❓' });
+    }
+
+    function closeModal(result=false){
+      alertEl.classList.remove('show');
+      alertEl.setAttribute('aria-hidden', 'true');
+      if(result === false && alertFocusTarget){ alertFocusTarget.focus(); }
+      const resolver = alertResolver;
+      alertResolver = null;
+      if(resolver) resolver(result);
+    }
+
+    alertConfirmEl.addEventListener('click', () => closeModal(true));
+    alertCancelEl.addEventListener('click', () => closeModal(false));
+    alertEl.addEventListener('click', (event) => {
+      if(event.target === alertEl) closeModal(false);
+    });
+    window.addEventListener('keydown', (event) => {
+      if(!alertEl.classList.contains('show')) return;
+      if(event.key === 'Escape') closeModal(false);
+    });
+
     const redirectToLogin=()=>window.location.replace(LOGIN_PAGE_URL);
     function getDisplayNickname(){
       return state.currentUserProfile?.nickname || state.currentUser?.displayName || state.currentUser?.email || '입주민';
@@ -198,7 +272,7 @@
     qsa('.bottom-nav .nav-btn').forEach(btn=>{btn.onclick=()=>{if(btn.dataset.view){state.view=btn.dataset.view;if(btn.dataset.view!=='home')state.filter='all';}renderAll();};});
     qs('#closeModal').onclick=()=>qs('#detailModal').close();
     let deferredPrompt=null;window.addEventListener('beforeinstallprompt',(e)=>{e.preventDefault();deferredPrompt=e;});
-    qs('#installTopBtn').onclick=async()=>{if(!deferredPrompt){alert('브라우저 메뉴에서 “홈 화면에 추가”를 선택하면 앱처럼 설치할 수 있습니다.');return;}deferredPrompt.prompt();await deferredPrompt.userChoice;deferredPrompt=null;};
+    qs('#installTopBtn').onclick=async()=>{if(!deferredPrompt){await openModalAlert('브라우저 메뉴에서 “홈 화면에 추가”를 선택하면 앱처럼 설치할 수 있습니다.', qs('#installTopBtn'));return;}deferredPrompt.prompt();await deferredPrompt.userChoice;deferredPrompt=null;};
     const chipsEl = qs('#chips');
     const chipsToggleBtn = qs('#chipsToggle');
     const CHIPS_COLLAPSED_HEIGHT = 84;
@@ -228,7 +302,7 @@
       chipsToggleBtn.textContent = expanded ? '접기 ▴' : '더보기 ▾';
     };
 
-    qs('#logoutBtn').onclick=async()=>{try{await signOut(auth);redirectToLogin();}catch(error){alert('로그아웃 중 오류가 발생했습니다.');}};
+    qs('#logoutBtn').onclick=async()=>{const confirmed=await openModalConfirm('로그아웃 하시겠습니까?', qs('#logoutBtn'), '로그아웃', '로그아웃', '취소'); if(!confirmed) return; try{await signOut(auth);redirectToLogin();}catch(error){await openModalAlert('로그아웃 중 오류가 발생했습니다.', qs('#logoutBtn'));}};
 
     (async()=>{
       const ok = await ensureAuthenticatedUser();
@@ -245,5 +319,20 @@
     })();
   </script>
 
+
+
+  <div class="app-alert" id="appAlert" aria-hidden="true">
+    <div class="app-alert-card" role="alertdialog" aria-modal="true" aria-labelledby="appAlertTitle" aria-describedby="appAlertMessage">
+      <div class="app-alert-head">
+        <div class="app-alert-icon" id="appAlertIcon">⚠️</div>
+        <h3 class="app-alert-title" id="appAlertTitle">안내</h3>
+      </div>
+      <p class="app-alert-message" id="appAlertMessage"></p>
+      <div class="app-alert-actions">
+        <button class="app-alert-cancel hidden" id="appAlertCancel" type="button">취소</button>
+        <button class="app-alert-confirm" id="appAlertConfirm" type="button">확인</button>
+      </div>
+    </div>
+  </div>
 
 </body></html>
