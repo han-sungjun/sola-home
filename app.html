@@ -58,6 +58,85 @@
 .popular-score strong{display:block;font-size:16px}
 .popular-score span{display:block;font-size:11px;color:var(--muted);margin-top:2px}
 
+
+.bottom-nav{
+  grid-template-columns:repeat(4,1fr)!important;
+  gap:6px;
+}
+.nav-btn{
+  padding:8px 0 10px;
+  min-width:0;
+}
+.nav-btn .nav-label{
+  font-size:12px;
+}
+.nav-btn .nav-icon{
+  font-size:17px;
+}
+.topbar-right{
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+.gnb-wrap{
+  position:relative;
+}
+.gnb-menu{
+  position:absolute;
+  top:56px;
+  right:0;
+  width:min(240px,calc(100vw - 40px));
+  background:rgba(255,255,255,.96);
+  border:1px solid rgba(255,255,255,.7);
+  box-shadow:0 20px 40px rgba(15,23,42,.12);
+  backdrop-filter:blur(18px);
+  border-radius:22px;
+  padding:10px;
+  display:none;
+  z-index:120;
+}
+.gnb-menu.show{
+  display:block;
+}
+.gnb-item{
+  width:100%;
+  border:none;
+  background:#fff;
+  border:1px solid var(--line);
+  color:var(--text);
+  border-radius:16px;
+  padding:13px 14px;
+  display:flex;
+  align-items:center;
+  gap:10px;
+  cursor:pointer;
+  text-align:left;
+  font-weight:700;
+}
+.gnb-item + .gnb-item{
+  margin-top:8px;
+}
+.gnb-icon{
+  width:26px;
+  text-align:center;
+  flex:0 0 auto;
+}
+.gnb-note{
+  margin:8px 2px 2px;
+  font-size:11px;
+  color:var(--muted);
+  line-height:1.5;
+}
+@media (max-width:420px){
+  .bottom-nav{
+    padding-left:10px;
+    padding-right:10px;
+  }
+  .nav-btn .nav-label{
+    font-size:11px;
+  }
+}
+
 </style>
 </head>
 <body>
@@ -83,6 +162,16 @@
           </div>
           <button class="icon-btn logout-btn" id="logoutBtn">로그아웃</button>
           <button class="icon-btn" id="installTopBtn">📲</button>
+          <div class="gnb-wrap">
+            <button class="icon-btn" id="gnbToggleBtn" title="메뉴">☰</button>
+            <div class="gnb-menu" id="gnbMenu">
+              <button class="gnb-item" type="button" data-view-link="home"><span class="gnb-icon">🏠</span><span>홈</span></button>
+              <button class="gnb-item" type="button" data-view-link="benefits"><span class="gnb-icon">🎁</span><span>혜택</span></button>
+              <button class="gnb-item" type="button" data-view-link="favorite"><span class="gnb-icon">⭐</span><span>즐겨찾기</span></button>
+              <button class="gnb-item" type="button" data-view-link="top5"><span class="gnb-icon">🏆</span><span>TOP 5</span></button>
+              <div class="gnb-note">추후 공지, 설정, 관리자 메뉴 등을 이 영역에 확장할 수 있습니다.</div>
+            </div>
+          </div>
         </div>
       </div>
     </header>
@@ -392,11 +481,48 @@
       qs('#callBtn').onclick=()=>{increaseStat(item.id, item.name, 'callClickCount');logBenefitEvent(item.id, 'call_click');};
       qs('#mapBtn').onclick=()=>{increaseStat(item.id, item.name, 'mapClickCount');logBenefitEvent(item.id, 'map_click');};
     }
-    function updateView(){qsa('[id^="view-"]').forEach(v=>v.classList.add('hidden'));(qs(`#view-${state.view}`)||qs('#view-home')).classList.remove('hidden');qsa('.bottom-nav .nav-btn').forEach(btn=>btn.classList.remove('active'));const active=qsa('.bottom-nav .nav-btn').find(btn=>btn.dataset.view===state.view);if(active)active.classList.add('active');}
+    function updateView(){qsa('[id^="view-"]').forEach(v=>v.classList.add('hidden'));(qs(`#view-${state.view}`)||qs('#view-home')).classList.remove('hidden');qsa('.bottom-nav .nav-btn').forEach(btn=>btn.classList.remove('active'));const active=qsa('.bottom-nav .nav-btn').find(btn=>btn.dataset.view===state.view);if(active)active.classList.add('active');qs('#gnbMenu')?.classList.remove('show');}
     const renderAll=()=>{createChips();renderStats();renderHome();renderFavorites();renderPopularTop5();updateView();};
     qs('#searchInput').addEventListener('input',(e)=>{state.keyword=e.target.value;renderAll();});
     qs('#resetBtn').onclick=()=>{state.category='전체';localStorage.setItem(LAST_CATEGORY_KEY,'전체');state.keyword='';state.filter='all';state.view='benefits';qs('#searchInput').value='';renderAll();};
     qsa('.bottom-nav .nav-btn').forEach(btn=>{btn.onclick=()=>{if(btn.dataset.view){state.view=btn.dataset.view;if(btn.dataset.view==='favorite'||btn.dataset.view==='top5')state.filter='all';}renderAll();};});
+    const gnbToggleBtn = qs('#gnbToggleBtn');
+    const gnbMenu = qs('#gnbMenu');
+
+    function closeGnb(){
+      gnbMenu?.classList.remove('show');
+    }
+
+    function toggleGnb(){
+      gnbMenu?.classList.toggle('show');
+    }
+
+    gnbToggleBtn?.addEventListener('click', (event) => {
+      event.stopPropagation();
+      toggleGnb();
+    });
+
+    qsa('[data-view-link]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const view = btn.dataset.viewLink;
+        if(view){
+          state.view = view;
+          if(view === 'favorite' || view === 'top5') state.filter = 'all';
+          renderAll();
+        }
+        closeGnb();
+      });
+    });
+
+    document.addEventListener('click', (event) => {
+      if(!gnbMenu || !gnbToggleBtn) return;
+      const insideMenu = gnbMenu.contains(event.target);
+      const insideToggle = gnbToggleBtn.contains(event.target);
+      if(!insideMenu && !insideToggle){
+        closeGnb();
+      }
+    });
+
     qs('#closeModal').onclick=()=>qs('#detailModal').close();
     let deferredPrompt=null;window.addEventListener('beforeinstallprompt',(e)=>{e.preventDefault();deferredPrompt=e;});
     qs('#installTopBtn').onclick=async()=>{if(!deferredPrompt){await openModalAlert('브라우저 메뉴에서 “홈 화면에 추가”를 선택하면 앱처럼 설치할 수 있습니다.', qs('#installTopBtn'));return;}deferredPrompt.prompt();await deferredPrompt.userChoice;deferredPrompt=null;};
