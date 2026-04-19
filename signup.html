@@ -602,17 +602,9 @@
     function closeModal(result=false){
       alertEl.classList.remove('show');
       alertEl.setAttribute('aria-hidden', 'true');
-      const focusTarget = alertFocusTarget;
+      if(result === false && alertFocusTarget){ alertFocusTarget.focus(); }
       const resolver = alertResolver;
       alertResolver = null;
-      alertFocusTarget = null;
-
-      if (focusTarget) {
-        setTimeout(() => {
-          try { focusTarget.focus(); } catch (_) {}
-        }, 30);
-      }
-
       if(resolver) resolver(result);
     }
 
@@ -651,6 +643,10 @@ function showNotice(message, type='info'){
     onAuthStateChanged(auth, (user) => {
       if (user) {
         document.body.style.opacity = '1';
+        startLoading();
+        setTimeout(() => {
+          window.location.replace('./app.html');
+        }, 80);
         return;
       }
       document.body.style.opacity = '1';

@@ -514,17 +514,9 @@
     function closeModal(result=false){
       alertEl.classList.remove('show');
       alertEl.setAttribute('aria-hidden', 'true');
-      const focusTarget = alertFocusTarget;
+      if(result === false && alertFocusTarget){ alertFocusTarget.focus(); }
       const resolver = alertResolver;
       alertResolver = null;
-      alertFocusTarget = null;
-
-      if (focusTarget) {
-        setTimeout(() => {
-          try { focusTarget.focus(); } catch (_) {}
-        }, 30);
-      }
-
       if(resolver) resolver(result);
     }
 
@@ -638,6 +630,11 @@
       if (user) {
         logoutBtn.classList.remove('hidden');
         document.body.style.opacity = '1';
+
+        startLoading();
+        setTimeout(() => {
+          window.location.replace(REDIRECT_AFTER_LOGIN);
+        }, 80);
         return;
       }
 
