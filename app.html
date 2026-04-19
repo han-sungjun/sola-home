@@ -137,6 +137,188 @@
   }
 }
 
+
+.bottom-nav{
+  grid-template-columns:repeat(4,1fr)!important;
+  gap:6px;
+}
+.nav-btn{
+  padding:8px 0 10px;
+  min-width:0;
+}
+.nav-btn .nav-label{
+  font-size:12px;
+}
+.nav-btn .nav-icon{
+  font-size:17px;
+}
+.topbar-right{
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+
+.gnb-wrap{position:relative}
+.gnb-overlay{
+  position:fixed;
+  inset:0;
+  background:rgba(15,23,42,.42);
+  backdrop-filter:blur(6px);
+  z-index:200;
+  display:none;
+}
+.gnb-overlay.show{
+  display:block;
+}
+.gnb-sheet{
+  position:fixed;
+  inset:0;
+  background:#fff;
+  z-index:210;
+  display:flex;
+  flex-direction:column;
+  transform:translateY(-100%);
+  transition:transform .28s ease;
+}
+.gnb-sheet.show{
+  transform:translateY(0);
+}
+.gnb-top{
+  background:linear-gradient(180deg,#334155 0%,#3b4752 100%);
+  color:#fff;
+  padding:22px 22px 26px;
+}
+.gnb-icons{
+  display:flex;
+  align-items:center;
+  gap:18px;
+  margin-bottom:26px;
+}
+.gnb-icon-btn{
+  width:30px;
+  height:30px;
+  display:grid;
+  place-items:center;
+  border:none;
+  background:transparent;
+  color:#fff;
+  font-size:26px;
+  cursor:pointer;
+  padding:0;
+}
+.gnb-close{
+  margin-left:auto;
+  font-size:22px;
+}
+.gnb-hero{
+  display:flex;
+  align-items:flex-end;
+  justify-content:space-between;
+  gap:16px;
+}
+.gnb-copy small{
+  display:block;
+  font-size:14px;
+  color:rgba(255,255,255,.82);
+  margin-bottom:6px;
+}
+.gnb-copy strong{
+  display:block;
+  font-size:22px;
+  line-height:1.35;
+  letter-spacing:-.04em;
+}
+.gnb-hero-emoji{
+  font-size:74px;
+  line-height:1;
+  flex:0 0 auto;
+}
+.gnb-body{
+  flex:1;
+  overflow:auto;
+  padding:22px 22px 120px;
+  background:#fff;
+}
+.gnb-banner{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  padding:14px 16px;
+  border-radius:20px;
+  background:#edf8f7;
+  margin-bottom:28px;
+  font-weight:800;
+  color:#1f2937;
+}
+.gnb-section{
+  margin-bottom:30px;
+}
+.gnb-section-title{
+  margin:0 0 16px;
+  font-size:20px;
+  letter-spacing:-.04em;
+}
+.gnb-chip-row{
+  display:flex;
+  flex-wrap:wrap;
+  gap:10px;
+}
+.gnb-chip{
+  border:none;
+  border-radius:14px;
+  background:#f3f4f6;
+  color:#374151;
+  padding:12px 16px;
+  font-weight:700;
+  cursor:pointer;
+}
+.gnb-menu-list{
+  display:grid;
+  gap:12px;
+}
+.gnb-menu-item{
+  border:none;
+  background:#fff;
+  color:var(--text);
+  text-align:left;
+  font-size:18px;
+  padding:8px 0;
+  cursor:pointer;
+}
+.gnb-menu-group{
+  margin-top:18px;
+}
+.gnb-menu-group-title{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  margin:0 0 14px;
+  font-size:18px;
+  font-weight:900;
+  letter-spacing:-.03em;
+}
+.gnb-menu-sublist{
+  display:grid;
+  gap:10px;
+  padding-left:4px;
+}
+.gnb-menu-subitem{
+  border:none;
+  background:transparent;
+  color:#374151;
+  text-align:left;
+  font-size:16px;
+  padding:4px 0;
+  cursor:pointer;
+}
+@media (max-width:420px){
+  .bottom-nav{padding-left:10px;padding-right:10px}
+  .nav-btn .nav-label{font-size:11px}
+  .gnb-copy strong{font-size:20px}
+  .gnb-hero-emoji{font-size:64px}
+}
+
 </style>
 </head>
 <body>
@@ -164,13 +346,6 @@
           <button class="icon-btn" id="installTopBtn">📲</button>
           <div class="gnb-wrap">
             <button class="icon-btn" id="gnbToggleBtn" title="메뉴">☰</button>
-            <div class="gnb-menu" id="gnbMenu">
-              <button class="gnb-item" type="button" data-view-link="home"><span class="gnb-icon">🏠</span><span>홈</span></button>
-              <button class="gnb-item" type="button" data-view-link="benefits"><span class="gnb-icon">🎁</span><span>혜택</span></button>
-              <button class="gnb-item" type="button" data-view-link="favorite"><span class="gnb-icon">⭐</span><span>즐겨찾기</span></button>
-              <button class="gnb-item" type="button" data-view-link="top5"><span class="gnb-icon">🏆</span><span>TOP 5</span></button>
-              <div class="gnb-note">추후 공지, 설정, 관리자 메뉴 등을 이 영역에 확장할 수 있습니다.</div>
-            </div>
           </div>
         </div>
       </div>
@@ -481,26 +656,37 @@
       qs('#callBtn').onclick=()=>{increaseStat(item.id, item.name, 'callClickCount');logBenefitEvent(item.id, 'call_click');};
       qs('#mapBtn').onclick=()=>{increaseStat(item.id, item.name, 'mapClickCount');logBenefitEvent(item.id, 'map_click');};
     }
-    function updateView(){qsa('[id^="view-"]').forEach(v=>v.classList.add('hidden'));(qs(`#view-${state.view}`)||qs('#view-home')).classList.remove('hidden');qsa('.bottom-nav .nav-btn').forEach(btn=>btn.classList.remove('active'));const active=qsa('.bottom-nav .nav-btn').find(btn=>btn.dataset.view===state.view);if(active)active.classList.add('active');qs('#gnbMenu')?.classList.remove('show');}
+    function updateView(){qsa('[id^="view-"]').forEach(v=>v.classList.add('hidden'));(qs(`#view-${state.view}`)||qs('#view-home')).classList.remove('hidden');qsa('.bottom-nav .nav-btn').forEach(btn=>btn.classList.remove('active'));const active=qsa('.bottom-nav .nav-btn').find(btn=>btn.dataset.view===state.view);if(active)active.classList.add('active');qs('#gnbSheet')?.classList.remove('show');qs('#gnbOverlay')?.classList.remove('show');}
     const renderAll=()=>{createChips();renderStats();renderHome();renderFavorites();renderPopularTop5();updateView();};
     qs('#searchInput').addEventListener('input',(e)=>{state.keyword=e.target.value;renderAll();});
     qs('#resetBtn').onclick=()=>{state.category='전체';localStorage.setItem(LAST_CATEGORY_KEY,'전체');state.keyword='';state.filter='all';state.view='benefits';qs('#searchInput').value='';renderAll();};
     qsa('.bottom-nav .nav-btn').forEach(btn=>{btn.onclick=()=>{if(btn.dataset.view){state.view=btn.dataset.view;if(btn.dataset.view==='favorite'||btn.dataset.view==='top5')state.filter='all';}renderAll();};});
     const gnbToggleBtn = qs('#gnbToggleBtn');
-    const gnbMenu = qs('#gnbMenu');
+    const gnbSheet = qs('#gnbSheet');
+    const gnbOverlay = qs('#gnbOverlay');
+    const gnbCloseBtn = qs('#gnbCloseBtn');
 
-    function closeGnb(){
-      gnbMenu?.classList.remove('show');
+    function openGnb(){
+      gnbSheet?.classList.add('show');
+      gnbOverlay?.classList.add('show');
+      gnbSheet?.setAttribute('aria-hidden', 'false');
+      document.body.style.overflow = 'hidden';
     }
 
-    function toggleGnb(){
-      gnbMenu?.classList.toggle('show');
+    function closeGnb(){
+      gnbSheet?.classList.remove('show');
+      gnbOverlay?.classList.remove('show');
+      gnbSheet?.setAttribute('aria-hidden', 'true');
+      document.body.style.overflow = '';
     }
 
     gnbToggleBtn?.addEventListener('click', (event) => {
       event.stopPropagation();
-      toggleGnb();
+      openGnb();
     });
+
+    gnbCloseBtn?.addEventListener('click', closeGnb);
+    gnbOverlay?.addEventListener('click', closeGnb);
 
     qsa('[data-view-link]').forEach(btn => {
       btn.addEventListener('click', () => {
@@ -512,15 +698,6 @@
         }
         closeGnb();
       });
-    });
-
-    document.addEventListener('click', (event) => {
-      if(!gnbMenu || !gnbToggleBtn) return;
-      const insideMenu = gnbMenu.contains(event.target);
-      const insideToggle = gnbToggleBtn.contains(event.target);
-      if(!insideMenu && !insideToggle){
-        closeGnb();
-      }
     });
 
     qs('#closeModal').onclick=()=>qs('#detailModal').close();
@@ -573,6 +750,62 @@
     })();
   </script>
 
+
+
+  
+  <div class="gnb-overlay" id="gnbOverlay"></div>
+  <aside class="gnb-sheet" id="gnbSheet" aria-hidden="true">
+    <div class="gnb-top">
+      <div class="gnb-icons">
+        <button class="gnb-icon-btn" type="button" data-view-link="home" title="홈">⌂</button>
+        <button class="gnb-icon-btn" type="button" data-view-link="benefits" title="혜택">🎁</button>
+        <button class="gnb-icon-btn" type="button" data-view-link="favorite" title="즐겨찾기">☆</button>
+        <button class="gnb-icon-btn" type="button" data-view-link="top5" title="TOP 5">🏆</button>
+        <button class="gnb-icon-btn gnb-close" id="gnbCloseBtn" type="button" title="닫기">✕</button>
+      </div>
+      <div class="gnb-hero">
+        <div class="gnb-copy">
+          <small>오늘은 어떤 혜택이 있을까?</small>
+          <strong>입주민 혜택 서비스<br>전체보기</strong>
+        </div>
+        <div class="gnb-hero-emoji">🏠</div>
+      </div>
+    </div>
+    <div class="gnb-body">
+      <div class="gnb-banner">
+        <span>입주민 혜택을 한 번에 찾아보세요!</span>
+        <span>›</span>
+      </div>
+
+      <section class="gnb-section">
+        <h3 class="gnb-section-title">최근에 봤어요</h3>
+        <div class="gnb-chip-row">
+          <button class="gnb-chip" type="button" data-view-link="benefits">전체 혜택</button>
+        </div>
+      </section>
+
+      <section class="gnb-section">
+        <div class="gnb-menu-group">
+          <h4 class="gnb-menu-group-title">📌 새로 나왔어요</h4>
+          <div class="gnb-menu-list">
+            <button class="gnb-menu-item" type="button" data-view-link="benefits">혜택 전체보기</button>
+            <button class="gnb-menu-item" type="button" data-view-link="top5">인기 매장 TOP 5</button>
+            <button class="gnb-menu-item" type="button" data-view-link="favorite">즐겨찾기 확인</button>
+          </div>
+        </div>
+
+        <div class="gnb-menu-group">
+          <h4 class="gnb-menu-group-title">🏠 더운정 마이힐스</h4>
+          <div class="gnb-menu-sublist">
+            <button class="gnb-menu-subitem" type="button" data-view-link="home">홈</button>
+            <button class="gnb-menu-subitem" type="button" data-view-link="benefits">혜택</button>
+            <button class="gnb-menu-subitem" type="button" data-view-link="favorite">즐겨찾기</button>
+            <button class="gnb-menu-subitem" type="button" data-view-link="top5">TOP 5</button>
+          </div>
+        </div>
+      </section>
+    </div>
+  </aside>
 
 
   <div class="app-alert" id="appAlert" aria-hidden="true">
