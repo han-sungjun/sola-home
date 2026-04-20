@@ -486,52 +486,8 @@ body.gnb-open .admin-bottom-nav{
   line-height:1.1;
   letter-spacing:-.03em;
 }
-.idle-progress-track{
-  width:100%;
-  height:4px;
-  margin-top:4px;
-  border-radius:999px;
-  background:rgba(15,23,42,.10);
-  overflow:hidden;
-}
-.idle-progress-bar{
-  width:100%;
-  height:100%;
-  border-radius:999px;
-  background:currentColor;
-  transition:width .25s linear, background-color .2s ease;
-}
-.idle-timer-chip.idle-safe{
-  background:#ecfdf5;
-  border-color:#bbf7d0;
-  color:#166534;
-}
-.idle-timer-chip.idle-safe .idle-timer-label{ color:#15803d; }
-.idle-timer-chip.idle-warn{
-  background:#fffbeb;
-  border-color:#fde68a;
-  color:#b45309;
-}
-.idle-timer-chip.idle-warn .idle-timer-label{ color:#b45309; }
-.idle-timer-chip.idle-danger{
-  background:#fef2f2;
-  border-color:#fecaca;
-  color:#b91c1c;
-  animation:idlePulse 1.2s ease-in-out infinite;
-}
-.idle-timer-chip.idle-danger .idle-timer-label{ color:#b91c1c; }
-@keyframes idlePulse{
-  0%,100%{ transform:scale(1); }
-  50%{ transform:scale(1.03); }
-}
-@media (max-width:420px){
-  .idle-timer-chip{
-    min-width:88px;
-    padding:7px 8px;
-  }
-  .idle-timer-chip strong{ font-size:15px; }
-  .idle-timer-label{ font-size:9px; }
-}
+
+
 
 
 .admin-topbar-left-titleline{
@@ -579,13 +535,7 @@ body.gnb-open .admin-bottom-nav{
             <h1>더운정 마이힐스<br>운영자</h1>
             <p>운영자 전용 관리 서비스</p>
           </div>
-        </div>
-        <div class="idle-timer-chip idle-safe" id="idleTimerChip" aria-live="polite">
-          <span class="idle-timer-label">자동 로그아웃</span>
-          <strong id="idleTimerText">30:00</strong>
-          <div class="idle-progress-track" aria-hidden="true">
-            <div class="idle-progress-bar" id="idleProgressBar"></div>
-          </div>
+        </div></div>
         </div>
       </div>
     </header>
@@ -1268,58 +1218,16 @@ const setTextAll = (selector, text) => qsa(selector).forEach(el => el.textConten
 
   <script type="module">import { saveVisit } from "./tracking.js"; saveVisit("admin_page");</script>
 
-<script>
-(function(){
-  const TOTAL_SECONDS = 30 * 60;
-  let remainSeconds = TOTAL_SECONDS;
-  let warningShown = false;
 
-  const chipEl = document.getElementById('idleTimerChip');
-  const textEl = document.getElementById('idleTimerText');
-  const progressEl = document.getElementById('idleProgressBar');
-  if(!chipEl || !textEl || !progressEl) return;
+<script type="module">
+  import { mountIdleTimer } from "./tracking_final.js";
 
-  function formatTime(sec){
-    const m = String(Math.floor(sec / 60)).padStart(2, '0');
-    const s = String(sec % 60).padStart(2, '0');
-    return `${m}:${s}`;
-  }
-
-  function updateTimerUi(){
-    textEl.textContent = formatTime(remainSeconds);
-    const percent = Math.max(0, Math.min(100, (remainSeconds / TOTAL_SECONDS) * 100));
-    progressEl.style.width = `${percent}%`;
-    chipEl.classList.remove('idle-safe', 'idle-warn', 'idle-danger');
-
-    if(remainSeconds > 20 * 60){
-      chipEl.classList.add('idle-safe');
-    }else if(remainSeconds > 10 * 60){
-      chipEl.classList.add('idle-warn');
-    }else{
-      chipEl.classList.add('idle-danger');
-    }
-  }
-
-  function resetIdleTimer(){
-    remainSeconds = TOTAL_SECONDS;
-    warningShown = false;
-    updateTimerUi();
-  }
-
-  ['click','mousemove','keydown','scroll','touchstart'].forEach((eventName) => {
-    window.addEventListener(eventName, resetIdleTimer, { passive:true });
+  window.addEventListener("load", () => {
+    mountIdleTimer({
+      containerSelector: ".admin-topbar-left-titleline",
+      insertPosition: "beforeend"
+    });
   });
-
-  updateTimerUi();
-
-  setInterval(() => {
-    remainSeconds = Math.max(0, remainSeconds - 1);
-    updateTimerUi();
-    if(remainSeconds <= 60 && !warningShown){
-      warningShown = true;
-    }
-  }, 1000);
-})();
 </script>
 
 </body>

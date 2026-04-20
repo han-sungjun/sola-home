@@ -558,3 +558,227 @@ export async function renderAdminStatsUI({
       : `<div class="notice">최근 활동 로그가 아직 없습니다.</div>`;
   }
 }
+// tracking_final.js
+// 공통 자동 로그아웃 타이머 컴포넌트
+
+export const IDLE_TIMER_TOTAL_SECONDS = 30 * 60;
+
+let idleTimerRemainSeconds = IDLE_TIMER_TOTAL_SECONDS;
+let idleTimerInterval = null;
+let idleTimerInitialized = false;
+let idleTimerWarningShown = false;
+
+function formatIdleTime(sec) {
+  const m = String(Math.floor(sec / 60)).padStart(2, "0");
+  const s = String(sec % 60).padStart(2, "0");
+  return `${m}:${s}`;
+}
+
+function getIdleTimerLevel(sec) {
+  if (sec > 20 * 60) return "safe";
+  if (sec > 10 * 60) return "warn";
+  return "danger";
+}
+
+function updateIdleTimerUi() {
+  const chipEls = document.querySelectorAll("[data-idle-timer-chip]");
+  const textEls = document.querySelectorAll("[data-idle-timer-text]");
+  const progressEls = document.querySelectorAll("[data-idle-timer-progress]");
+
+  const level = getIdleTimerLevel(idleTimerRemainSeconds);
+  const percent = Math.max(0, Math.min(100, (idleTimerRemainSeconds / IDLE_TIMER_TOTAL_SECONDS) * 100));
+
+  chipEls.forEach((chipEl) => {
+    chipEl.classList.remove("idle-safe", "idle-warn", "idle-danger");
+    chipEl.classList.add(`idle-${level}`);
+  });
+
+  textEls.forEach((textEl) => {
+    textEl.textContent = formatIdleTime(idleTimerRemainSeconds);
+  });
+
+  progressEls.forEach((progressEl) => {
+    progressEl.style.width = `${percent}%`;
+  });
+}
+
+function resetIdleTimerState() {
+  idleTimerRemainSeconds = IDLE_TIMER_TOTAL_SECONDS;
+  idleTimerWarningShown = false;
+  updateIdleTimerUi();
+}
+
+function bindIdleTimerActivityEvents() {
+  const resetEvents = ["click", "mousemove", "keydown", "scroll", "touchstart"];
+
+  resetEvents.forEach((eventName) => {
+    window.addEventListener(
+      eventName,
+      () => {
+        resetIdleTimerState();
+      },
+      { passive: true }
+    );
+  });
+}
+
+async function handleIdleAutoLogout() {
+  alert("장시간 미사용으로 자동 로그아웃되었습니다.");
+  location.href = "/index.html";
+}
+
+function startIdleTimerEngine() {
+  if (idleTimerInterval) return;
+
+  idleTimerInterval = setInterval(async () => {
+    idleTimerRemainSeconds = Math.max(0, idleTimerRemainSeconds - 1);
+    updateIdleTimerUi();
+
+    if (idleTimerRemainSeconds <= 60 && !idleTimerWarningShown) {
+      idleTimerWarningShown = true;
+      alert("1분 후 자동 로그아웃 됩니다.");
+    }
+
+    if (idleTimerRemainSeconds <= 0) {
+      clearInterval(idleTimerInterval);
+      idleTimerInterval = null;
+      await handleIdleAutoLogout();
+    }
+  }, 1000);
+}
+
+export function getIdleTimerHtml() {
+  return `
+    <div class="idle-timer-chip idle-safe" data-idle-timer-chip aria-live="polite">
+      <span class="idle-timer-label">자동 로그아웃</span>
+      <strong data-idle-timer-text>30:00</strong>
+      <div class="idle-progress-track" aria-hidden="true">
+        <div class="idle-progress-bar" data-idle-timer-progress></div>
+      </div>
+    </div>
+  `;
+}
+
+export function getIdleTimerCss() {
+  return `
+    .idle-timer-chip{
+      min-width:96px;
+      padding:8px 10px;
+      border-radius:18px;
+      background:rgba(255,255,255,.92);
+      border:1px solid rgba(255,255,255,.7);
+      box-shadow:0 4px 12px rgba(15,23,42,.08);
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      gap:2px;
+      transition:background-color .2s ease, color .2s ease, border-color .2s ease, transform .2s ease;
+    }
+
+    .idle-timer-label{
+      font-size:10px;
+      line-height:1;
+      font-weight:700;
+      white-space:nowrap;
+      color:#15803d;
+    }
+
+    .idle-timer-chip strong{
+      font-size:16px;
+      line-height:1.1;
+      letter-spacing:-.03em;
+      color:#166534;
+    }
+
+    .idle-progress-track{
+      width:100%;
+      height:4px;
+      margin-top:4px;
+      border-radius:999px;
+      background:rgba(15,23,42,.10);
+      overflow:hidden;
+    }
+
+    .idle-progress-bar{
+      width:100%;
+      height:100%;
+      border-radius:999px;
+      background:currentColor;
+      transition:width .25s linear;
+    }
+
+    .idle-timer-chip.idle-safe{
+      background:#ecfdf5;
+      border-color:#bbf7d0;
+      color:#166534;
+    }
+    .idle-timer-chip.idle-safe .idle-timer-label{
+      color:#15803d;
+    }
+
+    .idle-timer-chip.idle-warn{
+      background:#fffbeb;
+      border-color:#fde68a;
+      color:#b45309;
+    }
+    .idle-timer-chip.idle-warn .idle-timer-label{
+      color:#b45309;
+    }
+
+    .idle-timer-chip.idle-danger{
+      background:#fef2f2;
+      border-color:#fecaca;
+      color:#b91c1c;
+      animation:idlePulse 1.2s ease-in-out infinite;
+    }
+    .idle-timer-chip.idle-danger .idle-timer-label{
+      color:#b91c1c;
+    }
+
+    @keyframes idlePulse{
+      0%,100%{ transform:scale(1); }
+      50%{ transform:scale(1.03); }
+    }
+
+    @media (max-width:420px){
+      .idle-timer-chip{
+        min-width:88px;
+        padding:7px 8px;
+      }
+      .idle-timer-chip strong{
+        font-size:15px;
+      }
+      .idle-timer-label{
+        font-size:9px;
+      }
+    }
+  `;
+}
+
+export function mountIdleTimer({
+  containerSelector,
+  insertPosition = "beforeend"
+} = {}) {
+  const container = document.querySelector(containerSelector);
+  if (!container) return;
+
+  if (!document.getElementById("idleTimerStyle")) {
+    const style = document.createElement("style");
+    style.id = "idleTimerStyle";
+    style.textContent = getIdleTimerCss();
+    document.head.appendChild(style);
+  }
+
+  if (!container.querySelector("[data-idle-timer-chip]")) {
+    container.insertAdjacentHTML(insertPosition, getIdleTimerHtml());
+  }
+
+  updateIdleTimerUi();
+
+  if (!idleTimerInitialized) {
+    idleTimerInitialized = true;
+    bindIdleTimerActivityEvents();
+    startIdleTimerEngine();
+  }
+}
