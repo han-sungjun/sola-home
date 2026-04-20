@@ -554,6 +554,28 @@
         setTimeout(() => callback(), 40);
       }
     }
+
+    function forceHideLoading(){
+      const pageLoader = document.getElementById('pageLoader');
+      if (pageLoader){
+        pageLoader.classList.remove('show');
+        pageLoader.setAttribute('aria-hidden', 'true');
+      }
+      loadingCount = 0;
+    }
+
+    window.addEventListener('pageshow', () => {
+      forceHideLoading();
+    });
+
+    window.addEventListener('load', () => {
+      forceHideLoading();
+    });
+
+    window.addEventListener('popstate', () => {
+      forceHideLoading();
+    });
+
     const alertEl = qs('#appAlert');
     const alertMsgEl = qs('#appAlertMessage');
     const alertTitleEl = qs('#appAlertTitle');
@@ -661,10 +683,7 @@ function showNotice(message, type='info'){
       event.preventDefault();
       const confirmed = await openModalConfirm('작성 중인 내용이 있다면 저장되지 않습니다. 로그인 페이지로 이동할까요?', qs('#goLoginLink'), '페이지 이동', '이동', '계속 작성');
       if (confirmed) {
-        startLoading();
-        setTimeout(() => {
-          window.location.href = './index.html';
-        }, 80);
+        window.location.href = './index.html';
       }
     });
 

@@ -455,6 +455,28 @@
       }
     }
 
+    function forceHideLoading(){
+      const pageLoader = document.getElementById('pageLoader');
+      if (pageLoader){
+        pageLoader.classList.remove('show');
+        pageLoader.setAttribute('aria-hidden', 'true');
+      }
+      loadingCount = 0;
+    }
+
+    window.addEventListener('pageshow', () => {
+      forceHideLoading();
+    });
+
+    window.addEventListener('load', () => {
+      forceHideLoading();
+    });
+
+    window.addEventListener('popstate', () => {
+      forceHideLoading();
+    });
+
+
     function showNotice(message, type='info'){
       noticeEl.className = `notice show ${type}`;
       noticeEl.textContent = message;
@@ -531,10 +553,7 @@
     });
 
     signupBtn.addEventListener('click', () => {
-      startLoading();
-      setTimeout(() => {
-        window.location.href = './signup.html';
-      }, 120);
+      window.location.href = './signup.html';
     });
 
     logoutBtn.addEventListener('click', async () => {
