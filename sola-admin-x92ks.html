@@ -266,74 +266,281 @@
 .gnb-section{margin-bottom:30px}
 .gnb-section-title{
   margin:0 0 16px;
-  font-size:20px;
+  display:flex;
+  align-items:center;
+  gap:12px;
+  font-size:19px;
   letter-spacing:-.04em;
+}
+.gnb-section-title::after{
+  content:"";
+  flex:1;
+  height:1px;
+  border-radius:999px;
+  background:linear-gradient(90deg, rgba(148,163,184,.42), rgba(226,232,240,.9));
+}
+.gnb-title-badge{
+  width:38px;
+  height:38px;
+  border-radius:14px;
+  display:grid;
+  place-items:center;
+  flex:0 0 auto;
+  font-size:18px;
+  box-shadow:0 10px 24px rgba(15,23,42,.10), inset 0 0 0 1px rgba(255,255,255,.55);
+}
+.gnb-title-badge.recent{
+  background:linear-gradient(135deg,#dbeafe 0%,#eef4ff 100%);
+}
+.gnb-title-badge.new{
+  background:linear-gradient(135deg,#fee2e2 0%,#fff1f2 100%);
+}
+.gnb-title-badge.manage{
+  background:linear-gradient(135deg,#ede9fe 0%,#f5f3ff 100%);
+}
+.gnb-section-label{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  min-width:0;
+}
+.gnb-section-text{
+  display:flex;
+  flex-direction:column;
+  gap:2px;
+  line-height:1.1;
+}
+.gnb-section-text small{
+  font-size:11px;
+  font-weight:700;
+  color:#94a3b8;
+  letter-spacing:.02em;
+}
+.gnb-section-text strong{
+  font-size:19px;
+  color:#0f172a;
 }
 .gnb-chip-row,
 .gnb-menu-list,
 .gnb-menu-sublist{
-  display:flex;
-  flex-wrap:wrap;
-  gap:10px;
+  display:grid;
+  gap:12px;
 }
+.gnb-chip-row{grid-template-columns:repeat(1,minmax(0,1fr))}
+.gnb-menu-list{grid-template-columns:repeat(2,minmax(0,1fr))}
+.gnb-menu-sublist{grid-template-columns:repeat(2,minmax(0,1fr))}
 .gnb-chip,
 .gnb-menu-item,
 .gnb-menu-subitem{
+  --card-bg1:#ffffff;
+  --card-bg2:#f8fafc;
+  --card-ring:rgba(15,23,42,.05);
+  --card-shadow:rgba(15,23,42,.08);
+  --card-arrow:#94a3b8;
   border:none;
-  border-radius:18px;
-  background:#f3f4f6;
-  color:#111827;
+  border-radius:24px;
+  background:linear-gradient(180deg,var(--card-bg1) 0%,var(--card-bg2) 100%);
+  color:#0f172a;
   font-size:15px;
   font-weight:800;
   text-align:left;
-  padding:14px 16px;
+  padding:0;
   cursor:pointer;
-  line-height:1;
-  box-shadow:inset 0 0 0 1px rgba(15,23,42,.04);
-  transition:transform .16s ease, background-color .16s ease, opacity .16s ease;
+  line-height:1.2;
+  box-shadow:0 14px 28px var(--card-shadow), inset 0 0 0 1px var(--card-ring);
+  transition:transform .18s ease, box-shadow .18s ease, background-color .18s ease, opacity .18s ease, filter .18s ease;
   -webkit-tap-highlight-color:transparent;
+  overflow:hidden;
+  position:relative;
+}
+.gnb-chip::before,
+.gnb-menu-item::before,
+.gnb-menu-subitem::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:
+    linear-gradient(135deg, rgba(255,255,255,.62), rgba(255,255,255,0) 56%),
+    radial-gradient(circle at top right, rgba(255,255,255,.42), transparent 34%);
+  pointer-events:none;
+}
+.gnb-chip::after,
+.gnb-menu-item::after,
+.gnb-menu-subitem::after{
+  content:"";
+  position:absolute;
+  left:14px;
+  right:14px;
+  bottom:0;
+  height:3px;
+  border-radius:999px 999px 0 0;
+  opacity:.92;
+  background:var(--tone-bar, linear-gradient(90deg,#cbd5e1,#e2e8f0));
+  pointer-events:none;
+}
+.gnb-card{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  min-height:92px;
+  padding:16px;
+}
+.gnb-card-icon{
+  width:50px;
+  height:50px;
+  border-radius:17px;
+  display:grid;
+  place-items:center;
+  flex:0 0 auto;
+  font-size:24px;
+  box-shadow:0 10px 18px rgba(15,23,42,.06), inset 0 0 0 1px rgba(255,255,255,.55);
+}
+.gnb-card-copy{
+  display:flex;
+  flex-direction:column;
+  gap:4px;
+  min-width:0;
+  flex:1;
+}
+.gnb-card-copy strong{
+  font-size:16px;
+  color:#0f172a;
+  letter-spacing:-.03em;
+}
+.gnb-card-copy span{
+  font-size:12px;
+  color:#64748b;
+  line-height:1.35;
+}
+.gnb-card-arrow{
+  font-size:18px;
+  color:var(--card-arrow);
+  flex:0 0 auto;
+  transform:translateX(0);
+  transition:transform .18s ease, color .18s ease;
 }
 .gnb-chip:hover,
 .gnb-menu-item:hover,
 .gnb-menu-subitem:hover{
-  transform:translateY(-1px);
-  background:#eceff3;
+  transform:translateY(-3px);
+  box-shadow:0 22px 40px var(--card-shadow), inset 0 0 0 1px var(--card-ring);
+  filter:saturate(1.03);
+}
+.gnb-chip:hover .gnb-card-arrow,
+.gnb-menu-item:hover .gnb-card-arrow,
+.gnb-menu-subitem:hover .gnb-card-arrow{
+  transform:translateX(3px);
+  color:#475569;
 }
 .gnb-chip:active,
 .gnb-menu-item:active,
 .gnb-menu-subitem:active{
-  transform:scale(.98);
+  transform:scale(.985);
 }
+.gnb-chip.gnb-tone-dashboard,
+.gnb-menu-item.gnb-tone-dashboard,
+.gnb-menu-subitem.gnb-tone-dashboard{
+  --card-bg1:#eff6ff;
+  --card-bg2:#f8fbff;
+  --card-ring:rgba(37,99,235,.10);
+  --card-shadow:rgba(37,99,235,.10);
+  --card-arrow:#60a5fa;
+  --tone-bar:linear-gradient(90deg,#60a5fa,#bfdbfe);
+}
+.gnb-chip.gnb-tone-benefits,
+.gnb-menu-item.gnb-tone-benefits,
+.gnb-menu-subitem.gnb-tone-benefits{
+  --card-bg1:#fff7ed;
+  --card-bg2:#fffbf5;
+  --card-ring:rgba(249,115,22,.10);
+  --card-shadow:rgba(249,115,22,.10);
+  --card-arrow:#fb923c;
+  --tone-bar:linear-gradient(90deg,#fb923c,#fdba74);
+}
+.gnb-chip.gnb-tone-notices,
+.gnb-menu-item.gnb-tone-notices,
+.gnb-menu-subitem.gnb-tone-notices{
+  --card-bg1:#fff1f2;
+  --card-bg2:#fff8f8;
+  --card-ring:rgba(244,63,94,.10);
+  --card-shadow:rgba(244,63,94,.10);
+  --card-arrow:#fb7185;
+  --tone-bar:linear-gradient(90deg,#fb7185,#fda4af);
+}
+.gnb-chip.gnb-tone-members,
+.gnb-menu-item.gnb-tone-members,
+.gnb-menu-subitem.gnb-tone-members{
+  --card-bg1:#f0fdf4;
+  --card-bg2:#f8fffa;
+  --card-ring:rgba(34,197,94,.10);
+  --card-shadow:rgba(34,197,94,.10);
+  --card-arrow:#4ade80;
+  --tone-bar:linear-gradient(90deg,#4ade80,#86efac);
+}
+.gnb-chip.gnb-tone-data,
+.gnb-menu-item.gnb-tone-data,
+.gnb-menu-subitem.gnb-tone-data{
+  --card-bg1:#eef2ff;
+  --card-bg2:#f7f8ff;
+  --card-ring:rgba(99,102,241,.10);
+  --card-shadow:rgba(99,102,241,.10);
+  --card-arrow:#818cf8;
+  --tone-bar:linear-gradient(90deg,#818cf8,#c7d2fe);
+}
+.gnb-chip.gnb-tone-resident,
+.gnb-menu-item.gnb-tone-resident,
+.gnb-menu-subitem.gnb-tone-resident{
+  --card-bg1:#ecfeff;
+  --card-bg2:#f7feff;
+  --card-ring:rgba(6,182,212,.10);
+  --card-shadow:rgba(6,182,212,.10);
+  --card-arrow:#22d3ee;
+  --tone-bar:linear-gradient(90deg,#22d3ee,#67e8f9);
+}
+.gnb-card-icon.dashboard{background:linear-gradient(135deg,#bfdbfe 0%,#e0f2fe 100%)}
+.gnb-card-icon.benefits{background:linear-gradient(135deg,#fed7aa 0%,#ffedd5 100%)}
+.gnb-card-icon.notices{background:linear-gradient(135deg,#fecdd3 0%,#ffe4e6 100%)}
+.gnb-card-icon.members{background:linear-gradient(135deg,#bbf7d0 0%,#dcfce7 100%)}
+.gnb-card-icon.data{background:linear-gradient(135deg,#c7d2fe 0%,#e0e7ff 100%)}
+.gnb-card-icon.resident{background:linear-gradient(135deg,#a5f3fc 0%,#cffafe 100%)}
 .gnb-new-section{
-  background:#f8fafc;
-  border-radius:20px;
+  background:linear-gradient(180deg,#fffaf5 0%,#f8fafc 100%);
+  border-radius:28px;
   padding:14px;
   margin-top:10px;
   margin-bottom:20px;
-  border:1px solid rgba(15,23,42,.04);
+  border:1px solid rgba(15,23,42,.05);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.78), 0 10px 24px rgba(15,23,42,.04);
 }
 .gnb-enter .gnb-chip,
 .gnb-enter .gnb-menu-item,
 .gnb-enter .gnb-menu-subitem,
 .gnb-enter .gnb-banner,
 .gnb-enter .gnb-section-title{
-  animation:gnbFadeUp .28s ease both;
+  animation:gnbFadeUp .34s ease both;
 }
 .gnb-enter .gnb-chip:nth-child(2),
 .gnb-enter .gnb-menu-item:nth-child(2),
-.gnb-enter .gnb-menu-subitem:nth-child(2){animation-delay:.03s}
+.gnb-enter .gnb-menu-subitem:nth-child(2){animation-delay:.04s}
 .gnb-enter .gnb-chip:nth-child(3),
 .gnb-enter .gnb-menu-item:nth-child(3),
-.gnb-enter .gnb-menu-subitem:nth-child(3){animation-delay:.06s}
+.gnb-enter .gnb-menu-subitem:nth-child(3){animation-delay:.08s}
 .gnb-enter .gnb-chip:nth-child(4),
 .gnb-enter .gnb-menu-item:nth-child(4),
-.gnb-enter .gnb-menu-subitem:nth-child(4){animation-delay:.09s}
+.gnb-enter .gnb-menu-subitem:nth-child(4){animation-delay:.12s}
 .gnb-enter .gnb-chip:nth-child(5),
 .gnb-enter .gnb-menu-item:nth-child(5),
-.gnb-enter .gnb-menu-subitem:nth-child(5){animation-delay:.12s}
+.gnb-enter .gnb-menu-subitem:nth-child(5){animation-delay:.16s}
 @keyframes gnbFadeUp{
-  from{opacity:0;transform:translateY(8px)}
+  from{opacity:0;transform:translateY(10px)}
   to{opacity:1;transform:translateY(0)}
+}
+@media (max-width:420px){
+  .gnb-menu-list,
+  .gnb-menu-sublist{
+    grid-template-columns:1fr;
+  }
+  .gnb-card{min-height:84px}
 }
 .shell,
 .admin-topbar,
@@ -505,6 +712,28 @@ body.gnb-open .admin-bottom-nav{
   .admin-topbar-left-titleline{
     gap:10px;
   }
+}
+
+
+/* Active (selected) card: glow + badge */
+.gnb-menu-item.active, .gnb-menu-subitem.active, .gnb-chip.active{
+  box-shadow: 0 22px 44px rgba(15,23,42,.16), inset 0 0 0 1px rgba(15,23,42,.06), 0 0 0 2px rgba(99,102,241,.25);
+  filter: saturate(1.08);
+}
+.gnb-menu-item.active::after, .gnb-menu-subitem.active::after, .gnb-chip.active::after{
+  height:4px;
+}
+.gnb-active-badge{
+  position:absolute;
+  top:10px;
+  right:10px;
+  padding:6px 8px;
+  border-radius:999px;
+  font-size:11px;
+  font-weight:900;
+  color:#fff;
+  background:linear-gradient(135deg,#6366f1,#8b5cf6);
+  box-shadow:0 8px 18px rgba(99,102,241,.35);
 }
 
 </style>
@@ -1172,7 +1401,7 @@ const setTextAll = (selector, text) => qsa(selector).forEach(el => el.textConten
       <div class="gnb-hero">
         <div class="gnb-copy">
           <small>운영 메뉴를 더 빠르게 이동해보세요</small>
-          <strong>운영자 서비스<br>전체보기</strong>
+          <strong>운영자 전용<br>대시보드</strong>
         </div>
         <div class="gnb-hero-emoji">🛠️</div>
       </div>
@@ -1184,33 +1413,147 @@ const setTextAll = (selector, text) => qsa(selector).forEach(el => el.textConten
       </div>
 
       <section class="gnb-section">
-        <h3 class="gnb-section-title">최근에 봤어요</h3>
+        <h3 class="gnb-section-title">
+          <span class="gnb-section-label">
+            <span class="gnb-title-badge recent">🕘</span>
+            <span class="gnb-section-text"><small>RECENT</small><strong>최근에 봤어요</strong></span>
+          </span>
+        </h3>
         <div class="gnb-chip-row">
-          <button class="gnb-chip" type="button" data-admin-view="dashboard">대시보드</button>
+          <button class="gnb-chip gnb-tone-dashboard" type="button" data-admin-view="dashboard"><span class="gnb-active-badge" hidden>ACTIVE</span>
+            <span class="gnb-card">
+              <span class="gnb-card-icon dashboard">📊</span>
+              <span class="gnb-card-copy">
+                <strong>대시보드</strong>
+                <span>오늘 통계와 최근 등록 항목을 한눈에 확인</span>
+              </span>
+              <span class="gnb-card-arrow">›</span>
+            </span>
+          </button>
         </div>
       </section>
 
       <section class="gnb-section">
-        <h3 class="gnb-section-title">📌 새로 나왔어요</h3>
+        <h3 class="gnb-section-title">
+          <span class="gnb-section-label">
+            <span class="gnb-title-badge new">📌</span>
+            <span class="gnb-section-text"><small>FEATURED</small><strong>새로 나왔어요</strong></span>
+          </span>
+        </h3>
         <div class="gnb-new-section">
           <div class="gnb-menu-list">
-            <button class="gnb-menu-item" type="button" data-admin-view="benefits">혜택 관리</button>
-            <button class="gnb-menu-item" type="button" data-admin-view="notices">공지 관리</button>
-            <button class="gnb-menu-item" type="button" data-admin-view="members">회원 관리</button>
-            <button class="gnb-menu-item" type="button" data-admin-view="dashboard-data">데이터 관리</button>
+            <button class="gnb-menu-item gnb-tone-benefits" type="button" data-admin-view="benefits"><span class="gnb-active-badge" hidden>ACTIVE</span>
+              <span class="gnb-card">
+                <span class="gnb-card-icon benefits">🎁</span>
+                <span class="gnb-card-copy">
+                  <strong>혜택 관리</strong>
+                  <span>제휴 혜택 등록과 수정</span>
+                </span>
+                <span class="gnb-card-arrow">›</span>
+              </span>
+            </button>
+            <button class="gnb-menu-item gnb-tone-notices" type="button" data-admin-view="notices"><span class="gnb-active-badge" hidden>ACTIVE</span>
+              <span class="gnb-card">
+                <span class="gnb-card-icon notices">📢</span>
+                <span class="gnb-card-copy">
+                  <strong>공지 관리</strong>
+                  <span>공지 작성과 푸시 작업 연결</span>
+                </span>
+                <span class="gnb-card-arrow">›</span>
+              </span>
+            </button>
+            <button class="gnb-menu-item gnb-tone-members" type="button" data-admin-view="members"><span class="gnb-active-badge" hidden>ACTIVE</span>
+              <span class="gnb-card">
+                <span class="gnb-card-icon members">👥</span>
+                <span class="gnb-card-copy">
+                  <strong>회원 관리</strong>
+                  <span>입주민 승인과 계정 확인</span>
+                </span>
+                <span class="gnb-card-arrow">›</span>
+              </span>
+            </button>
+            <button class="gnb-menu-item gnb-tone-data" type="button" data-admin-view="dashboard-data"><span class="gnb-active-badge" hidden>ACTIVE</span>
+              <span class="gnb-card">
+                <span class="gnb-card-icon data">🗂️</span>
+                <span class="gnb-card-copy">
+                  <strong>데이터 관리</strong>
+                  <span>내보내기와 기본 데이터 업로드</span>
+                </span>
+                <span class="gnb-card-arrow">›</span>
+              </span>
+            </button>
           </div>
         </div>
       </section>
 
       <section class="gnb-section">
-        <h3 class="gnb-section-title">🛠️ 더운정 마이힐스 운영</h3>
+        <h3 class="gnb-section-title">
+          <span class="gnb-section-label">
+            <span class="gnb-title-badge manage">🛠️</span>
+            <span class="gnb-section-text"><small>CONTROL CENTER</small><strong>더운정 마이힐스 운영</strong></span>
+          </span>
+        </h3>
         <div class="gnb-menu-sublist">
-          <button class="gnb-menu-subitem" type="button" data-admin-view="dashboard">대시보드</button>
-          <button class="gnb-menu-subitem" type="button" data-admin-view="benefits">혜택</button>
-          <button class="gnb-menu-subitem" type="button" data-admin-view="notices">공지</button>
-          <button class="gnb-menu-subitem" type="button" data-admin-view="members">회원</button>
-          <button class="gnb-menu-subitem" type="button" data-admin-view="dashboard-data">데이터</button>
-          <button class="gnb-menu-subitem" type="button" onclick="location.href='/'">입주민 앱</button>
+          <button class="gnb-menu-subitem gnb-tone-dashboard" type="button" data-admin-view="dashboard"><span class="gnb-active-badge" hidden>ACTIVE</span>
+            <span class="gnb-card">
+              <span class="gnb-card-icon dashboard">📊</span>
+              <span class="gnb-card-copy">
+                <strong>대시보드</strong>
+                <span>운영 현황, 최근 공지, 최근 혜택</span>
+              </span>
+              <span class="gnb-card-arrow">›</span>
+            </span>
+          </button>
+          <button class="gnb-menu-subitem gnb-tone-benefits" type="button" data-admin-view="benefits"><span class="gnb-active-badge" hidden>ACTIVE</span>
+            <span class="gnb-card">
+              <span class="gnb-card-icon benefits">🎁</span>
+              <span class="gnb-card-copy">
+                <strong>혜택</strong>
+                <span>할인과 서비스 혜택 관리</span>
+              </span>
+              <span class="gnb-card-arrow">›</span>
+            </span>
+          </button>
+          <button class="gnb-menu-subitem gnb-tone-notices" type="button" data-admin-view="notices"><span class="gnb-active-badge" hidden>ACTIVE</span>
+            <span class="gnb-card">
+              <span class="gnb-card-icon notices">📢</span>
+              <span class="gnb-card-copy">
+                <strong>공지</strong>
+                <span>중요 공지와 일반 공지 운영</span>
+              </span>
+              <span class="gnb-card-arrow">›</span>
+            </span>
+          </button>
+          <button class="gnb-menu-subitem gnb-tone-members" type="button" data-admin-view="members"><span class="gnb-active-badge" hidden>ACTIVE</span>
+            <span class="gnb-card">
+              <span class="gnb-card-icon members">👥</span>
+              <span class="gnb-card-copy">
+                <strong>회원</strong>
+                <span>가입 승인과 운영 준비 영역</span>
+              </span>
+              <span class="gnb-card-arrow">›</span>
+            </span>
+          </button>
+          <button class="gnb-menu-subitem gnb-tone-data" type="button" data-admin-view="dashboard-data"><span class="gnb-active-badge" hidden>ACTIVE</span>
+            <span class="gnb-card">
+              <span class="gnb-card-icon data">🗂️</span>
+              <span class="gnb-card-copy">
+                <strong>데이터</strong>
+                <span>JSON 내보내기와 푸시 작업 확인</span>
+              </span>
+              <span class="gnb-card-arrow">›</span>
+            </span>
+          </button>
+          <button class="gnb-menu-subitem gnb-tone-resident" type="button" onclick="location.href='/'"><span class="gnb-active-badge" hidden>ACTIVE</span>
+            <span class="gnb-card">
+              <span class="gnb-card-icon resident">🏠</span>
+              <span class="gnb-card-copy">
+                <strong>입주민 앱</strong>
+                <span>공개 앱으로 바로 이동</span>
+              </span>
+              <span class="gnb-card-arrow">›</span>
+            </span>
+          </button>
         </div>
       </section>
     </div>
@@ -1283,6 +1626,36 @@ const setTextAll = (selector, text) => qsa(selector).forEach(el => el.textConten
     if(visitPlaceholder) visitPlaceholder.classList.add('hidden');
     if(loginPlaceholder) loginPlaceholder.classList.add('hidden');
   }
+</script>
+
+
+<script>
+(function(){
+  function setActiveGnb(view){
+    var items = document.querySelectorAll('.gnb-chip, .gnb-menu-item, .gnb-menu-subitem');
+    items.forEach(function(el){
+      var v = el.getAttribute('data-admin-view');
+      var isActive = v && v === view;
+      el.classList.toggle('active', !!isActive);
+      var badge = el.querySelector('.gnb-active-badge');
+      if(badge){ badge.hidden = !isActive; }
+    });
+  }
+  // hook into existing changeAdminView
+  var orig = window.changeAdminView;
+  if(typeof orig === 'function'){
+    window.changeAdminView = function(view){
+      try{ setActiveGnb(view); }catch(e){}
+      return orig.apply(this, arguments);
+    }
+  }
+  // initial sync on load
+  document.addEventListener('DOMContentLoaded', function(){
+    var activeBtn = document.querySelector('.admin-nav-btn.active');
+    var view = activeBtn ? activeBtn.getAttribute('data-admin-view') : 'dashboard';
+    setActiveGnb(view || 'dashboard');
+  });
+})();
 </script>
 
 </body>
