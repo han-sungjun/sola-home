@@ -630,27 +630,6 @@
       return document.title || 'unknown';
     }
 
-    async function logVisitHistory({
-      page = getVisitPageName(),
-      detail = 'page_view'
-    } = {}){
-      try {
-        await addDoc(collection(db, 'visit_history'), {
-          sessionId: getSessionId(),
-          page,
-          detail,
-          title: document.title || '',
-          path: window.location.pathname || '',
-          fullUrl: window.location.href || '',
-          referrer: document.referrer || '',
-          userAgent: navigator.userAgent || '',
-          createdAt: serverTimestamp()
-        });
-      } catch (error) {
-        console.warn('visit_history 저장 실패', error);
-      }
-    }
-
     async function logLoginHistory({
       email = '',
       status = 'unknown',
@@ -817,8 +796,6 @@
         sendResetPwBtn.textContent = '재설정 메일 보내기';
       }
     });
-
-    logVisitHistory({ page: 'login', detail: 'page_open' });
 
     signupBtn.addEventListener('click', () => {
       window.location.href = './signup.html';
