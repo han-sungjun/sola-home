@@ -1069,6 +1069,9 @@ const setTextAll = (selector, text) => qsa(selector).forEach(el => el.textConten
       const app=initializeApp(firebaseConfig);
       auth=getAuth(app);
       db=getFirestore(app);
+
+      let adminDataSubscribed = false;
+
       onAuthStateChanged(auth, async (user) => {
         state.isAdmin = !!user;
         qs('#authStatusText').textContent=user?`로그인됨: ${user.email}`:'로그인 필요';
@@ -1076,10 +1079,19 @@ const setTextAll = (selector, text) => qsa(selector).forEach(el => el.textConten
 
         if(!user){
           setAdminDashboardLocked(true);
+          hideGlobalLoading(80);
           return;
         }
 
         setAdminDashboardLocked(false);
+
+        if (!adminDataSubscribed) {
+          adminDataSubscribed = true;
+          showGlobalLoading();
+          subscribeBenefits();
+          subscribeNotices();
+          subscribePushJobs();
+        }
 
         if (typeof window.refreshAdminStatsUIOnce === 'function') {
           await window.refreshAdminStatsUIOnce();
@@ -1091,10 +1103,6 @@ const setTextAll = (selector, text) => qsa(selector).forEach(el => el.textConten
           }
         }
       });
-      showGlobalLoading();
-      subscribeBenefits();
-      subscribeNotices();
-      subscribePushJobs();
     }else{
       qs('#firebaseNotice').classList.remove('hidden');
     }
