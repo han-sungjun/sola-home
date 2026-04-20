@@ -428,9 +428,8 @@
   </div>
 
   <script type="module">
-    import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
+    import { auth } from './firebase-config.js';
     import {
-      getAuth,
       setPersistence,
       browserLocalPersistence,
       signInWithEmailAndPassword,
@@ -439,26 +438,11 @@
       sendPasswordResetEmail
     } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
     import {
-      getFirestore,
-      collection,
-      addDoc,
-      serverTimestamp
-    } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
-    import {
       saveLogin,
       getLoginLockStatus,
       recordLoginFailureLocal,
       clearLoginFailureLocal
     } from './tracking.js';
-
-    const firebaseConfig = {
-      apiKey: "AIzaSyDhKr7oMSrLowJ47cqB4pvNXuIIdtW0HPI",
-      authDomain: "sola-home-4979a.firebaseapp.com",
-      projectId: "sola-home-4979a",
-      storageBucket: "sola-home-4979a.firebasestorage.app",
-      messagingSenderId: "337132471819",
-      appId: "1:337132471819:web:848cd357fecda459a2e90e"
-    };
 
     const ALLOWED_EMAILS = [
       'sungjun200@gmail.com'
@@ -466,9 +450,6 @@
 
     const REDIRECT_AFTER_LOGIN = './app.html';
 
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db = getFirestore(app);
     document.body.style.opacity = '0';
 
     const qs = (selector) => document.querySelector(selector);

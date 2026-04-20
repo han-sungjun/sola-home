@@ -5,7 +5,6 @@
 // =========================
 
 import {
-  getFirestore,
   collection,
   addDoc,
   serverTimestamp,
@@ -18,13 +17,11 @@ import {
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 import {
-  getAuth,
   signOut,
   onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
-const db = getFirestore();
-const auth = getAuth();
+import { db, auth } from "./firebase-config.js";
 
 
 // =========================
