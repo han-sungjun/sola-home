@@ -328,6 +328,52 @@
   100%{ opacity:.9; }
 }
 
+
+    .find-links{
+      display:flex;
+      justify-content:flex-end;
+      gap:12px;
+      margin:-4px 2px 12px;
+      flex-wrap:wrap;
+    }
+    .find-link{
+      border:none;
+      background:transparent;
+      padding:0;
+      color:var(--muted);
+      font-size:13px;
+      font-weight:700;
+      cursor:pointer;
+      text-decoration:underline;
+      text-underline-offset:3px;
+    }
+    .find-link:hover{
+      color:var(--text);
+    }
+
+    .sheet-modal{position:fixed;inset:0;display:none;align-items:flex-end;justify-content:center;padding:0;z-index:10001;background:rgba(15,23,42,.42);backdrop-filter:blur(4px)}
+    .sheet-modal.show{display:flex}
+    .sheet-panel{width:min(100%,480px);background:#fff;border-radius:28px 28px 0 0;box-shadow:0 -18px 40px rgba(15,23,42,.18);padding:18px 18px calc(18px + env(safe-area-inset-bottom));transform:translateY(24px);opacity:0;transition:transform .18s ease, opacity .18s ease}
+    .sheet-modal.show .sheet-panel{transform:translateY(0);opacity:1}
+    .sheet-handle{width:54px;height:6px;border-radius:999px;background:#dbe2ea;margin:0 auto 14px}
+    .sheet-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:10px}
+    .sheet-title{margin:0;font-size:20px;letter-spacing:-.03em}
+    .sheet-desc{margin:6px 0 0;color:var(--muted);font-size:13px;line-height:1.6}
+    .sheet-close{border:none;background:#f8fafc;color:var(--text);width:42px;height:42px;border-radius:14px;cursor:pointer;font-size:18px;font-weight:800;flex:0 0 auto}
+    .sheet-tabs{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0 14px}
+    .sheet-tab{border:1px solid var(--line);background:#fff;color:var(--text);border-radius:16px;padding:12px 14px;font-size:14px;font-weight:800;cursor:pointer}
+    .sheet-tab.active{background:var(--primary);color:#fff;border-color:var(--primary)}
+    .sheet-body{padding-top:4px}
+    .sheet-section{display:none}
+    .sheet-section.active{display:block}
+    .sheet-note{margin:0 2px 14px;color:var(--muted);font-size:13px;line-height:1.65;white-space:pre-line}
+    .sheet-inline-actions{display:grid;gap:10px;margin-top:14px}
+    .sheet-result{display:none;margin-top:12px;padding:13px 14px;border-radius:16px;font-size:13px;line-height:1.6;border:1px solid transparent;white-space:pre-line}
+    .sheet-result.show{display:block}
+    .sheet-result.info{background:#eff6ff;border-color:#bfdbfe;color:#1d4ed8}
+    .sheet-result.error{background:#fef2f2;border-color:#fecaca;color:#b91c1c}
+    .sheet-result.success{background:#f0fdf4;border-color:#bbf7d0;color:#166534}
+
 </style>
 </head>
 <body>
@@ -358,6 +404,11 @@
           <input id="password" class="input" type="password" autocomplete="current-password" placeholder="비밀번호 입력" />
         </div>
 
+        <div class="find-links">
+          <button id="openFindIdBtn" class="find-link" type="button">이메일 찾기</button>
+          <button id="openResetPwBtn" class="find-link" type="button">비밀번호 찾기</button>
+        </div>
+
         <div class="helper">
           입주민 승인 완료된 계정만 이용 가능합니다.
         </div>
@@ -383,8 +434,15 @@
       browserLocalPersistence,
       signInWithEmailAndPassword,
       signOut,
-      onAuthStateChanged
+      onAuthStateChanged,
+      sendPasswordResetEmail
     } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
+    import {
+      getFirestore,
+      collection,
+      addDoc,
+      serverTimestamp
+    } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
 
     const firebaseConfig = {
       apiKey: "AIzaSyDhKr7oMSrLowJ47cqB4pvNXuIIdtW0HPI",
@@ -403,6 +461,7 @@
 
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
+    const db = getFirestore(app);
     document.body.style.opacity = '0';
 
     const qs = (selector) => document.querySelector(selector);
@@ -414,6 +473,20 @@
     const logoutBtn = qs('#logoutBtn');
     const noticeEl = qs('#notice');
     const loginForm = qs('#loginForm');
+    const openFindIdBtn = qs('#openFindIdBtn');
+    const openResetPwBtn = qs('#openResetPwBtn');
+    const accountHelpModal = qs('#accountHelpModal');
+    const accountHelpCloseBtn = qs('#accountHelpCloseBtn');
+    const tabFindId = qs('#tabFindId');
+    const tabResetPw = qs('#tabResetPw');
+    const findIdSection = qs('#findIdSection');
+    const resetPwSection = qs('#resetPwSection');
+    const findIdEmailEl = qs('#findIdEmail');
+    const resetPwEmailEl = qs('#resetPwEmail');
+    const applyFindIdBtn = qs('#applyFindIdBtn');
+    const sendResetPwBtn = qs('#sendResetPwBtn');
+    const findIdResultEl = qs('#findIdResult');
+    const resetPwResultEl = qs('#resetPwResult');
     const alertEl = qs('#appAlert');
     const alertMsgEl = qs('#appAlertMessage');
     const alertTitleEl = qs('#appAlertTitle');
@@ -477,6 +550,48 @@
     });
 
 
+    function setSheetResult(target, message='', type='info'){
+      if (!target) return;
+      target.className = `sheet-result show ${type}`;
+      target.textContent = message;
+    }
+
+    function hideSheetResult(target){
+      if (!target) return;
+      target.className = 'sheet-result info';
+      target.textContent = '';
+    }
+
+    function setActiveHelpTab(tab='findId'){
+      const isFindId = tab === 'findId';
+      tabFindId.classList.toggle('active', isFindId);
+      tabResetPw.classList.toggle('active', !isFindId);
+      findIdSection.classList.toggle('active', isFindId);
+      resetPwSection.classList.toggle('active', !isFindId);
+      hideSheetResult(findIdResultEl);
+      hideSheetResult(resetPwResultEl);
+      requestAnimationFrame(() => {
+        (isFindId ? findIdEmailEl : resetPwEmailEl)?.focus();
+      });
+    }
+
+    function openAccountHelp(tab='findEmail'){
+      accountHelpModal.classList.add('show');
+      accountHelpModal.setAttribute('aria-hidden', 'false');
+      setActiveHelpTab(tab);
+    }
+
+    function closeAccountHelp(){
+      accountHelpModal.classList.remove('show');
+      accountHelpModal.setAttribute('aria-hidden', 'true');
+      hideSheetResult(findIdResultEl);
+      hideSheetResult(resetPwResultEl);
+    }
+
+    function isEmailFormat(value=''){
+      return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(value).trim());
+    }
+
     function showNotice(message, type='info'){
       noticeEl.className = `notice show ${type}`;
       noticeEl.textContent = message;
@@ -497,6 +612,67 @@
 
     function normalizeEmail(value=''){
       return String(value).trim().toLowerCase();
+    }
+
+    function getSessionId(){
+      const key = 'sola_session_id';
+      let sessionId = sessionStorage.getItem(key);
+      if (!sessionId) {
+        sessionId = `session_${Date.now()}_${Math.random().toString(36).slice(2, 10)}`;
+        sessionStorage.setItem(key, sessionId);
+      }
+      return sessionId;
+    }
+
+    function getVisitPageName(){
+      const path = window.location.pathname || '';
+      if (path.endsWith('/index.html') || path === '/' || path === '') return 'login';
+      return document.title || 'unknown';
+    }
+
+    async function logVisitHistory({
+      page = getVisitPageName(),
+      detail = 'page_view'
+    } = {}){
+      try {
+        await addDoc(collection(db, 'visit_history'), {
+          sessionId: getSessionId(),
+          page,
+          detail,
+          title: document.title || '',
+          path: window.location.pathname || '',
+          fullUrl: window.location.href || '',
+          referrer: document.referrer || '',
+          userAgent: navigator.userAgent || '',
+          createdAt: serverTimestamp()
+        });
+      } catch (error) {
+        console.warn('visit_history 저장 실패', error);
+      }
+    }
+
+    async function logLoginHistory({
+      email = '',
+      status = 'unknown',
+      uid = '',
+      reason = ''
+    } = {}){
+      try {
+        await addDoc(collection(db, 'login_history'), {
+          sessionId: getSessionId(),
+          email: normalizeEmail(email),
+          uid: uid || '',
+          status,
+          reason,
+          page: getVisitPageName(),
+          path: window.location.pathname || '',
+          fullUrl: window.location.href || '',
+          userAgent: navigator.userAgent || '',
+          createdAt: serverTimestamp()
+        });
+      } catch (error) {
+        console.warn('login_history 저장 실패', error);
+      }
     }
 
     function openModalBase({
@@ -548,9 +724,101 @@
       if(event.target === alertEl) closeModal(false);
     });
     window.addEventListener('keydown', (event) => {
+      if (event.key !== 'Escape') return;
+      if (accountHelpModal.classList.contains('show')) {
+        closeAccountHelp();
+        return;
+      }
       if(!alertEl.classList.contains('show')) return;
-      if(event.key === 'Escape') closeModal(false);
+      closeModal(false);
     });
+
+    openFindIdBtn.addEventListener('click', () => {
+      findIdEmailEl.value = normalizeEmail(emailEl.value);
+      openAccountHelp('findId');
+    });
+
+    openResetPwBtn.addEventListener('click', () => {
+      resetPwEmailEl.value = normalizeEmail(emailEl.value);
+      openAccountHelp('resetPw');
+    });
+
+    tabFindId.addEventListener('click', () => setActiveHelpTab('findId'));
+    tabResetPw.addEventListener('click', () => setActiveHelpTab('resetPw'));
+    accountHelpCloseBtn.addEventListener('click', closeAccountHelp);
+    accountHelpModal.addEventListener('click', (event) => {
+      if (event.target === accountHelpModal) closeAccountHelp();
+    });
+
+    applyFindIdBtn.addEventListener('click', () => {
+      const foundEmail = normalizeEmail(findIdEmailEl.value);
+
+      if (!foundEmail) {
+        setSheetResult(findIdResultEl, '가입한 이메일 주소를 입력해 주세요.', 'error');
+        findIdEmailEl.focus();
+        return;
+      }
+
+      if (!isEmailFormat(foundEmail)) {
+        setSheetResult(findIdResultEl, '이메일 형식으로 입력해 주세요.', 'error');
+        findIdEmailEl.focus();
+        return;
+      }
+
+      emailEl.value = foundEmail;
+      setSheetResult(findIdResultEl, '입력한 이메일을 로그인 이메일 칸에 넣었습니다.\n현재 서비스에서는 이메일 주소로 로그인합니다.', 'success');
+      setTimeout(() => {
+        closeAccountHelp();
+        emailEl.focus();
+      }, 500);
+    });
+
+    sendResetPwBtn.addEventListener('click', async () => {
+      const resetEmail = normalizeEmail(resetPwEmailEl.value);
+
+      if (!resetEmail) {
+        setSheetResult(resetPwResultEl, '비밀번호를 재설정할 이메일을 입력해 주세요.', 'error');
+        resetPwEmailEl.focus();
+        return;
+      }
+
+      if (!isEmailFormat(resetEmail)) {
+        setSheetResult(resetPwResultEl, '이메일 형식이 올바르지 않습니다.', 'error');
+        resetPwEmailEl.focus();
+        return;
+      }
+
+      sendResetPwBtn.disabled = true;
+      sendResetPwBtn.textContent = '발송 중...';
+      startLoading();
+
+      try {
+        await sendPasswordResetEmail(auth, resetEmail);
+        emailEl.value = resetEmail;
+        setSheetResult(resetPwResultEl, '비밀번호 재설정 메일을 발송했습니다.\n메일함과 스팸함을 함께 확인해 주세요.', 'success');
+      } catch (error) {
+        const code = error?.code || '';
+        let message = '재설정 메일 발송 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.';
+
+        if (code === 'auth/invalid-email') {
+          message = '이메일 형식이 올바르지 않습니다.';
+        } else if (code === 'auth/user-not-found') {
+          message = '가입된 계정을 찾지 못했습니다. 입력한 이메일을 다시 확인해 주세요.';
+        } else if (code === 'auth/too-many-requests') {
+          message = '요청이 많아 잠시 제한되었습니다. 잠시 후 다시 시도해 주세요.';
+        } else if (code === 'auth/network-request-failed') {
+          message = '네트워크 연결을 확인해 주세요.';
+        }
+
+        setSheetResult(resetPwResultEl, message, 'error');
+      } finally {
+        finishLoading();
+        sendResetPwBtn.disabled = false;
+        sendResetPwBtn.textContent = '재설정 메일 보내기';
+      }
+    });
+
+    logVisitHistory({ page: 'login', detail: 'page_open' });
 
     signupBtn.addEventListener('click', () => {
       window.location.href = './signup.html';
@@ -605,6 +873,12 @@
         const loginEmail = normalizeEmail(credential.user?.email || '');
 
         if (ALLOWED_EMAILS.length && !ALLOWED_EMAILS.includes(loginEmail)) {
+          await logLoginHistory({
+            email: loginEmail || email,
+            uid: credential.user?.uid || '',
+            status: 'blocked',
+            reason: 'not_allowed_email'
+          });
           await signOut(auth);
           finishLoading();
           showNotice('승인된 입주민 계정만 이용 가능합니다.', 'error');
@@ -612,6 +886,13 @@
           await openModalAlert('승인된 입주민 계정만 이용 가능합니다.', emailEl);
           return;
         }
+
+        await logLoginHistory({
+          email: loginEmail || email,
+          uid: credential.user?.uid || '',
+          status: 'success',
+          reason: 'login_success'
+        });
 
         finishLoading();
         showNotice('로그인되었습니다. 잠시 후 이동합니다.', 'success');
@@ -636,6 +917,12 @@
           message = '네트워크 연결을 확인해 주세요.';
           focusTarget = emailEl;
         }
+
+        await logLoginHistory({
+          email,
+          status: 'fail',
+          reason: code || 'login_error'
+        });
 
         finishLoading();
         showNotice(message, 'error');
@@ -673,6 +960,54 @@
       <div class="app-alert-actions">
         <button class="app-alert-cancel hidden" id="appAlertCancel" type="button">취소</button>
         <button class="app-alert-confirm" id="appAlertConfirm" type="button">확인</button>
+      </div>
+    </div>
+  </div>
+
+
+  <div class="sheet-modal" id="accountHelpModal" aria-hidden="true">
+    <div class="sheet-panel" role="dialog" aria-modal="true" aria-labelledby="accountHelpTitle">
+      <div class="sheet-handle"></div>
+      <div class="sheet-head">
+        <div>
+          <h3 class="sheet-title" id="accountHelpTitle">계정 찾기</h3>
+          <p class="sheet-desc" id="accountHelpDesc">이메일 확인 또는 비밀번호 재설정을 진행할 수 있습니다.</p>
+        </div>
+        <button class="sheet-close" id="accountHelpCloseBtn" type="button" aria-label="닫기">✕</button>
+      </div>
+
+      <div class="sheet-tabs">
+        <button class="sheet-tab active" id="tabFindId" type="button">이메일 찾기</button>
+        <button class="sheet-tab" id="tabResetPw" type="button">비밀번호 찾기</button>
+      </div>
+
+      <div class="sheet-body">
+        <section class="sheet-section active" id="findIdSection">
+          <p class="sheet-note">현재 로그인 아이디는 가입에 사용한 이메일입니다.
+회원가입 시 등록한 이메일 주소로 로그인해 주세요.
+이메일 주소가 기억나지 않으면 운영자 확인 후 안내받을 수 있습니다.</p>
+          <div class="field">
+            <label for="findIdEmail">가입한 이메일 확인</label>
+            <input id="findIdEmail" class="input" type="email" inputmode="email" autocomplete="email" placeholder="가입한 이메일 주소 입력" />
+          </div>
+          <div class="sheet-inline-actions">
+            <button id="applyFindIdBtn" class="btn btn-primary" type="button">이메일을 로그인 아이디로 사용</button>
+          </div>
+          <div id="findIdResult" class="sheet-result info"></div>
+        </section>
+
+        <section class="sheet-section" id="resetPwSection">
+          <p class="sheet-note">가입한 이메일을 입력하면 비밀번호 재설정 메일을 발송합니다.
+메일이 보이지 않으면 스팸함도 함께 확인해 주세요.</p>
+          <div class="field">
+            <label for="resetPwEmail">이메일</label>
+            <input id="resetPwEmail" class="input" type="email" inputmode="email" autocomplete="email" placeholder="example@email.com" />
+          </div>
+          <div class="sheet-inline-actions">
+            <button id="sendResetPwBtn" class="btn btn-primary" type="button">재설정 메일 보내기</button>
+          </div>
+          <div id="resetPwResult" class="sheet-result info"></div>
+        </section>
       </div>
     </div>
   </div>
