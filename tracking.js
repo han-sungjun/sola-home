@@ -1,5 +1,5 @@
 // =========================
-// Firebase Tracking Module
+// Firebase Tracking Module (최종 안정 버전)
 // =========================
 
 import { getFirestore, collection, addDoc, serverTimestamp, query, where, getDocs } 
@@ -30,12 +30,15 @@ function getDeviceInfo() {
 
 
 // =========================
-// 방문 이력 저장
+// 방문 이력 저장 (로그인 사용자만)
 // =========================
 
 export async function saveVisit(pageName) {
   try {
     const { uid, email } = getUserInfo();
+
+    // 로그인 안된 상태면 아예 실행 안함
+    if (!uid) return;
 
     await addDoc(collection(db, "visit_history"), {
       uid,
@@ -108,7 +111,6 @@ setInterval(async () => {
   // 29분 → 경고
   if (diff > WARNING_TIME && !warningShown) {
     warningShown = true;
-
     alert("1분 후 자동 로그아웃 됩니다.");
   }
 
@@ -127,13 +129,13 @@ setInterval(async () => {
 
 
 // =========================
-// 관리자 통계 조회 (옵션)
+// 관리자 통계 조회
 // =========================
 
 export async function getTodayStats() {
   try {
     const today = new Date();
-    today.setHours(0,0,0,0);
+    today.setHours(0, 0, 0, 0);
 
     const visitQuery = query(
       collection(db, "visit_history"),
