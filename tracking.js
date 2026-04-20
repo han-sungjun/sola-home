@@ -52,6 +52,27 @@ function safeText(value, fallback = "-") {
   return String(value);
 }
 
+// =========================
+// saveActivity (에러 해결용)
+// =========================
+
+export async function saveActivity(pageName, detail = "") {
+  try {
+    const { uid } = getUserInfo();
+    if (!uid) return;
+
+    await addDoc(collection(db, "activity_logs"), {
+      uid,
+      page: pageName,
+      detail,
+      createdAt: serverTimestamp()
+    });
+
+  } catch (e) {
+    console.log("activity log error", e);
+  }
+}
+
 
 // =========================
 // 방문 이력 저장
