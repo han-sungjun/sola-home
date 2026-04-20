@@ -1,6 +1,7 @@
 // =========================
 // tracking.js
 // 운영형 입주민 플랫폼용 통합 추적 모듈
+// 로그인 성공 후에만 30분 타이머 시작
 // =========================
 
 import {
@@ -18,7 +19,8 @@ import {
 
 import {
   getAuth,
-  signOut
+  signOut,
+  onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
 const db = getFirestore();
@@ -52,8 +54,9 @@ function safeText(value, fallback = "-") {
   return String(value);
 }
 
+
 // =========================
-// saveActivity (에러 해결용)
+// saveActivity
 // =========================
 
 export async function saveActivity(pageName, detail = "") {
@@ -76,13 +79,11 @@ export async function saveActivity(pageName, detail = "") {
 
 // =========================
 // 방문 이력 저장
-// 로그인 사용자만 저장
 // =========================
 
 export async function saveVisit(pageName, detail = "") {
   try {
     const { uid, email } = getUserInfo();
-
     if (!uid) return;
 
     await addDoc(collection(db, "visit_history"), {
@@ -130,8 +131,6 @@ export async function saveLogin({ email, status, reason }) {
 
 // =========================
 // 로그인 실패 제한
-// 브라우저 기준 잠금
-// 10분 내 5회 실패 시 10분 잠금
 // =========================
 
 const LOGIN_FAIL_KEY = "sola_login_fail_info";
@@ -217,48 +216,99 @@ export function clearLoginFailureLocal() {
 
 
 // =========================
-// 자동 로그아웃 (30분)
+// 자동 로그아웃 (로그인 후에만 시작)
 // =========================
-
-let lastActivityTime = Date.now();
-let warningShown = false;
 
 const AUTO_LOGOUT_TIME = 30 * 60 * 1000;
 const WARNING_TIME = 29 * 60 * 1000;
 
+let lastActivityTime = Date.now();
+let warningShown = false;
+let autoLogoutInterval = null;
+let authWatchInitialized = false;
+
 function resetTimer() {
+  if (!auth.currentUser) return;
   lastActivityTime = Date.now();
+  warningShown = false;
+  syncIdleTimerStateFromAutoLogout();
+}
+
+function bindAutoLogoutActivityEventsOnce() {
+  if (window.__solaAutoLogoutEventsBound) return;
+  window.__solaAutoLogoutEventsBound = true;
+
+  ["click", "mousemove", "keydown", "scroll", "touchstart"].forEach(event => {
+    window.addEventListener(event, resetTimer, { passive: true });
+  });
+}
+
+function stopAutoLogoutTimer() {
+  if (autoLogoutInterval) {
+    clearInterval(autoLogoutInterval);
+    autoLogoutInterval = null;
+  }
   warningShown = false;
 }
 
-["click", "mousemove", "keydown", "scroll", "touchstart"].forEach(event => {
-  window.addEventListener(event, resetTimer, { passive: true });
-});
+function startAutoLogoutTimer() {
+  if (!auth.currentUser) return;
+  if (autoLogoutInterval) return;
 
-setInterval(async () => {
-  const now = Date.now();
-  const diff = now - lastActivityTime;
+  lastActivityTime = Date.now();
+  warningShown = false;
+  syncIdleTimerStateFromAutoLogout();
 
-  if (diff > WARNING_TIME && !warningShown) {
-    warningShown = true;
-    alert("1분 후 자동 로그아웃 됩니다.");
-  }
-
-  if (diff > AUTO_LOGOUT_TIME) {
-    try {
-      await signOut(auth);
-      alert("장시간 미사용으로 자동 로그아웃되었습니다.");
-      location.href = "/index.html";
-    } catch (e) {
-      console.log("auto logout error", e);
+  autoLogoutInterval = setInterval(async () => {
+    if (!auth.currentUser) {
+      stopAutoLogoutTimer();
+      return;
     }
-  }
-}, 5000);
+
+    const now = Date.now();
+    const diff = now - lastActivityTime;
+
+    if (diff > WARNING_TIME && !warningShown) {
+      warningShown = true;
+      alert("1분 후 자동 로그아웃 됩니다.");
+    }
+
+    if (diff > AUTO_LOGOUT_TIME) {
+      try {
+        stopAutoLogoutTimer();
+        await signOut(auth);
+        alert("장시간 미사용으로 자동 로그아웃되었습니다.");
+        location.href = "/index.html";
+      } catch (e) {
+        console.log("auto logout error", e);
+      }
+    }
+
+    syncIdleTimerStateFromAutoLogout();
+  }, 1000);
+}
+
+function ensureAutoLogoutAuthWatcher() {
+  if (authWatchInitialized) return;
+  authWatchInitialized = true;
+
+  bindAutoLogoutActivityEventsOnce();
+
+  onAuthStateChanged(auth, (user) => {
+    if (user) {
+      startAutoLogoutTimer();
+    } else {
+      stopAutoLogoutTimer();
+      idleTimerRemainSeconds = IDLE_TIMER_TOTAL_SECONDS;
+      idleTimerWarningShown = false;
+      updateIdleTimerUi();
+    }
+  });
+}
 
 
 // =========================
 // 관리자 통계 카드 데이터
-// 오늘 기준 집계
 // =========================
 
 export async function getTodayStats() {
@@ -314,7 +364,6 @@ export async function getTodayStats() {
 
 // =========================
 // 방문 경로 분석
-// 페이지별 집계
 // =========================
 
 export async function getVisitPathStats() {
@@ -349,7 +398,6 @@ export async function getVisitPathStats() {
 
 // =========================
 // 사용자별 활동 로그
-// 오늘 기준 사용자 집계
 // =========================
 
 export async function getUserActivityStats() {
@@ -424,7 +472,6 @@ export async function getUserActivityStats() {
 
 // =========================
 // 최근 활동 로그
-// 로그인/방문 합쳐서 최근순 반환
 // =========================
 
 export async function getRecentActivityLogs(maxItems = 20) {
@@ -578,8 +625,10 @@ export async function renderAdminStatsUI({
   }
 }
 
+
 // =========================
 // 공통 자동 로그아웃 타이머 컴포넌트
+// 로그인 성공 후에만 시작
 // =========================
 
 export const IDLE_TIMER_TOTAL_SECONDS = 30 * 60;
@@ -623,49 +672,26 @@ function updateIdleTimerUi() {
   });
 }
 
-function resetIdleTimerState() {
-  idleTimerRemainSeconds = IDLE_TIMER_TOTAL_SECONDS;
-  idleTimerWarningShown = false;
+function syncIdleTimerStateFromAutoLogout() {
+  if (!auth.currentUser) {
+    idleTimerRemainSeconds = IDLE_TIMER_TOTAL_SECONDS;
+    idleTimerWarningShown = false;
+    updateIdleTimerUi();
+    return;
+  }
+
+  const now = Date.now();
+  const diff = now - lastActivityTime;
+  const remainMs = Math.max(0, AUTO_LOGOUT_TIME - diff);
+  idleTimerRemainSeconds = Math.ceil(remainMs / 1000);
   updateIdleTimerUi();
 }
 
-function bindIdleTimerActivityEvents() {
-  const resetEvents = ["click", "mousemove", "keydown", "scroll", "touchstart"];
-
-  resetEvents.forEach((eventName) => {
-    window.addEventListener(
-      eventName,
-      () => {
-        resetIdleTimerState();
-      },
-      { passive: true }
-    );
-  });
-}
-
-async function handleIdleAutoLogout() {
-  alert("장시간 미사용으로 자동 로그아웃되었습니다.");
-  location.href = "/index.html";
-}
-
-function startIdleTimerEngine() {
-  if (idleTimerInterval) return;
-
-  idleTimerInterval = setInterval(async () => {
-    idleTimerRemainSeconds = Math.max(0, idleTimerRemainSeconds - 1);
-    updateIdleTimerUi();
-
-    if (idleTimerRemainSeconds <= 60 && !idleTimerWarningShown) {
-      idleTimerWarningShown = true;
-      alert("1분 후 자동 로그아웃 됩니다.");
-    }
-
-    if (idleTimerRemainSeconds <= 0) {
-      clearInterval(idleTimerInterval);
-      idleTimerInterval = null;
-      await handleIdleAutoLogout();
-    }
-  }, 1000);
+function resetIdleTimerState() {
+  if (!auth.currentUser) return;
+  idleTimerRemainSeconds = IDLE_TIMER_TOTAL_SECONDS;
+  idleTimerWarningShown = false;
+  updateIdleTimerUi();
 }
 
 export function getIdleTimerHtml() {
@@ -781,6 +807,8 @@ export function mountIdleTimer({
   containerSelector,
   insertPosition = "beforeend"
 } = {}) {
+  ensureAutoLogoutAuthWatcher();
+
   const container = document.querySelector(containerSelector);
   if (!container) return;
 
@@ -795,14 +823,13 @@ export function mountIdleTimer({
     container.insertAdjacentHTML(insertPosition, getIdleTimerHtml());
   }
 
-  updateIdleTimerUi();
+  syncIdleTimerStateFromAutoLogout();
 
-  if (!idleTimerInitialized) {
-    idleTimerInitialized = true;
-    bindIdleTimerActivityEvents();
-    startIdleTimerEngine();
+  if (auth.currentUser) {
+    startAutoLogoutTimer();
   }
 }
+
 
 // =========================
 // 관리자 차트 렌더링 (Chart.js 필요)
