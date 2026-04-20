@@ -499,6 +499,7 @@
     import { getAuth, createUserWithEmailAndPassword, updateProfile, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
     import { getFirestore, doc, setDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
     import { getStorage, ref, uploadBytes, getDownloadURL } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js';
+    import { createTracking } from './tracking.js';
 
     const firebaseConfig = {
       apiKey: "AIzaSyDhKr7oMSrLowJ47cqB4pvNXuIIdtW0HPI",
@@ -513,9 +514,11 @@
     const auth = getAuth(app);
     const db = getFirestore(app);
     const storage = getStorage(app);
+    const tracking = createTracking(app);
     document.body.style.opacity = '0';
 
     const qs = (selector) => document.querySelector(selector);
+    tracking.logVisitHistory({ page: 'signup', detail: 'page_open' });
 
     const form = qs('#signupForm');
     const submitBtn = qs('#submitBtn');
@@ -554,28 +557,6 @@
         setTimeout(() => callback(), 40);
       }
     }
-
-    function forceHideLoading(){
-      const pageLoader = document.getElementById('pageLoader');
-      if (pageLoader){
-        pageLoader.classList.remove('show');
-        pageLoader.setAttribute('aria-hidden', 'true');
-      }
-      loadingCount = 0;
-    }
-
-    window.addEventListener('pageshow', () => {
-      forceHideLoading();
-    });
-
-    window.addEventListener('load', () => {
-      forceHideLoading();
-    });
-
-    window.addEventListener('popstate', () => {
-      forceHideLoading();
-    });
-
     const alertEl = qs('#appAlert');
     const alertMsgEl = qs('#appAlertMessage');
     const alertTitleEl = qs('#appAlertTitle');
@@ -683,7 +664,10 @@ function showNotice(message, type='info'){
       event.preventDefault();
       const confirmed = await openModalConfirm('작성 중인 내용이 있다면 저장되지 않습니다. 로그인 페이지로 이동할까요?', qs('#goLoginLink'), '페이지 이동', '이동', '계속 작성');
       if (confirmed) {
-        window.location.href = './index.html';
+        startLoading();
+        setTimeout(() => {
+          window.location.href = './index.html';
+        }, 80);
       }
     });
 

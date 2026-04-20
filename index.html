@@ -437,12 +437,7 @@
       onAuthStateChanged,
       sendPasswordResetEmail
     } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
-    import {
-      getFirestore,
-      collection,
-      addDoc,
-      serverTimestamp
-    } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
+    import { createTracking } from './tracking.js';
 
     const firebaseConfig = {
       apiKey: "AIzaSyDhKr7oMSrLowJ47cqB4pvNXuIIdtW0HPI",
@@ -461,7 +456,7 @@
 
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
-    const db = getFirestore(app);
+    const tracking = createTracking(app);
     document.body.style.opacity = '0';
 
     const qs = (selector) => document.querySelector(selector);
@@ -614,67 +609,6 @@
       return String(value).trim().toLowerCase();
     }
 
-    function getSessionId(){
-      const key = 'sola_session_id';
-      let sessionId = sessionStorage.getItem(key);
-      if (!sessionId) {
-        sessionId = `session_${Date.now()}_${Math.random().toString(36).slice(2, 10)}`;
-        sessionStorage.setItem(key, sessionId);
-      }
-      return sessionId;
-    }
-
-    function getVisitPageName(){
-      const path = window.location.pathname || '';
-      if (path.endsWith('/index.html') || path === '/' || path === '') return 'login';
-      return document.title || 'unknown';
-    }
-
-    async function logVisitHistory({
-      page = getVisitPageName(),
-      detail = 'page_view'
-    } = {}){
-      try {
-        await addDoc(collection(db, 'visit_history'), {
-          sessionId: getSessionId(),
-          page,
-          detail,
-          title: document.title || '',
-          path: window.location.pathname || '',
-          fullUrl: window.location.href || '',
-          referrer: document.referrer || '',
-          userAgent: navigator.userAgent || '',
-          createdAt: serverTimestamp()
-        });
-      } catch (error) {
-        console.warn('visit_history 저장 실패', error);
-      }
-    }
-
-    async function logLoginHistory({
-      email = '',
-      status = 'unknown',
-      uid = '',
-      reason = ''
-    } = {}){
-      try {
-        await addDoc(collection(db, 'login_history'), {
-          sessionId: getSessionId(),
-          email: normalizeEmail(email),
-          uid: uid || '',
-          status,
-          reason,
-          page: getVisitPageName(),
-          path: window.location.pathname || '',
-          fullUrl: window.location.href || '',
-          userAgent: navigator.userAgent || '',
-          createdAt: serverTimestamp()
-        });
-      } catch (error) {
-        console.warn('login_history 저장 실패', error);
-      }
-    }
-
     function openModalBase({
       title='안내',
       message='',
@@ -818,7 +752,7 @@
       }
     });
 
-    logVisitHistory({ page: 'login', detail: 'page_open' });
+    tracking.logVisitHistory({ page: 'login', detail: 'page_open' });
 
     signupBtn.addEventListener('click', () => {
       window.location.href = './signup.html';
@@ -873,7 +807,7 @@
         const loginEmail = normalizeEmail(credential.user?.email || '');
 
         if (ALLOWED_EMAILS.length && !ALLOWED_EMAILS.includes(loginEmail)) {
-          await logLoginHistory({
+          await tracking.logLoginHistory({
             email: loginEmail || email,
             uid: credential.user?.uid || '',
             status: 'blocked',
@@ -887,7 +821,7 @@
           return;
         }
 
-        await logLoginHistory({
+        await tracking.logLoginHistory({
           email: loginEmail || email,
           uid: credential.user?.uid || '',
           status: 'success',
@@ -918,7 +852,7 @@
           focusTarget = emailEl;
         }
 
-        await logLoginHistory({
+        await tracking.logLoginHistory({
           email,
           status: 'fail',
           reason: code || 'login_error'
