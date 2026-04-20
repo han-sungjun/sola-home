@@ -537,6 +537,7 @@ body.gnb-open .admin-bottom-nav{
             <p>운영자 전용 관리 서비스</p>
           </div>
         </div>
+        <div id="adminIdleTimerHost" class="hidden"></div>
       </div>
     </header>
     <div class="hero"><div class="eyebrow">🔐 관리자 전용</div><h2>운영 관리 업무를 한 번에</h2><p>운영자는 혜택과 공지, 회원 관리를 이 화면에서 편리하게 처리할 수 있습니다.</p><div class="stats"><div class="stat"><strong class="stat-max">0%</strong><span>최대 할인</span></div><div class="stat"><strong class="stat-count">0</strong><span>전체 제휴</span></div><div class="stat"><strong class="stat-cat">0</strong><span>카테고리</span></div></div></div>
@@ -1079,8 +1080,18 @@ const setTextAll = (selector, text) => qsa(selector).forEach(el => el.textConten
 
         if(!user){
           setAdminDashboardLocked(true);
+          document.getElementById('adminIdleTimerHost')?.classList.add('hidden');
           hideGlobalLoading(80);
           return;
+        }
+
+        const timerHost = document.getElementById('adminIdleTimerHost');
+        if (timerHost) {
+          timerHost.classList.remove('hidden');
+          mountIdleTimer({
+            containerSelector: "#adminIdleTimerHost",
+            insertPosition: "beforeend"
+          });
         }
 
         setAdminDashboardLocked(false);
@@ -1242,14 +1253,7 @@ const setTextAll = (selector, text) => qsa(selector).forEach(el => el.textConten
 
 
 <script type="module">
-  import { mountIdleTimer } from "./tracking.js";
 
-  window.addEventListener("load", () => {
-    mountIdleTimer({
-      containerSelector: ".admin-topbar-left-titleline",
-      insertPosition: "beforeend"
-    });
-  });
 </script>
 
 
