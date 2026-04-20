@@ -132,6 +132,24 @@
   color:var(--muted);
   line-height:1.5;
 }
+
+.idle-progress-track{
+  width:100%;
+  height:4px;
+  margin-top:4px;
+  border-radius:999px;
+  background:rgba(15,23,42,.10);
+  overflow:hidden;
+}
+.idle-progress-bar{
+  width:100%;
+  height:100%;
+  border-radius:999px;
+  background:currentColor;
+  transform-origin:left center;
+  transition:width .25s linear, background-color .2s ease;
+}
+
 @media (max-width:420px){
   .bottom-nav{
     padding-left:10px;
@@ -601,6 +619,65 @@ body.gnb-open .bottom-nav{
   100%{left:100%;width:30%}
 }
 
+
+.idle-timer-chip{
+  min-width:92px;
+  padding:8px 10px;
+  border-radius:18px;
+  background:rgba(255,255,255,.92);
+  border:1px solid rgba(255,255,255,.7);
+  box-shadow:var(--shadow);
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:2px;
+  transition:background-color .2s ease, color .2s ease, border-color .2s ease, transform .2s ease;
+}
+.idle-timer-label{
+  font-size:10px;
+  line-height:1;
+  color:var(--muted);
+  font-weight:700;
+  white-space:nowrap;
+}
+.idle-timer-chip strong{
+  font-size:16px;
+  line-height:1.1;
+  letter-spacing:-.03em;
+}
+.idle-timer-chip.idle-safe{
+  background:#ecfdf5;
+  border-color:#bbf7d0;
+  color:#166534;
+}
+.idle-timer-chip.idle-safe .idle-timer-label{ color:#15803d; }
+.idle-timer-chip.idle-warn{
+  background:#fffbeb;
+  border-color:#fde68a;
+  color:#b45309;
+}
+.idle-timer-chip.idle-warn .idle-timer-label{ color:#b45309; }
+.idle-timer-chip.idle-danger{
+  background:#fef2f2;
+  border-color:#fecaca;
+  color:#b91c1c;
+  animation:idlePulse 1.2s ease-in-out infinite;
+}
+.idle-timer-chip.idle-danger .idle-timer-label{ color:#b91c1c; }
+@keyframes idlePulse{
+  0%,100%{ transform:scale(1); }
+  50%{ transform:scale(1.03); }
+}
+@media (max-width:420px){
+  .idle-timer-chip{
+    min-width:84px;
+    padding:7px 8px;
+  }
+  .idle-timer-chip strong{ font-size:15px; }
+  .idle-timer-label{ font-size:9px; }
+}
+
 </style>
 </head>
 <body>
@@ -625,6 +702,7 @@ body.gnb-open .bottom-nav{
             </div>
           </div>
           <button class="icon-btn logout-btn" id="logoutBtn">로그아웃</button>
+          <div class="idle-timer-chip idle-safe" id="idleTimerChip" aria-live="polite"><span class="idle-timer-label">자동 로그아웃</span><strong id="idleTimerText">30:00</strong><div class="idle-progress-track" aria-hidden="true"><div class="idle-progress-bar" id="idleProgressBar"></div></div></div>
           <button class="icon-btn" id="installTopBtn">📲</button>
           <div class="gnb-wrap">
             <button class="icon-btn" id="gnbToggleBtn" title="메뉴">☰</button>
@@ -1709,6 +1787,62 @@ async function refreshPushStatus(){
       await saveActivity('notice_open', { page: 'notices' });
     }
   }, true);
+</script>
+
+
+<script>
+(function(){
+  const TOTAL_SECONDS = 30 * 60;
+  let remainSeconds = TOTAL_SECONDS;
+  let warningShown = false;
+
+  const chipEl = document.getElementById('idleTimerChip');
+  const textEl = document.getElementById('idleTimerText');
+  const progressEl = document.getElementById('idleProgressBar');
+  if(!chipEl || !textEl || !progressEl) return;
+
+  function formatTime(sec){
+    const m = String(Math.floor(sec / 60)).padStart(2, '0');
+    const s = String(sec % 60).padStart(2, '0');
+    return `${m}:${s}`;
+  }
+
+  function updateTimerUi(){
+    textEl.textContent = formatTime(remainSeconds);
+    const percent = Math.max(0, Math.min(100, (remainSeconds / TOTAL_SECONDS) * 100));
+    progressEl.style.width = `${percent}%`;
+    chipEl.classList.remove('idle-safe', 'idle-warn', 'idle-danger');
+
+    if(remainSeconds > 20 * 60){
+      chipEl.classList.add('idle-safe');
+    }else if(remainSeconds > 10 * 60){
+      chipEl.classList.add('idle-warn');
+    }else{
+      chipEl.classList.add('idle-danger');
+    }
+  }
+
+  function resetIdleTimer(){
+    remainSeconds = TOTAL_SECONDS;
+    warningShown = false;
+    updateTimerUi();
+  }
+
+  ['click','mousemove','keydown','scroll','touchstart'].forEach((eventName) => {
+    window.addEventListener(eventName, resetIdleTimer, { passive:true });
+  });
+
+  updateTimerUi();
+
+  setInterval(() => {
+    remainSeconds = Math.max(0, remainSeconds - 1);
+    updateTimerUi();
+
+    if(remainSeconds <= 60 && !warningShown){
+      warningShown = true;
+    }
+  }, 1000);
+})();
 </script>
 
 </body></html>
