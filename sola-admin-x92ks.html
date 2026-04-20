@@ -668,36 +668,6 @@ body.gnb-open .admin-bottom-nav{
     .app-alert-confirm{min-width:92px;border:none;border-radius:16px;padding:12px 16px;background:var(--primary);color:#fff;font-weight:800;cursor:pointer}
 
 
-.idle-timer-chip{
-  min-width:96px;
-  padding:8px 10px;
-  border-radius:18px;
-  background:rgba(255,255,255,.92);
-  border:1px solid rgba(255,255,255,.7);
-  box-shadow:var(--shadow);
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  justify-content:center;
-  gap:2px;
-  transition:background-color .2s ease, color .2s ease, border-color .2s ease, transform .2s ease;
-}
-.idle-timer-label{
-  font-size:10px;
-  line-height:1;
-  color:var(--muted);
-  font-weight:700;
-  white-space:nowrap;
-}
-.idle-timer-chip strong{
-  font-size:16px;
-  line-height:1.1;
-  letter-spacing:-.03em;
-}
-
-
-
-
 .admin-topbar-left-titleline{
   display:flex;
   align-items:flex-start;
@@ -734,43 +704,6 @@ body.gnb-open .admin-bottom-nav{
   color:#fff;
   background:linear-gradient(135deg,#6366f1,#8b5cf6);
   box-shadow:0 8px 18px rgba(99,102,241,.35);
-}
-
-
-.idle-timer-chip{
-  min-width:96px;
-  padding:8px 10px;
-  border-radius:18px;
-  background:rgba(255,255,255,.92);
-  border:1px solid rgba(255,255,255,.7);
-  box-shadow:var(--shadow);
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  justify-content:center;
-  gap:2px;
-  transition:background-color .2s ease, color .2s ease, border-color .2s ease, transform .2s ease;
-}
-.idle-timer-label{
-  font-size:10px;
-  line-height:1;
-  color:var(--muted);
-  font-weight:700;
-  white-space:nowrap;
-}
-.idle-timer-chip strong{
-  font-size:16px;
-  line-height:1.1;
-  letter-spacing:-.03em;
-}
-.idle-timer-chip.is-warning{
-  background:#fff7ed;
-  border-color:#fdba74;
-  transform:translateY(-1px);
-}
-.idle-timer-chip.is-warning .idle-timer-label,
-.idle-timer-chip.is-warning strong{
-  color:#c2410c;
 }
 
 </style>
@@ -904,6 +837,7 @@ body.gnb-open .admin-bottom-nav{
     import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
     import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
     import { getFirestore, collection, addDoc, updateDoc, deleteDoc, doc, getDocs, onSnapshot, serverTimestamp, writeBatch } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
+    import { mountIdleTimer } from "./tracking.js";
     const firebaseConfig = { apiKey:"AIzaSyDhKr7oMSrLowJ47cqB4pvNXuIIdtW0HPI", authDomain:"sola-home-4979a.firebaseapp.com", projectId:"sola-home-4979a", storageBucket:"sola-home-4979a.firebasestorage.app", messagingSenderId:"337132471819", appId:"1:337132471819:web:848cd357fecda459a2e90e" };
     const BENEFITS_COLLECTION='benefits', NOTICES_COLLECTION='notices', PUSH_JOBS_COLLECTION='push_jobs';
     const DEFAULT_BENEFITS=[{name:'엘스킨케어',category:'피부관리',discountValue:50,discountText:'50%',condition:'첫방문 50% / 입주민 정액권 최대 30%',address:'경기 파주시 경의로 1242 209호, 210호',phone:'0507-1433-5760',url:'',visible:true,recommended:true,service:false},{name:'미스터피자 일산탄현점',category:'음식',discountValue:30,discountText:'30%',condition:'포장 30% / 매장식사 20% + 샐러드 증정',address:'경기 고양시 일산서구 탄현로 136 상가동 2층 204호',phone:'031-911-9296',url:'',visible:true,recommended:true,service:false}];
@@ -1004,71 +938,6 @@ body.gnb-open .admin-bottom-nav{
       // 관리자 페이지는 실제 데이터 처리 시에만 로더를 사용합니다.
     }
 
-
-
-
-    let adminIdleTimerInterval = null;
-
-    function formatIdleTimer(seconds){
-      const safe = Math.max(0, Number(seconds || 0));
-      const m = String(Math.floor(safe / 60)).padStart(2, '0');
-      const s = String(safe % 60).padStart(2, '0');
-      return `${m}:${s}`;
-    }
-
-    function mountIdleTimer({
-      containerSelector = '#adminIdleTimerHost',
-      insertPosition = 'beforeend',
-      durationSeconds = 30 * 60
-    } = {}){
-      const host = document.querySelector(containerSelector);
-      if(!host) return null;
-
-      if(adminIdleTimerInterval){
-        clearInterval(adminIdleTimerInterval);
-        adminIdleTimerInterval = null;
-      }
-
-      host.innerHTML = '';
-      const chip = document.createElement('div');
-      chip.className = 'idle-timer-chip';
-      chip.innerHTML = `
-        <span class="idle-timer-label">자동 로그아웃</span>
-        <strong>${formatIdleTimer(durationSeconds)}</strong>
-      `;
-      host.insertAdjacentElement(insertPosition, chip);
-
-      let remaining = durationSeconds;
-      const valueEl = chip.querySelector('strong');
-
-      const resetTimer = () => {
-        remaining = durationSeconds;
-        valueEl.textContent = formatIdleTimer(remaining);
-        chip.classList.remove('is-warning');
-      };
-
-      const tick = () => {
-        remaining = Math.max(0, remaining - 1);
-        valueEl.textContent = formatIdleTimer(remaining);
-        chip.classList.toggle('is-warning', remaining <= 300);
-
-        if(remaining <= 0){
-          clearInterval(adminIdleTimerInterval);
-          adminIdleTimerInterval = null;
-          if (state.isAdmin && auth) {
-            signOut(auth).catch(err => console.error('auto logout failed:', err));
-          }
-        }
-      };
-
-      adminIdleTimerInterval = setInterval(tick, 1000);
-
-      ['click','keydown','mousemove','touchstart','scroll'].forEach(evt => {
-        window.addEventListener(evt, resetTimer, { passive: true });
-      });
-
-      return { resetTimer, destroy(){ clearInterval(adminIdleTimerInterval); adminIdleTimerInterval = null; host.innerHTML=''; } };
-    }
 
     function markInitialDataLoaded(key){
       if(!(key in initialLoadState)) return;
@@ -1411,7 +1280,11 @@ const setTextAll = (selector, text) => qsa(selector).forEach(el => el.textConten
 
         if(!user){
           setAdminDashboardLocked(true);
-          document.getElementById('adminIdleTimerHost')?.classList.add('hidden');
+          const idleHost = document.getElementById('adminIdleTimerHost');
+          if (idleHost) {
+            idleHost.innerHTML = '';
+            idleHost.classList.add('hidden');
+          }
           hideGlobalLoading(80);
           return;
         }
@@ -1419,6 +1292,7 @@ const setTextAll = (selector, text) => qsa(selector).forEach(el => el.textConten
         const timerHost = document.getElementById('adminIdleTimerHost');
         if (timerHost) {
           timerHost.classList.remove('hidden');
+          timerHost.innerHTML = '';
           mountIdleTimer({
             containerSelector: "#adminIdleTimerHost",
             insertPosition: "beforeend"
