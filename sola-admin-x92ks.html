@@ -968,6 +968,26 @@ body.gnb-open .admin-bottom-nav{
     }
 
 
+
+    function safeMountIdleTimer(options={}){
+      const host = document.querySelector(options.containerSelector || '#adminIdleTimerHost');
+      if (typeof window.mountIdleTimer === 'function') {
+        try{
+          window.mountIdleTimer(options);
+          return true;
+        }catch(error){
+          console.error('idle timer mount failed:', error);
+        }
+      } else {
+        console.warn('mountIdleTimer is not defined. Idle timer UI is skipped.');
+      }
+      if(host){
+        host.innerHTML = '';
+        host.classList.add('hidden');
+      }
+      return false;
+    }
+
     function markInitialDataLoaded(key){
       if(!(key in initialLoadState)) return;
       initialLoadState[key] = true;
@@ -1317,10 +1337,13 @@ const setTextAll = (selector, text) => qsa(selector).forEach(el => el.textConten
         const timerHost = document.getElementById('adminIdleTimerHost');
         if (timerHost) {
           timerHost.classList.remove('hidden');
-          mountIdleTimer({
+          const mounted = safeMountIdleTimer({
             containerSelector: "#adminIdleTimerHost",
             insertPosition: "beforeend"
           });
+          if (!mounted) {
+            timerHost.classList.add('hidden');
+          }
         }
 
         setAdminDashboardLocked(false);
