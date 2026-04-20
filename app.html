@@ -388,19 +388,29 @@ body.gnb-open .bottom-nav{
 
 
 
-.gnb-settings-card{
+
+.gnb-settings-wrap{display:grid;gap:16px;}
+.gnb-settings-section{
   background:linear-gradient(180deg,#f8fafc 0%,#ffffff 100%);
   border:1px solid rgba(15,23,42,.06);
   border-radius:24px;
-  padding:18px;
+  padding:16px;
   box-shadow:0 14px 30px rgba(15,23,42,.06);
 }
-.gnb-settings-head{
+.gnb-settings-section-header{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:12px;
+  margin-bottom:14px;
+}
+.gnb-settings-section-title{margin:0;font-size:17px;letter-spacing:-.03em;}
+.gnb-settings-section-desc{margin:6px 0 0;font-size:12px;line-height:1.6;color:var(--muted);}
+.gnb-account-card{
   display:flex;
   align-items:center;
   justify-content:space-between;
-  gap:14px;
-  margin-bottom:16px;
+  gap:12px;
 }
 .gnb-account{
   display:flex;
@@ -409,37 +419,20 @@ body.gnb-open .bottom-nav{
   min-width:0;
 }
 .gnb-account-avatar{
-  width:48px;
-  height:48px;
+  width:52px;
+  height:52px;
   border-radius:18px;
   display:grid;
   place-items:center;
   background:#eef2ff;
   font-size:22px;
   flex:0 0 auto;
+  box-shadow:inset 0 0 0 1px rgba(15,23,42,.05);
 }
-.gnb-account-meta{min-width:0;}
-.gnb-account-label{
-  display:block;
-  font-size:12px;
-  color:var(--muted);
-  margin-bottom:4px;
-}
-.gnb-account-name{
-  display:block;
-  font-size:16px;
-  font-weight:800;
-  line-height:1.25;
-  white-space:nowrap;
-  overflow:hidden;
-  text-overflow:ellipsis;
-}
-.gnb-account-sub{
-  display:block;
-  margin-top:4px;
-  font-size:12px;
-  color:var(--muted);
-}
+.gnb-account-meta{min-width:0;flex:1;}
+.gnb-account-label{display:block;font-size:12px;color:var(--muted);margin-bottom:4px;}
+.gnb-account-name{display:block;font-size:17px;font-weight:800;line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.gnb-account-sub{display:block;margin-top:4px;font-size:12px;color:var(--muted);}
 .gnb-status-pill{
   display:inline-flex;
   align-items:center;
@@ -453,19 +446,19 @@ body.gnb-open .bottom-nav{
   border:1px solid #bfdbfe;
   white-space:nowrap;
 }
-.gnb-settings-list{display:grid;gap:12px;}
-.gnb-setting-item{
+.gnb-info-grid,.gnb-action-grid{display:grid;gap:12px;}
+.gnb-info-item{
   display:flex;
   align-items:flex-start;
   gap:12px;
-  padding:14px 14px;
+  padding:14px;
   border-radius:18px;
   background:#f8fafc;
   border:1px solid rgba(15,23,42,.05);
 }
-.gnb-setting-icon{
-  width:38px;
-  height:38px;
+.gnb-info-icon{
+  width:40px;
+  height:40px;
   border-radius:14px;
   display:grid;
   place-items:center;
@@ -473,15 +466,14 @@ body.gnb-open .bottom-nav{
   box-shadow:inset 0 0 0 1px rgba(15,23,42,.05);
   flex:0 0 auto;
 }
-.gnb-setting-copy{min-width:0;flex:1;}
-.gnb-setting-copy strong{display:block;font-size:14px;line-height:1.3;}
-.gnb-setting-copy p{margin:5px 0 0;font-size:12px;color:var(--muted);line-height:1.6;}
-.gnb-settings-actions{display:grid;gap:10px;margin-top:16px;}
-.gnb-action-btn{
+.gnb-info-copy{min-width:0;flex:1;}
+.gnb-info-copy strong{display:block;font-size:14px;line-height:1.3;}
+.gnb-info-copy p{margin:5px 0 0;font-size:12px;color:var(--muted);line-height:1.6;}
+.gnb-action-btn,.account-edit-trigger{
   width:100%;
   border:none;
   border-radius:18px;
-  padding:14px 16px;
+  padding:15px 16px;
   display:flex;
   align-items:center;
   justify-content:space-between;
@@ -489,26 +481,62 @@ body.gnb-open .bottom-nav{
   font-size:14px;
   font-weight:800;
   cursor:pointer;
-  transition:transform .16s ease, opacity .16s ease, background-color .16s ease;
+  transition:transform .16s ease, opacity .16s ease, background-color .16s ease, box-shadow .16s ease;
 }
-.gnb-action-btn:hover{transform:translateY(-1px);}
-.gnb-action-btn:active{transform:scale(.985);}
-.gnb-action-btn.primary{background:#0f172a;color:#fff;}
+.gnb-action-btn:hover,.account-edit-trigger:hover{transform:translateY(-1px);}
+.gnb-action-btn:active,.account-edit-trigger:active{transform:scale(.985);}
+.gnb-action-btn.primary{background:#0f172a;color:#fff;box-shadow:0 12px 26px rgba(15,23,42,.18);}
 .gnb-action-btn.soft{background:#eef2ff;color:#334155;border:1px solid #dbeafe;}
 .gnb-action-btn.outline{background:#fff;color:#111827;border:1px solid var(--line);}
 .gnb-action-btn.danger{background:#fff1f2;color:#b91c1c;border:1px solid #fecdd3;}
-.gnb-action-btn .desc{font-size:12px;font-weight:700;opacity:.78;}
+.gnb-action-btn .desc,.account-edit-trigger .desc{font-size:12px;font-weight:700;opacity:.78;}
 .gnb-action-btn.hidden{display:none;}
-.gnb-settings-note{
+.account-edit-trigger{
+  background:linear-gradient(180deg,#ffffff 0%,#f8fafc 100%);
+  color:#111827;
+  border:1px solid rgba(15,23,42,.10);
+  box-shadow:0 8px 20px rgba(15,23,42,.05);
+}
+.gnb-danger-note{
   margin-top:12px;
   font-size:11px;
   color:var(--muted);
   line-height:1.6;
 }
-@media (max-width:420px){
-  .gnb-settings-head{align-items:flex-start;flex-direction:column;}
-}
 
+#accountEditModal{
+  width:min(460px,calc(100% - 24px));
+  max-width:460px;
+  border:none;
+  border-radius:30px;
+  padding:0;
+  overflow:hidden;
+  background:rgba(255,255,255,.98);
+  box-shadow:0 32px 70px rgba(15,23,42,.24);
+}
+#accountEditModal::backdrop{
+  background:rgba(15,23,42,.46);
+  backdrop-filter:blur(6px);
+}
+#accountEditModal .modal-head{padding:18px 20px 10px;align-items:center;}
+#accountEditModal .modal-body{padding:0 20px 22px;}
+.account-edit-help{margin:0 0 16px;color:#475569;font-size:14px;line-height:1.7;}
+.account-edit-form{display:grid;gap:12px;}
+.account-edit-field{display:grid;gap:8px;}
+.account-edit-field label{font-size:13px;font-weight:800;color:#334155;}
+.account-edit-field input{width:100%;height:50px;border-radius:16px;border:1px solid #dbe3ef;background:#f8fafc;padding:0 16px;outline:none;font-size:15px;color:#0f172a;transition:border-color .16s ease, box-shadow .16s ease, background-color .16s ease;}
+.account-edit-field input::placeholder{color:#94a3b8;}
+.account-edit-field input:focus{background:#fff;border-color:#93c5fd;box-shadow:0 0 0 4px rgba(59,130,246,.12);}
+.account-edit-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:6px;}
+#accountEditModal .btn{min-height:52px;border-radius:18px;}
+@media (max-width:420px){
+  .gnb-settings-section-header,.gnb-account-card{flex-direction:column;align-items:flex-start;}
+  .gnb-status-pill{align-self:flex-start;}
+  #accountEditModal{width:calc(100% - 20px);border-radius:26px;}
+  #accountEditModal .modal-head{padding:16px 16px 8px;}
+  #accountEditModal .modal-body{padding:0 16px 18px;}
+  .account-edit-actions{grid-template-columns:1fr;}
+}
 .notice-list{
   display:grid;
   gap:12px;
@@ -1805,59 +1833,98 @@ async function refreshPushStatus(){
 
       <section class="gnb-section">
         <h3 class="gnb-section-title">설정</h3>
-        <div class="gnb-settings-card">
-          <div class="gnb-settings-head">
-            <div class="gnb-account">
-              <div class="gnb-account-avatar">👤</div>
-              <div class="gnb-account-meta">
-                <span class="gnb-account-label">계정</span>
-                <strong class="gnb-account-name" id="gnbAccountName">로그인 확인 중</strong>
-                <span class="gnb-account-sub" id="gnbAccountUnit">입주민 계정</span>
+        <div class="gnb-settings-wrap">
+          <div class="gnb-settings-section">
+            <div class="gnb-settings-section-header">
+              <div>
+                <h4 class="gnb-settings-section-title">계정 요약</h4>
+                <p class="gnb-settings-section-desc">현재 로그인한 계정과 기기 상태를 한눈에 확인할 수 있도록 정리했습니다.</p>
               </div>
+              <div class="gnb-status-pill" id="gnbPushStatusPill">🔔 상태 확인 중</div>
             </div>
-            <div class="gnb-status-pill" id="gnbPushStatusPill">🔔 상태 확인 중</div>
-          </div>
-
-          <div class="gnb-settings-list">
-            <div class="gnb-setting-item">
-              <div class="gnb-setting-icon">🔔</div>
-              <div class="gnb-setting-copy">
-                <strong>푸시 알림</strong>
-                <p id="gnbPushStatusText">현재 브라우저의 푸시 수신 상태를 확인하고 있습니다.</p>
-              </div>
-            </div>
-            <div class="gnb-setting-item">
-              <div class="gnb-setting-icon">🛡️</div>
-              <div class="gnb-setting-copy">
-                <strong>계정 관리</strong>
-                <p>자주 쓰지 않는 기능은 메뉴 안에 정리해 두어 실수 클릭을 줄였습니다.</p>
+            <div class="gnb-account-card">
+              <div class="gnb-account">
+                <div class="gnb-account-avatar">👤</div>
+                <div class="gnb-account-meta">
+                  <span class="gnb-account-label">계정</span>
+                  <strong class="gnb-account-name" id="gnbAccountName">로그인 확인 중</strong>
+                  <span class="gnb-account-sub" id="gnbAccountUnit">입주민 계정</span>
+                </div>
               </div>
             </div>
           </div>
 
-          <div class="gnb-settings-actions">
-            <button class="gnb-action-btn primary" id="gnbEnablePushBtn" type="button">
-              <span>알림 받기</span>
-              <span class="desc">이 기기 등록</span>
-            </button>
-            <button class="gnb-action-btn soft hidden" id="gnbDisablePushBtn" type="button">
-              <span>알림 해제</span>
-              <span class="desc">이 기기 해제</span>
-            </button>
-            <button class="account-edit-trigger" id="openAccountEditBtn" type="button">
-              <span>계정 정보 수정</span>
-              <span class="desc">닉네임 · 동 · 호</span>
-            </button>
-            <button class="gnb-action-btn outline" id="logoutBtn" type="button">
-              <span>로그아웃</span>
-              <span class="desc">현재 계정 종료</span>
-            </button>
-            <button class="gnb-action-btn danger" id="withdrawBtn" type="button">
-              <span>회원 탈퇴</span>
-              <span class="desc">복구 불가</span>
-            </button>
+          <div class="gnb-settings-section">
+            <div class="gnb-settings-section-header">
+              <div>
+                <h4 class="gnb-settings-section-title">알림</h4>
+                <p class="gnb-settings-section-desc">이 브라우저에서 공지와 주요 안내를 바로 받을 수 있도록 기기 기준으로 관리합니다.</p>
+              </div>
+            </div>
+            <div class="gnb-info-grid">
+              <div class="gnb-info-item">
+                <div class="gnb-info-icon">🔔</div>
+                <div class="gnb-info-copy">
+                  <strong>푸시 알림 상태</strong>
+                  <p id="gnbPushStatusText">현재 브라우저의 푸시 수신 상태를 확인하고 있습니다.</p>
+                </div>
+              </div>
+            </div>
+            <div class="gnb-action-grid" style="margin-top:12px;">
+              <button class="gnb-action-btn primary" id="gnbEnablePushBtn" type="button">
+                <span>알림 받기</span>
+                <span class="desc">이 기기 등록</span>
+              </button>
+              <button class="gnb-action-btn soft hidden" id="gnbDisablePushBtn" type="button">
+                <span>알림 해제</span>
+                <span class="desc">이 기기 해제</span>
+              </button>
+            </div>
           </div>
-          <div class="gnb-settings-note">회원 탈퇴 시 계정 정보, 즐겨찾기, 현재 기기의 푸시 설정이 함께 삭제됩니다.</div>
+
+          <div class="gnb-settings-section">
+            <div class="gnb-settings-section-header">
+              <div>
+                <h4 class="gnb-settings-section-title">계정 관리</h4>
+                <p class="gnb-settings-section-desc">자주 쓰지 않는 계정 관련 기능은 별도 구획으로 분리해 실수 클릭을 줄였습니다.</p>
+              </div>
+            </div>
+            <div class="gnb-info-grid">
+              <div class="gnb-info-item">
+                <div class="gnb-info-icon">🛡️</div>
+                <div class="gnb-info-copy">
+                  <strong>표시 정보 관리</strong>
+                  <p>운영진이 확인하기 쉬운 닉네임과 동 · 호 정보를 수정할 수 있습니다.</p>
+                </div>
+              </div>
+            </div>
+            <div class="gnb-action-grid" style="margin-top:12px;">
+              <button class="account-edit-trigger" id="openAccountEditBtn" type="button">
+                <span>계정 정보 수정</span>
+                <span class="desc">닉네임 · 동 · 호</span>
+              </button>
+              <button class="gnb-action-btn outline" id="logoutBtn" type="button">
+                <span>로그아웃</span>
+                <span class="desc">현재 계정 종료</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="gnb-settings-section">
+            <div class="gnb-settings-section-header">
+              <div>
+                <h4 class="gnb-settings-section-title">회원 탈퇴 안내</h4>
+                <p class="gnb-settings-section-desc">회원 탈퇴 시 계정 정보와 일부 설정이 삭제되며 복구가 어렵습니다. 진행 전 내용을 다시 확인해 주세요.</p>
+              </div>
+            </div>
+            <div class="gnb-action-grid">
+              <button class="gnb-action-btn danger" id="withdrawBtn" type="button">
+                <span>회원 탈퇴</span>
+                <span class="desc">복구 불가</span>
+              </button>
+            </div>
+            <div class="gnb-danger-note">회원 탈퇴 시 계정 정보, 즐겨찾기, 현재 기기의 푸시 설정이 함께 삭제됩니다.</div>
+          </div>
         </div>
       </section>
     </div>
