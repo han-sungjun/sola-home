@@ -499,7 +499,6 @@
     import { getAuth, createUserWithEmailAndPassword, updateProfile, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
     import { getFirestore, doc, setDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
     import { getStorage, ref, uploadBytes, getDownloadURL } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js';
-    import { createTracking } from './tracking.js';
 
     const firebaseConfig = {
       apiKey: "AIzaSyDhKr7oMSrLowJ47cqB4pvNXuIIdtW0HPI",
@@ -514,11 +513,9 @@
     const auth = getAuth(app);
     const db = getFirestore(app);
     const storage = getStorage(app);
-    const tracking = createTracking(app);
     document.body.style.opacity = '0';
 
     const qs = (selector) => document.querySelector(selector);
-    tracking.logVisitHistory({ page: 'signup', detail: 'page_open' });
 
     const form = qs('#signupForm');
     const submitBtn = qs('#submitBtn');
@@ -877,6 +874,8 @@ function showNotice(message, type='info'){
     </div>
   </div>
 
+
+<script type="module">import { saveVisit } from "./tracking.js"; saveVisit("signup_page");</script>
 </body>
 
 </html>

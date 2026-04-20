@@ -688,7 +688,6 @@ body.gnb-open .bottom-nav{
     import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
     import { getFirestore, collection, onSnapshot, doc, getDoc, setDoc, updateDoc, increment, serverTimestamp, addDoc, query, orderBy, limit, deleteDoc } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
     import { getMessaging, getToken, onMessage, isSupported } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-messaging.js';
-    import { createTracking } from './tracking.js';
     const firebaseConfig = { apiKey:"AIzaSyDhKr7oMSrLowJ47cqB4pvNXuIIdtW0HPI", authDomain:"sola-home-4979a.firebaseapp.com", projectId:"sola-home-4979a", storageBucket:"sola-home-4979a.firebasestorage.app", messagingSenderId:"337132471819", appId:"1:337132471819:web:848cd357fecda459a2e90e" };
     window.VAPID_PUBLIC_KEY = window.VAPID_PUBLIC_KEY || 'BJONnfKeKFN8SCWWlo_quJ9pjahri96uw9WZJq2774hBZ8um6edcRb-NP7uRwjmcwHNTTGMuPJX-MUdeThgu5Kw';
     const LOGIN_PAGE_URL = './index.html';
@@ -696,7 +695,6 @@ body.gnb-open .bottom-nav{
     const app=initializeApp(firebaseConfig);
     const auth=getAuth(app);
     const db=getFirestore(app);
-    const tracking = createTracking(app);
     let messaging = null;
 
     async function initPushSystem(){
@@ -1082,7 +1080,6 @@ async function refreshPushStatus(){
           state.currentUserProfile = await loadCurrentUserProfile(user);
           updateUserChip();
           await refreshPushStatus();
-          tracking.logVisitHistory({ page: 'app_main', detail: 'page_open' });
           resolve(true);
         }, () => {
           redirectToLogin();
@@ -1679,4 +1676,6 @@ async function refreshPushStatus(){
     </div>
   </div>
 
+
+<script type="module">import { saveVisit } from "./tracking.js"; saveVisit("app_main");</script>
 </body></html>
