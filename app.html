@@ -387,6 +387,128 @@ body.gnb-open .bottom-nav{
 }
 
 
+
+.gnb-settings-card{
+  background:linear-gradient(180deg,#f8fafc 0%,#ffffff 100%);
+  border:1px solid rgba(15,23,42,.06);
+  border-radius:24px;
+  padding:18px;
+  box-shadow:0 14px 30px rgba(15,23,42,.06);
+}
+.gnb-settings-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:14px;
+  margin-bottom:16px;
+}
+.gnb-account{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  min-width:0;
+}
+.gnb-account-avatar{
+  width:48px;
+  height:48px;
+  border-radius:18px;
+  display:grid;
+  place-items:center;
+  background:#eef2ff;
+  font-size:22px;
+  flex:0 0 auto;
+}
+.gnb-account-meta{min-width:0;}
+.gnb-account-label{
+  display:block;
+  font-size:12px;
+  color:var(--muted);
+  margin-bottom:4px;
+}
+.gnb-account-name{
+  display:block;
+  font-size:16px;
+  font-weight:800;
+  line-height:1.25;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.gnb-account-sub{
+  display:block;
+  margin-top:4px;
+  font-size:12px;
+  color:var(--muted);
+}
+.gnb-status-pill{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  padding:8px 12px;
+  border-radius:999px;
+  background:#eff6ff;
+  color:#1d4ed8;
+  font-size:12px;
+  font-weight:800;
+  border:1px solid #bfdbfe;
+  white-space:nowrap;
+}
+.gnb-settings-list{display:grid;gap:12px;}
+.gnb-setting-item{
+  display:flex;
+  align-items:flex-start;
+  gap:12px;
+  padding:14px 14px;
+  border-radius:18px;
+  background:#f8fafc;
+  border:1px solid rgba(15,23,42,.05);
+}
+.gnb-setting-icon{
+  width:38px;
+  height:38px;
+  border-radius:14px;
+  display:grid;
+  place-items:center;
+  background:#fff;
+  box-shadow:inset 0 0 0 1px rgba(15,23,42,.05);
+  flex:0 0 auto;
+}
+.gnb-setting-copy{min-width:0;flex:1;}
+.gnb-setting-copy strong{display:block;font-size:14px;line-height:1.3;}
+.gnb-setting-copy p{margin:5px 0 0;font-size:12px;color:var(--muted);line-height:1.6;}
+.gnb-settings-actions{display:grid;gap:10px;margin-top:16px;}
+.gnb-action-btn{
+  width:100%;
+  border:none;
+  border-radius:18px;
+  padding:14px 16px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  font-size:14px;
+  font-weight:800;
+  cursor:pointer;
+  transition:transform .16s ease, opacity .16s ease, background-color .16s ease;
+}
+.gnb-action-btn:hover{transform:translateY(-1px);}
+.gnb-action-btn:active{transform:scale(.985);}
+.gnb-action-btn.primary{background:#0f172a;color:#fff;}
+.gnb-action-btn.soft{background:#eef2ff;color:#334155;border:1px solid #dbeafe;}
+.gnb-action-btn.outline{background:#fff;color:#111827;border:1px solid var(--line);}
+.gnb-action-btn.danger{background:#fff1f2;color:#b91c1c;border:1px solid #fecdd3;}
+.gnb-action-btn .desc{font-size:12px;font-weight:700;opacity:.78;}
+.gnb-action-btn.hidden{display:none;}
+.gnb-settings-note{
+  margin-top:12px;
+  font-size:11px;
+  color:var(--muted);
+  line-height:1.6;
+}
+@media (max-width:420px){
+  .gnb-settings-head{align-items:flex-start;flex-direction:column;}
+}
+
 .notice-list{
   display:grid;
   gap:12px;
@@ -479,8 +601,9 @@ body.gnb-open .bottom-nav{
               <span class="user-sub" id="userUnitInfo">입주민 계정</span>
             </div>
           </div>
-          <button class="icon-btn logout-btn" id="logoutBtn">로그아웃</button>
-          <button class="icon-btn" id="installTopBtn">📲</button>
+          <div class="topbar-quick-actions">
+            <button class="icon-btn" id="installTopBtn" title="앱처럼 설치">📲</button>
+          </div>
           <div class="gnb-wrap">
             <button class="icon-btn" id="gnbToggleBtn" title="메뉴">☰</button>
           </div>
@@ -540,8 +663,8 @@ body.gnb-open .bottom-nav{
   <dialog id="noticeModal"><div class="modal-head"><div class="pill">공지사항</div><button class="close-btn" id="closeNoticeModal">✕</button></div><div class="modal-body" id="noticeModalBody"></div></dialog>
   <script type="module">
     import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
-    import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
-    import { getFirestore, collection, onSnapshot, doc, getDoc, setDoc, updateDoc, increment, serverTimestamp, addDoc, query, orderBy, limit, deleteDoc } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
+    import { getAuth, onAuthStateChanged, signOut, deleteUser } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
+    import { getFirestore, collection, onSnapshot, doc, getDoc, getDocs, setDoc, updateDoc, increment, serverTimestamp, addDoc, query, orderBy, limit, deleteDoc } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
     import { getMessaging, getToken, onMessage, isSupported } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-messaging.js';
     const firebaseConfig = { apiKey:"AIzaSyDhKr7oMSrLowJ47cqB4pvNXuIIdtW0HPI", authDomain:"sola-home-4979a.firebaseapp.com", projectId:"sola-home-4979a", storageBucket:"sola-home-4979a.firebasestorage.app", messagingSenderId:"337132471819", appId:"1:337132471819:web:848cd357fecda459a2e90e" };
     window.VAPID_PUBLIC_KEY = window.VAPID_PUBLIC_KEY || 'BJONnfKeKFN8SCWWlo_quJ9pjahri96uw9WZJq2774hBZ8um6edcRb-NP7uRwjmcwHNTTGMuPJX-MUdeThgu5Kw';
@@ -676,6 +799,10 @@ function setPushStatusUi(enabled){
       const subEl = qs('#pushStatusSub');
       const enableBtn = qs('#enablePushBtn');
       const disableBtn = qs('#disablePushBtn');
+      const gnbStatusPill = qs('#gnbPushStatusPill');
+      const gnbStatusText = qs('#gnbPushStatusText');
+      const gnbEnableBtn = qs('#gnbEnablePushBtn');
+      const gnbDisableBtn = qs('#gnbDisablePushBtn');
 
       state.isPushEnabledForThisDevice = !!enabled;
 
@@ -689,6 +816,20 @@ function setPushStatusUi(enabled){
       }
       if(enableBtn) enableBtn.classList.toggle('hidden', !!enabled);
       if(disableBtn) disableBtn.classList.toggle('hidden', !enabled);
+
+      if(gnbStatusPill){
+        gnbStatusPill.textContent = enabled ? '🔔 이 기기 수신 중' : '🔕 미등록 상태';
+        gnbStatusPill.style.background = enabled ? '#eff6ff' : '#f8fafc';
+        gnbStatusPill.style.color = enabled ? '#1d4ed8' : '#475569';
+        gnbStatusPill.style.borderColor = enabled ? '#bfdbfe' : '#e2e8f0';
+      }
+      if(gnbStatusText){
+        gnbStatusText.textContent = enabled
+          ? '현재 브라우저에서 공지와 주요 안내를 바로 받을 수 있습니다.'
+          : '아직 이 기기는 등록되지 않았습니다. 알림 받기를 눌러 등록해 주세요.';
+      }
+      if(gnbEnableBtn) gnbEnableBtn.classList.toggle('hidden', !!enabled);
+      if(gnbDisableBtn) gnbDisableBtn.classList.toggle('hidden', !enabled);
     }
 
 
@@ -792,10 +933,86 @@ function setPushStatusUi(enabled){
       return '입주민 계정';
     }
     function updateUserChip(){
+      const nickname = getDisplayNickname();
+      const unitInfo = getDisplayUnitInfo();
       const nicknameEl = qs('#userNickname');
       const unitInfoEl = qs('#userUnitInfo');
-      if(nicknameEl) nicknameEl.textContent = getDisplayNickname();
-      if(unitInfoEl) unitInfoEl.textContent = getDisplayUnitInfo();
+      const gnbAccountNameEl = qs('#gnbAccountName');
+      const gnbAccountUnitEl = qs('#gnbAccountUnit');
+      if(nicknameEl) nicknameEl.textContent = nickname;
+      if(unitInfoEl) unitInfoEl.textContent = unitInfo;
+      if(gnbAccountNameEl) gnbAccountNameEl.textContent = nickname;
+      if(gnbAccountUnitEl) gnbAccountUnitEl.textContent = unitInfo;
+    }
+
+    function normalizeProfileInput(value=''){
+      return String(value || '').trim();
+    }
+
+    function fillAccountEditForm(){
+      const profile = state.currentUserProfile || {};
+      const nicknameInput = qs('#accountNicknameInput');
+      const buildingInput = qs('#accountBuildingInput');
+      const unitInput = qs('#accountUnitInput');
+      if(nicknameInput) nicknameInput.value = normalizeProfileInput(profile.nickname || state.currentUser?.displayName || '');
+      if(buildingInput) buildingInput.value = normalizeProfileInput(profile.building || '');
+      if(unitInput) unitInput.value = normalizeProfileInput(profile.unit || '');
+    }
+
+    function openAccountEditModal(){
+      fillAccountEditForm();
+      const modal = qs('#accountEditModal');
+      if(!modal) return;
+      if(modal.open) modal.close();
+      modal.showModal();
+      requestAnimationFrame(() => qs('#accountNicknameInput')?.focus());
+    }
+
+    function closeAccountEditModal(){
+      const modal = qs('#accountEditModal');
+      if(modal?.open) modal.close();
+    }
+
+    async function saveAccountProfile(event){
+      event?.preventDefault?.();
+      try{
+        if(!state.currentUser?.uid){
+          await openModalAlert('로그인 후 이용해 주세요.');
+          return;
+        }
+
+        const nickname = normalizeProfileInput(qs('#accountNicknameInput')?.value || '');
+        const building = normalizeProfileInput(qs('#accountBuildingInput')?.value || '');
+        const unit = normalizeProfileInput(qs('#accountUnitInput')?.value || '');
+
+        if(!nickname){
+          await openModalAlert('닉네임을 입력해 주세요.', qs('#accountNicknameInput'));
+          return;
+        }
+
+        showGlobalLoading();
+        await setDoc(doc(db, 'users', state.currentUser.uid), {
+          nickname,
+          building,
+          unit,
+          updatedAt: serverTimestamp()
+        }, { merge:true });
+
+        state.currentUserProfile = {
+          ...(state.currentUserProfile || {}),
+          nickname,
+          building,
+          unit
+        };
+        updateUserChip();
+        closeAccountEditModal();
+        hideGlobalLoading(80);
+        await openModalAlert('계정 정보가 저장되었습니다.', qs('#openAccountEditBtn'));
+      }catch(error){
+        console.error('계정 정보 저장 실패', error);
+        hideGlobalLoading(80);
+        await openModalAlert('계정 정보 저장 중 오류가 발생했습니다.', qs('#openAccountEditBtn'));
+      }
     }
 async function enablePushNotifications(){
       try{
@@ -910,6 +1127,66 @@ async function refreshPushStatus(){
         console.error('푸시 상태 확인 실패', error);
         state.currentPushToken = null;
         setPushStatusUi(false);
+      }
+    }
+
+    async function deleteUserSubcollection(uid, subcollectionName){
+      try{
+        const snap = await getDocs(collection(db, 'users', uid, subcollectionName));
+        if(snap.empty) return;
+
+        const tasks = snap.docs.map((item) => deleteDoc(item.ref));
+        await Promise.all(tasks);
+      }catch(error){
+        console.error(`${subcollectionName} 삭제 실패`, error);
+        throw error;
+      }
+    }
+
+    async function withdrawCurrentUser(){
+      try{
+        if(!state.currentUser){
+          await openModalAlert('로그인 상태를 확인할 수 없습니다.', qs('#withdrawBtn'));
+          return;
+        }
+
+        const confirmed = await openModalConfirm(
+          '회원 탈퇴를 진행하면\n계정 정보, 즐겨찾기, 현재 기기 푸시 설정이 삭제됩니다.\n이 작업은 되돌릴 수 없습니다.\n\n정말 탈퇴하시겠습니까?',
+          qs('#withdrawBtn'),
+          '회원 탈퇴',
+          '탈퇴하기',
+          '취소'
+        );
+        if(!confirmed) return;
+
+        showGlobalLoading();
+
+        const uid = state.currentUser.uid;
+
+        await deleteUserSubcollection(uid, 'favorites');
+        await deleteUserSubcollection(uid, 'pushTokens');
+        await deleteDoc(doc(db, 'users', uid));
+        await deleteUser(state.currentUser);
+
+        hideGlobalLoading(80);
+        await openModalAlert('회원 탈퇴가 완료되었습니다.');
+        redirectToLogin();
+      }catch(error){
+        console.error('회원 탈퇴 실패', error);
+        hideGlobalLoading(80);
+
+        if(error?.code === 'auth/requires-recent-login'){
+          await openModalAlert('보안을 위해 다시 로그인한 뒤 회원 탈퇴를 진행해 주세요.');
+          try{
+            await signOut(auth);
+          }catch(signOutError){
+            console.error('재로그인 유도용 로그아웃 실패', signOutError);
+          }
+          redirectToLogin();
+          return;
+        }
+
+        await openModalAlert('회원 탈퇴 중 오류가 발생했습니다.', qs('#withdrawBtn'));
       }
     }
 
@@ -1430,6 +1707,18 @@ async function refreshPushStatus(){
 
     qs('#enablePushBtn')?.addEventListener('click', enablePushNotifications);
     qs('#disablePushBtn')?.addEventListener('click', disablePushNotifications);
+    qs('#gnbEnablePushBtn')?.addEventListener('click', enablePushNotifications);
+    qs('#gnbDisablePushBtn')?.addEventListener('click', disablePushNotifications);
+    qs('#openAccountEditBtn')?.addEventListener('click', openAccountEditModal);
+    qs('#closeAccountEditModal')?.addEventListener('click', closeAccountEditModal);
+    qs('#cancelAccountEditBtn')?.addEventListener('click', closeAccountEditModal);
+    qs('#accountEditForm')?.addEventListener('submit', saveAccountProfile);
+
+    qs('#accountEditModal')?.addEventListener('click', (event) => {
+      const modal = qs('#accountEditModal');
+      if(event.target === modal) closeAccountEditModal();
+    });
+    qs('#withdrawBtn')?.addEventListener('click', withdrawCurrentUser);
 
     qs('#logoutBtn').onclick=async()=>{const confirmed=await openModalConfirm('로그아웃 하시겠습니까?', qs('#logoutBtn'), '로그아웃', '로그아웃', '취소'); if(!confirmed) return; try{await signOut(auth);redirectToLogin();}catch(error){await openModalAlert('로그아웃 중 오류가 발생했습니다.', qs('#logoutBtn'));}};
 
@@ -1513,9 +1802,95 @@ async function refreshPushStatus(){
           </div>
         </div>
       </section>
+
+      <section class="gnb-section">
+        <h3 class="gnb-section-title">설정</h3>
+        <div class="gnb-settings-card">
+          <div class="gnb-settings-head">
+            <div class="gnb-account">
+              <div class="gnb-account-avatar">👤</div>
+              <div class="gnb-account-meta">
+                <span class="gnb-account-label">계정</span>
+                <strong class="gnb-account-name" id="gnbAccountName">로그인 확인 중</strong>
+                <span class="gnb-account-sub" id="gnbAccountUnit">입주민 계정</span>
+              </div>
+            </div>
+            <div class="gnb-status-pill" id="gnbPushStatusPill">🔔 상태 확인 중</div>
+          </div>
+
+          <div class="gnb-settings-list">
+            <div class="gnb-setting-item">
+              <div class="gnb-setting-icon">🔔</div>
+              <div class="gnb-setting-copy">
+                <strong>푸시 알림</strong>
+                <p id="gnbPushStatusText">현재 브라우저의 푸시 수신 상태를 확인하고 있습니다.</p>
+              </div>
+            </div>
+            <div class="gnb-setting-item">
+              <div class="gnb-setting-icon">🛡️</div>
+              <div class="gnb-setting-copy">
+                <strong>계정 관리</strong>
+                <p>자주 쓰지 않는 기능은 메뉴 안에 정리해 두어 실수 클릭을 줄였습니다.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="gnb-settings-actions">
+            <button class="gnb-action-btn primary" id="gnbEnablePushBtn" type="button">
+              <span>알림 받기</span>
+              <span class="desc">이 기기 등록</span>
+            </button>
+            <button class="gnb-action-btn soft hidden" id="gnbDisablePushBtn" type="button">
+              <span>알림 해제</span>
+              <span class="desc">이 기기 해제</span>
+            </button>
+            <button class="account-edit-trigger" id="openAccountEditBtn" type="button">
+              <span>계정 정보 수정</span>
+              <span class="desc">닉네임 · 동 · 호</span>
+            </button>
+            <button class="gnb-action-btn outline" id="logoutBtn" type="button">
+              <span>로그아웃</span>
+              <span class="desc">현재 계정 종료</span>
+            </button>
+            <button class="gnb-action-btn danger" id="withdrawBtn" type="button">
+              <span>회원 탈퇴</span>
+              <span class="desc">복구 불가</span>
+            </button>
+          </div>
+          <div class="gnb-settings-note">회원 탈퇴 시 계정 정보, 즐겨찾기, 현재 기기의 푸시 설정이 함께 삭제됩니다.</div>
+        </div>
+      </section>
     </div>
   </aside>
 
+
+  <dialog id="accountEditModal">
+    <div class="modal-head">
+      <div class="pill">계정 정보 수정</div>
+      <button class="close-btn" id="closeAccountEditModal" type="button">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="account-edit-help">로그인한 계정의 표시 정보를 수정합니다. 운영진 기준으로 확인하기 쉬운 이름과 동·호 정보를 입력해 주세요.</div>
+      <form class="account-edit-form" id="accountEditForm">
+        <div class="account-edit-field">
+          <label for="accountNicknameInput">닉네임</label>
+          <input id="accountNicknameInput" name="nickname" type="text" maxlength="20" placeholder="예: 솔라홈 입주민">
+        </div>
+        <div class="account-edit-field">
+          <label for="accountBuildingInput">동</label>
+          <input id="accountBuildingInput" name="building" type="text" maxlength="10" inputmode="numeric" placeholder="예: 101">
+        </div>
+        <div class="account-edit-field">
+          <label for="accountUnitInput">호</label>
+          <input id="accountUnitInput" name="unit" type="text" maxlength="10" inputmode="numeric" placeholder="예: 1203">
+        </div>
+        <div class="account-edit-actions">
+          <button class="btn btn-soft block" id="cancelAccountEditBtn" type="button">취소</button>
+          <button class="btn btn-primary block" id="saveAccountEditBtn" type="submit">저장</button>
+        </div>
+      </form>
+    </div>
+  </dialog>
 
   <div class="app-alert" id="appAlert" aria-hidden="true">
     <div class="app-alert-card" role="alertdialog" aria-modal="true" aria-labelledby="appAlertTitle" aria-describedby="appAlertMessage">
