@@ -1,0 +1,1277 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#0f172a" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="description" content="더운정 마이힐스 관리자 페이지" />
+  <meta name="robots" content="noindex, nofollow, noarchive" />
+  <title>더운정 마이힐스 관리자</title>
+  <style>
+    :root{--surface:rgba(255,255,255,.82);--line:#e5e7eb;--text:#0f172a;--muted:#64748b;--primary:#0f172a;--accent:#ef4444;--blue:#2563eb;--danger:#dc2626;--shadow:0 20px 40px rgba(15,23,42,.08);--radius-xl:28px;--app-max:560px}
+    *{box-sizing:border-box}html,body{margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Noto Sans KR","Segoe UI",sans-serif;background:linear-gradient(180deg,#f8fafc 0%,#eef2ff 100%);color:var(--text);overflow-x:hidden}body{max-width:none;margin:0}button,input,select,textarea{font:inherit}
+    .app{min-height:100dvh;width:min(100%,var(--app-max));margin:0 auto;padding:16px 16px 110px;overflow-x:clip}.shell{display:flex;flex-direction:column;gap:14px;width:100%}.topbar{display:flex;justify-content:space-between;align-items:center}.brand{display:flex;align-items:center;gap:12px}.brand .logo{width:48px;height:48px;border-radius:16px;display:grid;place-items:center;background:#fff;box-shadow:var(--shadow);font-size:22px}.brand h1{margin:0;font-size:24px;letter-spacing:-.05em}.brand p{margin:4px 0 0;color:var(--muted);font-size:13px}.icon-btn{width:44px;height:44px;border:none;border-radius:16px;cursor:pointer;background:rgba(255,255,255,.8);box-shadow:var(--shadow);color:var(--text)}
+    .hero{position:relative;overflow:hidden;padding:22px;border-radius:30px;color:#fff;background:radial-gradient(circle at top right,rgba(255,255,255,.28),transparent 30%),linear-gradient(135deg,#111827 0%,#1f2937 46%,#ef4444 100%);box-shadow:var(--shadow)}.hero::after{content:"";position:absolute;right:-26px;top:-12px;width:118px;height:118px;border-radius:34px;background:rgba(255,255,255,.14);transform:rotate(18deg)}.eyebrow{display:inline-flex;align-items:center;gap:8px;padding:8px 12px;border-radius:999px;background:rgba(255,255,255,.14);font-size:12px}.hero h2{margin:14px 0 8px;font-size:28px;line-height:1.18;letter-spacing:-.05em;max-width:280px}.hero p{margin:0;max-width:320px;line-height:1.55;color:rgba(255,255,255,.92)}
+    .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:18px}.stat{padding:14px;border-radius:18px;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.16);backdrop-filter:blur(10px)}.stat strong{display:block;font-size:20px}.stat span{font-size:12px;color:rgba(255,255,255,.84)}
+    .panel,.admin-card{background:var(--surface);border:1px solid rgba(255,255,255,.65);box-shadow:var(--shadow);backdrop-filter:blur(18px);border-radius:var(--radius-xl);padding:16px}.notice{padding:14px 16px;border-radius:18px;background:#eff6ff;border:1px solid #bfdbfe;color:#1d4ed8;font-size:13px;line-height:1.5}.hidden{display:none!important}
+    .section-head{display:flex;justify-content:space-between;align-items:center;margin:2px 2px 0}.section-head h3{margin:0;font-size:18px;letter-spacing:-.03em}.section-head small{color:var(--muted)}.admin-grid,.form-grid,.mini-list{display:grid;gap:12px}.field{display:grid;gap:6px}.field label{font-size:13px;color:#334155;font-weight:700}.field input,.field select,.field textarea{border:1px solid var(--line);border-radius:14px;padding:12px 14px;outline:none;background:#fff}.field textarea{min-height:82px;resize:vertical}.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:10px}.check-row{display:flex;gap:18px;align-items:center;flex-wrap:wrap;padding:12px 14px;border:1px solid var(--line);border-radius:14px;background:#fff}.check-row label{display:flex;align-items:center;gap:8px;cursor:pointer;font-size:14px;color:#334155;font-weight:700}
+    .btn{border:none;border-radius:16px;padding:12px 14px;cursor:pointer;font-weight:700;display:inline-flex;align-items:center;justify-content:center;gap:8px}.btn-primary{background:var(--primary);color:#fff}.btn-soft{background:#fff;color:var(--text);border:1px solid var(--line)}.btn-blue{background:var(--blue);color:#fff}.btn-danger{background:#fee2e2;color:var(--danger)}
+    .mini-item{border:1px solid var(--line);border-radius:18px;padding:12px;background:#fff}.mini-item-head{display:flex;justify-content:space-between;gap:10px;align-items:start}.mini-item h5{margin:0;font-size:15px}.tags{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}.tag{padding:7px 10px;border-radius:999px;background:#f8fafc;border:1px solid var(--line);color:#475569;font-size:12px}.tag.rec{background:#eff6ff;border-color:#bfdbfe;color:#2563eb;font-weight:700}.tag.hidden-tag{background:#fef2f2;border-color:#fecaca;color:#b91c1c;font-weight:700}.tag.live-tag{background:#ecfdf5;border-color:#bbf7d0;color:#15803d;font-weight:700}
+    @media (max-width:370px){.stats,.grid-2{grid-template-columns:1fr}}
+  
+.admin-topbar{
+  display:flex;
+  flex-direction:column;
+  align-items:stretch;
+  gap:12px;
+}
+.admin-topbar-right{
+  display:flex;
+  align-items:center;
+  justify-content:flex-end;
+  gap:10px;
+  width:100%;
+}
+.admin-topbar-left{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  width:100%;
+}
+.admin-topbar-left .brand{
+  align-items:flex-start;
+}
+.admin-topbar-left .brand .logo{
+  flex:0 0 auto;
+}
+.admin-topbar-left .brand h1{
+  line-height:1.2;
+}
+.admin-topbar-left .brand p{
+  line-height:1.45;
+}
+.admin-userchip{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:8px 12px;
+  border-radius:18px;
+  background:rgba(255,255,255,.88);
+  border:1px solid rgba(255,255,255,.7);
+  box-shadow:var(--shadow);
+}
+.admin-userchip strong{display:block;font-size:13px;line-height:1.1}
+.admin-userchip span{display:block;font-size:11px;color:var(--muted);margin-top:2px}
+.admin-avatar{
+  width:34px;height:34px;border-radius:12px;display:grid;place-items:center;
+  background:#eef2ff;color:#334155;font-size:16px;flex:0 0 auto
+}
+.admin-view{display:none}
+.admin-view.active{display:block}
+.admin-bottom-nav{
+  position:fixed;
+  left:16px;
+  right:16px;
+  bottom:0;
+  transform:none;
+  width:auto;
+  max-width:calc(var(--app-max) - 32px);
+  margin:0 auto;
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:6px;
+  padding:10px 16px calc(14px + env(safe-area-inset-bottom,0px));
+  border-radius:26px 26px 0 0;
+  background:rgba(15,23,42,.92);
+  color:#cbd5e1;
+  box-shadow:0 10px 30px rgba(15,23,42,.18);
+  backdrop-filter:blur(18px);
+  z-index:120;
+  overflow:hidden;
+}
+.admin-nav-btn{
+  border:none;background:transparent;color:inherit;border-radius:18px;padding:10px 0 12px;cursor:pointer;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;
+  transition:transform .18s ease, background-color .18s ease, color .18s ease;
+}
+.admin-nav-btn.active{background:rgba(255,255,255,.12);color:#fff;transform:translateY(-1px)}
+.admin-nav-btn .nav-icon{font-size:18px;line-height:1}
+.admin-nav-btn .nav-label{font-size:13px;font-weight:700;letter-spacing:-.02em}
+.dashboard-grid{display:grid;gap:14px}
+.summary-card{
+  background:#fff;border:1px solid var(--line);border-radius:22px;padding:16px;box-shadow:var(--shadow);
+}
+.summary-list{display:grid;gap:10px}
+.summary-row{
+  display:flex;justify-content:space-between;gap:10px;align-items:center;padding:12px 14px;
+  border:1px solid var(--line);border-radius:18px;background:#fff;
+}
+.summary-row strong{font-size:14px}
+.summary-row span{font-size:12px;color:var(--muted)}
+.admin-groups{display:grid;gap:14px}
+
+  .admin-nav-btn .nav-label{font-size:11px}
+  .gnb-copy strong{font-size:20px}
+  .gnb-hero-emoji{font-size:64px}
+  .admin-topbar{gap:10px}
+  .admin-topbar-right{gap:8px}
+}
+
+
+/* ===== Admin GNB upgraded to public-app style ===== */
+.gnb-overlay{
+  opacity:0;
+  visibility:hidden;
+  transition:opacity .22s ease, visibility .22s ease;
+}
+.gnb-overlay.show{
+  display:block;
+  opacity:1;
+  visibility:visible;
+}
+.gnb-sheet{
+  position:fixed;
+  top:0;
+  right:0;
+  bottom:0;
+  left:0;
+  width:100%;
+  background:#fff;
+  z-index:210;
+  display:flex;
+  flex-direction:column;
+  max-width:none;
+  transform:translateX(100%);
+  transition:transform .28s ease, box-shadow .28s ease;
+  box-shadow:none;
+  will-change:transform;
+}
+.gnb-sheet.show{
+  transform:translateX(0);
+}
+.gnb-top{
+  background:linear-gradient(180deg,#425168 0%,#39485d 100%);
+  color:#fff;
+  padding:18px 22px 26px;
+  border-bottom:1px solid rgba(255,255,255,.08);
+}
+.gnb-icons{
+  position:relative;
+  display:flex;
+  align-items:center;
+  gap:12px;
+  margin-bottom:22px;
+  padding-right:56px;
+}
+.gnb-icon-btn{
+  min-width:42px;
+  height:42px;
+  display:grid;
+  place-items:center;
+  border:none;
+  background:transparent;
+  color:rgba(255,255,255,.92);
+  font-size:24px;
+  cursor:pointer;
+  padding:0 8px;
+  border-radius:14px;
+  position:relative;
+  transition:background-color .18s ease, color .18s ease, transform .18s ease, opacity .18s ease;
+  -webkit-tap-highlight-color:transparent;
+}
+.gnb-icon-btn:hover{background:rgba(255,255,255,.08)}
+.gnb-icon-btn:active{transform:scale(.96)}
+.gnb-icon-btn.gnb-home-active{color:#fff}
+.gnb-icon-btn.gnb-home-active::after{
+  content:"";
+  position:absolute;
+  left:10px;
+  right:10px;
+  bottom:-6px;
+  height:3px;
+  border-radius:999px;
+  background:#60a5fa;
+  box-shadow:0 0 12px rgba(96,165,250,.35);
+}
+.gnb-close{
+  position:absolute;
+  top:0;
+  right:0;
+  width:42px;
+  height:42px;
+  display:grid;
+  place-items:center;
+  border:none;
+  border-radius:14px;
+  background:rgba(255,255,255,.04);
+  color:rgba(255,255,255,.95);
+  font-size:22px;
+  cursor:pointer;
+  transition:background-color .18s ease, transform .18s ease, opacity .18s ease;
+  -webkit-tap-highlight-color:transparent;
+  z-index:2;
+}
+.gnb-close:hover{background:rgba(255,255,255,.10)}
+.gnb-close:active{transform:scale(.96) rotate(-6deg)}
+.gnb-hero{
+  display:flex;
+  align-items:flex-end;
+  justify-content:space-between;
+  gap:16px;
+  padding-top:4px;
+}
+.gnb-copy small{
+  display:block;
+  font-size:14px;
+  color:rgba(255,255,255,.82);
+  margin-bottom:6px;
+}
+.gnb-copy strong{
+  display:block;
+  font-size:22px;
+  line-height:1.35;
+  letter-spacing:-.04em;
+}
+.gnb-hero-emoji{
+  font-size:74px;
+  line-height:1;
+  flex:0 0 auto;
+  filter:drop-shadow(0 10px 24px rgba(0,0,0,.14));
+}
+.gnb-body{
+  flex:1;
+  overflow:auto;
+  padding:22px 22px 120px;
+  background:#fff;
+  scroll-behavior:smooth;
+}
+.gnb-banner{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  padding:14px 16px;
+  border-radius:20px;
+  background:#edf8f7;
+  margin-bottom:28px;
+  font-weight:800;
+  color:#1f2937;
+  transition:transform .18s ease, box-shadow .18s ease;
+}
+.gnb-banner:hover{
+  transform:translateY(-1px);
+  box-shadow:0 12px 28px rgba(15,23,42,.08);
+}
+.gnb-section{margin-bottom:30px}
+.gnb-section-title{
+  margin:0 0 16px;
+  font-size:20px;
+  letter-spacing:-.04em;
+}
+.gnb-chip-row,
+.gnb-menu-list,
+.gnb-menu-sublist{
+  display:flex;
+  flex-wrap:wrap;
+  gap:10px;
+}
+.gnb-chip,
+.gnb-menu-item,
+.gnb-menu-subitem{
+  border:none;
+  border-radius:18px;
+  background:#f3f4f6;
+  color:#111827;
+  font-size:15px;
+  font-weight:800;
+  text-align:left;
+  padding:14px 16px;
+  cursor:pointer;
+  line-height:1;
+  box-shadow:inset 0 0 0 1px rgba(15,23,42,.04);
+  transition:transform .16s ease, background-color .16s ease, opacity .16s ease;
+  -webkit-tap-highlight-color:transparent;
+}
+.gnb-chip:hover,
+.gnb-menu-item:hover,
+.gnb-menu-subitem:hover{
+  transform:translateY(-1px);
+  background:#eceff3;
+}
+.gnb-chip:active,
+.gnb-menu-item:active,
+.gnb-menu-subitem:active{
+  transform:scale(.98);
+}
+.gnb-new-section{
+  background:#f8fafc;
+  border-radius:20px;
+  padding:14px;
+  margin-top:10px;
+  margin-bottom:20px;
+  border:1px solid rgba(15,23,42,.04);
+}
+.gnb-enter .gnb-chip,
+.gnb-enter .gnb-menu-item,
+.gnb-enter .gnb-menu-subitem,
+.gnb-enter .gnb-banner,
+.gnb-enter .gnb-section-title{
+  animation:gnbFadeUp .28s ease both;
+}
+.gnb-enter .gnb-chip:nth-child(2),
+.gnb-enter .gnb-menu-item:nth-child(2),
+.gnb-enter .gnb-menu-subitem:nth-child(2){animation-delay:.03s}
+.gnb-enter .gnb-chip:nth-child(3),
+.gnb-enter .gnb-menu-item:nth-child(3),
+.gnb-enter .gnb-menu-subitem:nth-child(3){animation-delay:.06s}
+.gnb-enter .gnb-chip:nth-child(4),
+.gnb-enter .gnb-menu-item:nth-child(4),
+.gnb-enter .gnb-menu-subitem:nth-child(4){animation-delay:.09s}
+.gnb-enter .gnb-chip:nth-child(5),
+.gnb-enter .gnb-menu-item:nth-child(5),
+.gnb-enter .gnb-menu-subitem:nth-child(5){animation-delay:.12s}
+@keyframes gnbFadeUp{
+  from{opacity:0;transform:translateY(8px)}
+  to{opacity:1;transform:translateY(0)}
+}
+.shell,
+.admin-topbar,
+.admin-bottom-nav{
+  transition:transform .28s ease, filter .28s ease, opacity .28s ease;
+  transform-origin:center center;
+}
+body.gnb-open .shell,
+body.gnb-open .admin-topbar,
+body.gnb-open .admin-bottom-nav{
+  transform:scale(.985);
+  filter:blur(.4px);
+}
+.admin-view{
+  transition:opacity .18s ease, transform .18s ease;
+}
+.admin-view.active{
+  animation:adminViewFade .22s ease;
+}
+@keyframes adminViewFade{
+  from{opacity:.75;transform:translateY(6px)}
+  to{opacity:1;transform:translateY(0)}
+}
+@media (max-width:420px){
+  .gnb-copy strong{font-size:20px}
+  .gnb-hero-emoji{font-size:64px}
+}
+
+
+
+/* ===== full screen loading overlay ===== */
+.global-loading{
+  position:fixed;
+  inset:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:rgba(15,23,42,.52);
+  backdrop-filter:blur(2px);
+  -webkit-backdrop-filter:blur(2px);
+  z-index:99999;
+  pointer-events:none;
+  opacity:0;
+  visibility:hidden;
+  transition:opacity .22s ease, visibility .22s ease;
+}
+.global-loading.show{
+  opacity:1;
+  visibility:visible;
+  pointer-events:auto;
+}
+.global-loading::before{
+  content:none;
+}
+.global-loading .loader-mark{
+  position:relative;
+  width:74px;
+  height:74px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  animation:loaderFloat .95s ease-in-out infinite;
+}
+.global-loading.show .loader-mark{
+  animation:loaderFloat .95s ease-in-out infinite, loaderPulse .9s ease-in-out infinite;
+}
+.global-loading .loader-mark .arm{
+  position:absolute;
+  left:50%;
+  top:50%;
+  width:10px;
+  border-radius:999px;
+  transform-origin:center center;
+  box-shadow:0 3px 10px rgba(0,0,0,.08);
+}
+.global-loading .loader-mark .arm.top{
+  height:34px;
+  background:#ffffff;
+  transform:translate(-50%,-72%) rotate(45deg);
+}
+.global-loading .loader-mark .arm.left{
+  height:34px;
+  background:#ffffff;
+  transform:translate(-50%,-72%) rotate(-45deg);
+}
+.global-loading .loader-mark .arm.mid{
+  width:42px;
+  height:8px;
+  background:linear-gradient(90deg,#ff4fc3 0%, #ff63d8 100%);
+  transform:translate(-50%,-2px);
+}
+.global-loading .loader-mark .arm.bot{
+  width:42px;
+  height:8px;
+  background:linear-gradient(90deg,#ff4fc3 0%, #ff63d8 100%);
+  transform:translate(-50%,12px);
+}
+.global-loading .loader-mark .arm.bot2{
+  width:42px;
+  height:8px;
+  background:linear-gradient(90deg,#ff4fc3 0%, #ff63d8 100%);
+  transform:translate(-50%,26px);
+}
+@keyframes loaderFloat{
+  0%,100%{ transform:translateY(0) scale(1); }
+  50%{ transform:translateY(-3px) scale(1.03); }
+}
+@keyframes loaderPulse{
+  0%{ opacity:.88; }
+  50%{ opacity:1; }
+  100%{ opacity:.9; }
+}
+
+
+
+    .app-alert{position:fixed;inset:0;display:none;align-items:center;justify-content:center;padding:20px;z-index:100001;background:rgba(15,23,42,.46);backdrop-filter:blur(4px)}
+    .app-alert.show{display:flex}
+    .app-alert-card{width:min(100%,360px);background:#fff;border:1px solid rgba(255,255,255,.75);box-shadow:0 30px 60px rgba(15,23,42,.20);border-radius:26px;padding:22px}
+    .app-alert-head{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+    .app-alert-icon{width:42px;height:42px;border-radius:14px;display:grid;place-items:center;background:#fff7ed;color:#c2410c;font-size:20px;flex:0 0 auto;border:1px solid #fed7aa}
+    .app-alert-title{margin:0;font-size:18px;letter-spacing:-.03em}
+    .app-alert-message{margin:0;color:var(--muted);font-size:14px;line-height:1.65;white-space:pre-line}
+    .app-alert-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:18px}
+    .app-alert-cancel{min-width:92px;border:1px solid var(--line);border-radius:16px;padding:12px 16px;background:#fff;color:var(--text);font-weight:800;cursor:pointer}
+    .app-alert-confirm{min-width:92px;border:none;border-radius:16px;padding:12px 16px;background:var(--primary);color:#fff;font-weight:800;cursor:pointer}
+
+
+.idle-timer-chip{
+  min-width:96px;
+  padding:8px 10px;
+  border-radius:18px;
+  background:rgba(255,255,255,.92);
+  border:1px solid rgba(255,255,255,.7);
+  box-shadow:var(--shadow);
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:2px;
+  transition:background-color .2s ease, color .2s ease, border-color .2s ease, transform .2s ease;
+}
+.idle-timer-label{
+  font-size:10px;
+  line-height:1;
+  color:var(--muted);
+  font-weight:700;
+  white-space:nowrap;
+}
+.idle-timer-chip strong{
+  font-size:16px;
+  line-height:1.1;
+  letter-spacing:-.03em;
+}
+
+
+
+
+.admin-topbar-left-titleline{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:12px;
+}
+.admin-topbar-left-titleline .brand{
+  flex:1;
+  min-width:0;
+}
+@media (max-width:420px){
+  .admin-topbar-left-titleline{
+    gap:10px;
+  }
+}
+
+</style>
+</head>
+<body>
+  <div class="global-loading" id="globalLoadingBar" aria-hidden="true">
+    <div class="loader-mark" aria-label="로딩 중" role="status">
+      <span class="arm top"></span>
+      <span class="arm left"></span>
+      <span class="arm mid"></span>
+      <span class="arm bot"></span>
+      <span class="arm bot2"></span>
+    </div>
+  </div>
+  <div class="app"><div class="shell">
+    <header class="admin-topbar">
+      <div class="admin-topbar-right">
+        <div class="admin-userchip">
+          <div class="admin-avatar">👤</div>
+          <div><strong id="adminTopUser">운영자 확인 중</strong><span id="adminTopStatus">로그인 필요</span></div>
+        </div>
+        <button class="icon-btn" onclick="location.href='/'" title="공개 페이지">⌂</button>
+<button class="icon-btn" id="adminGnbToggleBtn" title="메뉴">☰</button>
+      </div>
+      <div class="admin-topbar-left admin-topbar-left-titleline">
+        <div class="brand">
+          <div class="logo">🛠️</div>
+          <div>
+            <h1>더운정 마이힐스<br>운영자</h1>
+            <p>운영자 전용 관리 서비스</p>
+          </div>
+        </div>
+      </div>
+    </header>
+    <div class="hero"><div class="eyebrow">🔐 관리자 전용</div><h2>운영 관리 업무를 한 번에</h2><p>운영자는 혜택과 공지, 회원 관리를 이 화면에서 편리하게 처리할 수 있습니다.</p><div class="stats"><div class="stat"><strong class="stat-max">0%</strong><span>최대 할인</span></div><div class="stat"><strong class="stat-count">0</strong><span>전체 제휴</span></div><div class="stat"><strong class="stat-cat">0</strong><span>카테고리</span></div></div></div>
+    <div class="panel notice hidden" id="firebaseNotice">Firebase 설정값이 비어 있습니다. firebaseConfig를 확인해 주세요.</div>
+    
+    <div class="admin-view active" id="view-dashboard">
+      <div class="dashboard-grid">
+        <div class="admin-card"><div class="admin-card"><div class="section-head" style="margin-bottom:12px;"><h3 style="font-size:16px;">운영자 로그인</h3><small id="authStatusText">로그인 필요</small></div><div class="form-grid"><div class="field"><label for="adminEmail">이메일</label><input id="adminEmail" type="email" placeholder="운영자 이메일 입력" /></div><div class="field"><label for="adminPassword">비밀번호</label><input id="adminPassword" type="password" placeholder="비밀번호 입력" /></div><div class="grid-2"><button class="btn btn-blue" type="button" id="loginBtn">로그인</button><button class="btn btn-soft" type="button" id="logoutBtn">로그아웃</button></div></div></div>
+      </div>
+        <div class="admin-card">
+          <div class="section-head" style="margin-bottom:12px;"><h3 style="font-size:16px;">빠른 작업</h3><small>자주 쓰는 메뉴</small></div>
+          <div class="quick-actions">
+            <button class="btn btn-primary" type="button" data-admin-view="benefits">혜택 관리</button>
+            <button class="btn btn-blue" type="button" data-admin-view="notices">공지 관리</button>
+            <button class="btn btn-soft" type="button" data-admin-view="members">회원 관리</button>
+            <button class="btn btn-soft" type="button" data-admin-view="dashboard-data">데이터 관리</button>
+          </div>
+        </div>
+        <div class="admin-card">
+          <div class="section-head" style="margin-bottom:12px;"><h3 style="font-size:16px;">최근 공지</h3><small id="dashboardNoticeCount">0건</small></div>
+          <div class="mini-list" id="dashboardNoticeList"></div>
+        </div>
+        <div class="admin-card">
+          <div class="section-head" style="margin-bottom:12px;"><h3 style="font-size:16px;">최근 등록 혜택</h3><small id="dashboardBenefitCount">0건</small></div>
+          <div class="mini-list" id="dashboardBenefitList"></div>
+        </div>
+        <div class="admin-card">
+          <div class="section-head" style="margin-bottom:12px;"><h3 style="font-size:16px;">실시간 운영 통계</h3><small>오늘 기준</small></div>
+          <div id="adminStatsCards" class="summary-list"><div class="notice">관리자 로그인 후 통계를 볼 수 있습니다.</div></div>
+        </div>
+
+        <div class="admin-card">
+          <div class="section-head" style="margin-bottom:12px;"><h3 style="font-size:16px;">방문 경로 분석</h3><small>페이지별 방문 수</small></div>
+          <div id="visitPathChart"></div>
+        </div>
+
+        <div class="admin-card">
+          <div class="section-head" style="margin-bottom:12px;"><h3 style="font-size:16px;">사용자별 활동</h3><small>오늘 기준</small></div>
+          <div id="userActivityList" class="mini-list"><div class="notice">관리자 로그인 후 사용자별 활동을 볼 수 있습니다.</div></div>
+        </div>
+
+        <div class="admin-card">
+          <div class="section-head" style="margin-bottom:12px;"><h3 style="font-size:16px;">최근 활동 로그</h3><small>최신 20건</small></div>
+          <div id="recentActivityList" class="mini-list"><div class="notice">관리자 로그인 후 최근 활동 로그를 볼 수 있습니다.</div></div>
+        </div>
+
+      </div>
+    </div>
+
+    
+    <div class="admin-view" id="view-benefits">
+      <div class="admin-groups">
+        <div class="admin-card"><div class="section-head" style="margin-bottom:12px;"><h3 style="font-size:16px;">혜택 등록 / 수정</h3><small id="formModeLabel">새 항목</small></div><form id="benefitForm" class="form-grid" novalidate><input type="hidden" id="editId" value="" /><div class="field"><label for="name">매장명</label><input id="name" /></div><div class="grid-2"><div class="field"><label for="category">카테고리</label><input id="category" placeholder="예: 음식, 미용, 카페" /></div><div class="field"><label for="discountText">혜택 표기</label><input id="discountText" placeholder="예: 10% 또는 서비스" /></div></div><div class="grid-2"><div class="field"><label for="discountValue">할인 수치</label><input id="discountValue" type="number" min="0" placeholder="서비스면 0" required /></div><div class="field"><label for="serviceType">혜택 유형</label><select id="serviceType"><option value="discount">할인형</option><option value="service">서비스형</option></select></div></div><div class="field"><label>운영 옵션</label><div class="check-row"><label><input type="checkbox" id="visible" checked> 노출</label><label><input type="checkbox" id="recommended"> 추천</label></div></div><div class="field"><label for="condition">혜택 조건</label><textarea id="condition"></textarea></div><div class="field"><label for="address">주소</label><input id="address" /></div><div class="field"><label for="url">길찾기 URL</label><input id="url" placeholder="네이버 지도 또는 카카오 지도 URL" /></div><div class="field"><label for="phone">전화번호</label><input id="phone" /></div><div class="grid-2"><button type="submit" class="btn btn-primary">저장</button><button type="button" class="btn btn-soft" id="cancelEditBtn">입력 초기화</button></div></form></div>
+      
+      
+        <div class="admin-card"><div class="section-head" style="margin-bottom:12px;"><h3 style="font-size:16px;">등록된 혜택 목록</h3><small id="benefitListCount">0건</small></div><div class="mini-list" id="adminList"></div></div>
+    
+      </div>
+    </div>
+
+    
+    <div class="admin-view" id="view-notices">
+      <div class="admin-groups">
+        <div class="admin-card"><div class="section-head" style="margin-bottom:12px;"><h3 style="font-size:16px;">공지 등록 / 수정</h3><small id="noticeFormModeLabel">새 공지</small></div><form id="noticeForm" class="form-grid" novalidate><input type="hidden" id="noticeEditId" value="" /><div class="field"><label for="noticeTitle">공지 제목</label><input id="noticeTitle" /></div><div class="grid-2"><div class="field"><label for="noticeCategory">공지 구분</label><input id="noticeCategory" placeholder="예: 일반, 점검, 이벤트" /></div><div class="field"><label>공지 옵션</label><div class="check-row"><label><input type="checkbox" id="noticeVisible" checked> 노출</label><label><input type="checkbox" id="noticePinned"> 중요 공지</label></div></div></div><div class="field"><label for="noticeContent">공지 내용</label><textarea id="noticeContent"></textarea></div><div class="field"><label>푸시 발송 옵션</label><div class="check-row"><label><input type="checkbox" id="sendPushWithNotice"> 저장 후 푸시 작업 생성</label><label><input type="checkbox" id="pushImportantOnly"> 중요 공지로 표시</label></div></div><div class="grid-2"><div class="field"><label for="pushTitle">푸시 제목</label><input id="pushTitle" placeholder="비워두면 공지 제목 사용" /></div><div class="field"><label for="pushBody">푸시 내용</label><input id="pushBody" placeholder="비워두면 공지 내용 앞부분 사용" /></div></div><div class="grid-2"><button type="submit" class="btn btn-primary">공지 저장</button><button type="button" class="btn btn-soft" id="cancelNoticeEditBtn">입력 초기화</button></div></form></div>
+
+        <div class="admin-card"><div class="section-head" style="margin-bottom:12px;"><h3 style="font-size:16px;">등록된 공지 목록</h3><small id="noticeListCount">0건</small></div><div class="mini-list" id="noticeAdminList"></div></div>
+      </div>
+    </div>
+
+    
+    <div class="admin-view" id="view-members">
+      <div class="admin-groups">
+        <div class="admin-card">
+          <div class="section-head" style="margin-bottom:12px;"><h3 style="font-size:16px;">회원 관리</h3><small>운영 준비 중</small></div>
+          <div class="notice">입주민 가입 승인, 인증 자료 확인, 승인 및 반려 내역 관리를 이 영역에 연결할 수 있습니다.</div>
+        </div>
+      </div>
+    </div>
+
+    
+    <div class="admin-view" id="view-dashboard-data">
+      <div class="admin-groups">
+        <div class="admin-card"><div class="section-head" style="margin-bottom:12px;"><h3 style="font-size:16px;">데이터 관리</h3><small>전체 데이터 관리</small></div><div class="grid-2"><button class="btn btn-soft" id="exportBtn" type="button">JSON 내보내기</button><button class="btn btn-soft" id="seedBtn" type="button">기본 데이터 업로드</button></div></div><div class="admin-card"><div class="section-head" style="margin-bottom:12px;"><h3 style="font-size:16px;">푸시 작업</h3><small id="pushJobCount">0건</small></div><div class="mini-list" id="pushJobList"></div></div>
+      
+      </div>
+    </div>
+</div>
+  </div></div>
+
+  <nav class="admin-bottom-nav">
+    <button class="admin-nav-btn active" data-admin-view="dashboard"><span class="nav-icon">📊</span><span class="nav-label">대시보드</span></button>
+    <button class="admin-nav-btn" data-admin-view="benefits"><span class="nav-icon">🎁</span><span class="nav-label">혜택</span></button>
+    <button class="admin-nav-btn" data-admin-view="notices"><span class="nav-icon">📢</span><span class="nav-label">공지</span></button>
+    <button class="admin-nav-btn" data-admin-view="members"><span class="nav-icon">👥</span><span class="nav-label">회원</span></button>
+  </nav>
+
+  <script type="module">
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
+    import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
+    import { getFirestore, collection, addDoc, updateDoc, deleteDoc, doc, getDocs, onSnapshot, serverTimestamp, writeBatch } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
+    const firebaseConfig = { apiKey:"AIzaSyDhKr7oMSrLowJ47cqB4pvNXuIIdtW0HPI", authDomain:"sola-home-4979a.firebaseapp.com", projectId:"sola-home-4979a", storageBucket:"sola-home-4979a.firebasestorage.app", messagingSenderId:"337132471819", appId:"1:337132471819:web:848cd357fecda459a2e90e" };
+    const BENEFITS_COLLECTION='benefits', NOTICES_COLLECTION='notices', PUSH_JOBS_COLLECTION='push_jobs';
+    const DEFAULT_BENEFITS=[{name:'엘스킨케어',category:'피부관리',discountValue:50,discountText:'50%',condition:'첫방문 50% / 입주민 정액권 최대 30%',address:'경기 파주시 경의로 1242 209호, 210호',phone:'0507-1433-5760',url:'',visible:true,recommended:true,service:false},{name:'미스터피자 일산탄현점',category:'음식',discountValue:30,discountText:'30%',condition:'포장 30% / 매장식사 20% + 샐러드 증정',address:'경기 고양시 일산서구 탄현로 136 상가동 2층 204호',phone:'031-911-9296',url:'',visible:true,recommended:true,service:false}];
+    const state={benefits:[],notices:[],pushJobs:[],isAdmin:false,view:'dashboard'}; const qs=(s)=>document.querySelector(s), qsa=(s)=>[...document.querySelectorAll(s)];
+    const globalLoadingBar = qs('#globalLoadingBar');
+    let globalLoadingTimer = null;
+    const initialLoadState = { benefits:false, notices:false, pushJobs:false };
+
+
+    function showGlobalLoading(){
+      if(!globalLoadingBar) return;
+      clearTimeout(globalLoadingTimer);
+      globalLoadingBar.classList.add('show');
+      globalLoadingBar.setAttribute('aria-hidden', 'false');
+    }
+
+    function hideGlobalLoading(delay=160){
+      if(!globalLoadingBar) return;
+      clearTimeout(globalLoadingTimer);
+      globalLoadingTimer = setTimeout(() => {
+        globalLoadingBar.classList.remove('show');
+        globalLoadingBar.setAttribute('aria-hidden', 'true');
+      }, delay);
+    }
+
+    const alertEl = qs('#appAlert');
+    const alertMsgEl = qs('#appAlertMessage');
+    const alertTitleEl = qs('#appAlertTitle');
+    const alertIconEl = qs('#appAlertIcon');
+    const alertConfirmEl = qs('#appAlertConfirm');
+    const alertCancelEl = qs('#appAlertCancel');
+    let alertFocusTarget = null;
+    let alertResolver = null;
+
+    function openModalBase({
+      title='안내',
+      message='',
+      focusTarget=null,
+      mode='alert',
+      confirmText='확인',
+      cancelText='취소',
+      icon='⚠️'
+    } = {}){
+      alertFocusTarget = focusTarget;
+      alertTitleEl.textContent = title;
+      alertMsgEl.textContent = message;
+      alertIconEl.textContent = icon;
+      alertConfirmEl.textContent = confirmText;
+      alertCancelEl.textContent = cancelText;
+      alertCancelEl.classList.toggle('hidden', mode !== 'confirm');
+      alertEl.classList.add('show');
+      alertEl.setAttribute('aria-hidden', 'false');
+      requestAnimationFrame(() => {
+        (mode === 'confirm' ? alertCancelEl : alertConfirmEl).focus();
+      });
+      return new Promise((resolve) => {
+        alertResolver = resolve;
+      });
+    }
+
+    function openModalAlert(message, focusTarget=null, title='안내'){
+      return openModalBase({ title, message, focusTarget, mode:'alert', confirmText:'확인', icon:'⚠️' });
+    }
+
+    function openModalConfirm(message, focusTarget=null, title='확인', confirmText='확인', cancelText='취소'){
+      return openModalBase({ title, message, focusTarget, mode:'confirm', confirmText, cancelText, icon:'❓' });
+    }
+
+    function closeModal(result=false){
+      alertEl.classList.remove('show');
+      alertEl.setAttribute('aria-hidden', 'true');
+      const focusTarget = alertFocusTarget;
+      const resolver = alertResolver;
+      alertResolver = null;
+      alertFocusTarget = null;
+
+      if (focusTarget) {
+        setTimeout(() => {
+          try { focusTarget.focus(); } catch (_) {}
+        }, 30);
+      }
+
+      if(resolver) resolver(result);
+    }
+
+    alertConfirmEl?.addEventListener('click', () => closeModal(true));
+    alertCancelEl?.addEventListener('click', () => closeModal(false));
+    alertEl?.addEventListener('click', (event) => {
+      if(event.target === alertEl) closeModal(false);
+    });
+    window.addEventListener('keydown', (event) => {
+      if(!alertEl?.classList.contains('show')) return;
+      if(event.key === 'Escape') closeModal(false);
+    });
+
+
+    function bindGlobalLoadingTriggers(){
+      // 관리자 페이지는 실제 데이터 처리 시에만 로더를 사용합니다.
+    }
+
+
+    function markInitialDataLoaded(key){
+      if(!(key in initialLoadState)) return;
+      initialLoadState[key] = true;
+      if(Object.values(initialLoadState).every(Boolean)){
+        hideGlobalLoading(120);
+      }
+    }
+
+const setTextAll = (selector, text) => qsa(selector).forEach(el => el.textContent = text);
+    function updateAdminHeader(user){
+      qs('#adminTopUser').textContent = user?.email || '관리자 확인 중';
+      qs('#adminTopStatus').textContent = user ? '관리자 로그인됨' : '로그인 필요';
+    }
+    function changeAdminView(view){
+      if(!view) return;
+      state.view = view;
+      qsa('.admin-view').forEach(el => el.classList.remove('active'));
+      (qs(`#view-${view}`) || qs('#view-dashboard'))?.classList.add('active');
+      qsa('.admin-nav-btn').forEach(btn => btn.classList.toggle('active', btn.dataset.adminView === view));
+      qsa('[data-admin-view]').forEach(btn => btn.classList.toggle('gnb-home-active', btn.dataset.adminView === view && btn.classList.contains('gnb-icon-btn')));
+      qs('#adminGnbSheet')?.classList.remove('show');
+      qs('#adminGnbOverlay')?.classList.remove('show');
+      document.body.style.overflow = '';
+      document.body.classList.remove('gnb-open');
+      window.scrollTo({ top: 0, behavior: 'auto' });
+    }
+
+    function sanitizeBenefit(item={},id=''){return {id,name:item.name||'',category:item.category||'기타',discountValue:Number(item.discountValue||0),discountText:item.discountText||`${Number(item.discountValue||0)}%`,condition:item.condition||'',address:item.address||'',url:item.url||'',phone:item.phone||'',service:!!item.service||String(item.discountText).trim()==='서비스',visible:item.visible!==false,recommended:!!item.recommended};}
+    function sanitizeNotice(item={},id=''){return {id,title:item.title||'',content:item.content||'',category:item.category||'일반',visible:item.visible!==false,pinned:!!item.pinned,createdAt:item.createdAt||null,updatedAt:item.updatedAt||null};}
+    const hasFirebaseConfig=()=>firebaseConfig.apiKey&&firebaseConfig.projectId&&firebaseConfig.appId;
+    let auth=null,db=null;
+    function updateStats(){
+      const items=state.benefits;
+      setTextAll('.stat-count', String(items.length));
+      setTextAll('.stat-max', `${Math.max(0,...items.map(v=>v.discountValue))}%`);
+      setTextAll('.stat-cat', String(new Set(items.map(v=>v.category)).size));
+      const dashboardBenefitCountEl=qs('#dashboardBenefitCount'); if(dashboardBenefitCountEl) dashboardBenefitCountEl.textContent=`${items.length}건`;
+      const benefitListCountEl=qs('#benefitListCount'); if(benefitListCountEl) benefitListCountEl.textContent=`${items.length}건`;
+      const dashboardNoticeCountEl=qs('#dashboardNoticeCount'); if(dashboardNoticeCountEl) dashboardNoticeCountEl.textContent=`${state.notices.length}건`;
+      const noticeListCountEl=qs('#noticeListCount'); if(noticeListCountEl) noticeListCountEl.textContent=`${state.notices.length}건`;
+      const pushCountEl=qs('#pushJobCount'); if(pushCountEl) pushCountEl.textContent=`${state.pushJobs.length}건`;
+    }
+    function resetForm(){qs('#benefitForm').reset();qs('#editId').value='';qs('#formModeLabel').textContent='새 항목';qs('#discountValue').value=0;qs('#serviceType').value='discount';qs('#visible').checked=true;qs('#recommended').checked=false;}
+    function resetNoticeForm(){qs('#noticeForm').reset();qs('#noticeEditId').value='';qs('#noticeFormModeLabel').textContent='새 공지';qs('#noticeVisible').checked=true;qs('#noticePinned').checked=false;qs('#noticeCategory').value='일반';qs('#sendPushWithNotice').checked=false;qs('#pushImportantOnly').checked=false;qs('#pushTitle').value='';qs('#pushBody').value='';}
+    function fillForm(item){qs('#editId').value=item.id;qs('#formModeLabel').textContent='수정 중';qs('#name').value=item.name;qs('#category').value=item.category;qs('#discountText').value=item.discountText;qs('#discountValue').value=item.discountValue;qs('#serviceType').value=item.service?'service':'discount';qs('#condition').value=item.condition;qs('#address').value=item.address;qs('#url').value=item.url||'';qs('#phone').value=item.phone;qs('#visible').checked=item.visible!==false;qs('#recommended').checked=!!item.recommended;window.scrollTo({top:0,behavior:'smooth'});}
+    function fillNoticeForm(item){qs('#noticeEditId').value=item.id;qs('#noticeFormModeLabel').textContent='수정 중';qs('#noticeTitle').value=item.title;qs('#noticeCategory').value=item.category;qs('#noticeContent').value=item.content;qs('#noticeVisible').checked=item.visible!==false;qs('#noticePinned').checked=!!item.pinned;qs('#sendPushWithNotice').checked=false;qs('#pushImportantOnly').checked=!!item.pinned;qs('#pushTitle').value=item.title||'';qs('#pushBody').value=(item.content||'').slice(0,80);window.scrollTo({top:0,behavior:'smooth'});}
+    function renderAdminList(){const list=qs('#adminList');const dashboardList=qs('#dashboardBenefitList');if(list) list.innerHTML='';if(dashboardList) dashboardList.innerHTML='';if(!state.benefits.length){if(list) list.innerHTML='<div class="notice">등록된 항목이 없습니다.</div>'; if(dashboardList) dashboardList.innerHTML='<div class="notice">등록된 항목이 없습니다.</div>'; return;}const items=[...state.benefits].sort((a,b)=>a.name.localeCompare(b.name,'ko'));items.forEach((item,index)=>{const html=`<div class="mini-item-head"><div><h5>${item.name}</h5><div style="color:#64748b;font-size:13px;line-height:1.45;">${item.category} · ${item.discountText} · ${item.phone}</div><div class="tags">${item.recommended?'<span class="tag rec">추천</span>':''}${item.visible===false?'<span class="tag hidden-tag">비노출</span>':'<span class="tag live-tag">노출중</span>'}</div></div><div class="tags" style="margin-top:0;"><button class="btn btn-soft edit-btn" style="padding:8px 10px;">수정</button><button class="btn btn-danger del-btn" style="padding:8px 10px;">삭제</button></div></div>`; if(list){const el=document.createElement('div');el.className='mini-item';el.innerHTML=html;el.querySelector('.edit-btn').onclick=()=>fillForm(item);el.querySelector('.del-btn').onclick=()=>deleteBenefit(item.id,item.name);list.appendChild(el);} if(dashboardList && index < 3){const el2=document.createElement('div');el2.className='mini-item';el2.innerHTML=html;el2.querySelector('.edit-btn').onclick=()=>{fillForm(item);changeAdminView('benefits');};el2.querySelector('.del-btn').onclick=()=>deleteBenefit(item.id,item.name);dashboardList.appendChild(el2);}});}
+    function renderNoticeList(){const list=qs('#noticeAdminList');const dashboardList=qs('#dashboardNoticeList');if(list) list.innerHTML='';if(dashboardList) dashboardList.innerHTML='';if(!state.notices.length){if(list) list.innerHTML='<div class="notice">등록된 공지가 없습니다.</div>'; if(dashboardList) dashboardList.innerHTML='<div class="notice">등록된 공지가 없습니다.</div>'; return;}const items=[...state.notices].sort((a,b)=>{if(Number(b.pinned)!==Number(a.pinned)) return Number(b.pinned)-Number(a.pinned);const at=a.updatedAt?.seconds||a.createdAt?.seconds||0;const bt=b.updatedAt?.seconds||b.createdAt?.seconds||0;return bt-at;});items.forEach((item,index)=>{const html=`<div class="mini-item-head"><div><h5>${item.title}</h5><div style="color:#64748b;font-size:13px;line-height:1.55;white-space:pre-wrap;">${item.content.slice(0,80)}${item.content.length>80?'…':''}</div><div class="tags">${item.pinned?'<span class="tag rec">중요</span>':''}<span class="tag">${item.category}</span>${item.visible===false?'<span class="tag hidden-tag">비노출</span>':'<span class="tag live-tag">노출중</span>'}</div></div><div class="tags" style="margin-top:0;"><button class="btn btn-soft notice-edit-btn" style="padding:8px 10px;">수정</button><button class="btn btn-danger notice-del-btn" style="padding:8px 10px;">삭제</button></div></div>`; if(list){const el=document.createElement('div');el.className='mini-item';el.innerHTML=html;el.querySelector('.notice-edit-btn').onclick=()=>fillNoticeForm(item);el.querySelector('.notice-del-btn').onclick=()=>deleteNotice(item.id,item.title);list.appendChild(el);} if(dashboardList && index < 3){const el2=document.createElement('div');el2.className='mini-item';el2.innerHTML=html;el2.querySelector('.notice-edit-btn').onclick=()=>{fillNoticeForm(item);changeAdminView('notices');};el2.querySelector('.notice-del-btn').onclick=()=>deleteNotice(item.id,item.title);dashboardList.appendChild(el2);}});}
+    function renderPushJobList(){const list=qs('#pushJobList');if(!list) return;list.innerHTML='';if(!state.pushJobs.length){list.innerHTML='<div class="notice">생성된 푸시 작업이 없습니다.</div>';return;}const items=[...state.pushJobs].sort((a,b)=>{const at=a.createdAt?.seconds||0;const bt=b.createdAt?.seconds||0;return bt-at;});items.forEach(item=>{const el=document.createElement('div');el.className='mini-item';el.innerHTML=`<div class="mini-item-head"><div><h5>${item.title||'제목 없음'}</h5><div style="color:#64748b;font-size:13px;line-height:1.55;white-space:pre-wrap;">${(item.body||'').slice(0,80)}${(item.body||'').length>80?'…':''}</div><div class="tags"><span class="tag">${item.status||'queued'}</span>${item.noticeId?`<span class="tag">notice:${item.noticeId}</span>`:''}</div></div></div>`;list.appendChild(el);});}
+    async function queuePushJob({noticeId,title,body,pinned=false}){if(!state.isAdmin||!db) return;await addDoc(collection(db,PUSH_JOBS_COLLECTION),{type:'notice_broadcast',noticeId:noticeId||'',title:title||'새 공지',body:body||'',pinned:!!pinned,status:'queued',createdAt:serverTimestamp()});}
+
+    async function validateBenefitForm(){
+      const checks = [
+        { el: qs('#name'), message: '매장명을 입력해 주세요.' },
+        { el: qs('#category'), message: '카테고리를 입력해 주세요.' },
+        { el: qs('#discountText'), message: '혜택 표기를 입력해 주세요.' },
+        { el: qs('#condition'), message: '혜택 조건을 입력해 주세요.' },
+        { el: qs('#address'), message: '주소를 입력해 주세요.' },
+        { el: qs('#phone'), message: '전화번호를 입력해 주세요.' }
+      ];
+
+      for (const item of checks) {
+        const value = String(item.el?.value || '').trim();
+        if (!value) {
+          await openModalAlert(item.message, item.el);
+          return false;
+        }
+      }
+
+      return true;
+    }
+
+    async function validateNoticeForm(){
+      const checks = [
+        { el: qs('#noticeTitle'), message: '공지 제목을 입력해 주세요.' },
+        { el: qs('#noticeCategory'), message: '공지 구분을 입력해 주세요.' },
+        { el: qs('#noticeContent'), message: '공지 내용을 입력해 주세요.' }
+      ];
+
+      for (const item of checks) {
+        const value = String(item.el?.value || '').trim();
+        if (!value) {
+          await openModalAlert(item.message, item.el);
+          return false;
+        }
+      }
+
+      return true;
+    }
+
+    async function saveBenefit(e){
+      e.preventDefault();
+      if(!state.isAdmin||!db){
+        await openModalAlert('관리자 로그인 후 저장할 수 있습니다.', qs('#adminEmail'));
+        return;
+      }
+
+      const isValid = await validateBenefitForm();
+      if(!isValid) return;
+
+      const payload={
+        name:qs('#name').value.trim(),
+        category:qs('#category').value.trim(),
+        discountText:qs('#discountText').value.trim(),
+        discountValue:Number(qs('#discountValue').value||0),
+        condition:qs('#condition').value.trim(),
+        address:qs('#address').value.trim(),
+        url:qs('#url').value.trim(),
+        phone:qs('#phone').value.trim(),
+        service:qs('#serviceType').value==='service',
+        visible:qs('#visible').checked,
+        recommended:qs('#recommended').checked,
+        updatedAt:serverTimestamp()
+      };
+
+      try{
+        showGlobalLoading();
+        const editId=qs('#editId').value;
+        if(editId){
+          await updateDoc(doc(db,BENEFITS_COLLECTION,editId),payload);
+        }else{
+          await addDoc(collection(db,BENEFITS_COLLECTION),{...payload,createdAt:serverTimestamp()});
+        }
+        hideGlobalLoading();
+        resetForm();
+        await openModalAlert('혜택 정보가 저장되었습니다.', qs('#name'));
+      }catch(e){
+        console.error(e);
+        hideGlobalLoading();
+        await openModalAlert('저장에 실패했습니다.', qs('#name'));
+      }
+    }
+    async function saveNotice(e){
+      e.preventDefault();
+      if(!state.isAdmin||!db){
+        await openModalAlert('관리자 로그인 후 저장할 수 있습니다.', qs('#adminEmail'));
+        return;
+      }
+
+      const isValid = await validateNoticeForm();
+      if(!isValid) return;
+
+      const sendPush=qs('#sendPushWithNotice').checked;
+      const pushTitle=qs('#pushTitle').value.trim();
+      const pushBody=qs('#pushBody').value.trim();
+      const forcePinned=qs('#pushImportantOnly').checked;
+      const payload={
+        title:qs('#noticeTitle').value.trim(),
+        category:qs('#noticeCategory').value.trim()||'일반',
+        content:qs('#noticeContent').value.trim(),
+        visible:qs('#noticeVisible').checked,
+        pinned:qs('#noticePinned').checked||forcePinned,
+        updatedAt:serverTimestamp()
+      };
+
+      try{
+        showGlobalLoading();
+        const editId=qs('#noticeEditId').value;
+        let noticeId=editId;
+        if(editId){
+          await updateDoc(doc(db,NOTICES_COLLECTION,editId),payload);
+        }else{
+          const ref=await addDoc(collection(db,NOTICES_COLLECTION),{...payload,createdAt:serverTimestamp()});
+          noticeId=ref.id;
+        }
+        if(sendPush){
+          await queuePushJob({noticeId,title:pushTitle||payload.title,body:pushBody||payload.content.slice(0,120),pinned:payload.pinned});
+        }
+        hideGlobalLoading();
+        resetNoticeForm();
+        await openModalAlert(sendPush?'공지 저장 및 푸시 작업 생성이 완료되었습니다.':'공지 정보가 저장되었습니다.', qs('#noticeTitle'));
+      }catch(e){
+        console.error(e);
+        hideGlobalLoading();
+        await openModalAlert('공지 저장에 실패했습니다.', qs('#noticeTitle'));
+      }
+    }
+    async function deleteBenefit(id,name){
+      if(!state.isAdmin||!db){
+        await openModalAlert('관리자 로그인 후 삭제할 수 있습니다.', qs('#adminEmail'));
+        return;
+      }
+      const confirmed = await openModalConfirm(`"${name}" 항목을 삭제할까요?`, qs('#adminList'), '삭제 확인', '삭제', '취소');
+      if(!confirmed) return;
+
+      try{
+        showGlobalLoading();
+        await deleteDoc(doc(db,BENEFITS_COLLECTION,id));
+        hideGlobalLoading();
+      }catch(e){
+        console.error(e);
+        hideGlobalLoading();
+        await openModalAlert('삭제에 실패했습니다.', qs('#adminList'));
+      }
+    }
+    async function deleteNotice(id,title){
+      if(!state.isAdmin||!db){
+        await openModalAlert('관리자 로그인 후 삭제할 수 있습니다.', qs('#adminEmail'));
+        return;
+      }
+      const confirmed = await openModalConfirm(`"${title}" 공지를 삭제할까요?`, qs('#noticeAdminList'), '삭제 확인', '삭제', '취소');
+      if(!confirmed) return;
+
+      try{
+        showGlobalLoading();
+        await deleteDoc(doc(db,NOTICES_COLLECTION,id));
+        hideGlobalLoading();
+      }catch(e){
+        console.error(e);
+        hideGlobalLoading();
+        await openModalAlert('공지 삭제에 실패했습니다.', qs('#noticeAdminList'));
+      }
+    }
+    async function loginAdmin(){
+      if(!auth){
+        await openModalAlert('Firebase 설정을 확인해 주세요.', qs('#adminEmail'));
+        return;
+      }
+      const email=qs('#adminEmail').value.trim(),password=qs('#adminPassword').value;
+      if(!email){
+        await openModalAlert('이메일을 입력해 주세요.', qs('#adminEmail'));
+        return;
+      }
+      if(!password){
+        await openModalAlert('비밀번호를 입력해 주세요.', qs('#adminPassword'));
+        return;
+      }
+
+      try{
+        showGlobalLoading();
+        await signInWithEmailAndPassword(auth,email,password);
+        hideGlobalLoading();
+        qs('#adminPassword').value='';
+        await openModalAlert('관리자 로그인에 성공했습니다.', qs('#adminEmail'));
+      }catch(e){
+        console.error(e);
+        hideGlobalLoading();
+        await openModalAlert('로그인에 실패했습니다.', qs('#adminPassword'));
+      }
+    }
+    const logoutAdmin=async()=>{
+      if(!auth) return;
+      const confirmed = await openModalConfirm('로그아웃 하시겠습니까?', qs('#logoutBtn'), '로그아웃', '로그아웃', '취소');
+      if(!confirmed) return;
+      try{
+        showGlobalLoading();
+        await signOut(auth);
+        hideGlobalLoading();
+      }catch(e){
+        console.error(e);
+        hideGlobalLoading();
+        await openModalAlert('로그아웃 처리 중 오류가 발생했습니다.', qs('#logoutBtn'));
+      }
+    };
+    const exportBenefits=async()=>{
+      const blob=new Blob([JSON.stringify({benefits:state.benefits,notices:state.notices,pushJobs:state.pushJobs},null,2)],{type:'application/json'});
+      const a=document.createElement('a');
+      a.href=URL.createObjectURL(blob);
+      a.download='myhills-firestore-export.json';
+      a.click();
+      URL.revokeObjectURL(a.href);
+    };
+    async function seedDefaultData(){
+      if(!state.isAdmin||!db){
+        await openModalAlert('관리자 로그인 후 실행해 주세요.', qs('#adminEmail'));
+        return;
+      }
+      const confirmed = await openModalConfirm('기본 데이터를 Firestore에 업로드할까요? 기존 데이터와 중복될 수 있습니다.', qs('#seedBtn'), '기본 데이터 업로드', '업로드', '취소');
+      if(!confirmed) return;
+
+      try{
+        showGlobalLoading();
+        const snapshot=await getDocs(collection(db,BENEFITS_COLLECTION));
+        if(!snapshot.empty){
+          hideGlobalLoading();
+          const keepGoing=await openModalConfirm('이미 등록된 데이터가 있습니다. 그래도 추가 업로드할까요?', qs('#seedBtn'), '중복 데이터 확인', '계속', '취소');
+          if(!keepGoing) return;
+          showGlobalLoading();
+        }
+        const batch=writeBatch(db);
+        DEFAULT_BENEFITS.forEach(item=>{
+          const ref=doc(collection(db,BENEFITS_COLLECTION));
+          batch.set(ref,{...item,createdAt:serverTimestamp(),updatedAt:serverTimestamp()});
+        });
+        await batch.commit();
+        hideGlobalLoading();
+        await openModalAlert('기본 데이터 업로드가 완료되었습니다.', qs('#seedBtn'));
+      }catch(e){
+        console.error(e);
+        hideGlobalLoading();
+        await openModalAlert('기본 데이터 업로드에 실패했습니다.', qs('#seedBtn'));
+      }
+    }
+    function subscribeBenefits(){
+      onSnapshot(collection(db,BENEFITS_COLLECTION),(snapshot)=>{
+        state.benefits=snapshot.docs.map(d=>sanitizeBenefit(d.data(),d.id));
+        updateStats();
+        renderAdminList();
+        markInitialDataLoaded('benefits');
+      },(e)=>{
+        console.error(e);
+        markInitialDataLoaded('benefits');
+      });
+    }
+    function subscribeNotices(){
+      onSnapshot(collection(db,NOTICES_COLLECTION),(snapshot)=>{
+        state.notices=snapshot.docs.map(d=>sanitizeNotice(d.data(),d.id));
+        updateStats();
+        renderNoticeList();
+        markInitialDataLoaded('notices');
+      },(e)=>{
+        console.error(e);
+        markInitialDataLoaded('notices');
+      });
+    }
+    function subscribePushJobs(){
+      onSnapshot(collection(db,PUSH_JOBS_COLLECTION),(snapshot)=>{
+        state.pushJobs=snapshot.docs.map(d=>({id:d.id,...(d.data()||{})}));
+        updateStats();
+        renderPushJobList();
+        markInitialDataLoaded('pushJobs');
+      },(e)=>{
+        console.error(e);
+        markInitialDataLoaded('pushJobs');
+      });
+    }
+    if(hasFirebaseConfig()){
+      qs('#firebaseNotice').classList.add('hidden');
+      const app=initializeApp(firebaseConfig);
+      auth=getAuth(app);
+      db=getFirestore(app);
+      onAuthStateChanged(auth, async (user) => {
+        state.isAdmin = !!user;
+        qs('#authStatusText').textContent=user?`로그인됨: ${user.email}`:'로그인 필요';
+        updateAdminHeader(user);
+
+        if(!user){
+          setAdminDashboardLocked(true);
+          return;
+        }
+
+        setAdminDashboardLocked(false);
+
+        if (typeof window.refreshAdminStatsUIOnce === 'function') {
+          await window.refreshAdminStatsUIOnce();
+          if (!window.__adminDashboardIntervalStarted) {
+            window.__adminDashboardIntervalStarted = true;
+            setInterval(() => {
+              window.refreshAdminStatsUIOnce?.();
+            }, 30000);
+          }
+        }
+      });
+      showGlobalLoading();
+      subscribeBenefits();
+      subscribeNotices();
+      subscribePushJobs();
+    }else{
+      qs('#firebaseNotice').classList.remove('hidden');
+    }
+    qsa('[data-admin-view]').forEach(btn=>{btn.addEventListener('click',()=>changeAdminView(btn.dataset.adminView));});
+    const adminGnbToggleBtn = qs('#adminGnbToggleBtn');
+    const adminGnbSheet = qs('#adminGnbSheet');
+    const adminGnbOverlay = qs('#adminGnbOverlay');
+    const adminGnbCloseBtn = qs('#adminGnbCloseBtn');
+    function openAdminGnb(){
+      adminGnbSheet?.classList.add('show');
+      adminGnbOverlay?.classList.add('show');
+      adminGnbSheet?.setAttribute('aria-hidden','false');
+      adminGnbSheet?.classList.remove('gnb-enter');
+      requestAnimationFrame(() => adminGnbSheet?.classList.add('gnb-enter'));
+      document.body.style.overflow='hidden';
+      document.body.classList.add('gnb-open');
+      const homeBtn = adminGnbSheet?.querySelector('.gnb-home-active');
+      if(homeBtn){
+        homeBtn.animate(
+          [{ transform:'translateY(0)', opacity:1 }, { transform:'translateY(-1px)', opacity:1 }],
+          { duration:180, easing:'ease-out' }
+        );
+      }
+    }
+    function closeAdminGnb(){
+      adminGnbCloseBtn?.animate(
+        [{ transform:'scale(1) rotate(0deg)' }, { transform:'scale(.94) rotate(-8deg)' }, { transform:'scale(1) rotate(0deg)' }],
+        { duration:180, easing:'ease-out' }
+      );
+      adminGnbSheet?.classList.remove('show');
+      adminGnbOverlay?.classList.remove('show');
+      adminGnbSheet?.setAttribute('aria-hidden','true');
+      document.body.style.overflow='';
+      document.body.classList.remove('gnb-open');
+    }
+    adminGnbToggleBtn?.addEventListener('click', openAdminGnb);
+    adminGnbCloseBtn?.addEventListener('click', closeAdminGnb);
+    adminGnbOverlay?.addEventListener('click', closeAdminGnb);
+    window.addEventListener('keydown', (event) => {
+      if(event.key === 'Escape' && adminGnbSheet?.classList.contains('show')){
+        closeAdminGnb();
+      }
+    });
+
+    qs('#benefitForm').addEventListener('submit',saveBenefit);qs('#noticeForm').addEventListener('submit',saveNotice);qs('#cancelEditBtn').onclick=resetForm;qs('#cancelNoticeEditBtn').onclick=resetNoticeForm;qs('#loginBtn').onclick=loginAdmin;qs('#logoutBtn').onclick=logoutAdmin;qs('#exportBtn').onclick=exportBenefits;qs('#seedBtn').onclick=seedDefaultData;resetForm();resetNoticeForm();changeAdminView('dashboard');
+  </script>
+
+  
+  <div class="gnb-overlay" id="adminGnbOverlay"></div>
+  <aside class="gnb-sheet" id="adminGnbSheet" aria-hidden="true">
+    <div class="gnb-top">
+      <div class="gnb-icons">
+        <button class="gnb-icon-btn gnb-home-active" type="button" data-admin-view="dashboard" title="대시보드">⌂</button>
+        <button class="gnb-close" id="adminGnbCloseBtn" type="button" title="닫기">✕</button>
+      </div>
+      <div class="gnb-hero">
+        <div class="gnb-copy">
+          <small>운영 메뉴를 더 빠르게 이동해보세요</small>
+          <strong>운영자 서비스<br>전체보기</strong>
+        </div>
+        <div class="gnb-hero-emoji">🛠️</div>
+      </div>
+    </div>
+    <div class="gnb-body">
+      <div class="gnb-banner">
+        <span>운영 업무를 한 곳에서 빠르게 처리하세요</span>
+        <span>›</span>
+      </div>
+
+      <section class="gnb-section">
+        <h3 class="gnb-section-title">최근에 봤어요</h3>
+        <div class="gnb-chip-row">
+          <button class="gnb-chip" type="button" data-admin-view="dashboard">대시보드</button>
+        </div>
+      </section>
+
+      <section class="gnb-section">
+        <h3 class="gnb-section-title">📌 새로 나왔어요</h3>
+        <div class="gnb-new-section">
+          <div class="gnb-menu-list">
+            <button class="gnb-menu-item" type="button" data-admin-view="benefits">혜택 관리</button>
+            <button class="gnb-menu-item" type="button" data-admin-view="notices">공지 관리</button>
+            <button class="gnb-menu-item" type="button" data-admin-view="members">회원 관리</button>
+            <button class="gnb-menu-item" type="button" data-admin-view="dashboard-data">데이터 관리</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="gnb-section">
+        <h3 class="gnb-section-title">🛠️ 더운정 마이힐스 운영</h3>
+        <div class="gnb-menu-sublist">
+          <button class="gnb-menu-subitem" type="button" data-admin-view="dashboard">대시보드</button>
+          <button class="gnb-menu-subitem" type="button" data-admin-view="benefits">혜택</button>
+          <button class="gnb-menu-subitem" type="button" data-admin-view="notices">공지</button>
+          <button class="gnb-menu-subitem" type="button" data-admin-view="members">회원</button>
+          <button class="gnb-menu-subitem" type="button" data-admin-view="dashboard-data">데이터</button>
+          <button class="gnb-menu-subitem" type="button" onclick="location.href='/'">입주민 앱</button>
+        </div>
+      </section>
+    </div>
+  </aside>
+
+
+
+  <div class="app-alert" id="appAlert" aria-hidden="true">
+    <div class="app-alert-card" role="alertdialog" aria-modal="true" aria-labelledby="appAlertTitle" aria-describedby="appAlertMessage">
+      <div class="app-alert-head">
+        <div class="app-alert-icon" id="appAlertIcon">⚠️</div>
+        <h3 class="app-alert-title" id="appAlertTitle">안내</h3>
+      </div>
+      <p class="app-alert-message" id="appAlertMessage"></p>
+      <div class="app-alert-actions">
+        <button class="app-alert-cancel hidden" id="appAlertCancel" type="button">취소</button>
+        <button class="app-alert-confirm" id="appAlertConfirm" type="button">확인</button>
+      </div>
+    </div>
+  </div>
+
+
+
+  <script type="module">
+    import { renderAdminStatsUI } from "./tracking.js";
+
+    async function refreshAdminStatsUI(){
+      await renderAdminStatsUI({
+        statsContainerId: "adminStatsCards",
+        chartContainerId: "visitPathChart",
+        userListContainerId: "userActivityList",
+        recentListContainerId: "recentActivityList"
+      });
+    }
+
+    window.refreshAdminStatsUIOnce = refreshAdminStatsUI;
+  </script>
+
+  <script type="module">import { saveVisit } from "./tracking.js"; saveVisit("admin_page");</script>
+
+
+<script type="module">
+  import { mountIdleTimer } from "./tracking.js";
+
+  window.addEventListener("load", () => {
+    mountIdleTimer({
+      containerSelector: ".admin-topbar-left-titleline",
+      insertPosition: "beforeend"
+    });
+  });
+</script>
+
+
+<script>
+  function setAdminDashboardLocked(locked){
+    const stats = document.getElementById('adminStatsCards');
+    const users = document.getElementById('userActivityList');
+    const recent = document.getElementById('recentActivityList');
+    const visitCanvas = document.getElementById('visitPathChartCanvas');
+    const loginCanvas = document.getElementById('loginStatsChartCanvas');
+    const visitPlaceholder = document.getElementById('visitPathChartPlaceholder');
+    const loginPlaceholder = document.getElementById('loginStatsChartPlaceholder');
+
+    if(locked){
+      if(stats) stats.innerHTML = '<div class="notice">관리자 로그인 후 통계를 볼 수 있습니다.</div>';
+      if(users) users.innerHTML = '<div class="notice">관리자 로그인 후 사용자별 활동을 볼 수 있습니다.</div>';
+      if(recent) recent.innerHTML = '<div class="notice">관리자 로그인 후 최근 활동 로그를 볼 수 있습니다.</div>';
+      if(visitCanvas) visitCanvas.classList.add('hidden');
+      if(loginCanvas) loginCanvas.classList.add('hidden');
+      if(visitPlaceholder) visitPlaceholder.classList.remove('hidden');
+      if(loginPlaceholder) loginPlaceholder.classList.remove('hidden');
+      return;
+    }
+
+    if(visitCanvas) visitCanvas.classList.remove('hidden');
+    if(loginCanvas) loginCanvas.classList.remove('hidden');
+    if(visitPlaceholder) visitPlaceholder.classList.add('hidden');
+    if(loginPlaceholder) loginPlaceholder.classList.add('hidden');
+  }
+</script>
+
+</body>
+</html>
