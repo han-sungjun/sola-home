@@ -678,6 +678,23 @@ body.gnb-open .bottom-nav{
   .idle-timer-label{ font-size:9px; }
 }
 
+
+.topbar-left-titleline{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:12px;
+}
+.topbar-left-titleline .brand{
+  flex:1;
+  min-width:0;
+}
+@media (max-width:420px){
+  .topbar-left-titleline{
+    gap:10px;
+  }
+}
+
 </style>
 </head>
 <body>
@@ -702,18 +719,24 @@ body.gnb-open .bottom-nav{
             </div>
           </div>
           <button class="icon-btn logout-btn" id="logoutBtn">로그아웃</button>
-          <div class="idle-timer-chip idle-safe" id="idleTimerChip" aria-live="polite"><span class="idle-timer-label">자동 로그아웃</span><strong id="idleTimerText">30:00</strong><div class="idle-progress-track" aria-hidden="true"><div class="idle-progress-bar" id="idleProgressBar"></div></div></div>
-          <button class="icon-btn" id="installTopBtn">📲</button>
+<button class="icon-btn" id="installTopBtn">📲</button>
           <div class="gnb-wrap">
             <button class="icon-btn" id="gnbToggleBtn" title="메뉴">☰</button>
           </div>
         </div>
-        <div class="topbar-left">
+        <div class="topbar-left topbar-left-titleline">
           <div class="brand">
             <div class="logo">🏠</div>
             <div>
               <h1>더운정<br>마이힐스</h1>
               <p>입주민 전용 혜택 웹앱</p>
+            </div>
+          </div>
+          <div class="idle-timer-chip idle-safe" id="idleTimerChip" aria-live="polite">
+            <span class="idle-timer-label">자동 로그아웃</span>
+            <strong id="idleTimerText">30:00</strong>
+            <div class="idle-progress-track" aria-hidden="true">
+              <div class="idle-progress-bar" id="idleProgressBar"></div>
             </div>
           </div>
         </div>
