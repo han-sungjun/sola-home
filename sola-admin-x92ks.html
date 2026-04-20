@@ -507,24 +507,7 @@ body.gnb-open .admin-bottom-nav{
   }
 }
 
-
-.chart-wrap{
-  position:relative;
-  width:100%;
-  min-height:240px;
-  padding:14px 14px 10px;
-  background:linear-gradient(180deg,#ffffff 0%,#f8fafc 100%);
-  border:1px solid rgba(15,23,42,.06);
-  border-radius:24px;
-  box-shadow:0 10px 24px rgba(15,23,42,.04);
-}
-.chart-wrap canvas{
-  width:100% !important;
-  height:auto !important;
-}
-
 </style>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
   <div class="global-loading" id="globalLoadingBar" aria-hidden="true">
@@ -582,27 +565,22 @@ body.gnb-open .admin-bottom-nav{
         </div>
         <div class="admin-card">
           <div class="section-head" style="margin-bottom:12px;"><h3 style="font-size:16px;">실시간 운영 통계</h3><small>오늘 기준</small></div>
-          <div id="adminStatsCards" class="summary-list"></div>
+          <div id="adminStatsCards" class="summary-list"><div class="notice">관리자 로그인 후 통계를 볼 수 있습니다.</div></div>
         </div>
 
         <div class="admin-card">
           <div class="section-head" style="margin-bottom:12px;"><h3 style="font-size:16px;">방문 경로 분석</h3><small>페이지별 방문 수</small></div>
-          <div class="chart-wrap"><canvas id="visitPathChartCanvas" height="220"></canvas></div>
-        </div>
-
-        <div class="admin-card">
-          <div class="section-head" style="margin-bottom:12px;"><h3 style="font-size:16px;">로그인 현황 차트</h3><small>오늘 기준</small></div>
-          <div class="chart-wrap"><canvas id="loginStatsChartCanvas" height="220"></canvas></div>
+          <div id="visitPathChart"></div>
         </div>
 
         <div class="admin-card">
           <div class="section-head" style="margin-bottom:12px;"><h3 style="font-size:16px;">사용자별 활동</h3><small>오늘 기준</small></div>
-          <div id="userActivityList" class="mini-list"></div>
+          <div id="userActivityList" class="mini-list"><div class="notice">관리자 로그인 후 사용자별 활동을 볼 수 있습니다.</div></div>
         </div>
 
         <div class="admin-card">
           <div class="section-head" style="margin-bottom:12px;"><h3 style="font-size:16px;">최근 활동 로그</h3><small>최신 20건</small></div>
-          <div id="recentActivityList" class="mini-list"></div>
+          <div id="recentActivityList" class="mini-list"><div class="notice">관리자 로그인 후 최근 활동 로그를 볼 수 있습니다.</div></div>
         </div>
 
       </div>
@@ -1091,10 +1069,27 @@ const setTextAll = (selector, text) => qsa(selector).forEach(el => el.textConten
       const app=initializeApp(firebaseConfig);
       auth=getAuth(app);
       db=getFirestore(app);
-      onAuthStateChanged(auth,(user)=>{
-        state.isAdmin=!!user;
+      onAuthStateChanged(auth, async (user) => {
+        state.isAdmin = !!user;
         qs('#authStatusText').textContent=user?`로그인됨: ${user.email}`:'로그인 필요';
         updateAdminHeader(user);
+
+        if(!user){
+          setAdminDashboardLocked(true);
+          return;
+        }
+
+        setAdminDashboardLocked(false);
+
+        if (typeof window.refreshAdminStatsUIOnce === 'function') {
+          await window.refreshAdminStatsUIOnce();
+          if (!window.__adminDashboardIntervalStarted) {
+            window.__adminDashboardIntervalStarted = true;
+            setInterval(() => {
+              window.refreshAdminStatsUIOnce?.();
+            }, 30000);
+          }
+        }
       });
       showGlobalLoading();
       subscribeBenefits();
@@ -1221,29 +1216,62 @@ const setTextAll = (selector, text) => qsa(selector).forEach(el => el.textConten
 
 
   <script type="module">
-    import { saveVisit, mountIdleTimer, refreshAdminDashboard } from "./tracking.js";
+    import { renderAdminStatsUI } from "./tracking.js";
 
-    async function refreshDashboard(){
-      await refreshAdminDashboard({
+    async function refreshAdminStatsUI(){
+      await renderAdminStatsUI({
         statsContainerId: "adminStatsCards",
         chartContainerId: "visitPathChart",
         userListContainerId: "userActivityList",
-        recentListContainerId: "recentActivityList",
-        visitCanvasId: "visitPathChartCanvas",
-        loginCanvasId: "loginStatsChartCanvas"
+        recentListContainerId: "recentActivityList"
       });
     }
 
-    window.addEventListener("load", () => {
-      saveVisit("admin_page");
-      mountIdleTimer({
-        containerSelector: ".admin-topbar-left-titleline",
-        insertPosition: "beforeend"
-      });
-      refreshDashboard();
-      setInterval(refreshDashboard, 30000);
-    });
+    window.refreshAdminStatsUIOnce = refreshAdminStatsUI;
   </script>
+
+  <script type="module">import { saveVisit } from "./tracking.js"; saveVisit("admin_page");</script>
+
+
+<script type="module">
+  import { mountIdleTimer } from "./tracking.js";
+
+  window.addEventListener("load", () => {
+    mountIdleTimer({
+      containerSelector: ".admin-topbar-left-titleline",
+      insertPosition: "beforeend"
+    });
+  });
+</script>
+
+
+<script>
+  function setAdminDashboardLocked(locked){
+    const stats = document.getElementById('adminStatsCards');
+    const users = document.getElementById('userActivityList');
+    const recent = document.getElementById('recentActivityList');
+    const visitCanvas = document.getElementById('visitPathChartCanvas');
+    const loginCanvas = document.getElementById('loginStatsChartCanvas');
+    const visitPlaceholder = document.getElementById('visitPathChartPlaceholder');
+    const loginPlaceholder = document.getElementById('loginStatsChartPlaceholder');
+
+    if(locked){
+      if(stats) stats.innerHTML = '<div class="notice">관리자 로그인 후 통계를 볼 수 있습니다.</div>';
+      if(users) users.innerHTML = '<div class="notice">관리자 로그인 후 사용자별 활동을 볼 수 있습니다.</div>';
+      if(recent) recent.innerHTML = '<div class="notice">관리자 로그인 후 최근 활동 로그를 볼 수 있습니다.</div>';
+      if(visitCanvas) visitCanvas.classList.add('hidden');
+      if(loginCanvas) loginCanvas.classList.add('hidden');
+      if(visitPlaceholder) visitPlaceholder.classList.remove('hidden');
+      if(loginPlaceholder) loginPlaceholder.classList.remove('hidden');
+      return;
+    }
+
+    if(visitCanvas) visitCanvas.classList.remove('hidden');
+    if(loginCanvas) loginCanvas.classList.remove('hidden');
+    if(visitPlaceholder) visitPlaceholder.classList.add('hidden');
+    if(loginPlaceholder) loginPlaceholder.classList.add('hidden');
+  }
+</script>
 
 </body>
 </html>
