@@ -507,7 +507,20 @@ body.gnb-open .admin-bottom-nav{
   }
 }
 
+
+.chart-wrap{
+  position:relative;
+  width:100%;
+  min-height:220px;
+  padding:10px 4px 2px;
+}
+.chart-wrap canvas{
+  width:100% !important;
+  height:auto !important;
+}
+
 </style>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
   <div class="global-loading" id="globalLoadingBar" aria-hidden="true">
@@ -570,7 +583,12 @@ body.gnb-open .admin-bottom-nav{
 
         <div class="admin-card">
           <div class="section-head" style="margin-bottom:12px;"><h3 style="font-size:16px;">방문 경로 분석</h3><small>페이지별 방문 수</small></div>
-          <div id="visitPathChart"></div>
+          <div class="chart-wrap"><canvas id="visitPathChartCanvas" height="220"></canvas></div>
+        </div>
+
+        <div class="admin-card">
+          <div class="section-head" style="margin-bottom:12px;"><h3 style="font-size:16px;">로그인 현황 차트</h3><small>오늘 기준</small></div>
+          <div class="chart-wrap"><canvas id="loginStatsChartCanvas" height="220"></canvas></div>
         </div>
 
         <div class="admin-card">
@@ -1199,7 +1217,85 @@ const setTextAll = (selector, text) => qsa(selector).forEach(el => el.textConten
 
 
   <script type="module">
-    import { renderAdminStatsUI } from "./tracking.js";
+    import { renderAdminStatsUI, getTodayStats, getVisitPathStats } from "./tracking.js";
+
+    let visitPathChart = null;
+    let loginStatsChart = null;
+
+    function buildVisitPathChart(items){
+      const canvas = document.getElementById("visitPathChartCanvas");
+      if(!canvas || typeof Chart === "undefined") return;
+
+      const labels = items.map(item => item.page);
+      const values = items.map(item => item.count);
+
+      if(visitPathChart) visitPathChart.destroy();
+
+      visitPathChart = new Chart(canvas, {
+        type: "bar",
+        data: {
+          labels,
+          datasets: [{
+            label: "방문 수",
+            data: values,
+            borderRadius: 10,
+            borderSkipped: false
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false }
+          },
+          scales: {
+            x: {
+              ticks: { color: "#64748b", font: { size: 11 } },
+              grid: { display: false }
+            },
+            y: {
+              beginAtZero: true,
+              ticks: { color: "#64748b", precision: 0 },
+              grid: { color: "rgba(15,23,42,.06)" }
+            }
+          }
+        }
+      });
+    }
+
+    function buildLoginStatsChart(stats){
+      const canvas = document.getElementById("loginStatsChartCanvas");
+      if(!canvas || typeof Chart === "undefined") return;
+
+      if(loginStatsChart) loginStatsChart.destroy();
+
+      loginStatsChart = new Chart(canvas, {
+        type: "doughnut",
+        data: {
+          labels: ["성공", "실패", "차단"],
+          datasets: [{
+            data: [stats.successCount || 0, stats.failCount || 0, stats.blockedCount || 0],
+            borderWidth: 0,
+            hoverOffset: 4
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          cutout: "68%",
+          plugins: {
+            legend: {
+              position: "bottom",
+              labels: {
+                boxWidth: 12,
+                color: "#475569",
+                font: { size: 12 }
+              }
+            }
+          }
+        }
+      });
+    }
 
     async function refreshAdminStatsUI(){
       await renderAdminStatsUI({
@@ -1208,6 +1304,14 @@ const setTextAll = (selector, text) => qsa(selector).forEach(el => el.textConten
         userListContainerId: "userActivityList",
         recentListContainerId: "recentActivityList"
       });
+
+      const [stats, pathStats] = await Promise.all([
+        getTodayStats(),
+        getVisitPathStats()
+      ]);
+
+      buildVisitPathChart(pathStats || []);
+      buildLoginStatsChart(stats || {});
     }
 
     window.addEventListener("load", () => {
