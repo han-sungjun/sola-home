@@ -47,10 +47,6 @@ function startOfToday() {
   return d;
 }
 
-function minutesAgoDate(minutes) {
-  return new Date(Date.now() - minutes * 60 * 1000);
-}
-
 function safeText(value, fallback = "-") {
   if (value === null || value === undefined || value === "") return fallback;
   return String(value);
@@ -470,10 +466,14 @@ export async function getRecentActivityLogs(maxItems = 20) {
   }
 }
 
+// 관리자 페이지 import 이름 호환용 별칭
+export async function getRecentActivity(maxItems = 20) {
+  return await getRecentActivityLogs(maxItems);
+}
+
 
 // =========================
 // 관리자 통계 카드 UI 렌더링용 헬퍼
-// container에 직접 그림
 // =========================
 
 export async function renderAdminStatsUI({
