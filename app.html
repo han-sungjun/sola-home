@@ -1678,4 +1678,37 @@ async function refreshPushStatus(){
 
 
 <script type="module">import { saveVisit } from "./tracking.js"; saveVisit("app_main");</script>
+
+<script type="module">
+  import { saveActivity } from './tracking.js';
+
+  function detectView(target) {
+    return target?.dataset?.viewLink
+      || target?.dataset?.view
+      || target?.closest?.('[data-view-link]')?.dataset?.viewLink
+      || target?.closest?.('.nav-btn')?.dataset?.view
+      || '';
+  }
+
+  document.addEventListener('click', async (event) => {
+    const target = event.target;
+    const view = detectView(target);
+    if (view) {
+      await saveActivity('view_change', { page: view, targetView: view });
+      return;
+    }
+
+    const favoriteBtn = target.closest?.('[data-favorite-id], .favorite-btn');
+    if (favoriteBtn) {
+      await saveActivity('favorite_toggle', { page: 'favorite' });
+      return;
+    }
+
+    const noticeBtn = target.closest?.('[data-notice-id]');
+    if (noticeBtn) {
+      await saveActivity('notice_open', { page: 'notices' });
+    }
+  }, true);
+</script>
+
 </body></html>

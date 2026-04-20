@@ -630,6 +630,27 @@
       return document.title || 'unknown';
     }
 
+    async function logVisitHistory({
+      page = getVisitPageName(),
+      detail = 'page_view'
+    } = {}){
+      try {
+        await addDoc(collection(db, 'visit_history'), {
+          sessionId: getSessionId(),
+          page,
+          detail,
+          title: document.title || '',
+          path: window.location.pathname || '',
+          fullUrl: window.location.href || '',
+          referrer: document.referrer || '',
+          userAgent: navigator.userAgent || '',
+          createdAt: serverTimestamp()
+        });
+      } catch (error) {
+        console.warn('visit_history 저장 실패', error);
+      }
+    }
+
     async function logLoginHistory({
       email = '',
       status = 'unknown',
@@ -797,6 +818,7 @@
       }
     });
 
+
     signupBtn.addEventListener('click', () => {
       window.location.href = './signup.html';
     });
@@ -871,6 +893,7 @@
           reason: 'login_success'
         });
 
+        window.dispatchEvent(new CustomEvent('resident-login-success'));
         finishLoading();
         showNotice('로그인되었습니다. 잠시 후 이동합니다.', 'success');
         setTimeout(() => {
@@ -901,6 +924,7 @@
           reason: code || 'login_error'
         });
 
+        window.dispatchEvent(new CustomEvent('resident-login-fail'));
         finishLoading();
         showNotice(message, 'error');
         await openModalAlert(message, focusTarget);
@@ -999,6 +1023,94 @@
       <span class="arm bot2"></span>
     </div>
   </div>
+
+
+<script type="module">
+  import { saveLogin } from './tracking.js';
+
+  const KEY = 'myhills_login_fail_guard';
+  const LIMIT = 5;
+  const WINDOW_MS = 10 * 60 * 1000;
+  const LOCK_MS = 10 * 60 * 1000;
+
+  const loginForm = document.querySelector('#loginForm');
+  const emailEl = document.querySelector('#email');
+
+  function normalizeEmail(value='') {
+    return String(value).trim().toLowerCase();
+  }
+  function readStore() {
+    try { return JSON.parse(localStorage.getItem(KEY) || '{}'); }
+    catch (_) { return {}; }
+  }
+  function writeStore(data) {
+    localStorage.setItem(KEY, JSON.stringify(data));
+  }
+  function getRow(email='') {
+    const all = readStore();
+    const key = normalizeEmail(email);
+    const row = all[key] || { fails: [], lockedUntil: 0 };
+    const now = Date.now();
+    row.fails = (row.fails || []).filter((time) => now - time < WINDOW_MS);
+    if (row.lockedUntil && row.lockedUntil < now) row.lockedUntil = 0;
+    all[key] = row;
+    writeStore(all);
+    return row;
+  }
+  function getLockMessage(lockedUntil=0) {
+    const remainMs = Math.max(0, lockedUntil - Date.now());
+    const remainMin = Math.max(1, Math.ceil(remainMs / 60000));
+    return `로그인 실패가 반복되어 ${remainMin}분 동안 로그인 시도가 제한되었습니다.`;
+  }
+
+  loginForm?.addEventListener('submit', async (event) => {
+    const row = getRow(emailEl?.value || '');
+    if (row.lockedUntil && row.lockedUntil > Date.now()) {
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      const message = getLockMessage(row.lockedUntil);
+      alert(message);
+      await saveLogin({
+        email: emailEl?.value || '',
+        status: 'blocked',
+        reason: 'too_many_failures_local',
+        lockedUntil: row.lockedUntil
+      });
+    }
+  }, true);
+
+  window.addEventListener('resident-login-success', () => {
+    const key = normalizeEmail(emailEl?.value || '');
+    const all = readStore();
+    delete all[key];
+    writeStore(all);
+  });
+
+  window.addEventListener('resident-login-fail', async () => {
+    const key = normalizeEmail(emailEl?.value || '');
+    const all = readStore();
+    const row = getRow(key);
+    row.fails.push(Date.now());
+    if (row.fails.length >= LIMIT) {
+      row.lockedUntil = Date.now() + LOCK_MS;
+      alert(getLockMessage(row.lockedUntil));
+      await saveLogin({
+        email: key,
+        status: 'blocked',
+        reason: 'too_many_failures_local',
+        lockedUntil: row.lockedUntil
+      });
+    } else {
+      await saveLogin({
+        email: key,
+        status: 'fail',
+        reason: 'login_error'
+      });
+    }
+    all[key] = row;
+    writeStore(all);
+  }, true);
+</script>
 
 </body>
 
