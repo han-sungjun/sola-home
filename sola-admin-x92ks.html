@@ -511,79 +511,16 @@ body.gnb-open .admin-bottom-nav{
 .chart-wrap{
   position:relative;
   width:100%;
-  min-height:220px;
-  padding:10px 4px 2px;
+  min-height:240px;
+  padding:14px 14px 10px;
+  background:linear-gradient(180deg,#ffffff 0%,#f8fafc 100%);
+  border:1px solid rgba(15,23,42,.06);
+  border-radius:24px;
+  box-shadow:0 10px 24px rgba(15,23,42,.04);
 }
 .chart-wrap canvas{
   width:100% !important;
   height:auto !important;
-}
-
-
-.admin-card{
-  background:rgba(255,255,255,.86);
-  border:1px solid rgba(255,255,255,.72);
-  box-shadow:0 18px 40px rgba(15,23,42,.08);
-  backdrop-filter:blur(18px);
-}
-.section-head h3{
-  letter-spacing:-.04em;
-}
-.summary-list{
-  grid-template-columns:1fr;
-}
-.summary-row{
-  background:linear-gradient(180deg,#ffffff 0%,#f8fafc 100%);
-  border:1px solid rgba(15,23,42,.06);
-  border-radius:20px;
-  box-shadow:0 8px 20px rgba(15,23,42,.04);
-}
-.summary-row strong{
-  font-size:14px;
-  color:#0f172a;
-}
-.summary-row span{
-  font-size:13px;
-  color:#334155;
-  font-weight:800;
-}
-.chart-wrap{
-  background:linear-gradient(180deg,#ffffff 0%,#f8fafc 100%);
-  border:1px solid rgba(15,23,42,.06);
-  border-radius:24px;
-  padding:14px 14px 10px;
-  box-shadow:0 10px 24px rgba(15,23,42,.04);
-  min-height:240px;
-}
-.mini-item{
-  border:1px solid rgba(15,23,42,.06);
-  border-radius:20px;
-  box-shadow:0 8px 20px rgba(15,23,42,.04);
-  background:linear-gradient(180deg,#ffffff 0%,#f8fafc 100%);
-}
-.tag{
-  background:#f8fafc;
-}
-.tag.rec{
-  background:#eff6ff;
-  color:#2563eb;
-  border-color:#bfdbfe;
-}
-.admin-card.premium-highlight{
-  position:relative;
-  overflow:hidden;
-}
-.admin-card.premium-highlight::after{
-  content:"";
-  position:absolute;
-  right:-34px;
-  top:-26px;
-  width:120px;
-  height:120px;
-  border-radius:34px;
-  background:linear-gradient(180deg,rgba(239,68,68,.16),rgba(245,158,11,.08));
-  transform:rotate(18deg);
-  pointer-events:none;
 }
 
 </style>
@@ -643,17 +580,17 @@ body.gnb-open .admin-bottom-nav{
           <div class="section-head" style="margin-bottom:12px;"><h3 style="font-size:16px;">최근 등록 혜택</h3><small id="dashboardBenefitCount">0건</small></div>
           <div class="mini-list" id="dashboardBenefitList"></div>
         </div>
-        <div class="admin-card premium-highlight">
+        <div class="admin-card">
           <div class="section-head" style="margin-bottom:12px;"><h3 style="font-size:16px;">실시간 운영 통계</h3><small>오늘 기준</small></div>
           <div id="adminStatsCards" class="summary-list"></div>
         </div>
 
-        <div class="admin-card premium-highlight">
+        <div class="admin-card">
           <div class="section-head" style="margin-bottom:12px;"><h3 style="font-size:16px;">방문 경로 분석</h3><small>페이지별 방문 수</small></div>
           <div class="chart-wrap"><canvas id="visitPathChartCanvas" height="220"></canvas></div>
         </div>
 
-        <div class="admin-card premium-highlight">
+        <div class="admin-card">
           <div class="section-head" style="margin-bottom:12px;"><h3 style="font-size:16px;">로그인 현황 차트</h3><small>오늘 기준</small></div>
           <div class="chart-wrap"><canvas id="loginStatsChartCanvas" height="220"></canvas></div>
         </div>
@@ -1284,134 +1221,29 @@ const setTextAll = (selector, text) => qsa(selector).forEach(el => el.textConten
 
 
   <script type="module">
-    import { renderAdminStatsUI, getTodayStats, getVisitPathStats } from "./tracking.js";
+    import { saveVisit, mountIdleTimer, refreshAdminDashboard } from "./tracking.js";
 
-    let visitPathChart = null;
-    let loginStatsChart = null;
-
-    function buildVisitPathChart(items){
-      const canvas = document.getElementById("visitPathChartCanvas");
-      if(!canvas || typeof Chart === "undefined") return;
-
-      const labels = items.map(item => item.page);
-      const values = items.map(item => item.count);
-
-      if(visitPathChart) visitPathChart.destroy();
-
-      visitPathChart = new Chart(canvas, {
-        type: "bar",
-        data: {
-          labels,
-          datasets: [{
-            label: "방문 수",
-            data: values,
-            backgroundColor: [
-              "rgba(15,23,42,.92)",
-              "rgba(37,99,235,.88)",
-              "rgba(239,68,68,.82)",
-              "rgba(245,158,11,.82)",
-              "rgba(14,165,233,.82)"
-            ],
-            borderRadius: 14,
-            borderSkipped: false,
-            barThickness: 26,
-            maxBarThickness: 30
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: {
-            tooltip: { backgroundColor: "rgba(15,23,42,.92)", titleColor: "#fff", bodyColor: "#fff", padding: 12, cornerRadius: 12 },
-            legend: { display: false }, tooltip: { backgroundColor: "rgba(15,23,42,.92)", titleColor: "#fff", bodyColor: "#fff", padding: 12, cornerRadius: 12 }
-          },
-          scales: {
-            x: {
-              ticks: { color: "#64748b", font: { size: 11, weight: "700" } },
-              grid: { display: false }
-            },
-            y: {
-              beginAtZero: true,
-              ticks: { color: "#64748b", precision: 0, font: { weight: "700" } },
-              grid: { color: "rgba(15,23,42,.06)" }
-            }
-          }
-        }
-      });
-    }
-
-    function buildLoginStatsChart(stats){
-      const canvas = document.getElementById("loginStatsChartCanvas");
-      if(!canvas || typeof Chart === "undefined") return;
-
-      if(loginStatsChart) loginStatsChart.destroy();
-
-      loginStatsChart = new Chart(canvas, {
-        type: "doughnut",
-        data: {
-          labels: ["성공", "실패", "차단"],
-          datasets: [{
-            data: [stats.successCount || 0, stats.failCount || 0, stats.blockedCount || 0],
-            backgroundColor: [
-              "rgba(34,197,94,.88)",
-              "rgba(245,158,11,.88)",
-              "rgba(239,68,68,.88)"
-            ],
-            borderColor: "#ffffff",
-            borderWidth: 4,
-            hoverOffset: 6
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          cutout: "72%",
-          plugins: {
-            legend: {
-              position: "bottom",
-              labels: { boxWidth: 12, usePointStyle: true, pointStyle: "circle", color: "#475569", font: { size: 12, weight: "700" }, padding: 16 }
-            }
-          }
-        }
-      });
-    }
-
-    async function refreshAdminStatsUI(){
-      await renderAdminStatsUI({
+    async function refreshDashboard(){
+      await refreshAdminDashboard({
         statsContainerId: "adminStatsCards",
         chartContainerId: "visitPathChart",
         userListContainerId: "userActivityList",
-        recentListContainerId: "recentActivityList"
+        recentListContainerId: "recentActivityList",
+        visitCanvasId: "visitPathChartCanvas",
+        loginCanvasId: "loginStatsChartCanvas"
       });
-
-      const [stats, pathStats] = await Promise.all([
-        getTodayStats(),
-        getVisitPathStats()
-      ]);
-
-      buildVisitPathChart(pathStats || []);
-      buildLoginStatsChart(stats || {});
     }
 
     window.addEventListener("load", () => {
-      refreshAdminStatsUI();
-      setInterval(refreshAdminStatsUI, 30000);
+      saveVisit("admin_page");
+      mountIdleTimer({
+        containerSelector: ".admin-topbar-left-titleline",
+        insertPosition: "beforeend"
+      });
+      refreshDashboard();
+      setInterval(refreshDashboard, 30000);
     });
   </script>
-
-  <script type="module">import { saveVisit } from "./tracking.js"; saveVisit("admin_page");</script>
-
-
-<script type="module">
-  import { mountIdleTimer } from "./tracking.js";
-
-  window.addEventListener("load", () => {
-    mountIdleTimer({
-      containerSelector: ".admin-topbar-left-titleline",
-      insertPosition: "beforeend"
-    });
-  });
-</script>
 
 </body>
 </html>

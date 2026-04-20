@@ -83,7 +83,6 @@ export async function saveVisit(pageName, detail = "") {
   try {
     const { uid, email } = getUserInfo();
 
-    // 로그인 전이면 저장하지 않음
     if (!uid) return;
 
     await addDoc(collection(db, "visit_history"), {
@@ -115,7 +114,7 @@ export async function saveLogin({ email, status, reason }) {
     await addDoc(collection(db, "login_history"), {
       uid: user?.uid || null,
       email: email || null,
-      status,   // success / fail / blocked
+      status,
       reason: reason || "",
       userAgent: getDeviceInfo(),
       path: location.pathname,
@@ -487,7 +486,6 @@ export async function getRecentActivityLogs(maxItems = 20) {
   }
 }
 
-// 관리자 페이지 import 이름 호환용 별칭
 export async function getRecentActivity(maxItems = 20) {
   return await getRecentActivityLogs(maxItems);
 }
@@ -579,8 +577,10 @@ export async function renderAdminStatsUI({
       : `<div class="notice">최근 활동 로그가 아직 없습니다.</div>`;
   }
 }
-// tracking_final.js
+
+// =========================
 // 공통 자동 로그아웃 타이머 컴포넌트
+// =========================
 
 export const IDLE_TIMER_TOTAL_SECONDS = 30 * 60;
 
@@ -802,4 +802,150 @@ export function mountIdleTimer({
     bindIdleTimerActivityEvents();
     startIdleTimerEngine();
   }
+}
+
+// =========================
+// 관리자 차트 렌더링 (Chart.js 필요)
+// =========================
+
+let visitPathChartInstance = null;
+let loginStatsChartInstance = null;
+
+export async function renderAdminCharts({
+  visitCanvasId = "visitPathChartCanvas",
+  loginCanvasId = "loginStatsChartCanvas"
+} = {}) {
+  if (typeof Chart === "undefined") {
+    console.log("Chart.js not found");
+    return;
+  }
+
+  const [stats, pathStats] = await Promise.all([
+    getTodayStats(),
+    getVisitPathStats()
+  ]);
+
+  const visitCanvas = document.getElementById(visitCanvasId);
+  if (visitCanvas) {
+    const labels = (pathStats || []).map(item => item.page);
+    const values = (pathStats || []).map(item => item.count);
+
+    if (visitPathChartInstance) visitPathChartInstance.destroy();
+
+    visitPathChartInstance = new Chart(visitCanvas, {
+      type: "bar",
+      data: {
+        labels,
+        datasets: [{
+          label: "방문 수",
+          data: values,
+          backgroundColor: [
+            "rgba(15,23,42,.92)",
+            "rgba(37,99,235,.88)",
+            "rgba(239,68,68,.82)",
+            "rgba(245,158,11,.82)",
+            "rgba(14,165,233,.82)"
+          ],
+          borderRadius: 14,
+          borderSkipped: false,
+          barThickness: 26,
+          maxBarThickness: 30
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            backgroundColor: "rgba(15,23,42,.92)",
+            titleColor: "#fff",
+            bodyColor: "#fff",
+            padding: 12,
+            cornerRadius: 12
+          }
+        },
+        scales: {
+          x: {
+            ticks: { color: "#64748b", font: { size: 11, weight: "700" } },
+            grid: { display: false }
+          },
+          y: {
+            beginAtZero: true,
+            ticks: { color: "#64748b", precision: 0, font: { weight: "700" } },
+            grid: { color: "rgba(15,23,42,.06)" }
+          }
+        }
+      }
+    });
+  }
+
+  const loginCanvas = document.getElementById(loginCanvasId);
+  if (loginCanvas) {
+    if (loginStatsChartInstance) loginStatsChartInstance.destroy();
+
+    loginStatsChartInstance = new Chart(loginCanvas, {
+      type: "doughnut",
+      data: {
+        labels: ["성공", "실패", "차단"],
+        datasets: [{
+          data: [stats?.successCount || 0, stats?.failCount || 0, stats?.blockedCount || 0],
+          backgroundColor: [
+            "rgba(34,197,94,.88)",
+            "rgba(245,158,11,.88)",
+            "rgba(239,68,68,.88)"
+          ],
+          borderColor: "#ffffff",
+          borderWidth: 4,
+          hoverOffset: 6
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        cutout: "72%",
+        plugins: {
+          tooltip: {
+            backgroundColor: "rgba(15,23,42,.92)",
+            titleColor: "#fff",
+            bodyColor: "#fff",
+            padding: 12,
+            cornerRadius: 12
+          },
+          legend: {
+            position: "bottom",
+            labels: {
+              boxWidth: 12,
+              usePointStyle: true,
+              pointStyle: "circle",
+              color: "#475569",
+              font: { size: 12, weight: "700" },
+              padding: 16
+            }
+          }
+        }
+      }
+    });
+  }
+}
+
+export async function refreshAdminDashboard({
+  statsContainerId = "adminStatsCards",
+  chartContainerId = "visitPathChart",
+  userListContainerId = "userActivityList",
+  recentListContainerId = "recentActivityList",
+  visitCanvasId = "visitPathChartCanvas",
+  loginCanvasId = "loginStatsChartCanvas"
+} = {}) {
+  await renderAdminStatsUI({
+    statsContainerId,
+    chartContainerId,
+    userListContainerId,
+    recentListContainerId
+  });
+
+  await renderAdminCharts({
+    visitCanvasId,
+    loginCanvasId
+  });
 }
