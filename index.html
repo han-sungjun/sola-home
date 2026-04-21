@@ -428,8 +428,20 @@
   </div>
 
   <script type="module">
-    import { auth } from './firebase-config.js';
+    import './firebase-config.js';
     import {
+      getApp
+    } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
+    import {
+      getFirestore,
+      doc,
+      getDoc,
+      collection,
+      addDoc,
+      serverTimestamp
+    } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
+    import {
+      getAuth,
       setPersistence,
       browserLocalPersistence,
       signInWithEmailAndPassword,
@@ -444,9 +456,8 @@
       clearLoginFailureLocal
     } from './tracking.js';
 
-    const ALLOWED_EMAILS = [
-      'sungjun200@gmail.com'
-    ];
+    const auth = getAuth(getApp());
+    const db = getFirestore(getApp());
 
     const REDIRECT_AFTER_LOGIN = './app.html';
 
@@ -663,6 +674,127 @@
       }
     }
 
+
+    function formatStatusMessage(userData = {}){
+      const approvalStatus = String(userData.approvalStatus || 'pending');
+      const accountStatus = String(userData.accountStatus || 'active');
+      const rejectReason = String(userData.rejectReason || '').trim();
+      const withdrawReason = String(userData.withdrawReason || '').trim();
+
+      if (accountStatus === 'withdrawn') {
+        return withdrawReason
+          ? `탈퇴 처리된 계정입니다.\n사유: ${withdrawReason}\n실수로 탈퇴한 경우 운영자에게 복구를 요청해 주세요.`
+          : '탈퇴 처리된 계정입니다. 실수로 탈퇴한 경우 운영자에게 복구를 요청해 주세요.';
+      }
+
+      if (accountStatus === 'suspended') {
+        return '이용이 제한된 계정입니다. 운영자에게 문의해 주세요.';
+      }
+
+      if (approvalStatus === 'pending') {
+        return '회원가입 신청이 접수되었습니다. 관리자가 승인 후 로그인이 가능합니다.';
+      }
+
+      if (approvalStatus === 'resubmitted') {
+        return '수정 후 재신청이 접수되었습니다. 관리자 재검토 후 로그인이 가능합니다.';
+      }
+
+      if (approvalStatus === 'rejected') {
+        return rejectReason
+          ? `가입 신청이 반려되었습니다.\n사유: ${rejectReason}\n내용을 수정한 뒤 다시 신청해 주세요.`
+          : '가입 신청이 반려되었습니다. 내용을 수정한 뒤 다시 신청해 주세요.';
+      }
+
+      return '승인되지 않은 계정입니다. 운영자에게 문의해 주세요.';
+    }
+
+    async function getUserProfile(uid=''){
+      if (!uid) return null;
+
+      try {
+        const snap = await getDoc(doc(db, 'users', uid));
+        if (!snap.exists()) return null;
+        return snap.data() || null;
+      } catch (error) {
+        console.error('사용자 상태 조회 실패:', error);
+        return null;
+      }
+    }
+
+    async function enforceAccessPolicy(user, options = {}){
+      const {
+        shouldRedirectOnApproved = true,
+        showBlockedMessage = true
+      } = options;
+
+      if (!user) {
+        return { allowed: false, reason: 'no_user' };
+      }
+
+      const userData = await getUserProfile(user.uid);
+
+      if (!userData) {
+        const message = '회원 정보가 확인되지 않습니다. 운영자에게 문의해 주세요.';
+        await saveLogin({
+          email: normalizeEmail(user.email || ''),
+          status: 'blocked',
+          reason: 'user_profile_not_found'
+        });
+        await logLoginHistory({
+          email: normalizeEmail(user.email || ''),
+          uid: user.uid || '',
+          status: 'blocked',
+          reason: 'user_profile_not_found'
+        });
+        await signOut(auth).catch(() => {});
+
+        if (showBlockedMessage) {
+          showNotice(message, 'error');
+          await new Promise(resolve => setTimeout(resolve, 60));
+          await openModalAlert(message, emailEl);
+        }
+        return { allowed: false, reason: 'user_profile_not_found', userData: null };
+      }
+
+      const approvalStatus = String(userData.approvalStatus || 'pending');
+      const accountStatus = String(userData.accountStatus || 'active');
+
+      if (approvalStatus === 'approved' && accountStatus === 'active') {
+        if (shouldRedirectOnApproved) {
+          finishLoading(() => {
+            window.location.replace(REDIRECT_AFTER_LOGIN);
+          });
+        }
+        return { allowed: true, reason: 'approved_active', userData };
+      }
+
+      const reason = `approval_${approvalStatus}__account_${accountStatus}`;
+      const message = formatStatusMessage(userData);
+
+      await saveLogin({
+        email: normalizeEmail(user.email || userData.email || ''),
+        status: 'blocked',
+        reason
+      });
+      await logLoginHistory({
+        email: normalizeEmail(user.email || userData.email || ''),
+        uid: user.uid || '',
+        status: 'blocked',
+        reason
+      });
+
+      await signOut(auth).catch(() => {});
+
+      if (showBlockedMessage) {
+        const type = accountStatus === 'withdrawn' || accountStatus === 'suspended' ? 'error' : 'info';
+        showNotice(message, type);
+        await new Promise(resolve => setTimeout(resolve, 60));
+        await openModalAlert(message, emailEl);
+      }
+
+      return { allowed: false, reason, userData };
+    }
+
     function openModalBase({
       title='안내',
       message='',
@@ -869,25 +1001,32 @@
       try {
         await setPersistence(auth, browserLocalPersistence);
         const credential = await signInWithEmailAndPassword(auth, email, password);
-        const loginEmail = normalizeEmail(credential.user?.email || '');
+        const loginEmail = normalizeEmail(credential.user?.email || email);
 
-        if (ALLOWED_EMAILS.length && !ALLOWED_EMAILS.includes(loginEmail)) {
-          await saveLogin({
-            email: loginEmail || email,
-            status: 'blocked',
-            reason: 'not_allowed_email'
-          });
-          await signOut(auth);
+        const accessResult = await enforceAccessPolicy(credential.user, {
+          shouldRedirectOnApproved: false,
+          showBlockedMessage: false
+        });
+
+        if (!accessResult.allowed) {
           finishLoading();
-          showNotice('승인된 입주민 계정만 이용 가능합니다.', 'error');
+          const blockedMessage = formatStatusMessage(accessResult.userData || {});
+          const blockedType = String(accessResult.userData?.accountStatus || 'active') === 'active' ? 'info' : 'error';
+          showNotice(blockedMessage, blockedType);
           await new Promise(resolve => setTimeout(resolve, 60));
-          await openModalAlert('승인된 입주민 계정만 이용 가능합니다.', emailEl);
+          await openModalAlert(blockedMessage, emailEl);
           return;
         }
 
         clearLoginFailureLocal();
         await saveLogin({
-          email: loginEmail || email,
+          email: loginEmail,
+          status: 'success',
+          reason: 'login_success'
+        });
+        await logLoginHistory({
+          email: loginEmail,
+          uid: credential.user?.uid || '',
           status: 'success',
           reason: 'login_success'
         });
@@ -937,22 +1076,24 @@
       }
     });
 
-    onAuthStateChanged(auth, (user) => {
+    onAuthStateChanged(auth, async (user) => {
+      document.body.style.opacity = '1';
+
       if (user) {
         logoutBtn.classList.remove('hidden');
-        document.body.style.opacity = '1';
-
         startLoading();
-        setTimeout(() => {
-          window.location.replace(REDIRECT_AFTER_LOGIN);
-        }, 80);
+        await enforceAccessPolicy(user, {
+          shouldRedirectOnApproved: true,
+          showBlockedMessage: true
+        });
         return;
       }
 
       logoutBtn.classList.add('hidden');
-      document.body.style.opacity = '1';
       finishLoading();
     });
+
+    logVisitHistory().catch(() => {});
   </script>
 
   <div class="app-alert" id="appAlert" aria-hidden="true">
