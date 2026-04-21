@@ -17,7 +17,7 @@
     .panel,.admin-card{background:var(--surface);border:1px solid rgba(255,255,255,.65);box-shadow:var(--shadow);backdrop-filter:blur(18px);border-radius:var(--radius-xl);padding:16px}.notice{padding:14px 16px;border-radius:18px;background:#eff6ff;border:1px solid #bfdbfe;color:#1d4ed8;font-size:13px;line-height:1.5}.hidden{display:none!important}
     .section-head{display:flex;justify-content:space-between;align-items:center;margin:2px 2px 0}.section-head h3{margin:0;font-size:18px;letter-spacing:-.03em}.section-head small{color:var(--muted)}.admin-grid,.form-grid,.mini-list{display:grid;gap:12px}.field{display:grid;gap:6px}.field label{font-size:13px;color:#334155;font-weight:700}.field input,.field select,.field textarea{border:1px solid var(--line);border-radius:14px;padding:12px 14px;outline:none;background:#fff}.field textarea{min-height:82px;resize:vertical}.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:10px}.check-row{display:flex;gap:18px;align-items:center;flex-wrap:wrap;padding:12px 14px;border:1px solid var(--line);border-radius:14px;background:#fff}.check-row label{display:flex;align-items:center;gap:8px;cursor:pointer;font-size:14px;color:#334155;font-weight:700}
     .btn{border:none;border-radius:16px;padding:12px 14px;cursor:pointer;font-weight:700;display:inline-flex;align-items:center;justify-content:center;gap:8px}.btn-primary{background:var(--primary);color:#fff}.btn-soft{background:#fff;color:var(--text);border:1px solid var(--line)}.btn-blue{background:var(--blue);color:#fff}.btn-danger{background:#fee2e2;color:var(--danger)}
-    .mini-item{border:1px solid var(--line);border-radius:18px;padding:12px;background:#fff}.mini-item-head{display:flex;justify-content:space-between;gap:10px;align-items:start}.mini-item h5{margin:0;font-size:15px}.tags{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}.tag{padding:7px 10px;border-radius:999px;background:#f8fafc;border:1px solid var(--line);color:#475569;font-size:12px}.tag.rec{background:#eff6ff;border-color:#bfdbfe;color:#2563eb;font-weight:700}.tag.hidden-tag{background:#fef2f2;border-color:#fecaca;color:#b91c1c;font-weight:700}.tag.live-tag{background:#ecfdf5;border-color:#bbf7d0;color:#15803d;font-weight:700}
+    .mini-item{border:1px solid var(--line);border-radius:18px;padding:12px;background:#fff}.mini-item-head{display:flex;justify-content:space-between;gap:10px;align-items:start}.mini-item h5{margin:0;font-size:15px}.tags{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}.tag{padding:7px 10px;border-radius:999px;background:#f8fafc;border:1px solid var(--line);color:#475569;font-size:12px}.tag.rec{background:#eff6ff;border-color:#bfdbfe;color:#2563eb;font-weight:700}.tag.hidden-tag{background:#fef2f2;border-color:#fecaca;color:#b91c1c;font-weight:700}.tag.live-tag{background:#ecfdf5;border-color:#bbf7d0;color:#15803d;font-weight:700}.member-card{display:grid;gap:10px}.member-meta{display:grid;gap:6px;color:#475569;font-size:13px;line-height:1.55}.member-proof{display:inline-flex;align-items:center;gap:8px;width:max-content}.member-reject-box{display:grid;gap:8px;margin-top:8px}.member-reject-box textarea{min-height:76px;border:1px solid var(--line);border-radius:14px;padding:12px 14px;background:#fff;resize:vertical}.member-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}.member-actions .btn{padding:9px 12px}.member-empty{padding:14px 16px;border-radius:18px;background:#f8fafc;border:1px solid var(--line);color:#64748b;font-size:13px;line-height:1.5}
     @media (max-width:370px){.stats,.grid-2{grid-template-columns:1fr}}
   
 .admin-topbar{
@@ -810,8 +810,39 @@ body.gnb-open .admin-bottom-nav{
     <div class="admin-view" id="view-members">
       <div class="admin-groups">
         <div class="admin-card">
-          <div class="section-head" style="margin-bottom:12px;"><h3 style="font-size:16px;">회원 관리</h3><small>운영 준비 중</small></div>
-          <div class="notice">입주민 가입 승인, 인증 자료 확인, 승인 및 반려 내역 관리를 이 영역에 연결할 수 있습니다.</div>
+          <div class="section-head" style="margin-bottom:12px;"><h3 style="font-size:16px;">회원 상태 관리</h3><small id="memberTotalCount">0명</small></div>
+          <div class="summary-list" id="memberStatusSummary">
+            <div class="summary-row"><div><strong>승인 대기</strong><span>신규 가입 신청</span></div><strong id="countPending">0</strong></div>
+            <div class="summary-row"><div><strong>재신청</strong><span>반려 후 수정 재접수</span></div><strong id="countResubmitted">0</strong></div>
+            <div class="summary-row"><div><strong>승인 완료</strong><span>정상 이용 가능</span></div><strong id="countApproved">0</strong></div>
+            <div class="summary-row"><div><strong>반려</strong><span>수정 요청 필요</span></div><strong id="countRejected">0</strong></div>
+            <div class="summary-row"><div><strong>탈퇴</strong><span>복구 가능 상태</span></div><strong id="countWithdrawn">0</strong></div>
+          </div>
+        </div>
+
+        <div class="admin-card">
+          <div class="section-head" style="margin-bottom:12px;"><h3 style="font-size:16px;">승인 대기</h3><small id="pendingListCount">0명</small></div>
+          <div class="mini-list" id="memberPendingList"></div>
+        </div>
+
+        <div class="admin-card">
+          <div class="section-head" style="margin-bottom:12px;"><h3 style="font-size:16px;">재신청</h3><small id="resubmittedListCount">0명</small></div>
+          <div class="mini-list" id="memberResubmittedList"></div>
+        </div>
+
+        <div class="admin-card">
+          <div class="section-head" style="margin-bottom:12px;"><h3 style="font-size:16px;">승인 완료</h3><small id="approvedListCount">0명</small></div>
+          <div class="mini-list" id="memberApprovedList"></div>
+        </div>
+
+        <div class="admin-card">
+          <div class="section-head" style="margin-bottom:12px;"><h3 style="font-size:16px;">반려</h3><small id="rejectedListCount">0명</small></div>
+          <div class="mini-list" id="memberRejectedList"></div>
+        </div>
+
+        <div class="admin-card">
+          <div class="section-head" style="margin-bottom:12px;"><h3 style="font-size:16px;">탈퇴</h3><small id="withdrawnListCount">0명</small></div>
+          <div class="mini-list" id="memberWithdrawnList"></div>
         </div>
       </div>
     </div>
@@ -839,12 +870,12 @@ body.gnb-open .admin-bottom-nav{
     import { getFirestore, collection, addDoc, updateDoc, deleteDoc, doc, getDocs, onSnapshot, serverTimestamp, writeBatch } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
     import { mountIdleTimer } from "./tracking.js";
     const firebaseConfig = { apiKey:"AIzaSyDhKr7oMSrLowJ47cqB4pvNXuIIdtW0HPI", authDomain:"sola-home-4979a.firebaseapp.com", projectId:"sola-home-4979a", storageBucket:"sola-home-4979a.firebasestorage.app", messagingSenderId:"337132471819", appId:"1:337132471819:web:848cd357fecda459a2e90e" };
-    const BENEFITS_COLLECTION='benefits', NOTICES_COLLECTION='notices', PUSH_JOBS_COLLECTION='push_jobs';
+    const BENEFITS_COLLECTION='benefits', NOTICES_COLLECTION='notices', PUSH_JOBS_COLLECTION='push_jobs', USERS_COLLECTION='users';
     const DEFAULT_BENEFITS=[{name:'엘스킨케어',category:'피부관리',discountValue:50,discountText:'50%',condition:'첫방문 50% / 입주민 정액권 최대 30%',address:'경기 파주시 경의로 1242 209호, 210호',phone:'0507-1433-5760',url:'',visible:true,recommended:true,service:false},{name:'미스터피자 일산탄현점',category:'음식',discountValue:30,discountText:'30%',condition:'포장 30% / 매장식사 20% + 샐러드 증정',address:'경기 고양시 일산서구 탄현로 136 상가동 2층 204호',phone:'031-911-9296',url:'',visible:true,recommended:true,service:false}];
-    const state={benefits:[],notices:[],pushJobs:[],isAdmin:false,view:'dashboard'}; const qs=(s)=>document.querySelector(s), qsa=(s)=>[...document.querySelectorAll(s)];
+    const state={benefits:[],notices:[],pushJobs:[],members:[],isAdmin:false,view:'dashboard'}; const qs=(s)=>document.querySelector(s), qsa=(s)=>[...document.querySelectorAll(s)];
     const globalLoadingBar = qs('#globalLoadingBar');
     let globalLoadingTimer = null;
-    const initialLoadState = { benefits:false, notices:false, pushJobs:false };
+    const initialLoadState = { benefits:false, notices:false, pushJobs:false, users:false };
 
 
     function showGlobalLoading(){
@@ -1201,6 +1232,186 @@ const setTextAll = (selector, text) => qsa(selector).forEach(el => el.textConten
       a.click();
       URL.revokeObjectURL(a.href);
     };
+    function formatTs(ts){
+      if(!ts) return '-';
+      try{
+        const date = ts?.toDate ? ts.toDate() : new Date(ts);
+        if(Number.isNaN(date.getTime())) return '-';
+        return new Intl.DateTimeFormat('ko-KR',{dateStyle:'medium', timeStyle:'short'}).format(date);
+      }catch(_){
+        return '-';
+      }
+    }
+    function sanitizeMember(item={},id=''){
+      return {
+        id,
+        uid:item.uid||id,
+        email:item.email||'',
+        name:item.name||'',
+        nickname:item.nickname||'',
+        building:item.building||'',
+        unit:item.unit||'',
+        intro:item.intro||'',
+        role:item.role||'resident',
+        approvalStatus:item.approvalStatus||'pending',
+        accountStatus:item.accountStatus||'active',
+        rejectReason:item.rejectReason||'',
+        residentProofUrl:item.residentProofUrl||'',
+        createdAt:item.createdAt||null,
+        updatedAt:item.updatedAt||null,
+        approvedAt:item.approvedAt||null,
+        approvedBy:item.approvedBy||'',
+        rejectedAt:item.rejectedAt||null,
+        rejectedBy:item.rejectedBy||'',
+        resubmittedAt:item.resubmittedAt||null,
+        withdrawnAt:item.withdrawnAt||null,
+        withdrawnBy:item.withdrawnBy||'',
+        withdrawReason:item.withdrawReason||'',
+        restoredAt:item.restoredAt||null,
+        restoredBy:item.restoredBy||'',
+        restoreReason:item.restoreReason||''
+      };
+    }
+    function getMemberBuckets(){
+      const buckets={pending:[],resubmitted:[],approved:[],rejected:[],withdrawn:[]};
+      state.members.forEach(member=>{
+        if(member.accountStatus==='withdrawn'){ buckets.withdrawn.push(member); return; }
+        if(member.approvalStatus==='approved'){ buckets.approved.push(member); return; }
+        if(member.approvalStatus==='rejected'){ buckets.rejected.push(member); return; }
+        if(member.approvalStatus==='resubmitted'){ buckets.resubmitted.push(member); return; }
+        buckets.pending.push(member);
+      });
+      return buckets;
+    }
+    function renderMemberGroup(listEl, members, emptyText){
+      if(!listEl) return;
+      listEl.innerHTML='';
+      if(!members.length){
+        listEl.innerHTML=`<div class="member-empty">${emptyText}</div>`;
+        return;
+      }
+      members.forEach(member=>{
+        const card=document.createElement('div');
+        card.className='mini-item member-card';
+        const isReviewable = member.accountStatus !== 'withdrawn' && member.approvalStatus !== 'approved';
+        const statusTags = [];
+        if(member.accountStatus==='withdrawn') statusTags.push('<span class="tag hidden-tag">탈퇴</span>');
+        if(member.approvalStatus==='pending') statusTags.push('<span class="tag">승인 대기</span>');
+        if(member.approvalStatus==='resubmitted') statusTags.push('<span class="tag rec">재신청</span>');
+        if(member.approvalStatus==='approved') statusTags.push('<span class="tag live-tag">승인 완료</span>');
+        if(member.approvalStatus==='rejected') statusTags.push('<span class="tag hidden-tag">반려</span>');
+        card.innerHTML = `
+          <div class="mini-item-head">
+            <div>
+              <h5>${member.name || member.nickname || '이름 미입력'}</h5>
+              <div style="color:#64748b;font-size:13px;line-height:1.45;">${member.email || '-'}${member.nickname ? ` · 닉네임 ${member.nickname}` : ''}</div>
+            </div>
+            <div class="tags" style="margin-top:0;">${statusTags.join('')}</div>
+          </div>
+          <div class="member-meta">
+            <div><strong>동·호수</strong> ${member.building || '-'}동 ${member.unit || '-'}호</div>
+            <div><strong>신청일</strong> ${formatTs(member.createdAt)}</div>
+            <div><strong>최종 수정</strong> ${formatTs(member.updatedAt)}</div>
+            ${member.intro ? `<div><strong>소개</strong> ${member.intro}</div>` : ''}
+            ${member.rejectReason ? `<div><strong>반려 사유</strong> ${member.rejectReason}</div>` : ''}
+            ${member.withdrawReason ? `<div><strong>탈퇴 사유</strong> ${member.withdrawReason}</div>` : ''}
+            ${member.residentProofUrl ? `<a class="btn btn-soft member-proof" href="${member.residentProofUrl}" target="_blank" rel="noopener noreferrer">🖼️ 인증 자료 보기</a>` : ''}
+          </div>
+          ${isReviewable ? `
+            <div class="member-reject-box">
+              <textarea placeholder="반려 사유를 입력하세요." data-reject-reason="${member.id}">${member.rejectReason || ''}</textarea>
+            </div>
+          ` : ''}
+          <div class="member-actions">
+            ${member.accountStatus==='withdrawn' ? `<button class="btn btn-blue" type="button" data-member-action="restore" data-member-id="${member.id}">복구</button>` : ''}
+            ${member.accountStatus!=='withdrawn' && member.approvalStatus!=='approved' ? `<button class="btn btn-blue" type="button" data-member-action="approve" data-member-id="${member.id}">승인</button>` : ''}
+            ${member.accountStatus!=='withdrawn' && member.approvalStatus!=='rejected' ? `<button class="btn btn-danger" type="button" data-member-action="reject" data-member-id="${member.id}">반려</button>` : ''}
+            ${member.accountStatus!=='withdrawn' && member.approvalStatus==='approved' ? `<button class="btn btn-soft" type="button" data-member-action="withdraw" data-member-id="${member.id}">탈퇴 처리</button>` : ''}
+          </div>
+        `;
+        listEl.appendChild(card);
+      });
+    }
+    function renderMemberLists(){
+      const buckets = getMemberBuckets();
+      qs('#memberTotalCount').textContent = `${state.members.length}명`;
+      qs('#countPending').textContent = String(buckets.pending.length);
+      qs('#countResubmitted').textContent = String(buckets.resubmitted.length);
+      qs('#countApproved').textContent = String(buckets.approved.length);
+      qs('#countRejected').textContent = String(buckets.rejected.length);
+      qs('#countWithdrawn').textContent = String(buckets.withdrawn.length);
+      qs('#pendingListCount').textContent = `${buckets.pending.length}명`;
+      qs('#resubmittedListCount').textContent = `${buckets.resubmitted.length}명`;
+      qs('#approvedListCount').textContent = `${buckets.approved.length}명`;
+      qs('#rejectedListCount').textContent = `${buckets.rejected.length}명`;
+      qs('#withdrawnListCount').textContent = `${buckets.withdrawn.length}명`;
+      renderMemberGroup(qs('#memberPendingList'), buckets.pending, '승인 대기 중인 회원이 없습니다.');
+      renderMemberGroup(qs('#memberResubmittedList'), buckets.resubmitted, '재신청한 회원이 없습니다.');
+      renderMemberGroup(qs('#memberApprovedList'), buckets.approved, '승인 완료된 회원이 없습니다.');
+      renderMemberGroup(qs('#memberRejectedList'), buckets.rejected, '반려된 회원이 없습니다.');
+      renderMemberGroup(qs('#memberWithdrawnList'), buckets.withdrawn, '탈퇴 상태 회원이 없습니다.');
+    }
+    async function updateMemberStatus(memberId, action){
+      if(!state.isAdmin || !db){
+        await openModalAlert('관리자 로그인 후 처리할 수 있습니다.', qs('#adminEmail'));
+        return;
+      }
+      const member = state.members.find(item => item.id === memberId);
+      if(!member) return;
+      const adminEmail = auth?.currentUser?.email || 'admin';
+      const payload = { updatedAt: serverTimestamp() };
+      let message='처리가 완료되었습니다.';
+      if(action === 'approve'){
+        const confirmed = await openModalConfirm(`${member.name || member.email} 회원을 승인할까요?`, qs('#view-members'), '회원 승인', '승인', '취소');
+        if(!confirmed) return;
+        Object.assign(payload, { approvalStatus:'approved', accountStatus:'active', approvedAt:serverTimestamp(), approvedBy:adminEmail, rejectReason:'', rejectedAt:null, rejectedBy:'', restoredAt:null, restoredBy:'', restoreReason:'' });
+        message='회원 승인이 완료되었습니다.';
+      } else if(action === 'reject'){
+        const reasonEl = document.querySelector(`[data-reject-reason="${memberId}"]`);
+        const rejectReason = String(reasonEl?.value || '').trim();
+        if(!rejectReason){
+          await openModalAlert('반려 사유를 입력해 주세요.', reasonEl || qs('#view-members'));
+          return;
+        }
+        const confirmed = await openModalConfirm(`${member.name || member.email} 회원을 반려할까요?`, reasonEl || qs('#view-members'), '회원 반려', '반려', '취소');
+        if(!confirmed) return;
+        Object.assign(payload, { approvalStatus:'rejected', accountStatus:'active', rejectReason, rejectedAt:serverTimestamp(), rejectedBy:adminEmail });
+        message='회원 반려 처리가 완료되었습니다.';
+      } else if(action === 'restore'){
+        const confirmed = await openModalConfirm(`${member.name || member.email} 회원을 복구할까요?`, qs('#view-members'), '회원 복구', '복구', '취소');
+        if(!confirmed) return;
+        Object.assign(payload, { accountStatus:'active', approvalStatus:'approved', restoredAt:serverTimestamp(), restoredBy:adminEmail, restoreReason:'관리자 복구', withdrawReason:'', withdrawnAt:null, withdrawnBy:'' });
+        message='회원 복구가 완료되었습니다.';
+      } else if(action === 'withdraw'){
+        const confirmed = await openModalConfirm(`${member.name || member.email} 회원을 탈퇴 상태로 변경할까요?`, qs('#view-members'), '탈퇴 처리', '처리', '취소');
+        if(!confirmed) return;
+        Object.assign(payload, { accountStatus:'withdrawn', withdrawnAt:serverTimestamp(), withdrawnBy:adminEmail, withdrawReason:'관리자 처리' });
+        message='회원이 탈퇴 상태로 변경되었습니다.';
+      } else {
+        return;
+      }
+      try{
+        showGlobalLoading();
+        await updateDoc(doc(db, USERS_COLLECTION, memberId), payload);
+        hideGlobalLoading();
+        await openModalAlert(message, qs('#view-members'));
+      }catch(e){
+        console.error(e);
+        hideGlobalLoading();
+        await openModalAlert('회원 상태 변경에 실패했습니다.', qs('#view-members'));
+      }
+    }
+    function subscribeMembers(){
+      onSnapshot(collection(db,USERS_COLLECTION),(snapshot)=>{
+        state.members=snapshot.docs.map(d=>sanitizeMember(d.data(),d.id));
+        renderMemberLists();
+        markInitialDataLoaded('users');
+      },(e)=>{
+        console.error(e);
+        markInitialDataLoaded('users');
+      });
+    }
+
     async function seedDefaultData(){
       if(!state.isAdmin||!db){
         await openModalAlert('관리자 로그인 후 실행해 주세요.', qs('#adminEmail'));
@@ -1307,6 +1518,7 @@ const setTextAll = (selector, text) => qsa(selector).forEach(el => el.textConten
           subscribeBenefits();
           subscribeNotices();
           subscribePushJobs();
+          subscribeMembers();
         }
 
         if (typeof window.refreshAdminStatsUIOnce === 'function') {
@@ -1363,7 +1575,7 @@ const setTextAll = (selector, text) => qsa(selector).forEach(el => el.textConten
       }
     });
 
-    qs('#benefitForm').addEventListener('submit',saveBenefit);qs('#noticeForm').addEventListener('submit',saveNotice);qs('#cancelEditBtn').onclick=resetForm;qs('#cancelNoticeEditBtn').onclick=resetNoticeForm;qs('#loginBtn').onclick=loginAdmin;qs('#logoutBtn').onclick=logoutAdmin;qs('#exportBtn').onclick=exportBenefits;qs('#seedBtn').onclick=seedDefaultData;resetForm();resetNoticeForm();changeAdminView('dashboard');
+    qs('#benefitForm').addEventListener('submit',saveBenefit);qs('#noticeForm').addEventListener('submit',saveNotice);qs('#cancelEditBtn').onclick=resetForm;qs('#cancelNoticeEditBtn').onclick=resetNoticeForm;qs('#loginBtn').onclick=loginAdmin;qs('#logoutBtn').onclick=logoutAdmin;qs('#exportBtn').onclick=exportBenefits;qs('#seedBtn').onclick=seedDefaultData;document.addEventListener('click',(event)=>{const actionBtn=event.target.closest('[data-member-action]');if(!actionBtn) return;updateMemberStatus(actionBtn.dataset.memberId, actionBtn.dataset.memberAction);});resetForm();resetNoticeForm();changeAdminView('dashboard');
   </script>
 
   
