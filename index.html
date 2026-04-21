@@ -396,8 +396,8 @@
 
       <form id="loginForm">
         <div class="field">
-          <label for="email">이메일</label>
-          <input id="email" class="input" type="email" inputmode="email" autocomplete="email" placeholder="example@email.com" />
+          <label for="loginId">아이디</label>
+          <input id="loginId" class="input" type="text" inputmode="text" autocomplete="username" placeholder="아이디 입력" />
         </div>
 
         <div class="field">
@@ -406,12 +406,12 @@
         </div>
 
         <div class="find-links">
-          <button id="openFindIdBtn" class="find-link" type="button">이메일 찾기</button>
-          <button id="openResetPwBtn" class="find-link" type="button">비밀번호 찾기</button>
+          <button id="openFindIdBtn" class="find-link" type="button">아이디 안내</button>
+          <button id="openResetPwBtn" class="find-link" type="button">비밀번호 재설정 안내</button>
         </div>
 
         <div class="helper">
-          입주민 승인 완료된 계정만 이용 가능합니다.
+          승인 완료된 아이디만 로그인할 수 있습니다.
         </div>
 
         <button id="loginBtn" class="btn btn-primary" type="submit">로그인</button>
@@ -444,10 +444,9 @@
       getAuth,
       setPersistence,
       browserLocalPersistence,
-      signInWithEmailAndPassword,
+      signInWithCustomToken,
       signOut,
-      onAuthStateChanged,
-      sendPasswordResetEmail
+      onAuthStateChanged
     } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
     import {
       saveLogin,
@@ -460,12 +459,13 @@
     const db = getFirestore(getApp());
 
     const REDIRECT_AFTER_LOGIN = './app.html';
+    const LOGIN_FUNCTION_URL = 'https://asia-northeast3-sola-home-4979a.cloudfunctions.net/loginWithId';
 
     document.body.style.opacity = '0';
 
     const qs = (selector) => document.querySelector(selector);
 
-    const emailEl = qs('#email');
+    const loginIdEl = qs('#loginId');
     const passwordEl = qs('#password');
     const loginBtn = qs('#loginBtn');
     const signupBtn = qs('#signupBtn');
@@ -480,8 +480,8 @@
     const tabResetPw = qs('#tabResetPw');
     const findIdSection = qs('#findIdSection');
     const resetPwSection = qs('#resetPwSection');
-    const findIdEmailEl = qs('#findIdEmail');
-    const resetPwEmailEl = qs('#resetPwEmail');
+    const findIdLoginIdEl = qs('#findIdEmail');
+    const resetPwLoginIdEl = qs('#resetPwLoginId');
     const applyFindIdBtn = qs('#applyFindIdBtn');
     const sendResetPwBtn = qs('#sendResetPwBtn');
     const findIdResultEl = qs('#findIdResult');
@@ -570,7 +570,7 @@
       hideSheetResult(findIdResultEl);
       hideSheetResult(resetPwResultEl);
       requestAnimationFrame(() => {
-        (isFindId ? findIdEmailEl : resetPwEmailEl)?.focus();
+        (isFindId ? findIdLoginIdEl : resetPwLoginIdEl)?.focus();
       });
     }
 
@@ -605,12 +605,12 @@
       loginBtn.disabled = isLoading;
       loginBtn.textContent = isLoading ? '로그인 중...' : '로그인';
       signupBtn.disabled = isLoading;
-      emailEl.disabled = isLoading;
+      loginIdEl.disabled = isLoading;
       passwordEl.disabled = isLoading;
     }
 
-    function normalizeEmail(value=''){
-      return String(value).trim().toLowerCase();
+    function normalizeLoginId(value=''){
+      return String(value).trim();
     }
 
     function getSessionId(){
@@ -659,7 +659,7 @@
       try {
         await addDoc(collection(db, 'login_history'), {
           sessionId: getSessionId(),
-          email: normalizeEmail(email),
+          email: normalizeLoginId(email),
           uid: uid || '',
           status,
           reason,
@@ -736,12 +736,12 @@
       if (!userData) {
         const message = '회원 정보가 확인되지 않습니다. 운영자에게 문의해 주세요.';
         await saveLogin({
-          email: normalizeEmail(user.email || ''),
+          email: normalizeLoginId(userData?.loginId || user.email || ''),
           status: 'blocked',
           reason: 'user_profile_not_found'
         });
         await logLoginHistory({
-          email: normalizeEmail(user.email || ''),
+          email: normalizeLoginId(userData?.loginId || user.email || ''),
           uid: user.uid || '',
           status: 'blocked',
           reason: 'user_profile_not_found'
@@ -751,7 +751,7 @@
         if (showBlockedMessage) {
           showNotice(message, 'error');
           await new Promise(resolve => setTimeout(resolve, 60));
-          await openModalAlert(message, emailEl);
+          await openModalAlert(message, loginIdEl);
         }
         return { allowed: false, reason: 'user_profile_not_found', userData: null };
       }
@@ -772,12 +772,12 @@
       const message = formatStatusMessage(userData);
 
       await saveLogin({
-        email: normalizeEmail(user.email || userData.email || ''),
+        email: normalizeLoginId(userData.loginId || user.email || ''),
         status: 'blocked',
         reason
       });
       await logLoginHistory({
-        email: normalizeEmail(user.email || userData.email || ''),
+        email: normalizeLoginId(userData.loginId || user.email || ''),
         uid: user.uid || '',
         status: 'blocked',
         reason
@@ -789,7 +789,7 @@
         const type = accountStatus === 'withdrawn' || accountStatus === 'suspended' ? 'error' : 'info';
         showNotice(message, type);
         await new Promise(resolve => setTimeout(resolve, 60));
-        await openModalAlert(message, emailEl);
+        await openModalAlert(message, loginIdEl);
       }
 
       return { allowed: false, reason, userData };
@@ -854,12 +854,12 @@
     });
 
     openFindIdBtn.addEventListener('click', () => {
-      findIdEmailEl.value = normalizeEmail(emailEl.value);
+      findIdLoginIdEl.value = normalizeLoginId(loginIdEl.value);
       openAccountHelp('findId');
     });
 
     openResetPwBtn.addEventListener('click', () => {
-      resetPwEmailEl.value = normalizeEmail(emailEl.value);
+      resetPwLoginIdEl.value = normalizeLoginId(loginIdEl.value);
       openAccountHelp('resetPw');
     });
 
@@ -871,72 +871,39 @@
     });
 
     applyFindIdBtn.addEventListener('click', () => {
-      const foundEmail = normalizeEmail(findIdEmailEl.value);
+      const foundLoginId = normalizeLoginId(findIdLoginIdEl.value);
 
-      if (!foundEmail) {
-        setSheetResult(findIdResultEl, '가입한 이메일 주소를 입력해 주세요.', 'error');
-        findIdEmailEl.focus();
+      if (!foundLoginId) {
+        setSheetResult(findIdResultEl, '가입 시 사용한 아이디를 입력해 주세요.', 'error');
+        findIdLoginIdEl.focus();
         return;
       }
 
-      if (!isEmailFormat(foundEmail)) {
-        setSheetResult(findIdResultEl, '이메일 형식으로 입력해 주세요.', 'error');
-        findIdEmailEl.focus();
-        return;
-      }
-
-      emailEl.value = foundEmail;
-      setSheetResult(findIdResultEl, '입력한 이메일을 로그인 이메일 칸에 넣었습니다.\n현재 서비스에서는 이메일 주소로 로그인합니다.', 'success');
+      loginIdEl.value = foundLoginId;
+      setSheetResult(findIdResultEl, '입력한 아이디를 로그인 칸에 넣었습니다.\n현재 서비스에서는 아이디로 로그인합니다.', 'success');
       setTimeout(() => {
         closeAccountHelp();
-        emailEl.focus();
+        loginIdEl.focus();
       }, 500);
     });
 
+
     sendResetPwBtn.addEventListener('click', async () => {
-      const resetEmail = normalizeEmail(resetPwEmailEl.value);
+      const resetLoginId = normalizeLoginId(resetPwLoginIdEl.value);
 
-      if (!resetEmail) {
-        setSheetResult(resetPwResultEl, '비밀번호를 재설정할 이메일을 입력해 주세요.', 'error');
-        resetPwEmailEl.focus();
+      if (!resetLoginId) {
+        setSheetResult(resetPwResultEl, '재설정 안내를 받을 아이디를 입력해 주세요.', 'error');
+        resetPwLoginIdEl.focus();
         return;
       }
 
-      if (!isEmailFormat(resetEmail)) {
-        setSheetResult(resetPwResultEl, '이메일 형식이 올바르지 않습니다.', 'error');
-        resetPwEmailEl.focus();
-        return;
-      }
-
-      sendResetPwBtn.disabled = true;
-      sendResetPwBtn.textContent = '발송 중...';
-      startLoading();
-
-      try {
-        await sendPasswordResetEmail(auth, resetEmail);
-        emailEl.value = resetEmail;
-        setSheetResult(resetPwResultEl, '비밀번호 재설정 메일을 발송했습니다.\n메일함과 스팸함을 함께 확인해 주세요.', 'success');
-      } catch (error) {
-        const code = error?.code || '';
-        let message = '재설정 메일 발송 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.';
-
-        if (code === 'auth/invalid-email') {
-          message = '이메일 형식이 올바르지 않습니다.';
-        } else if (code === 'auth/user-not-found') {
-          message = '가입된 계정을 찾지 못했습니다. 입력한 이메일을 다시 확인해 주세요.';
-        } else if (code === 'auth/too-many-requests') {
-          message = '요청이 많아 잠시 제한되었습니다. 잠시 후 다시 시도해 주세요.';
-        } else if (code === 'auth/network-request-failed') {
-          message = '네트워크 연결을 확인해 주세요.';
-        }
-
-        setSheetResult(resetPwResultEl, message, 'error');
-      } finally {
-        finishLoading();
-        sendResetPwBtn.disabled = false;
-        sendResetPwBtn.textContent = '재설정 메일 보내기';
-      }
+      setSheetResult(
+        resetPwResultEl,
+        '현재 이 페이지에서는 비밀번호 재설정을 직접 처리하지 않습니다.\n운영자 또는 별도 auth 재설정 기능과 연동해 진행해 주세요.\n입력 아이디: ' + resetLoginId,
+        'info'
+      );
     });
+
 
 
     signupBtn.addEventListener('click', () => {
@@ -968,12 +935,12 @@
       event.preventDefault();
       hideNotice();
 
-      const email = normalizeEmail(emailEl.value);
+      const loginId = normalizeLoginId(loginIdEl.value);
       const password = passwordEl.value;
 
-      if (!email) {
-        showNotice('이메일을 입력해주세요.', 'error');
-        await openModalAlert('이메일을 입력해주세요.', emailEl);
+      if (!loginId) {
+        showNotice('아이디를 입력해주세요.', 'error');
+        await openModalAlert('아이디를 입력해주세요.', loginIdEl);
         return;
       }
 
@@ -986,12 +953,12 @@
       const lockStatus = getLoginLockStatus();
       if (lockStatus.isLocked) {
         await saveLogin({
-          email,
+          email: loginId,
           status: 'blocked',
           reason: 'too_many_failures_local_lock'
         });
         showNotice(`로그인 실패가 누적되어 약 ${lockStatus.remainMin}분 후 다시 시도할 수 있습니다.`, 'error');
-        await openModalAlert(`로그인 실패가 누적되어 약 ${lockStatus.remainMin}분 후 다시 시도할 수 있습니다.`, emailEl);
+        await openModalAlert(`로그인 실패가 누적되어 약 ${lockStatus.remainMin}분 후 다시 시도할 수 있습니다.`, loginIdEl);
         return;
       }
 
@@ -1000,8 +967,27 @@
 
       try {
         await setPersistence(auth, browserLocalPersistence);
-        const credential = await signInWithEmailAndPassword(auth, email, password);
-        const loginEmail = normalizeEmail(credential.user?.email || email);
+
+        const response = await fetch(LOGIN_FUNCTION_URL, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            loginId,
+            password
+          })
+        });
+
+        const result = await response.json().catch(() => ({}));
+
+        if (!response.ok || !result.ok || !result.token) {
+          const error = new Error(result.message || '로그인에 실패했습니다.');
+          error.code = result.code || 'auth/custom-login-failed';
+          throw error;
+        }
+
+        const credential = await signInWithCustomToken(auth, result.token);
 
         const accessResult = await enforceAccessPolicy(credential.user, {
           shouldRedirectOnApproved: false,
@@ -1014,18 +1000,18 @@
           const blockedType = String(accessResult.userData?.accountStatus || 'active') === 'active' ? 'info' : 'error';
           showNotice(blockedMessage, blockedType);
           await new Promise(resolve => setTimeout(resolve, 60));
-          await openModalAlert(blockedMessage, emailEl);
+          await openModalAlert(blockedMessage, loginIdEl);
           return;
         }
 
         clearLoginFailureLocal();
         await saveLogin({
-          email: loginEmail,
+          email: loginId,
           status: 'success',
           reason: 'login_success'
         });
         await logLoginHistory({
-          email: loginEmail,
+          email: loginId,
           uid: credential.user?.uid || '',
           status: 'success',
           reason: 'login_success'
@@ -1033,39 +1019,41 @@
 
         finishLoading();
         showNotice('로그인되었습니다. 잠시 후 이동합니다.', 'success');
+
         setTimeout(() => {
+          if (result.user && result.user.phoneVerified === false) {
+            window.location.href = './phone-verify.html';
+            return;
+          }
           window.location.href = REDIRECT_AFTER_LOGIN;
         }, 80);
       } catch (error) {
         const code = error?.code || '';
-        let message = '로그인 중 오류가 발생했습니다. 다시 시도해 주세요.';
-        let focusTarget = emailEl;
+        let message = error?.message || '로그인 중 오류가 발생했습니다. 다시 시도해 주세요.';
+        let focusTarget = loginIdEl;
 
-        if (code === 'auth/invalid-email') {
-          message = '이메일 형식이 올바르지 않습니다.';
-          focusTarget = emailEl;
-        } else if (code === 'auth/invalid-credential' || code === 'auth/wrong-password' || code === 'auth/user-not-found') {
-          message = '이메일 또는 비밀번호를 다시 확인해 주세요.';
+        if (code === 'auth/custom-login-failed') {
+          message = error?.message || '아이디 또는 비밀번호를 다시 확인해 주세요.';
           focusTarget = passwordEl;
         } else if (code === 'auth/too-many-requests') {
           message = '시도가 너무 많습니다. 잠시 후 다시 시도해 주세요.';
-          focusTarget = emailEl;
+          focusTarget = loginIdEl;
         } else if (code === 'auth/network-request-failed') {
           message = '네트워크 연결을 확인해 주세요.';
-          focusTarget = emailEl;
+          focusTarget = loginIdEl;
         }
 
         const lockInfo = recordLoginFailureLocal();
 
         await saveLogin({
-          email,
+          email: loginId,
           status: lockInfo.isLocked ? 'blocked' : 'fail',
           reason: lockInfo.isLocked ? 'too_many_failures_local_lock' : (code || 'login_error')
         });
 
         if (lockInfo.isLocked) {
           message = `로그인 실패가 누적되어 약 ${lockInfo.remainMin}분 동안 제한됩니다.`;
-          focusTarget = emailEl;
+          focusTarget = loginIdEl;
         }
 
         finishLoading();
@@ -1116,41 +1104,40 @@
       <div class="sheet-handle"></div>
       <div class="sheet-head">
         <div>
-          <h3 class="sheet-title" id="accountHelpTitle">계정 찾기</h3>
-          <p class="sheet-desc" id="accountHelpDesc">이메일 확인 또는 비밀번호 재설정을 진행할 수 있습니다.</p>
+          <h3 class="sheet-title" id="accountHelpTitle">로그인 안내</h3>
+          <p class="sheet-desc" id="accountHelpDesc">아이디 로그인 및 비밀번호 재설정 방법을 안내합니다.</p>
         </div>
         <button class="sheet-close" id="accountHelpCloseBtn" type="button" aria-label="닫기">✕</button>
       </div>
 
       <div class="sheet-tabs">
-        <button class="sheet-tab active" id="tabFindId" type="button">이메일 찾기</button>
-        <button class="sheet-tab" id="tabResetPw" type="button">비밀번호 찾기</button>
+        <button class="sheet-tab active" id="tabFindId" type="button">아이디 안내</button>
+        <button class="sheet-tab" id="tabResetPw" type="button">재설정 안내</button>
       </div>
 
       <div class="sheet-body">
         <section class="sheet-section active" id="findIdSection">
-          <p class="sheet-note">현재 로그인 아이디는 가입에 사용한 이메일입니다.
-회원가입 시 등록한 이메일 주소로 로그인해 주세요.
-이메일 주소가 기억나지 않으면 운영자 확인 후 안내받을 수 있습니다.</p>
+          <p class="sheet-note">현재 로그인 방식은 이메일이 아니라 가입 시 등록한 아이디입니다.
+아이디가 기억나지 않으면 운영자에게 확인을 요청해 주세요.</p>
           <div class="field">
-            <label for="findIdEmail">가입한 이메일 확인</label>
-            <input id="findIdEmail" class="input" type="email" inputmode="email" autocomplete="email" placeholder="가입한 이메일 주소 입력" />
+            <label for="findIdEmail">로그인 아이디 안내</label>
+            <input id="findIdEmail" class="input" type="text" inputmode="text" autocomplete="username" placeholder="가입 시 사용한 아이디 입력" />
           </div>
           <div class="sheet-inline-actions">
-            <button id="applyFindIdBtn" class="btn btn-primary" type="button">이메일을 로그인 아이디로 사용</button>
+            <button id="applyFindIdBtn" class="btn btn-primary" type="button">입력한 값을 아이디 칸에 넣기</button>
           </div>
           <div id="findIdResult" class="sheet-result info"></div>
         </section>
 
         <section class="sheet-section" id="resetPwSection">
-          <p class="sheet-note">가입한 이메일을 입력하면 비밀번호 재설정 메일을 발송합니다.
-메일이 보이지 않으면 스팸함도 함께 확인해 주세요.</p>
+          <p class="sheet-note">비밀번호 재설정은 현재 auth 전용 기능으로 전환 중입니다.
+운영자 또는 별도 재설정 기능을 통해 진행해 주세요.</p>
           <div class="field">
-            <label for="resetPwEmail">이메일</label>
-            <input id="resetPwEmail" class="input" type="email" inputmode="email" autocomplete="email" placeholder="example@email.com" />
+            <label for="resetPwLoginId">아이디</label>
+            <input id="resetPwLoginId" class="input" type="text" inputmode="text" autocomplete="username" placeholder="아이디 입력" />
           </div>
           <div class="sheet-inline-actions">
-            <button id="sendResetPwBtn" class="btn btn-primary" type="button">재설정 메일 보내기</button>
+            <button id="sendResetPwBtn" class="btn btn-primary" type="button">재설정 방법 보기</button>
           </div>
           <div id="resetPwResult" class="sheet-result info"></div>
         </section>
