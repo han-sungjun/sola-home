@@ -368,7 +368,85 @@
       50%{ opacity:1; }
       100%{ opacity:.9; }
     }
-  </style>
+  
+    .inline-check{
+      margin-top:6px;
+      font-size:12px;
+      line-height:1.5;
+      display:none;
+    }
+    .inline-check.show{display:block}
+    .inline-check.info{color:#475569}
+    .inline-check.success{color:var(--success)}
+    .inline-check.error{color:var(--danger)}
+    .inline-check.loading{color:#1d4ed8}
+    .field-row-inline{
+      display:flex;
+      gap:8px;
+      align-items:center;
+    }
+    .field-row-inline .input{
+      flex:1 1 auto;
+    }
+    .check-btn{
+      flex:0 0 auto;
+      border:none;
+      border-radius:14px;
+      padding:12px 14px;
+      background:#e2e8f0;
+      color:#0f172a;
+      font-size:13px;
+      font-weight:800;
+      cursor:pointer;
+      white-space:nowrap;
+    }
+    .check-btn:disabled{
+      opacity:.6;
+      cursor:not-allowed;
+    }
+
+  
+    /* Ensure select matches input height */
+    select, .form-group select {
+      height: 56px;
+    }
+
+
+    /* Password fields alignment */
+    .password-group input {
+      height: 56px;
+    }
+    .password-status {
+      margin-top: 6px;
+      font-size: 13px;
+    }
+
+
+    .strength-wrap{
+      margin-top:6px;
+    }
+    .strength-bars{
+      display:grid;
+      grid-template-columns:repeat(3,1fr);
+      gap:6px;
+      margin-bottom:6px;
+    }
+    .strength-bar{
+      height:8px;
+      border-radius:999px;
+      background:#e5e7eb;
+      transition:background-color .15s ease, opacity .15s ease;
+    }
+    .strength-text{
+      font-size:12px;
+      line-height:1.5;
+      color:var(--muted);
+    }
+    .strength-text.weak{ color:var(--danger); }
+    .strength-text.medium{ color:#b45309; }
+    .strength-text.strong{ color:var(--success); }
+
+</style>
 </head>
 <body>
   <div class="wrap">
@@ -392,25 +470,39 @@
       <form id="signupForm">
         <div class="field">
           <label for="loginId">아이디</label>
-          <input id="loginId" class="input" type="text" autocomplete="username" placeholder="영문/숫자 4~20자 권장" />
-          <div class="helper">로그인할 때 사용할 고유 아이디입니다. 이메일이 없어도 가입할 수 있습니다.</div>
+          <div class="field-row-inline">
+            <input id="loginId" class="input" type="text" autocomplete="username" placeholder="영문과 숫자만 4~20자" maxlength="20" />
+            <button id="checkLoginIdBtn" class="check-btn" type="button">중복 확인</button>
+          </div>
+          <div id="loginIdStatus" class="inline-check info"></div>
+          <div class="helper">로그인할 때 사용할 고유 키 값입니다. 영문과 숫자만 사용할 수 있습니다.</div>
         </div>
 
         <div class="field">
-          <label for="email">이메일 주소 (선택)</label>
+          <label for="email">이메일 주소 (선택, 입력 권장)</label>
           <input id="email" class="input" type="email" inputmode="email" autocomplete="email" placeholder="example@email.com" />
-          <div class="helper">승인 안내 및 비밀번호 찾기에 사용할 수 있습니다.</div>
+          <div id="emailStatus" class="inline-check info"></div>
+          <div class="helper">가입 승인 결과 자동 발송과 비밀번호 찾기에 필요하므로 입력을 권장합니다.</div>
         </div>
 
         <div class="grid-2">
           <div class="field">
             <label for="password">비밀번호</label>
             <input id="password" class="input" type="password" autocomplete="new-password" placeholder="6자 이상 입력" />
+            <div class="strength-wrap">
+              <div class="strength-bars" aria-hidden="true">
+                <span id="pwBar1" class="strength-bar"></span>
+                <span id="pwBar2" class="strength-bar"></span>
+                <span id="pwBar3" class="strength-bar"></span>
+              </div>
+              <div id="passwordStrengthStatus" class="strength-text">비밀번호 강도를 확인해 주세요.</div>
+            </div>
           </div>
 
           <div class="field">
             <label for="passwordConfirm">비밀번호 확인</label>
             <input id="passwordConfirm" class="input" type="password" autocomplete="new-password" placeholder="비밀번호 다시 입력" />
+            <div id="passwordMatchStatus" class="inline-check info"></div>
           </div>
         </div>
 
@@ -422,7 +514,11 @@
 
           <div class="field">
             <label for="nickname">닉네임</label>
-            <input id="nickname" class="input" type="text" placeholder="앱에서 표시될 이름" />
+            <div class="field-row-inline">
+              <input id="nickname" class="input" type="text" placeholder="앱에서 표시될 이름" maxlength="20" />
+              <button id="checkNicknameBtn" class="check-btn" type="button">중복 확인</button>
+            </div>
+            <div id="nicknameStatus" class="inline-check info"></div>
           </div>
         </div>
 
@@ -439,20 +535,23 @@
           </div>
 
           <div class="field">
-            <label for="phoneNumber">휴대폰 번호 (선택)</label>
-            <input id="phoneNumber" class="input" type="tel" inputmode="numeric" placeholder="01012345678" />
+            <label for="phoneNumber">휴대폰 번호 (필수 권장)</label>
+            <input id="phoneNumber" class="input" type="tel" inputmode="numeric" placeholder="01012345678" maxlength="11" />
+            <div class="helper">숫자만 입력해 주세요. 휴대폰 인증에 필요합니다.</div>
           </div>
         </div>
 
         <div class="grid-2">
           <div class="field">
             <label for="building">동</label>
-            <input id="building" class="input" type="text" inputmode="numeric" placeholder="예: 101" />
+            <input id="building" class="input" type="text" inputmode="numeric" placeholder="예: 101" maxlength="3" />
+            <div class="helper">숫자 3자리까지만 입력할 수 있습니다.</div>
           </div>
 
           <div class="field">
             <label for="unit">호수</label>
-            <input id="unit" class="input" type="text" inputmode="numeric" placeholder="예: 1203" />
+            <input id="unit" class="input" type="text" inputmode="numeric" placeholder="예: 1203" maxlength="4" />
+            <div class="helper">숫자 4자리까지만 입력할 수 있습니다.</div>
           </div>
         </div>
 
@@ -508,9 +607,27 @@
     const fileInput = qs('#residentProof');
     const fileMeta = qs('#fileMeta');
 
-    const SIGNUP_FUNCTION_URL = 'YOUR_SIGNUP_FUNCTION_URL';
+    const SIGNUP_FUNCTION_URL = 'https://asia-northeast3-sola-home-4979a.cloudfunctions.net/signupWithId';
+    const CHECK_LOGIN_ID_URL = 'https://asia-northeast3-sola-home-4979a.cloudfunctions.net/checkLoginId';
+    const CHECK_NICKNAME_URL = 'https://asia-northeast3-sola-home-4979a.cloudfunctions.net/checkNickname';
 
     let loadingCount = 0;
+    let loginIdCheckedValue = '';
+    let loginIdAvailable = false;
+    let nicknameCheckedValue = '';
+    let nicknameAvailable = false;
+
+    function resetDuplicateChecks(){
+      loginIdCheckedValue = '';
+      loginIdAvailable = false;
+      nicknameCheckedValue = '';
+      nicknameAvailable = false;
+      hideInlineStatus(qs('#loginIdStatus'));
+      hideInlineStatus(qs('#nicknameStatus'));
+      hideInlineStatus(qs('#passwordMatchStatus'));
+      hideInlineStatus(qs('#emailStatus'));
+      renderPasswordStrength();
+    }
 
     function startLoading(){
       const pageLoader = document.getElementById('pageLoader');
@@ -563,6 +680,232 @@
 
     function normalizeDigits(value=''){
       return String(value).replace(/\D/g, '');
+    }
+
+    function normalizeLoginId(value=''){
+      return String(value).toLowerCase().replace(/[^a-z0-9]/g, '');
+    }
+
+    function setInlineStatus(element, message='', type='info'){
+      if (!element) return;
+      element.textContent = message;
+      element.className = `inline-check show ${type}`;
+    }
+
+    function hideInlineStatus(element){
+      if (!element) return;
+      element.textContent = '';
+      element.className = 'inline-check info';
+    }
+
+    function isValidEmail(value=''){
+      return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(value).trim());
+    }
+
+    function validateLoginIdFormat(value=''){
+      return /^[a-zA-Z0-9]{4,20}$/.test(String(value).trim());
+    }
+
+    function validateNicknameFormat(value=''){
+      return String(value).trim().length >= 2;
+    }
+
+
+    function getPasswordStrength(password=''){
+      let score = 0;
+      if (password.length >= 6) score += 1;
+      if (password.length >= 8) score += 1;
+      if (/[a-z]/.test(password) && /[0-9]/.test(password)) score += 1;
+      if (/[A-Z]/.test(password) || /[^A-Za-z0-9]/.test(password)) score += 1;
+
+      if (password.length < 6) {
+        return { level: 'weak', label: '약함', score: 1 };
+      }
+      if (score <= 2) {
+        return { level: 'weak', label: '약함', score: 1 };
+      }
+      if (score === 3) {
+        return { level: 'medium', label: '보통', score: 2 };
+      }
+      return { level: 'strong', label: '강함', score: 3 };
+    }
+
+    function renderPasswordStrength(){
+      const password = qs('#password').value || '';
+      const statusEl = qs('#passwordStrengthStatus');
+      const bars = [qs('#pwBar1'), qs('#pwBar2'), qs('#pwBar3')];
+      if (!statusEl || bars.some(b => !b)) return;
+
+      bars.forEach(bar => bar.style.backgroundColor = '#e5e7eb');
+
+      if (!password) {
+        statusEl.textContent = '비밀번호 강도를 확인해 주세요.';
+        statusEl.className = 'strength-text';
+        return;
+      }
+
+      const result = getPasswordStrength(password);
+      const weakColor = '#dc2626';
+      const mediumColor = '#b45309';
+      const strongColor = '#16a34a';
+      const color = result.level === 'strong' ? strongColor : result.level === 'medium' ? mediumColor : weakColor;
+
+      for (let i = 0; i < result.score; i += 1) {
+        bars[i].style.backgroundColor = color;
+      }
+
+      let guide = '6자 이상 입력해 주세요.';
+      if (result.level === 'weak') {
+        guide = '영문, 숫자 조합을 권장합니다.';
+      } else if (result.level === 'medium') {
+        guide = '대문자 또는 특수문자를 추가하면 더 안전합니다.';
+      } else {
+        guide = '안전한 비밀번호입니다.';
+      }
+
+      statusEl.textContent = `비밀번호 강도: ${result.label} · ${guide}`;
+      statusEl.className = `strength-text ${result.level}`;
+    }
+
+    function validatePasswordMatch(){
+      const password = qs('#password').value;
+      const passwordConfirm = qs('#passwordConfirm').value;
+      const statusEl = qs('#passwordMatchStatus');
+
+      if (!password && !passwordConfirm) {
+        hideInlineStatus(statusEl);
+        return false;
+      }
+
+      if (!passwordConfirm) {
+        setInlineStatus(statusEl, '비밀번호 확인을 입력해 주세요.', 'info');
+        return false;
+      }
+
+      if (password === passwordConfirm) {
+        setInlineStatus(statusEl, '비밀번호가 일치합니다.', 'success');
+        return true;
+      }
+
+      setInlineStatus(statusEl, '비밀번호가 일치하지 않습니다.', 'error');
+      return false;
+    }
+
+    async function checkLoginIdDuplicate(){
+      const loginIdEl = qs('#loginId');
+      const statusEl = qs('#loginIdStatus');
+      const checkBtn = qs('#checkLoginIdBtn');
+      const loginId = normalizeLoginId(loginIdEl.value);
+
+      loginIdEl.value = loginId;
+      loginIdCheckedValue = '';
+      loginIdAvailable = false;
+
+      if (!loginId) {
+        setInlineStatus(statusEl, '아이디를 입력해 주세요.', 'error');
+        loginIdEl.focus();
+        return false;
+      }
+
+      if (!validateLoginIdFormat(loginId)) {
+        setInlineStatus(statusEl, '아이디는 영문과 숫자만, 4~20자로 입력해 주세요.', 'error');
+        loginIdEl.focus();
+        return false;
+      }
+
+      if (CHECK_LOGIN_ID_URL.includes('YOUR_')) {
+        setInlineStatus(statusEl, '아이디 중복 확인 URL을 먼저 설정해 주세요.', 'error');
+        return false;
+      }
+
+      checkBtn.disabled = true;
+      setInlineStatus(statusEl, '아이디 중복 여부를 확인 중입니다...', 'loading');
+
+      try {
+        const response = await fetch(CHECK_LOGIN_ID_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ loginId })
+        });
+
+        const data = await response.json().catch(() => ({}));
+        if (!response.ok || !data.ok) {
+          throw new Error(data.message || '아이디 중복 확인 중 오류가 발생했습니다.');
+        }
+
+        if (data.available) {
+          loginIdCheckedValue = loginId;
+          loginIdAvailable = true;
+          setInlineStatus(statusEl, '사용 가능한 아이디입니다.', 'success');
+          return true;
+        }
+
+        setInlineStatus(statusEl, data.message || '이미 사용 중인 아이디입니다.', 'error');
+        return false;
+      } catch (error) {
+        setInlineStatus(statusEl, error.message || '아이디 중복 확인 중 오류가 발생했습니다.', 'error');
+        return false;
+      } finally {
+        checkBtn.disabled = false;
+      }
+    }
+
+    async function checkNicknameDuplicate(){
+      const nicknameEl = qs('#nickname');
+      const statusEl = qs('#nicknameStatus');
+      const checkBtn = qs('#checkNicknameBtn');
+      const nickname = String(nicknameEl.value || '').trim();
+
+      nicknameCheckedValue = '';
+      nicknameAvailable = false;
+
+      if (!nickname) {
+        setInlineStatus(statusEl, '닉네임을 입력해 주세요.', 'error');
+        nicknameEl.focus();
+        return false;
+      }
+
+      if (!validateNicknameFormat(nickname)) {
+        setInlineStatus(statusEl, '닉네임은 2자 이상 입력해 주세요.', 'error');
+        nicknameEl.focus();
+        return false;
+      }
+
+      if (CHECK_NICKNAME_URL.includes('YOUR_')) {
+        setInlineStatus(statusEl, '닉네임 중복 확인 URL을 먼저 설정해 주세요.', 'error');
+        return false;
+      }
+
+      checkBtn.disabled = true;
+      setInlineStatus(statusEl, '닉네임 중복 여부를 확인 중입니다...', 'loading');
+
+      try {
+        const response = await fetch(CHECK_NICKNAME_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ nickname })
+        });
+
+        const data = await response.json().catch(() => ({}));
+        if (!response.ok || !data.ok) {
+          throw new Error(data.message || '닉네임 중복 확인 중 오류가 발생했습니다.');
+        }
+
+        if (data.available) {
+          nicknameCheckedValue = nickname;
+          nicknameAvailable = true;
+          setInlineStatus(statusEl, '사용 가능한 닉네임입니다.', 'success');
+          return true;
+        }
+
+        setInlineStatus(statusEl, data.message || '이미 사용 중인 닉네임입니다.', 'error');
+        return false;
+      } catch (error) {
+        setInlineStatus(statusEl, error.message || '닉네임 중복 확인 중 오류가 발생했습니다.', 'error');
+        return false;
+      } finally {
+        checkBtn.disabled = false;
+      }
     }
 
     const alertEl = qs('#appAlert');
@@ -627,7 +970,88 @@
       if(event.key === 'Escape') closeModal(false);
     });
 
+    qs('#loginId').addEventListener('input', (event) => {
+      const sanitized = normalizeLoginId(event.target.value);
+      if (event.target.value !== sanitized) {
+        event.target.value = sanitized;
+      }
+      loginIdCheckedValue = '';
+      loginIdAvailable = false;
+      if (!sanitized) {
+        hideInlineStatus(qs('#loginIdStatus'));
+        return;
+      }
+      if (validateLoginIdFormat(sanitized)) {
+        setInlineStatus(qs('#loginIdStatus'), '중복 확인을 진행해 주세요.', 'info');
+      } else {
+        setInlineStatus(qs('#loginIdStatus'), '아이디는 영문과 숫자만, 4~20자로 입력해 주세요.', 'error');
+      }
+    });
+
+    qs('#checkLoginIdBtn').addEventListener('click', checkLoginIdDuplicate);
+    qs('#loginId').addEventListener('blur', () => {
+      const value = qs('#loginId').value.trim();
+      if (validateLoginIdFormat(value) && value !== loginIdCheckedValue) {
+        checkLoginIdDuplicate();
+      }
+    });
+
+    qs('#email').addEventListener('input', (event) => {
+      const email = normalizeEmail(event.target.value);
+      if (!email) {
+        hideInlineStatus(qs('#emailStatus'));
+        return;
+      }
+      if (isValidEmail(email)) {
+        setInlineStatus(qs('#emailStatus'), '유효한 이메일 형식입니다.', 'success');
+      } else {
+        setInlineStatus(qs('#emailStatus'), '이메일 형식이 올바르지 않습니다.', 'error');
+      }
+    });
+
+    qs('#password').addEventListener('input', () => {
+      renderPasswordStrength();
+      validatePasswordMatch();
+    });
+    qs('#passwordConfirm').addEventListener('input', validatePasswordMatch);
+
+    qs('#nickname').addEventListener('input', () => {
+      nicknameCheckedValue = '';
+      nicknameAvailable = false;
+      const nickname = qs('#nickname').value.trim();
+      if (!nickname) {
+        hideInlineStatus(qs('#nicknameStatus'));
+        return;
+      }
+      if (nickname.length >= 2) {
+        setInlineStatus(qs('#nicknameStatus'), '중복 확인을 진행해 주세요.', 'info');
+      } else {
+        setInlineStatus(qs('#nicknameStatus'), '닉네임은 2자 이상 입력해 주세요.', 'error');
+      }
+    });
+
+    qs('#checkNicknameBtn').addEventListener('click', checkNicknameDuplicate);
+    qs('#nickname').addEventListener('blur', () => {
+      const value = qs('#nickname').value.trim();
+      if (value.length >= 2 && value !== nicknameCheckedValue) {
+        checkNicknameDuplicate();
+      }
+    });
+
+    qs('#phoneNumber').addEventListener('input', (event) => {
+      event.target.value = normalizeDigits(event.target.value).slice(0, 11);
+    });
+
+    qs('#building').addEventListener('input', (event) => {
+      event.target.value = normalizeDigits(event.target.value).slice(0, 3);
+    });
+
+    qs('#unit').addEventListener('input', (event) => {
+      event.target.value = normalizeDigits(event.target.value).slice(0, 4);
+    });
+
     document.body.style.opacity = '1';
+    renderPasswordStrength();
 
     qs('#goLoginLink').addEventListener('click', async (event) => {
       const hasTypedValue = ['#loginId','#email','#password','#passwordConfirm','#name','#nickname','#building','#unit','#intro','#phoneNumber'].some((selector) => String(qs(selector).value || '').trim());
@@ -699,12 +1123,17 @@
         return;
       }
 
-      if (!/^[a-zA-Z0-9._-]{4,20}$/.test(loginId)) {
-        await fail('아이디는 영문, 숫자, 점(.), 밑줄(_), 하이픈(-) 조합의 4~20자로 입력해 주세요.', loginIdEl);
+      if (!validateLoginIdFormat(loginId)) {
+        await fail('아이디는 영문과 숫자만, 4~20자로 입력해 주세요.', loginIdEl);
         return;
       }
 
-      if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      if (!loginIdAvailable || loginIdCheckedValue !== loginId) {
+        await fail('아이디 중복 확인을 완료해 주세요.', qs('#checkLoginIdBtn'));
+        return;
+      }
+
+      if (email && !isValidEmail(email)) {
         await fail('이메일 형식이 올바르지 않습니다.', emailEl);
         return;
       }
@@ -725,6 +1154,7 @@
       }
 
       if (password !== passwordConfirm) {
+        validatePasswordMatch();
         await fail('비밀번호와 비밀번호 확인이 일치하지 않습니다.', passwordConfirmEl);
         return;
       }
@@ -739,13 +1169,38 @@
         return;
       }
 
+      if (!nicknameAvailable || nicknameCheckedValue !== nickname) {
+        await fail('닉네임 중복 확인을 완료해 주세요.', qs('#checkNicknameBtn'));
+        return;
+      }
+
+      if (!phoneNumber) {
+        await fail('휴대폰 번호를 입력해주세요.', phoneNumberEl);
+        return;
+      }
+
+      if (phoneNumber.length < 10 || phoneNumber.length > 11) {
+        await fail('휴대폰 번호는 숫자만 10~11자리로 입력해 주세요.', phoneNumberEl);
+        return;
+      }
+
       if (!building) {
         await fail('동을 입력해주세요.', buildingEl);
         return;
       }
 
+      if (building.length !== 3) {
+        await fail('동은 숫자 3자리로 입력해 주세요.', buildingEl);
+        return;
+      }
+
       if (!unit) {
         await fail('호수를 입력해주세요.', unitEl);
+        return;
+      }
+
+      if (unit.length !== 4) {
+        await fail('호수는 숫자 4자리로 입력해 주세요.', unitEl);
         return;
       }
 
@@ -806,6 +1261,7 @@
         await openModalAlert('회원가입 신청이 완료되었습니다.\n관리자 승인 후 로그인할 수 있습니다.');
 
         form.reset();
+        resetDuplicateChecks();
         fileMeta.className = 'upload-meta';
         fileMeta.textContent = '';
 

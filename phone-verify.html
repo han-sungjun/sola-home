@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#0f172a" />
+  <meta name="description" content="더운정 마이힐스 휴대폰 인증" />
+  <title>더운정 마이힐스 - 휴대폰 인증</title>
+  <style>
+    :root{
+      --bg:#f5f7fb;
+      --surface:rgba(255,255,255,.9);
+      --line:#e5e7eb;
+      --text:#0f172a;
+      --muted:#64748b;
+      --primary:#0f172a;
+      --success:#16a34a;
+      --danger:#dc2626;
+      --shadow:0 20px 40px rgba(15,23,42,.10);
+      --radius-xl:28px;
+    }
+    *{box-sizing:border-box}
+    html,body{
+      margin:0;
+      padding:0;
+      font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Noto Sans KR","Segoe UI",sans-serif;
+      background:linear-gradient(180deg,#f8fafc 0%,#eef2ff 100%);
+      color:var(--text);
+    }
+    body{
+      min-height:100dvh;
+      display:flex;
+      justify-content:center;
+      padding:20px;
+    }
+    .wrap{
+      width:min(100%,520px);
+      padding-bottom:30px;
+    }
+    .hero{
+      position:relative;
+      overflow:hidden;
+      padding:24px;
+      border-radius:30px;
+      color:#fff;
+      background:
+        radial-gradient(circle at top right,rgba(255,255,255,.28),transparent 30%),
+        linear-gradient(135deg,#111827 0%,#1f2937 46%,#ef4444 100%);
+      box-shadow:var(--shadow);
+      margin-bottom:16px;
+    }
+    .hero::after{
+      content:"";
+      position:absolute;
+      right:-26px;
+      top:-12px;
+      width:118px;
+      height:118px;
+      border-radius:34px;
+      background:rgba(255,255,255,.14);
+      transform:rotate(18deg);
+    }
+    .eyebrow{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:8px 12px;
+      border-radius:999px;
+      background:rgba(255,255,255,.14);
+      font-size:12px;
+    }
+    .hero h1{
+      margin:14px 0 8px;
+      font-size:28px;
+      line-height:1.2;
+      letter-spacing:-.05em;
+    }
+    .hero p{
+      margin:0;
+      line-height:1.7;
+      color:rgba(255,255,255,.92);
+      font-size:14px;
+    }
+    .panel{
+      background:var(--surface);
+      border:1px solid rgba(255,255,255,.72);
+      box-shadow:var(--shadow);
+      backdrop-filter:blur(18px);
+      border-radius:var(--radius-xl);
+      padding:20px;
+    }
+    .brand{
+      display:flex;
+      align-items:center;
+      gap:12px;
+      margin-bottom:18px;
+    }
+    .logo{
+      width:52px;
+      height:52px;
+      border-radius:18px;
+      display:grid;
+      place-items:center;
+      background:#fff;
+      box-shadow:var(--shadow);
+      font-size:24px;
+      flex:0 0 auto;
+    }
+    .brand h2{
+      margin:0;
+      font-size:22px;
+      letter-spacing:-.04em;
+    }
+    .brand p{
+      margin:4px 0 0;
+      color:var(--muted);
+      font-size:13px;
+    }
+    .field{
+      display:grid;
+      gap:8px;
+      margin-bottom:14px;
+    }
+    .field label{
+      font-size:13px;
+      color:var(--muted);
+      font-weight:700;
+    }
+    .input{
+      width:100%;
+      border:1px solid var(--line);
+      background:#fff;
+      border-radius:18px;
+      padding:15px 16px;
+      outline:none;
+      font-size:15px;
+      color:var(--text);
+      transition:border-color .15s ease, box-shadow .15s ease;
+    }
+    .input:focus{
+      border-color:#94a3b8;
+      box-shadow:0 0 0 4px rgba(148,163,184,.16);
+    }
+    .helper{
+      font-size:12px;
+      color:var(--muted);
+      line-height:1.55;
+      margin-top:4px;
+    }
+    .btn-row{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:10px;
+      margin-top:18px;
+    }
+    .btn{
+      width:100%;
+      border:none;
+      border-radius:18px;
+      padding:15px 16px;
+      cursor:pointer;
+      font-weight:800;
+      font-size:15px;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap:8px;
+      text-decoration:none;
+    }
+    .btn-primary{
+      background:var(--primary);
+      color:#fff;
+    }
+    .btn-soft{
+      background:#fff;
+      color:var(--text);
+      border:1px solid var(--line);
+    }
+    .btn[disabled]{
+      opacity:.65;
+      cursor:not-allowed;
+    }
+    .notice{
+      display:none;
+      margin-top:14px;
+      padding:14px 16px;
+      border-radius:18px;
+      font-size:13px;
+      line-height:1.55;
+      border:1px solid transparent;
+      white-space:pre-line;
+    }
+    .notice.show{display:block}
+    .notice.info{
+      background:#eff6ff;
+      border-color:#bfdbfe;
+      color:#1d4ed8;
+    }
+    .notice.error{
+      background:#fef2f2;
+      border-color:#fecaca;
+      color:#b91c1c;
+    }
+    .notice.success{
+      background:#f0fdf4;
+      border-color:#bbf7d0;
+      color:#166534;
+    }
+    .footer{
+      text-align:center;
+      margin-top:14px;
+      color:var(--muted);
+      font-size:12px;
+      line-height:1.6;
+    }
+    .hidden{display:none !important}
+    .page-loader{
+      position:fixed;
+      inset:0;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      background:rgba(15,23,42,.52);
+      backdrop-filter:blur(2px);
+      -webkit-backdrop-filter:blur(2px);
+      z-index:10000;
+      opacity:0;
+      visibility:hidden;
+      pointer-events:none;
+      transition:opacity .22s ease, visibility .22s ease;
+    }
+    .page-loader.show{
+      opacity:1;
+      visibility:visible;
+      pointer-events:auto;
+    }
+    .loader-mark{
+      position:relative;
+      width:74px;
+      height:74px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      animation:loaderFloat .95s ease-in-out infinite;
+    }
+    .loader-mark .arm{
+      position:absolute;
+      left:50%;
+      top:50%;
+      width:10px;
+      border-radius:999px;
+      transform-origin:center center;
+      box-shadow:0 3px 10px rgba(0,0,0,.08);
+    }
+    .loader-mark .arm.top{
+      height:34px;
+      background:#ffffff;
+      transform:translate(-50%,-72%) rotate(45deg);
+    }
+    .loader-mark .arm.left{
+      height:34px;
+      background:#ffffff;
+      transform:translate(-50%,-72%) rotate(-45deg);
+    }
+    .loader-mark .arm.mid{
+      width:42px;
+      height:8px;
+      background:linear-gradient(90deg,#ff4fc3 0%, #ff63d8 100%);
+      transform:translate(-50%,-2px);
+    }
+    .loader-mark .arm.bot{
+      width:42px;
+      height:8px;
+      background:linear-gradient(90deg,#ff4fc3 0%, #ff63d8 100%);
+      transform:translate(-50%,12px);
+    }
+    .loader-mark .arm.bot2{
+      width:42px;
+      height:8px;
+      background:linear-gradient(90deg,#ff4fc3 0%, #ff63d8 100%);
+      transform:translate(-50%,26px);
+    }
+    @keyframes loaderFloat{
+      0%,100%{ transform:translateY(0) scale(1); }
+      50%{ transform:translateY(-3px) scale(1.03); }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <section class="hero">
+      <div class="eyebrow">📱 휴대폰 인증</div>
+      <h1>더운정 마이힐스<br>휴대폰 인증</h1>
+      <p>승인된 계정의 본인 확인을 위해 문자 인증을 진행합니다.</p>
+    </section>
+
+    <section class="panel">
+      <div class="brand">
+        <div class="logo">🔐</div>
+        <div>
+          <h2>SMS 인증</h2>
+          <p>인증이 완료되면 앱으로 이동합니다</p>
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="phoneNumber">휴대폰 번호</label>
+        <input id="phoneNumber" class="input" type="tel" inputmode="numeric" placeholder="01012345678" maxlength="11" />
+        <div class="helper">숫자만 입력해 주세요.</div>
+      </div>
+
+      <div class="btn-row">
+        <button id="sendCodeBtn" class="btn btn-primary" type="button">인증 코드 보내기</button>
+        <button id="signOutBtn" class="btn btn-soft" type="button">로그아웃</button>
+      </div>
+
+      <div id="verifySection" class="hidden">
+        <div class="field" style="margin-top:14px;">
+          <label for="smsCode">인증 코드</label>
+          <input id="smsCode" class="input" type="text" inputmode="numeric" placeholder="문자로 받은 6자리 코드" maxlength="6" />
+          <div class="helper">문자로 받은 인증 코드를 입력해 주세요.</div>
+        </div>
+        <div class="btn-row">
+          <button id="verifyCodeBtn" class="btn btn-primary" type="button">인증 완료</button>
+          <button id="resendBtn" class="btn btn-soft" type="button">코드 다시 보내기</button>
+        </div>
+      </div>
+
+      <div id="notice" class="notice info"></div>
+      <div id="recaptcha-container"></div>
+    </section>
+
+    <div class="footer">
+      휴대폰 인증 완료 후 입주민 전용 서비스로 이동합니다.
+    </div>
+  </div>
+
+  <div id="pageLoader" class="page-loader" aria-hidden="true">
+    <div class="loader-mark" aria-label="로딩 중" role="status">
+      <span class="arm top"></span>
+      <span class="arm left"></span>
+      <span class="arm mid"></span>
+      <span class="arm bot"></span>
+      <span class="arm bot2"></span>
+    </div>
+  </div>
+
+  <script type="module" src="./phone-verify.js"></script>
+</body>
+</html>
