@@ -919,6 +919,8 @@ function showNotice(message, type='info'){
           };
 
           if (proofFile) {
+            await currentRejectedUser.getIdToken(true);
+
             const ext = proofFile.name.includes('.') ? proofFile.name.split('.').pop() : 'jpg';
             const safeFileName = sanitizeFileName(`${Date.now()}_${proofFile.name}`);
             const storageRef = ref(storage, `resident-proofs/${currentRejectedUser.uid}/${safeFileName}`);
@@ -974,6 +976,8 @@ function showNotice(message, type='info'){
         await updateProfile(user, {
           displayName: nickname
         });
+
+        await user.getIdToken(true);
 
         const ext = proofFile.name.includes('.') ? proofFile.name.split('.').pop() : 'jpg';
         const safeFileName = sanitizeFileName(`${Date.now()}_${proofFile.name}`);
