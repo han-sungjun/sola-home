@@ -103,7 +103,9 @@ async function ensureRecaptcha() {
 
   recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
     size: 'normal',
-    callback: () => {},
+    callback: () => {
+      showNotice('보안 확인이 완료되었습니다. 인증 코드를 발송합니다.', 'info');
+    },
     'expired-callback': () => {
       showNotice('보안 확인이 만료되었습니다. 다시 시도해 주세요.', 'error');
     }
@@ -140,9 +142,14 @@ async function sendCode() {
 
   try {
     setButtonsLoading(true, 'send');
-    startLoading();
 
+    // reCAPTCHA 준비
     const appVerifier = await ensureRecaptcha();
+
+    // 여기서는 전체 로더를 띄우지 않습니다.
+    // reCAPTCHA를 사용자가 직접 눌러야 하기 때문입니다.
+    showNotice('보안 확인 후 인증 코드를 발송합니다. 아래 확인창을 완료해 주세요.', 'info');
+
     confirmationResult = await linkWithPhoneNumber(
       user,
       toE164Korea(phoneDigits),
@@ -172,7 +179,6 @@ async function sendCode() {
 
     showNotice(message, 'error');
   } finally {
-    finishLoading();
     setButtonsLoading(false, 'send');
   }
 }
