@@ -533,6 +533,7 @@
     let currentRejectedUser = null;
     let currentRejectedUserData = null;
     let isResubmitMode = false;
+    let isProcessingSignup = false;
 
     function startLoading(){
       const pageLoader = document.getElementById('pageLoader');
@@ -727,6 +728,11 @@ function showNotice(message, type='info'){
         const userSnap = await getDoc(doc(db, 'users', user.uid));
 
         if (!userSnap.exists()) {
+          if (isProcessingSignup) {
+            finishLoading();
+            return;
+          }
+
           await signOut(auth);
           clearResubmitMode();
           finishLoading();
@@ -906,6 +912,7 @@ function showNotice(message, type='info'){
         return;
       }
 
+      isProcessingSignup = true;
       setLoading(true);
       startLoading();
 
@@ -1057,6 +1064,7 @@ function showNotice(message, type='info'){
         await new Promise(resolve => setTimeout(resolve, 60));
         await openModalAlert(message, focusTarget);
       } finally {
+        isProcessingSignup = false;
         loadingCount = 0;
         setLoading(false);
       }
