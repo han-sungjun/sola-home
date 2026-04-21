@@ -744,7 +744,7 @@ body.gnb-open .admin-bottom-nav{
     
     <div class="admin-view active" id="view-dashboard">
       <div class="dashboard-grid">
-        <div class="admin-card"><div class="admin-card"><div class="section-head" style="margin-bottom:12px;"><h3 style="font-size:16px;">운영자 로그인</h3><small id="authStatusText">로그인 필요</small></div><div class="form-grid"><div class="field"><label for="adminEmail">이메일</label><input id="adminEmail" type="email" placeholder="운영자 이메일 입력" /></div><div class="field"><label for="adminPassword">비밀번호</label><input id="adminPassword" type="password" placeholder="비밀번호 입력" /></div><div class="grid-2"><button class="btn btn-blue" type="button" id="loginBtn">로그인</button><button class="btn btn-soft" type="button" id="logoutBtn">로그아웃</button></div></div></div>
+        <div class="admin-card"><div class="admin-card"><div class="section-head" style="margin-bottom:12px;"><h3 style="font-size:16px;">운영자 로그인</h3><small id="authStatusText">로그인 필요</small></div><div class="form-grid"><div class="field"><label for="adminLoginId">아이디</label><input id="adminLoginId" type="text" inputmode="text" autocomplete="username" placeholder="운영자 아이디 입력" /></div><div class="field"><label for="adminPassword">비밀번호</label><input id="adminPassword" type="password" placeholder="비밀번호 입력" /></div><div class="grid-2"><button class="btn btn-blue" type="button" id="loginBtn">로그인</button><button class="btn btn-soft" type="button" id="logoutBtn">로그아웃</button></div></div></div>
       </div>
         <div class="admin-card">
           <div class="section-head" style="margin-bottom:12px;"><h3 style="font-size:16px;">빠른 작업</h3><small>자주 쓰는 메뉴</small></div>
@@ -866,13 +866,14 @@ body.gnb-open .admin-bottom-nav{
 
   <script type="module">
     import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
-    import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
-    import { getFirestore, collection, addDoc, updateDoc, deleteDoc, doc, getDocs, onSnapshot, serverTimestamp, writeBatch } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
+    import { getAuth, onAuthStateChanged, signInWithCustomToken, signOut, setPersistence, browserLocalPersistence } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
+    import { getFirestore, collection, addDoc, updateDoc, deleteDoc, doc, getDoc, getDocs, onSnapshot, serverTimestamp, writeBatch } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
     import { mountIdleTimer } from "./tracking.js";
     const firebaseConfig = { apiKey:"AIzaSyDhKr7oMSrLowJ47cqB4pvNXuIIdtW0HPI", authDomain:"sola-home-4979a.firebaseapp.com", projectId:"sola-home-4979a", storageBucket:"sola-home-4979a.firebasestorage.app", messagingSenderId:"337132471819", appId:"1:337132471819:web:848cd357fecda459a2e90e" };
     const BENEFITS_COLLECTION='benefits', NOTICES_COLLECTION='notices', PUSH_JOBS_COLLECTION='push_jobs', USERS_COLLECTION='users';
+    const LOGIN_FUNCTION_URL = 'https://asia-northeast3-sola-home-4979a.cloudfunctions.net/loginWithId';
     const DEFAULT_BENEFITS=[{name:'엘스킨케어',category:'피부관리',discountValue:50,discountText:'50%',condition:'첫방문 50% / 입주민 정액권 최대 30%',address:'경기 파주시 경의로 1242 209호, 210호',phone:'0507-1433-5760',url:'',visible:true,recommended:true,service:false},{name:'미스터피자 일산탄현점',category:'음식',discountValue:30,discountText:'30%',condition:'포장 30% / 매장식사 20% + 샐러드 증정',address:'경기 고양시 일산서구 탄현로 136 상가동 2층 204호',phone:'031-911-9296',url:'',visible:true,recommended:true,service:false}];
-    const state={benefits:[],notices:[],pushJobs:[],members:[],isAdmin:false,view:'dashboard'}; const qs=(s)=>document.querySelector(s), qsa=(s)=>[...document.querySelectorAll(s)];
+    const state={benefits:[],notices:[],pushJobs:[],members:[],isAdmin:false,view:'dashboard',adminProfile:null}; const qs=(s)=>document.querySelector(s), qsa=(s)=>[...document.querySelectorAll(s)];
     const globalLoadingBar = qs('#globalLoadingBar');
     let globalLoadingTimer = null;
     const initialLoadState = { benefits:false, notices:false, pushJobs:false, users:false };
@@ -980,8 +981,9 @@ body.gnb-open .admin-bottom-nav{
 
 const setTextAll = (selector, text) => qsa(selector).forEach(el => el.textContent = text);
     function updateAdminHeader(user){
-      qs('#adminTopUser').textContent = user?.email || '관리자 확인 중';
-      qs('#adminTopStatus').textContent = user ? '관리자 로그인됨' : '로그인 필요';
+      const loginLabel = state.adminProfile?.loginId || user?.email || '관리자 확인 중';
+      qs('#adminTopUser').textContent = loginLabel;
+      qs('#adminTopStatus').textContent = state.isAdmin ? '관리자 로그인됨' : (user ? '관리자 권한 확인 필요' : '로그인 필요');
     }
     function changeAdminView(view){
       if(!view) return;
@@ -1063,7 +1065,7 @@ const setTextAll = (selector, text) => qsa(selector).forEach(el => el.textConten
     async function saveBenefit(e){
       e.preventDefault();
       if(!state.isAdmin||!db){
-        await openModalAlert('관리자 로그인 후 저장할 수 있습니다.', qs('#adminEmail'));
+        await openModalAlert('관리자 로그인 후 저장할 수 있습니다.', qs('#adminLoginId'));
         return;
       }
 
@@ -1105,7 +1107,7 @@ const setTextAll = (selector, text) => qsa(selector).forEach(el => el.textConten
     async function saveNotice(e){
       e.preventDefault();
       if(!state.isAdmin||!db){
-        await openModalAlert('관리자 로그인 후 저장할 수 있습니다.', qs('#adminEmail'));
+        await openModalAlert('관리자 로그인 후 저장할 수 있습니다.', qs('#adminLoginId'));
         return;
       }
 
@@ -1149,7 +1151,7 @@ const setTextAll = (selector, text) => qsa(selector).forEach(el => el.textConten
     }
     async function deleteBenefit(id,name){
       if(!state.isAdmin||!db){
-        await openModalAlert('관리자 로그인 후 삭제할 수 있습니다.', qs('#adminEmail'));
+        await openModalAlert('관리자 로그인 후 삭제할 수 있습니다.', qs('#adminLoginId'));
         return;
       }
       const confirmed = await openModalConfirm(`"${name}" 항목을 삭제할까요?`, qs('#adminList'), '삭제 확인', '삭제', '취소');
@@ -1167,7 +1169,7 @@ const setTextAll = (selector, text) => qsa(selector).forEach(el => el.textConten
     }
     async function deleteNotice(id,title){
       if(!state.isAdmin||!db){
-        await openModalAlert('관리자 로그인 후 삭제할 수 있습니다.', qs('#adminEmail'));
+        await openModalAlert('관리자 로그인 후 삭제할 수 있습니다.', qs('#adminLoginId'));
         return;
       }
       const confirmed = await openModalConfirm(`"${title}" 공지를 삭제할까요?`, qs('#noticeAdminList'), '삭제 확인', '삭제', '취소');
@@ -1185,12 +1187,13 @@ const setTextAll = (selector, text) => qsa(selector).forEach(el => el.textConten
     }
     async function loginAdmin(){
       if(!auth){
-        await openModalAlert('Firebase 설정을 확인해 주세요.', qs('#adminEmail'));
+        await openModalAlert('Firebase 설정을 확인해 주세요.', qs('#adminLoginId'));
         return;
       }
-      const email=qs('#adminEmail').value.trim(),password=qs('#adminPassword').value;
-      if(!email){
-        await openModalAlert('이메일을 입력해 주세요.', qs('#adminEmail'));
+      const loginId=String(qs('#adminLoginId')?.value||'').trim().toLowerCase();
+      const password=qs('#adminPassword').value;
+      if(!loginId){
+        await openModalAlert('아이디를 입력해 주세요.', qs('#adminLoginId'));
         return;
       }
       if(!password){
@@ -1200,14 +1203,32 @@ const setTextAll = (selector, text) => qsa(selector).forEach(el => el.textConten
 
       try{
         showGlobalLoading();
-        await signInWithEmailAndPassword(auth,email,password);
-        hideGlobalLoading();
+        const response = await fetch(LOGIN_FUNCTION_URL, {
+          method:'POST',
+          headers:{ 'Content-Type':'application/json' },
+          body: JSON.stringify({ loginId, password })
+        });
+
+        const raw = await response.text();
+        let data = {};
+        try{
+          data = raw ? JSON.parse(raw) : {};
+        }catch(_){
+          data = { ok:false, message: raw || '로그인 응답을 확인할 수 없습니다.' };
+        }
+
+        if(!response.ok || !data.ok){
+          throw new Error(data.message || '로그인에 실패했습니다.');
+        }
+
+        await setPersistence(auth, browserLocalPersistence);
+        await signInWithCustomToken(auth, data.token);
         qs('#adminPassword').value='';
-        await openModalAlert('관리자 로그인에 성공했습니다.', qs('#adminEmail'));
+        hideGlobalLoading();
       }catch(e){
         console.error(e);
         hideGlobalLoading();
-        await openModalAlert('로그인에 실패했습니다.', qs('#adminPassword'));
+        await openModalAlert(e?.message || '로그인에 실패했습니다.', qs('#adminPassword'));
       }
     }
     const logoutAdmin=async()=>{
@@ -1372,7 +1393,7 @@ const setTextAll = (selector, text) => qsa(selector).forEach(el => el.textConten
     }
     async function updateMemberStatus(memberId, action){
       if(!state.isAdmin || !db){
-        await openModalAlert('관리자 로그인 후 처리할 수 있습니다.', qs('#adminEmail'));
+        await openModalAlert('관리자 로그인 후 처리할 수 있습니다.', qs('#adminLoginId'));
         return;
       }
       const member = state.members.find(item => item.id === memberId);
@@ -1433,7 +1454,7 @@ const setTextAll = (selector, text) => qsa(selector).forEach(el => el.textConten
 
     async function seedDefaultData(){
       if(!state.isAdmin||!db){
-        await openModalAlert('관리자 로그인 후 실행해 주세요.', qs('#adminEmail'));
+        await openModalAlert('관리자 로그인 후 실행해 주세요.', qs('#adminLoginId'));
         return;
       }
       const confirmed = await openModalConfirm('기본 데이터를 Firestore에 업로드할까요? 기존 데이터와 중복될 수 있습니다.', qs('#seedBtn'), '기본 데이터 업로드', '업로드', '취소');
@@ -1504,11 +1525,12 @@ const setTextAll = (selector, text) => qsa(selector).forEach(el => el.textConten
       let adminDataSubscribed = false;
 
       onAuthStateChanged(auth, async (user) => {
-        state.isAdmin = !!user;
-        qs('#authStatusText').textContent=user?`로그인됨: ${user.email}`:'로그인 필요';
-        updateAdminHeader(user);
+        state.adminProfile = null;
+        state.isAdmin = false;
 
         if(!user){
+          qs('#authStatusText').textContent='로그인 필요';
+          updateAdminHeader(null);
           setAdminDashboardLocked(true);
           const idleHost = document.getElementById('adminIdleTimerHost');
           if (idleHost) {
@@ -1519,35 +1541,65 @@ const setTextAll = (selector, text) => qsa(selector).forEach(el => el.textConten
           return;
         }
 
-        const timerHost = document.getElementById('adminIdleTimerHost');
-        if (timerHost) {
-          timerHost.classList.remove('hidden');
-          timerHost.innerHTML = '';
-          mountIdleTimer({
-            containerSelector: "#adminIdleTimerHost",
-            insertPosition: "beforeend"
-          });
-        }
+        try{
+          const userSnap = await getDoc(doc(db, USERS_COLLECTION, user.uid));
+          const userData = userSnap.exists() ? (userSnap.data() || {}) : {};
+          state.adminProfile = userData;
 
-        setAdminDashboardLocked(false);
+          const isAdminRole = userData.role === 'admin';
+          const isApproved = userData.approvalStatus === 'approved';
+          const isActive = userData.accountStatus === 'active';
 
-        if (!adminDataSubscribed) {
-          adminDataSubscribed = true;
-          showGlobalLoading();
-          subscribeBenefits();
-          subscribeNotices();
-          subscribePushJobs();
-          subscribeMembers();
-        }
-
-        if (typeof window.refreshAdminStatsUIOnce === 'function') {
-          await window.refreshAdminStatsUIOnce();
-          if (!window.__adminDashboardIntervalStarted) {
-            window.__adminDashboardIntervalStarted = true;
-            setInterval(() => {
-              window.refreshAdminStatsUIOnce?.();
-            }, 30000);
+          if(!isAdminRole || !isApproved || !isActive){
+            qs('#authStatusText').textContent='관리자 권한 없음';
+            updateAdminHeader(user);
+            setAdminDashboardLocked(true);
+            hideGlobalLoading(80);
+            await openModalAlert('관리자 권한이 있는 계정만 접근할 수 있습니다.', qs('#adminLoginId'));
+            await signOut(auth).catch(()=>{});
+            return;
           }
+
+          state.isAdmin = true;
+          qs('#authStatusText').textContent=`로그인됨: ${userData.loginId || user.email || user.uid}`;
+          updateAdminHeader(user);
+
+          const timerHost = document.getElementById('adminIdleTimerHost');
+          if (timerHost) {
+            timerHost.classList.remove('hidden');
+            timerHost.innerHTML = '';
+            mountIdleTimer({
+              containerSelector: "#adminIdleTimerHost",
+              insertPosition: "beforeend"
+            });
+          }
+
+          setAdminDashboardLocked(false);
+
+          if (!adminDataSubscribed) {
+            adminDataSubscribed = true;
+            showGlobalLoading();
+            subscribeBenefits();
+            subscribeNotices();
+            subscribePushJobs();
+            subscribeMembers();
+          }
+
+          if (typeof window.refreshAdminStatsUIOnce === 'function') {
+            await window.refreshAdminStatsUIOnce();
+            if (!window.__adminDashboardIntervalStarted) {
+              window.__adminDashboardIntervalStarted = true;
+              setInterval(() => {
+                window.refreshAdminStatsUIOnce?.();
+              }, 30000);
+            }
+          }
+        }catch(error){
+          console.error('관리자 권한 확인 실패', error);
+          setAdminDashboardLocked(true);
+          hideGlobalLoading(80);
+          await signOut(auth).catch(()=>{});
+          await openModalAlert('관리자 권한을 확인할 수 없습니다.', qs('#adminLoginId'));
         }
       });
     }else{
