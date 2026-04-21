@@ -128,7 +128,7 @@
       color:var(--muted);
       font-weight:700;
     }
-    .input,.textarea{
+    .input,.textarea,.select{
       width:100%;
       border:1px solid var(--line);
       background:#fff;
@@ -139,7 +139,7 @@
       color:var(--text);
       transition:border-color .15s ease, box-shadow .15s ease;
     }
-    .input:focus,.textarea:focus{
+    .input:focus,.textarea:focus,.select:focus{
       border-color:#94a3b8;
       box-shadow:0 0 0 4px rgba(148,163,184,.16);
     }
@@ -278,7 +278,7 @@
     @media (max-width:460px){
       .grid-2,.btn-row{grid-template-columns:1fr}
     }
-  
+
     .app-alert{position:fixed;inset:0;display:none;align-items:center;justify-content:center;padding:20px;z-index:9999;background:rgba(15,23,42,.46);backdrop-filter:blur(4px)}
     .app-alert.show{display:flex}
     .app-alert-card{width:min(100%,360px);background:#fff;border:1px solid rgba(255,255,255,.75);box-shadow:0 30px 60px rgba(15,23,42,.20);border-radius:26px;padding:22px}
@@ -289,111 +289,89 @@
     .app-alert-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:18px}
     .app-alert-cancel{min-width:92px;border:1px solid var(--line);border-radius:16px;padding:12px 16px;background:#fff;color:var(--text);font-weight:800;cursor:pointer}
     .app-alert-confirm{min-width:92px;border:none;border-radius:16px;padding:12px 16px;background:var(--primary);color:#fff;font-weight:800;cursor:pointer}
-    .app-alert-confirm{min-width:92px;border:none;border-radius:16px;padding:12px 16px;background:var(--primary);color:#fff;font-weight:800;cursor:pointer}
-    
 
-/* 상단 로딩바 */
-.top-loader{
-  position:fixed;
-  top:0;
-  left:0;
-  height:3px;
-  width:0;
-  background:linear-gradient(90deg,#ef4444,#f59e0b);
-  z-index:9999;
-  opacity:1;
-  transition:width .35s ease, opacity .35s ease;
-}
-.top-loader.active{width:78%}
-.top-loader.done{width:100%;opacity:0}
-
-
-/* ===== 전체 화면 로더 ===== */
-.page-loader{
-  position:fixed;
-  inset:0;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  background:rgba(15,23,42,.52);
-  backdrop-filter:blur(2px);
-  -webkit-backdrop-filter:blur(2px);
-  z-index:10000;
-  opacity:0;
-  visibility:hidden;
-  pointer-events:none;
-  transition:opacity .22s ease, visibility .22s ease;
-}
-.page-loader.show{
-  opacity:1;
-  visibility:visible;
-  pointer-events:auto;
-}
-.loader-mark{
-  position:relative;
-  width:74px;
-  height:74px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-}
-.loader-mark .arm{
-  position:absolute;
-  left:50%;
-  top:50%;
-  width:10px;
-  border-radius:999px;
-  transform-origin:center center;
-  box-shadow:0 3px 10px rgba(0,0,0,.08);
-}
-.loader-mark .arm.top{
-  height:34px;
-  background:#ffffff;
-  transform:translate(-50%,-72%) rotate(45deg);
-}
-.loader-mark .arm.left{
-  height:34px;
-  background:#ffffff;
-  transform:translate(-50%,-72%) rotate(-45deg);
-}
-.loader-mark .arm.mid{
-  width:42px;
-  height:8px;
-  background:linear-gradient(90deg,#ff4fc3 0%, #ff63d8 100%);
-  transform:translate(-50%,-2px);
-}
-.loader-mark .arm.bot{
-  width:42px;
-  height:8px;
-  background:linear-gradient(90deg,#ff4fc3 0%, #ff63d8 100%);
-  transform:translate(-50%,12px);
-}
-.loader-mark .arm.bot2{
-  width:42px;
-  height:8px;
-  background:linear-gradient(90deg,#ff4fc3 0%, #ff63d8 100%);
-  transform:translate(-50%,26px);
-}
-.loader-mark{
-  animation:loaderFloat .95s ease-in-out infinite;
-}
-.page-loader.show .loader-mark{
-  animation:loaderFloat .95s ease-in-out infinite, loaderPulse .9s ease-in-out infinite;
-}
-@keyframes loaderFloat{
-  0%,100%{ transform:translateY(0) scale(1); }
-  50%{ transform:translateY(-3px) scale(1.03); }
-}
-@keyframes loaderPulse{
-  0%{ opacity:.88; }
-  50%{ opacity:1; }
-  100%{ opacity:.9; }
-}
-
-</style>
+    .page-loader{
+      position:fixed;
+      inset:0;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      background:rgba(15,23,42,.52);
+      backdrop-filter:blur(2px);
+      -webkit-backdrop-filter:blur(2px);
+      z-index:10000;
+      opacity:0;
+      visibility:hidden;
+      pointer-events:none;
+      transition:opacity .22s ease, visibility .22s ease;
+    }
+    .page-loader.show{
+      opacity:1;
+      visibility:visible;
+      pointer-events:auto;
+    }
+    .loader-mark{
+      position:relative;
+      width:74px;
+      height:74px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      animation:loaderFloat .95s ease-in-out infinite;
+    }
+    .loader-mark .arm{
+      position:absolute;
+      left:50%;
+      top:50%;
+      width:10px;
+      border-radius:999px;
+      transform-origin:center center;
+      box-shadow:0 3px 10px rgba(0,0,0,.08);
+    }
+    .loader-mark .arm.top{
+      height:34px;
+      background:#ffffff;
+      transform:translate(-50%,-72%) rotate(45deg);
+    }
+    .loader-mark .arm.left{
+      height:34px;
+      background:#ffffff;
+      transform:translate(-50%,-72%) rotate(-45deg);
+    }
+    .loader-mark .arm.mid{
+      width:42px;
+      height:8px;
+      background:linear-gradient(90deg,#ff4fc3 0%, #ff63d8 100%);
+      transform:translate(-50%,-2px);
+    }
+    .loader-mark .arm.bot{
+      width:42px;
+      height:8px;
+      background:linear-gradient(90deg,#ff4fc3 0%, #ff63d8 100%);
+      transform:translate(-50%,12px);
+    }
+    .loader-mark .arm.bot2{
+      width:42px;
+      height:8px;
+      background:linear-gradient(90deg,#ff4fc3 0%, #ff63d8 100%);
+      transform:translate(-50%,26px);
+    }
+    .page-loader.show .loader-mark{
+      animation:loaderFloat .95s ease-in-out infinite, loaderPulse .9s ease-in-out infinite;
+    }
+    @keyframes loaderFloat{
+      0%,100%{ transform:translateY(0) scale(1); }
+      50%{ transform:translateY(-3px) scale(1.03); }
+    }
+    @keyframes loaderPulse{
+      0%{ opacity:.88; }
+      50%{ opacity:1; }
+      100%{ opacity:.9; }
+    }
+  </style>
 </head>
 <body>
-    <div class="wrap">
+  <div class="wrap">
     <section class="hero">
       <div class="eyebrow">📝 입주민 회원가입</div>
       <h1>더운정 마이힐스<br>회원가입</h1>
@@ -405,18 +383,23 @@
         <div class="logo">🏢</div>
         <div>
           <h2>가입 신청서</h2>
-          <p>입주민 인증 후 이용 가능한 서비스입니다</p>
+          <p>아이디 기반 계정으로 가입 신청합니다</p>
         </div>
       </div>
 
       <div class="pill" id="statusPill">회원가입 신청 후 관리자의 승인 절차가 진행됩니다.</div>
 
-      <div id="resubmitCard" class="notice error" style="display:none; margin-top:0; margin-bottom:14px;"></div>
-
       <form id="signupForm">
         <div class="field">
-          <label for="email">이메일 주소</label>
+          <label for="loginId">아이디</label>
+          <input id="loginId" class="input" type="text" autocomplete="username" placeholder="영문/숫자 4~20자 권장" />
+          <div class="helper">로그인할 때 사용할 고유 아이디입니다. 이메일이 없어도 가입할 수 있습니다.</div>
+        </div>
+
+        <div class="field">
+          <label for="email">이메일 주소 (선택)</label>
           <input id="email" class="input" type="email" inputmode="email" autocomplete="email" placeholder="example@email.com" />
+          <div class="helper">승인 안내 및 비밀번호 찾기에 사용할 수 있습니다.</div>
         </div>
 
         <div class="grid-2">
@@ -440,6 +423,24 @@
           <div class="field">
             <label for="nickname">닉네임</label>
             <input id="nickname" class="input" type="text" placeholder="앱에서 표시될 이름" />
+          </div>
+        </div>
+
+        <div class="grid-2">
+          <div class="field">
+            <label for="memberType">구성원 구분</label>
+            <select id="memberType" class="select">
+              <option value="contractHolder">계약자</option>
+              <option value="spouse">배우자</option>
+              <option value="child">자녀</option>
+              <option value="tenant">세입자</option>
+              <option value="etc">기타</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="phoneNumber">휴대폰 번호 (선택)</label>
+            <input id="phoneNumber" class="input" type="tel" inputmode="numeric" placeholder="01012345678" />
           </div>
         </div>
 
@@ -469,7 +470,6 @@
               입주민 확인을 위해 <strong>동·호수</strong>가 보이는 화면을 캡처하여 업로드해 주세요.
             </div>
             <div id="fileMeta" class="upload-meta"></div>
-            <div id="existingProofMeta" class="upload-meta"></div>
           </div>
         </div>
 
@@ -498,24 +498,6 @@
   </div>
 
   <script type="module">
-    import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
-    import { getAuth, createUserWithEmailAndPassword, updateProfile, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
-    import { getFirestore, doc, setDoc, getDoc, updateDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
-    import { getStorage, ref, uploadBytes, getDownloadURL } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js';
-
-    const firebaseConfig = {
-      apiKey: "AIzaSyDhKr7oMSrLowJ47cqB4pvNXuIIdtW0HPI",
-      authDomain: "sola-home-4979a.firebaseapp.com",
-      projectId: "sola-home-4979a",
-      storageBucket: "sola-home-4979a.firebasestorage.app",
-      messagingSenderId: "337132471819",
-      appId: "1:337132471819:web:848cd357fecda459a2e90e"
-    };
-
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db = getFirestore(app);
-    const storage = getStorage(app);
     document.body.style.opacity = '0';
 
     const qs = (selector) => document.querySelector(selector);
@@ -525,15 +507,10 @@
     const noticeEl = qs('#notice');
     const fileInput = qs('#residentProof');
     const fileMeta = qs('#fileMeta');
-    const existingProofMeta = qs('#existingProofMeta');
-    const statusPill = qs('#statusPill');
-    const resubmitCard = qs('#resubmitCard');
+
+    const SIGNUP_FUNCTION_URL = 'YOUR_SIGNUP_FUNCTION_URL';
 
     let loadingCount = 0;
-    let currentRejectedUser = null;
-    let currentRejectedUserData = null;
-    let isResubmitMode = false;
-    let isProcessingSignup = false;
 
     function startLoading(){
       const pageLoader = document.getElementById('pageLoader');
@@ -564,6 +541,30 @@
         setTimeout(() => callback(), 40);
       }
     }
+
+    function showNotice(message, type='info'){
+      noticeEl.className = `notice show ${type}`;
+      noticeEl.textContent = message;
+    }
+
+    function hideNotice(){
+      noticeEl.className = 'notice info';
+      noticeEl.textContent = '';
+    }
+
+    function setLoading(isLoading){
+      submitBtn.disabled = isLoading;
+      submitBtn.textContent = isLoading ? '처리 중...' : '회원가입 신청';
+    }
+
+    function normalizeEmail(value=''){
+      return String(value).trim().toLowerCase();
+    }
+
+    function normalizeDigits(value=''){
+      return String(value).replace(/\D/g, '');
+    }
+
     const alertEl = qs('#appAlert');
     const alertMsgEl = qs('#appAlertMessage');
     const alertTitleEl = qs('#appAlertTitle');
@@ -572,7 +573,6 @@
     const alertCancelEl = qs('#appAlertCancel');
     let alertFocusTarget = null;
     let alertResolver = null;
-    let alertMode = 'alert';
 
     function openModalBase({
       title='안내',
@@ -583,7 +583,6 @@
       cancelText='취소',
       icon='⚠️'
     } = {}){
-      alertMode = mode;
       alertFocusTarget = focusTarget;
       alertTitleEl.textContent = title;
       alertMsgEl.textContent = message;
@@ -627,163 +626,11 @@
       if(!alertEl.classList.contains('show')) return;
       if(event.key === 'Escape') closeModal(false);
     });
-function showNotice(message, type='info'){
-      noticeEl.className = `notice show ${type}`;
-      noticeEl.textContent = message;
-    }
 
-    function hideNotice(){
-      noticeEl.className = 'notice info';
-      noticeEl.textContent = '';
-    }
-
-    function setLoading(isLoading){
-      submitBtn.disabled = isLoading;
-      submitBtn.textContent = isLoading ? '처리 중...' : '회원가입 신청';
-    }
-
-    function normalizeEmail(value=''){
-      return String(value).trim().toLowerCase();
-    }
-
-    function sanitizeFileName(name='file'){
-      return String(name).replace(/[^\w.\-가-힣]/g, '_');
-    }
-
-    function resetExistingProofMeta(){
-      existingProofMeta.className = 'upload-meta';
-      existingProofMeta.textContent = '';
-    }
-
-    function setResubmitMode(user, userData){
-      currentRejectedUser = user;
-      currentRejectedUserData = userData || {};
-      isResubmitMode = true;
-
-      statusPill.textContent = '반려된 신청 정보를 수정한 뒤 다시 신청할 수 있습니다.';
-      resubmitCard.style.display = 'block';
-      resubmitCard.className = 'notice show error';
-      resubmitCard.textContent = `이전 신청이 반려되었습니다.\n사유: ${currentRejectedUserData.rejectReason || '반려 사유가 등록되지 않았습니다.'}\n내용을 수정한 뒤 다시 신청해 주세요.`;
-
-      qs('#email').value = currentRejectedUserData.email || user.email || '';
-      qs('#email').disabled = true;
-      qs('#name').value = currentRejectedUserData.name || '';
-      qs('#nickname').value = currentRejectedUserData.nickname || '';
-      qs('#building').value = currentRejectedUserData.building || '';
-      qs('#unit').value = currentRejectedUserData.unit || '';
-      qs('#intro').value = currentRejectedUserData.intro || '';
-
-      qs('#password').value = '';
-      qs('#passwordConfirm').value = '';
-      qs('#password').disabled = true;
-      qs('#passwordConfirm').disabled = true;
-      qs('#password').closest('.field').style.display = 'none';
-      qs('#passwordConfirm').closest('.field').style.display = 'none';
-
-      qs('#agreePrivacy').checked = true;
-      qs('#agreePolicy').checked = true;
-
-      submitBtn.textContent = '수정 후 재신청';
-
-      if (currentRejectedUserData.residentProofFileName) {
-        existingProofMeta.className = 'upload-meta show';
-        existingProofMeta.textContent = `기존 인증 파일: ${currentRejectedUserData.residentProofFileName}\n새 파일을 선택하지 않으면 기존 파일이 유지됩니다.`;
-      } else {
-        resetExistingProofMeta();
-      }
-    }
-
-    function clearResubmitMode(){
-      currentRejectedUser = null;
-      currentRejectedUserData = null;
-      isResubmitMode = false;
-
-      statusPill.textContent = '회원가입 신청 후 관리자의 승인 절차가 진행됩니다.';
-      resubmitCard.className = 'notice error';
-      resubmitCard.style.display = 'none';
-      resubmitCard.textContent = '';
-
-      qs('#email').disabled = false;
-      qs('#password').disabled = false;
-      qs('#passwordConfirm').disabled = false;
-      qs('#password').closest('.field').style.display = '';
-      qs('#passwordConfirm').closest('.field').style.display = '';
-
-      submitBtn.textContent = '회원가입 신청';
-      resetExistingProofMeta();
-    }
-
-    onAuthStateChanged(auth, async (user) => {
-      document.body.style.opacity = '1';
-
-      if (!user) {
-        clearResubmitMode();
-        finishLoading();
-        return;
-      }
-
-      startLoading();
-
-      try {
-        const userSnap = await getDoc(doc(db, 'users', user.uid));
-
-        if (!userSnap.exists()) {
-          if (isProcessingSignup) {
-            finishLoading();
-            return;
-          }
-
-          await signOut(auth);
-          clearResubmitMode();
-          finishLoading();
-          return;
-        }
-
-        const userData = userSnap.data() || {};
-        const approvalStatus = userData.approvalStatus || 'pending';
-        const accountStatus = userData.accountStatus || 'active';
-
-        if (accountStatus === 'withdrawn') {
-          await signOut(auth);
-          clearResubmitMode();
-          finishLoading();
-          showNotice('탈퇴 처리된 계정입니다. 복구가 필요하면 관리자에게 문의해 주세요.', 'error');
-          return;
-        }
-
-        if (approvalStatus === 'approved' && accountStatus === 'active') {
-          setTimeout(() => {
-            window.location.replace('./app.html');
-          }, 80);
-          return;
-        }
-
-        if (approvalStatus === 'rejected' && accountStatus === 'active') {
-          setResubmitMode(user, userData);
-          finishLoading();
-          return;
-        }
-
-        await signOut(auth);
-        clearResubmitMode();
-        finishLoading();
-
-        if (approvalStatus === 'resubmitted') {
-          showNotice('수정 후 재신청이 접수되었습니다. 관리자 재검토 후 로그인할 수 있습니다.', 'info');
-        } else {
-          showNotice('현재 계정은 승인 대기 상태입니다. 관리자 승인 후 로그인할 수 있습니다.', 'info');
-        }
-      } catch (error) {
-        console.error('승인 상태 확인 실패:', error);
-        await signOut(auth).catch(() => {});
-        clearResubmitMode();
-        finishLoading();
-        showNotice('승인 상태를 확인할 수 없습니다. 잠시 후 다시 시도해 주세요.', 'error');
-      }
-    });
+    document.body.style.opacity = '1';
 
     qs('#goLoginLink').addEventListener('click', async (event) => {
-      const hasTypedValue = ['#email','#password','#passwordConfirm','#name','#nickname','#building','#unit','#intro'].some((selector) => String(qs(selector).value || '').trim());
+      const hasTypedValue = ['#loginId','#email','#password','#passwordConfirm','#name','#nickname','#building','#unit','#intro','#phoneNumber'].some((selector) => String(qs(selector).value || '').trim());
       const hasFile = !!fileInput.files?.[0];
       const hasChecked = qs('#agreePrivacy').checked || qs('#agreePolicy').checked;
       if (!hasTypedValue && !hasFile && !hasChecked) return;
@@ -791,9 +638,6 @@ function showNotice(message, type='info'){
       const confirmed = await openModalConfirm('작성 중인 내용이 있다면 저장되지 않습니다. 로그인 페이지로 이동할까요?', qs('#goLoginLink'), '페이지 이동', '이동', '계속 작성');
       if (confirmed) {
         startLoading();
-        if (auth.currentUser) {
-          await signOut(auth).catch(() => {});
-        }
         setTimeout(() => {
           window.location.href = './index.html';
         }, 80);
@@ -805,44 +649,42 @@ function showNotice(message, type='info'){
       if (!file) {
         fileMeta.className = 'upload-meta';
         fileMeta.textContent = '';
-        if (isResubmitMode && currentRejectedUserData?.residentProofFileName) {
-          existingProofMeta.className = 'upload-meta show';
-          existingProofMeta.textContent = `기존 인증 파일: ${currentRejectedUserData.residentProofFileName}\n새 파일을 선택하지 않으면 기존 파일이 유지됩니다.`;
-        }
         return;
       }
       const sizeMB = (file.size / 1024 / 1024).toFixed(2);
       fileMeta.className = 'upload-meta show';
       fileMeta.textContent = `선택 파일: ${file.name}\n용량: ${sizeMB}MB`;
-
-      if (isResubmitMode) {
-        existingProofMeta.className = 'upload-meta show';
-        existingProofMeta.textContent = '새 인증 파일로 교체하여 재신청합니다.';
-      }
     });
 
     form.addEventListener('submit', async (event) => {
       event.preventDefault();
       hideNotice();
 
+      const loginIdEl = qs('#loginId');
       const emailEl = qs('#email');
       const passwordEl = qs('#password');
       const passwordConfirmEl = qs('#passwordConfirm');
       const nameEl = qs('#name');
       const nicknameEl = qs('#nickname');
+      const memberTypeEl = qs('#memberType');
+      const phoneNumberEl = qs('#phoneNumber');
       const buildingEl = qs('#building');
       const unitEl = qs('#unit');
+      const introEl = qs('#intro');
       const agreePrivacyEl = qs('#agreePrivacy');
       const agreePolicyEl = qs('#agreePolicy');
 
+      const loginId = String(loginIdEl.value || '').trim();
       const email = normalizeEmail(emailEl.value);
       const password = passwordEl.value;
       const passwordConfirm = passwordConfirmEl.value;
       const name = nameEl.value.trim();
       const nickname = nicknameEl.value.trim();
+      const memberType = memberTypeEl.value;
+      const phoneNumber = normalizeDigits(phoneNumberEl.value);
       const building = buildingEl.value.trim();
       const unit = unitEl.value.trim();
-      const intro = qs('#intro').value.trim();
+      const intro = introEl.value.trim();
       const agreePrivacy = agreePrivacyEl.checked;
       const agreePolicy = agreePolicyEl.checked;
       const proofFile = fileInput.files?.[0];
@@ -852,18 +694,38 @@ function showNotice(message, type='info'){
         await openModalAlert(message, element);
       };
 
-      if (!email) {
-        await fail('이메일을 입력해주세요.', emailEl);
+      if (!loginId) {
+        await fail('아이디를 입력해주세요.', loginIdEl);
         return;
       }
 
-      if (!isResubmitMode && !password) {
+      if (!/^[a-zA-Z0-9._-]{4,20}$/.test(loginId)) {
+        await fail('아이디는 영문, 숫자, 점(.), 밑줄(_), 하이픈(-) 조합의 4~20자로 입력해 주세요.', loginIdEl);
+        return;
+      }
+
+      if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        await fail('이메일 형식이 올바르지 않습니다.', emailEl);
+        return;
+      }
+
+      if (!password) {
         await fail('비밀번호를 입력해주세요.', passwordEl);
         return;
       }
 
-      if (!isResubmitMode && !passwordConfirm) {
+      if (!passwordConfirm) {
         await fail('비밀번호 확인을 입력해주세요.', passwordConfirmEl);
+        return;
+      }
+
+      if (password.length < 6) {
+        await fail('비밀번호는 6자 이상이어야 합니다.', passwordEl);
+        return;
+      }
+
+      if (password !== passwordConfirm) {
+        await fail('비밀번호와 비밀번호 확인이 일치하지 않습니다.', passwordConfirmEl);
         return;
       }
 
@@ -887,17 +749,7 @@ function showNotice(message, type='info'){
         return;
       }
 
-      if (!isResubmitMode && password.length < 6) {
-        await fail('비밀번호는 6자 이상이어야 합니다.', passwordEl);
-        return;
-      }
-
-      if (!isResubmitMode && password !== passwordConfirm) {
-        await fail('비밀번호와 비밀번호 확인이 일치하지 않습니다.', passwordConfirmEl);
-        return;
-      }
-
-      if (!proofFile && !isResubmitMode) {
+      if (!proofFile) {
         await fail('입주민 인증 사진을 업로드해 주세요.', fileInput);
         return;
       }
@@ -912,159 +764,61 @@ function showNotice(message, type='info'){
         return;
       }
 
-      isProcessingSignup = true;
+      const formData = new FormData();
+      formData.append('loginId', loginId);
+      formData.append('email', email);
+      formData.append('password', password);
+      formData.append('name', name);
+      formData.append('nickname', nickname);
+      formData.append('memberType', memberType);
+      formData.append('phoneNumber', phoneNumber);
+      formData.append('building', building);
+      formData.append('unit', unit);
+      formData.append('intro', intro);
+      formData.append('agreePrivacy', String(agreePrivacy));
+      formData.append('agreePolicy', String(agreePolicy));
+      formData.append('residentProof', proofFile);
+
       setLoading(true);
       startLoading();
 
       try {
-        if (isResubmitMode && currentRejectedUser) {
-          let proofPayload = {
-            residentProofUrl: currentRejectedUserData?.residentProofUrl || '',
-            residentProofPath: currentRejectedUserData?.residentProofPath || '',
-            residentProofFileName: currentRejectedUserData?.residentProofFileName || '',
-            residentProofExtension: currentRejectedUserData?.residentProofExtension || ''
-          };
+        const response = await fetch(SIGNUP_FUNCTION_URL, {
+          method: 'POST',
+          body: formData
+        });
 
-          if (proofFile) {
-            await currentRejectedUser.getIdToken(true);
-
-            const ext = proofFile.name.includes('.') ? proofFile.name.split('.').pop() : 'jpg';
-            const safeFileName = sanitizeFileName(`${Date.now()}_${proofFile.name}`);
-            const storageRef = ref(storage, `resident-proofs/${currentRejectedUser.uid}/${safeFileName}`);
-            await uploadBytes(storageRef, proofFile);
-            const proofUrl = await getDownloadURL(storageRef);
-
-            proofPayload = {
-              residentProofUrl: proofUrl,
-              residentProofPath: storageRef.fullPath,
-              residentProofFileName: proofFile.name,
-              residentProofExtension: ext
-            };
-          }
-
-          await updateProfile(currentRejectedUser, {
-            displayName: nickname
-          });
-
-          await updateDoc(doc(db, 'users', currentRejectedUser.uid), {
-            email,
-            name,
-            nickname,
-            building,
-            unit,
-            intro,
-            ...proofPayload,
-            approvalStatus: 'resubmitted',
-            accountStatus: 'active',
-            rejectReason: '',
-            rejectedAt: null,
-            rejectedBy: '',
-            rejectType: '',
-            resubmittedAt: serverTimestamp(),
-            updatedAt: serverTimestamp()
-          });
-
-          await signOut(auth);
-
-          finishLoading();
-          showNotice('수정 후 재신청이 완료되었습니다. 관리자의 재검토 후 로그인이 가능합니다.', 'success');
-          await new Promise(resolve => setTimeout(resolve, 60));
-          await openModalAlert('재신청이 완료되었습니다. 관리자가 확인 후 로그인이 가능합니다.');
-          form.reset();
-          clearResubmitMode();
-          fileMeta.className = 'upload-meta';
-          fileMeta.textContent = '';
-          return;
+        const raw = await response.text();
+        let data = {};
+        try {
+          data = raw ? JSON.parse(raw) : {};
+        } catch (_) {
+          data = { ok: false, message: raw || '회원가입 응답을 확인할 수 없습니다.' };
         }
 
-        const credential = await createUserWithEmailAndPassword(auth, email, password);
-        const user = credential.user;
-
-        await updateProfile(user, {
-          displayName: nickname
-        });
-
-        await user.getIdToken(true);
-
-        const ext = proofFile.name.includes('.') ? proofFile.name.split('.').pop() : 'jpg';
-        const safeFileName = sanitizeFileName(`${Date.now()}_${proofFile.name}`);
-        const storageRef = ref(storage, `resident-proofs/${user.uid}/${safeFileName}`);
-        await uploadBytes(storageRef, proofFile);
-        const proofUrl = await getDownloadURL(storageRef);
-
-        await setDoc(doc(db, 'users', user.uid), {
-          uid: user.uid,
-          email,
-          name,
-          nickname,
-          building,
-          unit,
-          intro,
-          residentProofUrl: proofUrl,
-          residentProofPath: storageRef.fullPath,
-          residentProofFileName: proofFile.name,
-          residentProofExtension: ext,
-          approvalStatus: 'pending',
-          accountStatus: 'active',
-          rejectReason: '',
-          rejectedAt: null,
-          rejectedBy: '',
-          approvedAt: null,
-          approvedBy: '',
-          resubmittedAt: null,
-          withdrawnAt: null,
-          withdrawnBy: '',
-          withdrawReason: '',
-          restoredAt: null,
-          restoredBy: '',
-          restoreReason: '',
-          role: 'resident',
-          createdAt: serverTimestamp(),
-          updatedAt: serverTimestamp()
-        });
-
-        await signOut(auth);
+        if (!response.ok || !data.ok) {
+          throw new Error(data.message || '회원가입 처리 중 오류가 발생했습니다.');
+        }
 
         finishLoading();
-        showNotice(`회원가입 신청이 완료되었습니다.
-관리자가 승인 후 로그인이 가능합니다.`, 'success');
+        showNotice('회원가입 신청이 완료되었습니다.\n관리자 승인 후 로그인할 수 있습니다.', 'success');
         await new Promise(resolve => setTimeout(resolve, 60));
-        await openModalAlert('회원가입 신청이 완료되었습니다. 관리자가 승인 후 로그인이 가능합니다.');
+        await openModalAlert('회원가입 신청이 완료되었습니다.\n관리자 승인 후 로그인할 수 있습니다.');
+
         form.reset();
-        clearResubmitMode();
         fileMeta.className = 'upload-meta';
         fileMeta.textContent = '';
+
+        setTimeout(() => {
+          window.location.href = './index.html';
+        }, 120);
       } catch (error) {
-        const code = error?.code || '';
-        let message = '회원가입 처리 중 오류가 발생했습니다. 다시 시도해 주세요.';
-        let focusTarget = qs('#email');
-
-        if (code === 'auth/email-already-in-use') {
-          message = '이미 가입된 이메일입니다.';
-          focusTarget = qs('#email');
-        } else if (code === 'auth/invalid-email') {
-          message = '이메일 형식이 올바르지 않습니다.';
-          focusTarget = qs('#email');
-        } else if (code === 'auth/weak-password') {
-          message = '비밀번호가 너무 약합니다. 더 안전한 비밀번호를 사용해 주세요.';
-          focusTarget = qs('#password');
-        } else if (code === 'storage/unauthorized') {
-          message = '인증 사진 업로드 권한이 없습니다. Storage 규칙을 확인해 주세요.';
-          focusTarget = fileInput;
-        } else if (code === 'permission-denied') {
-          message = '회원 정보 저장 권한이 없습니다. Firestore 규칙을 확인해 주세요.';
-          focusTarget = qs('#name');
-        } else if (code === 'auth/network-request-failed') {
-          message = '네트워크 연결을 확인해 주세요.';
-          focusTarget = qs('#email');
-        }
-
+        const message = error?.message || '회원가입 처리 중 오류가 발생했습니다. 다시 시도해 주세요.';
         finishLoading();
         showNotice(message, 'error');
         await new Promise(resolve => setTimeout(resolve, 60));
-        await openModalAlert(message, focusTarget);
+        await openModalAlert(message, submitBtn);
       } finally {
-        isProcessingSignup = false;
         loadingCount = 0;
         setLoading(false);
       }
@@ -1085,7 +839,6 @@ function showNotice(message, type='info'){
     </div>
   </div>
 
-
   <div id="pageLoader" class="page-loader" aria-hidden="true">
     <div class="loader-mark" aria-label="로딩 중" role="status">
       <span class="arm top"></span>
@@ -1095,7 +848,5 @@ function showNotice(message, type='info'){
       <span class="arm bot2"></span>
     </div>
   </div>
-
 </body>
-
 </html>
