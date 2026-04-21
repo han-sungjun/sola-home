@@ -9,13 +9,14 @@
   <style>
     :root{
       --bg:#f5f7fb;
-      --surface:rgba(255,255,255,.9);
+      --surface:rgba(255,255,255,.92);
       --line:#e5e7eb;
       --text:#0f172a;
       --muted:#64748b;
       --primary:#0f172a;
       --success:#16a34a;
       --danger:#dc2626;
+      --info:#1d4ed8;
       --shadow:0 20px 40px rgba(15,23,42,.10);
       --radius-xl:28px;
     }
@@ -116,6 +117,19 @@
       color:var(--muted);
       font-size:13px;
     }
+    .stage-chip{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:8px 12px;
+      border-radius:999px;
+      background:#eef2ff;
+      color:#334155;
+      border:1px solid #c7d2fe;
+      font-size:12px;
+      font-weight:800;
+      margin-bottom:14px;
+    }
     .field{
       display:grid;
       gap:8px;
@@ -166,7 +180,9 @@
       justify-content:center;
       gap:8px;
       text-decoration:none;
+      transition:transform .15s ease, opacity .15s ease;
     }
+    .btn:active{transform:scale(.985)}
     .btn-primary{
       background:var(--primary);
       color:#fff;
@@ -194,7 +210,7 @@
     .notice.info{
       background:#eff6ff;
       border-color:#bfdbfe;
-      color:#1d4ed8;
+      color:var(--info);
     }
     .notice.error{
       background:#fef2f2;
@@ -205,6 +221,53 @@
       background:#f0fdf4;
       border-color:#bbf7d0;
       color:#166534;
+    }
+    .verify-card{
+      margin-top:14px;
+      padding:14px;
+      border-radius:22px;
+      background:#fff;
+      border:1px solid var(--line);
+      box-shadow:0 8px 20px rgba(15,23,42,.04);
+      opacity:0;
+      transform:translateY(10px);
+      max-height:0;
+      overflow:hidden;
+      pointer-events:none;
+      transition:opacity .22s ease, transform .22s ease, max-height .28s ease, padding .22s ease, margin .22s ease;
+    }
+    .verify-card.show{
+      opacity:1;
+      transform:translateY(0);
+      max-height:320px;
+      pointer-events:auto;
+    }
+    .verify-head{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      margin-bottom:12px;
+    }
+    .verify-badge{
+      width:38px;
+      height:38px;
+      border-radius:14px;
+      display:grid;
+      place-items:center;
+      background:#eef2ff;
+      font-size:18px;
+      flex:0 0 auto;
+    }
+    .verify-head strong{
+      display:block;
+      font-size:16px;
+      letter-spacing:-.03em;
+    }
+    .verify-head span{
+      display:block;
+      margin-top:3px;
+      color:var(--muted);
+      font-size:12px;
     }
     .footer{
       text-align:center;
@@ -303,31 +366,42 @@
         </div>
       </div>
 
+      <div class="stage-chip">1단계 · 휴대폰 확인</div>
+
       <div class="field">
         <label for="phoneNumber">휴대폰 번호</label>
-        <input id="phoneNumber" class="input" type="tel" inputmode="numeric" placeholder="01012345678" maxlength="11" />
-        <div class="helper">숫자만 입력해 주세요.</div>
+        <input id="phoneNumber" class="input" type="tel" inputmode="numeric" placeholder="01012345678" maxlength="13" />
+        <div class="helper">숫자만 입력하면 자동으로 보기 쉽게 표시됩니다.</div>
       </div>
 
       <div class="btn-row">
-        <button id="sendCodeBtn" class="btn btn-primary" type="button">인증 코드 보내기</button>
+        <button id="sendCodeBtn" class="btn btn-primary" type="button">문자 인증 시작</button>
         <button id="signOutBtn" class="btn btn-soft" type="button">로그아웃</button>
       </div>
 
-      <div id="verifySection" class="hidden">
-        <div class="field" style="margin-top:14px;">
+      <div id="verifySection" class="verify-card hidden">
+        <div class="verify-head">
+          <div class="verify-badge">💬</div>
+          <div>
+            <strong>인증 코드 입력</strong>
+            <span>문자로 받은 6자리 코드를 입력해 주세요</span>
+          </div>
+        </div>
+
+        <div class="field" style="margin-top:0;">
           <label for="smsCode">인증 코드</label>
           <input id="smsCode" class="input" type="text" inputmode="numeric" placeholder="문자로 받은 6자리 코드" maxlength="6" />
-          <div class="helper">문자로 받은 인증 코드를 입력해 주세요.</div>
+          <div class="helper">인증 코드는 보통 수 초 내 도착합니다.</div>
         </div>
+
         <div class="btn-row">
-          <button id="verifyCodeBtn" class="btn btn-primary" type="button">인증 완료</button>
+          <button id="verifyCodeBtn" class="btn btn-primary" type="button">인증 확인</button>
           <button id="resendBtn" class="btn btn-soft" type="button">코드 다시 보내기</button>
         </div>
       </div>
 
       <div id="notice" class="notice info"></div>
-      <div id="recaptcha-container"></div>
+      <div id="recaptcha-container" class="hidden"></div>
     </section>
 
     <div class="footer">
