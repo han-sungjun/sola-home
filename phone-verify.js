@@ -104,8 +104,14 @@ function resetRecaptcha() {
 async function ensureRecaptcha() {
   if (recaptchaVerifier) return recaptchaVerifier;
 
-  recaptchaVerifier = new RecaptchaVerifier(auth, 'sendCodeBtn', {
-    size: 'invisible'
+  const container = document.getElementById('recaptcha-container');
+  if (container) {
+    container.innerHTML = '';
+  }
+
+  recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
+    size: 'invisible',
+    badge: 'inline'
   });
 
   await recaptchaVerifier.render();

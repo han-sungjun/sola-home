@@ -347,6 +347,19 @@
       0%,100%{ transform:translateY(0) scale(1); }
       50%{ transform:translateY(-3px) scale(1.03); }
     }
+  
+    .recaptcha-inline{
+      margin-top:14px;
+      min-height:78px;
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      overflow:hidden;
+    }
+    .grecaptcha-badge{
+      box-shadow:none !important;
+    }
+
   </style>
 </head>
 <body>
@@ -401,7 +414,7 @@
       </div>
 
       <div id="notice" class="notice info"></div>
-      <div id="recaptcha-container" class="hidden"></div>
+      <div id="recaptcha-container" class="recaptcha-inline"></div>
     </section>
 
     <div class="footer">
