@@ -397,7 +397,7 @@
     <section class="hero">
       <div class="eyebrow">📝 입주민 회원가입</div>
       <h1>더운정 마이힐스<br>회원가입</h1>
-      <p>가입 신청 후 관리자의 승인 절차를 거치며, 반려 시에는 정보를 수정한 뒤 다시 신청할 수 있습니다.</p>
+      <p>입주민 인증 후 승인되면 다양한 서비스 이용이 가능합니다.</p>
     </section>
 
     <section class="panel">
@@ -409,7 +409,9 @@
         </div>
       </div>
 
-      <div class="pill">가입 신청 → 관리자 검토 → 승인 또는 반려 → 반려 시 수정 후 재신청</div>
+      <div class="pill" id="statusPill">회원가입 신청 후 관리자의 승인 절차가 진행됩니다.</div>
+
+      <div id="resubmitCard" class="notice error" style="display:none; margin-top:0; margin-bottom:14px;"></div>
 
       <form id="signupForm">
         <div class="field">
@@ -467,6 +469,7 @@
               입주민 확인을 위해 <strong>동·호수</strong>가 보이는 화면을 캡처하여 업로드해 주세요.
             </div>
             <div id="fileMeta" class="upload-meta"></div>
+            <div id="existingProofMeta" class="upload-meta"></div>
           </div>
         </div>
 
@@ -490,14 +493,14 @@
     </section>
 
     <div class="footer">
-      가입 신청 후 관리자 승인 완료 시 서비스 이용이 가능합니다. 반려 시에는 수정 후 재신청할 수 있습니다.
+      가입 신청 후 승인 완료 시 서비스 이용이 가능합니다.
     </div>
   </div>
 
   <script type="module">
     import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
     import { getAuth, createUserWithEmailAndPassword, updateProfile, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
-    import { getFirestore, doc, setDoc, getDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
+    import { getFirestore, doc, setDoc, getDoc, updateDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
     import { getStorage, ref, uploadBytes, getDownloadURL } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js';
 
     const firebaseConfig = {
@@ -522,8 +525,14 @@
     const noticeEl = qs('#notice');
     const fileInput = qs('#residentProof');
     const fileMeta = qs('#fileMeta');
+    const existingProofMeta = qs('#existingProofMeta');
+    const statusPill = qs('#statusPill');
+    const resubmitCard = qs('#resubmitCard');
 
     let loadingCount = 0;
+    let currentRejectedUser = null;
+    let currentRejectedUserData = null;
+    let isResubmitMode = false;
 
     function startLoading(){
       const pageLoader = document.getElementById('pageLoader');
@@ -640,10 +649,74 @@ function showNotice(message, type='info'){
       return String(name).replace(/[^\w.\-가-힣]/g, '_');
     }
 
+    function resetExistingProofMeta(){
+      existingProofMeta.className = 'upload-meta';
+      existingProofMeta.textContent = '';
+    }
+
+    function setResubmitMode(user, userData){
+      currentRejectedUser = user;
+      currentRejectedUserData = userData || {};
+      isResubmitMode = true;
+
+      statusPill.textContent = '반려된 신청 정보를 수정한 뒤 다시 신청할 수 있습니다.';
+      resubmitCard.style.display = 'block';
+      resubmitCard.className = 'notice show error';
+      resubmitCard.textContent = `이전 신청이 반려되었습니다.\n사유: ${currentRejectedUserData.rejectReason || '반려 사유가 등록되지 않았습니다.'}\n내용을 수정한 뒤 다시 신청해 주세요.`;
+
+      qs('#email').value = currentRejectedUserData.email || user.email || '';
+      qs('#email').disabled = true;
+      qs('#name').value = currentRejectedUserData.name || '';
+      qs('#nickname').value = currentRejectedUserData.nickname || '';
+      qs('#building').value = currentRejectedUserData.building || '';
+      qs('#unit').value = currentRejectedUserData.unit || '';
+      qs('#intro').value = currentRejectedUserData.intro || '';
+
+      qs('#password').value = '';
+      qs('#passwordConfirm').value = '';
+      qs('#password').disabled = true;
+      qs('#passwordConfirm').disabled = true;
+      qs('#password').closest('.field').style.display = 'none';
+      qs('#passwordConfirm').closest('.field').style.display = 'none';
+
+      qs('#agreePrivacy').checked = true;
+      qs('#agreePolicy').checked = true;
+
+      submitBtn.textContent = '수정 후 재신청';
+
+      if (currentRejectedUserData.residentProofFileName) {
+        existingProofMeta.className = 'upload-meta show';
+        existingProofMeta.textContent = `기존 인증 파일: ${currentRejectedUserData.residentProofFileName}\n새 파일을 선택하지 않으면 기존 파일이 유지됩니다.`;
+      } else {
+        resetExistingProofMeta();
+      }
+    }
+
+    function clearResubmitMode(){
+      currentRejectedUser = null;
+      currentRejectedUserData = null;
+      isResubmitMode = false;
+
+      statusPill.textContent = '회원가입 신청 후 관리자의 승인 절차가 진행됩니다.';
+      resubmitCard.className = 'notice error';
+      resubmitCard.style.display = 'none';
+      resubmitCard.textContent = '';
+
+      qs('#email').disabled = false;
+      qs('#password').disabled = false;
+      qs('#passwordConfirm').disabled = false;
+      qs('#password').closest('.field').style.display = '';
+      qs('#passwordConfirm').closest('.field').style.display = '';
+
+      submitBtn.textContent = '회원가입 신청';
+      resetExistingProofMeta();
+    }
+
     onAuthStateChanged(auth, async (user) => {
       document.body.style.opacity = '1';
 
       if (!user) {
+        clearResubmitMode();
         finishLoading();
         return;
       }
@@ -654,28 +727,21 @@ function showNotice(message, type='info'){
         const userSnap = await getDoc(doc(db, 'users', user.uid));
 
         if (!userSnap.exists()) {
-          await signOut(auth).catch(() => {});
+          await signOut(auth);
+          clearResubmitMode();
           finishLoading();
-          showNotice('가입 신청 정보를 찾을 수 없습니다. 다시 회원가입을 진행해 주세요.', 'error');
           return;
         }
 
         const userData = userSnap.data() || {};
         const approvalStatus = userData.approvalStatus || 'pending';
         const accountStatus = userData.accountStatus || 'active';
-        const rejectReason = String(userData.rejectReason || '').trim();
 
         if (accountStatus === 'withdrawn') {
-          await signOut(auth).catch(() => {});
+          await signOut(auth);
+          clearResubmitMode();
           finishLoading();
-          showNotice('현재 계정은 회원 탈퇴 상태입니다. 복구가 필요하면 관리자에게 문의해 주세요.', 'info');
-          return;
-        }
-
-        if (accountStatus === 'suspended') {
-          await signOut(auth).catch(() => {});
-          finishLoading();
-          showNotice('현재 계정은 이용이 제한된 상태입니다. 자세한 내용은 관리자에게 문의해 주세요.', 'error');
+          showNotice('탈퇴 처리된 계정입니다. 복구가 필요하면 관리자에게 문의해 주세요.', 'error');
           return;
         }
 
@@ -686,28 +752,25 @@ function showNotice(message, type='info'){
           return;
         }
 
-        await signOut(auth).catch(() => {});
+        if (approvalStatus === 'rejected' && accountStatus === 'active') {
+          setResubmitMode(user, userData);
+          finishLoading();
+          return;
+        }
+
+        await signOut(auth);
+        clearResubmitMode();
         finishLoading();
 
-        if (approvalStatus === 'rejected') {
-          const rejectMessage = rejectReason
-            ? `가입 신청이 반려되었습니다.
-사유: ${rejectReason}
-내용을 수정한 뒤 다시 신청해 주세요.`
-            : '가입 신청이 반려되었습니다. 내용을 수정한 뒤 다시 신청해 주세요.';
-          showNotice(rejectMessage, 'error');
-          return;
-        }
-
         if (approvalStatus === 'resubmitted') {
-          showNotice('현재 계정은 재신청 후 관리자 재검토 대기 상태입니다. 승인 완료 후 로그인할 수 있습니다.', 'info');
-          return;
+          showNotice('수정 후 재신청이 접수되었습니다. 관리자 재검토 후 로그인할 수 있습니다.', 'info');
+        } else {
+          showNotice('현재 계정은 승인 대기 상태입니다. 관리자 승인 후 로그인할 수 있습니다.', 'info');
         }
-
-        showNotice('현재 계정은 승인 대기 상태입니다. 관리자 승인 후 로그인할 수 있습니다.', 'info');
       } catch (error) {
         console.error('승인 상태 확인 실패:', error);
         await signOut(auth).catch(() => {});
+        clearResubmitMode();
         finishLoading();
         showNotice('승인 상태를 확인할 수 없습니다. 잠시 후 다시 시도해 주세요.', 'error');
       }
@@ -722,6 +785,9 @@ function showNotice(message, type='info'){
       const confirmed = await openModalConfirm('작성 중인 내용이 있다면 저장되지 않습니다. 로그인 페이지로 이동할까요?', qs('#goLoginLink'), '페이지 이동', '이동', '계속 작성');
       if (confirmed) {
         startLoading();
+        if (auth.currentUser) {
+          await signOut(auth).catch(() => {});
+        }
         setTimeout(() => {
           window.location.href = './index.html';
         }, 80);
@@ -733,11 +799,20 @@ function showNotice(message, type='info'){
       if (!file) {
         fileMeta.className = 'upload-meta';
         fileMeta.textContent = '';
+        if (isResubmitMode && currentRejectedUserData?.residentProofFileName) {
+          existingProofMeta.className = 'upload-meta show';
+          existingProofMeta.textContent = `기존 인증 파일: ${currentRejectedUserData.residentProofFileName}\n새 파일을 선택하지 않으면 기존 파일이 유지됩니다.`;
+        }
         return;
       }
       const sizeMB = (file.size / 1024 / 1024).toFixed(2);
       fileMeta.className = 'upload-meta show';
       fileMeta.textContent = `선택 파일: ${file.name}\n용량: ${sizeMB}MB`;
+
+      if (isResubmitMode) {
+        existingProofMeta.className = 'upload-meta show';
+        existingProofMeta.textContent = '새 인증 파일로 교체하여 재신청합니다.';
+      }
     });
 
     form.addEventListener('submit', async (event) => {
@@ -776,12 +851,12 @@ function showNotice(message, type='info'){
         return;
       }
 
-      if (!password) {
+      if (!isResubmitMode && !password) {
         await fail('비밀번호를 입력해주세요.', passwordEl);
         return;
       }
 
-      if (!passwordConfirm) {
+      if (!isResubmitMode && !passwordConfirm) {
         await fail('비밀번호 확인을 입력해주세요.', passwordConfirmEl);
         return;
       }
@@ -806,17 +881,17 @@ function showNotice(message, type='info'){
         return;
       }
 
-      if (password.length < 6) {
+      if (!isResubmitMode && password.length < 6) {
         await fail('비밀번호는 6자 이상이어야 합니다.', passwordEl);
         return;
       }
 
-      if (password !== passwordConfirm) {
+      if (!isResubmitMode && password !== passwordConfirm) {
         await fail('비밀번호와 비밀번호 확인이 일치하지 않습니다.', passwordConfirmEl);
         return;
       }
 
-      if (!proofFile) {
+      if (!proofFile && !isResubmitMode) {
         await fail('입주민 인증 사진을 업로드해 주세요.', fileInput);
         return;
       }
@@ -835,6 +910,64 @@ function showNotice(message, type='info'){
       startLoading();
 
       try {
+        if (isResubmitMode && currentRejectedUser) {
+          let proofPayload = {
+            residentProofUrl: currentRejectedUserData?.residentProofUrl || '',
+            residentProofPath: currentRejectedUserData?.residentProofPath || '',
+            residentProofFileName: currentRejectedUserData?.residentProofFileName || '',
+            residentProofExtension: currentRejectedUserData?.residentProofExtension || ''
+          };
+
+          if (proofFile) {
+            const ext = proofFile.name.includes('.') ? proofFile.name.split('.').pop() : 'jpg';
+            const safeFileName = sanitizeFileName(`${Date.now()}_${proofFile.name}`);
+            const storageRef = ref(storage, `resident-proofs/${currentRejectedUser.uid}/${safeFileName}`);
+            await uploadBytes(storageRef, proofFile);
+            const proofUrl = await getDownloadURL(storageRef);
+
+            proofPayload = {
+              residentProofUrl: proofUrl,
+              residentProofPath: storageRef.fullPath,
+              residentProofFileName: proofFile.name,
+              residentProofExtension: ext
+            };
+          }
+
+          await updateProfile(currentRejectedUser, {
+            displayName: nickname
+          });
+
+          await updateDoc(doc(db, 'users', currentRejectedUser.uid), {
+            email,
+            name,
+            nickname,
+            building,
+            unit,
+            intro,
+            ...proofPayload,
+            approvalStatus: 'resubmitted',
+            accountStatus: 'active',
+            rejectReason: '',
+            rejectedAt: null,
+            rejectedBy: '',
+            rejectType: '',
+            resubmittedAt: serverTimestamp(),
+            updatedAt: serverTimestamp()
+          });
+
+          await signOut(auth);
+
+          finishLoading();
+          showNotice('수정 후 재신청이 완료되었습니다. 관리자의 재검토 후 로그인이 가능합니다.', 'success');
+          await new Promise(resolve => setTimeout(resolve, 60));
+          await openModalAlert('재신청이 완료되었습니다. 관리자가 확인 후 로그인이 가능합니다.');
+          form.reset();
+          clearResubmitMode();
+          fileMeta.className = 'upload-meta';
+          fileMeta.textContent = '';
+          return;
+        }
+
         const credential = await createUserWithEmailAndPassword(auth, email, password);
         const user = credential.user;
 
@@ -861,16 +994,33 @@ function showNotice(message, type='info'){
           residentProofFileName: proofFile.name,
           residentProofExtension: ext,
           approvalStatus: 'pending',
+          accountStatus: 'active',
+          rejectReason: '',
+          rejectedAt: null,
+          rejectedBy: '',
+          approvedAt: null,
+          approvedBy: '',
+          resubmittedAt: null,
+          withdrawnAt: null,
+          withdrawnBy: '',
+          withdrawReason: '',
+          restoredAt: null,
+          restoredBy: '',
+          restoreReason: '',
           role: 'resident',
           createdAt: serverTimestamp(),
           updatedAt: serverTimestamp()
         });
 
+        await signOut(auth);
+
         finishLoading();
-        showNotice('회원가입 신청이 완료되었습니다.\n현재 상태는 승인 대기입니다.\n관리자 확인 후 로그인 페이지에서 이용해 주세요.', 'success');
+        showNotice('회원가입 신청이 완료되었습니다.
+관리자가 승인 후 로그인이 가능합니다.', 'success');
         await new Promise(resolve => setTimeout(resolve, 60));
-        await openModalAlert('회원가입 신청이 완료되었습니다. 승인 후 로그인해주세요.');
+        await openModalAlert('회원가입 신청이 완료되었습니다. 관리자가 승인 후 로그인이 가능합니다.');
         form.reset();
+        clearResubmitMode();
         fileMeta.className = 'upload-meta';
         fileMeta.textContent = '';
       } catch (error) {
