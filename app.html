@@ -1311,6 +1311,32 @@ async function refreshPushStatus(){
           }
           state.currentUser = user;
           state.currentUserProfile = await loadCurrentUserProfile(user);
+
+          if(!state.currentUserProfile){
+            await signOut(auth).catch(() => {});
+            redirectToLogin();
+            resolve(false);
+            return;
+          }
+
+          const approvalStatus = String(state.currentUserProfile.approvalStatus || 'pending');
+          const accountStatus = String(state.currentUserProfile.accountStatus || 'inactive');
+          const phoneVerificationRequired = state.currentUserProfile.phoneVerificationRequired !== false;
+          const phoneVerified = !!state.currentUserProfile.phoneVerified;
+
+          if(approvalStatus !== 'approved' || accountStatus !== 'active'){
+            await signOut(auth).catch(() => {});
+            redirectToLogin();
+            resolve(false);
+            return;
+          }
+
+          if(phoneVerificationRequired && !phoneVerified){
+            window.location.replace('./phone-verify.html');
+            resolve(false);
+            return;
+          }
+
           updateUserChip();
           await refreshPushStatus();
           resolve(true);
@@ -1936,7 +1962,7 @@ async function refreshPushStatus(){
       </div>
 
       <section class="gnb-section">
-        <h3 class="gnb-section-title" class="premium-section-title section-animate"><span class="title-icon">🕘 </span><span class="title-text">최근에 봤어요</span></h3>
+        <h3 class="gnb-section-title" class="premium-section-title section-animate"><span class="title-icon">🕘</span><span class="title-text">최근에 봤어요</span></h3>
         <div class="gnb-chip-row">
           <button class="gnb-chip" type="button" data-view-link="benefits">전체 혜택</button>
         </div>
@@ -1966,7 +1992,7 @@ async function refreshPushStatus(){
       </section>
 
       <section class="gnb-section">
-        <h3 class="gnb-section-title" class="premium-section-title section-animate"><span class="title-icon">⚙️ </span><span class="title-text">설정</span></h3>
+        <h3 class="gnb-section-title" class="premium-section-title section-animate"><span class="title-icon">⚙️</span><span class="title-text">설정</span></h3>
         <div class="gnb-settings-wrap">
           <div class="gnb-settings-section" id="gnbSettingsAccountSummary">
             <div class="gnb-settings-section-header">

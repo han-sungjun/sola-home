@@ -758,10 +758,16 @@
 
       const approvalStatus = String(userData.approvalStatus || 'pending');
       const accountStatus = String(userData.accountStatus || 'active');
+      const phoneVerificationRequired = userData.phoneVerificationRequired !== false;
+      const phoneVerified = !!userData.phoneVerified;
 
       if (approvalStatus === 'approved' && accountStatus === 'active') {
         if (shouldRedirectOnApproved) {
           finishLoading(() => {
+            if (phoneVerificationRequired && !phoneVerified) {
+              window.location.replace('./phone-verify.html');
+              return;
+            }
             window.location.replace(REDIRECT_AFTER_LOGIN);
           });
         }
@@ -1021,7 +1027,9 @@
         showNotice('로그인되었습니다. 잠시 후 이동합니다.', 'success');
 
         setTimeout(() => {
-          if (result.user && result.user.phoneVerified === false) {
+          const phoneVerificationRequired = result.user?.phoneVerificationRequired !== false;
+          const phoneVerified = !!result.user?.phoneVerified;
+          if (phoneVerificationRequired && !phoneVerified) {
             window.location.href = './phone-verify.html';
             return;
           }

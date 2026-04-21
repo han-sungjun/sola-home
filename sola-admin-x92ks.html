@@ -17,7 +17,7 @@
     .panel,.admin-card{background:var(--surface);border:1px solid rgba(255,255,255,.65);box-shadow:var(--shadow);backdrop-filter:blur(18px);border-radius:var(--radius-xl);padding:16px}.notice{padding:14px 16px;border-radius:18px;background:#eff6ff;border:1px solid #bfdbfe;color:#1d4ed8;font-size:13px;line-height:1.5}.hidden{display:none!important}
     .section-head{display:flex;justify-content:space-between;align-items:center;margin:2px 2px 0}.section-head h3{margin:0;font-size:18px;letter-spacing:-.03em}.section-head small{color:var(--muted)}.admin-grid,.form-grid,.mini-list{display:grid;gap:12px}.field{display:grid;gap:6px}.field label{font-size:13px;color:#334155;font-weight:700}.field input,.field select,.field textarea{border:1px solid var(--line);border-radius:14px;padding:12px 14px;outline:none;background:#fff}.field textarea{min-height:82px;resize:vertical}.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:10px}.check-row{display:flex;gap:18px;align-items:center;flex-wrap:wrap;padding:12px 14px;border:1px solid var(--line);border-radius:14px;background:#fff}.check-row label{display:flex;align-items:center;gap:8px;cursor:pointer;font-size:14px;color:#334155;font-weight:700}
     .btn{border:none;border-radius:16px;padding:12px 14px;cursor:pointer;font-weight:700;display:inline-flex;align-items:center;justify-content:center;gap:8px}.btn-primary{background:var(--primary);color:#fff}.btn-soft{background:#fff;color:var(--text);border:1px solid var(--line)}.btn-blue{background:var(--blue);color:#fff}.btn-danger{background:#fee2e2;color:var(--danger)}
-    .mini-item{border:1px solid var(--line);border-radius:18px;padding:12px;background:#fff}.mini-item-head{display:flex;justify-content:space-between;gap:10px;align-items:start}.mini-item h5{margin:0;font-size:15px}.tags{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}.tag{padding:7px 10px;border-radius:999px;background:#f8fafc;border:1px solid var(--line);color:#475569;font-size:12px}.tag.rec{background:#eff6ff;border-color:#bfdbfe;color:#2563eb;font-weight:700}.tag.hidden-tag{background:#fef2f2;border-color:#fecaca;color:#b91c1c;font-weight:700}.tag.live-tag{background:#ecfdf5;border-color:#bbf7d0;color:#15803d;font-weight:700}.member-card{display:grid;gap:10px}.member-meta{display:grid;gap:6px;color:#475569;font-size:13px;line-height:1.55}.member-proof{display:inline-flex;align-items:center;gap:8px;width:max-content}.member-reject-box{display:grid;gap:8px;margin-top:8px}.member-reject-box textarea{min-height:76px;border:1px solid var(--line);border-radius:14px;padding:12px 14px;background:#fff;resize:vertical}.member-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}.member-actions .btn{padding:9px 12px}.member-empty{padding:14px 16px;border-radius:18px;background:#f8fafc;border:1px solid var(--line);color:#64748b;font-size:13px;line-height:1.5}
+    .mini-item{border:1px solid var(--line);border-radius:18px;padding:12px;background:#fff}.mini-item-head{display:flex;justify-content:space-between;gap:10px;align-items:start}.mini-item h5{margin:0;font-size:15px}.tags{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}.tag{padding:7px 10px;border-radius:999px;background:#f8fafc;border:1px solid var(--line);color:#475569;font-size:12px}.tag.rec{background:#eff6ff;border-color:#bfdbfe;color:#2563eb;font-weight:700}.tag.hidden-tag{background:#fef2f2;border-color:#fecaca;color:#b91c1c;font-weight:700}.tag.live-tag{background:#ecfdf5;border-color:#bbf7d0;color:#15803d;font-weight:700}.tag.phone-ok{background:#ecfdf5;border-color:#bbf7d0;color:#15803d;font-weight:700}.tag.phone-wait{background:#fff7ed;border-color:#fed7aa;color:#c2410c;font-weight:700}.tag.phone-exempt{background:#eef2ff;border-color:#c7d2fe;color:#4338ca;font-weight:700}.member-card{display:grid;gap:10px}.member-meta{display:grid;gap:6px;color:#475569;font-size:13px;line-height:1.55}.member-proof{display:inline-flex;align-items:center;gap:8px;width:max-content}.member-reject-box{display:grid;gap:8px;margin-top:8px}.member-reject-box textarea{min-height:76px;border:1px solid var(--line);border-radius:14px;padding:12px 14px;background:#fff;resize:vertical}.member-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}.member-actions .btn{padding:9px 12px}.member-empty{padding:14px 16px;border-radius:18px;background:#f8fafc;border:1px solid var(--line);color:#64748b;font-size:13px;line-height:1.5}
     @media (max-width:370px){.stats,.grid-2{grid-template-columns:1fr}}
   
 .admin-topbar{
@@ -1269,8 +1269,22 @@ const setTextAll = (selector, text) => qsa(selector).forEach(el => el.textConten
         withdrawReason:item.withdrawReason||'',
         restoredAt:item.restoredAt||null,
         restoredBy:item.restoredBy||'',
-        restoreReason:item.restoreReason||''
+        restoreReason:item.restoreReason||'',
+        loginId:item.loginId||'',
+        memberType:item.memberType||'',
+        phoneNumber:item.phoneNumber||'',
+        phoneVerified:item.phoneVerified===true,
+        phoneVerifiedAt:item.phoneVerifiedAt||null,
+        phoneVerificationRequired:item.phoneVerificationRequired!==false
       };
+    }
+    function getPhoneVerificationTag(member){
+      if(member.phoneVerificationRequired===false){
+        return '<span class="tag phone-exempt">휴대폰 예외</span>';
+      }
+      return member.phoneVerified
+        ? '<span class="tag phone-ok">휴대폰 인증 완료</span>'
+        : '<span class="tag phone-wait">휴대폰 미인증</span>';
     }
     function getMemberBuckets(){
       const buckets={pending:[],resubmitted:[],approved:[],rejected:[],withdrawn:[]};
@@ -1300,6 +1314,7 @@ const setTextAll = (selector, text) => qsa(selector).forEach(el => el.textConten
         if(member.approvalStatus==='resubmitted') statusTags.push('<span class="tag rec">재신청</span>');
         if(member.approvalStatus==='approved') statusTags.push('<span class="tag live-tag">승인 완료</span>');
         if(member.approvalStatus==='rejected') statusTags.push('<span class="tag hidden-tag">반려</span>');
+        statusTags.push(getPhoneVerificationTag(member));
         card.innerHTML = `
           <div class="mini-item-head">
             <div>
@@ -1309,7 +1324,11 @@ const setTextAll = (selector, text) => qsa(selector).forEach(el => el.textConten
             <div class="tags" style="margin-top:0;">${statusTags.join('')}</div>
           </div>
           <div class="member-meta">
+            <div><strong>아이디</strong> ${member.loginId || '-'}</div>
             <div><strong>동·호수</strong> ${member.building || '-'}동 ${member.unit || '-'}호</div>
+            <div><strong>구성원 구분</strong> ${member.memberType || '-'}</div>
+            <div><strong>휴대폰 번호</strong> ${member.phoneNumber || '-'}</div>
+            <div><strong>휴대폰 인증 시각</strong> ${formatTs(member.phoneVerifiedAt)}</div>
             <div><strong>신청일</strong> ${formatTs(member.createdAt)}</div>
             <div><strong>최종 수정</strong> ${formatTs(member.updatedAt)}</div>
             ${member.intro ? `<div><strong>소개</strong> ${member.intro}</div>` : ''}
