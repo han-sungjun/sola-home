@@ -497,7 +497,7 @@
   <script type="module">
     import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
     import { getAuth, createUserWithEmailAndPassword, updateProfile, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
-    import { getFirestore, doc, setDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
+    import { getFirestore, doc, setDoc, getDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
     import { getStorage, ref, uploadBytes, getDownloadURL } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js';
 
     const firebaseConfig = {
@@ -640,17 +640,44 @@ function showNotice(message, type='info'){
       return String(name).replace(/[^\w.\-가-힣]/g, '_');
     }
 
-    onAuthStateChanged(auth, (user) => {
-      if (user) {
-        document.body.style.opacity = '1';
-        startLoading();
-        setTimeout(() => {
-          window.location.replace('./app.html');
-        }, 80);
+    onAuthStateChanged(auth, async (user) => {
+      document.body.style.opacity = '1';
+
+      if (!user) {
+        finishLoading();
         return;
       }
-      document.body.style.opacity = '1';
-      finishLoading();
+
+      startLoading();
+
+      try {
+        const userSnap = await getDoc(doc(db, 'users', user.uid));
+
+        if (!userSnap.exists()) {
+          await auth.signOut();
+          finishLoading();
+          return;
+        }
+
+        const userData = userSnap.data() || {};
+        const approvalStatus = userData.approvalStatus || 'pending';
+
+        if (approvalStatus === 'approved') {
+          setTimeout(() => {
+            window.location.replace('./app.html');
+          }, 80);
+          return;
+        }
+
+        await auth.signOut();
+        finishLoading();
+        showNotice('현재 계정은 승인 대기 상태입니다. 관리자 승인 후 로그인할 수 있습니다.', 'info');
+      } catch (error) {
+        console.error('승인 상태 확인 실패:', error);
+        await auth.signOut().catch(() => {});
+        finishLoading();
+        showNotice('승인 상태를 확인할 수 없습니다. 잠시 후 다시 시도해 주세요.', 'error');
+      }
     });
 
     qs('#goLoginLink').addEventListener('click', async (event) => {
