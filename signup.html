@@ -1015,8 +1015,8 @@ function showNotice(message, type='info'){
         await signOut(auth);
 
         finishLoading();
-        showNotice('회원가입 신청이 완료되었습니다.
-관리자가 승인 후 로그인이 가능합니다.', 'success');
+        showNotice(`회원가입 신청이 완료되었습니다.
+관리자가 승인 후 로그인이 가능합니다.`, 'success');
         await new Promise(resolve => setTimeout(resolve, 60));
         await openModalAlert('회원가입 신청이 완료되었습니다. 관리자가 승인 후 로그인이 가능합니다.');
         form.reset();
