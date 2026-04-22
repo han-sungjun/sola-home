@@ -584,7 +584,7 @@
 
         <div class="btn-row">
           <button id="submitBtn" class="btn btn-primary" type="submit">회원가입 신청</button>
-          <a class="btn btn-soft" href="./index.html" id="goLoginLink">로그인으로 이동</a>
+          <a class="btn btn-soft" href="./login.html" id="goLoginLink">로그인으로 이동</a>
         </div>
       </form>
 
@@ -597,6 +597,12 @@
   </div>
 
   <script type="module">
+    import './firebase-config.js';
+    import { getApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
+    import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
+
+    const auth = getAuth(getApp());
+
     document.body.style.opacity = '0';
 
     const qs = (selector) => document.querySelector(selector);
@@ -657,6 +663,20 @@
       if (typeof callback === 'function') {
         setTimeout(() => callback(), 40);
       }
+    }
+
+    function forceHideLoading(){
+      const pageLoader = document.getElementById('pageLoader');
+      if (pageLoader){
+        pageLoader.classList.remove('show');
+        pageLoader.setAttribute('aria-hidden', 'true');
+      }
+      loadingCount = 0;
+    }
+
+    function replaceWithLoader(url){
+      forceHideLoading();
+      window.location.replace(url);
     }
 
     function showNotice(message, type='info'){
@@ -1050,7 +1070,25 @@
       event.target.value = normalizeDigits(event.target.value).slice(0, 4);
     });
 
-    document.body.style.opacity = '1';
+    window.addEventListener('pageshow', (event) => {
+      forceHideLoading();
+      if (event.persisted && auth.currentUser) {
+        replaceWithLoader('./app.html');
+      }
+    });
+
+    window.addEventListener('load', forceHideLoading);
+    window.addEventListener('popstate', forceHideLoading);
+
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        startLoading();
+        replaceWithLoader('./app.html');
+        return;
+      }
+      document.body.style.opacity = '1';
+    });
+
     renderPasswordStrength();
 
     qs('#goLoginLink').addEventListener('click', async (event) => {
@@ -1063,7 +1101,7 @@
       if (confirmed) {
         startLoading();
         setTimeout(() => {
-          window.location.href = './index.html';
+          replaceWithLoader('./login.html');
         }, 80);
       }
     });
@@ -1266,7 +1304,7 @@
         fileMeta.textContent = '';
 
         setTimeout(() => {
-          window.location.href = './index.html';
+          replaceWithLoader('./login.html');
         }, 120);
       } catch (error) {
         const message = error?.message || '회원가입 처리 중 오류가 발생했습니다. 다시 시도해 주세요.';

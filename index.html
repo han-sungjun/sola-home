@@ -459,6 +459,7 @@
     const db = getFirestore(getApp());
 
     const REDIRECT_AFTER_LOGIN = './app.html';
+    const SIGNUP_PAGE_URL = './signup.html';
     const LOGIN_FUNCTION_URL = 'https://asia-northeast3-sola-home-4979a.cloudfunctions.net/loginWithId';
 
     document.body.style.opacity = '0';
@@ -536,8 +537,22 @@
       loadingCount = 0;
     }
 
-    window.addEventListener('pageshow', () => {
+    function replaceWithLoader(url){
       forceHideLoading();
+      window.location.replace(url);
+    }
+
+    window.addEventListener('pageshow', (event) => {
+      forceHideLoading();
+      if (event.persisted && auth.currentUser) {
+        startLoading();
+        enforceAccessPolicy(auth.currentUser, {
+          shouldRedirectOnApproved: true,
+          showBlockedMessage: true
+        }).catch(() => {
+          forceHideLoading();
+        });
+      }
     });
 
     window.addEventListener('load', () => {
@@ -625,7 +640,7 @@
 
     function getVisitPageName(){
       const path = window.location.pathname || '';
-      if (path.endsWith('/index.html') || path === '/' || path === '') return 'login';
+      if (path.endsWith('/login.html') || path.endsWith('/index.html') || path === '/' || path === '') return 'login';
       return document.title || 'unknown';
     }
 
@@ -765,10 +780,10 @@
         if (shouldRedirectOnApproved) {
           finishLoading(() => {
             if (phoneVerificationRequired && !phoneVerified) {
-              window.location.replace('./phone-verify.html');
+              replaceWithLoader('./phone-verify.html');
               return;
             }
-            window.location.replace(REDIRECT_AFTER_LOGIN);
+            replaceWithLoader(REDIRECT_AFTER_LOGIN);
           });
         }
         return { allowed: true, reason: 'approved_active', userData };
@@ -913,7 +928,10 @@
 
 
     signupBtn.addEventListener('click', () => {
-      window.location.href = './signup.html';
+      startLoading();
+      setTimeout(() => {
+        replaceWithLoader(SIGNUP_PAGE_URL);
+      }, 60);
     });
 
     logoutBtn.addEventListener('click', async () => {
@@ -1030,10 +1048,10 @@
           const phoneVerificationRequired = result.user?.phoneVerificationRequired !== false;
           const phoneVerified = !!result.user?.phoneVerified;
           if (phoneVerificationRequired && !phoneVerified) {
-            window.location.href = './phone-verify.html';
+            replaceWithLoader('./phone-verify.html');
             return;
           }
-          window.location.href = REDIRECT_AFTER_LOGIN;
+          replaceWithLoader(REDIRECT_AFTER_LOGIN);
         }, 80);
       } catch (error) {
         const code = error?.code || '';
