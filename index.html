@@ -640,7 +640,7 @@
 
     function getVisitPageName(){
       const path = window.location.pathname || '';
-      if (path.endsWith('/login.html') || path.endsWith('/index.html') || path === '/' || path === '') return 'login';
+      if (path.endsWith('/index.html') || path.endsWith('/index.html') || path === '/' || path === '') return 'login';
       return document.title || 'unknown';
     }
 

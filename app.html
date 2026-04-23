@@ -771,7 +771,7 @@ body.gnb-open .bottom-nav{
     import { getMessaging, getToken, onMessage, isSupported } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-messaging.js';
     const firebaseConfig = { apiKey:"AIzaSyDhKr7oMSrLowJ47cqB4pvNXuIIdtW0HPI", authDomain:"sola-home-4979a.firebaseapp.com", projectId:"sola-home-4979a", storageBucket:"sola-home-4979a.firebasestorage.app", messagingSenderId:"337132471819", appId:"1:337132471819:web:848cd357fecda459a2e90e" };
     window.VAPID_PUBLIC_KEY = window.VAPID_PUBLIC_KEY || 'BJONnfKeKFN8SCWWlo_quJ9pjahri96uw9WZJq2774hBZ8um6edcRb-NP7uRwjmcwHNTTGMuPJX-MUdeThgu5Kw';
-    const LOGIN_PAGE_URL = './login.html';
+    const LOGIN_PAGE_URL = './index.html';
     const BENEFITS_COLLECTION='benefits', NOTICES_COLLECTION='notices', BENEFIT_STATS_COLLECTION='benefit_stats', BENEFIT_EVENTS_COLLECTION='benefit_events', LAST_CATEGORY_KEY='myhills_last_category', CHIPS_EXPANDED_KEY='myhills_chips_expanded';
     const app=initializeApp(firebaseConfig);
     const auth=getAuth(app);
@@ -1252,7 +1252,11 @@ async function refreshPushStatus(){
         }
 
         const confirmed = await openModalConfirm(
-          '회원 탈퇴를 진행하면\n계정 정보, 즐겨찾기, 현재 기기 푸시 설정이 삭제됩니다.\n이 작업은 되돌릴 수 없습니다.\n\n정말 탈퇴하시겠습니까?',
+          '회원 탈퇴를 진행하면
+계정 정보, 즐겨찾기, 현재 기기 푸시 설정이 삭제됩니다.
+이 작업은 되돌릴 수 없습니다.
+
+정말 탈퇴하시겠습니까?',
           qs('#withdrawBtn'),
           '회원 탈퇴',
           '탈퇴하기',
@@ -1408,36 +1412,35 @@ async function refreshPushStatus(){
     }
 
     async function toggleFavorite(id, name){
-	  if(!state.currentUser?.uid || !id) return false;
-	  const favoriteRef = doc(db, 'users', state.currentUser.uid, 'favorites', id);
-	  const set = new Set(getFavorites());
-	  const isAdding = !set.has(id);
+      if(!state.currentUser?.uid || !id) return false;
+      const favoriteRef = doc(db, 'users', state.currentUser.uid, 'favorites', id);
+      const set = new Set(getFavorites());
+      const isAdding = !set.has(id);
 
-	  try{
-		if(isAdding){
-		  await setDoc(favoriteRef, {
-			benefitId: id,
-			name: name || '',
-			createdAt: serverTimestamp()
-		  }, { merge:true });
-		  set.add(id);
-		  increaseStat(id, name, 'favoriteCount');
-		  logBenefitEvent(id, 'favorite');
-		}else{
-		  await deleteDoc(favoriteRef);
-		  set.delete(id);
-		}
+      try{
+        if(isAdding){
+          await setDoc(favoriteRef, {
+            benefitId: id,
+            name: name || '',
+            createdAt: serverTimestamp()
+          }, { merge:true });
+          set.add(id);
+          increaseStat(id, name, 'favoriteCount');
+          logBenefitEvent(id, 'favorite');
+        }else{
+          await deleteDoc(favoriteRef);
+          set.delete(id);
+        }
 
-		state.favoriteIds = Array.from(set);
-		renderAll();
-		return isAdding;
-	  }catch(error){
-		console.error('즐겨찾기 저장 실패', id, error);
-		await openModalAlert('즐겨찾기 처리 중 오류가 발생했습니다.');
-		return set.has(id);
-	  }
-	}
-
+        state.favoriteIds = Array.from(set);
+        renderAll();
+        return isAdding;
+      }catch(error){
+        console.error('즐겨찾기 저장 실패', id, error);
+        await openModalAlert('즐겨찾기 처리 중 오류가 발생했습니다.');
+        return set.has(id);
+      }
+    }
     const hasFirebaseConfig=()=>firebaseConfig.apiKey&&firebaseConfig.projectId&&firebaseConfig.appId;
     function subscribeBenefits(){
       onSnapshot(collection(db, BENEFITS_COLLECTION), (snapshot) => {
@@ -1657,67 +1660,22 @@ async function refreshPushStatus(){
     const renderFavorites=()=>renderList('#favoriteList',getFilteredBenefits('favorite'));
     function renderStats(){const items=getVisibleBenefits();qs('#statCount').textContent=items.length;qs('#statMax').textContent=`${Math.max(0,...items.map(v=>v.discountValue))}%`;qs('#statCat').textContent=new Set(items.map(v=>v.category)).size;}
     function openDetail(item){
-	  increaseStat(item.id, item.name, 'detailViewCount');
-	  logBenefitEvent(item.id, 'detail_view');
-
-	  const isFav = getFavorites().includes(item.id);
-	  const naverMapLink = item.url || `https://map.naver.com/v5/search/${encodeURIComponent(item.address)}`;
-
-	  qs('#modalBody').innerHTML = `
-		<div class="${getBadgeClass(item)}" style="display:inline-block;min-width:auto;padding:12px 16px;">${item.discountText}</div>
-		<h3 style="margin:12px 0 6px;font-size:26px;letter-spacing:-.04em;">${item.name}</h3>
-		<div class="tags" style="margin-top:0;margin-bottom:10px;">
-		  ${item.recommended ? '<span class="tag rec">추천 혜택</span>' : ''}
-		  <span class="tag">${item.category}</span>
-		</div>
-
-		<div style="display:grid;gap:10px;margin:16px 0;">
-		  <div class="panel">
-			<strong style="display:block;margin-bottom:6px;font-size:13px;color:var(--muted);">혜택 조건</strong>
-			${item.condition}
-		  </div>
-		  <div class="panel">
-			<strong style="display:block;margin-bottom:6px;font-size:13px;color:var(--muted);">주소</strong>
-			${item.address}
-		  </div>
-		  <div class="panel">
-			<strong style="display:block;margin-bottom:6px;font-size:13px;color:var(--muted);">전화번호</strong>
-			${item.phone}
-		  </div>
-		</div>
-
-		<div class="grid-2">
-		  <a class="btn btn-primary block" id="callBtn" href="tel:${item.phone}">전화하기</a>
-		  <a class="btn btn-soft block" id="mapBtn" href="${naverMapLink}" target="_blank" rel="noopener">📍 네이버 지도</a>
-		</div>
-
-		<div style="margin-top:8px;">
-		  <button class="btn btn-soft block" id="modalFavBtn">
-			${isFav ? '★ 즐겨찾기 해제' : '☆ 즐겨찾기 추가'}
-		  </button>
-		</div>
-	  `;
-
-	  const modal = qs('#detailModal');
-	  if(modal.open) modal.close();
-	  modal.showModal();
-
-	  qs('#modalFavBtn').onclick = async () => {
-		const isFavorite = await toggleFavorite(item.id, item.name);
-		const btn = qs('#modalFavBtn');
-		if (btn) btn.textContent = isFavorite ? '★ 즐겨찾기 해제' : '☆ 즐겨찾기 추가';
-	  };
-
-	  qs('#callBtn').onclick = () => {
-		increaseStat(item.id, item.name, 'callClickCount');
-		logBenefitEvent(item.id, 'call_click');
-	  };
-
-	  qs('#mapBtn').onclick = () => {
-		increaseStat(item.id, item.name, 'mapClickCount');
-		logBenefitEvent(item.id, 'map_click');
-	  };
-	}
+      increaseStat(item.id, item.name, 'detailViewCount');
+      logBenefitEvent(item.id, 'detail_view');
+      const isFav=getFavorites().includes(item.id);
+      const naverMapLink=item.url || `https://map.naver.com/v5/search/${encodeURIComponent(item.address)}`;
+      qs('#modalBody').innerHTML=`<div class="${getBadgeClass(item)}" style="display:inline-block;min-width:auto;padding:12px 16px;">${item.discountText}</div><h3 style="margin:12px 0 6px;font-size:26px;letter-spacing:-.04em;">${item.name}</h3><div class="tags" style="margin-top:0;margin-bottom:10px;">${item.recommended?'<span class="tag rec">추천 혜택</span>':''}<span class="tag">${item.category}</span></div><div style="display:grid;gap:10px;margin:16px 0;"><div class="panel"><strong style="display:block;margin-bottom:6px;font-size:13px;color:var(--muted);">혜택 조건</strong>${item.condition}</div><div class="panel"><strong style="display:block;margin-bottom:6px;font-size:13px;color:var(--muted);">주소</strong>${item.address}</div><div class="panel"><strong style="display:block;margin-bottom:6px;font-size:13px;color:var(--muted);">전화번호</strong>${item.phone}</div></div><div class="grid-2"><a class="btn btn-primary block" id="callBtn" href="tel:${item.phone}">전화하기</a><a class="btn btn-soft block" id="mapBtn" href="${naverMapLink}" target="_blank" rel="noopener">📍 네이버 지도</a></div><div style="margin-top:8px;"><button class="btn btn-soft block" id="modalFavBtn">${isFav?'★ 즐겨찾기 해제':'☆ 즐겨찾기 추가'}</button></div>`;
+      const modal=qs('#detailModal');
+      if(modal.open)modal.close();
+      modal.showModal();
+      qs('#modalFavBtn').onclick=async ()=>{
+        const isFavorite = await toggleFavorite(item.id, item.name);
+        const btn = qs('#modalFavBtn');
+        if (btn) btn.textContent = isFavorite ? '★ 즐겨찾기 해제' : '☆ 즐겨찾기 추가';
+      };
+      qs('#callBtn').onclick=()=>{increaseStat(item.id, item.name, 'callClickCount');logBenefitEvent(item.id, 'call_click');};
+      qs('#mapBtn').onclick=()=>{increaseStat(item.id, item.name, 'mapClickCount');logBenefitEvent(item.id, 'map_click');};
+    }
     function updateView(){qsa('[id^="view-"]').forEach(v=>v.classList.add('hidden'));(qs(`#view-${state.view}`)||qs('#view-home')).classList.remove('hidden');qsa('.bottom-nav .nav-btn').forEach(btn=>btn.classList.remove('active'));const active=qsa('.bottom-nav .nav-btn').find(btn=>btn.dataset.view===state.view);if(active)active.classList.add('active');qs('#gnbSheet')?.classList.remove('show');qs('#gnbOverlay')?.classList.remove('show');}
     const renderAll=()=>{createChips();renderStats();renderHome();renderFavorites();renderPopularTop5();renderNotices();updateView();updateGnbActive();};
     qs('#searchInput').addEventListener('input',(e)=>{state.keyword=e.target.value;renderAll();});

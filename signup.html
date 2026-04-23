@@ -584,7 +584,7 @@
 
         <div class="btn-row">
           <button id="submitBtn" class="btn btn-primary" type="submit">회원가입 신청</button>
-          <a class="btn btn-soft" href="./login.html" id="goLoginLink">로그인으로 이동</a>
+          <a class="btn btn-soft" href="./index.html" id="goLoginLink">로그인으로 이동</a>
         </div>
       </form>
 
@@ -1101,7 +1101,7 @@
       if (confirmed) {
         startLoading();
         setTimeout(() => {
-          replaceWithLoader('./login.html');
+          replaceWithLoader('./index.html');
         }, 80);
       }
     });
@@ -1304,7 +1304,7 @@
         fileMeta.textContent = '';
 
         setTimeout(() => {
-          replaceWithLoader('./login.html');
+          replaceWithLoader('./index.html');
         }, 120);
       } catch (error) {
         const message = error?.message || '회원가입 처리 중 오류가 발생했습니다. 다시 시도해 주세요.';
