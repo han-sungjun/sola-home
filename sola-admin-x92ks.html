@@ -2507,7 +2507,54 @@ const setTextAll = (selector, text) => qsa(selector).forEach(el => el.textConten
 
 
 <script type="module">
+// 📍 좌표 자동 조회 버튼
+const geocodeBtn = document.getElementById('geocodeBtn');
+const geoStatus = document.getElementById('geoStatus');
 
+geocodeBtn?.addEventListener('click', async () => {
+  const address = document.getElementById('address').value.trim();
+
+  if (!address) {
+    geoStatus.textContent = '주소를 먼저 입력해주세요.';
+    geoStatus.className = 'geo-status error';
+    return;
+  }
+
+  if (!GEOCODE_FUNCTION_URL) {
+    geoStatus.textContent = 'geocode 함수 URL이 설정되지 않았습니다.';
+    geoStatus.className = 'geo-status error';
+    return;
+  }
+
+  geoStatus.textContent = '좌표 조회 중...';
+  geoStatus.className = 'geo-status';
+
+  try {
+    const res = await fetch(GEOCODE_FUNCTION_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ address })
+    });
+
+    const data = await res.json();
+
+    if (!data.lat || !data.lng) {
+      throw new Error('좌표 없음');
+    }
+
+    // 👉 여기서 자동 입력
+    document.getElementById('lat').value = data.lat;
+    document.getElementById('lng').value = data.lng;
+
+    geoStatus.textContent = `좌표 설정 완료 (lat: ${data.lat}, lng: ${data.lng})`;
+    geoStatus.className = 'geo-status success';
+
+  } catch (e) {
+    console.error(e);
+    geoStatus.textContent = '좌표 조회 실패 (주소 확인 필요)';
+    geoStatus.className = 'geo-status error';
+  }
+});
 </script>
 
 
