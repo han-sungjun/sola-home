@@ -49,12 +49,12 @@ export const API_URL = {
     updatePasswordAfterPhoneReset: "https://updatepasswordafterphonereset-l6nmtiaxgq-du.a.run.app",
   },
   prod: {
-    login: "https://asia-northeast3-sola-home.cloudfunctions.net/loginWithId",
-    signup: "https://asia-northeast3-sola-home.cloudfunctions.net/signupWithId",
-    checkLoginId: "https://asia-northeast3-sola-home.cloudfunctions.net/checkLoginId",
-    checkNickname: "https://asia-northeast3-sola-home.cloudfunctions.net/checkNickname",
-	getUserForPasswordReset: "https://getuserforpasswordreset-PROD.a.run.app",
-    updatePasswordAfterPhoneReset: "https://updatepasswordafterphonereset-PROD.a.run.app",
+    login: "https://loginwithid-ljm6q3t55q-du.a.run.app",
+    signup: "https://signupwithid-ljm6q3t55q-du.a.run.app",
+    checkLoginId: "https://checkloginid-ljm6q3t55q-du.a.run.app",
+    checkNickname: "https://checknickname-ljm6q3t55q-du.a.run.app",
+	getUserForPasswordReset: "https://getuserforpasswordreset-ljm6q3t55q-du.a.run.app",
+    updatePasswordAfterPhoneReset: "https://updatepasswordafterphonereset-ljm6q3t55q-du.a.run.app",
   }
 };
 
