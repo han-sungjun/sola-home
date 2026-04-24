@@ -4,6 +4,9 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <meta name="theme-color" content="#0f172a" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <meta name="description" content="더운정 마이힐스 회원가입" />
   <title>더운정 마이힐스 - 회원가입</title>
   <style>
@@ -15,9 +18,7 @@
       --muted:#64748b;
       --primary:#0f172a;
       --accent:#ef4444;
-      --accent2:#f59e0b;
       --success:#16a34a;
-      --danger:#dc2626;
       --shadow:0 20px 40px rgba(15,23,42,.10);
       --radius-xl:28px;
     }
@@ -25,20 +26,18 @@
     html,body{
       margin:0;
       padding:0;
-      font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Noto Sans KR","Noto Sans","Segoe UI",sans-serif;
+      font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Noto Sans KR","Segoe UI",sans-serif;
       background:linear-gradient(180deg,#f8fafc 0%,#eef2ff 100%);
       color:var(--text);
     }
     body{
       min-height:100dvh;
-      padding:20px;
       display:flex;
       justify-content:center;
+      align-items:flex-start;
+      padding:20px;
     }
-    .wrap{
-      width:min(100%,520px);
-      padding-bottom:30px;
-    }
+    .wrap{width:min(100%,520px)}
     .hero{
       position:relative;
       overflow:hidden;
@@ -71,18 +70,8 @@
       background:rgba(255,255,255,.14);
       font-size:12px;
     }
-    .hero h1{
-      margin:14px 0 8px;
-      font-size:28px;
-      line-height:1.2;
-      letter-spacing:-.05em;
-    }
-    .hero p{
-      margin:0;
-      line-height:1.7;
-      color:rgba(255,255,255,.92);
-      font-size:14px;
-    }
+    .hero h1{margin:14px 0 8px;font-size:28px;line-height:1.2;letter-spacing:-.05em}
+    .hero p{margin:0;line-height:1.7;color:rgba(255,255,255,.92);font-size:14px}
     .panel{
       background:var(--surface);
       border:1px solid rgba(255,255,255,.72);
@@ -91,284 +80,113 @@
       border-radius:var(--radius-xl);
       padding:20px;
     }
-    .brand{
-      display:flex;
-      align-items:center;
-      gap:12px;
-      margin-bottom:18px;
-    }
+    .brand{display:flex;align-items:center;gap:12px;margin-bottom:18px}
     .logo{
-      width:52px;
-      height:52px;
-      border-radius:18px;
-      display:grid;
-      place-items:center;
-      background:#fff;
-      box-shadow:var(--shadow);
-      font-size:24px;
-      flex:0 0 auto;
+      width:52px;height:52px;border-radius:18px;display:grid;place-items:center;
+      background:#fff;box-shadow:var(--shadow);font-size:24px;flex:0 0 auto;
     }
-    .brand h2{
-      margin:0;
-      font-size:22px;
-      letter-spacing:-.04em;
-    }
-    .brand p{
-      margin:4px 0 0;
-      color:var(--muted);
-      font-size:13px;
-    }
-    .field{
-      display:grid;
-      gap:8px;
-      margin-bottom:14px;
-    }
-    .field label{
-      font-size:13px;
-      color:var(--muted);
-      font-weight:700;
-    }
-    .input,.textarea,.select{
-      width:100%;
-      border:1px solid var(--line);
-      background:#fff;
-      border-radius:18px;
-      padding:15px 16px;
-      outline:none;
-      font-size:15px;
-      color:var(--text);
+    .brand h2{margin:0;font-size:22px;letter-spacing:-.04em}
+    .brand p{margin:4px 0 0;color:var(--muted);font-size:13px}
+    .field{display:grid;gap:8px;margin-bottom:14px}
+    .field label{font-size:13px;color:var(--muted);font-weight:700}
+    .input,.select,.textarea{
+      width:100%;border:1px solid var(--line);background:#fff;border-radius:18px;
+      padding:15px 16px;outline:none;font-size:15px;color:var(--text);
       transition:border-color .15s ease, box-shadow .15s ease;
     }
-    .input:focus,.textarea:focus,.select:focus{
-      border-color:#94a3b8;
-      box-shadow:0 0 0 4px rgba(148,163,184,.16);
+    .textarea{min-height:100px;resize:vertical}
+    .input:focus,.select:focus,.textarea:focus{
+      border-color:#94a3b8;box-shadow:0 0 0 4px rgba(148,163,184,.16);
     }
-    .textarea{
-      min-height:110px;
-      resize:vertical;
-      line-height:1.6;
+    .inline-2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    .inline-check{display:flex;gap:10px;align-items:flex-start;margin:8px 0 0}
+    .helper{font-size:12px;color:var(--muted);line-height:1.5;margin:4px 2px 16px}
+    .check-row{display:flex;gap:8px;align-items:center}
+    .btn{
+      width:100%;border:none;border-radius:18px;padding:15px 16px;cursor:pointer;
+      font-weight:800;font-size:15px;display:inline-flex;align-items:center;justify-content:center;
+      gap:8px;transition:transform .15s ease, opacity .15s ease, background-color .15s ease;
     }
-    .grid-2{
-      display:grid;
-      grid-template-columns:1fr 1fr;
-      gap:12px;
-    }
-    .helper{
-      font-size:12px;
-      color:var(--muted);
-      line-height:1.55;
-      margin-top:4px;
-    }
-    .upload-box{
-      border:1.5px dashed #cbd5e1;
-      border-radius:22px;
-      padding:16px;
-      background:#fff;
-    }
-    .upload-box:hover{
-      border-color:#94a3b8;
-    }
-    .upload-meta{
-      margin-top:10px;
-      padding:12px 14px;
-      border-radius:16px;
-      background:#f8fafc;
-      color:#334155;
-      font-size:13px;
-      line-height:1.5;
-      display:none;
-    }
-    .upload-meta.show{
-      display:block;
-    }
-    .check{
-      display:flex;
-      gap:10px;
-      align-items:flex-start;
-      margin:12px 0 4px;
-      color:#334155;
-      font-size:13px;
-      line-height:1.55;
-    }
-    .check input{
-      margin-top:2px;
-    }
+    .btn:active{transform:scale(.985)}
+    .btn-primary{background:var(--primary);color:#fff}
+    .btn-soft{margin-top:10px;background:#fff;color:var(--text);border:1px solid var(--line)}
     .btn-row{
       display:grid;
       grid-template-columns:1fr 1fr;
       gap:10px;
-      margin-top:18px;
+      margin-top:4px;
     }
-    .btn{
+    .btn-row .btn{
       width:100%;
-      border:none;
-      border-radius:18px;
-      padding:15px 16px;
-      cursor:pointer;
-      font-weight:800;
-      font-size:15px;
-      display:inline-flex;
-      align-items:center;
-      justify-content:center;
-      gap:8px;
-      transition:transform .15s ease, opacity .15s ease;
-      text-decoration:none;
+      margin-top:0;
     }
-    .btn:active{
-      transform:scale(.985);
+    .btn[disabled]{opacity:.65;cursor:not-allowed}
+    .mini-btn{
+      border:none;border-radius:14px;padding:12px 14px;cursor:pointer;font-weight:800;
+      font-size:13px;background:#eef2ff;color:#4338ca;white-space:nowrap;
     }
-    .btn-primary{
-      background:var(--primary);
-      color:#fff;
-    }
-    .btn-soft{
-      background:#fff;
-      color:var(--text);
-      border:1px solid var(--line);
-    }
-    .btn[disabled]{
-      opacity:.65;
-      cursor:not-allowed;
-    }
+    .input-with-btn{display:grid;grid-template-columns:1fr auto;gap:8px}
     .notice{
-      display:none;
-      margin-top:14px;
-      padding:14px 16px;
-      border-radius:18px;
-      font-size:13px;
-      line-height:1.55;
-      border:1px solid transparent;
-      white-space:pre-line;
+      display:none;margin-top:14px;padding:14px 16px;border-radius:18px;font-size:13px;
+      line-height:1.55;border:1px solid transparent;white-space:pre-line;
     }
     .notice.show{display:block}
-    .notice.info{
-      background:#eff6ff;
-      border-color:#bfdbfe;
-      color:#1d4ed8;
+    .notice.info{background:#eff6ff;border-color:#bfdbfe;color:#1d4ed8}
+    .notice.error{background:#fef2f2;border-color:#fecaca;color:#b91c1c}
+    .notice.success{background:#f0fdf4;border-color:#bbf7d0;color:#166534}
+    .footer{text-align:center;margin-top:14px;color:var(--muted);font-size:12px;line-height:1.6}
+    .env-badge{
+      display:none;align-items:center;gap:8px;width:max-content;margin-top:12px;padding:9px 13px;
+      border-radius:999px;background:linear-gradient(135deg,#eef2ff 0%,#ede9fe 100%);
+      border:1px solid #c7d2fe;color:#4338ca;font-size:12px;font-weight:800;letter-spacing:.02em;
+      box-shadow:0 10px 24px rgba(79,70,229,.10);
     }
-    .notice.error{
-      background:#fef2f2;
-      border-color:#fecaca;
-      color:#b91c1c;
-    }
-    .notice.success{
-      background:#f0fdf4;
-      border-color:#bbf7d0;
-      color:#166534;
-    }
-    .footer{
-      text-align:center;
-      margin-top:14px;
-      color:var(--muted);
-      font-size:12px;
-      line-height:1.6;
-    }
-    .pill{
-      display:inline-flex;
-      align-items:center;
-      gap:8px;
-      border-radius:999px;
-      padding:8px 12px;
-      background:#f8fafc;
-      color:#475569;
-      border:1px solid var(--line);
-      font-size:12px;
-      margin-bottom:14px;
-    }
-    @media (max-width:460px){
-      .grid-2,.btn-row{grid-template-columns:1fr}
-    }
+    .env-badge.show{display:inline-flex}
+    .env-badge-dot{width:8px;height:8px;border-radius:999px;background:#6366f1;box-shadow:0 0 0 4px rgba(99,102,241,.14);flex:0 0 auto}
 
-    .app-alert{position:fixed;inset:0;display:none;align-items:center;justify-content:center;padding:20px;z-index:9999;background:rgba(15,23,42,.46);backdrop-filter:blur(4px)}
-    .app-alert.show{display:flex}
-    .app-alert-card{width:min(100%,360px);background:#fff;border:1px solid rgba(255,255,255,.75);box-shadow:0 30px 60px rgba(15,23,42,.20);border-radius:26px;padding:22px}
-    .app-alert-head{display:flex;align-items:center;gap:12px;margin-bottom:12px}
-    .app-alert-icon{width:42px;height:42px;border-radius:14px;display:grid;place-items:center;background:#fff7ed;color:#c2410c;font-size:20px;flex:0 0 auto;border:1px solid #fed7aa}
-    .app-alert-title{margin:0;font-size:18px;letter-spacing:-.03em}
-    .app-alert-message{margin:0;color:var(--muted);font-size:14px;line-height:1.65;white-space:pre-line}
-    .app-alert-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:18px}
-    .app-alert-cancel{min-width:92px;border:1px solid var(--line);border-radius:16px;padding:12px 16px;background:#fff;color:var(--text);font-weight:800;cursor:pointer}
-    .app-alert-confirm{min-width:92px;border:none;border-radius:16px;padding:12px 16px;background:var(--primary);color:#fff;font-weight:800;cursor:pointer}
-
-    .page-loader{
-      position:fixed;
-      inset:0;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      background:rgba(15,23,42,.52);
-      backdrop-filter:blur(2px);
-      -webkit-backdrop-filter:blur(2px);
-      z-index:10000;
-      opacity:0;
-      visibility:hidden;
-      pointer-events:none;
-      transition:opacity .22s ease, visibility .22s ease;
-    }
-    .page-loader.show{
-      opacity:1;
-      visibility:visible;
-      pointer-events:auto;
-    }
-    .loader-mark{
+    .hero > .eyebrow,
+    .hero > h1,
+    .hero > p{
       position:relative;
-      width:74px;
-      height:74px;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      animation:loaderFloat .95s ease-in-out infinite;
+      z-index:2;
     }
-    .loader-mark .arm{
+    .hero-env{
       position:absolute;
-      left:50%;
-      top:50%;
-      width:10px;
-      border-radius:999px;
-      transform-origin:center center;
-      box-shadow:0 3px 10px rgba(0,0,0,.08);
+      top:16px;
+      right:16px;
+      margin-top:0;
+      z-index:3;
+      background:rgba(255,255,255,.18);
+      border:1px solid rgba(255,255,255,.38);
+      color:#fff;
+      box-shadow:none;
+      backdrop-filter:blur(8px);
+      -webkit-backdrop-filter:blur(8px);
     }
-    .loader-mark .arm.top{
-      height:34px;
-      background:#ffffff;
-      transform:translate(-50%,-72%) rotate(45deg);
+    .hero-env .env-badge-dot{
+      background:#a5b4fc;
+      box-shadow:0 0 0 4px rgba(255,255,255,.16);
     }
-    .loader-mark .arm.left{
-      height:34px;
-      background:#ffffff;
-      transform:translate(-50%,-72%) rotate(-45deg);
+    .hidden{display:none!important}
+    .page-loader{
+      position:fixed;inset:0;display:flex;align-items:center;justify-content:center;
+      background:rgba(15,23,42,.52);backdrop-filter:blur(2px);-webkit-backdrop-filter:blur(2px);
+      z-index:10000;opacity:0;visibility:hidden;pointer-events:none;transition:opacity .22s ease, visibility .22s ease;
     }
-    .loader-mark .arm.mid{
-      width:42px;
-      height:8px;
-      background:linear-gradient(90deg,#ff4fc3 0%, #ff63d8 100%);
-      transform:translate(-50%,-2px);
-    }
-    .loader-mark .arm.bot{
-      width:42px;
-      height:8px;
-      background:linear-gradient(90deg,#ff4fc3 0%, #ff63d8 100%);
-      transform:translate(-50%,12px);
-    }
-    .loader-mark .arm.bot2{
-      width:42px;
-      height:8px;
-      background:linear-gradient(90deg,#ff4fc3 0%, #ff63d8 100%);
-      transform:translate(-50%,26px);
-    }
-    .page-loader.show .loader-mark{
-      animation:loaderFloat .95s ease-in-out infinite, loaderPulse .9s ease-in-out infinite;
-    }
-    @keyframes loaderFloat{
-      0%,100%{ transform:translateY(0) scale(1); }
-      50%{ transform:translateY(-3px) scale(1.03); }
-    }
-    @keyframes loaderPulse{
-      0%{ opacity:.88; }
-      50%{ opacity:1; }
-      100%{ opacity:.9; }
-    }
-  
+    .page-loader.show{opacity:1;visibility:visible;pointer-events:auto}
+    .loader-mark{position:relative;width:74px;height:74px;display:flex;align-items:center;justify-content:center;animation:loaderFloat .95s ease-in-out infinite}
+    .page-loader.show .loader-mark{animation:loaderFloat .95s ease-in-out infinite, loaderPulse .9s ease-in-out infinite}
+    .loader-mark .arm{position:absolute;left:50%;top:50%;width:10px;border-radius:999px;transform-origin:center center;box-shadow:0 3px 10px rgba(0,0,0,.08)}
+    .loader-mark .arm.top{height:34px;background:#ffffff;transform:translate(-50%,-72%) rotate(45deg)}
+    .loader-mark .arm.left{height:34px;background:#ffffff;transform:translate(-50%,-72%) rotate(-45deg)}
+    .loader-mark .arm.mid{width:42px;height:8px;background:linear-gradient(90deg,#ff4fc3 0%, #ff63d8 100%);transform:translate(-50%,-2px)}
+    .loader-mark .arm.bot{width:42px;height:8px;background:linear-gradient(90deg,#ff4fc3 0%, #ff63d8 100%);transform:translate(-50%,12px)}
+    .loader-mark .arm.bot2{width:42px;height:8px;background:linear-gradient(90deg,#ff4fc3 0%, #ff63d8 100%);transform:translate(-50%,26px)}
+    @keyframes loaderFloat{0%,100%{ transform:translateY(0) scale(1);}50%{ transform:translateY(-3px) scale(1.03);}}
+    @keyframes loaderPulse{0%{ opacity:.88;}50%{ opacity:1;}100%{ opacity:.9;}}
+
+
+    /* ===== 운영계 기준: 인라인 상태 메시지 + 비밀번호 보안 UI ===== */
     .inline-check{
       margin-top:6px;
       font-size:12px;
@@ -378,53 +196,9 @@
     .inline-check.show{display:block}
     .inline-check.info{color:#475569}
     .inline-check.success{color:var(--success)}
-    .inline-check.error{color:var(--danger)}
+    .inline-check.error{color:#dc2626}
     .inline-check.loading{color:#1d4ed8}
-    .field-row-inline{
-      display:flex;
-      gap:8px;
-      align-items:center;
-    }
-    .field-row-inline .input{
-      flex:1 1 auto;
-    }
-    .check-btn{
-      flex:0 0 auto;
-      border:none;
-      border-radius:14px;
-      padding:12px 14px;
-      background:#e2e8f0;
-      color:#0f172a;
-      font-size:13px;
-      font-weight:800;
-      cursor:pointer;
-      white-space:nowrap;
-    }
-    .check-btn:disabled{
-      opacity:.6;
-      cursor:not-allowed;
-    }
-
-  
-    /* Ensure select matches input height */
-    select, .form-group select {
-      height: 56px;
-    }
-
-
-    /* Password fields alignment */
-    .password-group input {
-      height: 56px;
-    }
-    .password-status {
-      margin-top: 6px;
-      font-size: 13px;
-    }
-
-
-    .strength-wrap{
-      margin-top:6px;
-    }
+    .strength-wrap{margin-top:6px}
     .strength-bars{
       display:grid;
       grid-template-columns:repeat(3,1fr);
@@ -442,53 +216,64 @@
       line-height:1.5;
       color:var(--muted);
     }
-    .strength-text.weak{ color:var(--danger); }
-    .strength-text.medium{ color:#b45309; }
-    .strength-text.strong{ color:var(--success); }
+    .strength-text.weak{color:#dc2626}
+    .strength-text.medium{color:#b45309}
+    .strength-text.strong{color:var(--success)}
+    @media (max-width: 560px){.inline-2{grid-template-columns:1fr}}
 
-</style>
+
+    .app-alert{position:fixed;inset:0;display:none;align-items:center;justify-content:center;padding:20px;z-index:10001;background:rgba(15,23,42,.46);backdrop-filter:blur(4px)}
+    .app-alert.show{display:flex}
+    .app-alert-card{width:min(100%,360px);background:#fff;border:1px solid rgba(255,255,255,.75);box-shadow:0 30px 60px rgba(15,23,42,.20);border-radius:26px;padding:22px}
+    .app-alert-head{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+    .app-alert-icon{width:42px;height:42px;border-radius:14px;display:grid;place-items:center;background:#fff7ed;color:#c2410c;font-size:20px;flex:0 0 auto;border:1px solid #fed7aa}
+    .app-alert-title{margin:0;font-size:18px;letter-spacing:-.03em}
+    .app-alert-message{margin:0;color:var(--muted);font-size:14px;line-height:1.65;white-space:pre-line}
+    .app-alert-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:18px}
+    .app-alert-confirm{min-width:92px;border:none;border-radius:16px;padding:12px 16px;background:var(--primary);color:#fff;font-weight:800;cursor:pointer}
+
+  </style>
 </head>
 <body>
   <div class="wrap">
     <section class="hero">
-      <div class="eyebrow">📝 입주민 회원가입</div>
+      <div class="eyebrow">🏠 입주민 전용 회원가입</div>
+      <div class="env-badge hero-env" id="envBadge"><span class="env-badge-dot"></span><span>DEV ENV</span></div>
       <h1>더운정 마이힐스<br>회원가입</h1>
-      <p>입주민 인증 후 승인되면 다양한 서비스 이용이 가능합니다.</p>
+      <p>입주민 인증 후 관리자 승인 완료 시 로그인할 수 있습니다.</p>
     </section>
 
     <section class="panel">
       <div class="brand">
-        <div class="logo">🏢</div>
+        <div class="logo">📝</div>
         <div>
-          <h2>가입 신청서</h2>
-          <p>아이디 기반 계정으로 가입 신청합니다</p>
+          <h2>가입 신청</h2>
+          <p>입주민 전용 서비스 신청서</p>
         </div>
       </div>
-
-      <div class="pill" id="statusPill">회원가입 신청 후 관리자의 승인 절차가 진행됩니다.</div>
-
       <form id="signupForm">
         <div class="field">
           <label for="loginId">아이디</label>
-          <div class="field-row-inline">
-            <input id="loginId" class="input" type="text" autocomplete="username" placeholder="영문과 숫자만 4~20자" maxlength="20" />
-            <button id="checkLoginIdBtn" class="check-btn" type="button">중복 확인</button>
+          <div class="input-with-btn">
+            <input id="loginId" class="input" type="text" inputmode="text" autocomplete="username" placeholder="영문 소문자/숫자 4~20자" />
+            <button id="checkLoginIdBtn" class="mini-btn" type="button">중복확인</button>
           </div>
           <div id="loginIdStatus" class="inline-check info"></div>
-          <div class="helper">로그인할 때 사용할 고유 키 값입니다. 영문과 숫자만 사용할 수 있습니다.</div>
         </div>
 
         <div class="field">
-          <label for="email">이메일 주소 (선택, 입력 권장)</label>
-          <input id="email" class="input" type="email" inputmode="email" autocomplete="email" placeholder="example@email.com" />
-          <div id="emailStatus" class="inline-check info"></div>
-          <div class="helper">가입 승인 결과 자동 발송과 비밀번호 찾기에 필요하므로 입력을 권장합니다.</div>
+          <label for="nickname">닉네임</label>
+          <div class="input-with-btn">
+            <input id="nickname" class="input" type="text" inputmode="text" autocomplete="nickname" placeholder="닉네임 입력" />
+            <button id="checkNicknameBtn" class="mini-btn" type="button">중복확인</button>
+          </div>
+          <div id="nicknameStatus" class="inline-check info"></div>
         </div>
 
-        <div class="grid-2">
+        <div class="inline-2">
           <div class="field">
             <label for="password">비밀번호</label>
-            <input id="password" class="input" type="password" autocomplete="new-password" placeholder="6자 이상 입력" />
+            <input id="password" class="input" type="password" autocomplete="new-password" placeholder="6자 이상" />
             <div class="strength-wrap">
               <div class="strength-bars" aria-hidden="true">
                 <span id="pwBar1" class="strength-bar"></span>
@@ -498,93 +283,75 @@
               <div id="passwordStrengthStatus" class="strength-text">비밀번호 강도를 확인해 주세요.</div>
             </div>
           </div>
-
           <div class="field">
             <label for="passwordConfirm">비밀번호 확인</label>
-            <input id="passwordConfirm" class="input" type="password" autocomplete="new-password" placeholder="비밀번호 다시 입력" />
+            <input id="passwordConfirm" class="input" type="password" autocomplete="new-password" placeholder="비밀번호 재입력" />
             <div id="passwordMatchStatus" class="inline-check info"></div>
           </div>
         </div>
 
-        <div class="grid-2">
+        <div class="inline-2">
           <div class="field">
             <label for="name">성명</label>
-            <input id="name" class="input" type="text" autocomplete="name" placeholder="홍길동" />
+            <input id="name" class="input" type="text" autocomplete="name" placeholder="실명 입력" />
           </div>
-
           <div class="field">
-            <label for="nickname">닉네임</label>
-            <div class="field-row-inline">
-              <input id="nickname" class="input" type="text" placeholder="앱에서 표시될 이름" maxlength="20" />
-              <button id="checkNicknameBtn" class="check-btn" type="button">중복 확인</button>
-            </div>
-            <div id="nicknameStatus" class="inline-check info"></div>
+            <label for="email">이메일</label>
+            <input id="email" class="input" type="email" autocomplete="email" placeholder="선택 입력" />
           </div>
         </div>
 
-        <div class="grid-2">
+        <div class="inline-2">
           <div class="field">
-            <label for="memberType">구성원 구분</label>
+            <label for="phoneNumber">휴대폰 번호</label>
+            <input id="phoneNumber" class="input" type="tel" inputmode="numeric" autocomplete="tel" placeholder="숫자만 입력" />
+          </div>
+          <div class="field">
+            <label for="memberType">회원 유형</label>
             <select id="memberType" class="select">
-              <option value="contractHolder">계약자</option>
-              <option value="spouse">배우자</option>
-              <option value="child">자녀</option>
+              <option value="resident" selected>입주민</option>
+              <option value="family">가족</option>
               <option value="tenant">세입자</option>
-              <option value="etc">기타</option>
+              <option value="other">기타</option>
             </select>
           </div>
-
-          <div class="field">
-            <label for="phoneNumber">휴대폰 번호 (필수 권장)</label>
-            <input id="phoneNumber" class="input" type="tel" inputmode="numeric" placeholder="01012345678" maxlength="11" />
-            <div class="helper">숫자만 입력해 주세요. 휴대폰 인증에 필요합니다.</div>
-          </div>
         </div>
 
-        <div class="grid-2">
+        <div class="inline-2">
           <div class="field">
             <label for="building">동</label>
-            <input id="building" class="input" type="text" inputmode="numeric" placeholder="예: 101" maxlength="3" />
-            <div class="helper">숫자 3자리까지만 입력할 수 있습니다.</div>
+            <input id="building" class="input" type="text" inputmode="numeric" placeholder="예: 101" />
           </div>
-
           <div class="field">
             <label for="unit">호수</label>
-            <input id="unit" class="input" type="text" inputmode="numeric" placeholder="예: 1203" maxlength="4" />
-            <div class="helper">숫자 4자리까지만 입력할 수 있습니다.</div>
+            <input id="unit" class="input" type="text" inputmode="numeric" placeholder="예: 1203" />
           </div>
         </div>
 
         <div class="field">
-          <label for="intro">간단한 자기소개</label>
-          <textarea id="intro" class="textarea" placeholder="간단한 소개나 가입 목적을 적어주세요."></textarea>
-          <div class="helper">예: 안녕하세요. 104동 입주민입니다. 혜택 정보를 자주 확인하고 싶어 가입 신청합니다.</div>
+          <label for="intro">자기소개 / 확인사항</label>
+          <textarea id="intro" class="textarea" placeholder="필요 시 간단한 소개나 요청사항을 입력해 주세요."></textarea>
         </div>
 
         <div class="field">
-          <label for="residentProof">입주민 인증 사진 업로드</label>
-          <div class="upload-box">
-            <input id="residentProof" class="input" type="file" accept="image/*" />
-            <div class="helper">
-              입주민 확인을 위해 <strong>동·호수</strong>가 보이는 화면을 캡처하여 업로드해 주세요.
-            </div>
-            <div id="fileMeta" class="upload-meta"></div>
-          </div>
+          <label for="residentProof">입주민 인증 사진</label>
+          <input id="residentProof" class="input" type="file" accept="image/*" />
+          <div class="helper">세대 확인이 가능한 증빙 이미지를 업로드해 주세요.</div>
         </div>
 
-        <label class="check">
-          <input id="agreePrivacy" type="checkbox" />
-          <span>입주민 인증, 승인 심사 및 서비스 이용을 위해 제출한 정보를 저장하고 검토하는 데 동의합니다.</span>
-        </label>
+        <div class="field">
+          <label>필수 동의</label>
+          <label class="check-row"><input id="agreePrivacy" type="checkbox" /> 개인정보 수집 및 이용에 동의합니다.</label>
+          <label class="check-row"><input id="agreePolicy" type="checkbox" /> 서비스 운영 정책에 동의합니다.</label>
+        </div>
 
-        <label class="check">
-          <input id="agreePolicy" type="checkbox" />
-          <span>허위 정보 제출 시 가입이 거절되거나 계정이 제한될 수 있음에 동의합니다.</span>
-        </label>
+        <div class="helper">
+          가입 신청 후 관리자 승인 전에는 로그인할 수 없습니다. 승인 후 휴대폰 인증이 필요할 수 있습니다.
+        </div>
 
         <div class="btn-row">
-          <button id="submitBtn" class="btn btn-primary" type="submit">회원가입 신청</button>
-          <a class="btn btn-soft" href="./index.html" id="goLoginLink">로그인으로 이동</a>
+          <button id="signupBtn" class="btn btn-primary" type="submit">회원가입 신청</button>
+          <button id="goLoginBtn" class="btn btn-soft" type="button">로그인으로 돌아가기</button>
         </div>
       </form>
 
@@ -592,50 +359,281 @@
     </section>
 
     <div class="footer">
-      가입 신청 후 승인 완료 시 서비스 이용이 가능합니다.
+      가입 신청 완료 후 관리자 승인 상태를 확인해 주세요.
     </div>
   </div>
 
   <script type="module">
     import './firebase-config.js';
+    import { ENV, CURRENT_API, CURRENT_ROUTE } from './env-config.js';
     import { getApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
-    import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
+    import { getMessaging, onMessage } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-messaging.js';
+    const envBadge = document.getElementById('envBadge');
+    if (envBadge && ENV === 'dev') envBadge.classList.add('show');
 
-    const auth = getAuth(getApp());
+    const app = getApp();
+    const messaging = getMessaging(app);
 
-    document.body.style.opacity = '0';
+    /* =========================
+       Foreground 시스템 알림 처리
+       - PC 탭 활성 상태에서도 시스템 알림 표시
+       - 백그라운드는 firebase-messaging-sw.js가 처리
+    ========================= */
+    function isDesktopForegroundPushTarget() {
+      const ua = String(navigator.userAgent || '').toLowerCase();
+      return !(
+        ua.includes('android') ||
+        ua.includes('iphone') ||
+        ua.includes('ipad') ||
+        ua.includes('mobile') ||
+        ua.includes('samsungbrowser')
+      );
+    }
 
-    const qs = (selector) => document.querySelector(selector);
+    function normalizeForegroundPushPayload(payload = {}) {
+      const data = payload.data || {};
+      return {
+        title: String(data.title || payload.notification?.title || '알림'),
+        body: String(data.body || payload.notification?.body || ''),
+        url: String(data.url || data.clickUrl || data.link || payload.fcmOptions?.link || '/'),
+        noticeId: String(data.noticeId || ''),
+        type: String(data.type || 'notice')
+      };
+    }
 
-    const form = qs('#signupForm');
-    const submitBtn = qs('#submitBtn');
-    const noticeEl = qs('#notice');
-    const fileInput = qs('#residentProof');
-    const fileMeta = qs('#fileMeta');
+    function buildForegroundPushTag(item) {
+      return [item.type, item.noticeId, item.title, item.body, item.url].join('|');
+    }
 
-    const SIGNUP_FUNCTION_URL = 'https://asia-northeast3-sola-home-4979a.cloudfunctions.net/signupWithId';
-    const CHECK_LOGIN_ID_URL = 'https://asia-northeast3-sola-home-4979a.cloudfunctions.net/checkLoginId';
-    const CHECK_NICKNAME_URL = 'https://asia-northeast3-sola-home-4979a.cloudfunctions.net/checkNickname';
+    function openForegroundPushUrl(url = '/') {
+      const targetUrl = String(url || '/');
+      try {
+        const absoluteUrl = new URL(targetUrl, window.location.origin).href;
+        window.location.href = absoluteUrl;
+      } catch (_) {
+        window.location.href = '/';
+      }
+    }
+
+    function setupForegroundSystemPush(messagingInstance) {
+      if (!messagingInstance) return;
+
+      onMessage(messagingInstance, (payload) => {
+        try {
+          if (!isDesktopForegroundPushTarget()) return;
+          if (!('Notification' in window)) return;
+          if (Notification.permission !== 'granted') return;
+
+          const item = normalizeForegroundPushPayload(payload);
+          const notification = new Notification(item.title, {
+            body: item.body,
+            icon: '/icons/icon-192.png',
+            badge: '/icons/icon-192.png',
+            tag: buildForegroundPushTag(item),
+            renotify: false,
+            data: {
+              url: item.url,
+              noticeId: item.noticeId,
+              type: item.type
+            }
+          });
+
+          notification.onclick = () => {
+            window.focus();
+            notification.close();
+            openForegroundPushUrl(item.url);
+          };
+        } catch (error) {
+          console.warn('foreground 시스템 알림 처리 실패', error);
+        }
+      });
+    }
+
+    setupForegroundSystemPush(messaging);
+
+
+    const signupForm = document.getElementById('signupForm');
+    const noticeEl = document.getElementById('notice');
+    const goLoginBtn = document.getElementById('goLoginBtn');
+    const signupBtn = document.getElementById('signupBtn');
+    const checkLoginIdBtn = document.getElementById('checkLoginIdBtn');
+    const checkNicknameBtn = document.getElementById('checkNicknameBtn');
+    const loginIdStatusEl = document.getElementById('loginIdStatus');
+    const nicknameStatusEl = document.getElementById('nicknameStatus');
+    const passwordStrengthStatusEl = document.getElementById('passwordStrengthStatus');
+    const passwordMatchStatusEl = document.getElementById('passwordMatchStatus');
+    const pwBars = [
+      document.getElementById('pwBar1'),
+      document.getElementById('pwBar2'),
+      document.getElementById('pwBar3')
+    ];
+    const alertEl = document.getElementById('appAlert');
+    const alertMsgEl = document.getElementById('appAlertMessage');
+    const alertTitleEl = document.getElementById('appAlertTitle');
+    const alertConfirmEl = document.getElementById('appAlertConfirm');
+    let alertFocusTarget = null;
+    let alertResolver = null;
+
+    const fields = {
+      loginId: document.getElementById('loginId'),
+      nickname: document.getElementById('nickname'),
+      password: document.getElementById('password'),
+      passwordConfirm: document.getElementById('passwordConfirm'),
+      name: document.getElementById('name'),
+      email: document.getElementById('email'),
+      phoneNumber: document.getElementById('phoneNumber'),
+      memberType: document.getElementById('memberType'),
+      building: document.getElementById('building'),
+      unit: document.getElementById('unit'),
+      intro: document.getElementById('intro'),
+      residentProof: document.getElementById('residentProof'),
+      agreePrivacy: document.getElementById('agreePrivacy'),
+      agreePolicy: document.getElementById('agreePolicy')
+    };
+
+    const SIGNUP_FUNCTION_URL = CURRENT_API.signup;
+    const CHECK_LOGIN_ID_URL = CURRENT_API.checkLoginId;
+    const CHECK_NICKNAME_URL = CURRENT_API.checkNickname;
+    const LOGIN_PAGE_URL = CURRENT_ROUTE.login;
 
     let loadingCount = 0;
     let loginIdCheckedValue = '';
-    let loginIdAvailable = false;
     let nicknameCheckedValue = '';
-    let nicknameAvailable = false;
 
-    function resetDuplicateChecks(){
-      loginIdCheckedValue = '';
-      loginIdAvailable = false;
-      nicknameCheckedValue = '';
-      nicknameAvailable = false;
-      hideInlineStatus(qs('#loginIdStatus'));
-      hideInlineStatus(qs('#nicknameStatus'));
-      hideInlineStatus(qs('#passwordMatchStatus'));
-      hideInlineStatus(qs('#emailStatus'));
-      renderPasswordStrength();
+    function showNotice(message, type = 'info') {
+      noticeEl.className = `notice show ${type}`;
+      noticeEl.textContent = message;
     }
 
-    function startLoading(){
+    function hideNotice() {
+      noticeEl.className = 'notice info';
+      noticeEl.textContent = '';
+    }
+
+    function openModalAlert(message, focusTarget = null, title = '안내') {
+      alertFocusTarget = focusTarget;
+      alertTitleEl.textContent = title;
+      alertMsgEl.textContent = message;
+      alertEl.classList.add('show');
+      alertEl.setAttribute('aria-hidden', 'false');
+      requestAnimationFrame(() => alertConfirmEl.focus());
+      return new Promise((resolve) => {
+        alertResolver = resolve;
+      });
+    }
+
+    function closeModal(result = true) {
+      alertEl.classList.remove('show');
+      alertEl.setAttribute('aria-hidden', 'true');
+
+      if (alertFocusTarget) {
+        alertFocusTarget.focus();
+        try {
+          const len = alertFocusTarget.value?.length || 0;
+          alertFocusTarget.setSelectionRange(len, len);
+        } catch (_) {}
+      }
+
+      const resolver = alertResolver;
+      alertResolver = null;
+      if (resolver) resolver(result);
+    }
+
+    alertConfirmEl.addEventListener('click', () => closeModal(true));
+    alertEl.addEventListener('click', (event) => {
+      if (event.target === alertEl) closeModal(false);
+    });
+    window.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape' && alertEl.classList.contains('show')) closeModal(false);
+    });
+
+    function setInlineStatus(element, message = '', type = 'info') {
+      if (!element) return;
+      element.textContent = message;
+      element.className = `inline-check show ${type}`;
+    }
+
+    function hideInlineStatus(element) {
+      if (!element) return;
+      element.textContent = '';
+      element.className = 'inline-check info';
+    }
+
+    function validateLoginIdFormat(value = '') {
+      return /^[a-z0-9]{4,20}$/.test(String(value).trim());
+    }
+
+    function validateNicknameFormat(value = '') {
+      return String(value).trim().length >= 2;
+    }
+
+    function getPasswordStrength(password = '') {
+      let score = 0;
+      if (password.length >= 6) score += 1;
+      if (password.length >= 8) score += 1;
+      if (/[a-z]/.test(password) && /[0-9]/.test(password)) score += 1;
+      if (/[A-Z]/.test(password) || /[^A-Za-z0-9]/.test(password)) score += 1;
+
+      if (password.length < 6) return { level: 'weak', label: '약함', score: 1 };
+      if (score <= 2) return { level: 'weak', label: '약함', score: 1 };
+      if (score === 3) return { level: 'medium', label: '보통', score: 2 };
+      return { level: 'strong', label: '강함', score: 3 };
+    }
+
+    function renderPasswordStrength() {
+      const password = fields.password.value || '';
+      if (!passwordStrengthStatusEl || pwBars.some((bar) => !bar)) return;
+
+      pwBars.forEach((bar) => {
+        bar.style.backgroundColor = '#e5e7eb';
+      });
+
+      if (!password) {
+        passwordStrengthStatusEl.textContent = '비밀번호 강도를 확인해 주세요.';
+        passwordStrengthStatusEl.className = 'strength-text';
+        return;
+      }
+
+      const result = getPasswordStrength(password);
+      const color = result.level === 'strong' ? '#16a34a' : result.level === 'medium' ? '#b45309' : '#dc2626';
+
+      for (let i = 0; i < result.score; i += 1) {
+        pwBars[i].style.backgroundColor = color;
+      }
+
+      let guide = '6자 이상 입력해 주세요.';
+      if (result.level === 'weak') guide = '영문, 숫자 조합을 권장합니다.';
+      if (result.level === 'medium') guide = '대문자 또는 특수문자를 추가하면 더 안전합니다.';
+      if (result.level === 'strong') guide = '안전한 비밀번호입니다.';
+
+      passwordStrengthStatusEl.textContent = `비밀번호 강도: ${result.label} · ${guide}`;
+      passwordStrengthStatusEl.className = `strength-text ${result.level}`;
+    }
+
+    function validatePasswordMatch() {
+      const password = fields.password.value;
+      const passwordConfirm = fields.passwordConfirm.value;
+
+      if (!password && !passwordConfirm) {
+        hideInlineStatus(passwordMatchStatusEl);
+        return false;
+      }
+
+      if (!passwordConfirm) {
+        setInlineStatus(passwordMatchStatusEl, '비밀번호 확인을 입력해 주세요.', 'info');
+        return false;
+      }
+
+      if (password === passwordConfirm) {
+        setInlineStatus(passwordMatchStatusEl, '비밀번호가 일치합니다.', 'success');
+        return true;
+      }
+
+      setInlineStatus(passwordMatchStatusEl, '비밀번호가 일치하지 않습니다.', 'error');
+      return false;
+    }
+
+    function startLoading() {
       const pageLoader = document.getElementById('pageLoader');
       if (!pageLoader) return;
       loadingCount += 1;
@@ -643,11 +641,11 @@
       pageLoader.setAttribute('aria-hidden', 'false');
     }
 
-    function finishLoading(callback){
+    function finishLoading(callback) {
       const pageLoader = document.getElementById('pageLoader');
       loadingCount = Math.max(loadingCount - 1, 0);
 
-      if (!pageLoader){
+      if (!pageLoader) {
         if (typeof callback === 'function') callback();
         return;
       }
@@ -665,659 +663,332 @@
       }
     }
 
-    function forceHideLoading(){
+    function replaceWithLoader(url) {
       const pageLoader = document.getElementById('pageLoader');
-      if (pageLoader){
+      if (pageLoader) {
         pageLoader.classList.remove('show');
         pageLoader.setAttribute('aria-hidden', 'true');
       }
       loadingCount = 0;
-    }
-
-    function replaceWithLoader(url){
-      forceHideLoading();
       window.location.replace(url);
     }
 
-    function showNotice(message, type='info'){
-      noticeEl.className = `notice show ${type}`;
-      noticeEl.textContent = message;
-    }
-
-    function hideNotice(){
-      noticeEl.className = 'notice info';
-      noticeEl.textContent = '';
-    }
-
-    function setLoading(isLoading){
-      submitBtn.disabled = isLoading;
-      submitBtn.textContent = isLoading ? '처리 중...' : '회원가입 신청';
-    }
-
-    function normalizeEmail(value=''){
+    function normalizeLoginId(value = '') {
       return String(value).trim().toLowerCase();
     }
 
-    function normalizeDigits(value=''){
+    function normalizeNickname(value = '') {
+      return String(value).trim();
+    }
+
+    function normalizeDigits(value = '') {
       return String(value).replace(/\D/g, '');
     }
 
-    function normalizeLoginId(value=''){
-      return String(value).toLowerCase().replace(/[^a-z0-9]/g, '');
+    async function stopWithAlert(message, focusTarget = null) {
+      showNotice(message, 'error');
+      await openModalAlert(message, focusTarget);
     }
 
-    function setInlineStatus(element, message='', type='info'){
-      if (!element) return;
-      element.textContent = message;
-      element.className = `inline-check show ${type}`;
+    function setSubmitting(isSubmitting) {
+      signupBtn.disabled = isSubmitting;
+      signupBtn.textContent = isSubmitting ? '신청 처리 중...' : '회원가입 신청';
+      checkLoginIdBtn.disabled = isSubmitting;
+      checkNicknameBtn.disabled = isSubmitting;
+      goLoginBtn.disabled = isSubmitting;
+      Object.values(fields).forEach((el) => {
+        if (el) el.disabled = isSubmitting;
+      });
     }
 
-    function hideInlineStatus(element){
-      if (!element) return;
-      element.textContent = '';
-      element.className = 'inline-check info';
-    }
-
-    function isValidEmail(value=''){
-      return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(value).trim());
-    }
-
-    function validateLoginIdFormat(value=''){
-      return /^[a-zA-Z0-9]{4,20}$/.test(String(value).trim());
-    }
-
-    function validateNicknameFormat(value=''){
-      return String(value).trim().length >= 2;
-    }
-
-
-    function getPasswordStrength(password=''){
-      let score = 0;
-      if (password.length >= 6) score += 1;
-      if (password.length >= 8) score += 1;
-      if (/[a-z]/.test(password) && /[0-9]/.test(password)) score += 1;
-      if (/[A-Z]/.test(password) || /[^A-Za-z0-9]/.test(password)) score += 1;
-
-      if (password.length < 6) {
-        return { level: 'weak', label: '약함', score: 1 };
-      }
-      if (score <= 2) {
-        return { level: 'weak', label: '약함', score: 1 };
-      }
-      if (score === 3) {
-        return { level: 'medium', label: '보통', score: 2 };
-      }
-      return { level: 'strong', label: '강함', score: 3 };
-    }
-
-    function renderPasswordStrength(){
-      const password = qs('#password').value || '';
-      const statusEl = qs('#passwordStrengthStatus');
-      const bars = [qs('#pwBar1'), qs('#pwBar2'), qs('#pwBar3')];
-      if (!statusEl || bars.some(b => !b)) return;
-
-      bars.forEach(bar => bar.style.backgroundColor = '#e5e7eb');
-
-      if (!password) {
-        statusEl.textContent = '비밀번호 강도를 확인해 주세요.';
-        statusEl.className = 'strength-text';
-        return;
-      }
-
-      const result = getPasswordStrength(password);
-      const weakColor = '#dc2626';
-      const mediumColor = '#b45309';
-      const strongColor = '#16a34a';
-      const color = result.level === 'strong' ? strongColor : result.level === 'medium' ? mediumColor : weakColor;
-
-      for (let i = 0; i < result.score; i += 1) {
-        bars[i].style.backgroundColor = color;
-      }
-
-      let guide = '6자 이상 입력해 주세요.';
-      if (result.level === 'weak') {
-        guide = '영문, 숫자 조합을 권장합니다.';
-      } else if (result.level === 'medium') {
-        guide = '대문자 또는 특수문자를 추가하면 더 안전합니다.';
-      } else {
-        guide = '안전한 비밀번호입니다.';
-      }
-
-      statusEl.textContent = `비밀번호 강도: ${result.label} · ${guide}`;
-      statusEl.className = `strength-text ${result.level}`;
-    }
-
-    function validatePasswordMatch(){
-      const password = qs('#password').value;
-      const passwordConfirm = qs('#passwordConfirm').value;
-      const statusEl = qs('#passwordMatchStatus');
-
-      if (!password && !passwordConfirm) {
-        hideInlineStatus(statusEl);
-        return false;
-      }
-
-      if (!passwordConfirm) {
-        setInlineStatus(statusEl, '비밀번호 확인을 입력해 주세요.', 'info');
-        return false;
-      }
-
-      if (password === passwordConfirm) {
-        setInlineStatus(statusEl, '비밀번호가 일치합니다.', 'success');
-        return true;
-      }
-
-      setInlineStatus(statusEl, '비밀번호가 일치하지 않습니다.', 'error');
-      return false;
-    }
-
-    async function checkLoginIdDuplicate(){
-      const loginIdEl = qs('#loginId');
-      const statusEl = qs('#loginIdStatus');
-      const checkBtn = qs('#checkLoginIdBtn');
-      const loginId = normalizeLoginId(loginIdEl.value);
-
-      loginIdEl.value = loginId;
-      loginIdCheckedValue = '';
-      loginIdAvailable = false;
-
+    async function checkLoginId() {
+      const loginId = normalizeLoginId(fields.loginId.value);
       if (!loginId) {
-        setInlineStatus(statusEl, '아이디를 입력해 주세요.', 'error');
-        loginIdEl.focus();
+        hideNotice();
+        setInlineStatus(loginIdStatusEl, '아이디를 입력해 주세요.', 'error');
+        fields.loginId.focus();
         return false;
       }
 
       if (!validateLoginIdFormat(loginId)) {
-        setInlineStatus(statusEl, '아이디는 영문과 숫자만, 4~20자로 입력해 주세요.', 'error');
-        loginIdEl.focus();
+        hideNotice();
+        setInlineStatus(loginIdStatusEl, '아이디는 영문 소문자와 숫자만, 4~20자로 입력해 주세요.', 'error');
+        fields.loginId.focus();
         return false;
       }
-
-      if (CHECK_LOGIN_ID_URL.includes('YOUR_')) {
-        setInlineStatus(statusEl, '아이디 중복 확인 URL을 먼저 설정해 주세요.', 'error');
-        return false;
-      }
-
-      checkBtn.disabled = true;
-      setInlineStatus(statusEl, '아이디 중복 여부를 확인 중입니다...', 'loading');
 
       try {
-        const response = await fetch(CHECK_LOGIN_ID_URL, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ loginId })
-        });
+        checkLoginIdBtn.disabled = true;
+        setInlineStatus(loginIdStatusEl, '아이디 중복 여부를 확인 중입니다...', 'loading');
+        const url = `${CHECK_LOGIN_ID_URL}?loginId=${encodeURIComponent(loginId)}`;
+        const response = await fetch(url, { method: 'GET' });
+        const result = await response.json().catch(() => ({}));
 
-        const data = await response.json().catch(() => ({}));
-        if (!response.ok || !data.ok) {
-          throw new Error(data.message || '아이디 중복 확인 중 오류가 발생했습니다.');
+        if (!response.ok || !result.ok) {
+          throw new Error(result.message || '아이디 중복 확인 중 오류가 발생했습니다.');
         }
 
-        if (data.available) {
-          loginIdCheckedValue = loginId;
-          loginIdAvailable = true;
-          setInlineStatus(statusEl, '사용 가능한 아이디입니다.', 'success');
-          return true;
+        if (!result.available) {
+          loginIdCheckedValue = '';
+          setInlineStatus(loginIdStatusEl, result.message || '이미 사용 중인 아이디입니다.', 'error');
+          return false;
         }
 
-        setInlineStatus(statusEl, data.message || '이미 사용 중인 아이디입니다.', 'error');
-        return false;
+        loginIdCheckedValue = loginId;
+        setInlineStatus(loginIdStatusEl, result.message || '사용 가능한 아이디입니다.', 'success');
+        return true;
       } catch (error) {
-        setInlineStatus(statusEl, error.message || '아이디 중복 확인 중 오류가 발생했습니다.', 'error');
+        loginIdCheckedValue = '';
+        setInlineStatus(loginIdStatusEl, error.message || '아이디 중복 확인 중 오류가 발생했습니다.', 'error');
         return false;
       } finally {
-        checkBtn.disabled = false;
+        checkLoginIdBtn.disabled = false;
       }
     }
 
-    async function checkNicknameDuplicate(){
-      const nicknameEl = qs('#nickname');
-      const statusEl = qs('#nicknameStatus');
-      const checkBtn = qs('#checkNicknameBtn');
-      const nickname = String(nicknameEl.value || '').trim();
-
-      nicknameCheckedValue = '';
-      nicknameAvailable = false;
-
+    async function checkNickname() {
+      const nickname = normalizeNickname(fields.nickname.value);
       if (!nickname) {
-        setInlineStatus(statusEl, '닉네임을 입력해 주세요.', 'error');
-        nicknameEl.focus();
+        hideNotice();
+        setInlineStatus(nicknameStatusEl, '닉네임을 입력해 주세요.', 'error');
+        fields.nickname.focus();
         return false;
       }
 
       if (!validateNicknameFormat(nickname)) {
-        setInlineStatus(statusEl, '닉네임은 2자 이상 입력해 주세요.', 'error');
-        nicknameEl.focus();
+        hideNotice();
+        setInlineStatus(nicknameStatusEl, '닉네임은 2자 이상 입력해 주세요.', 'error');
+        fields.nickname.focus();
         return false;
       }
-
-      if (CHECK_NICKNAME_URL.includes('YOUR_')) {
-        setInlineStatus(statusEl, '닉네임 중복 확인 URL을 먼저 설정해 주세요.', 'error');
-        return false;
-      }
-
-      checkBtn.disabled = true;
-      setInlineStatus(statusEl, '닉네임 중복 여부를 확인 중입니다...', 'loading');
 
       try {
-        const response = await fetch(CHECK_NICKNAME_URL, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ nickname })
-        });
+        checkNicknameBtn.disabled = true;
+        setInlineStatus(nicknameStatusEl, '닉네임 중복 여부를 확인 중입니다...', 'loading');
+        const url = `${CHECK_NICKNAME_URL}?nickname=${encodeURIComponent(nickname)}`;
+        const response = await fetch(url, { method: 'GET' });
+        const result = await response.json().catch(() => ({}));
 
-        const data = await response.json().catch(() => ({}));
-        if (!response.ok || !data.ok) {
-          throw new Error(data.message || '닉네임 중복 확인 중 오류가 발생했습니다.');
+        if (!response.ok || !result.ok) {
+          throw new Error(result.message || '닉네임 중복 확인 중 오류가 발생했습니다.');
         }
 
-        if (data.available) {
-          nicknameCheckedValue = nickname;
-          nicknameAvailable = true;
-          setInlineStatus(statusEl, '사용 가능한 닉네임입니다.', 'success');
-          return true;
+        if (!result.available) {
+          nicknameCheckedValue = '';
+          setInlineStatus(nicknameStatusEl, result.message || '이미 사용 중인 닉네임입니다.', 'error');
+          return false;
         }
 
-        setInlineStatus(statusEl, data.message || '이미 사용 중인 닉네임입니다.', 'error');
-        return false;
+        nicknameCheckedValue = nickname;
+        setInlineStatus(nicknameStatusEl, result.message || '사용 가능한 닉네임입니다.', 'success');
+        return true;
       } catch (error) {
-        setInlineStatus(statusEl, error.message || '닉네임 중복 확인 중 오류가 발생했습니다.', 'error');
+        nicknameCheckedValue = '';
+        setInlineStatus(nicknameStatusEl, error.message || '닉네임 중복 확인 중 오류가 발생했습니다.', 'error');
         return false;
       } finally {
-        checkBtn.disabled = false;
+        checkNicknameBtn.disabled = false;
       }
     }
 
-    const alertEl = qs('#appAlert');
-    const alertMsgEl = qs('#appAlertMessage');
-    const alertTitleEl = qs('#appAlertTitle');
-    const alertIconEl = qs('#appAlertIcon');
-    const alertConfirmEl = qs('#appAlertConfirm');
-    const alertCancelEl = qs('#appAlertCancel');
-    let alertFocusTarget = null;
-    let alertResolver = null;
-
-    function openModalBase({
-      title='안내',
-      message='',
-      focusTarget=null,
-      mode='alert',
-      confirmText='확인',
-      cancelText='취소',
-      icon='⚠️'
-    } = {}){
-      alertFocusTarget = focusTarget;
-      alertTitleEl.textContent = title;
-      alertMsgEl.textContent = message;
-      alertIconEl.textContent = icon;
-      alertConfirmEl.textContent = confirmText;
-      alertCancelEl.textContent = cancelText;
-      alertCancelEl.classList.toggle('hidden', mode !== 'confirm');
-      alertEl.classList.add('show');
-      alertEl.setAttribute('aria-hidden', 'false');
-      requestAnimationFrame(() => {
-        (mode === 'confirm' ? alertCancelEl : alertConfirmEl).focus();
-      });
-      return new Promise((resolve) => {
-        alertResolver = resolve;
-      });
-    }
-
-    function openModalAlert(message, focusTarget=null, title='안내'){
-      return openModalBase({ title, message, focusTarget, mode:'alert', confirmText:'확인', icon:'⚠️' });
-    }
-
-    function openModalConfirm(message, focusTarget=null, title='확인', confirmText='확인', cancelText='취소'){
-      return openModalBase({ title, message, focusTarget, mode:'confirm', confirmText, cancelText, icon:'❓' });
-    }
-
-    function closeModal(result=false){
-      alertEl.classList.remove('show');
-      alertEl.setAttribute('aria-hidden', 'true');
-      if(result === false && alertFocusTarget){ alertFocusTarget.focus(); }
-      const resolver = alertResolver;
-      alertResolver = null;
-      if(resolver) resolver(result);
-    }
-
-    alertConfirmEl.addEventListener('click', () => closeModal(true));
-    alertCancelEl.addEventListener('click', () => closeModal(false));
-    alertEl.addEventListener('click', (event) => {
-      if(event.target === alertEl) closeModal(false);
-    });
-    window.addEventListener('keydown', (event) => {
-      if(!alertEl.classList.contains('show')) return;
-      if(event.key === 'Escape') closeModal(false);
-    });
-
-    qs('#loginId').addEventListener('input', (event) => {
+    fields.loginId.addEventListener('input', (event) => {
       const sanitized = normalizeLoginId(event.target.value);
-      if (event.target.value !== sanitized) {
-        event.target.value = sanitized;
-      }
+      if (event.target.value !== sanitized) event.target.value = sanitized;
       loginIdCheckedValue = '';
-      loginIdAvailable = false;
       if (!sanitized) {
-        hideInlineStatus(qs('#loginIdStatus'));
+        hideInlineStatus(loginIdStatusEl);
         return;
       }
       if (validateLoginIdFormat(sanitized)) {
-        setInlineStatus(qs('#loginIdStatus'), '중복 확인을 진행해 주세요.', 'info');
+        setInlineStatus(loginIdStatusEl, '중복 확인을 진행해 주세요.', 'info');
       } else {
-        setInlineStatus(qs('#loginIdStatus'), '아이디는 영문과 숫자만, 4~20자로 입력해 주세요.', 'error');
+        setInlineStatus(loginIdStatusEl, '아이디는 영문 소문자와 숫자만, 4~20자로 입력해 주세요.', 'error');
       }
     });
 
-    qs('#checkLoginIdBtn').addEventListener('click', checkLoginIdDuplicate);
-    qs('#loginId').addEventListener('blur', () => {
-      const value = qs('#loginId').value.trim();
-      if (validateLoginIdFormat(value) && value !== loginIdCheckedValue) {
-        checkLoginIdDuplicate();
-      }
-    });
-
-    qs('#email').addEventListener('input', (event) => {
-      const email = normalizeEmail(event.target.value);
-      if (!email) {
-        hideInlineStatus(qs('#emailStatus'));
+    fields.nickname.addEventListener('input', () => {
+      nicknameCheckedValue = '';
+      const nickname = normalizeNickname(fields.nickname.value);
+      if (!nickname) {
+        hideInlineStatus(nicknameStatusEl);
         return;
       }
-      if (isValidEmail(email)) {
-        setInlineStatus(qs('#emailStatus'), '유효한 이메일 형식입니다.', 'success');
+      if (validateNicknameFormat(nickname)) {
+        setInlineStatus(nicknameStatusEl, '중복 확인을 진행해 주세요.', 'info');
       } else {
-        setInlineStatus(qs('#emailStatus'), '이메일 형식이 올바르지 않습니다.', 'error');
+        setInlineStatus(nicknameStatusEl, '닉네임은 2자 이상 입력해 주세요.', 'error');
       }
     });
 
-    qs('#password').addEventListener('input', () => {
+    fields.password.addEventListener('input', () => {
       renderPasswordStrength();
       validatePasswordMatch();
     });
-    qs('#passwordConfirm').addEventListener('input', validatePasswordMatch);
 
-    qs('#nickname').addEventListener('input', () => {
-      nicknameCheckedValue = '';
-      nicknameAvailable = false;
-      const nickname = qs('#nickname').value.trim();
-      if (!nickname) {
-        hideInlineStatus(qs('#nicknameStatus'));
-        return;
-      }
-      if (nickname.length >= 2) {
-        setInlineStatus(qs('#nicknameStatus'), '중복 확인을 진행해 주세요.', 'info');
-      } else {
-        setInlineStatus(qs('#nicknameStatus'), '닉네임은 2자 이상 입력해 주세요.', 'error');
-      }
-    });
+    fields.passwordConfirm.addEventListener('input', validatePasswordMatch);
 
-    qs('#checkNicknameBtn').addEventListener('click', checkNicknameDuplicate);
-    qs('#nickname').addEventListener('blur', () => {
-      const value = qs('#nickname').value.trim();
-      if (value.length >= 2 && value !== nicknameCheckedValue) {
-        checkNicknameDuplicate();
-      }
-    });
-
-    qs('#phoneNumber').addEventListener('input', (event) => {
+    fields.phoneNumber.addEventListener('input', (event) => {
       event.target.value = normalizeDigits(event.target.value).slice(0, 11);
     });
 
-    qs('#building').addEventListener('input', (event) => {
+    fields.building.addEventListener('input', (event) => {
       event.target.value = normalizeDigits(event.target.value).slice(0, 3);
     });
 
-    qs('#unit').addEventListener('input', (event) => {
+    fields.unit.addEventListener('input', (event) => {
       event.target.value = normalizeDigits(event.target.value).slice(0, 4);
-    });
-
-    window.addEventListener('pageshow', (event) => {
-      forceHideLoading();
-      if (event.persisted && auth.currentUser) {
-        replaceWithLoader('./app.html');
-      }
-    });
-
-    window.addEventListener('load', forceHideLoading);
-    window.addEventListener('popstate', forceHideLoading);
-
-    onAuthStateChanged(auth, (user) => {
-      if (user) {
-        startLoading();
-        replaceWithLoader('./app.html');
-        return;
-      }
-      document.body.style.opacity = '1';
     });
 
     renderPasswordStrength();
 
-    qs('#goLoginLink').addEventListener('click', async (event) => {
-      const hasTypedValue = ['#loginId','#email','#password','#passwordConfirm','#name','#nickname','#building','#unit','#intro','#phoneNumber'].some((selector) => String(qs(selector).value || '').trim());
-      const hasFile = !!fileInput.files?.[0];
-      const hasChecked = qs('#agreePrivacy').checked || qs('#agreePolicy').checked;
-      if (!hasTypedValue && !hasFile && !hasChecked) return;
-      event.preventDefault();
-      const confirmed = await openModalConfirm('작성 중인 내용이 있다면 저장되지 않습니다. 로그인 페이지로 이동할까요?', qs('#goLoginLink'), '페이지 이동', '이동', '계속 작성');
-      if (confirmed) {
-        startLoading();
-        setTimeout(() => {
-          replaceWithLoader('./index.html');
-        }, 80);
-      }
+    checkLoginIdBtn.addEventListener('click', checkLoginId);
+    checkNicknameBtn.addEventListener('click', checkNickname);
+
+    goLoginBtn.addEventListener('click', () => {
+      startLoading();
+      setTimeout(() => replaceWithLoader(LOGIN_PAGE_URL), 60);
     });
 
-    fileInput.addEventListener('change', () => {
-      const file = fileInput.files?.[0];
-      if (!file) {
-        fileMeta.className = 'upload-meta';
-        fileMeta.textContent = '';
-        return;
-      }
-      const sizeMB = (file.size / 1024 / 1024).toFixed(2);
-      fileMeta.className = 'upload-meta show';
-      fileMeta.textContent = `선택 파일: ${file.name}\n용량: ${sizeMB}MB`;
-    });
-
-    form.addEventListener('submit', async (event) => {
+    signupForm.addEventListener('submit', async (event) => {
       event.preventDefault();
       hideNotice();
 
-      const loginIdEl = qs('#loginId');
-      const emailEl = qs('#email');
-      const passwordEl = qs('#password');
-      const passwordConfirmEl = qs('#passwordConfirm');
-      const nameEl = qs('#name');
-      const nicknameEl = qs('#nickname');
-      const memberTypeEl = qs('#memberType');
-      const phoneNumberEl = qs('#phoneNumber');
-      const buildingEl = qs('#building');
-      const unitEl = qs('#unit');
-      const introEl = qs('#intro');
-      const agreePrivacyEl = qs('#agreePrivacy');
-      const agreePolicyEl = qs('#agreePolicy');
-
-      const loginId = String(loginIdEl.value || '').trim();
-      const email = normalizeEmail(emailEl.value);
-      const password = passwordEl.value;
-      const passwordConfirm = passwordConfirmEl.value;
-      const name = nameEl.value.trim();
-      const nickname = nicknameEl.value.trim();
-      const memberType = memberTypeEl.value;
-      const phoneNumber = normalizeDigits(phoneNumberEl.value);
-      const building = buildingEl.value.trim();
-      const unit = unitEl.value.trim();
-      const intro = introEl.value.trim();
-      const agreePrivacy = agreePrivacyEl.checked;
-      const agreePolicy = agreePolicyEl.checked;
-      const proofFile = fileInput.files?.[0];
-
-      const fail = async (message, element) => {
-        showNotice(message, 'error');
-        await openModalAlert(message, element);
-      };
+      const loginId = normalizeLoginId(fields.loginId.value);
+      const nickname = normalizeNickname(fields.nickname.value);
+      const password = fields.password.value;
+      const passwordConfirm = fields.passwordConfirm.value;
+      const name = String(fields.name.value || '').trim();
+      const email = String(fields.email.value || '').trim().toLowerCase();
+      const phoneNumber = normalizeDigits(fields.phoneNumber.value);
+      const memberType = String(fields.memberType.value || 'resident').trim();
+      const building = normalizeDigits(fields.building.value);
+      const unit = normalizeDigits(fields.unit.value);
+      const intro = String(fields.intro.value || '').trim();
+      const residentProofFile = fields.residentProof.files?.[0] || null;
+      const agreePrivacy = !!fields.agreePrivacy.checked;
+      const agreePolicy = !!fields.agreePolicy.checked;
 
       if (!loginId) {
-        await fail('아이디를 입력해주세요.', loginIdEl);
+        await stopWithAlert('아이디를 입력해주세요.', fields.loginId);
         return;
       }
 
       if (!validateLoginIdFormat(loginId)) {
-        await fail('아이디는 영문과 숫자만, 4~20자로 입력해 주세요.', loginIdEl);
+        await stopWithAlert('아이디는 영문 소문자와 숫자만, 4~20자로 입력해 주세요.', fields.loginId);
         return;
       }
 
-      if (!loginIdAvailable || loginIdCheckedValue !== loginId) {
-        await fail('아이디 중복 확인을 완료해 주세요.', qs('#checkLoginIdBtn'));
+      if (!nickname) {
+        await stopWithAlert('닉네임을 입력해주세요.', fields.nickname);
         return;
       }
 
-      if (email && !isValidEmail(email)) {
-        await fail('이메일 형식이 올바르지 않습니다.', emailEl);
+      if (!validateNicknameFormat(nickname)) {
+        await stopWithAlert('닉네임은 2자 이상 입력해 주세요.', fields.nickname);
         return;
       }
 
       if (!password) {
-        await fail('비밀번호를 입력해주세요.', passwordEl);
-        return;
-      }
-
-      if (!passwordConfirm) {
-        await fail('비밀번호 확인을 입력해주세요.', passwordConfirmEl);
+        await stopWithAlert('비밀번호를 입력해주세요.', fields.password);
         return;
       }
 
       if (password.length < 6) {
-        await fail('비밀번호는 6자 이상이어야 합니다.', passwordEl);
+        await stopWithAlert('비밀번호는 6자 이상이어야 합니다.', fields.password);
+        return;
+      }
+
+      if (!passwordConfirm) {
+        await stopWithAlert('비밀번호 확인을 입력해주세요.', fields.passwordConfirm);
         return;
       }
 
       if (password !== passwordConfirm) {
         validatePasswordMatch();
-        await fail('비밀번호와 비밀번호 확인이 일치하지 않습니다.', passwordConfirmEl);
+        await stopWithAlert('비밀번호와 비밀번호 확인이 일치하지 않습니다.', fields.passwordConfirm);
         return;
       }
 
       if (!name) {
-        await fail('성명을 입력해주세요.', nameEl);
-        return;
-      }
-
-      if (!nickname) {
-        await fail('닉네임을 입력해주세요.', nicknameEl);
-        return;
-      }
-
-      if (!nicknameAvailable || nicknameCheckedValue !== nickname) {
-        await fail('닉네임 중복 확인을 완료해 주세요.', qs('#checkNicknameBtn'));
+        await stopWithAlert('성명을 입력해주세요.', fields.name);
         return;
       }
 
       if (!phoneNumber) {
-        await fail('휴대폰 번호를 입력해주세요.', phoneNumberEl);
+        await stopWithAlert('휴대폰 번호를 입력해주세요.', fields.phoneNumber);
         return;
       }
 
-      if (phoneNumber.length < 10 || phoneNumber.length > 11) {
-        await fail('휴대폰 번호는 숫자만 10~11자리로 입력해 주세요.', phoneNumberEl);
+      if (!building || !unit) {
+        await stopWithAlert('동과 호수를 입력해주세요.', !building ? fields.building : fields.unit);
         return;
       }
 
-      if (!building) {
-        await fail('동을 입력해주세요.', buildingEl);
+      if (!residentProofFile) {
+        await stopWithAlert('입주민 인증 사진을 업로드해 주세요.', fields.residentProof);
         return;
       }
 
-      if (building.length !== 3) {
-        await fail('동은 숫자 3자리로 입력해 주세요.', buildingEl);
+      if (!agreePrivacy || !agreePolicy) {
+        await stopWithAlert('필수 동의 항목에 체크해 주세요.', !agreePrivacy ? fields.agreePrivacy : fields.agreePolicy);
         return;
       }
 
-      if (!unit) {
-        await fail('호수를 입력해주세요.', unitEl);
+      if (loginIdCheckedValue !== loginId) {
+        await stopWithAlert('아이디 중복 확인을 완료해 주세요.', checkLoginIdBtn);
         return;
       }
 
-      if (unit.length !== 4) {
-        await fail('호수는 숫자 4자리로 입력해 주세요.', unitEl);
+      if (nicknameCheckedValue !== nickname) {
+        await stopWithAlert('닉네임 중복 확인을 완료해 주세요.', checkNicknameBtn);
         return;
       }
 
-      if (!proofFile) {
-        await fail('입주민 인증 사진을 업로드해 주세요.', fileInput);
-        return;
-      }
-
-      if (!agreePrivacy) {
-        await fail('개인정보 수집 및 검토 동의가 필요합니다.', agreePrivacyEl);
-        return;
-      }
-
-      if (!agreePolicy) {
-        await fail('허위 정보 제출 관련 동의가 필요합니다.', agreePolicyEl);
-        return;
-      }
-
-      const formData = new FormData();
-      formData.append('loginId', loginId);
-      formData.append('email', email);
-      formData.append('password', password);
-      formData.append('name', name);
-      formData.append('nickname', nickname);
-      formData.append('memberType', memberType);
-      formData.append('phoneNumber', phoneNumber);
-      formData.append('building', building);
-      formData.append('unit', unit);
-      formData.append('intro', intro);
-      formData.append('agreePrivacy', String(agreePrivacy));
-      formData.append('agreePolicy', String(agreePolicy));
-      formData.append('residentProof', proofFile);
-
-      setLoading(true);
+      setSubmitting(true);
       startLoading();
 
       try {
+        const formData = new FormData();
+        formData.append('loginId', loginId);
+        formData.append('nickname', nickname);
+        formData.append('password', password);
+        formData.append('name', name);
+        formData.append('email', email);
+        formData.append('phoneNumber', phoneNumber);
+        formData.append('memberType', memberType);
+        formData.append('building', building);
+        formData.append('unit', unit);
+        formData.append('intro', intro);
+        formData.append('agreePrivacy', String(agreePrivacy));
+        formData.append('agreePolicy', String(agreePolicy));
+        formData.append('residentProof', residentProofFile);
+
         const response = await fetch(SIGNUP_FUNCTION_URL, {
           method: 'POST',
           body: formData
         });
 
-        const raw = await response.text();
-        let data = {};
-        try {
-          data = raw ? JSON.parse(raw) : {};
-        } catch (_) {
-          data = { ok: false, message: raw || '회원가입 응답을 확인할 수 없습니다.' };
-        }
+        const result = await response.json().catch(() => ({}));
 
-        if (!response.ok || !data.ok) {
-          throw new Error(data.message || '회원가입 처리 중 오류가 발생했습니다.');
+        if (!response.ok || !result.ok) {
+          throw new Error(result.message || '회원가입 신청 중 오류가 발생했습니다.');
         }
 
         finishLoading();
-        showNotice('회원가입 신청이 완료되었습니다.\n관리자 승인 후 로그인할 수 있습니다.', 'success');
-        await new Promise(resolve => setTimeout(resolve, 60));
-        await openModalAlert('회원가입 신청이 완료되었습니다.\n관리자 승인 후 로그인할 수 있습니다.');
-
-        form.reset();
-        resetDuplicateChecks();
-        fileMeta.className = 'upload-meta';
-        fileMeta.textContent = '';
+        showNotice(result.message || '회원가입 신청이 완료되었습니다.', 'success');
 
         setTimeout(() => {
-          replaceWithLoader('./index.html');
-        }, 120);
+          replaceWithLoader(LOGIN_PAGE_URL);
+        }, 900);
       } catch (error) {
-        const message = error?.message || '회원가입 처리 중 오류가 발생했습니다. 다시 시도해 주세요.';
         finishLoading();
-        showNotice(message, 'error');
-        await new Promise(resolve => setTimeout(resolve, 60));
-        await openModalAlert(message, submitBtn);
+        showNotice(error.message || '회원가입 신청 중 오류가 발생했습니다.', 'error');
       } finally {
-        loadingCount = 0;
-        setLoading(false);
+        setSubmitting(false);
       }
     });
   </script>
+
 
   <div class="app-alert" id="appAlert" aria-hidden="true">
     <div class="app-alert-card" role="alertdialog" aria-modal="true" aria-labelledby="appAlertTitle" aria-describedby="appAlertMessage">
@@ -1327,7 +998,6 @@
       </div>
       <p class="app-alert-message" id="appAlertMessage"></p>
       <div class="app-alert-actions">
-        <button class="app-alert-cancel hidden" id="appAlertCancel" type="button">취소</button>
         <button class="app-alert-confirm" id="appAlertConfirm" type="button">확인</button>
       </div>
     </div>

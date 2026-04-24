@@ -72,6 +72,39 @@
 .popular-score strong{display:block;font-size:16px}
 .popular-score span{display:block;font-size:11px;color:var(--muted);margin-top:2px}
 
+/* TOP 5 medal / highlight / count animation */
+.popular-item.rank-1{
+  border-color:#fbbf24;
+  background:linear-gradient(180deg,#fff7ed 0%,#ffffff 72%);
+  box-shadow:0 18px 36px rgba(245,158,11,.16), inset 0 0 0 1px rgba(251,191,36,.18);
+}
+.popular-item.rank-1 .popular-name{
+  color:#92400e;
+}
+.popular-rank.medal{
+  background:#fff;
+  font-size:22px;
+  color:#0f172a;
+}
+.popular-rank.gold{
+  box-shadow:0 10px 24px rgba(245,158,11,.25);
+  border:1px solid rgba(251,191,36,.35);
+}
+.popular-rank.silver{
+  box-shadow:0 10px 24px rgba(148,163,184,.22);
+  border:1px solid rgba(148,163,184,.35);
+}
+.popular-rank.bronze{
+  box-shadow:0 10px 24px rgba(180,83,9,.22);
+  border:1px solid rgba(180,83,9,.28);
+}
+.popular-count{
+  display:block;
+  font-size:16px;
+  font-weight:900;
+}
+
+
 .bottom-nav{
   grid-template-columns:repeat(4,1fr)!important;
   gap:6px;
@@ -638,6 +671,45 @@ body.gnb-open .bottom-nav{
   box-shadow:var(--shadow);
   cursor:pointer;
 }
+
+.notice-item.pinned{
+  position:relative;
+  border-color:#fed7aa;
+  background:linear-gradient(180deg,#fffaf5 0%,#ffffff 72%);
+  box-shadow:0 18px 36px rgba(194,65,12,.10), inset 0 0 0 1px rgba(251,146,60,.12);
+  animation:noticePinnedEnter .38s ease both;
+}
+.notice-item.pinned::before{
+  content:"";
+  position:absolute;
+  left:16px;
+  right:16px;
+  top:0;
+  height:4px;
+  border-radius:0 0 999px 999px;
+  background:linear-gradient(90deg,#fb923c,#ef4444);
+}
+.notice-item.notice-highlight{
+  animation:noticeHighlightPulse 1.15s ease both;
+  border-color:#60a5fa;
+  box-shadow:0 0 0 3px rgba(96,165,250,.22), 0 22px 42px rgba(37,99,235,.16);
+}
+.notice-badge.fixed{
+  background:#eff6ff;
+  border-color:#bfdbfe;
+  color:#1d4ed8;
+  font-weight:800;
+}
+@keyframes noticePinnedEnter{
+  from{opacity:.84;transform:translateY(8px)}
+  to{opacity:1;transform:translateY(0)}
+}
+@keyframes noticeHighlightPulse{
+  0%{transform:translateY(0) scale(1);box-shadow:0 0 0 0 rgba(96,165,250,0)}
+  28%{transform:translateY(-2px) scale(1.012);box-shadow:0 0 0 5px rgba(96,165,250,.22), 0 22px 42px rgba(37,99,235,.16)}
+  100%{transform:translateY(0) scale(1);box-shadow:var(--shadow)}
+}
+
 .notice-item h4{
   margin:0 0 8px;
   font-size:16px;
@@ -694,7 +766,66 @@ body.gnb-open .bottom-nav{
   margin-top:14px;
 }
 
-</style>
+
+
+    .env-badge{
+      display:none;
+      align-items:center;
+      gap:8px;
+      width:max-content;
+      margin-top:12px;
+      padding:9px 13px;
+      border-radius:999px;
+      background:linear-gradient(135deg,#eef2ff 0%,#ede9fe 100%);
+      border:1px solid #c7d2fe;
+      color:#4338ca;
+      font-size:12px;
+      font-weight:800;
+      letter-spacing:.02em;
+      box-shadow:0 10px 24px rgba(79,70,229,.10);
+    }
+    .env-badge.show{display:inline-flex}
+    .env-badge-dot{
+      width:8px;
+      height:8px;
+      border-radius:999px;
+      background:#6366f1;
+      box-shadow:0 0 0 4px rgba(99,102,241,.14);
+      flex:0 0 auto;
+    }
+
+
+    /* DEV/PROD 환경 배지: 히어로 카드 우측 상단 표시 */
+    .hero > *{position:relative;z-index:1}
+    .hero-env{
+      position:absolute;
+      top:18px;
+      right:18px;
+      margin-top:0;
+      background:rgba(255,255,255,.18);
+      border:1px solid rgba(255,255,255,.36);
+      color:#fff;
+      box-shadow:none;
+      backdrop-filter:blur(8px);
+      -webkit-backdrop-filter:blur(8px);
+      z-index:2;
+    }
+    .hero-env .env-badge-dot{
+      background:#a5b4fc;
+      box-shadow:0 0 0 4px rgba(255,255,255,.18);
+    }
+    @media (max-width:420px){
+      .hero-env{top:16px;right:16px;padding:8px 11px;font-size:11px}
+    }
+
+  
+
+    /* 카테고리 칩: PC 드래그 스크롤 중에도 버튼 클릭 이벤트가 죽지 않도록 보정 */
+    .chips.dragging .chip{
+      pointer-events:auto;
+    }
+
+  </style>
 </head>
 <body>
   <div class="global-loading" id="globalLoadingBar" aria-hidden="true">
@@ -732,14 +863,13 @@ body.gnb-open .bottom-nav{
               <p>입주민 전용 혜택 웹앱</p>
             </div>
           </div>
+          
         </div>
       </div>
     </header>
     <section id="view-home" class="">
-      <div class="hero"><div class="eyebrow">🏠 마이힐스 어플 제시 후 이용</div><h2>입주민 혜택을 앱처럼 깔끔하게</h2><p>입주민 전용 제휴 혜택과 매장 정보를 한눈에 확인해보세요.</p><div class="stats"><div class="stat"><strong id="statMax">50%</strong><span>최대 할인</span></div><div class="stat"><strong id="statCount">21</strong><span>전체 제휴</span></div><div class="stat"><strong id="statCat">9</strong><span>카테고리</span></div></div></div>
+      <div class="hero"><div class="eyebrow">🏠 마이힐스 어플 제시 후 이용</div><div class="env-badge hero-env" id="envBadge"><span class="env-badge-dot"></span><span>DEV ENV</span></div><h2>입주민 혜택을 앱처럼 깔끔하게</h2><p>입주민 전용 제휴 혜택과 매장 정보를 한눈에 확인해보세요.</p><div class="stats"><div class="stat"><strong id="statMax">50%</strong><span>최대 할인</span></div><div class="stat"><strong id="statCount">21</strong><span>전체 제휴</span></div><div class="stat"><strong id="statCat">9</strong><span>카테고리</span></div></div></div>
       <div class="panel notice hidden" id="firebaseNotice">Firebase 설정값이 비어 있습니다. firebaseConfig를 확인해 주세요.</div>
-
-      </div>
 
       <div class="panel" style="margin-top:14px;">
         <div class="section-head" style="margin-bottom:12px;"><h3>최근 공지</h3><small>최신 안내</small></div>
@@ -766,14 +896,22 @@ body.gnb-open .bottom-nav{
   <dialog id="noticeModal"><div class="modal-head"><div class="pill">공지사항</div><button class="close-btn" id="closeNoticeModal">✕</button></div><div class="modal-body" id="noticeModalBody"></div></dialog>
   <script type="module">
     import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
+    import { ENV, FIREBASE_CONFIG } from './env-config.js';
+
+    const envBadge = document.getElementById('envBadge');
+    if (envBadge && ENV === 'dev') envBadge.classList.add('show');
     import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
     import { getFirestore, collection, onSnapshot, doc, getDoc, getDocs, setDoc, updateDoc, increment, serverTimestamp, addDoc, query, orderBy, limit, deleteDoc } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
     import { getMessaging, getToken, onMessage, isSupported } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-messaging.js';
-    const firebaseConfig = { apiKey:"AIzaSyDhKr7oMSrLowJ47cqB4pvNXuIIdtW0HPI", authDomain:"sola-home-4979a.firebaseapp.com", projectId:"sola-home-4979a", storageBucket:"sola-home-4979a.firebasestorage.app", messagingSenderId:"337132471819", appId:"1:337132471819:web:848cd357fecda459a2e90e" };
-    window.VAPID_PUBLIC_KEY = window.VAPID_PUBLIC_KEY || 'BJONnfKeKFN8SCWWlo_quJ9pjahri96uw9WZJq2774hBZ8um6edcRb-NP7uRwjmcwHNTTGMuPJX-MUdeThgu5Kw';
+    const firebaseConfig = FIREBASE_CONFIG[ENV];
+    const VAPID_PUBLIC_KEY_BY_ENV = {
+      dev: 'BHgdDiJQpnMsX0oR_nO3ixVeJAzDMdAkgdnMfBn09ElocDSmefCeXY1gXTVHoZSgYsDg5fojyTuTqSR2c185VhE',
+      prod: 'BJONnfKeKFN8SCWWlo_quJ9pjahri96uw9WZJq2774hBZ8um6edcRb-NP7uRwjmcwHNTTGMuPJX-MUdeThgu5Kw'
+    };
+    window.VAPID_PUBLIC_KEY = VAPID_PUBLIC_KEY_BY_ENV[ENV] || VAPID_PUBLIC_KEY_BY_ENV.prod;
     const LOGIN_PAGE_URL = './index.html';
     const BENEFITS_COLLECTION='benefits', NOTICES_COLLECTION='notices', BENEFIT_STATS_COLLECTION='benefit_stats', BENEFIT_EVENTS_COLLECTION='benefit_events', LAST_CATEGORY_KEY='myhills_last_category', CHIPS_EXPANDED_KEY='myhills_chips_expanded';
-    const app=initializeApp(firebaseConfig);
+    const app = initializeApp({ ...firebaseConfig });
     const auth=getAuth(app);
     const db=getFirestore(app);
     let messaging = null;
@@ -827,8 +965,13 @@ body.gnb-open .bottom-nav{
 				icon: '/icons/icon-192.png',
 				badge: '/icons/icon-192.png',
 				data: {
-				  url: targetUrl
-				}
+				  url: targetUrl,
+				  noticeId: payload?.data?.noticeId || '',
+				  important: payload?.data?.important || ''
+				},
+                tag: payload?.data?.noticeId ? `notice-${payload.data.noticeId}` : undefined,
+                renotify: payload?.data?.important === 'true',
+                vibrate: payload?.data?.important === 'true' ? [200, 100, 200] : undefined
 			  });
 			  return;
 			}
@@ -855,8 +998,77 @@ body.gnb-open .bottom-nav{
     }
 
     const state={category:localStorage.getItem(LAST_CATEGORY_KEY)||'전체',keyword:'',filter:'all',view:'home',benefits:[],notices:[],loading:true,currentUser:null,currentUserProfile:null,popularItems:[],favoriteIds:[],currentPushToken:null,isPushEnabledForThisDevice:false,scrollMap:{home:0,benefits:0,favorite:0,top5:0,notices:0}};
+
+    const initialUrlParams = new URLSearchParams(window.location.search || '');
+    const pendingDeepLink = {
+      view: initialUrlParams.get('view') || '',
+      noticeId: initialUrlParams.get('noticeId') || ''
+    };
+    let pendingNoticeOpened = false;
     
     const qs=(s)=>document.querySelector(s), qsa=(s)=>[...document.querySelectorAll(s)];
+
+    function extractNoticeIdFromUrl(url = ''){
+      try{
+        const parsed = new URL(String(url || ''), window.location.origin);
+        return parsed.searchParams.get('noticeId') || '';
+      }catch(_){
+        return '';
+      }
+    }
+
+    function clearNoticeDeepLinkUrl(){
+      const hasDeepLink = window.location.search.includes('noticeId=') || window.location.search.includes('view=notices');
+      if(!hasDeepLink) return;
+      const cleanUrl = `${window.location.origin}${window.location.pathname}`;
+      window.history.replaceState({ noticeDeepLinkHandled: true }, '', cleanUrl);
+    }
+
+    function canOpenNoticeDeepLink(){
+      const approvalStatus = String(state.currentUserProfile?.approvalStatus || '');
+      const accountStatus = String(state.currentUserProfile?.accountStatus || '');
+      return !!state.currentUser && approvalStatus === 'approved' && accountStatus === 'active';
+    }
+
+    function requestOpenNoticeFromPush({ noticeId = '', url = '' } = {}){
+      const resolvedNoticeId = String(noticeId || extractNoticeIdFromUrl(url) || '').trim();
+      if(!resolvedNoticeId) return;
+
+      if(!canOpenNoticeDeepLink()){
+        pendingDeepLink.view = '';
+        pendingDeepLink.noticeId = '';
+        pendingNoticeOpened = false;
+        clearNoticeDeepLinkUrl();
+        return;
+      }
+
+      pendingDeepLink.view = 'notices';
+      pendingDeepLink.noticeId = resolvedNoticeId;
+      pendingNoticeOpened = false;
+
+      if(state.notices && state.notices.length){
+        const opened = openNoticeById(resolvedNoticeId);
+        if(opened){
+          pendingNoticeOpened = true;
+          clearNoticeDeepLinkUrl();
+        }
+        return;
+      }
+
+      changeView('notices');
+    }
+
+    if('serviceWorker' in navigator){
+      navigator.serviceWorker.addEventListener('message', (event) => {
+        const data = event.data || {};
+        if(data.type !== 'OPEN_NOTICE') return;
+
+        requestOpenNoticeFromPush({
+          noticeId: data.noticeId || '',
+          url: data.url || ''
+        });
+      });
+    }
 
     function enableHorizontalDragScroll(selector){
       const el = typeof selector === 'string' ? document.querySelector(selector) : selector;
@@ -866,29 +1078,36 @@ body.gnb-open .bottom-nav{
       let isPointerDown = false;
       let startX = 0;
       let startScrollLeft = 0;
-      let moved = false;
+      let didDrag = false;
+      let suppressNextClick = false;
+      const DRAG_THRESHOLD = 6;
 
       const stopDragging = () => {
+        if(didDrag) suppressNextClick = true;
         isPointerDown = false;
+        didDrag = false;
         el.classList.remove('dragging');
-        requestAnimationFrame(() => { moved = false; });
       };
 
       el.addEventListener('mousedown', (event) => {
         if(event.button !== 0) return;
         isPointerDown = true;
-        moved = false;
+        didDrag = false;
+        suppressNextClick = false;
         startX = event.pageX;
         startScrollLeft = el.scrollLeft;
-        el.classList.add('dragging');
       });
 
       el.addEventListener('mousemove', (event) => {
         if(!isPointerDown) return;
         const distance = event.pageX - startX;
-        if(Math.abs(distance) > 3) moved = true;
-        event.preventDefault();
-        el.scrollLeft = startScrollLeft - distance;
+
+        if(Math.abs(distance) > DRAG_THRESHOLD){
+          didDrag = true;
+          el.classList.add('dragging');
+          event.preventDefault();
+          el.scrollLeft = startScrollLeft - distance;
+        }
       });
 
       el.addEventListener('mouseup', stopDragging);
@@ -898,9 +1117,10 @@ body.gnb-open .bottom-nav{
       el.addEventListener('dragstart', (event) => event.preventDefault());
 
       el.addEventListener('click', (event) => {
-        if(!moved) return;
+        if(!suppressNextClick) return;
         event.preventDefault();
         event.stopPropagation();
+        suppressNextClick = false;
       }, true);
     }
 
@@ -1208,6 +1428,8 @@ const permission = await Notification.requestPermission();
           enabled: true,
           platform: 'web',
           userAgent: navigator.userAgent || '',
+          env: ENV,
+          projectId: firebaseConfig.projectId || '',
           updatedAt: serverTimestamp(),
           createdAt: serverTimestamp()
         }, { merge:true });
@@ -1424,6 +1646,46 @@ async function refreshPushStatus(){
     }
 
     const normalizeCategory = (v) => String(v || '기타').trim().replace(/\s+/g, ' ');
+
+    function toDateFromFirestore(value){
+      if(!value) return null;
+      try{
+        if(typeof value.toDate === 'function') return value.toDate();
+        if(typeof value.seconds === 'number') return new Date(value.seconds * 1000);
+        if(value instanceof Date) return value;
+        const parsed = new Date(value);
+        return Number.isNaN(parsed.getTime()) ? null : parsed;
+      }catch(_){
+        return null;
+      }
+    }
+
+    function formatKoreanDate(value){
+      const date = toDateFromFirestore(value);
+      if(!date) return '';
+      return new Intl.DateTimeFormat('ko-KR', {
+        year:'numeric',
+        month:'numeric',
+        day:'numeric'
+      }).format(date);
+    }
+
+    function benefitDateTag(item = {}){
+      const createdText = formatKoreanDate(item.createdAt);
+      return createdText ? `<span class="tag">🗓️ 등록일 ${createdText}</span>` : '';
+    }
+
+    function benefitDateText(item = {}){
+      const createdText = formatKoreanDate(item.createdAt);
+      return createdText ? `등록일 ${createdText}` : '';
+    }
+
+    function benefitDetailDateHtml(item = {}){
+      const createdText = formatKoreanDate(item.createdAt);
+      const updatedText = formatKoreanDate(item.updatedAt);
+      if(!createdText && !updatedText) return '';
+      return `<div class="panel"><strong style="display:block;margin-bottom:6px;font-size:13px;color:var(--muted);">등록 정보</strong>${createdText ? `등록일 ${createdText}` : ''}${createdText && updatedText ? '<br>' : ''}${updatedText ? `수정일 ${updatedText}` : ''}</div>`;
+    }
     const CATEGORY_ICONS = {
       '전체':'🏷️',
       '음식':'🍜',
@@ -1440,7 +1702,7 @@ async function refreshPushStatus(){
       '기타':'📍'
     };
     const getCategoryIcon = (category) => CATEGORY_ICONS[normalizeCategory(category)] || '📍';
-    function sanitizeBenefit(item={},id=''){return {id,name:item.name||'',category:normalizeCategory(item.category||'기타'),discountValue:Number(item.discountValue||0),discountText:item.discountText||`${Number(item.discountValue||0)}%`,condition:item.condition||'',address:item.address||'',phone:item.phone||'',url:item.url||'',service:!!item.service||String(item.discountText).trim()==='서비스',visible:item.visible!==false,recommended:!!item.recommended};}
+    function sanitizeBenefit(item={},id=''){return {id,name:item.name||'',category:normalizeCategory(item.category||'기타'),discountValue:Number(item.discountValue||0),discountText:item.discountText||`${Number(item.discountValue||0)}%`,condition:item.condition||'',address:item.address||'',phone:item.phone||'',url:item.url||'',service:!!item.service||String(item.discountText).trim()==='서비스',visible:item.visible!==false,recommended:!!item.recommended,createdAt:item.createdAt||null,updatedAt:item.updatedAt||null};}
     const getFavorites=()=>state.favoriteIds || [];
 
     function getFavoritesCollectionRef(){
@@ -1535,6 +1797,7 @@ async function refreshPushStatus(){
             return bTime - aTime;
           });
         renderNotices();
+        handlePendingNoticeDeepLink();
         markInitialDataLoaded('notices');
       }, (error) => {
         console.error('공지 로드 실패', error);
@@ -1546,7 +1809,7 @@ async function refreshPushStatus(){
       const dateText = formatDateTime(item.updatedAt || item.createdAt);
       return `
         <div class="notice-meta">
-          ${item.pinned ? '<span class="notice-badge pin">📌 중요</span>' : ''}
+          ${item.pinned ? '<span class="notice-badge pin">📌 중요</span><span class="notice-badge fixed">상단 고정</span>' : ''}
           <span class="notice-badge">${item.category}</span>
           ${dateText ? `<span class="notice-date">${dateText}</span>` : ''}
         </div>
@@ -1560,7 +1823,7 @@ async function refreshPushStatus(){
       const dateText = formatDateTime(item.updatedAt || item.createdAt);
       qs('#noticeModalBody').innerHTML = `
         <div class="notice-meta" style="margin-bottom:12px;">
-          ${item.pinned ? '<span class="notice-badge pin">📌 중요</span>' : ''}
+          ${item.pinned ? '<span class="notice-badge pin">📌 중요</span><span class="notice-badge fixed">상단 고정</span>' : ''}
           <span class="notice-badge">${item.category}</span>
           ${dateText ? `<span class="notice-date">${dateText}</span>` : ''}
         </div>
@@ -1569,6 +1832,79 @@ async function refreshPushStatus(){
       `;
       if(modal.open) modal.close();
       modal.showModal();
+    }
+
+    function scrollToNoticeCard(noticeId){
+      const id = String(noticeId || '').trim();
+      if(!id) return false;
+      const targetEl = document.querySelector(`#noticeList [data-notice-id="${CSS.escape(id)}"]`);
+      if(!targetEl) return false;
+
+      targetEl.scrollIntoView({ behavior:'smooth', block:'center' });
+      targetEl.classList.remove('notice-highlight');
+      void targetEl.offsetWidth;
+      targetEl.classList.add('notice-highlight');
+      setTimeout(() => targetEl.classList.remove('notice-highlight'), 1400);
+      return true;
+    }
+
+    function openNoticeFromList(item, options = {}){
+      if(!item) return;
+      const { moveToNoticeView = false } = options;
+
+      if(moveToNoticeView && state.view !== 'notices'){
+        changeView('notices');
+        setTimeout(() => {
+          scrollToNoticeCard(item.id);
+          openNotice(item);
+        }, 120);
+        return;
+      }
+
+      scrollToNoticeCard(item.id);
+      openNotice(item);
+    }
+
+    function openNoticeById(noticeId){
+      const id = String(noticeId || '').trim();
+      if(!id) return false;
+
+      if(!canOpenNoticeDeepLink()){
+        pendingDeepLink.view = '';
+        pendingDeepLink.noticeId = '';
+        pendingNoticeOpened = false;
+        clearNoticeDeepLinkUrl();
+        return false;
+      }
+
+      const item = (state.notices || []).find((notice) => notice.id === id);
+      if(!item) return false;
+      changeView('notices');
+      setTimeout(() => {
+        scrollToNoticeCard(id);
+        openNotice(item);
+        clearNoticeDeepLinkUrl();
+      }, 140);
+      return true;
+    }
+
+    function handlePendingNoticeDeepLink(){
+      if(pendingNoticeOpened) return;
+      if(pendingDeepLink.view !== 'notices' || !pendingDeepLink.noticeId) return;
+
+      if(!canOpenNoticeDeepLink()){
+        pendingDeepLink.view = '';
+        pendingDeepLink.noticeId = '';
+        pendingNoticeOpened = false;
+        clearNoticeDeepLinkUrl();
+        return;
+      }
+
+      if(!state.notices || !state.notices.length) return;
+      pendingNoticeOpened = openNoticeById(pendingDeepLink.noticeId);
+      if(pendingNoticeOpened){
+        clearNoticeDeepLinkUrl();
+      }
     }
 
     function renderNotices(){
@@ -1583,9 +1919,10 @@ async function refreshPushStatus(){
         }else{
           items.forEach((item) => {
             const el = document.createElement('article');
-            el.className = 'notice-item';
+            el.className = `notice-item${item.pinned ? ' pinned' : ''}`;
+            el.dataset.noticeId = item.id;
             el.innerHTML = noticeCardTemplate(item);
-            el.onclick = () => openNotice(item);
+            el.onclick = () => openNoticeFromList(item);
             listEl.appendChild(el);
           });
         }
@@ -1599,9 +1936,10 @@ async function refreshPushStatus(){
         }else{
           homeItems.forEach((item) => {
             const el = document.createElement('article');
-            el.className = 'notice-item';
+            el.className = `notice-item${item.pinned ? ' pinned' : ''}`;
+            el.dataset.noticeId = item.id;
             el.innerHTML = noticeCardTemplate(item);
-            el.onclick = () => openNotice(item);
+            el.onclick = () => openNoticeFromList(item, { moveToNoticeView:true });
             homeListEl.appendChild(el);
           });
         }
@@ -1620,6 +1958,8 @@ async function refreshPushStatus(){
             name: data.name || benefit?.name || '이름 없는 매장',
             category: benefit?.category || '기타',
             condition: benefit?.condition || '',
+            createdAt: benefit?.createdAt || null,
+            updatedAt: benefit?.updatedAt || null,
             score,
             benefit: benefit || null
           };
@@ -1635,6 +1975,36 @@ async function refreshPushStatus(){
       });
     }
 
+    function getRankBadge(rank){
+      if(rank === 1) return '<div class="popular-rank medal gold" aria-label="1위">🥇</div>';
+      if(rank === 2) return '<div class="popular-rank medal silver" aria-label="2위">🥈</div>';
+      if(rank === 3) return '<div class="popular-rank medal bronze" aria-label="3위">🥉</div>';
+      return `<div class="popular-rank" aria-label="${rank}위">${rank}</div>`;
+    }
+
+    function animatePopularCount(el, target){
+      if(!el) return;
+      const end = Math.max(0, Number(target || 0));
+      if(end === 0){
+        el.textContent = '0';
+        return;
+      }
+
+      let current = 0;
+      const steps = 24;
+      const step = Math.max(1, Math.ceil(end / steps));
+      clearInterval(el._popularCountTimer);
+
+      el._popularCountTimer = setInterval(() => {
+        current += step;
+        if(current >= end){
+          current = end;
+          clearInterval(el._popularCountTimer);
+        }
+        el.textContent = current.toLocaleString('ko-KR');
+      }, 24);
+    }
+
     function renderPopularTop5(){
       const wrap = qs('#popularList');
       if(!wrap) return;
@@ -1644,16 +2014,17 @@ async function refreshPushStatus(){
         return;
       }
       state.popularItems.forEach((item, index) => {
+        const rank = index + 1;
         const row = document.createElement('article');
-        row.className = 'popular-item';
+        row.className = `popular-item ${rank === 1 ? 'rank-1' : ''}`;
         row.innerHTML = `
-          <div class="popular-rank">${index + 1}</div>
+          ${getRankBadge(rank)}
           <div class="popular-meta">
             <div class="popular-name">${item.name}</div>
-            <div class="popular-sub">${item.category}${item.condition ? ' · ' + item.condition : ''}</div>
+            <div class="popular-sub">${item.category}${item.condition ? ' · ' + item.condition : ''}${benefitDateText(item) ? ' · ' + benefitDateText(item) : ''}</div>
           </div>
           <div class="popular-score">
-            <strong>${item.score}</strong>
+            <strong class="popular-count">0</strong>
             <span>상세조회</span>
           </div>
         `;
@@ -1663,6 +2034,7 @@ async function refreshPushStatus(){
           }
         };
         wrap.appendChild(row);
+        animatePopularCount(row.querySelector('.popular-count'), item.score);
       });
     }
     const getVisibleBenefits=()=>state.benefits.filter(v=>v.visible!==false);
@@ -1702,7 +2074,7 @@ async function refreshPushStatus(){
     }
     function getFilteredBenefits(mode='normal'){const favorites=new Set(getFavorites());return getVisibleBenefits().filter(item=>{const matchCategory=state.category==='전체'||normalizeCategory(item.category)===normalizeCategory(state.category);const q=state.keyword.trim().toLowerCase();const blob=[item.name,item.category,item.condition,item.address,item.phone].join(' ').toLowerCase();const matchKeyword=!q||blob.includes(q);const matchFilter=state.filter==='all'?true:(item.discountValue>=15||item.recommended);const matchMode=mode==='favorite'?favorites.has(item.id):true;return matchCategory&&matchKeyword&&matchFilter&&matchMode;}).sort((a,b)=>((b.recommended?1:0)-(a.recommended?1:0))||(b.discountValue-a.discountValue)||a.name.localeCompare(b.name,'ko'));}
     const getBadgeClass=(item)=>item.service?'badge service':(item.discountValue<=5?'badge low':'badge');
-    function cardTemplate(item,isFavorite){const shortAddress=item.address.length>20?item.address.slice(0,20)+'…':item.address;return `<div class="card-top"><div class="${getBadgeClass(item)}">${item.discountText}</div><div style="flex:1;min-width:0;"><h4>${item.name} ${isFavorite?'★':''}</h4><div class="meta">${item.condition}</div><div class="tags">${item.recommended?'<span class="tag rec">추천</span>':''}<span class="tag">${item.category}</span><span class="tag">📍 ${shortAddress}</span></div></div></div><div class="actions"><button class="btn btn-primary detail-btn">상세보기</button><button class="btn btn-soft fav-btn">${isFavorite?'즐겨찾기 해제':'즐겨찾기'}</button></div>`;}
+    function cardTemplate(item,isFavorite){const shortAddress=item.address.length>20?item.address.slice(0,20)+'…':item.address;return `<div class="card-top"><div class="${getBadgeClass(item)}">${item.discountText}</div><div style="flex:1;min-width:0;"><h4>${item.name} ${isFavorite?'★':''}</h4><div class="meta">${item.condition}</div><div class="tags">${item.recommended?'<span class="tag rec">추천</span>':''}<span class="tag">${item.category}</span><span class="tag">📍 ${shortAddress}</span>${benefitDateTag(item)}</div></div></div><div class="actions"><button class="btn btn-primary detail-btn">상세보기</button><button class="btn btn-soft fav-btn">${isFavorite?'즐겨찾기 해제':'즐겨찾기'}</button></div>`;}
     function renderList(target,items){const wrap=qs(target),favorites=new Set(getFavorites());wrap.innerHTML='';if(!items.length){wrap.innerHTML='<div class="panel empty">조건에 맞는 항목이 없습니다.</div>';return;}items.forEach(item=>{const card=document.createElement('article');card.className='card';card.innerHTML=cardTemplate(item,favorites.has(item.id));card.onclick=()=>{increaseStat(item.id, item.name, 'cardClickCount');logBenefitEvent(item.id, 'card_click');openDetail(item);};card.querySelector('.detail-btn').onclick=(e)=>{e.stopPropagation();openDetail(item);};card.querySelector('.fav-btn').onclick=(e)=>{e.stopPropagation();toggleFavorite(item.id, item.name);};wrap.appendChild(card);});}
     function renderHome(){const items=getFilteredBenefits();qs('#sectionTitle').textContent=state.filter==='high'?'고할인 / 추천 혜택':(state.category==='전체'?'전체 혜택':`${state.category} 혜택`);qs('#resultCount').textContent=`${items.length}건`;qs('#homeLoading').classList.toggle('hidden',!state.loading);renderList('#cardList',items);} 
     const renderFavorites=()=>renderList('#favoriteList',getFilteredBenefits('favorite'));
@@ -1712,7 +2084,7 @@ async function refreshPushStatus(){
       logBenefitEvent(item.id, 'detail_view');
       const isFav=getFavorites().includes(item.id);
       const naverMapLink=item.url || `https://map.naver.com/v5/search/${encodeURIComponent(item.address)}`;
-      qs('#modalBody').innerHTML=`<div class="${getBadgeClass(item)}" style="display:inline-block;min-width:auto;padding:12px 16px;">${item.discountText}</div><h3 style="margin:12px 0 6px;font-size:26px;letter-spacing:-.04em;">${item.name}</h3><div class="tags" style="margin-top:0;margin-bottom:10px;">${item.recommended?'<span class="tag rec">추천 혜택</span>':''}<span class="tag">${item.category}</span></div><div style="display:grid;gap:10px;margin:16px 0;"><div class="panel"><strong style="display:block;margin-bottom:6px;font-size:13px;color:var(--muted);">혜택 조건</strong>${item.condition}</div><div class="panel"><strong style="display:block;margin-bottom:6px;font-size:13px;color:var(--muted);">주소</strong>${item.address}</div><div class="panel"><strong style="display:block;margin-bottom:6px;font-size:13px;color:var(--muted);">전화번호</strong>${item.phone}</div></div><div class="grid-2"><a class="btn btn-primary block" id="callBtn" href="tel:${item.phone}">전화하기</a><a class="btn btn-soft block" id="mapBtn" href="${naverMapLink}" target="_blank" rel="noopener">📍 네이버 지도</a></div><div style="margin-top:8px;"><button class="btn btn-soft block" id="modalFavBtn">${isFav?'★ 즐겨찾기 해제':'☆ 즐겨찾기 추가'}</button></div>`;
+      qs('#modalBody').innerHTML=`<div class="${getBadgeClass(item)}" style="display:inline-block;min-width:auto;padding:12px 16px;">${item.discountText}</div><h3 style="margin:12px 0 6px;font-size:26px;letter-spacing:-.04em;">${item.name}</h3><div class="tags" style="margin-top:0;margin-bottom:10px;">${item.recommended?'<span class="tag rec">추천 혜택</span>':''}<span class="tag">${item.category}</span>${benefitDateTag(item)}</div><div style="display:grid;gap:10px;margin:16px 0;"><div class="panel"><strong style="display:block;margin-bottom:6px;font-size:13px;color:var(--muted);">혜택 조건</strong>${item.condition}</div><div class="panel"><strong style="display:block;margin-bottom:6px;font-size:13px;color:var(--muted);">주소</strong>${item.address}</div><div class="panel"><strong style="display:block;margin-bottom:6px;font-size:13px;color:var(--muted);">전화번호</strong>${item.phone}</div>${benefitDetailDateHtml(item)}</div><div class="grid-2"><a class="btn btn-primary block" id="callBtn" href="tel:${item.phone}">전화하기</a><a class="btn btn-soft block" id="mapBtn" href="${naverMapLink}" target="_blank" rel="noopener">📍 네이버 지도</a></div><div style="margin-top:8px;"><button class="btn btn-soft block" id="modalFavBtn">${isFav?'★ 즐겨찾기 해제':'☆ 즐겨찾기 추가'}</button></div>`;
       const modal=qs('#detailModal');
       if(modal.open)modal.close();
       modal.showModal();

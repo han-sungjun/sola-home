@@ -8,7 +8,6 @@
   <title>더운정 마이힐스 - 휴대폰 인증</title>
   <style>
     :root{
-      --bg:#f5f7fb;
       --surface:rgba(255,255,255,.92);
       --line:#e5e7eb;
       --text:#0f172a;
@@ -61,6 +60,7 @@
       background:rgba(255,255,255,.14);
       transform:rotate(18deg);
     }
+    .hero > *{position:relative;z-index:2}
     .eyebrow{
       display:inline-flex;
       align-items:center;
@@ -167,6 +167,7 @@
       gap:10px;
       margin-top:18px;
     }
+    .btn-row.single{grid-template-columns:1fr}
     .btn{
       width:100%;
       border:none;
@@ -183,19 +184,9 @@
       transition:transform .15s ease, opacity .15s ease;
     }
     .btn:active{transform:scale(.985)}
-    .btn-primary{
-      background:var(--primary);
-      color:#fff;
-    }
-    .btn-soft{
-      background:#fff;
-      color:var(--text);
-      border:1px solid var(--line);
-    }
-    .btn[disabled]{
-      opacity:.65;
-      cursor:not-allowed;
-    }
+    .btn-primary{background:var(--primary);color:#fff}
+    .btn-soft{background:#fff;color:var(--text);border:1px solid var(--line)}
+    .btn[disabled]{opacity:.65;cursor:not-allowed}
     .notice{
       display:none;
       margin-top:14px;
@@ -207,40 +198,16 @@
       white-space:pre-line;
     }
     .notice.show{display:block}
-    .notice.info{
-      background:#eff6ff;
-      border-color:#bfdbfe;
-      color:var(--info);
-    }
-    .notice.error{
-      background:#fef2f2;
-      border-color:#fecaca;
-      color:#b91c1c;
-    }
-    .notice.success{
-      background:#f0fdf4;
-      border-color:#bbf7d0;
-      color:#166534;
-    }
-    .verify-card{
+    .notice.info{background:#eff6ff;border-color:#bfdbfe;color:var(--info)}
+    .notice.error{background:#fef2f2;border-color:#fecaca;color:#b91c1c}
+    .notice.success{background:#f0fdf4;border-color:#bbf7d0;color:#166534}
+    .verify-card,.reset-card{
       margin-top:14px;
       padding:14px;
       border-radius:22px;
       background:#fff;
       border:1px solid var(--line);
       box-shadow:0 8px 20px rgba(15,23,42,.04);
-      opacity:0;
-      transform:translateY(10px);
-      max-height:0;
-      overflow:hidden;
-      pointer-events:none;
-      transition:opacity .22s ease, transform .22s ease, max-height .28s ease, padding .22s ease, margin .22s ease;
-    }
-    .verify-card.show{
-      opacity:1;
-      transform:translateY(0);
-      max-height:320px;
-      pointer-events:auto;
     }
     .verify-head{
       display:flex;
@@ -276,7 +243,31 @@
       font-size:12px;
       line-height:1.6;
     }
-    .hidden{display:none !important}
+    .hidden{display:none!important}
+    .env-badge{
+      display:none;
+      align-items:center;
+      gap:8px;
+      width:max-content;
+      margin-top:12px;
+      padding:9px 13px;
+      border-radius:999px;
+      background:rgba(255,255,255,.18);
+      border:1px solid rgba(255,255,255,.38);
+      color:#fff;
+      font-size:12px;
+      font-weight:800;
+      letter-spacing:.02em;
+    }
+    .env-badge.show{display:inline-flex}
+    .env-badge-dot{
+      width:8px;
+      height:8px;
+      border-radius:999px;
+      background:#a5b4fc;
+      box-shadow:0 0 0 4px rgba(255,255,255,.16);
+      flex:0 0 auto;
+    }
     .page-loader{
       position:fixed;
       inset:0;
@@ -298,96 +289,84 @@
       pointer-events:auto;
     }
     .loader-mark{
-      position:relative;
       width:74px;
       height:74px;
-      display:flex;
-      align-items:center;
-      justify-content:center;
+      border-radius:24px;
+      display:grid;
+      place-items:center;
+      background:rgba(255,255,255,.92);
+      box-shadow:0 20px 40px rgba(15,23,42,.16);
+      font-size:28px;
       animation:loaderFloat .95s ease-in-out infinite;
     }
-    .loader-mark .arm{
-      position:absolute;
-      left:50%;
-      top:50%;
-      width:10px;
-      border-radius:999px;
-      transform-origin:center center;
-      box-shadow:0 3px 10px rgba(0,0,0,.08);
-    }
-    .loader-mark .arm.top{
-      height:34px;
-      background:#ffffff;
-      transform:translate(-50%,-72%) rotate(45deg);
-    }
-    .loader-mark .arm.left{
-      height:34px;
-      background:#ffffff;
-      transform:translate(-50%,-72%) rotate(-45deg);
-    }
-    .loader-mark .arm.mid{
-      width:42px;
-      height:8px;
-      background:linear-gradient(90deg,#ff4fc3 0%, #ff63d8 100%);
-      transform:translate(-50%,-2px);
-    }
-    .loader-mark .arm.bot{
-      width:42px;
-      height:8px;
-      background:linear-gradient(90deg,#ff4fc3 0%, #ff63d8 100%);
-      transform:translate(-50%,12px);
-    }
-    .loader-mark .arm.bot2{
-      width:42px;
-      height:8px;
-      background:linear-gradient(90deg,#ff4fc3 0%, #ff63d8 100%);
-      transform:translate(-50%,26px);
-    }
+    .loader-mark::before{content:"⌛"}
     @keyframes loaderFloat{
-      0%,100%{ transform:translateY(0) scale(1); }
-      50%{ transform:translateY(-3px) scale(1.03); }
-    }
-  
-    .recaptcha-inline{
-      margin-top:14px;
-      min-height:78px;
-      display:flex;
-      justify-content:center;
-      align-items:center;
-      overflow:hidden;
-    }
-    .grecaptcha-badge{
-      box-shadow:none !important;
+      0%,100%{transform:translateY(0) scale(1)}
+      50%{transform:translateY(-3px) scale(1.03)}
     }
 
+    .strength-wrap{margin-top:6px}
+    .strength-bars{
+      display:grid;
+      grid-template-columns:repeat(3,1fr);
+      gap:6px;
+      margin-bottom:6px;
+    }
+    .strength-bar{
+      height:8px;
+      border-radius:999px;
+      background:#e5e7eb;
+      transition:background-color .15s ease, opacity .15s ease;
+    }
+    .strength-text{
+      font-size:12px;
+      line-height:1.5;
+      color:var(--muted);
+    }
+    .strength-text.weak{color:#dc2626}
+    .strength-text.medium{color:#b45309}
+    .strength-text.strong{color:#16a34a}
+    .inline-check{
+      margin-top:6px;
+      font-size:12px;
+      line-height:1.5;
+      display:none;
+    }
+    .inline-check.show{display:block}
+    .inline-check.success{color:#16a34a}
+    .inline-check.error{color:#dc2626}
+    @media (max-width:480px){
+      .btn-row{grid-template-columns:1fr}
+    }
   </style>
 </head>
 <body>
   <div class="wrap">
     <section class="hero">
-      <div class="eyebrow">📱 휴대폰 인증</div>
-      <h1>더운정 마이힐스<br>휴대폰 인증</h1>
-      <p>승인된 계정의 본인 확인을 위해 문자 인증을 진행합니다.</p>
+      <div class="eyebrow" id="heroEyebrow">📱 휴대폰 인증</div>
+      <div class="env-badge" id="envBadge"><span class="env-badge-dot"></span><span>DEV ENV</span></div>
+      <h1 id="heroTitle">더운정 마이힐스<br>휴대폰 인증</h1>
+      <p id="heroDesc">휴대폰 인증 완료 후 입주민 전용 서비스로 이동합니다.</p>
     </section>
 
     <section class="panel">
       <div class="brand">
-        <div class="logo">🔐</div>
+        <div class="logo" id="brandLogo">🔐</div>
         <div>
-          <h2>SMS 인증</h2>
-          <p>인증이 완료되면 앱으로 이동합니다</p>
+          <h2 id="panelTitle">SMS 인증</h2>
+          <p id="panelDesc">인증이 완료되면 앱으로 이동합니다</p>
         </div>
       </div>
 
-      <div class="stage-chip">1단계 · 휴대폰 확인</div>
+      <div class="stage-chip" id="stageChip">1단계 · 휴대폰 확인</div>
 
       <div class="field">
         <label for="phoneNumber">휴대폰 번호</label>
         <input id="phoneNumber" class="input" type="tel" inputmode="numeric" placeholder="01012345678" maxlength="13" />
-        <div class="helper">숫자만 입력하면 자동으로 보기 쉽게 표시됩니다.</div>
+        <div class="helper" id="phoneHelper">숫자만 입력하면 자동으로 정리됩니다.</div>
       </div>
 
-      <div class="btn-row">
+      <div class="btn-row" id="sendRow">
         <button id="sendCodeBtn" class="btn btn-primary" type="button">문자 인증 시작</button>
         <button id="signOutBtn" class="btn btn-soft" type="button">로그아웃</button>
       </div>
@@ -412,26 +391,57 @@
           <button id="resendBtn" class="btn btn-soft" type="button">코드 다시 보내기</button>
         </div>
       </div>
+	
+		<div id="resetSection" class="verify-card hidden" style="margin-top:14px;">
 
+		  <div class="verify-head">
+			<div class="verify-badge">🔐</div>
+			<div>
+			  <strong>새 비밀번호 설정</strong>
+			  <span>새로운 비밀번호를 입력해 주세요</span>
+			</div>
+		  </div>
+
+		  <div class="field" style="margin-top:10px;">
+			<label for="newPassword">새 비밀번호</label>
+			<input id="newPassword" class="input" type="password" autocomplete="new-password" placeholder="6자 이상 입력" />
+		  </div>
+
+		  <div class="field">
+			<label for="newPasswordConfirm">새 비밀번호 확인</label>
+			<input id="newPasswordConfirm" class="input" type="password" autocomplete="new-password" placeholder="비밀번호 재입력" />
+		  </div>
+
+		  <div class="btn-row">
+			<button id="resetPasswordBtn" class="btn btn-primary" type="button" disabled>
+			  비밀번호 변경
+			</button>
+		  </div>
+
+		</div>
+		
       <div id="notice" class="notice info"></div>
-      <div id="recaptcha-container" class="recaptcha-inline"></div>
+      <div id="recaptcha-container"></div>
     </section>
 
-    <div class="footer">
+    <div class="footer" id="footerText">
       휴대폰 인증 완료 후 입주민 전용 서비스로 이동합니다.
     </div>
   </div>
 
   <div id="pageLoader" class="page-loader" aria-hidden="true">
-    <div class="loader-mark" aria-label="로딩 중" role="status">
-      <span class="arm top"></span>
-      <span class="arm left"></span>
-      <span class="arm mid"></span>
-      <span class="arm bot"></span>
-      <span class="arm bot2"></span>
-    </div>
+    <div class="loader-mark" aria-label="로딩 중" role="status"></div>
   </div>
 
-  <script type="module" src="./phone-verify.js"></script>
+  <script type="module">
+    import { ENV } from './env-config.js';
+
+    const envBadgeEl = document.getElementById('envBadge');
+    if (envBadgeEl && ENV === 'dev') {
+      envBadgeEl.classList.add('show');
+    }
+
+    await import('./phone-verify.js');
+  </script>
 </body>
 </html>
