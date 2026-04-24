@@ -930,6 +930,17 @@ body.gnb-open .admin-bottom-nav{
   .benefit-sort-select{max-width:116px;font-size:11px;padding:7px 24px 7px 10px}
 }
 
+
+/* ===== Naver Geocoding: address -> lat/lng ===== */
+.geo-row{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:end}
+.geo-btn{min-height:46px;white-space:nowrap}
+.geo-status{margin-top:8px;padding:10px 12px;border-radius:14px;background:#f8fafc;border:1px solid #e2e8f0;color:#64748b;font-size:12px;font-weight:800;line-height:1.5}
+.geo-status.success{background:#ecfdf5;border-color:#bbf7d0;color:#15803d}
+.geo-status.error{background:#fff1f2;border-color:#fecdd3;color:#b91c1c}
+.geo-coord-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.geo-coord-grid input{background:#f8fafc;color:#475569}
+@media (max-width:420px){.geo-row{grid-template-columns:1fr}.geo-btn{width:100%}.geo-coord-grid{grid-template-columns:1fr}}
+
   </style>
 </head>
 <body>
@@ -1014,7 +1025,7 @@ body.gnb-open .admin-bottom-nav{
     
     <div class="admin-view" id="view-benefits">
       <div class="admin-groups">
-        <div class="admin-card"><div class="section-head" style="margin-bottom:12px;"><h3 style="font-size:16px;">혜택 등록 / 수정</h3><small id="formModeLabel">새 항목</small></div><form id="benefitForm" class="form-grid" novalidate><input type="hidden" id="editId" value="" /><div class="field"><label for="name">매장명</label><input id="name" /></div><div class="grid-2"><div class="field"><label for="category">카테고리</label><input id="category" placeholder="예: 음식, 미용, 카페" /></div><div class="field"><label for="discountText">혜택 표기</label><input id="discountText" placeholder="예: 10% 또는 서비스" /></div></div><div class="grid-2"><div class="field"><label for="discountValue">할인 수치</label><input id="discountValue" type="number" min="0" placeholder="서비스면 0" required /></div><div class="field"><label for="serviceType">혜택 유형</label><select id="serviceType"><option value="discount">할인형</option><option value="service">서비스형</option></select></div></div><div class="field"><label>운영 옵션</label><div class="check-row"><label><input type="checkbox" id="visible" checked> 노출</label><label><input type="checkbox" id="recommended"> 추천</label></div></div><div class="field"><label for="condition">혜택 조건</label><textarea id="condition"></textarea></div><div class="field"><label for="address">주소</label><input id="address" /></div><div class="field"><label for="url">길찾기 URL</label><input id="url" placeholder="네이버 지도 또는 카카오 지도 URL" /></div><div class="field"><label for="phone">전화번호</label><input id="phone" /></div><div class="grid-2"><button type="submit" class="btn btn-primary">저장</button><button type="button" class="btn btn-soft" id="cancelEditBtn">입력 초기화</button></div></form></div>
+        <div class="admin-card"><div class="section-head" style="margin-bottom:12px;"><h3 style="font-size:16px;">혜택 등록 / 수정</h3><small id="formModeLabel">새 항목</small></div><form id="benefitForm" class="form-grid" novalidate><input type="hidden" id="editId" value="" /><div class="field"><label for="name">매장명</label><input id="name" /></div><div class="grid-2"><div class="field"><label for="category">카테고리</label><input id="category" placeholder="예: 음식, 미용, 카페" /></div><div class="field"><label for="discountText">혜택 표기</label><input id="discountText" placeholder="예: 10% 또는 서비스" /></div></div><div class="grid-2"><div class="field"><label for="discountValue">할인 수치</label><input id="discountValue" type="number" min="0" placeholder="서비스면 0" required /></div><div class="field"><label for="serviceType">혜택 유형</label><select id="serviceType"><option value="discount">할인형</option><option value="service">서비스형</option></select></div></div><div class="field"><label>운영 옵션</label><div class="check-row"><label><input type="checkbox" id="visible" checked> 노출</label><label><input type="checkbox" id="recommended"> 추천</label></div></div><div class="field"><label for="condition">혜택 조건</label><textarea id="condition"></textarea></div><div class="field"><label for="address">주소</label><div class="geo-row"><input id="address" placeholder="예: 경기 파주시 경의로 1242 209호" /><button type="button" class="btn btn-blue geo-btn" id="geocodeBtn">📍 좌표 자동 조회</button></div><div class="geo-status" id="geoStatus">주소 입력 후 좌표 자동 조회를 누르면 위도/경도가 자동 저장됩니다.</div></div><div class="geo-coord-grid"><div class="field"><label for="lat">위도 lat</label><input id="lat" type="number" step="any" inputmode="decimal" placeholder="자동 입력" /></div><div class="field"><label for="lng">경도 lng</label><input id="lng" type="number" step="any" inputmode="decimal" placeholder="자동 입력" /></div></div><div class="field"><label for="url">길찾기 URL</label><input id="url" placeholder="비워두면 네이버 지도 검색 링크를 자동 생성합니다" /></div><div class="field"><label for="phone">전화번호</label><input id="phone" /></div><div class="grid-2"><button type="submit" class="btn btn-primary">저장</button><button type="button" class="btn btn-soft" id="cancelEditBtn">입력 초기화</button></div></form></div>
       
       
         <div class="admin-card"><div class="section-head benefit-list-head" style="margin-bottom:12px;"><h3 style="font-size:16px;">등록된 혜택 목록</h3><div style="display:flex;align-items:center;gap:8px;"><small id="benefitListCount">0건</small><select id="benefitSortSelect" class="benefit-sort-select" aria-label="혜택 정렬"><option value="latest">최신순</option><option value="updated">수정순</option><option value="name">이름순</option></select></div></div><div class="mini-list" id="adminList"></div></div>
@@ -1102,6 +1113,9 @@ body.gnb-open .admin-bottom-nav{
     const firebaseConfig = FIREBASE_CONFIG[ENV];
     const BENEFITS_COLLECTION='benefits', NOTICES_COLLECTION='notices', PUSH_JOBS_COLLECTION='push_jobs', USERS_COLLECTION='users';
     const LOGIN_FUNCTION_URL = API_URL[ENV].login;
+    // Firebase Functions geocodeAddress 엔드포인트입니다. 배포 후 dev/prod URL을 입력하세요.
+    // 예: https://geocodeaddress-l6mntiaxgq-du.a.run.app
+    const GEOCODE_FUNCTION_URL = (API_URL?.[ENV]?.geocodeAddress || '').trim();
     const DEFAULT_BENEFITS=[{name:'엘스킨케어',category:'피부관리',discountValue:50,discountText:'50%',condition:'첫방문 50% / 입주민 정액권 최대 30%',address:'경기 파주시 경의로 1242 209호, 210호',phone:'0507-1433-5760',url:'',visible:true,recommended:true,service:false},{name:'미스터피자 일산탄현점',category:'음식',discountValue:30,discountText:'30%',condition:'포장 30% / 매장식사 20% + 샐러드 증정',address:'경기 고양시 일산서구 탄현로 136 상가동 2층 204호',phone:'031-911-9296',url:'',visible:true,recommended:true,service:false}];
     const state={benefits:[],notices:[],pushJobs:[],members:[],isAdmin:false,view:'dashboard',adminProfile:null}; let benefitSortMode='latest'; const qs=(s)=>document.querySelector(s), qsa=(s)=>[...document.querySelectorAll(s)];
     const globalLoadingBar = qs('#globalLoadingBar');
@@ -1229,7 +1243,7 @@ const setTextAll = (selector, text) => qsa(selector).forEach(el => el.textConten
       window.scrollTo({ top: 0, behavior: 'auto' });
     }
 
-    function sanitizeBenefit(item={},id=''){return {id,name:item.name||'',category:item.category||'기타',discountValue:Number(item.discountValue||0),discountText:item.discountText||`${Number(item.discountValue||0)}%`,condition:item.condition||'',address:item.address||'',url:item.url||'',phone:item.phone||'',service:!!item.service||String(item.discountText).trim()==='서비스',visible:item.visible!==false,recommended:!!item.recommended,createdAt:item.createdAt||null,updatedAt:item.updatedAt||null};}
+    function sanitizeBenefit(item={},id=''){return {id,name:item.name||'',category:item.category||'기타',discountValue:Number(item.discountValue||0),discountText:item.discountText||`${Number(item.discountValue||0)}%`,condition:item.condition||'',address:item.address||'',lat:Number(item.lat||0),lng:Number(item.lng||0),url:item.url||'',phone:item.phone||'',service:!!item.service||String(item.discountText).trim()==='서비스',visible:item.visible!==false,recommended:!!item.recommended,createdAt:item.createdAt||null,updatedAt:item.updatedAt||null};}
     function sanitizeNotice(item={},id=''){return {id,title:item.title||'',content:item.content||'',category:item.category||'일반',visible:item.visible!==false,pinned:!!item.pinned,createdAt:item.createdAt||null,updatedAt:item.updatedAt||null};}
     const hasFirebaseConfig=()=>firebaseConfig.apiKey&&firebaseConfig.projectId&&firebaseConfig.appId;
     let auth=null,db=null;
@@ -1244,9 +1258,9 @@ const setTextAll = (selector, text) => qsa(selector).forEach(el => el.textConten
       const noticeListCountEl=qs('#noticeListCount'); if(noticeListCountEl) noticeListCountEl.textContent=`${state.notices.length}건`;
       const pushCountEl=qs('#pushJobCount'); if(pushCountEl) pushCountEl.textContent=`${state.pushJobs.length}건`;
     }
-    function resetForm(){qs('#benefitForm').reset();qs('#editId').value='';qs('#formModeLabel').textContent='새 항목';qs('#discountValue').value=0;qs('#serviceType').value='discount';qs('#visible').checked=true;qs('#recommended').checked=false;}
+    function resetForm(){qs('#benefitForm').reset();qs('#editId').value='';qs('#formModeLabel').textContent='새 항목';qs('#discountValue').value=0;qs('#serviceType').value='discount';qs('#visible').checked=true;qs('#recommended').checked=false;qs('#lat').value='';qs('#lng').value='';setGeoStatus('주소 입력 후 좌표 자동 조회를 누르면 위도/경도가 자동 저장됩니다.','');}
     function resetNoticeForm(){qs('#noticeForm').reset();qs('#noticeEditId').value='';qs('#noticeFormModeLabel').textContent='새 공지';qs('#noticeVisible').checked=true;qs('#noticePinned').checked=false;qs('#noticeCategory').value='일반';qs('#sendPushWithNotice').checked=false;qs('#pushImportantOnly').checked=false;qs('#pushTitle').value='';qs('#pushBody').value='';qs('#pushTargetType').value='all';qs('#pushTargetUid').value='';qs('#pushTargetBuilding').value='';qs('#pushTargetUnit').value='';}
-    function fillForm(item){qs('#editId').value=item.id;qs('#formModeLabel').textContent='수정 중';qs('#name').value=item.name;qs('#category').value=item.category;qs('#discountText').value=item.discountText;qs('#discountValue').value=item.discountValue;qs('#serviceType').value=item.service?'service':'discount';qs('#condition').value=item.condition;qs('#address').value=item.address;qs('#url').value=item.url||'';qs('#phone').value=item.phone;qs('#visible').checked=item.visible!==false;qs('#recommended').checked=!!item.recommended;window.scrollTo({top:0,behavior:'smooth'});}
+    function fillForm(item){qs('#editId').value=item.id;qs('#formModeLabel').textContent='수정 중';qs('#name').value=item.name;qs('#category').value=item.category;qs('#discountText').value=item.discountText;qs('#discountValue').value=item.discountValue;qs('#serviceType').value=item.service?'service':'discount';qs('#condition').value=item.condition;qs('#address').value=item.address;qs('#lat').value=item.lat||'';qs('#lng').value=item.lng||'';qs('#url').value=item.url||'';qs('#phone').value=item.phone;qs('#visible').checked=item.visible!==false;qs('#recommended').checked=!!item.recommended;setGeoStatus(item.lat&&item.lng?`저장된 좌표: ${item.lat}, ${item.lng}`:'주소로 좌표를 조회해 주세요.', item.lat&&item.lng?'success':'');window.scrollTo({top:0,behavior:'smooth'});}
     function fillNoticeForm(item){qs('#noticeEditId').value=item.id;qs('#noticeFormModeLabel').textContent='수정 중';qs('#noticeTitle').value=item.title;qs('#noticeCategory').value=item.category;qs('#noticeContent').value=item.content;qs('#noticeVisible').checked=item.visible!==false;qs('#noticePinned').checked=!!item.pinned;qs('#sendPushWithNotice').checked=false;qs('#pushImportantOnly').checked=!!item.pinned;qs('#pushTitle').value=item.title||'';qs('#pushBody').value=(item.content||'').slice(0,80);window.scrollTo({top:0,behavior:'smooth'});}
     function getTimestampSeconds(ts){
       if(!ts) return 0;
@@ -1357,6 +1371,77 @@ const setTextAll = (selector, text) => qsa(selector).forEach(el => el.textConten
         createdAt:serverTimestamp()
       });
     }
+    function setGeoStatus(message, type=''){
+      const el = qs('#geoStatus');
+      if(!el) return;
+      el.textContent = message;
+      el.classList.remove('success','error');
+      if(type) el.classList.add(type);
+    }
+
+    function makeNaverMapSearchUrl(address){
+      return `https://map.naver.com/p/search/${encodeURIComponent(address || '')}`;
+    }
+
+    function isValidKoreaCoord(lat, lng){
+      return Number.isFinite(lat) && Number.isFinite(lng) && lat >= 33 && lat <= 39.5 && lng >= 124 && lng <= 132;
+    }
+
+    async function geocodeAddressByNaver(){
+      if(!state.isAdmin || !db){
+        await openModalAlert('관리자 로그인 후 좌표를 조회할 수 있습니다.', qs('#adminLoginId'));
+        return null;
+      }
+      const address = String(qs('#address')?.value || '').trim();
+      if(!address){
+        await openModalAlert('주소를 먼저 입력해 주세요.', qs('#address'));
+        return null;
+      }
+      if(!GEOCODE_FUNCTION_URL){
+        await openModalAlert('env-config.js의 API_URL에 geocodeAddress 함수 URL을 먼저 등록해 주세요.', qs('#address'));
+        return null;
+      }
+
+      try{
+        setGeoStatus('네이버 지도 API로 좌표를 조회하는 중입니다...', '');
+        qs('#geocodeBtn').disabled = true;
+        const idToken = await auth.currentUser?.getIdToken?.();
+        const res = await fetch(GEOCODE_FUNCTION_URL, {
+          method:'POST',
+          headers:{
+            'Content-Type':'application/json',
+            ...(idToken ? { Authorization:`Bearer ${idToken}` } : {})
+          },
+          body:JSON.stringify({ address })
+        });
+        const data = await res.json().catch(() => ({}));
+        if(!res.ok || !data.ok){
+          throw new Error(data.error || `좌표 조회 실패 (${res.status})`);
+        }
+        const lat = Number(data.lat);
+        const lng = Number(data.lng);
+        if(!isValidKoreaCoord(lat, lng)){
+          throw new Error('조회된 좌표가 한국 범위를 벗어났습니다. 주소를 더 구체적으로 입력해 주세요.');
+        }
+        qs('#lat').value = String(lat);
+        qs('#lng').value = String(lng);
+        if(!String(qs('#url')?.value || '').trim()){
+          qs('#url').value = makeNaverMapSearchUrl(address);
+        }
+        setGeoStatus(`좌표 조회 완료: 위도 ${lat}, 경도 ${lng}`, 'success');
+        return { lat, lng };
+      }catch(error){
+        console.error('좌표 자동 조회 실패', error);
+        qs('#lat').value = '';
+        qs('#lng').value = '';
+        setGeoStatus(error.message || '좌표 조회에 실패했습니다.', 'error');
+        await openModalAlert(error.message || '좌표 조회에 실패했습니다.', qs('#address'));
+        return null;
+      }finally{
+        qs('#geocodeBtn').disabled = false;
+      }
+    }
+
     async function validateBenefitForm(){
       const checks = [
         { el: qs('#name'), message: '매장명을 입력해 주세요.' },
@@ -1406,6 +1491,15 @@ const setTextAll = (selector, text) => qsa(selector).forEach(el => el.textConten
       const isValid = await validateBenefitForm();
       if(!isValid) return;
 
+      let lat = Number(qs('#lat')?.value || 0);
+      let lng = Number(qs('#lng')?.value || 0);
+      if(!isValidKoreaCoord(lat, lng)){
+        const geo = await geocodeAddressByNaver();
+        if(!geo) return;
+        lat = geo.lat;
+        lng = geo.lng;
+      }
+
       const payload={
         name:qs('#name').value.trim(),
         category:qs('#category').value.trim(),
@@ -1413,7 +1507,9 @@ const setTextAll = (selector, text) => qsa(selector).forEach(el => el.textConten
         discountValue:Number(qs('#discountValue').value||0),
         condition:qs('#condition').value.trim(),
         address:qs('#address').value.trim(),
-        url:qs('#url').value.trim(),
+        lat,
+        lng,
+        url:qs('#url').value.trim() || makeNaverMapSearchUrl(qs('#address').value.trim()),
         phone:qs('#phone').value.trim(),
         service:qs('#serviceType').value==='service',
         visible:qs('#visible').checked,
@@ -2202,7 +2298,7 @@ const setTextAll = (selector, text) => qsa(selector).forEach(el => el.textConten
     });
 
     const benefitSortSelect=qs('#benefitSortSelect'); if(benefitSortSelect){benefitSortSelect.value=benefitSortMode; benefitSortSelect.addEventListener('change',()=>{benefitSortMode=benefitSortSelect.value||'latest'; renderAdminList();});}
-    qs('#benefitForm').addEventListener('submit',saveBenefit);qs('#noticeForm').addEventListener('submit',saveNotice);qs('#cancelEditBtn').onclick=resetForm;qs('#cancelNoticeEditBtn').onclick=resetNoticeForm;qs('#loginBtn').onclick=loginAdmin;qs('#logoutBtn').onclick=logoutAdmin;qs('#exportBtn').onclick=exportBenefits;qs('#seedBtn').onclick=seedDefaultData;document.addEventListener('click',(event)=>{const actionBtn=event.target.closest('[data-member-action]');if(!actionBtn) return;updateMemberStatus(actionBtn.dataset.memberId, actionBtn.dataset.memberAction);});resetForm();resetNoticeForm();changeAdminView('dashboard');
+    qs('#benefitForm').addEventListener('submit',saveBenefit);qs('#noticeForm').addEventListener('submit',saveNotice);qs('#geocodeBtn')?.addEventListener('click', geocodeAddressByNaver);qs('#cancelEditBtn').onclick=resetForm;qs('#cancelNoticeEditBtn').onclick=resetNoticeForm;qs('#loginBtn').onclick=loginAdmin;qs('#logoutBtn').onclick=logoutAdmin;qs('#exportBtn').onclick=exportBenefits;qs('#seedBtn').onclick=seedDefaultData;document.addEventListener('click',(event)=>{const actionBtn=event.target.closest('[data-member-action]');if(!actionBtn) return;updateMemberStatus(actionBtn.dataset.memberId, actionBtn.dataset.memberAction);});resetForm();resetNoticeForm();changeAdminView('dashboard');
   </script>
 
   
