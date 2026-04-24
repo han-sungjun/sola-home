@@ -56,7 +56,7 @@ export const API_URL = {
     checkNickname: "https://checknickname-ljm6q3t55q-du.a.run.app",
 	getUserForPasswordReset: "https://getuserforpasswordreset-ljm6q3t55q-du.a.run.app",
     updatePasswordAfterPhoneReset: "https://updatepasswordafterphonereset-ljm6q3t55q-du.a.run.app",
-	geocodeAddress: "https://geocodeaddress-ljm6q3t55q-du.a.run.app",
+	geocodeAddress: "https://geocodeaddress-ljm6q3t55q-uc.a.run.app",
   }
 };
 
