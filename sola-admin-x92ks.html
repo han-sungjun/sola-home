@@ -1141,8 +1141,7 @@ body.gnb-open .admin-bottom-nav{
     const firebaseConfig = FIREBASE_CONFIG[ENV];
     const BENEFITS_COLLECTION='benefits', BENEFIT_STATS_COLLECTION='benefit_stats', NOTICES_COLLECTION='notices', PUSH_JOBS_COLLECTION='push_jobs', USERS_COLLECTION='users';
     const LOGIN_FUNCTION_URL = API_URL[ENV].login;
-    // Firebase Functions geocodeAddress 엔드포인트입니다. 배포 후 dev/prod URL을 입력하세요.
-    // 예: https://geocodeaddress-l6mntiaxgq-du.a.run.app
+
     const GEOCODE_FUNCTION_URL = (API_URL?.[ENV]?.geocodeAddress || '').trim();
     const DEFAULT_BENEFITS=[{name:'엘스킨케어',category:'피부관리',discountValue:50,discountText:'50%',condition:'첫방문 50% / 입주민 정액권 최대 30%',address:'경기 파주시 경의로 1242 209호, 210호',phone:'0507-1433-5760',url:'',visible:true,recommended:true,service:false},{name:'미스터피자 일산탄현점',category:'음식',discountValue:30,discountText:'30%',condition:'포장 30% / 매장식사 20% + 샐러드 증정',address:'경기 고양시 일산서구 탄현로 136 상가동 2층 204호',phone:'031-911-9296',url:'',visible:true,recommended:true,service:false}];
     const state={benefits:[],benefitStats:{},notices:[],pushJobs:[],members:[],isAdmin:false,view:'dashboard',adminProfile:null}; let benefitSortMode='latest'; const qs=(s)=>document.querySelector(s), qsa=(s)=>[...document.querySelectorAll(s)];
