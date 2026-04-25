@@ -62,16 +62,16 @@ export const API_URL = {
 
 export const ROUTE_URL = {
   dev: {
-    login: "./index.html",
-    signup: "./signup.html",
-    app: "./app.html",
-    phoneVerify: "./phone-verify.html"
+    login: "./",
+    signup: "./signup",
+    app: "./app",
+    phoneVerify: "./phone-verify"
   },
   prod: {
-    login: "./index.html",
-    signup: "./signup.html",
-    app: "./app.html",
-    phoneVerify: "./phone-verify.html"
+    login: "./",
+    signup: "./signup",
+    app: "./app",
+    phoneVerify: "./phone-verify"
   }
 };
 

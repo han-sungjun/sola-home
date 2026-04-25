@@ -182,7 +182,7 @@ async function sendCode() {
   if (!isResetMode) {
     const user = auth.currentUser;
     if (!user) {
-      window.location.replace('./index.html');
+      window.location.replace('./');
       return;
     }
   }
@@ -286,7 +286,7 @@ async function verifyCode() {
     showNotice('인증 완료! 이동 중...', 'success');
 
     setTimeout(() => {
-      window.location.replace('./app.html');
+      window.location.replace('./app');
     }, 800);
 
   } catch (e) {
@@ -354,7 +354,7 @@ async function resetPassword() {
     await signOut(auth).catch(() => {});
 
     setTimeout(() => {
-      window.location.replace('./index.html');
+      window.location.replace('./');
     }, 900);
 
   } catch (e) {
@@ -400,7 +400,7 @@ if (newPasswordConfirmEl) {
 
 signOutBtn.onclick = async () => {
   await signOut(auth);
-  window.location.replace('./index.html');
+  window.location.replace('./');
 };
 
 onAuthStateChanged(auth, async (user) => {
@@ -409,7 +409,7 @@ onAuthStateChanged(auth, async (user) => {
       signOutBtn.textContent = '로그인으로';
       signOutBtn.onclick = async () => {
         await signOut(auth).catch(() => {});
-        window.location.replace('./index.html');
+        window.location.replace('./');
       };
     }
 
@@ -418,14 +418,14 @@ onAuthStateChanged(auth, async (user) => {
   }
 
   if (!user) {
-    window.location.replace('./index.html');
+    window.location.replace('./');
     return;
   }
 
   const data = await loadUser(user);
 
   if (data?.phoneVerified) {
-    window.location.replace('./app.html');
+    window.location.replace('./app');
     return;
   }
 

@@ -639,8 +639,24 @@
 
     setupForegroundSystemPush(messaging);
 
-    const REDIRECT_AFTER_LOGIN = './app.html';
-    const SIGNUP_PAGE_URL = './signup.html';
+    const REDIRECT_AFTER_LOGIN = '/app';
+    function consumePendingDeepLinkForLogin(){
+      const pending = sessionStorage.getItem('pendingDeepLink');
+      if(!pending) return '';
+      sessionStorage.removeItem('pendingDeepLink');
+      try{
+        const url = new URL(pending, location.origin);
+        if(url.origin !== location.origin) return '';
+        if(url.pathname.includes('admin') || url.pathname.includes('sola-admin')) return '';
+        return url.href;
+      }catch(_){
+        return '';
+      }
+    }
+    function getPostLoginRedirectUrl(){
+      return consumePendingDeepLinkForLogin() || REDIRECT_AFTER_LOGIN;
+    }
+    const SIGNUP_PAGE_URL = '/signup';
     const LOGIN_FUNCTION_URL = API_URL[ENV].login;
     const PASSWORD_RESET_LOOKUP_URL = API_URL[ENV].getUserForPasswordReset || '';
 
@@ -961,10 +977,10 @@
         if (shouldRedirectOnApproved) {
           finishLoading(() => {
             if (phoneVerificationRequired && !phoneVerified) {
-              replaceWithLoader('./phone-verify.html');
+              replaceWithLoader('/phone-verify');
               return;
             }
-            replaceWithLoader(REDIRECT_AFTER_LOGIN);
+            replaceWithLoader(getPostLoginRedirectUrl());
           });
         }
         return { allowed: true, reason: 'approved_active', userData };
@@ -1167,7 +1183,7 @@
 
       if (email && isEmailFormat(email)) {
         await sendPasswordResetEmail(auth, email, {
-          url: `${window.location.origin}/index.html`,
+          url: `${window.location.origin}/`,
           handleCodeInApp: false
         });
 
@@ -1188,7 +1204,7 @@
         );
 
         if (goPhoneReset) {
-          const url = `./phone-verify.html?mode=reset&loginId=${encodeURIComponent(loginId)}`;
+          const url = `/phone-verify?mode=reset&loginId=${encodeURIComponent(loginId)}`;
           startLoading();
           setTimeout(() => replaceWithLoader(url), 80);
         }
@@ -1356,10 +1372,10 @@
           const phoneVerificationRequired = result.user?.phoneVerificationRequired !== false;
           const phoneVerified = !!result.user?.phoneVerified;
           if (phoneVerificationRequired && !phoneVerified) {
-            replaceWithLoader('./phone-verify.html');
+            replaceWithLoader('/phone-verify');
             return;
           }
-          replaceWithLoader(REDIRECT_AFTER_LOGIN);
+          replaceWithLoader(getPostLoginRedirectUrl());
         }, 80);
       } catch (error) {
         const code = error?.code || '';

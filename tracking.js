@@ -275,7 +275,7 @@ function startAutoLogoutTimer() {
         stopAutoLogoutTimer();
         await signOut(auth);
         alert("장시간 미사용으로 자동 로그아웃되었습니다.");
-        location.href = "/index.html";
+        location.href = "/";
       } catch (e) {
         console.log("auto logout error", e);
       }

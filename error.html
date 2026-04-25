@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>페이지를 찾을 수 없습니다</title>
+
+  <style>
+    body {
+      margin:0;
+      font-family:-apple-system,BlinkMacSystemFont,sans-serif;
+      background:#0f172a;
+      color:#fff;
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      height:100vh;
+      text-align:center;
+    }
+
+    .box {
+      max-width:360px;
+    }
+
+    h1 {
+      font-size:80px;
+      margin-bottom:10px;
+      color:#60a5fa;
+    }
+
+    p {
+      opacity:0.8;
+      margin-bottom:20px;
+    }
+
+    button {
+      background:#2563eb;
+      border:none;
+      padding:12px 20px;
+      border-radius:12px;
+      color:#fff;
+      cursor:pointer;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="box">
+    <h1>404</h1>
+    <p>요청하신 페이지를 찾을 수 없습니다.</p>
+    <div style="margin-top:20px; display:flex; gap:10px; justify-content:center;">
+	  <button onclick="location.href='/app'">홈</button>
+	  <button onclick="location.href='/app#benefits'">혜택</button>
+	  <button onclick="location.href='/app#top5'">TOP5</button>
+	</div>
+  </div>
+
+	<script src="/env-config.js"></script>
+	<script src="/firebase-config.js"></script>
+	<script src="/security-log.js"></script>
+
+	<script>
+	  async function log404Access() {
+		try {
+		  if (typeof writeSecurityLog === "function") {
+			await writeSecurityLog("ERROR_404", {
+			  reason: "not_found_url",
+			  path: location.pathname,
+			  href: location.href,
+			  referrer: document.referrer || ""
+			});
+		  }
+		} catch (e) {
+		  console.warn("404 로그 저장 실패:", e);
+		}
+	  }
+
+	  function goHome() {
+		const user = JSON.parse(localStorage.getItem("loginUser") || "null");
+
+		if (user) {
+		  location.replace("/app");
+		} else {
+		  location.replace("/");
+		}
+	  }
+
+	  window.addEventListener("DOMContentLoaded", () => {
+		log404Access();
+	  });
+	</script>
+</body>
+</html>

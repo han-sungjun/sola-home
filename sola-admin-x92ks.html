@@ -803,8 +803,22 @@ body.gnb-open .admin-bottom-nav{
 .member-proof-copy span{color:#64748b;font-size:12px;line-height:1.35}
 .member-reject-box{display:grid;gap:8px;margin-top:14px;padding-top:12px;border-top:1px dashed #e2e8f0}
 .member-reject-box label{font-size:13px;color:#334155;font-weight:800}
-.member-action-sticky{position:sticky;bottom:86px;display:flex;gap:10px;padding-top:12px;margin-top:12px;background:linear-gradient(180deg,rgba(255,255,255,.72),#fff 45%);z-index:5}
-.member-action-sticky .btn{flex:1;padding:10px 12px}
+/* 승인/반려 버튼이 반려 사유 입력창 위로 겹치지 않도록 sticky 해제 */
+.member-action-sticky{
+  position:static;
+  display:flex;
+  gap:10px;
+  padding-top:14px;
+  margin-top:14px;
+  background:#fff;
+  border-top:1px dashed #e2e8f0;
+  z-index:auto;
+}
+.member-action-sticky .btn{flex:1;padding:12px 12px}
+.member-reject-box textarea{
+  min-height:96px;
+  margin-bottom:0;
+}
 @media (max-width:420px){.member-summary{flex-direction:column;align-items:stretch}.member-summary-side{width:100%;justify-content:space-between}.member-summary-side .tags{justify-content:flex-start;max-width:none}}
 
 
@@ -941,6 +955,15 @@ body.gnb-open .admin-bottom-nav{
 .geo-coord-grid input{background:#f8fafc;color:#475569}
 @media (max-width:420px){.geo-row{grid-template-columns:1fr}.geo-btn{width:100%}.geo-coord-grid{grid-template-columns:1fr}}
 
+
+/* ===== TOP5 / share management extension ===== */
+.admin-field-help{color:#94a3b8;font-size:12px;line-height:1.45;margin-top:4px}
+.admin-thumb-preview{min-height:92px;border:1px dashed #cbd5e1;border-radius:18px;background:#f8fafc;color:#94a3b8;font-size:13px;font-weight:800;display:flex;align-items:center;justify-content:center;overflow:hidden;text-align:center}
+.admin-thumb-preview img{width:100%;height:120px;object-fit:cover;display:block}
+.admin-metric-row{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.admin-metric-chip{display:inline-flex;align-items:center;gap:4px;padding:6px 9px;border-radius:999px;background:#f8fafc;border:1px solid #e2e8f0;color:#64748b;font-size:11px;font-weight:900}
+.admin-metric-chip.share-best{background:#fff7ed;border-color:#fed7aa;color:#c2410c}
+
   </style>
 </head>
 <body>
@@ -1019,13 +1042,18 @@ body.gnb-open .admin-bottom-nav{
           <div id="recentActivityList" class="mini-list"><div class="notice">관리자 로그인 후 최근 활동 로그를 볼 수 있습니다.</div></div>
         </div>
 
+        <div class="admin-card">
+          <div class="section-head" style="margin-bottom:12px;"><h3 style="font-size:16px;">🚨 잘못된 URL 접근 통계</h3><small id="security404Count">최근 50건 기준</small></div>
+          <div id="security404Box" class="mini-list"><div class="notice">관리자 로그인 후 404 접근 통계를 볼 수 있습니다.</div></div>
+        </div>
+
       </div>
     </div>
 
     
     <div class="admin-view" id="view-benefits">
       <div class="admin-groups">
-        <div class="admin-card"><div class="section-head" style="margin-bottom:12px;"><h3 style="font-size:16px;">혜택 등록 / 수정</h3><small id="formModeLabel">새 항목</small></div><form id="benefitForm" class="form-grid" novalidate><input type="hidden" id="editId" value="" /><div class="field"><label for="name">매장명</label><input id="name" /></div><div class="grid-2"><div class="field"><label for="category">카테고리</label><input id="category" placeholder="예: 음식, 미용, 카페" /></div><div class="field"><label for="discountText">혜택 표기</label><input id="discountText" placeholder="예: 10% 또는 서비스" /></div></div><div class="grid-2"><div class="field"><label for="discountValue">할인 수치</label><input id="discountValue" type="number" min="0" placeholder="서비스면 0" required /></div><div class="field"><label for="serviceType">혜택 유형</label><select id="serviceType"><option value="discount">할인형</option><option value="service">서비스형</option></select></div></div><div class="field"><label>운영 옵션</label><div class="check-row"><label><input type="checkbox" id="visible" checked> 노출</label><label><input type="checkbox" id="recommended"> 추천</label></div></div><div class="field"><label for="condition">혜택 조건</label><textarea id="condition"></textarea></div><div class="field"><label for="address">주소</label><div class="geo-row"><input id="address" placeholder="예: 경기 파주시 경의로 1242 209호" /><button type="button" class="btn btn-blue geo-btn" id="geocodeBtn">📍 좌표 자동 조회</button></div><div class="geo-status" id="geoStatus">주소 입력 후 좌표 자동 조회를 누르면 위도/경도가 자동 저장됩니다.</div></div><div class="geo-coord-grid"><div class="field"><label for="lat">위도 lat</label><input id="lat" type="number" step="any" inputmode="decimal" placeholder="자동 입력" /></div><div class="field"><label for="lng">경도 lng</label><input id="lng" type="number" step="any" inputmode="decimal" placeholder="자동 입력" /></div></div><div class="field"><label for="url">길찾기 URL</label><input id="url" placeholder="비워두면 네이버 지도 검색 링크를 자동 생성합니다" /></div><div class="field"><label for="phone">전화번호</label><input id="phone" /></div><div class="grid-2"><button type="submit" class="btn btn-primary">저장</button><button type="button" class="btn btn-soft" id="cancelEditBtn">입력 초기화</button></div></form></div>
+        <div class="admin-card"><div class="section-head" style="margin-bottom:12px;"><h3 style="font-size:16px;">혜택 등록 / 수정</h3><small id="formModeLabel">새 항목</small></div><form id="benefitForm" class="form-grid" novalidate><input type="hidden" id="editId" value="" /><div class="field"><label for="name">매장명</label><input id="name" /></div><div class="grid-2"><div class="field"><label for="category">카테고리</label><input id="category" placeholder="예: 음식, 미용, 카페" /></div><div class="field"><label for="discountText">혜택 표기</label><input id="discountText" placeholder="예: 10% 또는 서비스" /></div></div><div class="grid-2"><div class="field"><label for="discountValue">할인 수치</label><input id="discountValue" type="number" min="0" placeholder="서비스면 0" required /></div><div class="field"><label for="serviceType">혜택 유형</label><select id="serviceType"><option value="discount">할인형</option><option value="service">서비스형</option></select></div></div><div class="field"><label>운영 옵션</label><div class="check-row"><label><input type="checkbox" id="visible" checked> 노출</label><label><input type="checkbox" id="recommended"> 추천</label><label><input type="checkbox" id="shareBest"> 공유 BEST 배지</label></div></div><div class="grid-2"><div class="field"><label for="rankBoost">TOP 5 가중치</label><input id="rankBoost" type="number" min="0" step="1" value="0" placeholder="기본 0" /><div class="admin-field-help">조회·즐겨찾기·공유 점수 외에 운영자가 수동으로 더해주는 점수입니다.</div></div><div class="field"><label for="thumbnailUrl">공유/썸네일 이미지 URL</label><input id="thumbnailUrl" placeholder="https://.../og-image.png" /><div class="admin-field-help">카카오 공유 카드와 공개앱 카드 썸네일에 사용할 이미지 주소입니다.</div></div></div><div class="field"><label for="shareDescription">공유 문구</label><input id="shareDescription" placeholder="비워두면 혜택 조건을 자동 사용" /></div><div class="field"><label>썸네일 미리보기</label><div class="admin-thumb-preview" id="thumbPreview">이미지 URL 입력 시 미리보기</div></div><div class="field"><label for="condition">혜택 조건</label><textarea id="condition"></textarea></div><div class="field"><label for="address">주소</label><div class="geo-row"><input id="address" placeholder="예: 경기 파주시 경의로 1242 209호" /><button type="button" class="btn btn-blue geo-btn" id="geocodeBtn">📍 좌표 자동 조회</button></div><div class="geo-status" id="geoStatus">주소 입력 후 좌표 자동 조회를 누르면 위도/경도가 자동 저장됩니다.</div></div><div class="geo-coord-grid"><div class="field"><label for="lat">위도 lat</label><input id="lat" type="number" step="any" inputmode="decimal" placeholder="자동 입력" /></div><div class="field"><label for="lng">경도 lng</label><input id="lng" type="number" step="any" inputmode="decimal" placeholder="자동 입력" /></div></div><div class="field"><label for="url">길찾기 URL</label><input id="url" placeholder="비워두면 네이버 지도 검색 링크를 자동 생성합니다" /></div><div class="field"><label for="phone">전화번호</label><input id="phone" /></div><div class="grid-2"><button type="submit" class="btn btn-primary">저장</button><button type="button" class="btn btn-soft" id="cancelEditBtn">입력 초기화</button></div></form></div>
       
       
         <div class="admin-card"><div class="section-head benefit-list-head" style="margin-bottom:12px;"><h3 style="font-size:16px;">등록된 혜택 목록</h3><div style="display:flex;align-items:center;gap:8px;"><small id="benefitListCount">0건</small><select id="benefitSortSelect" class="benefit-sort-select" aria-label="혜택 정렬"><option value="latest">최신순</option><option value="updated">수정순</option><option value="name">이름순</option></select></div></div><div class="mini-list" id="adminList"></div></div>
@@ -1101,9 +1129,9 @@ body.gnb-open .admin-bottom-nav{
   </nav>
 
   <script type="module">
-    import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
+    import { initializeApp, getApps, getApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
     import { getAuth, onAuthStateChanged, signInWithCustomToken, signOut, setPersistence, browserLocalPersistence } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
-    import { getFirestore, collection, addDoc, updateDoc, deleteDoc, doc, getDoc, getDocs, onSnapshot, serverTimestamp, writeBatch } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
+    import { getFirestore, collection, addDoc, updateDoc, deleteDoc, doc, getDoc, getDocs, onSnapshot, serverTimestamp, writeBatch, query, where, orderBy, limit } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
     import { getMessaging, onMessage } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-messaging.js';
     import { mountIdleTimer } from "./tracking.js";
     import { ENV, FIREBASE_CONFIG, API_URL } from './env-config.js';
@@ -1118,6 +1146,15 @@ body.gnb-open .admin-bottom-nav{
     const GEOCODE_FUNCTION_URL = (API_URL?.[ENV]?.geocodeAddress || '').trim();
     const DEFAULT_BENEFITS=[{name:'엘스킨케어',category:'피부관리',discountValue:50,discountText:'50%',condition:'첫방문 50% / 입주민 정액권 최대 30%',address:'경기 파주시 경의로 1242 209호, 210호',phone:'0507-1433-5760',url:'',visible:true,recommended:true,service:false},{name:'미스터피자 일산탄현점',category:'음식',discountValue:30,discountText:'30%',condition:'포장 30% / 매장식사 20% + 샐러드 증정',address:'경기 고양시 일산서구 탄현로 136 상가동 2층 204호',phone:'031-911-9296',url:'',visible:true,recommended:true,service:false}];
     const state={benefits:[],notices:[],pushJobs:[],members:[],isAdmin:false,view:'dashboard',adminProfile:null}; let benefitSortMode='latest'; const qs=(s)=>document.querySelector(s), qsa=(s)=>[...document.querySelectorAll(s)];
+
+    function escapeHtml(value){
+      return String(value ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
     const globalLoadingBar = qs('#globalLoadingBar');
     let globalLoadingTimer = null;
     const initialLoadState = { benefits:false, notices:false, pushJobs:false, users:false };
@@ -1243,7 +1280,7 @@ const setTextAll = (selector, text) => qsa(selector).forEach(el => el.textConten
       window.scrollTo({ top: 0, behavior: 'auto' });
     }
 
-    function sanitizeBenefit(item={},id=''){return {id,name:item.name||'',category:item.category||'기타',discountValue:Number(item.discountValue||0),discountText:item.discountText||`${Number(item.discountValue||0)}%`,condition:item.condition||'',address:item.address||'',lat:Number(item.lat||0),lng:Number(item.lng||0),url:item.url||'',phone:item.phone||'',service:!!item.service||String(item.discountText).trim()==='서비스',visible:item.visible!==false,recommended:!!item.recommended,createdAt:item.createdAt||null,updatedAt:item.updatedAt||null};}
+    function sanitizeBenefit(item={},id=''){return {id,name:item.name||'',category:item.category||'기타',discountValue:Number(item.discountValue||0),discountText:item.discountText||`${Number(item.discountValue||0)}%`,condition:item.condition||'',address:item.address||'',lat:Number(item.lat||0),lng:Number(item.lng||0),url:item.url||'',phone:item.phone||'',service:!!item.service||String(item.discountText).trim()==='서비스',visible:item.visible!==false,recommended:!!item.recommended,thumbnailUrl:item.thumbnailUrl||item.imageUrl||item.ogImageUrl||'',shareDescription:item.shareDescription||'',shareBest:!!item.shareBest,rankBoost:Number(item.rankBoost||0),viewCount:Number(item.viewCount||item.clickCount||0),favoriteCount:Number(item.favoriteCount||0),shareCount:Number(item.shareCount||0),createdAt:item.createdAt||null,updatedAt:item.updatedAt||null};}
     function sanitizeNotice(item={},id=''){return {id,title:item.title||'',content:item.content||'',category:item.category||'일반',visible:item.visible!==false,pinned:!!item.pinned,createdAt:item.createdAt||null,updatedAt:item.updatedAt||null};}
     const hasFirebaseConfig=()=>firebaseConfig.apiKey&&firebaseConfig.projectId&&firebaseConfig.appId;
     let auth=null,db=null;
@@ -1258,9 +1295,17 @@ const setTextAll = (selector, text) => qsa(selector).forEach(el => el.textConten
       const noticeListCountEl=qs('#noticeListCount'); if(noticeListCountEl) noticeListCountEl.textContent=`${state.notices.length}건`;
       const pushCountEl=qs('#pushJobCount'); if(pushCountEl) pushCountEl.textContent=`${state.pushJobs.length}건`;
     }
-    function resetForm(){qs('#benefitForm').reset();qs('#editId').value='';qs('#formModeLabel').textContent='새 항목';qs('#discountValue').value=0;qs('#serviceType').value='discount';qs('#visible').checked=true;qs('#recommended').checked=false;qs('#lat').value='';qs('#lng').value='';setGeoStatus('주소 입력 후 좌표 자동 조회를 누르면 위도/경도가 자동 저장됩니다.','');}
+    function updateThumbPreview(url=''){
+      const preview=qs('#thumbPreview');
+      if(!preview) return;
+      const safeUrl=String(url||'').trim();
+      if(!safeUrl){preview.textContent='이미지 URL 입력 시 미리보기';return;}
+      preview.innerHTML=`<img src="${escapeHtml(safeUrl)}" alt="썸네일 미리보기" onerror="this.parentNode.textContent='이미지를 불러올 수 없습니다.'">`;
+    }
+
+    function resetForm(){qs('#benefitForm').reset();qs('#editId').value='';qs('#formModeLabel').textContent='새 항목';qs('#discountValue').value=0;qs('#serviceType').value='discount';qs('#visible').checked=true;qs('#recommended').checked=false;if(qs('#shareBest')) qs('#shareBest').checked=false;if(qs('#rankBoost')) qs('#rankBoost').value=0;if(qs('#thumbnailUrl')) qs('#thumbnailUrl').value='';if(qs('#shareDescription')) qs('#shareDescription').value='';updateThumbPreview('');qs('#lat').value='';qs('#lng').value='';setGeoStatus('주소 입력 후 좌표 자동 조회를 누르면 위도/경도가 자동 저장됩니다.','');}
     function resetNoticeForm(){qs('#noticeForm').reset();qs('#noticeEditId').value='';qs('#noticeFormModeLabel').textContent='새 공지';qs('#noticeVisible').checked=true;qs('#noticePinned').checked=false;qs('#noticeCategory').value='일반';qs('#sendPushWithNotice').checked=false;qs('#pushImportantOnly').checked=false;qs('#pushTitle').value='';qs('#pushBody').value='';qs('#pushTargetType').value='all';qs('#pushTargetUid').value='';qs('#pushTargetBuilding').value='';qs('#pushTargetUnit').value='';}
-    function fillForm(item){qs('#editId').value=item.id;qs('#formModeLabel').textContent='수정 중';qs('#name').value=item.name;qs('#category').value=item.category;qs('#discountText').value=item.discountText;qs('#discountValue').value=item.discountValue;qs('#serviceType').value=item.service?'service':'discount';qs('#condition').value=item.condition;qs('#address').value=item.address;qs('#lat').value=item.lat||'';qs('#lng').value=item.lng||'';qs('#url').value=item.url||'';qs('#phone').value=item.phone;qs('#visible').checked=item.visible!==false;qs('#recommended').checked=!!item.recommended;setGeoStatus(item.lat&&item.lng?`저장된 좌표: ${item.lat}, ${item.lng}`:'주소로 좌표를 조회해 주세요.', item.lat&&item.lng?'success':'');window.scrollTo({top:0,behavior:'smooth'});}
+    function fillForm(item){qs('#editId').value=item.id;qs('#formModeLabel').textContent='수정 중';qs('#name').value=item.name;qs('#category').value=item.category;qs('#discountText').value=item.discountText;qs('#discountValue').value=item.discountValue;qs('#serviceType').value=item.service?'service':'discount';qs('#condition').value=item.condition;qs('#address').value=item.address;qs('#lat').value=item.lat||'';qs('#lng').value=item.lng||'';qs('#url').value=item.url||'';qs('#phone').value=item.phone;qs('#visible').checked=item.visible!==false;qs('#recommended').checked=!!item.recommended;if(qs('#shareBest')) qs('#shareBest').checked=!!item.shareBest;if(qs('#rankBoost')) qs('#rankBoost').value=Number(item.rankBoost||0);if(qs('#thumbnailUrl')) qs('#thumbnailUrl').value=item.thumbnailUrl||'';if(qs('#shareDescription')) qs('#shareDescription').value=item.shareDescription||'';updateThumbPreview(item.thumbnailUrl||'');setGeoStatus(item.lat&&item.lng?`저장된 좌표: ${item.lat}, ${item.lng}`:'주소로 좌표를 조회해 주세요.', item.lat&&item.lng?'success':'');window.scrollTo({top:0,behavior:'smooth'});}
     function fillNoticeForm(item){qs('#noticeEditId').value=item.id;qs('#noticeFormModeLabel').textContent='수정 중';qs('#noticeTitle').value=item.title;qs('#noticeCategory').value=item.category;qs('#noticeContent').value=item.content;qs('#noticeVisible').checked=item.visible!==false;qs('#noticePinned').checked=!!item.pinned;qs('#sendPushWithNotice').checked=false;qs('#pushImportantOnly').checked=!!item.pinned;qs('#pushTitle').value=item.title||'';qs('#pushBody').value=(item.content||'').slice(0,80);window.scrollTo({top:0,behavior:'smooth'});}
     function getTimestampSeconds(ts){
       if(!ts) return 0;
@@ -1312,7 +1357,8 @@ const setTextAll = (selector, text) => qsa(selector).forEach(el => el.textConten
       const createdText = formatAdminDate(item.createdAt);
       const updatedText = formatAdminDate(item.updatedAt);
       const dateLine = `등록 ${createdText} · 수정 ${updatedText}`;
-      return `<div class="mini-item-head"><div><h5>${item.name}</h5><div style="color:#64748b;font-size:13px;line-height:1.45;">${item.category} · ${item.discountText} · ${item.phone}</div><div class="benefit-date-line">${dateLine}</div><div class="tags">${isRecentlyUpdatedBenefit(item)?'<span class="tag updated-tag">최근 수정</span>':''}${item.recommended?'<span class="tag rec">추천</span>':''}${item.visible===false?'<span class="tag hidden-tag">비노출</span>':'<span class="tag live-tag">노출중</span>'}</div></div><div class="tags" style="margin-top:0;"><button class="btn btn-soft edit-btn" style="padding:8px 10px;">수정</button><button class="btn btn-danger del-btn" style="padding:8px 10px;">삭제</button></div></div>`;
+      const metrics=`<div class="admin-metric-row"><span class="admin-metric-chip">👁 ${item.viewCount||0}</span><span class="admin-metric-chip">⭐ ${item.favoriteCount||0}</span><span class="admin-metric-chip">🔗 ${item.shareCount||0}</span>${item.rankBoost?`<span class="admin-metric-chip">🔥 가중치 ${item.rankBoost}</span>`:''}${item.shareBest?'<span class="admin-metric-chip share-best">BEST 공유</span>':''}${item.thumbnailUrl?'<span class="admin-metric-chip">🖼 썸네일</span>':''}</div>`;
+      return `<div class="mini-item-head"><div><h5>${item.name}</h5><div style="color:#64748b;font-size:13px;line-height:1.45;">${item.category} · ${item.discountText} · ${item.phone}</div><div class="benefit-date-line">${dateLine}</div><div class="tags">${isRecentlyUpdatedBenefit(item)?'<span class="tag updated-tag">최근 수정</span>':''}${item.recommended?'<span class="tag rec">추천</span>':''}${item.visible===false?'<span class="tag hidden-tag">비노출</span>':'<span class="tag live-tag">노출중</span>'}</div>${metrics}</div><div class="tags" style="margin-top:0;"><button class="btn btn-soft edit-btn" style="padding:8px 10px;">수정</button><button class="btn btn-danger del-btn" style="padding:8px 10px;">삭제</button></div></div>`;
     }
 
     function renderAdminList(){
@@ -1353,8 +1399,8 @@ const setTextAll = (selector, text) => qsa(selector).forEach(el => el.textConten
       const safeNoticeId = String(noticeId || '').trim();
       const normalizedTarget = targetType === 'user' ? 'uid' : (targetType || 'all');
       const clickUrl = safeNoticeId
-        ? `${window.location.origin}/app.html?view=notices&noticeId=${encodeURIComponent(safeNoticeId)}`
-        : `${window.location.origin}/app.html?view=notices`;
+        ? `${window.location.origin}/app?view=notices&noticeId=${encodeURIComponent(safeNoticeId)}`
+        : `${window.location.origin}/app?view=notices`;
 
       await addDoc(collection(db,PUSH_JOBS_COLLECTION),{
         type:'notice',
@@ -1527,6 +1573,10 @@ const setTextAll = (selector, text) => qsa(selector).forEach(el => el.textConten
         service:qs('#serviceType').value==='service',
         visible:qs('#visible').checked,
         recommended:qs('#recommended').checked,
+        shareBest:qs('#shareBest')?.checked || false,
+        rankBoost:Number(qs('#rankBoost')?.value || 0),
+        thumbnailUrl:qs('#thumbnailUrl')?.value.trim() || '',
+        shareDescription:qs('#shareDescription')?.value.trim() || '',
         updatedAt:serverTimestamp()
       };
 
@@ -2104,10 +2154,166 @@ const setTextAll = (selector, text) => qsa(selector).forEach(el => el.textConten
     }
     if(hasFirebaseConfig()){
       qs('#firebaseNotice').classList.add('hidden');
-      const app=initializeApp(firebaseConfig);
+      const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
       auth=getAuth(app);
       db=getFirestore(app);
       const messaging=getMessaging(app);
+
+      /* =========================
+         Security Guard / Admin Session Check
+         - Firestore 기반 관리자 권한 검증
+         - activeSessionId 기반 중복 로그인 감지
+         - security_logs 기록
+      ========================= */
+      const SECURITY_LOGS_COLLECTION = 'security_logs';
+
+      function getStoredLoginUser(){
+        try{
+          return JSON.parse(localStorage.getItem('loginUser') || '{}') || {};
+        }catch(_){
+          return {};
+        }
+      }
+
+      function saveVerifiedLoginUser(user, profile, sessionId){
+        try{
+          localStorage.setItem('loginUser', JSON.stringify({
+            uid: user.uid,
+            loginId: profile.loginId || profile.loginID || '',
+            sessionId: sessionId || '',
+            role: profile.role || profile.userRole || '',
+            approvalStatus: profile.approvalStatus || '',
+            phoneVerified: !!profile.phoneVerified,
+            accountStatus: profile.accountStatus || ''
+          }));
+        }catch(error){
+          console.warn('loginUser 저장 실패', error);
+        }
+      }
+
+      async function writeSecurityLog(type, detail = {}){
+        try{
+          const stored = getStoredLoginUser();
+          await addDoc(collection(db, SECURITY_LOGS_COLLECTION), {
+            uid: auth.currentUser?.uid || stored.uid || null,
+            loginId: state.adminProfile?.loginId || stored.loginId || null,
+            type,
+            path: location.pathname,
+            href: location.href,
+            userAgent: navigator.userAgent,
+            detail,
+            createdAt: serverTimestamp()
+          });
+        }catch(error){
+          console.warn('보안 로그 저장 실패', error);
+        }
+      }
+
+      async function load404Stats(){
+        if(!db){
+          return { total:0, recent:[], topPaths:[] };
+        }
+
+        try{
+          const q404 = query(
+            collection(db, SECURITY_LOGS_COLLECTION),
+            where('type', '==', 'ERROR_404'),
+            orderBy('createdAt', 'desc'),
+            limit(50)
+          );
+
+          const snap = await getDocs(q404);
+          const logs = snap.docs.map((docSnap) => ({
+            id: docSnap.id,
+            ...docSnap.data()
+          }));
+
+          const pathCount = {};
+          logs.forEach((log) => {
+            const path = log?.detail?.path || log.path || '(unknown)';
+            pathCount[path] = (pathCount[path] || 0) + 1;
+          });
+
+          const topPaths = Object.entries(pathCount)
+            .sort((a, b) => b[1] - a[1])
+            .slice(0, 5);
+
+          return {
+            total: logs.length,
+            recent: logs,
+            topPaths
+          };
+        }catch(error){
+          console.warn('404 통계 조회 실패', error);
+          return { total:0, recent:[], topPaths:[], error };
+        }
+      }
+
+      async function render404Stats(){
+        const box = qs('#security404Box');
+        const count = qs('#security404Count');
+        if(!box) return;
+
+        if(!state.isAdmin || !db){
+          box.innerHTML = '<div class="notice">관리자 로그인 후 404 접근 통계를 볼 수 있습니다.</div>';
+          if(count) count.textContent = '최근 50건 기준';
+          return;
+        }
+
+        box.innerHTML = '<div class="notice">404 접근 통계를 불러오는 중입니다.</div>';
+        const stats = await load404Stats();
+
+        if(count) count.textContent = `최근 ${stats.total}건`;
+
+        if(stats.error){
+          box.innerHTML = '<div class="notice">404 통계를 불러오지 못했습니다. security_logs 인덱스 또는 권한을 확인해 주세요.</div>';
+          return;
+        }
+
+        if(!stats.total){
+          box.innerHTML = '<div class="notice">최근 404 접근 기록이 없습니다.</div>';
+          return;
+        }
+
+        const topHtml = stats.topPaths.map(([path, total]) => `
+          <div class="mini-item">
+            <div class="mini-item-head">
+              <div style="min-width:0;">
+                <h5 style="word-break:break-all;">${escapeHtml(path)}</h5>
+                <div class="meta" style="color:#64748b;font-size:13px;margin-top:4px;">${total}회 접근</div>
+              </div>
+              <span class="tag hidden-tag">404</span>
+            </div>
+          </div>
+        `).join('');
+
+        const recentHtml = stats.recent.slice(0, 5).map((log) => {
+          const path = log?.detail?.path || log.path || '(unknown)';
+          const referrer = log?.detail?.referrer || log.referrer || '';
+          const date = formatAdminDate(log.createdAt);
+          return `
+            <div class="mini-item">
+              <h5 style="word-break:break-all;">${escapeHtml(path)}</h5>
+              <div class="meta" style="color:#64748b;font-size:13px;line-height:1.55;margin-top:4px;">
+                ${escapeHtml(date)}${referrer ? `<br>유입: ${escapeHtml(referrer)}` : ''}
+              </div>
+            </div>
+          `;
+        }).join('');
+
+        box.innerHTML = `
+          <div class="summary-row">
+            <div><strong>404 접근</strong><span>최근 50건 기준</span></div>
+            <strong>${stats.total}건</strong>
+          </div>
+          <div class="notice" style="margin-top:2px;">많이 입력된 잘못된 URL TOP 5</div>
+          ${topHtml || '<div class="notice">집계할 URL이 없습니다.</div>'}
+          <div class="notice" style="margin-top:2px;">최근 404 접근 5건</div>
+          ${recentHtml || '<div class="notice">최근 접근 기록이 없습니다.</div>'}
+        `;
+      }
+
+      window.render404Stats = render404Stats;
 
     /* =========================
        Foreground 시스템 알림 처리
@@ -2210,19 +2416,71 @@ const setTextAll = (selector, text) => qsa(selector).forEach(el => el.textConten
           const userData = userSnap.exists() ? (userSnap.data() || {}) : {};
           state.adminProfile = userData;
 
-          const isAdminRole = userData.role === 'admin' || userData.role === 'root';
+          const stored = getStoredLoginUser();
+          const localSessionId = stored.sessionId || '';
+          const serverSessionId = userData.activeSessionId || '';
+
+          if(serverSessionId && localSessionId && localSessionId !== serverSessionId){
+            await writeSecurityLog('SESSION_CONFLICT', { localSessionId, serverSessionId });
+            qs('#authStatusText').textContent='중복 로그인 감지';
+            updateAdminHeader(user);
+            setAdminDashboardLocked(true);
+            hideGlobalLoading(80);
+            await openModalAlert('다른 기기에서 로그인되어 현재 세션이 종료되었습니다.', qs('#adminLoginId'));
+            localStorage.removeItem('loginUser');
+            await signOut(auth).catch(()=>{});
+            return;
+          }
+
+          const role = userData.role || userData.userRole || '';
+          const isAdminRole = role === 'admin' || role === 'root' || role === 'superAdmin';
           const isApproved = userData.approvalStatus === 'approved';
           const isActive = userData.accountStatus === 'active';
 
+          if(userData.accountStatus === 'withdrawn'){
+            await writeSecurityLog('WITHDRAWN_ACCOUNT_ACCESS', { accountStatus:userData.accountStatus });
+            qs('#authStatusText').textContent='탈퇴 계정';
+            updateAdminHeader(user);
+            setAdminDashboardLocked(true);
+            hideGlobalLoading(80);
+            await openModalAlert('탈퇴된 계정입니다.', qs('#adminLoginId'));
+            localStorage.removeItem('loginUser');
+            await signOut(auth).catch(()=>{});
+            return;
+          }
+
+          if(userData.accountStatus === 'blocked'){
+            await writeSecurityLog('BLOCKED_ACCOUNT_ACCESS', {
+              accountStatus:userData.accountStatus,
+              blockedReason:userData.blockedReason || ''
+            });
+            qs('#authStatusText').textContent='차단 계정';
+            updateAdminHeader(user);
+            setAdminDashboardLocked(true);
+            hideGlobalLoading(80);
+            await openModalAlert('보안 정책에 따라 차단된 계정입니다.', qs('#adminLoginId'));
+            localStorage.removeItem('loginUser');
+            await signOut(auth).catch(()=>{});
+            return;
+          }
+
           if(!isAdminRole || !isApproved || !isActive){
+            await writeSecurityLog('ADMIN_ACCESS_DENIED', {
+              role,
+              approvalStatus:userData.approvalStatus || '',
+              accountStatus:userData.accountStatus || ''
+            });
             qs('#authStatusText').textContent='관리자 권한 없음';
             updateAdminHeader(user);
             setAdminDashboardLocked(true);
             hideGlobalLoading(80);
             await openModalAlert('관리자 권한이 있는 계정만 접근할 수 있습니다.', qs('#adminLoginId'));
+            localStorage.removeItem('loginUser');
             await signOut(auth).catch(()=>{});
             return;
           }
+
+          saveVerifiedLoginUser(user, userData, localSessionId || serverSessionId);
 
           state.isAdmin = true;
           qs('#authStatusText').textContent=`로그인됨: ${userData.loginId || user.email || user.uid}`;
@@ -2251,12 +2509,18 @@ const setTextAll = (selector, text) => qsa(selector).forEach(el => el.textConten
 
           if (typeof window.refreshAdminStatsUIOnce === 'function') {
             await window.refreshAdminStatsUIOnce();
-            if (!window.__adminDashboardIntervalStarted) {
-              window.__adminDashboardIntervalStarted = true;
-              setInterval(() => {
-                window.refreshAdminStatsUIOnce?.();
-              }, 30000);
-            }
+          }
+
+          if (typeof window.render404Stats === 'function') {
+            await window.render404Stats();
+          }
+
+          if (!window.__adminDashboardIntervalStarted) {
+            window.__adminDashboardIntervalStarted = true;
+            setInterval(() => {
+              window.refreshAdminStatsUIOnce?.();
+              window.render404Stats?.();
+            }, 30000);
           }
         }catch(error){
           console.error('관리자 권한 확인 실패', error);
@@ -2311,7 +2575,7 @@ const setTextAll = (selector, text) => qsa(selector).forEach(el => el.textConten
     });
 
     const benefitSortSelect=qs('#benefitSortSelect'); if(benefitSortSelect){benefitSortSelect.value=benefitSortMode; benefitSortSelect.addEventListener('change',()=>{benefitSortMode=benefitSortSelect.value||'latest'; renderAdminList();});}
-    qs('#benefitForm').addEventListener('submit',saveBenefit);qs('#noticeForm').addEventListener('submit',saveNotice);qs('#geocodeBtn')?.addEventListener('click', geocodeAddressByNaver);qs('#cancelEditBtn').onclick=resetForm;qs('#cancelNoticeEditBtn').onclick=resetNoticeForm;qs('#loginBtn').onclick=loginAdmin;qs('#logoutBtn').onclick=logoutAdmin;qs('#exportBtn').onclick=exportBenefits;qs('#seedBtn').onclick=seedDefaultData;document.addEventListener('click',(event)=>{const actionBtn=event.target.closest('[data-member-action]');if(!actionBtn) return;updateMemberStatus(actionBtn.dataset.memberId, actionBtn.dataset.memberAction);});resetForm();resetNoticeForm();changeAdminView('dashboard');
+    qs('#benefitForm').addEventListener('submit',saveBenefit);qs('#thumbnailUrl')?.addEventListener('input',(event)=>updateThumbPreview(event.target.value));qs('#noticeForm').addEventListener('submit',saveNotice);qs('#geocodeBtn')?.addEventListener('click', geocodeAddressByNaver);qs('#cancelEditBtn').onclick=resetForm;qs('#cancelNoticeEditBtn').onclick=resetNoticeForm;qs('#loginBtn').onclick=loginAdmin;qs('#logoutBtn').onclick=logoutAdmin;qs('#exportBtn').onclick=exportBenefits;qs('#seedBtn').onclick=seedDefaultData;document.addEventListener('click',(event)=>{const actionBtn=event.target.closest('[data-member-action]');if(!actionBtn) return;updateMemberStatus(actionBtn.dataset.memberId, actionBtn.dataset.memberAction);});resetForm();resetNoticeForm();changeAdminView('dashboard');
   </script>
 
   
@@ -2529,6 +2793,8 @@ const setTextAll = (selector, text) => qsa(selector).forEach(el => el.textConten
     const stats = document.getElementById('adminStatsCards');
     const users = document.getElementById('userActivityList');
     const recent = document.getElementById('recentActivityList');
+    const security404 = document.getElementById('security404Box');
+    const security404Count = document.getElementById('security404Count');
     const visitCanvas = document.getElementById('visitPathChartCanvas');
     const loginCanvas = document.getElementById('loginStatsChartCanvas');
     const visitPlaceholder = document.getElementById('visitPathChartPlaceholder');
@@ -2538,6 +2804,8 @@ const setTextAll = (selector, text) => qsa(selector).forEach(el => el.textConten
       if(stats) stats.innerHTML = '<div class="notice">관리자 로그인 후 통계를 볼 수 있습니다.</div>';
       if(users) users.innerHTML = '<div class="notice">관리자 로그인 후 사용자별 활동을 볼 수 있습니다.</div>';
       if(recent) recent.innerHTML = '<div class="notice">관리자 로그인 후 최근 활동 로그를 볼 수 있습니다.</div>';
+      if(security404) security404.innerHTML = '<div class="notice">관리자 로그인 후 404 접근 통계를 볼 수 있습니다.</div>';
+      if(security404Count) security404Count.textContent = '최근 50건 기준';
       if(visitCanvas) visitCanvas.classList.add('hidden');
       if(loginCanvas) loginCanvas.classList.add('hidden');
       if(visitPlaceholder) visitPlaceholder.classList.remove('hidden');
