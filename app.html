@@ -1593,7 +1593,7 @@ body.gnb-open .bottom-nav{
 @keyframes popularRankChange{0%{opacity:.6;transform:translateY(10px) scale(.96)}60%{opacity:1;transform:translateY(-4px) scale(1.02)}100%{opacity:1;transform:translateY(0) scale(1)}}
 .top1-urgent{margin-top:8px;font-size:11px;font-weight:1000;color:#ef4444;letter-spacing:-.02em}.top1-cta{display:flex;gap:8px;margin-top:8px}.top1-btn{width:100%;border:none;border-radius:14px;padding:11px 12px;background:linear-gradient(135deg,#ef4444,#f97316);color:#fff;font-size:13px;font-weight:1000;box-shadow:0 12px 24px rgba(239,68,68,.23);cursor:pointer;transition:transform .16s ease, box-shadow .16s ease}.top1-btn:hover{transform:translateY(-1px);box-shadow:0 16px 28px rgba(239,68,68,.28)}.top1-btn:active{transform:scale(.96)}
 .nearby-proximity-panel,.resident-rank-panel{margin-top:14px}.nearby-proximity-head,.resident-rank-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:12px}.nearby-proximity-title,.resident-rank-title{margin:0;font-size:18px;letter-spacing:-.04em}.nearby-proximity-desc,.resident-rank-desc{margin:6px 0 0;color:var(--muted);font-size:12px;line-height:1.55}.nearby-proximity-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px}.nearby-mini-btn{border:none;border-radius:16px;padding:13px 12px;background:#0f172a;color:#fff;font-weight:900;cursor:pointer;box-shadow:0 12px 24px rgba(15,23,42,.16)}.nearby-mini-btn.soft{background:#fff;color:#0f172a;border:1px solid var(--line);box-shadow:none}.nearby-proximity-status{margin-top:10px;padding:10px 12px;border-radius:16px;background:#eff6ff;border:1px solid #bfdbfe;color:#1d4ed8;font-size:12px;font-weight:900;line-height:1.5}.nearby-proximity-status.error{background:#fff1f2;border-color:#fecdd3;color:#b91c1c}
-.reaction-box{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:12px 0}.reaction-btn{border:1px solid #e2e8f0;background:#fff;border-radius:16px;padding:12px 8px;font-size:13px;font-weight:900;cursor:pointer;transition:transform .16s ease, background-color .16s ease, border-color .16s ease}.reaction-btn:hover{transform:translateY(-1px);background:#f8fafc;border-color:#cbd5e1}.reaction-btn:active{transform:scale(.97)}.reaction-help{margin:-2px 0 12px;padding:10px 12px;border-radius:16px;background:#fff7ed;border:1px solid #fed7aa;color:#c2410c;font-size:12px;font-weight:900;line-height:1.5}
+.reaction-box{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:12px 0}.reaction-btn{border:1px solid #e2e8f0;background:#fff;border-radius:16px;padding:12px 8px;font-size:13px;font-weight:900;cursor:pointer;transition:transform .16s ease, background-color .16s ease, border-color .16s ease, color .16s ease, box-shadow .16s ease}.reaction-btn:hover{transform:translateY(-1px);background:#f8fafc;border-color:#cbd5e1}.reaction-btn:active{transform:scale(.97)}.reaction-btn:disabled{opacity:.68;cursor:wait;transform:none}.reaction-btn.active{box-shadow:0 10px 22px rgba(15,23,42,.08), inset 0 0 0 1px rgba(255,255,255,.72)}.reaction-btn.active.like{background:#fff7ed;border-color:#fb923c;color:#c2410c}.reaction-btn.active.recommend{background:#fff1f2;border-color:#fb7185;color:#be123c}.reaction-btn.active.hot{background:#ffedd5;border-color:#f97316;color:#c2410c}.reaction-help{margin:-2px 0 12px;padding:10px 12px;border-radius:16px;background:#fff7ed;border:1px solid #fed7aa;color:#c2410c;font-size:12px;font-weight:900;line-height:1.5}.reaction-help.active{background:#eff6ff;border-color:#bfdbfe;color:#1d4ed8}
 .share-power{display:inline-flex;align-items:center;gap:5px;padding:5px 8px;border-radius:999px;background:#f8fafc;border:1px solid #e2e8f0;color:#475569;font-size:11px;font-weight:900}.share-power.hot{background:#fff7ed;border-color:#fed7aa;color:#c2410c}.resident-rank-list{display:grid;gap:10px}.resident-rank-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:13px 14px;border-radius:20px;background:#fff;border:1px solid var(--line-soft);box-shadow:0 10px 22px rgba(15,23,42,.05)}.resident-rank-left{display:flex;align-items:center;gap:10px;min-width:0}.resident-rank-medal{width:36px;height:36px;border-radius:14px;display:grid;place-items:center;background:#0f172a;color:#fff;font-weight:1000;flex:0 0 auto}.resident-rank-copy{min-width:0}.resident-rank-name{font-size:14px;font-weight:1000;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:210px}.resident-rank-sub{margin-top:3px;font-size:11px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:210px}.resident-rank-score{text-align:right;flex:0 0 auto}.resident-rank-score strong{display:block;font-size:18px;line-height:1.1}.resident-rank-score span{font-size:11px;color:var(--muted);font-weight:800}@media (max-width:370px){.nearby-proximity-actions,.reaction-box{grid-template-columns:1fr}.resident-rank-name,.resident-rank-sub{max-width:160px}}
 
   </style>
@@ -1653,7 +1653,7 @@ body.gnb-open .bottom-nav{
         <div class="helper">매장명, 카테고리, 조건으로 원하는 혜택을 빠르게 찾을 수 있습니다. 카테고리를 눌러 바로 필터링해 보세요. 즐겨찾기는 현재 계정 기준으로 저장됩니다.</div>
       </div>
       <div class="filter-sticky"><div class="panel searchbox"><span>🔍</span><input id="searchInput" type="text" placeholder="매장명, 카테고리, 조건 검색"><button class="icon-btn" id="resetBtn" title="초기화">↺</button></div>
-      <div class="chips" id="chips"></div><div class="chips-toggle"><button id="chipsToggle" class="chip chips-toggle-btn hidden" type="button">더보기 ▾</button></div><div class="distance-filter-panel"><div class="distance-filter-row"><div class="distance-select-wrap"><label for="benefitSortSelect">정렬</label><select id="benefitSortSelect"><option value="default">추천/할인순</option><option value="latest">최신 순</option><option value="top">TOP 5 순</option><option value="distance">가까운 순</option></select></div><div class="distance-select-wrap"><label for="distanceRadiusSelect">반경</label><select id="distanceRadiusSelect"><option value="all">전체</option><option value="500">500m 이내</option><option value="1000">1km 이내</option><option value="3000">3km 이내</option></select></div></div><div class="distance-filter-help" id="distanceFilterHelp">가까운 순 또는 반경 필터를 사용하면 현재 위치 기준으로 혜택을 정렬합니다.</div></div></div>
+      <div class="chips" id="chips"></div><div class="chips-toggle"><button id="chipsToggle" class="chip chips-toggle-btn hidden" type="button">더보기 ▾</button></div><div class="distance-filter-panel"><div class="distance-filter-row"><div class="distance-select-wrap"><label for="benefitSortSelect">정렬</label><select id="benefitSortSelect"><option value="default">추천/할인순</option><option value="latest">최신 순</option><option value="top">TOP 순위 순</option><option value="distance">가까운 순</option></select></div><div class="distance-select-wrap"><label for="distanceRadiusSelect">반경</label><select id="distanceRadiusSelect"><option value="all">전체</option><option value="500">500m 이내</option><option value="1000">1km 이내</option><option value="3000">3km 이내</option></select></div></div><div class="distance-filter-help" id="distanceFilterHelp">가까운 순 또는 반경 필터를 사용하면 현재 위치 기준으로 혜택을 정렬합니다.</div></div></div>
       <div class="section-head"><h3 id="sectionTitle">전체 혜택</h3><small id="resultCount">0건</small></div>
       <div class="loading hidden" id="homeLoading">데이터를 불러오는 중입니다...</div>
       <div class="list" id="cardList"><div class="panel empty">조건에 맞는 항목이 없습니다.</div></div>
@@ -2879,21 +2879,141 @@ async function refreshPushStatus(){
         await setDoc(doc(db, 'user_stats', uid), {uid, loginId: profile.loginId || '', nickname: profile.nickname || profile.displayName || profile.name || '입주민', role: profile.role || profile.userRole || '', score: increment(safePoints), activityCount: increment(1), lastActivityType: type, lastBenefitId: benefitId || null, updatedAt: serverTimestamp()}, { merge:true });
       }catch(error){console.warn('입주민 활동 로그 저장 실패', error);}
     }
+    const RESIDENT_REACTION_TYPES = ['like', 'recommend', 'hot'];
+    const RESIDENT_REACTION_FIELD_MAP = { like:'likeCount', recommend:'recommendCount', hot:'hotCount' };
+    const RESIDENT_REACTION_LABEL_MAP = { like:'좋아요', recommend:'추천', hot:'HOT' };
+
+    function getResidentReactionDocId(benefitId = '', uid = ''){
+      return `${benefitId}_${uid}`;
+    }
+
+    async function loadResidentReactionState(benefitId = ''){
+      const uid = state.currentUser?.uid;
+      const emptyState = { like:false, recommend:false, hot:false };
+      if(!benefitId || !uid) return emptyState;
+
+      try{
+        const reactionRef = doc(db, 'benefit_reactions', getResidentReactionDocId(benefitId, uid));
+        const snap = await getDoc(reactionRef);
+        if(snap.exists()){
+          const data = snap.data() || {};
+          return {
+            like: !!data.like,
+            recommend: !!data.recommend,
+            hot: !!data.hot
+          };
+        }
+
+        // 이전 버전에서 benefitId_uid_type 형태로 저장된 반응도 한 번 읽어와서 버튼 상태에 반영합니다.
+        const legacyPairs = await Promise.all(RESIDENT_REACTION_TYPES.map(async (type) => {
+          const legacySnap = await getDoc(doc(db, 'benefit_reactions', `${benefitId}_${uid}_${type}`)).catch(() => null);
+          return [type, !!legacySnap?.exists?.()];
+        }));
+        return legacyPairs.reduce((acc, [type, active]) => ({ ...acc, [type]: active }), emptyState);
+      }catch(error){
+        console.warn('입주민 반응 상태 조회 실패', error);
+        return emptyState;
+      }
+    }
+
+    function reactionBoxSelector(benefitId = ''){
+      const escaped = (window.CSS && typeof CSS.escape === 'function') ? CSS.escape(String(benefitId || '')) : String(benefitId || '').replace(/"/g, '\\"');
+      return `.reaction-box[data-benefit-id="${escaped}"]`;
+    }
+
+    function applyResidentReactionStateToButtons(benefitId = '', reactionState = {}){
+      const box = qs(reactionBoxSelector(benefitId));
+      if(!box) return;
+
+      RESIDENT_REACTION_TYPES.forEach((type) => {
+        const btn = box.querySelector(`.reaction-btn[data-reaction="${type}"]`);
+        if(!btn) return;
+        const active = !!reactionState[type];
+        btn.classList.toggle('active', active);
+        btn.setAttribute('aria-pressed', active ? 'true' : 'false');
+      });
+
+      const help = box.previousElementSibling?.classList?.contains('reaction-help') ? box.previousElementSibling : null;
+      const activeLabels = RESIDENT_REACTION_TYPES.filter((type) => reactionState[type]).map((type) => RESIDENT_REACTION_LABEL_MAP[type]);
+      if(help){
+        help.classList.toggle('active', activeLabels.length > 0);
+        help.textContent = activeLabels.length
+          ? `✅ 선택됨: ${activeLabels.join(', ')} · 다시 누르면 취소됩니다.`
+          : '🔥 반응을 남기면 이 혜택의 인기 랭킹이 올라갑니다.';
+      }
+    }
+
+    function setResidentReactionButtonsDisabled(benefitId = '', disabled = false){
+      const box = qs(reactionBoxSelector(benefitId));
+      if(!box) return;
+      box.querySelectorAll('.reaction-btn').forEach((btn) => { btn.disabled = disabled; });
+    }
+
     async function handleResidentReaction(benefitId = '', reactionType = 'like'){
       if(!benefitId || !state.currentUser?.uid){ await openModalAlert('로그인 후 반응을 남길 수 있습니다.'); return; }
-      const uid = state.currentUser.uid; const reactionId = `${benefitId}_${uid}_${reactionType}`; const reactionRef = doc(db, 'benefit_reactions', reactionId);
-      const existing = await getDoc(reactionRef).catch(() => null); if(existing?.exists?.()){ await openModalAlert('이미 반영된 반응입니다.'); return; }
-      const fieldMap = { like:'likeCount', recommend:'recommendCount', hot:'hotCount' }; const labelMap = { like:'좋아요', recommend:'추천', hot:'HOT' };
-      const statField = fieldMap[reactionType] || 'likeCount'; const points = residentActivityPoints(reactionType);
+      if(!RESIDENT_REACTION_TYPES.includes(reactionType)) reactionType = 'like';
+
+      const uid = state.currentUser.uid;
+      const reactionRef = doc(db, 'benefit_reactions', getResidentReactionDocId(benefitId, uid));
+      const statField = RESIDENT_REACTION_FIELD_MAP[reactionType] || 'likeCount';
+      const points = residentActivityPoints(reactionType);
+      const label = RESIDENT_REACTION_LABEL_MAP[reactionType] || '반응';
+
+      setResidentReactionButtonsDisabled(benefitId, true);
       try{
-        await setDoc(reactionRef, { benefitId, uid, type: reactionType, createdAt: serverTimestamp() }, { merge:true });
-        await setDoc(doc(db, BENEFIT_STATS_COLLECTION, benefitId), {benefitId, [statField]: increment(1), popularScore: increment(points), updatedAt: serverTimestamp()}, { merge:true });
-        await recordResidentActivity(reactionType, points, benefitId);
-        await openModalAlert(`${labelMap[reactionType] || '반응'}이 반영되었습니다.\n인기점수에 바로 반영됩니다.`);
-      }catch(error){console.warn('입주민 반응 저장 실패', error); await openModalAlert('반응 저장 중 오류가 발생했습니다.');}
+        const currentState = await loadResidentReactionState(benefitId);
+        const wasActive = !!currentState[reactionType];
+        const nextState = { ...currentState, [reactionType]: !wasActive };
+        const delta = wasActive ? -1 : 1;
+        const scoreDelta = wasActive ? -points : points;
+
+        await setDoc(reactionRef, {
+          benefitId,
+          uid,
+          like: !!nextState.like,
+          recommend: !!nextState.recommend,
+          hot: !!nextState.hot,
+          updatedAt: serverTimestamp(),
+          createdAt: serverTimestamp()
+        }, { merge:true });
+
+        await setDoc(doc(db, BENEFIT_STATS_COLLECTION, benefitId), {
+          benefitId,
+          [statField]: increment(delta),
+          popularScore: increment(scoreDelta),
+          updatedAt: serverTimestamp()
+        }, { merge:true });
+
+        if(!wasActive){
+          await recordResidentActivity(reactionType, points, benefitId);
+        }
+
+        applyResidentReactionStateToButtons(benefitId, nextState);
+      }catch(error){
+        console.warn('입주민 반응 토글 실패', error);
+        await openModalAlert(`${label} 처리 중 오류가 발생했습니다.`);
+      }finally{
+        setResidentReactionButtonsDisabled(benefitId, false);
+      }
     }
-    function residentReactionHtml(item = {}){ if(!item?.id) return ''; return `<div class="reaction-help">🔥 반응을 남기면 이 혜택의 인기 랭킹이 올라갑니다.</div><div class="reaction-box" data-benefit-id="${escapeHtml(item.id)}"><button type="button" class="reaction-btn" data-reaction="like">👍 좋아요</button><button type="button" class="reaction-btn" data-reaction="recommend">❤️ 추천</button><button type="button" class="reaction-btn" data-reaction="hot">🔥 HOT</button></div>`; }
-    function bindResidentReactionButtons(item = {}){ qsa('.reaction-btn').forEach((btn) => { btn.onclick = async (event) => { event.preventDefault(); event.stopPropagation(); await handleResidentReaction(item.id, btn.dataset.reaction || 'like'); }; }); }
+
+    function residentReactionHtml(item = {}){
+      if(!item?.id) return '';
+      return `<div class="reaction-help">🔥 반응을 남기면 이 혜택의 인기 랭킹이 올라갑니다.</div><div class="reaction-box" data-benefit-id="${escapeHtml(item.id)}"><button type="button" class="reaction-btn like" data-reaction="like" aria-pressed="false">👍 좋아요</button><button type="button" class="reaction-btn recommend" data-reaction="recommend" aria-pressed="false">❤️ 추천</button><button type="button" class="reaction-btn hot" data-reaction="hot" aria-pressed="false">🔥 HOT</button></div>`;
+    }
+
+    function bindResidentReactionButtons(item = {}){
+      const benefitId = item?.id || '';
+      if(!benefitId) return;
+      loadResidentReactionState(benefitId).then((reactionState) => applyResidentReactionStateToButtons(benefitId, reactionState));
+      qsa(`${reactionBoxSelector(benefitId)} .reaction-btn`).forEach((btn) => {
+        btn.onclick = async (event) => {
+          event.preventDefault();
+          event.stopPropagation();
+          await handleResidentReaction(benefitId, btn.dataset.reaction || 'like');
+        };
+      });
+    }
 
     const normalizeCategory = (v) => String(v || '기타').trim().replace(/\s+/g, ' ');
 

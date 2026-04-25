@@ -1139,13 +1139,13 @@ body.gnb-open .admin-bottom-nav{
     const envBadge = document.getElementById('envBadge');
     if (envBadge && ENV === 'dev') envBadge.classList.add('show');
     const firebaseConfig = FIREBASE_CONFIG[ENV];
-    const BENEFITS_COLLECTION='benefits', NOTICES_COLLECTION='notices', PUSH_JOBS_COLLECTION='push_jobs', USERS_COLLECTION='users';
+    const BENEFITS_COLLECTION='benefits', BENEFIT_STATS_COLLECTION='benefit_stats', NOTICES_COLLECTION='notices', PUSH_JOBS_COLLECTION='push_jobs', USERS_COLLECTION='users';
     const LOGIN_FUNCTION_URL = API_URL[ENV].login;
     // Firebase Functions geocodeAddress 엔드포인트입니다. 배포 후 dev/prod URL을 입력하세요.
     // 예: https://geocodeaddress-l6mntiaxgq-du.a.run.app
     const GEOCODE_FUNCTION_URL = (API_URL?.[ENV]?.geocodeAddress || '').trim();
     const DEFAULT_BENEFITS=[{name:'엘스킨케어',category:'피부관리',discountValue:50,discountText:'50%',condition:'첫방문 50% / 입주민 정액권 최대 30%',address:'경기 파주시 경의로 1242 209호, 210호',phone:'0507-1433-5760',url:'',visible:true,recommended:true,service:false},{name:'미스터피자 일산탄현점',category:'음식',discountValue:30,discountText:'30%',condition:'포장 30% / 매장식사 20% + 샐러드 증정',address:'경기 고양시 일산서구 탄현로 136 상가동 2층 204호',phone:'031-911-9296',url:'',visible:true,recommended:true,service:false}];
-    const state={benefits:[],notices:[],pushJobs:[],members:[],isAdmin:false,view:'dashboard',adminProfile:null}; let benefitSortMode='latest'; const qs=(s)=>document.querySelector(s), qsa=(s)=>[...document.querySelectorAll(s)];
+    const state={benefits:[],benefitStats:{},notices:[],pushJobs:[],members:[],isAdmin:false,view:'dashboard',adminProfile:null}; let benefitSortMode='latest'; const qs=(s)=>document.querySelector(s), qsa=(s)=>[...document.querySelectorAll(s)];
 
     function escapeHtml(value){
       return String(value ?? '')
@@ -1157,7 +1157,7 @@ body.gnb-open .admin-bottom-nav{
     }
     const globalLoadingBar = qs('#globalLoadingBar');
     let globalLoadingTimer = null;
-    const initialLoadState = { benefits:false, notices:false, pushJobs:false, users:false };
+    const initialLoadState = { benefits:false, benefitStats:false, notices:false, pushJobs:false, users:false };
 	
 
     function showGlobalLoading(){
@@ -1280,7 +1280,7 @@ const setTextAll = (selector, text) => qsa(selector).forEach(el => el.textConten
       window.scrollTo({ top: 0, behavior: 'auto' });
     }
 
-    function sanitizeBenefit(item={},id=''){return {id,name:item.name||'',category:item.category||'기타',discountValue:Number(item.discountValue||0),discountText:item.discountText||`${Number(item.discountValue||0)}%`,condition:item.condition||'',address:item.address||'',lat:Number(item.lat||0),lng:Number(item.lng||0),url:item.url||'',phone:item.phone||'',service:!!item.service||String(item.discountText).trim()==='서비스',visible:item.visible!==false,recommended:!!item.recommended,thumbnailUrl:item.thumbnailUrl||item.imageUrl||item.ogImageUrl||'',shareDescription:item.shareDescription||'',shareBest:!!item.shareBest,rankBoost:Number(item.rankBoost||0),viewCount:Number(item.viewCount||item.clickCount||0),favoriteCount:Number(item.favoriteCount||0),shareCount:Number(item.shareCount||0),createdAt:item.createdAt||null,updatedAt:item.updatedAt||null};}
+    function sanitizeBenefit(item={},id=''){return {id,name:item.name||'',category:item.category||'기타',discountValue:Number(item.discountValue||0),discountText:item.discountText||`${Number(item.discountValue||0)}%`,condition:item.condition||'',address:item.address||'',lat:Number(item.lat||0),lng:Number(item.lng||0),url:item.url||'',phone:item.phone||'',service:!!item.service||String(item.discountText).trim()==='서비스',visible:item.visible!==false,recommended:!!item.recommended,thumbnailUrl:item.thumbnailUrl||item.imageUrl||item.ogImageUrl||'',shareDescription:item.shareDescription||'',shareBest:!!item.shareBest,rankBoost:Number(item.rankBoost||0),viewCount:Number(item.viewCount||item.clickCount||item.detailViewCount||0),favoriteCount:Number(item.favoriteCount||item.likeCount||0),shareCount:Number(item.shareCount||item.recommendCount||0),hotCount:Number(item.hotCount||0),mapClickCount:Number(item.mapClickCount||0),cardClickCount:Number(item.cardClickCount||0),popularScore:Number(item.popularScore||0),createdAt:item.createdAt||null,updatedAt:item.updatedAt||null};}
     function sanitizeNotice(item={},id=''){return {id,title:item.title||'',content:item.content||'',category:item.category||'일반',visible:item.visible!==false,pinned:!!item.pinned,createdAt:item.createdAt||null,updatedAt:item.updatedAt||null};}
     const hasFirebaseConfig=()=>firebaseConfig.apiKey&&firebaseConfig.projectId&&firebaseConfig.appId;
     let auth=null,db=null;
@@ -1353,11 +1353,41 @@ const setTextAll = (selector, text) => qsa(selector).forEach(el => el.textConten
       });
     }
 
+    function sanitizeBenefitStats(item={},id=''){
+      return {
+        id,
+        benefitId:item.benefitId||id,
+        name:item.name||'',
+        detailViewCount:Number(item.detailViewCount||item.viewCount||0),
+        cardClickCount:Number(item.cardClickCount||0),
+        mapClickCount:Number(item.mapClickCount||0),
+        likeCount:Number(item.likeCount||item.favoriteCount||0),
+        recommendCount:Number(item.recommendCount||item.shareCount||0),
+        hotCount:Number(item.hotCount||0),
+        popularScore:Number(item.popularScore||0),
+        updatedAt:item.updatedAt||null
+      };
+    }
+
+    function getBenefitStats(item={}){
+      const stat = state.benefitStats?.[item.id] || {};
+      return {
+        detailViewCount:Number(stat.detailViewCount ?? item.viewCount ?? 0),
+        cardClickCount:Number(stat.cardClickCount ?? item.cardClickCount ?? 0),
+        mapClickCount:Number(stat.mapClickCount ?? item.mapClickCount ?? 0),
+        likeCount:Number(stat.likeCount ?? item.favoriteCount ?? 0),
+        recommendCount:Number(stat.recommendCount ?? item.shareCount ?? 0),
+        hotCount:Number(stat.hotCount ?? item.hotCount ?? 0),
+        popularScore:Number(stat.popularScore ?? item.popularScore ?? 0)
+      };
+    }
+
     function buildBenefitItemHtml(item){
       const createdText = formatAdminDate(item.createdAt);
       const updatedText = formatAdminDate(item.updatedAt);
       const dateLine = `등록 ${createdText} · 수정 ${updatedText}`;
-      const metrics=`<div class="admin-metric-row"><span class="admin-metric-chip">👁 ${item.viewCount||0}</span><span class="admin-metric-chip">⭐ ${item.favoriteCount||0}</span><span class="admin-metric-chip">🔗 ${item.shareCount||0}</span>${item.rankBoost?`<span class="admin-metric-chip">🔥 가중치 ${item.rankBoost}</span>`:''}${item.shareBest?'<span class="admin-metric-chip share-best">BEST 공유</span>':''}${item.thumbnailUrl?'<span class="admin-metric-chip">🖼 썸네일</span>':''}</div>`;
+      const stat = getBenefitStats(item);
+      const metrics=`<div class="admin-metric-row"><span class="admin-metric-chip">👁 조회 ${stat.detailViewCount}</span><span class="admin-metric-chip">👍 좋아요 ${stat.likeCount}</span><span class="admin-metric-chip">💗 추천 ${stat.recommendCount}</span><span class="admin-metric-chip">🔥 HOT ${stat.hotCount}</span><span class="admin-metric-chip">🗺 지도 ${stat.mapClickCount}</span>${stat.popularScore?`<span class="admin-metric-chip share-best">🏆 점수 ${stat.popularScore}</span>`:''}${item.rankBoost?`<span class="admin-metric-chip">🔥 가중치 ${item.rankBoost}</span>`:''}${item.shareBest?'<span class="admin-metric-chip share-best">BEST 공유</span>':''}${item.thumbnailUrl?'<span class="admin-metric-chip">🖼 썸네일</span>':''}</div>`;
       return `<div class="mini-item-head"><div><h5>${item.name}</h5><div style="color:#64748b;font-size:13px;line-height:1.45;">${item.category} · ${item.discountText} · ${item.phone}</div><div class="benefit-date-line">${dateLine}</div><div class="tags">${isRecentlyUpdatedBenefit(item)?'<span class="tag updated-tag">최근 수정</span>':''}${item.recommended?'<span class="tag rec">추천</span>':''}${item.visible===false?'<span class="tag hidden-tag">비노출</span>':'<span class="tag live-tag">노출중</span>'}</div>${metrics}</div><div class="tags" style="margin-top:0;"><button class="btn btn-soft edit-btn" style="padding:8px 10px;">수정</button><button class="btn btn-danger del-btn" style="padding:8px 10px;">삭제</button></div></div>`;
     }
 
@@ -2119,6 +2149,21 @@ const setTextAll = (selector, text) => qsa(selector).forEach(el => el.textConten
         await openModalAlert('기본 데이터 업로드에 실패했습니다.', qs('#seedBtn'));
       }
     }
+    function subscribeBenefitStats(){
+      onSnapshot(collection(db,BENEFIT_STATS_COLLECTION),(snapshot)=>{
+        const next = {};
+        snapshot.docs.forEach(d=>{
+          const stat = sanitizeBenefitStats(d.data(), d.id);
+          next[stat.benefitId || d.id] = stat;
+        });
+        state.benefitStats = next;
+        renderAdminList();
+        markInitialDataLoaded('benefitStats');
+      },(e)=>{
+        console.error(e);
+        markInitialDataLoaded('benefitStats');
+      });
+    }
     function subscribeBenefits(){
       onSnapshot(collection(db,BENEFITS_COLLECTION),(snapshot)=>{
         state.benefits=snapshot.docs.map(d=>sanitizeBenefit(d.data(),d.id));
@@ -2502,6 +2547,7 @@ const setTextAll = (selector, text) => qsa(selector).forEach(el => el.textConten
             adminDataSubscribed = true;
             showGlobalLoading();
             subscribeBenefits();
+            subscribeBenefitStats();
             subscribeNotices();
             subscribePushJobs();
             subscribeMembers();
