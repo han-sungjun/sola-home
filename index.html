@@ -1,13 +1,24 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <meta name="theme-color" content="#0f172a" />
-  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <!-- PWA / App Icon -->
+  <link rel="manifest" href="/manifest.json" />
+  <meta name="theme-color" content="#0F172A" />
   <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <meta name="description" content="더운정 마이힐스 로그인" />
+  <meta name="apple-mobile-web-app-title" content="더운정 마이힐스" />
+  <link rel="icon" href="/icons/icon-192.png" />
+  <link rel="apple-touch-icon" href="/icons/icon-180.png" />
+
+  <!-- iOS Splash Images -->
+  <link rel="apple-touch-startup-image" href="/icons/splash-ios-750x1334.png" media="(device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2)" />
+  <link rel="apple-touch-startup-image" href="/icons/splash-ios-828x1792.png" media="(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2)" />
+  <link rel="apple-touch-startup-image" href="/icons/splash-ios-1170x2532.png" media="(device-width: 390px) and (device-height: 844px) and (-webkit-device-pixel-ratio: 3)" />
+  <link rel="apple-touch-startup-image" href="/icons/splash-ios-1290x2796.png" media="(device-width: 430px) and (device-height: 932px) and (-webkit-device-pixel-ratio: 3)" />
+<meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="description" content="더운정 마이힐스 로그인" />
   <title>더운정 마이힐스 - 로그인</title>
   <style>
     :root{
@@ -280,7 +291,6 @@
 .top-loader.active{width:78%}
 .top-loader.done{width:100%;opacity:0}
 
-
 /* ===== 전체 화면 로더 ===== */
 .page-loader{
   position:fixed;
@@ -363,7 +373,6 @@
   100%{ opacity:.9; }
 }
 
-
     .find-links{
       display:flex;
       justify-content:flex-end;
@@ -409,8 +418,6 @@
     .sheet-result.error{background:#fef2f2;border-color:#fecaca;color:#b91c1c}
     .sheet-result.success{background:#f0fdf4;border-color:#bbf7d0;color:#166534}
 
-
-
     .env-badge{
       display:none;
       align-items:center;
@@ -436,7 +443,6 @@
       box-shadow:0 0 0 4px rgba(99,102,241,.14);
       flex:0 0 auto;
     }
-
 
     /* ===== DEV ENV badge: signup page hero style override ===== */
     .hero > .eyebrow,
@@ -464,6 +470,167 @@
     }
 
   </style>
+
+  <!-- Add to Home + First Launch UX -->
+  <style id="myhills-install-ux-style">
+    .myhills-install-banner{
+      position:fixed;
+      left:16px;
+      right:16px;
+      bottom:calc(18px + env(safe-area-inset-bottom,0px));
+      z-index:100000;
+      display:none;
+      pointer-events:none;
+    }
+    .myhills-install-banner.show{
+      display:block;
+      animation:myhillsInstallUp .28s ease both;
+      pointer-events:auto;
+    }
+    .myhills-install-card{
+      width:min(100%,480px);
+      margin:0 auto;
+      display:flex;
+      align-items:center;
+      gap:12px;
+      padding:14px 14px;
+      border-radius:24px;
+      color:#fff;
+      background:rgba(15,23,42,.94);
+      border:1px solid rgba(255,255,255,.12);
+      box-shadow:0 22px 48px rgba(15,23,42,.28);
+      backdrop-filter:blur(18px);
+      -webkit-backdrop-filter:blur(18px);
+    }
+    .myhills-install-icon{
+      width:46px;
+      height:46px;
+      border-radius:16px;
+      background:#0F172A url('/icons/icon-192.png') center/72% no-repeat;
+      border:1px solid rgba(255,255,255,.12);
+      flex:0 0 auto;
+      box-shadow:inset 0 0 0 1px rgba(255,255,255,.04);
+    }
+    .myhills-install-copy{
+      flex:1;
+      min-width:0;
+      line-height:1.35;
+    }
+    .myhills-install-copy strong{
+      display:block;
+      font-size:14px;
+      font-weight:900;
+      letter-spacing:-.02em;
+      color:#fff;
+    }
+    .myhills-install-copy span{
+      display:block;
+      margin-top:3px;
+      font-size:12px;
+      font-weight:700;
+      color:rgba(255,255,255,.72);
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+    .myhills-install-actions{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      flex:0 0 auto;
+    }
+    .myhills-install-btn,
+    .myhills-install-close{
+      border:none;
+      cursor:pointer;
+      font:inherit;
+      -webkit-tap-highlight-color:transparent;
+    }
+    .myhills-install-btn{
+      min-width:62px;
+      padding:11px 13px;
+      border-radius:15px;
+      color:#fff;
+      background:linear-gradient(135deg,#ef4444,#b91c1c);
+      font-size:13px;
+      font-weight:900;
+      box-shadow:0 10px 22px rgba(239,68,68,.25);
+    }
+    .myhills-install-close{
+      width:34px;
+      height:34px;
+      border-radius:13px;
+      color:rgba(255,255,255,.82);
+      background:rgba(255,255,255,.08);
+      font-size:18px;
+      line-height:1;
+    }
+    .myhills-install-btn:active,
+    .myhills-install-close:active{
+      transform:scale(.96);
+    }
+    .myhills-first-launch{
+      position:fixed;
+      inset:0;
+      z-index:100001;
+      display:none;
+      align-items:center;
+      justify-content:center;
+      background:
+        radial-gradient(circle at 65% 30%,rgba(239,68,68,.22),transparent 34%),
+        linear-gradient(180deg,#0F172A 0%,#111827 100%);
+      opacity:1;
+      transition:opacity .48s ease, visibility .48s ease;
+    }
+    .myhills-first-launch.show{
+      display:flex;
+    }
+    .myhills-first-launch.hide{
+      opacity:0;
+      visibility:hidden;
+    }
+    .myhills-first-launch-inner{
+      display:grid;
+      place-items:center;
+      gap:16px;
+      transform:translateY(4px);
+      animation:myhillsSplashIn .58s cubic-bezier(.2,.9,.2,1) both;
+    }
+    .myhills-first-launch-icon{
+      width:96px;
+      height:96px;
+      border-radius:28px;
+      background:#0F172A url('/icons/icon-192.png') center/72% no-repeat;
+      box-shadow:0 24px 50px rgba(0,0,0,.28), inset 0 0 0 1px rgba(255,255,255,.08);
+    }
+    .myhills-first-launch-title{
+      color:#fff;
+      font-size:18px;
+      font-weight:900;
+      letter-spacing:-.04em;
+    }
+    .myhills-first-launch-sub{
+      margin-top:-8px;
+      color:rgba(255,255,255,.68);
+      font-size:12px;
+      font-weight:700;
+    }
+    @keyframes myhillsInstallUp{
+      from{opacity:0;transform:translateY(12px)}
+      to{opacity:1;transform:translateY(0)}
+    }
+    @keyframes myhillsSplashIn{
+      from{opacity:0;transform:translateY(10px) scale(.92)}
+      to{opacity:1;transform:translateY(0) scale(1)}
+    }
+    @media (max-width:380px){
+      .myhills-install-card{padding:12px}
+      .myhills-install-copy span{display:none}
+      .myhills-install-icon{width:42px;height:42px}
+      .myhills-install-btn{min-width:58px;padding:10px 12px}
+    }
+  </style>
+
 </head>
 <body>
     <div class="wrap">
@@ -1503,6 +1670,135 @@
       <span class="arm bot2"></span>
     </div>
   </div>
+
+
+  <!-- Add to Home + First Launch UX -->
+  <div id="myhillsFirstLaunch" class="myhills-first-launch" aria-hidden="true">
+    <div class="myhills-first-launch-inner">
+      <div class="myhills-first-launch-icon" aria-hidden="true"></div>
+      <div class="myhills-first-launch-title">더운정 마이힐스</div>
+      <div class="myhills-first-launch-sub">입주민 전용 혜택 웹앱</div>
+    </div>
+  </div>
+
+  <div id="myhillsInstallBanner" class="myhills-install-banner" aria-hidden="true">
+    <div class="myhills-install-card">
+      <div class="myhills-install-icon" aria-hidden="true"></div>
+      <div class="myhills-install-copy">
+        <strong>마이힐스를 앱처럼 이용해보세요</strong>
+        <span>홈 화면에 추가하면 더 빠르게 열 수 있습니다.</span>
+      </div>
+      <div class="myhills-install-actions">
+        <button id="myhillsInstallBtn" class="myhills-install-btn" type="button">설치</button>
+        <button id="myhillsInstallClose" class="myhills-install-close" type="button" aria-label="설치 안내 닫기">×</button>
+      </div>
+    </div>
+  </div>
+
+
+  <script id="myhills-install-ux-script">
+    (function(){
+      const INSTALL_HIDE_KEY = "myhills_install_banner_closed_v1";
+      const FIRST_LAUNCH_KEY = "myhills_first_launch_seen_v1";
+
+      function isStandaloneMode(){
+        return window.matchMedia("(display-mode: standalone)").matches ||
+          window.navigator.standalone === true ||
+          document.referrer.startsWith("android-app://");
+      }
+
+      function initFirstLaunch(){
+        const splash = document.getElementById("myhillsFirstLaunch");
+        if (!splash) return;
+
+        const shouldShow = isStandaloneMode() && !localStorage.getItem(FIRST_LAUNCH_KEY);
+        if (!shouldShow) {
+          splash.remove();
+          return;
+        }
+
+        splash.classList.add("show");
+        localStorage.setItem(FIRST_LAUNCH_KEY, "1");
+
+        window.setTimeout(function(){
+          splash.classList.add("hide");
+          window.setTimeout(function(){
+            if (splash && splash.parentNode) splash.remove();
+          }, 520);
+        }, 1250);
+      }
+
+      function initInstallBanner(){
+        let deferredPrompt = null;
+        const banner = document.getElementById("myhillsInstallBanner");
+        const installBtn = document.getElementById("myhillsInstallBtn");
+        const closeBtn = document.getElementById("myhillsInstallClose");
+
+        if (!banner || !installBtn || !closeBtn) return;
+
+        function hideBanner(saveClose){
+          banner.classList.remove("show");
+          banner.setAttribute("aria-hidden", "true");
+          if (saveClose) localStorage.setItem(INSTALL_HIDE_KEY, String(Date.now()));
+        }
+
+        function showBanner(){
+          if (isStandaloneMode()) return;
+          if (localStorage.getItem(INSTALL_HIDE_KEY)) return;
+          banner.classList.add("show");
+          banner.setAttribute("aria-hidden", "false");
+        }
+
+        window.addEventListener("beforeinstallprompt", function(event){
+          event.preventDefault();
+          deferredPrompt = event;
+          window.setTimeout(showBanner, 1200);
+        });
+
+        installBtn.addEventListener("click", async function(){
+          if (!deferredPrompt) {
+            hideBanner(false);
+            return;
+          }
+
+          deferredPrompt.prompt();
+
+          try {
+            const choice = await deferredPrompt.userChoice;
+            if (choice && choice.outcome === "accepted") {
+              hideBanner(true);
+            }
+          } catch (e) {
+            console.warn("설치 안내 처리 실패:", e);
+          }
+
+          deferredPrompt = null;
+        });
+
+        closeBtn.addEventListener("click", function(){
+          hideBanner(true);
+        });
+
+        window.addEventListener("appinstalled", function(){
+          hideBanner(true);
+        });
+
+        if (isStandaloneMode()) {
+          hideBanner(false);
+        }
+      }
+
+      if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", function(){
+          initFirstLaunch();
+          initInstallBanner();
+        });
+      } else {
+        initFirstLaunch();
+        initInstallBanner();
+      }
+    })();
+  </script>
 
 </body>
 

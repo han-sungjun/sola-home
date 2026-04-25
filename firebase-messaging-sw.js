@@ -129,8 +129,8 @@ function showPushNotification(payload) {
 
   return self.registration.showNotification(normalized.title, {
     body: normalized.body,
-    icon: "/icons/icon-192.png",
-    badge: "/icons/icon-192.png",
+    icon: "/icons/push-icon.png",
+    badge: "/icons/badge-icon.png",
     vibrate: [200, 100, 200],
 
     // PC 중복 알림 덮어쓰기용
@@ -187,7 +187,12 @@ self.addEventListener("notificationclick", (event) => {
   event.notification.close();
 
   const data = event.notification?.data || {};
-  const targetUrl = data.url || "/";
+  let targetUrl = data.url || "/";
+  if (data.noticeId) {
+    if (!targetUrl.includes("?")) {
+      targetUrl += `?noticeId=${data.noticeId}`;
+    }
+  }
   const noticeId = data.noticeId || "";
   const type = data.type || "";
 
