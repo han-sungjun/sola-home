@@ -52,6 +52,9 @@ let loadingCount = 0;
 let confirmationResult = null;
 let recaptchaVerifier = null;
 let verifiedIdToken = '';
+let sendInFlight = false;
+let verifyInFlight = false;
+let resetInFlight = false;
 
 function startLoading() {
   const pageLoader = document.getElementById('pageLoader');
@@ -94,6 +97,50 @@ function toE164Korea(value = '') {
   if (digits.startsWith('82')) return `+${digits}`;
   if (digits.startsWith('0')) return `+82${digits.slice(1)}`;
   return `+82${digits}`;
+}
+
+
+function fromE164Korea(value = '') {
+  const digits = normalizeDigits(value);
+  if (digits.startsWith('82')) return `0${digits.slice(2)}`;
+  return digits;
+}
+
+function isProviderAlreadyLinked(user, providerId = 'phone') {
+  return Boolean(user?.providerData?.some((provider) => provider.providerId === providerId));
+}
+
+async function markPhoneVerifiedAndMove(user, phoneValue = '') {
+  if (!user) return;
+
+  await user.reload().catch(() => {});
+  const refreshedUser = auth.currentUser || user;
+
+  const phoneDigits =
+    normalizeDigits(phoneValue) ||
+    fromE164Korea(refreshedUser.phoneNumber || '') ||
+    normalizeDigits(phoneNumberEl?.value || '');
+
+  const payload = {
+    phoneVerified: true,
+    phoneVerifiedAt: serverTimestamp()
+  };
+
+  if (phoneDigits) {
+    payload.phoneNumber = phoneDigits;
+  }
+
+  await updateDoc(doc(db, 'users', refreshedUser.uid), payload);
+
+  showNotice('이미 휴대폰 인증이 완료된 계정입니다. 앱으로 이동합니다.', 'success');
+
+  setTimeout(() => {
+    window.location.replace('./app');
+  }, 700);
+}
+
+function getFirebaseErrorCode(error) {
+  return String(error?.code || '').replace(/^auth\//, '');
 }
 
 function setButtonsLoading(isLoading, type = 'send') {
@@ -174,8 +221,12 @@ async function fetchResetUserInfo() {
 async function sendCode() {
   hideNotice();
 
+  if (sendInFlight) return;
+  sendInFlight = true;
+
   if (isResetMode && !loginId) {
     showNotice('비밀번호를 재설정할 아이디 정보가 없습니다. 로그인 화면에서 다시 진행해주세요.', 'error');
+    sendInFlight = false;
     return;
   }
 
@@ -183,6 +234,26 @@ async function sendCode() {
     const user = auth.currentUser;
     if (!user) {
       window.location.replace('./');
+      sendInFlight = false;
+      return;
+    }
+
+    await user.reload().catch(() => {});
+    const refreshedUser = auth.currentUser || user;
+
+    if (isProviderAlreadyLinked(refreshedUser)) {
+      try {
+        setButtonsLoading(true);
+        startLoading();
+        await markPhoneVerifiedAndMove(refreshedUser, phoneNumberEl.value);
+      } catch (e) {
+        console.error(e);
+        showNotice('이미 인증된 계정입니다. 앱 이동 처리 중 오류가 발생했습니다.', 'error');
+      } finally {
+        finishLoading();
+        setButtonsLoading(false);
+        sendInFlight = false;
+      }
       return;
     }
   }
@@ -192,6 +263,7 @@ async function sendCode() {
 
   if (phoneDigits.length < 10) {
     showNotice('휴대폰 번호를 정확히 입력해주세요.', 'error');
+    sendInFlight = false;
     return;
   }
 
@@ -226,8 +298,23 @@ async function sendCode() {
         verifier
       );
     } else {
+      const user = auth.currentUser;
+
+      if (!user) {
+        window.location.replace('./');
+        return;
+      }
+
+      await user.reload().catch(() => {});
+      const refreshedUser = auth.currentUser || user;
+
+      if (isProviderAlreadyLinked(refreshedUser)) {
+        await markPhoneVerifiedAndMove(refreshedUser, phoneDigits);
+        return;
+      }
+
       confirmationResult = await linkWithPhoneNumber(
-        auth.currentUser,
+        refreshedUser,
         toE164Korea(phoneDigits),
         verifier
       );
@@ -242,24 +329,58 @@ async function sendCode() {
   } catch (e) {
     console.error(e);
     resetRecaptcha();
+
+    const code = getFirebaseErrorCode(e);
+
+    if (!isResetMode && code === 'provider-already-linked') {
+      try {
+        await markPhoneVerifiedAndMove(auth.currentUser, phoneDigits);
+      } catch (innerError) {
+        console.error(innerError);
+        showNotice('이미 인증된 계정입니다. 다시 로그인 후 확인해주세요.', 'error');
+      }
+      return;
+    }
+
+    if (code === 'credential-already-in-use' || code === 'phone-number-already-exists') {
+      showNotice('이미 다른 계정에서 사용 중인 휴대폰 번호입니다. 관리자에게 문의해주세요.', 'error');
+      return;
+    }
+
+    if (code === 'too-many-requests') {
+      showNotice('인증 요청이 너무 많습니다. 잠시 후 다시 시도해주세요.', 'error');
+      return;
+    }
+
+    if (code === 'invalid-phone-number') {
+      showNotice('휴대폰 번호 형식이 올바르지 않습니다.', 'error');
+      return;
+    }
+
     showNotice('문자 발송 실패. 다시 시도해주세요.', 'error');
   } finally {
     finishLoading();
     setButtonsLoading(false);
+    sendInFlight = false;
   }
 }
 
 async function verifyCode() {
   hideNotice();
 
+  if (verifyInFlight) return;
+  verifyInFlight = true;
+
   if (!confirmationResult) {
     showNotice('먼저 인증 코드를 요청하세요.', 'error');
+    verifyInFlight = false;
     return;
   }
 
   const code = normalizeDigits(smsCodeEl.value).slice(0, 6);
   if (code.length !== 6) {
     showNotice('6자리 코드를 입력해주세요.', 'error');
+    verifyInFlight = false;
     return;
   }
 
@@ -291,17 +412,46 @@ async function verifyCode() {
 
   } catch (e) {
     console.error(e);
-    showNotice('인증 코드가 올바르지 않습니다.', 'error');
+    const code = getFirebaseErrorCode(e);
+
+    if (!isResetMode && code === 'provider-already-linked') {
+      try {
+        await markPhoneVerifiedAndMove(auth.currentUser, phoneNumberEl.value);
+      } catch (innerError) {
+        console.error(innerError);
+        showNotice('이미 인증된 계정입니다. 다시 로그인 후 확인해주세요.', 'error');
+      }
+      return;
+    }
+
+    if (code === 'invalid-verification-code') {
+      showNotice('인증 코드가 올바르지 않습니다.', 'error');
+      return;
+    }
+
+    if (code === 'code-expired') {
+      showNotice('인증 코드가 만료되었습니다. 코드를 다시 받아주세요.', 'error');
+      return;
+    }
+
+    showNotice('인증 확인 중 오류가 발생했습니다. 다시 시도해주세요.', 'error');
   } finally {
     finishLoading();
     setButtonsLoading(false, 'verify');
+    verifyInFlight = false;
   }
 }
 
 async function resetPassword() {
   hideNotice();
 
-  if (!isResetMode) return;
+  if (resetInFlight) return;
+  resetInFlight = true;
+
+  if (!isResetMode) {
+    resetInFlight = false;
+    return;
+  }
 
   const newPassword = String(newPasswordEl?.value || '').trim();
   const newPasswordConfirm = String(newPasswordConfirmEl?.value || '').trim();
@@ -363,6 +513,7 @@ async function resetPassword() {
   } finally {
     finishLoading();
     setButtonsLoading(false, 'reset');
+    resetInFlight = false;
   }
 }
 
@@ -422,10 +573,22 @@ onAuthStateChanged(auth, async (user) => {
     return;
   }
 
-  const data = await loadUser(user);
+  await user.reload().catch(() => {});
+  const refreshedUser = auth.currentUser || user;
+  const data = await loadUser(refreshedUser);
 
   if (data?.phoneVerified) {
     window.location.replace('./app');
+    return;
+  }
+
+  if (isProviderAlreadyLinked(refreshedUser)) {
+    try {
+      await markPhoneVerifiedAndMove(refreshedUser, data?.phoneNumber || refreshedUser.phoneNumber || phoneNumberEl.value);
+    } catch (e) {
+      console.error(e);
+      showNotice('휴대폰 인증 상태 확인 중 오류가 발생했습니다. 다시 시도해주세요.', 'error');
+    }
     return;
   }
 
@@ -465,35 +628,45 @@ function updatePasswordResetUi() {
   }
 
   if (!pw) {
-    passwordStrengthStatus.textContent = '비밀번호 강도를 확인해 주세요.';
+    if (passwordStrengthStatus) passwordStrengthStatus.textContent = '비밀번호 강도를 확인해 주세요.';
   } else if (strength === 'weak') {
     if (pwBar1) pwBar1.style.background = '#dc2626';
-    passwordStrengthStatus.classList.add('weak');
-    passwordStrengthStatus.textContent = '약함 · 6자 이상, 숫자와 문자를 함께 사용해 주세요.';
+    if (passwordStrengthStatus) {
+      passwordStrengthStatus.classList.add('weak');
+      passwordStrengthStatus.textContent = '약함 · 6자 이상, 숫자와 문자를 함께 사용해 주세요.';
+    }
   } else if (strength === 'medium') {
     if (pwBar1) pwBar1.style.background = '#b45309';
     if (pwBar2) pwBar2.style.background = '#b45309';
-    passwordStrengthStatus.classList.add('medium');
-    passwordStrengthStatus.textContent = '보통 · 특수문자까지 포함하면 더 안전합니다.';
+    if (passwordStrengthStatus) {
+      passwordStrengthStatus.classList.add('medium');
+      passwordStrengthStatus.textContent = '보통 · 특수문자까지 포함하면 더 안전합니다.';
+    }
   } else {
     if (pwBar1) pwBar1.style.background = '#16a34a';
     if (pwBar2) pwBar2.style.background = '#16a34a';
     if (pwBar3) pwBar3.style.background = '#16a34a';
-    passwordStrengthStatus.classList.add('strong');
-    passwordStrengthStatus.textContent = '강함 · 안전한 비밀번호입니다.';
+    if (passwordStrengthStatus) {
+      passwordStrengthStatus.classList.add('strong');
+      passwordStrengthStatus.textContent = '강함 · 안전한 비밀번호입니다.';
+    }
   }
 
   if (!confirm) {
     if (passwordMatchStatus) {
 	  passwordMatchStatus.className = 'inline-check';
 	}
-    passwordMatchStatus.textContent = '';
+    if (passwordMatchStatus) passwordMatchStatus.textContent = '';
   } else if (pw === confirm) {
-    passwordMatchStatus.className = 'inline-check show success';
-    passwordMatchStatus.textContent = '비밀번호가 일치합니다.';
+    if (passwordMatchStatus) {
+      passwordMatchStatus.className = 'inline-check show success';
+      passwordMatchStatus.textContent = '비밀번호가 일치합니다.';
+    }
   } else {
-    passwordMatchStatus.className = 'inline-check show error';
-    passwordMatchStatus.textContent = '비밀번호가 일치하지 않습니다.';
+    if (passwordMatchStatus) {
+      passwordMatchStatus.className = 'inline-check show error';
+      passwordMatchStatus.textContent = '비밀번호가 일치하지 않습니다.';
+    }
   }
 
   const canSubmit =
