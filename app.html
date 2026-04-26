@@ -2365,6 +2365,14 @@ body.app-role-resident [data-view="shareinsights"]{
   -webkit-tap-highlight-color:transparent;
 }
 
+  
+
+/* 운영계에서는 AI 생활 도우미 진입 UI 비노출 */
+body.env-prod [data-view-link="ai"],
+body.env-prod #view-ai{
+  display:none!important;
+}
+
   </style>
 </head>
 <body>
@@ -2569,6 +2577,7 @@ body.app-role-resident [data-view="shareinsights"]{
     import { ENV, FIREBASE_CONFIG } from '/env-config.js';
 
     const envBadge = document.getElementById('envBadge');
+    document.body.classList.add(ENV === 'dev' ? 'env-dev' : 'env-prod');
     if (envBadge && ENV === 'dev') envBadge.classList.add('show');
     import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
     import { getFirestore, collection, onSnapshot, doc, getDoc, getDocs, setDoc, updateDoc, increment, serverTimestamp, addDoc, query, where, orderBy, limit, startAfter, deleteDoc } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
