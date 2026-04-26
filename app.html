@@ -2075,12 +2075,12 @@ body.gnb-open .bottom-nav{
             try {
               const item = normalizeForegroundPushPayload(payload);
               console.log('포그라운드 푸시 수신', payload);
-              // 앱이 열려 있을 때는 시스템 알림을 다시 띄우지 않습니다.
-              // 백그라운드/앱 닫힘 상태의 시스템 알림은 firebase-messaging-sw.js가 처리합니다.
+              // 앱이 열려 있을 때는 app.html에서 추가 알림을 띄우지 않습니다.
+              // 시스템 알림은 firebase-messaging-sw.js 한 곳에서만 처리합니다.
+              // 이중 표시 방지를 위해 showNotification/new Notification/인앱 토스트 호출을 하지 않습니다.
               if (item.important && navigator.vibrate) {
                 navigator.vibrate([160, 80, 160]);
               }
-              showForegroundPushToast({ title: item.title, body: item.body, url: item.url });
             } catch (error) {
               console.error('포그라운드 푸시 처리 실패', error);
             }

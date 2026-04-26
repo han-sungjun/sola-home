@@ -1,0 +1,45 @@
+{
+  "routes": [
+    {
+      "src": "/",
+      "dest": "/index.html"
+    },
+    {
+      "src": "/app",
+      "dest": "/app.html"
+    },
+    {
+      "src": "/admin",
+      "dest": "/sola-admin-x92ks.html"
+    },
+    {
+      "src": "/signup",
+      "dest": "/signup.html"
+    },
+    {
+      "src": "/phone-verify",
+      "dest": "/phone-verify.html"
+    },
+    {
+      "src": "/share/([^/]+)/([^/]+)",
+      "dest": "/api/share?type=$1&id=$2"
+    },
+    {
+      "src": "/notice/(.*)",
+      "dest": "/app.html"
+    },
+    {
+      "src": "/benefit/(.*)",
+      "dest": "/app.html"
+    },
+    {
+      "src": "/(.*\\.(js|css|png|jpg|jpeg|gif|svg|ico|json|webmanifest|txt|map|woff|woff2|ttf))",
+      "dest": "/$1"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/error.html",
+      "status": 404
+    }
+  ]
+}
