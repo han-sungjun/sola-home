@@ -2334,6 +2334,10 @@ body.app-role-resident [data-view="shareinsights"]{
   box-shadow:0 16px 32px rgba(15,23,42,.08);
 }
 
+
+/* ===== AI 생활 도우미 (1단계: Firestore 검색형) ===== */
+.ai-entry-card{position:relative;overflow:hidden;background:linear-gradient(135deg,#0f172a 0%,#1e293b 48%,#2563eb 100%);color:#fff;border:none;cursor:pointer}.ai-entry-card::after{content:"";position:absolute;right:-28px;top:-28px;width:128px;height:128px;border-radius:42px;background:rgba(255,255,255,.12);transform:rotate(18deg)}.ai-entry-card>*{position:relative;z-index:1}.ai-entry-head{display:flex;align-items:flex-start;gap:14px;justify-content:space-between}.ai-entry-icon{width:48px;height:48px;border-radius:18px;display:grid;place-items:center;background:rgba(255,255,255,.14);font-size:24px;box-shadow:inset 0 0 0 1px rgba(255,255,255,.16)}.ai-entry-copy{min-width:0;flex:1}.ai-entry-copy h3{margin:0;font-size:18px;letter-spacing:-.04em}.ai-entry-copy p{margin:7px 0 0;color:rgba(255,255,255,.82);font-size:13px;line-height:1.6}.ai-entry-badge{display:inline-flex;align-items:center;gap:6px;margin-top:14px;padding:8px 11px;border-radius:999px;background:rgba(255,255,255,.13);border:1px solid rgba(255,255,255,.16);font-size:12px;font-weight:900;color:#fff}.ai-view-hero{position:relative;overflow:hidden;padding:22px;border-radius:30px;color:#fff;background:radial-gradient(circle at top right,rgba(255,255,255,.24),transparent 32%),linear-gradient(135deg,#111827 0%,#1d4ed8 100%);box-shadow:var(--shadow)}.ai-view-hero h3{margin:10px 0 8px;font-size:24px;letter-spacing:-.05em;line-height:1.2}.ai-view-hero p{margin:0;color:rgba(255,255,255,.88);font-size:14px;line-height:1.7}.ai-chat-panel{display:grid;gap:12px;margin-top:14px}.ai-chat-window{min-height:330px;max-height:52dvh;overflow:auto;padding:14px;border-radius:24px;background:rgba(255,255,255,.86);border:1px solid rgba(15,23,42,.06);box-shadow:inset 0 1px 0 rgba(255,255,255,.9)}.ai-message{display:flex;margin:10px 0}.ai-message.user{justify-content:flex-end}.ai-bubble{max-width:88%;padding:13px 15px;border-radius:20px;font-size:14px;line-height:1.65;white-space:pre-line;box-shadow:0 8px 20px rgba(15,23,42,.06)}.ai-message.bot .ai-bubble{background:#fff;color:#0f172a;border:1px solid #e2e8f0;border-top-left-radius:8px}.ai-message.user .ai-bubble{background:#0f172a;color:#fff;border-top-right-radius:8px}.ai-bubble small{display:block;margin-top:8px;color:#64748b;font-size:11px;line-height:1.5}.ai-message.user .ai-bubble small{color:rgba(255,255,255,.72)}.ai-quick-row{display:flex;gap:8px;overflow:auto;padding:2px 2px 4px;scrollbar-width:none}.ai-quick-row::-webkit-scrollbar{display:none}.ai-quick-btn{white-space:nowrap;border:none;border-radius:999px;padding:9px 12px;background:#eff6ff;color:#1d4ed8;border:1px solid #bfdbfe;font-size:12px;font-weight:900;cursor:pointer;flex:0 0 auto}.ai-input-row{display:flex;gap:10px}.ai-input-row input{flex:1;min-width:0;height:52px;border:1px solid #dbe3ef;background:#fff;border-radius:18px;padding:0 15px;outline:none}.ai-input-row input:focus{border-color:#93c5fd;box-shadow:0 0 0 4px rgba(59,130,246,.12)}.ai-input-row button{height:52px;padding:0 17px;border-radius:18px}.ai-source-list{display:grid;gap:8px;margin-top:10px}.ai-source-item{padding:10px 11px;border-radius:15px;background:#f8fafc;border:1px solid #e2e8f0;font-size:12px;line-height:1.45;color:#334155}.ai-source-item b{display:block;margin-bottom:3px;color:#0f172a}.ai-ready-pill{display:inline-flex;align-items:center;gap:6px;padding:8px 11px;border-radius:999px;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.18);font-size:12px;font-weight:900}@media (max-width:370px){.ai-input-row button{padding:0 13px}.ai-bubble{max-width:94%}}
+
   </style>
 </head>
 <body>
@@ -2401,6 +2405,9 @@ body.app-role-resident [data-view="shareinsights"]{
         <div class="section-head" style="margin-bottom:12px;"><h3>최근 공지</h3><small>최신 안내</small></div>
         <div class="notice-list" id="homeNoticeList"><div class="notice-empty">등록된 공지가 없습니다.</div></div>
       </div>
+      <button class="panel ai-entry-card" type="button" data-view-link="ai" aria-label="AI 생활 도우미 열기">
+        <div class="ai-entry-head"><div class="ai-entry-icon">🤖</div><div class="ai-entry-copy"><h3>AI 생활 도우미</h3><p>공지와 혜택을 빠르게 검색해서 답변합니다.</p><span class="ai-entry-badge">DEV 오픈 · 운영 준비중</span></div></div>
+      </button>
     </section>
     <section id="view-benefits" class="hidden">
       <div class="panel" style="margin-bottom:14px;">
@@ -2465,12 +2472,38 @@ body.app-role-resident [data-view="shareinsights"]{
         <div class="helper">하단 네비바에 모두 담기 어려운 기능을 한 곳에 모았습니다.</div>
       </div>
       <div class="all-menu-grid">
+        <button class="all-menu-card ai-entry-card" type="button" data-view-link="ai"><span class="all-icon">🤖</span><strong>AI 생활 도우미</strong><span>공지와 혜택을 검색해 답변합니다.</span></button>
         <button class="all-menu-card" type="button" data-view-link="community"><span class="all-icon">💬</span><strong>커뮤니티</strong><span>게시글과 댓글로 입주민 정보를 나눕니다.</span></button>
         <button class="all-menu-card" type="button" data-view-link="map"><span class="all-icon">🗺️</span><strong>지도</strong><span>주변 혜택 매장을 지도에서 확인합니다.</span></button>
         <button class="all-menu-card" type="button" data-view-link="notices"><span class="all-icon">📢</span><strong>공지사항</strong><span>관리자가 등록한 안내를 확인합니다.</span></button>
         <button class="all-menu-card" type="button" data-view-link="top5"><span class="all-icon">🏆</span><strong>TOP 5</strong><span>입주민이 많이 보는 인기 매장입니다.</span></button>
         <button class="all-menu-card" type="button" data-view-link="favorite"><span class="all-icon">⭐</span><strong>즐겨찾기</strong><span>자주 쓰는 혜택을 빠르게 봅니다.</span></button>
         <button class="all-menu-card" type="button" data-view-link="benefits"><span class="all-icon">🎁</span><strong>혜택 전체</strong><span>모든 제휴 혜택을 검색합니다.</span></button>
+      </div>
+    </section>
+
+
+    <section id="view-ai" class="hidden">
+      <div class="ai-view-hero">
+        <span class="ai-ready-pill">🤖 DEV 오픈 · 검색형 챗봇</span>
+        <h3>AI 생활 도우미</h3>
+        <p>공지사항, 혜택, FAQ에 등록된 내용을 기준으로 먼저 찾아드리는 1단계 검색형 챗봇입니다.</p>
+      </div>
+      <div class="panel ai-chat-panel">
+        <div class="ai-quick-row" id="aiQuickRow">
+          <button class="ai-quick-btn" type="button" data-ai-question="최근 공지 알려줘">최근 공지 알려줘</button>
+          <button class="ai-quick-btn" type="button" data-ai-question="혜택 매장 추천해줘">혜택 매장 추천해줘</button>
+          <button class="ai-quick-btn" type="button" data-ai-question="지도에서 볼 수 있는 혜택 알려줘">지도 혜택 알려줘</button>
+          <button class="ai-quick-btn" type="button" data-ai-question="인기 매장 TOP 5 알려줘">인기 매장 알려줘</button>
+        </div>
+        <div class="ai-chat-window" id="aiChatWindow" aria-live="polite">
+          <div class="ai-message bot"><div class="ai-bubble">안녕하세요. 마이힐스 AI 생활 도우미입니다.
+궁금한 내용을 입력하면 등록된 공지와 혜택 정보를 먼저 찾아드릴게요.<small>현재는 개발계에서만 동작하는 1단계 검색형 버전입니다.</small></div></div>
+        </div>
+        <div class="ai-input-row">
+          <input id="aiQuestionInput" type="text" maxlength="120" placeholder="예: 최근 공지 알려줘, 치킨 혜택 있어요?" />
+          <button class="btn btn-primary" type="button" id="aiAskBtn">질문</button>
+        </div>
       </div>
     </section>
 
@@ -2883,7 +2916,7 @@ body.app-role-resident [data-view="shareinsights"]{
       }
     }
 
-    const state={category:localStorage.getItem(LAST_CATEGORY_KEY)||'전체',keyword:'',filter:'all',view:'home',benefits:[],notices:[],loading:true,currentUser:null,currentUserProfile:null,popularItems:[],favoriteIds:[],currentPushToken:null,isPushEnabledForThisDevice:false,activeDistanceBenefitId:'',distanceRequestSeq:0,benefitSortMode:'default',distanceRadius:'all',userLocation:null,userLocationFetchedAt:0,distanceMap:{},distanceStatus:'idle',scrollMap:{home:0,benefits:0,favorite:0,top5:0,notices:0,shareinsights:0}};
+    const state={category:localStorage.getItem(LAST_CATEGORY_KEY)||'전체',keyword:'',filter:'all',view:'home',benefits:[],notices:[],loading:true,currentUser:null,currentUserProfile:null,popularItems:[],favoriteIds:[],currentPushToken:null,isPushEnabledForThisDevice:false,activeDistanceBenefitId:'',distanceRequestSeq:0,benefitSortMode:'default',distanceRadius:'all',userLocation:null,userLocationFetchedAt:0,distanceMap:{},distanceStatus:'idle',scrollMap:{home:0,benefits:0,favorite:0,top5:0,notices:0,shareinsights:0,ai:0}};
 
     const initialUrlParams = new URLSearchParams(window.location.search || '');
     const pendingDeepLink = {
@@ -3279,6 +3312,10 @@ function setPushStatusUi(enabled){
 
     function changeView(nextView){
       if(!nextView) return;
+      if(nextView === 'ai' && ENV !== 'dev'){
+        openModalAlert('기능 준비중 입니다.');
+        return;
+      }
       if(nextView === 'shareinsights' && !isAdminRole()){
         openModalAlert('공유 인사이트는 관리자 계정에서만 확인할 수 있습니다.');
         return;
@@ -6470,6 +6507,95 @@ function getShareTrackingParams(){
     qs('#submitCommunityReportBtn')?.addEventListener('click', submitCommunityReport);
     qs('#communityWriteBtn')?.addEventListener('click', openCommunityEditor); qs('#closeCommunityEditor')?.addEventListener('click', () => { communityState.editingPostId = null; closeDialogSafe(qs('#communityEditorModal')); }); qs('#submitCommunityPostBtn')?.addEventListener('click', submitCommunityPost); qs('#closeCommunityDetail')?.addEventListener('click', () => closeDialogSafe(qs('#communityDetailModal'))); qs('#submitCommunityCommentBtn')?.addEventListener('click', submitCommunityComment); qs('#communityMoreBtn')?.addEventListener('click', () => loadCommunityPosts(communityState.category, false)); renderCommunityCategoryFilter();
 
+
+    function normalizeAiText(value=''){
+      return String(value || '').toLowerCase().replace(/[^가-힣a-z0-9\s]/gi,' ').replace(/\s+/g,' ').trim();
+    }
+
+    function tokenizeAiQuestion(question=''){
+      const compact = normalizeAiText(question);
+      return compact.split(' ').map(v => v.trim()).filter(v => v.length >= 2).slice(0, 12);
+    }
+
+    function scoreAiItem(question, item){
+      const tokens = tokenizeAiQuestion(question);
+      const hay = normalizeAiText([item.title, item.name, item.category, item.content, item.desc, item.description, item.address, item.benefit, item.answer, ...(item.keywords || [])].join(' '));
+      if(!tokens.length || !hay) return 0;
+      let score = 0;
+      tokens.forEach(token => { if(hay.includes(token)) score += token.length >= 3 ? 2 : 1; });
+      return score;
+    }
+
+    function appendAiMessage(role='bot', html=''){
+      const win = qs('#aiChatWindow');
+      if(!win) return;
+      const row = document.createElement('div');
+      row.className = `ai-message ${role === 'user' ? 'user' : 'bot'}`;
+      row.innerHTML = `<div class=\"ai-bubble\">${html}</div>`;
+      win.appendChild(row);
+      win.scrollTop = win.scrollHeight;
+    }
+
+    async function loadAiFaqMatches(question){
+      try{
+        const snap = await getDocs(collection(db, 'ai_faq'));
+        return snap.docs.map(d => ({ id:d.id, type:'FAQ', ...(d.data() || {}) }))
+          .filter(item => item.isActive !== false)
+          .map(item => ({ ...item, _score: scoreAiItem(question, item) }))
+          .filter(item => item._score > 0)
+          .sort((a,b) => b._score - a._score)
+          .slice(0, 3);
+      }catch(error){
+        console.warn('ai_faq 검색은 건너뜁니다. Firestore 규칙 또는 컬렉션 생성 여부를 확인하세요.', error);
+        return [];
+      }
+    }
+
+    function getLocalAiMatches(question){
+      const benefitMatches = (state.benefits || [])
+        .map(item => ({ ...item, type:'혜택', title:item.name || item.title || '혜택', answer:item.desc || item.description || item.benefit || item.condition || '', _score:scoreAiItem(question, item) }))
+        .filter(item => item._score > 0).sort((a,b) => b._score - a._score).slice(0, 3);
+      const noticeMatches = (state.notices || [])
+        .filter(item => item.visible !== false)
+        .map(item => ({ ...item, type:'공지', title:item.title || '공지사항', answer:item.content || '', _score:scoreAiItem(question, item) }))
+        .filter(item => item._score > 0).sort((a,b) => b._score - a._score).slice(0, 3);
+      return [...noticeMatches, ...benefitMatches].sort((a,b) => b._score - a._score).slice(0, 5);
+    }
+
+    function renderAiAnswer(question, matches=[]){
+      if(!matches.length){
+        return `등록된 공지/혜택/FAQ에서 바로 확인되는 답변을 찾지 못했습니다.<small>관리자에서 FAQ를 추가하면 더 정확하게 답변할 수 있습니다.</small>`;
+      }
+      const top = matches[0];
+      const summary = String(top.answer || top.content || top.description || top.desc || top.benefit || '관련 항목을 찾았습니다.').trim();
+      const sources = matches.slice(0, 4).map(item => `<div class=\"ai-source-item\"><b>${escapeHtml(item.type || '정보')} · ${escapeHtml(item.title || item.name || '제목 없음')}</b>${escapeHtml(String(item.answer || item.content || item.description || item.desc || item.benefit || '').slice(0, 120))}</div>`).join('');
+      return `${escapeHtml(summary.slice(0, 420))}${sources ? `<div class=\"ai-source-list\">${sources}</div>` : ''}<small>검색 기준: 공지사항, 혜택, ai_faq 컬렉션</small>`;
+    }
+
+    async function askAiAssistant(rawQuestion=''){
+      if(ENV !== 'dev') return openModalAlert('기능 준비중 입니다.');
+      const input = qs('#aiQuestionInput');
+      const question = String(rawQuestion || input?.value || '').trim();
+      if(!question) return openModalAlert('질문을 입력해주세요.');
+      if(input) input.value = '';
+      appendAiMessage('user', escapeHtml(question));
+      appendAiMessage('bot', '등록된 공지와 혜택을 찾는 중입니다...');
+      try{
+        const faqMatches = await loadAiFaqMatches(question);
+        const localMatches = getLocalAiMatches(question);
+        const matches = [...faqMatches, ...localMatches].sort((a,b) => (b._score || 0) - (a._score || 0)).slice(0, 5);
+        qs('#aiChatWindow')?.lastElementChild?.remove?.();
+        appendAiMessage('bot', renderAiAnswer(question, matches));
+        try{
+          await addDoc(collection(db, 'ai_chat_logs'), { uid: auth.currentUser?.uid || null, question, matchedCount: matches.length, matchedTypes: [...new Set(matches.map(m => m.type || 'unknown'))], env: ENV, createdAt: serverTimestamp() });
+        }catch(logError){ console.warn('AI 질문 로그 저장 실패', logError); }
+      }catch(error){
+        console.error('AI 검색 실패', error);
+        qs('#aiChatWindow')?.lastElementChild?.remove?.();
+        appendAiMessage('bot', '검색 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.');
+      }
+    }
+
     function updateView(){enforceShareInsightAccess();if(state.view==='community') setTimeout(()=>loadCommunityPosts(communityState.category||'전체', true), 40);qsa('[id^="view-"]').forEach(v=>v.classList.add('hidden'));(qs(`#view-${state.view}`)||qs('#view-home')).classList.remove('hidden');qsa('.bottom-nav .nav-btn').forEach(btn=>btn.classList.remove('active'));const active=qsa('.bottom-nav .nav-btn').find(btn=>btn.dataset.view===state.view);if(active)active.classList.add('active');qs('#gnbSheet')?.classList.remove('show');qs('#gnbOverlay')?.classList.remove('show');}
     const renderAll=()=>{createChips();enableHorizontalDragScroll('#chips');renderStats();renderHome();renderFavorites();renderPopularTop5();renderNotices();updateView();updateGnbActive();updateDistanceFilterHelp();if(state.view==='map') setTimeout(() => renderMapMode(), 60);if(state.view==='community') setTimeout(()=>loadCommunityPosts(communityState.category||'전체', true), 60);if(state.view==='shareinsights' && isAdminRole()) setTimeout(() => renderShareInsights(), 60);setTimeout(() => handleCleanDeepLink(), 80);};
     qs('#searchInput').addEventListener('input',(e)=>{state.keyword=e.target.value;renderAll();});
@@ -6690,6 +6816,18 @@ function getShareTrackingParams(){
       });
     });
 
+
+    qs('#aiAskBtn')?.addEventListener('click', () => askAiAssistant());
+    qs('#aiQuestionInput')?.addEventListener('keydown', (event) => {
+      if(event.key === 'Enter'){
+        event.preventDefault();
+        askAiAssistant();
+      }
+    });
+    qsa('[data-ai-question]').forEach(btn => {
+      btn.addEventListener('click', () => askAiAssistant(btn.dataset.aiQuestion || btn.textContent || ''));
+    });
+
     qs('#closeModal').onclick=()=>{qs('#detailModal').close(); clearCleanDeepLinkUrl({ replace:true });};
     qs('#closeNoticeModal').onclick=()=>{qs('#noticeModal').close(); clearCleanDeepLinkUrl({ replace:true });};
     qs('#closeQrModal')?.addEventListener('click', () => qs('#qrModal')?.close());
@@ -6800,6 +6938,7 @@ function getShareTrackingParams(){
         <div class="gnb-menu-group">
           <h4 class="gnb-menu-group-title">📌 새로 나왔어요</h4>
           <div class="gnb-new-section"><div class="gnb-menu-list">
+            <button class="gnb-menu-item" type="button" data-view-link="ai">AI 생활 도우미</button>
             <button class="gnb-menu-item" type="button" data-view-link="benefits">혜택 전체보기</button>
             <button class="gnb-menu-item" type="button" data-view-link="notices">공지사항 보기</button>
             <button class="gnb-menu-item" type="button" data-view-link="community">커뮤니티</button>
@@ -6812,6 +6951,7 @@ function getShareTrackingParams(){
           <h4 class="gnb-menu-group-title">🏠 더운정 마이힐스</h4>
           <div class="gnb-menu-sublist">
             <button class="gnb-menu-subitem" type="button" data-view-link="home">홈</button>
+            <button class="gnb-menu-subitem" type="button" data-view-link="ai">AI 도우미</button>
             <button class="gnb-menu-subitem" type="button" data-view-link="benefits">혜택</button>
             <button class="gnb-menu-subitem" type="button" data-view-link="favorite">즐겨찾기</button>
             <button class="gnb-menu-subitem" type="button" data-view-link="notices">공지사항</button>
