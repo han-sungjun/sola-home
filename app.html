@@ -4029,13 +4029,20 @@ async function refreshPushStatus(){
 
     const GEO_CACHE_MS = 60000;
     const GEO_OPTIONS = { enableHighAccuracy: true, timeout: 15000, maximumAge: GEO_CACHE_MS };
-    const PROXIMITY_ALERT_KEY = 'myhills_proximity_alert_history_v1';
-    const PROXIMITY_ALERT_COOLDOWN_MS = 6 * 60 * 60 * 1000;
+    const PROXIMITY_ALERT_KEY = 'myhills_proximity_alert_history_v2';
+    const PROXIMITY_ALERT_COOLDOWN_MS = 24 * 60 * 60 * 1000;
     const PROXIMITY_ALERT_STAGES = [
       { key: '100', radius: 100, title: '거의 도착권 혜택', label: '100m 이내', vibrate: [220, 80, 220, 80, 220] },
-      { key: '300', radius: 300, title: '바로 근처 혜택', label: '300m 이내', vibrate: [180, 80, 180] },
-      { key: '500', radius: 500, title: '근처 혜택 발견', label: '500m 이내', vibrate: [160] }
+      { key: '300', radius: 300, title: '바로 근처 혜택', label: '300m 이내', vibrate: [180, 80, 180] }
     ];
+
+    function getLocalDayKey(time = Date.now()){
+      const date = new Date(time);
+      const yyyy = date.getFullYear();
+      const mm = String(date.getMonth() + 1).padStart(2, '0');
+      const dd = String(date.getDate()).padStart(2, '0');
+      return `${yyyy}${mm}${dd}`;
+    }
 
     function readProximityAlertHistory(){
       try{return JSON.parse(localStorage.getItem(PROXIMITY_ALERT_KEY) || '{}') || {};}catch(_){return {};}
@@ -4092,15 +4099,29 @@ async function refreshPushStatus(){
         const distance = getDistanceMeters(state.userLocation.lat, state.userLocation.lng, pos.lat, pos.lng);
         const stage = getProximityStage(distance);
         if(!stage) return;
-        const key = item.id + '_' + stage.key;
-        const lastAt = Number(history[key] || 0);
+        const dayKey = getLocalDayKey(now);
+        const storeKey = item.id + '_' + dayKey;
+        const stageKey = item.id + '_' + stage.key + '_' + dayKey;
+        const legacyKey = item.id + '_' + stage.key;
+        const lastAt = Number(history[legacyKey] || 0);
+
+        // 같은 매장은 하루 1회만 근처 푸시를 보냅니다.
+        if(history[storeKey]) return;
+
+        // 100m 알림도 같은 매장 기준 하루 1회만 허용합니다.
+        if(stage.key === '100' && history[stageKey]) return;
+
+        // 구버전 기록이 남아 있는 경우에도 하루 안에는 중복을 막습니다.
         if(lastAt && now - lastAt < PROXIMITY_ALERT_COOLDOWN_MS) return;
-        candidates.push({ item, distance, stage, key });
+
+        candidates.push({ item, distance, stage, key: storeKey, stageKey, legacyKey });
       });
       candidates.sort((a, b) => a.distance - b.distance);
       const first = candidates[0];
       if(!first) return;
       history[first.key] = now;
+      if(first.stageKey) history[first.stageKey] = now;
+      if(first.legacyKey) history[first.legacyKey] = now;
       writeProximityAlertHistory(history);
       const message = first.item.name + ' · 현재 위치에서 ' + formatDistance(first.distance) + ' (' + first.stage.label + ')';
       if(!silent) showProximityToast({ title:first.stage.title, message });
