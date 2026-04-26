@@ -2788,6 +2788,29 @@ body.app-role-resident [data-view="shareinsights"]{
       }
     }
 
+    function extractBenefitDeepLinkFromUrl(url = ''){
+      try{
+        const parsed = new URL(String(url || ''), window.location.origin);
+        const openType = normalizeDeepLinkType(parsed.searchParams.get('open'));
+        const queryId = String(parsed.searchParams.get('id') || parsed.searchParams.get('benefitId') || '').trim();
+        if(openType === 'benefit' && queryId) return decodeURIComponent(queryId);
+
+        const parts = String(parsed.pathname || '').split('/').filter(Boolean);
+        if(normalizeDeepLinkType(parts[0]) === 'benefit' && parts[1]) return decodeURIComponent(parts[1]);
+      }catch(_){ }
+      return '';
+    }
+
+    function clearPushDeepLinkUrl(){
+      try{
+        const parsed = new URL(location.href);
+        const openType = normalizeDeepLinkType(parsed.searchParams.get('open'));
+        if(openType || parsed.searchParams.has('noticeId') || parsed.searchParams.has('view')){
+          setCleanUrl(getCleanAppPath(), { replace:true });
+        }
+      }catch(_){ }
+    }
+
     function clearNoticeDeepLinkUrl(){
       const hasDeepLink = window.location.search.includes('noticeId=') || window.location.search.includes('view=notices');
       if(!hasDeepLink) return;
@@ -2829,14 +2852,52 @@ body.app-role-resident [data-view="shareinsights"]{
       changeView('notices');
     }
 
+    function requestOpenBenefitFromPush({ benefitId = '', url = '' } = {}){
+      const resolvedBenefitId = String(benefitId || extractBenefitDeepLinkFromUrl(url) || '').trim();
+      if(!resolvedBenefitId) return false;
+
+      const targetPath = `/app?open=benefit&id=${encodeURIComponent(resolvedBenefitId)}&from=push`;
+
+      if(!canOpenNoticeDeepLink()){
+        sessionStorage.setItem('pendingDeepLink', `${location.origin}${targetPath}`);
+        window.location.href = targetPath;
+        return false;
+      }
+
+      setCleanUrl(targetPath, { replace:true });
+
+      const opened = handleCleanDeepLink({ force:true });
+      if(opened){
+        // 모달이 열린 뒤 뒤로가기/새로고침으로 반복 오픈되지 않도록 정리합니다.
+        setTimeout(() => clearPushDeepLinkUrl(), 500);
+        return true;
+      }
+
+      // 혜택 목록이 아직 로드 전이면 subscribeBenefits/renderAll에서 다시 처리됩니다.
+      changeView('benefits');
+      return false;
+    }
+
     if('serviceWorker' in navigator){
       navigator.serviceWorker.addEventListener('message', (event) => {
         const data = event.data || {};
-        if(data.type !== 'OPEN_NOTICE') return;
+        if(data.type !== 'OPEN_NOTICE' && data.type !== 'OPEN_PUSH') return;
+
+        const pushType = String(data.pushType || data.type || '').toLowerCase();
+        const url = data.url || '';
+        const benefitId = data.benefitId || extractBenefitDeepLinkFromUrl(url);
+
+        if(benefitId || pushType === 'benefit' || pushType === 'proximity'){
+          requestOpenBenefitFromPush({
+            benefitId,
+            url
+          });
+          return;
+        }
 
         requestOpenNoticeFromPush({
           noticeId: data.noticeId || '',
-          url: data.url || ''
+          url
         });
       });
     }
@@ -4011,7 +4072,9 @@ async function refreshPushStatus(){
       try{
         if(navigator.vibrate && stage?.vibrate) navigator.vibrate(stage.vibrate);
         if(Notification?.permission !== 'granted') return;
-        const options = {body:message,icon:'/icons/icon-192.png',badge:'/icons/icon-192.png',tag:'proximity-' + (item?.id || 'nearby') + '-' + (stage?.key || 'all'),renotify:false,data:{benefitId:item?.id || '',type:'proximity'}};
+        const benefitId = item?.id || '';
+        const url = benefitId ? `/app?open=benefit&id=${encodeURIComponent(benefitId)}&from=proximity` : '/app';
+        const options = {body:message,icon:'/icons/icon-192.png',badge:'/icons/icon-192.png',tag:'proximity-' + (benefitId || 'nearby') + '-' + (stage?.key || 'all'),renotify:false,data:{url,benefitId,type:'proximity'}};
         if(window.pushSwRegistration?.showNotification) await window.pushSwRegistration.showNotification(title, options);
         else new Notification(title, options);
       }catch(error){console.warn('근접 알림 표시 실패', error);}

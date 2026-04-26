@@ -83,6 +83,32 @@ function isDuplicateNotification(key) {
 }
 
 /* =========================
+   딥링크 URL 생성
+   - 근처/혜택 알림: /app?open=benefit&id={benefitId}
+   - 공지 알림: /app?open=notice&id={noticeId}
+========================= */
+function buildTargetUrl({ url = "", type = "", noticeId = "", benefitId = "" } = {}) {
+  const rawUrl = String(url || "").trim();
+  const cleanType = String(type || "").trim().toLowerCase();
+  const cleanNoticeId = String(noticeId || "").trim();
+  const cleanBenefitId = String(benefitId || "").trim();
+
+  if (cleanBenefitId && (!rawUrl || rawUrl === "/" || rawUrl === "/app")) {
+    return `/app?open=benefit&id=${encodeURIComponent(cleanBenefitId)}&from=push`;
+  }
+
+  if (cleanNoticeId && (!rawUrl || rawUrl === "/" || rawUrl === "/app")) {
+    return `/app?open=notice&id=${encodeURIComponent(cleanNoticeId)}&from=push`;
+  }
+
+  if (cleanType === "benefit" && cleanBenefitId && !rawUrl.includes("open=benefit")) {
+    return `/app?open=benefit&id=${encodeURIComponent(cleanBenefitId)}&from=push`;
+  }
+
+  return rawUrl || "/app";
+}
+
+/* =========================
    payload 정규화
 ========================= */
 function normalizePayload(payload) {
@@ -107,13 +133,27 @@ function normalizePayload(payload) {
     "/";
 
   const noticeId = data.noticeId || "";
-  const type = data.type || "notice";
+  const benefitId =
+    data.benefitId ||
+    data.benefitID ||
+    data.benefitsId ||
+    ((data.type === "benefit" || data.type === "proximity") ? data.id : "") ||
+    "";
+  const type = data.type || (benefitId ? "benefit" : "notice");
+
+  const normalizedUrl = buildTargetUrl({
+    url,
+    type,
+    noticeId,
+    benefitId
+  });
 
   return {
     title: String(title || "알림"),
     body: String(body || ""),
-    url: String(url || "/"),
+    url: String(normalizedUrl || "/app"),
     noticeId: String(noticeId || ""),
+    benefitId: String(benefitId || ""),
     type: String(type || "notice")
   };
 }
@@ -140,6 +180,7 @@ function showPushNotification(payload) {
     data: {
       url: normalized.url,
       noticeId: normalized.noticeId,
+      benefitId: normalized.benefitId,
       type: normalized.type
     }
   });
@@ -187,14 +228,15 @@ self.addEventListener("notificationclick", (event) => {
   event.notification.close();
 
   const data = event.notification?.data || {};
-  let targetUrl = data.url || "/";
-  if (data.noticeId) {
-    if (!targetUrl.includes("?")) {
-      targetUrl += `?noticeId=${data.noticeId}`;
-    }
-  }
   const noticeId = data.noticeId || "";
-  const type = data.type || "";
+  const benefitId = data.benefitId || "";
+  const type = data.type || (benefitId ? "benefit" : "");
+  const targetUrl = buildTargetUrl({
+    url: data.url || "",
+    type,
+    noticeId,
+    benefitId
+  });
 
   event.waitUntil(
     clients.matchAll({ type: "window", includeUncontrolled: true })
@@ -202,9 +244,12 @@ self.addEventListener("notificationclick", (event) => {
         for (const client of clientList) {
           if (client.url.includes(self.location.origin) && "focus" in client) {
             client.postMessage({
-              type: "OPEN_PUSH",
+              // app.html 기존 리스너와 맞추기 위해 OPEN_NOTICE 유지
+              // pushType/benefitId/url로 공지와 혜택을 분기합니다.
+              type: "OPEN_NOTICE",
               pushType: type,
               noticeId,
+              benefitId,
               url: targetUrl
             });
 
