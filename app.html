@@ -1699,6 +1699,291 @@ body.gnb-open .bottom-nav{
 .profile-preview-copy{min-width:0;color:#64748b;font-size:12px;line-height:1.55}
 .profile-preview-copy strong{display:block;color:#0f172a;font-size:13px;margin-bottom:2px}
 
+  
+
+/* ===== 프리미엄 헤더 정렬 패치: 상단/자동 로그아웃/브랜드 균형 ===== */
+.topbar{
+  width:100%;
+  align-items:stretch;
+}
+.topbar-row{
+  width:100%;
+  display:grid;
+  gap:12px;
+}
+.topbar-right{
+  width:100%;
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto auto;
+  align-items:center;
+  gap:10px;
+}
+.user-chip{
+  width:100%;
+  max-width:none!important;
+  min-height:58px;
+  border-radius:22px;
+}
+.topbar-quick-actions,
+.gnb-wrap{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+.topbar-quick-actions .icon-btn,
+.gnb-wrap .icon-btn{
+  width:52px;
+  height:52px;
+  border-radius:19px;
+  background:rgba(255,255,255,.92);
+  border:1px solid rgba(255,255,255,.82);
+  box-shadow:0 14px 28px rgba(15,23,42,.08);
+}
+.topbar-left-titleline{
+  width:100%;
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto;
+  align-items:center;
+  gap:14px;
+  padding:0 0 2px;
+}
+.topbar-left-titleline .brand{
+  min-width:0;
+  display:flex;
+  align-items:center;
+  gap:13px;
+}
+.topbar-left-titleline .brand .logo{
+  width:52px;
+  height:52px;
+  border-radius:18px;
+  box-shadow:0 16px 28px rgba(15,23,42,.08);
+}
+.brand h1{
+  white-space:nowrap!important;
+  font-size:27px;
+  line-height:1.12!important;
+  letter-spacing:-.055em;
+}
+.brand p{
+  margin-top:5px;
+  white-space:nowrap;
+}
+/* tracking.js가 삽입하는 자동 로그아웃 박스를 브랜드 우측 끝에 정렬 */
+.topbar-left-titleline > :not(.brand){
+  justify-self:end;
+  align-self:center;
+}
+.topbar-left-titleline [class*="timer"],
+.topbar-left-titleline [id*="timer"],
+.topbar-left-titleline [class*="idle"],
+.topbar-left-titleline [id*="idle"],
+.topbar-left-titleline [class*="logout"]{
+  margin:0!important;
+  min-width:96px;
+  border-radius:20px!important;
+  box-shadow:0 14px 28px rgba(22,163,74,.12)!important;
+}
+/* 상단 영역 전체가 아래 히어로 카드와 같은 폭을 쓰도록 보정 */
+.shell > .topbar,
+.shell > #view-home > .hero{
+  width:100%;
+}
+@media (max-width:420px){
+  .topbar-right{
+    grid-template-columns:minmax(0,1fr) 48px 48px;
+    gap:8px;
+  }
+  .topbar-quick-actions .icon-btn,
+  .gnb-wrap .icon-btn{
+    width:48px;
+    height:48px;
+    border-radius:17px;
+  }
+  .user-chip{
+    min-height:56px;
+    padding:10px 12px;
+  }
+  .topbar-left-titleline{
+    grid-template-columns:minmax(0,1fr) auto;
+    gap:10px;
+  }
+  .brand h1{
+    font-size:25px;
+  }
+  .brand p{
+    font-size:12px;
+  }
+  .topbar-left-titleline .brand .logo{
+    width:50px;
+    height:50px;
+  }
+}
+@media (max-width:360px){
+  .brand h1{
+    font-size:22px;
+    letter-spacing:-.05em;
+  }
+  .topbar-left-titleline{
+    gap:8px;
+  }
+}
+
+
+/* ===== 자동 로그아웃 iPhone 위젯 스타일 + 시간 애니메이션 ===== */
+.topbar-left-titleline .myhills-idle-widget,
+.topbar-left-titleline [data-myhills-idle-widget="true"]{
+  position:relative!important;
+  min-width:106px!important;
+  min-height:62px!important;
+  padding:10px 12px 12px!important;
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:center!important;
+  justify-content:center!important;
+  text-align:center!important;
+  gap:2px!important;
+  overflow:hidden!important;
+  border-radius:24px!important;
+  border:1px solid rgba(187,247,208,.95)!important;
+  background:
+    radial-gradient(circle at 24% 18%, rgba(255,255,255,.96), rgba(255,255,255,.42) 26%, transparent 46%),
+    linear-gradient(180deg, rgba(240,253,244,.96) 0%, rgba(220,252,231,.94) 100%)!important;
+  color:#065f46!important;
+  box-shadow:
+    0 16px 34px rgba(22,163,74,.16),
+    inset 0 1px 0 rgba(255,255,255,.95),
+    inset 0 -1px 0 rgba(21,128,61,.10)!important;
+  backdrop-filter:blur(18px)!important;
+  -webkit-backdrop-filter:blur(18px)!important;
+  transform:translateZ(0);
+}
+.topbar-left-titleline .myhills-idle-widget::before,
+.topbar-left-titleline [data-myhills-idle-widget="true"]::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  border-radius:inherit;
+  pointer-events:none;
+  background:linear-gradient(135deg, rgba(255,255,255,.62), rgba(255,255,255,0) 42%);
+}
+.topbar-left-titleline .myhills-idle-widget::after,
+.topbar-left-titleline [data-myhills-idle-widget="true"]::after{
+  content:"";
+  position:absolute;
+  left:12px;
+  right:12px;
+  bottom:8px;
+  height:4px;
+  border-radius:999px;
+  background:linear-gradient(90deg,#16a34a,#065f46);
+  transform-origin:left center;
+  transform:scaleX(var(--idle-progress,1));
+  transition:transform .55s cubic-bezier(.2,.8,.2,1), background .22s ease;
+  box-shadow:0 0 0 1px rgba(255,255,255,.42), 0 5px 12px rgba(22,163,74,.20);
+}
+.topbar-left-titleline .myhills-idle-widget *,
+.topbar-left-titleline [data-myhills-idle-widget="true"] *{
+  text-align:center!important;
+}
+.topbar-left-titleline .myhills-idle-widget span,
+.topbar-left-titleline [data-myhills-idle-widget="true"] span{
+  display:block!important;
+  width:100%!important;
+  text-align:center!important;
+  line-height:1.1!important;
+}
+.topbar-left-titleline .myhills-idle-widget strong,
+.topbar-left-titleline [data-myhills-idle-widget="true"] strong{
+  display:block!important;
+  width:100%!important;
+  text-align:center!important;
+  line-height:1.05!important;
+  letter-spacing:-.035em!important;
+}
+.topbar-left-titleline .myhills-idle-widget .idle-time,
+.topbar-left-titleline [data-myhills-idle-widget="true"] .idle-time,
+.topbar-left-titleline .myhills-idle-widget strong:last-child,
+.topbar-left-titleline [data-myhills-idle-widget="true"] strong:last-child{
+  font-size:18px!important;
+  font-weight:1000!important;
+  color:#065f46!important;
+  font-variant-numeric:tabular-nums;
+  transform-origin:center;
+  transition:transform .22s ease, color .22s ease, text-shadow .22s ease;
+}
+.topbar-left-titleline .myhills-idle-widget .idle-label,
+.topbar-left-titleline [data-myhills-idle-widget="true"] .idle-label,
+.topbar-left-titleline .myhills-idle-widget span:first-child,
+.topbar-left-titleline [data-myhills-idle-widget="true"] span:first-child{
+  font-size:11px!important;
+  font-weight:900!important;
+  color:#047857!important;
+  letter-spacing:-.03em!important;
+  white-space:nowrap!important;
+}
+.topbar-left-titleline .myhills-idle-widget.is-ticking,
+.topbar-left-titleline [data-myhills-idle-widget="true"].is-ticking{
+  animation:idleWidgetTick .42s ease both;
+}
+.topbar-left-titleline .myhills-idle-widget.is-ticking .idle-time,
+.topbar-left-titleline [data-myhills-idle-widget="true"].is-ticking .idle-time,
+.topbar-left-titleline .myhills-idle-widget.is-ticking strong:last-child,
+.topbar-left-titleline [data-myhills-idle-widget="true"].is-ticking strong:last-child{
+  animation:idleNumberTick .42s ease both;
+}
+.topbar-left-titleline .myhills-idle-widget.is-warning,
+.topbar-left-titleline [data-myhills-idle-widget="true"].is-warning{
+  border-color:#fecaca!important;
+  background:
+    radial-gradient(circle at 24% 18%, rgba(255,255,255,.98), rgba(255,255,255,.45) 26%, transparent 46%),
+    linear-gradient(180deg, rgba(255,241,242,.98) 0%, rgba(254,226,226,.96) 100%)!important;
+  color:#be123c!important;
+  box-shadow:0 16px 34px rgba(225,29,72,.16), inset 0 1px 0 rgba(255,255,255,.95)!important;
+}
+.topbar-left-titleline .myhills-idle-widget.is-warning::after,
+.topbar-left-titleline [data-myhills-idle-widget="true"].is-warning::after{
+  background:linear-gradient(90deg,#fb7185,#be123c);
+  box-shadow:0 0 0 1px rgba(255,255,255,.42), 0 5px 12px rgba(225,29,72,.20);
+}
+.topbar-left-titleline .myhills-idle-widget.is-warning .idle-label,
+.topbar-left-titleline [data-myhills-idle-widget="true"].is-warning .idle-label,
+.topbar-left-titleline .myhills-idle-widget.is-warning span:first-child,
+.topbar-left-titleline [data-myhills-idle-widget="true"].is-warning span:first-child{
+  color:#be123c!important;
+}
+.topbar-left-titleline .myhills-idle-widget.is-warning .idle-time,
+.topbar-left-titleline [data-myhills-idle-widget="true"].is-warning .idle-time,
+.topbar-left-titleline .myhills-idle-widget.is-warning strong:last-child,
+.topbar-left-titleline [data-myhills-idle-widget="true"].is-warning strong:last-child{
+  color:#be123c!important;
+  text-shadow:0 6px 18px rgba(225,29,72,.20);
+}
+@keyframes idleWidgetTick{
+  0%,100%{transform:translateY(0) scale(1)}
+  50%{transform:translateY(-1px) scale(1.018)}
+}
+@keyframes idleNumberTick{
+  0%{transform:translateY(0) scale(1); opacity:1}
+  35%{transform:translateY(-1px) scale(1.08); opacity:.86}
+  100%{transform:translateY(0) scale(1); opacity:1}
+}
+@media (max-width:420px){
+  .topbar-left-titleline .myhills-idle-widget,
+  .topbar-left-titleline [data-myhills-idle-widget="true"]{
+    min-width:96px!important;
+    min-height:58px!important;
+    padding:9px 10px 12px!important;
+    border-radius:22px!important;
+  }
+  .topbar-left-titleline .myhills-idle-widget .idle-time,
+  .topbar-left-titleline [data-myhills-idle-widget="true"] .idle-time,
+  .topbar-left-titleline .myhills-idle-widget strong:last-child,
+  .topbar-left-titleline [data-myhills-idle-widget="true"] strong:last-child{
+    font-size:17px!important;
+  }
+}
+
   </style>
 </head>
 <body>
@@ -1733,7 +2018,7 @@ body.gnb-open .bottom-nav{
           <div class="brand">
             <div class="logo">🏠</div>
             <div>
-              <h1>더운정<br>마이힐스</h1>
+              <h1>더운정 마이힐스</h1>
               <p>입주민 전용 혜택 웹앱</p>
             </div>
           </div>
@@ -5960,5 +6245,51 @@ function handlePushDeepLink() {
 
 window.addEventListener("load", handlePushDeepLink);
 </script>
+
+
+  <script id="myhills-idle-widget-enhancer">
+    (function(){
+      const TOTAL_SECONDS = 30 * 60;
+
+      function parseSeconds(text){
+        const match = String(text || '').match(/(\d{1,2})\s*:\s*(\d{2})/);
+        if(!match) return null;
+        return (Number(match[1]) || 0) * 60 + (Number(match[2]) || 0);
+      }
+
+      function decorateIdleWidget(){
+        const header = document.querySelector('.topbar-left-titleline');
+        if(!header) return;
+
+        Array.from(header.children || []).forEach((el) => {
+          if(!el || el.classList.contains('brand')) return;
+          const text = (el.textContent || '').trim();
+          if(!text.includes('자동 로그아웃') && !/\d{1,2}\s*:\s*\d{2}/.test(text)) return;
+
+          el.classList.add('myhills-idle-widget');
+          el.dataset.myhillsIdleWidget = 'true';
+
+          const seconds = parseSeconds(text);
+          if(seconds !== null){
+            const progress = Math.max(0, Math.min(1, seconds / TOTAL_SECONDS));
+            el.style.setProperty('--idle-progress', String(progress));
+            el.classList.toggle('is-warning', seconds <= 60);
+          }
+
+          if(el.dataset.lastIdleText && el.dataset.lastIdleText !== text){
+            el.classList.remove('is-ticking');
+            void el.offsetWidth;
+            el.classList.add('is-ticking');
+          }
+          el.dataset.lastIdleText = text;
+        });
+      }
+
+      decorateIdleWidget();
+      const observer = new MutationObserver(decorateIdleWidget);
+      observer.observe(document.documentElement, { childList:true, subtree:true, characterData:true });
+      window.addEventListener('pageshow', decorateIdleWidget);
+    })();
+  </script>
 
 </body></html>
