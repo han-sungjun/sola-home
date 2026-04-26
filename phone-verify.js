@@ -49,7 +49,7 @@ const loginId = String(params.get('loginId') || '').trim().toLowerCase();
 const isResetMode = mode === 'reset';
 
 const APP_PATH = '/app';
-const LOGIN_PATH = '/';
+const HOME_PATH = '/';
 
 let loadingCount = 0;
 let confirmationResult = null;
@@ -57,7 +57,6 @@ let recaptchaVerifier = null;
 let verifiedIdToken = '';
 let isSendingCode = false;
 let isVerifyingCode = false;
-let isRedirecting = false;
 
 function startLoading() {
   const pageLoader = document.getElementById('pageLoader');
@@ -102,6 +101,16 @@ function toE164Korea(value = '') {
   if (digits.startsWith('82')) return `+${digits}`;
   if (digits.startsWith('0')) return `+82${digits.slice(1)}`;
   return `+82${digits}`;
+}
+
+function goHome() {
+  window.location.replace(HOME_PATH);
+}
+
+function goApp(delay = 500) {
+  window.setTimeout(() => {
+    window.location.href = APP_PATH;
+  }, delay);
 }
 
 function setButtonsLoading(isLoading, type = 'send') {
@@ -167,41 +176,6 @@ async function loadUser(user) {
   return snap.exists() ? snap.data() : null;
 }
 
-function hasPhoneProvider(user) {
-  return !!user?.providerData?.some((provider) => provider.providerId === 'phone');
-}
-
-async function markPhoneVerifiedAndGo(user, phoneNumber = '') {
-  if (!user || isRedirecting) return;
-  isRedirecting = true;
-
-  showNotice('이미 인증된 계정입니다. 앱으로 이동합니다.', 'success');
-
-  try {
-    await user.reload();
-  } catch (e) {
-    console.warn('[phone-verify] user reload failed:', e);
-  }
-
-  try {
-    const payload = {
-      phoneVerified: true,
-      phoneVerifiedAt: serverTimestamp()
-    };
-
-    const digits = normalizeDigits(phoneNumber || phoneNumberEl?.value || '');
-    if (digits) payload.phoneNumber = digits;
-
-    await updateDoc(doc(db, 'users', user.uid), payload);
-  } catch (e) {
-    console.warn('[phone-verify] Firestore phoneVerified update failed. Redirect continues:', e);
-  }
-
-  window.setTimeout(() => {
-    window.location.href = APP_PATH;
-  }, 450);
-}
-
 async function fetchResetUserInfo() {
   const env = window.__APP_ENV__ || (location.hostname.includes('dev') ? 'dev' : 'prod');
   const api = API_URL?.[env]?.getUserForPasswordReset || API_URL?.getUserForPasswordReset;
@@ -219,34 +193,91 @@ async function fetchResetUserInfo() {
   return res.json();
 }
 
+function hasPhoneProvider(user) {
+  return !!user?.providerData?.some((provider) => provider.providerId === 'phone');
+}
+
+async function markPhoneVerified(user, phoneDigits = '') {
+  const payload = {
+    phoneVerified: true,
+    phoneVerifiedAt: serverTimestamp()
+  };
+
+  if (phoneDigits) {
+    payload.phoneNumber = phoneDigits;
+  }
+
+  await updateDoc(doc(db, 'users', user.uid), payload);
+}
+
+function getErrorMessage(error, fallback = '처리 중 오류가 발생했습니다.') {
+  const code = error?.code || '';
+
+  if (code === 'permission-denied' || code === 'firestore/permission-denied') {
+    return 'Firestore 권한 문제로 인증 상태 저장에 실패했습니다. 관리자에게 문의해주세요.';
+  }
+
+  if (code === 'auth/too-many-requests') {
+    return '요청이 너무 많습니다. 잠시 후 다시 시도해주세요.';
+  }
+
+  if (code === 'auth/invalid-phone-number') {
+    return '휴대폰 번호 형식이 올바르지 않습니다.';
+  }
+
+  if (code === 'auth/captcha-check-failed') {
+    return '보안 확인에 실패했습니다. 새로고침 후 다시 시도해주세요.';
+  }
+
+  if (code === 'auth/credential-already-in-use') {
+    return '이미 다른 계정에 연결된 휴대폰 번호입니다. 관리자에게 문의해주세요.';
+  }
+
+  if (code === 'auth/provider-already-linked') {
+    return '이미 휴대폰 인증이 연결된 계정입니다. 다시 시도해주세요.';
+  }
+
+  if (code === 'auth/invalid-verification-code') {
+    return '인증 코드가 올바르지 않습니다.';
+  }
+
+  if (code === 'auth/code-expired') {
+    return '인증 코드가 만료되었습니다. 다시 발송해주세요.';
+  }
+
+  return fallback;
+}
+
+async function handleAlreadyLinkedUser(user, phoneDigits = '') {
+  const snap = await getDoc(doc(db, 'users', user.uid));
+
+  if (!snap.exists()) {
+    showNotice('사용자 정보가 없습니다. 다시 로그인해주세요.', 'error');
+    return;
+  }
+
+  const data = snap.data() || {};
+
+  if (data.phoneVerified === true) {
+    showNotice('이미 인증된 계정입니다. 앱으로 이동합니다.', 'success');
+    goApp(400);
+    return;
+  }
+
+  await markPhoneVerified(user, phoneDigits);
+
+  showNotice('휴대폰 인증 상태를 정상 반영했습니다. 앱으로 이동합니다.', 'success');
+  goApp(500);
+}
+
 async function sendCode() {
   hideNotice();
 
-  if (isSendingCode || isRedirecting) return;
+  if (isSendingCode) return;
 
   if (isResetMode && !loginId) {
     showNotice('비밀번호를 재설정할 아이디 정보가 없습니다. 로그인 화면에서 다시 진행해주세요.', 'error');
     return;
-  }
-
-  if (!isResetMode) {
-    const user = auth.currentUser;
-    if (!user) {
-      window.location.replace(LOGIN_PATH);
-      return;
-    }
-
-    try {
-      await user.reload();
-    } catch (e) {
-      console.warn('[phone-verify] user reload before send failed:', e);
-    }
-
-    const refreshedUser = auth.currentUser || user;
-    if (hasPhoneProvider(refreshedUser)) {
-      await markPhoneVerifiedAndGo(refreshedUser, phoneNumberEl?.value || '');
-      return;
-    }
   }
 
   const phoneDigits = normalizeDigits(phoneNumberEl?.value || '');
@@ -259,12 +290,11 @@ async function sendCode() {
 
   try {
     isSendingCode = true;
-    setButtonsLoading(true);
+    setButtonsLoading(true, 'send');
     startLoading();
 
-    const verifier = await ensureRecaptcha();
-
     if (isResetMode) {
+      const verifier = await ensureRecaptcha();
       const data = await fetchResetUserInfo();
 
       if (!data?.exists) {
@@ -283,54 +313,43 @@ async function sendCode() {
         return;
       }
 
-      confirmationResult = await signInWithPhoneNumber(
-        auth,
-        toE164Korea(phoneDigits),
-        verifier
-      );
+      confirmationResult = await signInWithPhoneNumber(auth, toE164Korea(phoneDigits), verifier);
     } else {
-      confirmationResult = await linkWithPhoneNumber(
-        auth.currentUser,
-        toE164Korea(phoneDigits),
-        verifier
-      );
+      const user = auth.currentUser;
+
+      if (!user) {
+        goHome();
+        return;
+      }
+
+      await user.reload();
+      const refreshedUser = auth.currentUser;
+
+      if (!refreshedUser) {
+        goHome();
+        return;
+      }
+
+      if (hasPhoneProvider(refreshedUser)) {
+        await handleAlreadyLinkedUser(refreshedUser, phoneDigits);
+        return;
+      }
+
+      const verifier = await ensureRecaptcha();
+      confirmationResult = await linkWithPhoneNumber(refreshedUser, toE164Korea(phoneDigits), verifier);
     }
 
     resetRecaptcha();
-
     showVerifySection();
     showNotice('인증 코드가 발송되었습니다.', 'success');
     smsCodeEl?.focus();
-
   } catch (e) {
     console.error('[phone-verify] sendCode failed:', e);
     resetRecaptcha();
-
-    const code = e?.code || '';
-    if (!isResetMode && code === 'auth/provider-already-linked') {
-      await markPhoneVerifiedAndGo(auth.currentUser, phoneNumberEl?.value || '');
-      return;
-    }
-
-    if (code === 'auth/credential-already-in-use') {
-      showNotice('이미 다른 계정에서 사용 중인 휴대폰 번호입니다. 관리자에게 문의해주세요.', 'error');
-      return;
-    }
-
-    if (code === 'auth/too-many-requests') {
-      showNotice('인증 요청이 너무 많습니다. 잠시 후 다시 시도해주세요.', 'error');
-      return;
-    }
-
-    if (code === 'auth/invalid-phone-number') {
-      showNotice('휴대폰 번호 형식이 올바르지 않습니다.', 'error');
-      return;
-    }
-
-    showNotice('문자 발송 실패. 다시 시도해주세요.', 'error');
+    showNotice(getErrorMessage(e, '문자 발송 실패. 다시 시도해주세요.'), 'error');
   } finally {
     finishLoading();
-    setButtonsLoading(false);
+    setButtonsLoading(false, 'send');
     isSendingCode = false;
   }
 }
@@ -338,7 +357,7 @@ async function sendCode() {
 async function verifyCode() {
   hideNotice();
 
-  if (isVerifyingCode || isRedirecting) return;
+  if (isVerifyingCode) return;
 
   if (!confirmationResult) {
     showNotice('먼저 인증 코드를 요청하세요.', 'error');
@@ -366,24 +385,16 @@ async function verifyCode() {
       return;
     }
 
-    await markPhoneVerifiedAndGo(user, phoneNumberEl?.value || '');
+    const phoneDigits = normalizeDigits(phoneNumberEl?.value || '');
 
+    // 우회 처리 없음: Firestore 저장이 성공해야 인증 완료로 처리합니다.
+    await markPhoneVerified(user, phoneDigits);
+
+    showNotice('인증 완료! 앱으로 이동합니다.', 'success');
+    goApp(600);
   } catch (e) {
     console.error('[phone-verify] verifyCode failed:', e);
-    const code = e?.code || '';
-
-    if (code === 'auth/invalid-verification-code') {
-      showNotice('인증 코드가 올바르지 않습니다.', 'error');
-      return;
-    }
-
-    if (code === 'auth/code-expired') {
-      showNotice('인증 코드가 만료되었습니다. 코드를 다시 받아주세요.', 'error');
-      confirmationResult = null;
-      return;
-    }
-
-    showNotice('인증 확인 중 오류가 발생했습니다. 다시 시도해주세요.', 'error');
+    showNotice(getErrorMessage(e, '인증 처리 중 오류가 발생했습니다. 다시 시도해주세요.'), 'error');
   } finally {
     finishLoading();
     setButtonsLoading(false, 'verify');
@@ -447,9 +458,8 @@ async function resetPassword() {
     await signOut(auth).catch(() => {});
 
     setTimeout(() => {
-      window.location.replace(LOGIN_PATH);
+      window.location.replace(HOME_PATH);
     }, 900);
-
   } catch (e) {
     console.error('[phone-verify] resetPassword failed:', e);
     showNotice('비밀번호 변경 중 오류가 발생했습니다.', 'error');
@@ -482,25 +492,28 @@ if (newPasswordConfirmEl) {
   });
 }
 
-if (newPasswordEl) newPasswordEl.addEventListener('input', updatePasswordResetUi);
-if (newPasswordConfirmEl) newPasswordConfirmEl.addEventListener('input', updatePasswordResetUi);
+if (newPasswordEl) {
+  newPasswordEl.addEventListener('input', updatePasswordResetUi);
+}
+
+if (newPasswordConfirmEl) {
+  newPasswordConfirmEl.addEventListener('input', updatePasswordResetUi);
+}
 
 if (signOutBtn) {
   signOutBtn.onclick = async () => {
     await signOut(auth).catch(() => {});
-    window.location.replace(LOGIN_PATH);
+    window.location.replace(HOME_PATH);
   };
 }
 
 onAuthStateChanged(auth, async (user) => {
-  if (isRedirecting) return;
-
   if (isResetMode) {
     if (signOutBtn) {
       signOutBtn.textContent = '로그인으로';
       signOutBtn.onclick = async () => {
         await signOut(auth).catch(() => {});
-        window.location.replace(LOGIN_PATH);
+        window.location.replace(HOME_PATH);
       };
     }
 
@@ -509,43 +522,31 @@ onAuthStateChanged(auth, async (user) => {
   }
 
   if (!user) {
-    window.location.replace(LOGIN_PATH);
+    window.location.replace(HOME_PATH);
     return;
   }
 
   try {
-    await user.reload();
-  } catch (e) {
-    console.warn('[phone-verify] user reload on auth state failed:', e);
-  }
+    const data = await loadUser(user);
 
-  const refreshedUser = auth.currentUser || user;
-
-  if (hasPhoneProvider(refreshedUser)) {
-    await markPhoneVerifiedAndGo(refreshedUser, phoneNumberEl?.value || '');
-    return;
-  }
-
-  try {
-    const data = await loadUser(refreshedUser);
-
-    if (data?.phoneVerified) {
-      showNotice('이미 인증된 계정입니다. 앱으로 이동합니다.', 'success');
-      isRedirecting = true;
-      setTimeout(() => {
-        window.location.href = APP_PATH;
-      }, 450);
+    if (!data) {
+      showNotice('사용자 정보가 없습니다. 다시 로그인해주세요.', 'error');
       return;
     }
 
-    if (data?.phoneNumber && phoneNumberEl) {
+    if (data?.phoneVerified === true) {
+      window.location.replace(APP_PATH);
+      return;
+    }
+
+    if (data?.phoneNumber) {
       phoneNumberEl.value = formatPhoneNumber(data.phoneNumber);
     }
 
     showNotice('휴대폰 인증을 진행해주세요.', 'info');
   } catch (e) {
-    console.error('[phone-verify] user data load failed:', e);
-    showNotice('사용자 정보를 확인하는 중 오류가 발생했습니다. 다시 시도해주세요.', 'error');
+    console.error('[phone-verify] load user failed:', e);
+    showNotice('사용자 정보를 불러오지 못했습니다. 새로고침 후 다시 시도해주세요.', 'error');
   }
 });
 
@@ -575,35 +576,45 @@ function updatePasswordResetUi() {
 
   if (passwordStrengthStatus) {
     passwordStrengthStatus.className = 'strength-text';
+  }
 
-    if (!pw) {
-      passwordStrengthStatus.textContent = '비밀번호 강도를 확인해 주세요.';
-    } else if (strength === 'weak') {
-      if (pwBar1) pwBar1.style.background = '#dc2626';
+  if (!pw) {
+    if (passwordStrengthStatus) passwordStrengthStatus.textContent = '비밀번호 강도를 확인해 주세요.';
+  } else if (strength === 'weak') {
+    if (pwBar1) pwBar1.style.background = '#dc2626';
+    if (passwordStrengthStatus) {
       passwordStrengthStatus.classList.add('weak');
       passwordStrengthStatus.textContent = '약함 · 6자 이상, 숫자와 문자를 함께 사용해 주세요.';
-    } else if (strength === 'medium') {
-      if (pwBar1) pwBar1.style.background = '#b45309';
-      if (pwBar2) pwBar2.style.background = '#b45309';
+    }
+  } else if (strength === 'medium') {
+    if (pwBar1) pwBar1.style.background = '#b45309';
+    if (pwBar2) pwBar2.style.background = '#b45309';
+    if (passwordStrengthStatus) {
       passwordStrengthStatus.classList.add('medium');
       passwordStrengthStatus.textContent = '보통 · 특수문자까지 포함하면 더 안전합니다.';
-    } else {
-      if (pwBar1) pwBar1.style.background = '#16a34a';
-      if (pwBar2) pwBar2.style.background = '#16a34a';
-      if (pwBar3) pwBar3.style.background = '#16a34a';
+    }
+  } else {
+    if (pwBar1) pwBar1.style.background = '#16a34a';
+    if (pwBar2) pwBar2.style.background = '#16a34a';
+    if (pwBar3) pwBar3.style.background = '#16a34a';
+    if (passwordStrengthStatus) {
       passwordStrengthStatus.classList.add('strong');
       passwordStrengthStatus.textContent = '강함 · 안전한 비밀번호입니다.';
     }
   }
 
-  if (passwordMatchStatus) {
-    if (!confirm) {
+  if (!confirm) {
+    if (passwordMatchStatus) {
       passwordMatchStatus.className = 'inline-check';
       passwordMatchStatus.textContent = '';
-    } else if (pw === confirm) {
+    }
+  } else if (pw === confirm) {
+    if (passwordMatchStatus) {
       passwordMatchStatus.className = 'inline-check show success';
       passwordMatchStatus.textContent = '비밀번호가 일치합니다.';
-    } else {
+    }
+  } else {
+    if (passwordMatchStatus) {
       passwordMatchStatus.className = 'inline-check show error';
       passwordMatchStatus.textContent = '비밀번호가 일치하지 않습니다.';
     }
