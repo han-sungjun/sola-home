@@ -6508,21 +6508,96 @@ function getShareTrackingParams(){
     qs('#communityWriteBtn')?.addEventListener('click', openCommunityEditor); qs('#closeCommunityEditor')?.addEventListener('click', () => { communityState.editingPostId = null; closeDialogSafe(qs('#communityEditorModal')); }); qs('#submitCommunityPostBtn')?.addEventListener('click', submitCommunityPost); qs('#closeCommunityDetail')?.addEventListener('click', () => closeDialogSafe(qs('#communityDetailModal'))); qs('#submitCommunityCommentBtn')?.addEventListener('click', submitCommunityComment); qs('#communityMoreBtn')?.addEventListener('click', () => loadCommunityPosts(communityState.category, false)); renderCommunityCategoryFilter();
 
 
+    function aiValueToText(value){
+      if(value == null) return '';
+      if(typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean') return String(value);
+      if(Array.isArray(value)) return value.map(aiValueToText).filter(Boolean).join(' ');
+      if(value && typeof value.toDate === 'function') return formatDateTime(value);
+      if(typeof value === 'object'){
+        const preferredKeys = [
+          'text','title','name','label','value','answer','content','description','desc',
+          'benefit','condition','summary','address','phone','category','storeName'
+        ];
+        const parts = [];
+        preferredKeys.forEach((key) => {
+          if(Object.prototype.hasOwnProperty.call(value, key)){
+            const text = aiValueToText(value[key]);
+            if(text) parts.push(text);
+          }
+        });
+        if(parts.length) return parts.join(' ');
+        return Object.entries(value)
+          .filter(([key]) => !/^_/.test(key))
+          .map(([key, val]) => aiValueToText(val))
+          .filter(Boolean)
+          .join(' ');
+      }
+      return String(value || '');
+    }
+
     function normalizeAiText(value=''){
-      return String(value || '').toLowerCase().replace(/[^가-힣a-z0-9\s]/gi,' ').replace(/\s+/g,' ').trim();
+      return aiValueToText(value)
+        .toLowerCase()
+        .replace(/<[^>]*>/g, ' ')
+        .replace(/[^가-힣a-z0-9\s]/gi,' ')
+        .replace(/\s+/g,' ')
+        .trim();
     }
 
     function tokenizeAiQuestion(question=''){
       const compact = normalizeAiText(question);
-      return compact.split(' ').map(v => v.trim()).filter(v => v.length >= 2).slice(0, 12);
+      const tokens = compact.split(' ').map(v => v.trim()).filter(v => v.length >= 2);
+      const synonymMap = {
+        '공지':['공지','공지사항','안내','알림','소식','최근'],
+        '최근':['최근','최신','새로운','신규','공지'],
+        '혜택':['혜택','할인','제휴','매장','가게','상가','쿠폰','이벤트'],
+        '매장':['매장','가게','상가','업체','혜택'],
+        '인기':['인기','top','top5','순위','랭킹','추천','베스트'],
+        '지도':['지도','위치','거리','근처','주변','네이버','길찾기'],
+        '전화':['전화','연락처','번호','문의'],
+        '관리사무소':['관리사무소','관리실','사무소','전화','문의'],
+        '쓰레기':['쓰레기','분리수거','음식물','재활용','배출'],
+        '음식물':['음식물','쓰레기','배출','분리수거'],
+        '주차':['주차','방문차량','차량','등록'],
+        '커뮤니티':['커뮤니티','게시판','글','댓글','문의']
+      };
+      const expanded = new Set(tokens);
+      tokens.forEach(token => {
+        Object.entries(synonymMap).forEach(([key, values]) => {
+          if(token.includes(key) || values.some(v => token.includes(v) || v.includes(token))){
+            values.forEach(v => expanded.add(v));
+          }
+        });
+      });
+      return [...expanded].slice(0, 24);
     }
 
     function scoreAiItem(question, item){
       const tokens = tokenizeAiQuestion(question);
-      const hay = normalizeAiText([item.title, item.name, item.category, item.content, item.desc, item.description, item.address, item.benefit, item.answer, ...(item.keywords || [])].join(' '));
+      const hay = normalizeAiText([
+        item.title,
+        item.name,
+        item.category,
+        item.content,
+        item.desc,
+        item.description,
+        item.address,
+        item.benefit,
+        item.condition,
+        item.answer,
+        item.question,
+        item.summary,
+        item.storeName,
+        ...(Array.isArray(item.keywords) ? item.keywords : [])
+      ]);
       if(!tokens.length || !hay) return 0;
       let score = 0;
-      tokens.forEach(token => { if(hay.includes(token)) score += token.length >= 3 ? 2 : 1; });
+      tokens.forEach(token => {
+        if(!token) return;
+        if(hay.includes(token)) score += token.length >= 3 ? 3 : 1;
+        if(normalizeAiText(item.title || item.name || '').includes(token)) score += 2;
+        if(Array.isArray(item.keywords) && item.keywords.some(k => normalizeAiText(k).includes(token))) score += 3;
+      });
       return score;
     }
 
@@ -6531,68 +6606,168 @@ function getShareTrackingParams(){
       if(!win) return;
       const row = document.createElement('div');
       row.className = `ai-message ${role === 'user' ? 'user' : 'bot'}`;
-      row.innerHTML = `<div class=\"ai-bubble\">${html}</div>`;
+      row.innerHTML = `<div class="ai-bubble">${html}</div>`;
       win.appendChild(row);
       win.scrollTop = win.scrollHeight;
     }
 
-    async function loadAiFaqMatches(question){
+    function normalizeAiItem(raw={}, type='정보', id=''){
+      const item = raw || {};
+      const title = aiValueToText(item.title || item.name || item.storeName || item.question || item.category || '제목 없음').trim() || '제목 없음';
+      const answer = aiValueToText(item.answer || item.content || item.description || item.desc || item.benefit || item.condition || item.summary || item.address || '').trim();
+      return { id, type, ...item, title, answer };
+    }
+
+    function isAiActiveItem(item={}){
+      return item.isActive !== false && item.visible !== false && item.status !== 'deleted' && item.status !== 'hidden';
+    }
+
+    async function fetchAiCollection(collectionName, type, maxCount=80){
       try{
-        const snap = await getDocs(collection(db, 'ai_faq'));
-        return snap.docs.map(d => ({ id:d.id, type:'FAQ', ...(d.data() || {}) }))
-          .filter(item => item.isActive !== false)
-          .map(item => ({ ...item, _score: scoreAiItem(question, item) }))
-          .filter(item => item._score > 0)
-          .sort((a,b) => b._score - a._score)
-          .slice(0, 3);
+        const snap = await getDocs(collection(db, collectionName));
+        return snap.docs
+          .map(d => normalizeAiItem(d.data() || {}, type, d.id))
+          .filter(isAiActiveItem)
+          .slice(0, maxCount);
       }catch(error){
-        console.warn('ai_faq 검색은 건너뜁니다. Firestore 규칙 또는 컬렉션 생성 여부를 확인하세요.', error);
+        console.warn(`${collectionName} AI 검색 로드 실패`, error);
         return [];
       }
     }
 
-    function getLocalAiMatches(question){
-      const benefitMatches = (state.benefits || [])
-        .map(item => ({ ...item, type:'혜택', title:item.name || item.title || '혜택', answer:item.desc || item.description || item.benefit || item.condition || '', _score:scoreAiItem(question, item) }))
-        .filter(item => item._score > 0).sort((a,b) => b._score - a._score).slice(0, 3);
-      const noticeMatches = (state.notices || [])
-        .filter(item => item.visible !== false)
-        .map(item => ({ ...item, type:'공지', title:item.title || '공지사항', answer:item.content || '', _score:scoreAiItem(question, item) }))
-        .filter(item => item._score > 0).sort((a,b) => b._score - a._score).slice(0, 3);
-      return [...noticeMatches, ...benefitMatches].sort((a,b) => b._score - a._score).slice(0, 5);
+    async function loadAiSettings(){
+      try{
+        const snap = await getDoc(doc(db, 'ai_settings', 'default'));
+        return snap.exists() ? (snap.data() || {}) : {};
+      }catch(error){
+        console.warn('ai_settings 로드 실패', error);
+        return {};
+      }
     }
 
-    function renderAiAnswer(question, matches=[]){
-      if(!matches.length){
-        return `등록된 공지/혜택/FAQ에서 바로 확인되는 답변을 찾지 못했습니다.<small>관리자에서 FAQ를 추가하면 더 정확하게 답변할 수 있습니다.</small>`;
+    async function loadAiSearchPool(){
+      const localNotices = (state.notices || []).map(item => normalizeAiItem(item, '공지', item.id)).filter(isAiActiveItem);
+      const localBenefits = (state.benefits || []).map(item => normalizeAiItem(item, '혜택', item.id)).filter(isAiActiveItem);
+
+      const [faqItems, noticeItems, benefitItems] = await Promise.all([
+        fetchAiCollection('ai_faq', 'FAQ', 120),
+        localNotices.length ? Promise.resolve(localNotices) : fetchAiCollection('notices', '공지', 120),
+        localBenefits.length ? Promise.resolve(localBenefits) : fetchAiCollection('benefits', '혜택', 200)
+      ]);
+
+      const unique = new Map();
+      [...faqItems, ...noticeItems, ...benefitItems].forEach(item => {
+        const key = `${item.type}:${item.id || item.title}`;
+        if(!unique.has(key)) unique.set(key, item);
+      });
+      return [...unique.values()];
+    }
+
+    function getAiIntent(question=''){
+      const q = normalizeAiText(question);
+      if(/최근|최신|공지|안내|알림/.test(q)) return 'notice';
+      if(/인기|top|top5|순위|랭킹|베스트|추천/.test(q)) return 'popular';
+      if(/혜택|할인|매장|상가|가게|쿠폰|이벤트/.test(q)) return 'benefit';
+      if(/지도|위치|거리|근처|주변|길찾기/.test(q)) return 'map';
+      return 'general';
+    }
+
+    function getAiSpecialMatches(question){
+      const intent = getAiIntent(question);
+      if(intent === 'notice'){
+        return (state.notices || [])
+          .filter(isAiActiveItem)
+          .slice(0, 5)
+          .map(item => ({ ...normalizeAiItem(item, '공지', item.id), _score: 8 }));
       }
+      if(intent === 'popular'){
+        return (state.popularItems || state.benefits || [])
+          .slice(0, 5)
+          .map((item, idx) => ({ ...normalizeAiItem(item, '인기 혜택', item.id), title:`TOP ${idx + 1}. ${item.name || item.title || '혜택'}`, _score: 8 - idx }));
+      }
+      if(intent === 'benefit' || intent === 'map'){
+        return (state.benefits || [])
+          .filter(isAiActiveItem)
+          .slice(0, 8)
+          .map(item => ({ ...normalizeAiItem(item, intent === 'map' ? '지도 혜택' : '혜택', item.id), _score: 5 }));
+      }
+      return [];
+    }
+
+    async function searchAiAssistant(question){
+      const pool = await loadAiSearchPool();
+      const scored = pool
+        .map(item => ({ ...item, _score: scoreAiItem(question, item) }))
+        .filter(item => item._score > 0)
+        .sort((a,b) => (b._score || 0) - (a._score || 0));
+      const special = getAiSpecialMatches(question);
+      const merged = new Map();
+      [...scored, ...special].forEach(item => {
+        const key = `${item.type}:${item.id || item.title}`;
+        const old = merged.get(key);
+        if(!old || (item._score || 0) > (old._score || 0)) merged.set(key, item);
+      });
+      return [...merged.values()].sort((a,b) => (b._score || 0) - (a._score || 0)).slice(0, 6);
+    }
+
+    function renderAiAnswer(question, matches=[], settings={}){
+      if(!matches.length){
+        const fallback = settings.fallbackMessage || '등록된 공지/혜택/FAQ에서 바로 확인되는 답변을 찾지 못했습니다.';
+        return `${escapeHtml(fallback)}<small>관리자에서 ai_faq 컬렉션에 질문/답변/keywords를 추가하면 더 정확하게 답변할 수 있습니다.</small>`;
+      }
+
       const top = matches[0];
-      const summary = String(top.answer || top.content || top.description || top.desc || top.benefit || '관련 항목을 찾았습니다.').trim();
-      const sources = matches.slice(0, 4).map(item => `<div class=\"ai-source-item\"><b>${escapeHtml(item.type || '정보')} · ${escapeHtml(item.title || item.name || '제목 없음')}</b>${escapeHtml(String(item.answer || item.content || item.description || item.desc || item.benefit || '').slice(0, 120))}</div>`).join('');
-      return `${escapeHtml(summary.slice(0, 420))}${sources ? `<div class=\"ai-source-list\">${sources}</div>` : ''}<small>검색 기준: 공지사항, 혜택, ai_faq 컬렉션</small>`;
+      const intent = getAiIntent(question);
+      let headline = '';
+      if(top.type === 'FAQ') headline = aiValueToText(top.answer || top.content || 'FAQ에서 관련 답변을 찾았습니다.');
+      else if(intent === 'notice') headline = '최근 공지에서 관련 내용을 찾았습니다.';
+      else if(intent === 'popular') headline = '인기 혜택 기준으로 관련 매장을 찾았습니다.';
+      else if(intent === 'map') headline = '지도/위치 정보가 있는 혜택을 확인해 보세요.';
+      else headline = aiValueToText(top.answer || top.content || top.description || top.desc || top.benefit || top.condition || '관련 항목을 찾았습니다.');
+
+      const sources = matches.slice(0, 5).map(item => {
+        const body = aiValueToText(item.answer || item.content || item.description || item.desc || item.benefit || item.condition || item.address || '').trim();
+        return `<div class="ai-source-item"><b>${escapeHtml(item.type || '정보')} · ${escapeHtml(item.title || item.name || '제목 없음')}</b>${escapeHtml(body.slice(0, 140) || '상세 내용은 해당 메뉴에서 확인해 주세요.')}</div>`;
+      }).join('');
+
+      return `${escapeHtml(headline.slice(0, 500))}${sources ? `<div class="ai-source-list">${sources}</div>` : ''}<small>검색 기준: ai_faq, notices, benefits</small>`;
     }
 
     async function askAiAssistant(rawQuestion=''){
       if(ENV !== 'dev') return openModalAlert('기능 준비중 입니다.');
       const input = qs('#aiQuestionInput');
+      const btn = qs('#aiAskBtn');
       const question = String(rawQuestion || input?.value || '').trim();
       if(!question) return openModalAlert('질문을 입력해주세요.');
       if(input) input.value = '';
+      if(btn) btn.disabled = true;
       appendAiMessage('user', escapeHtml(question));
-      appendAiMessage('bot', '등록된 공지와 혜택을 찾는 중입니다...');
+      appendAiMessage('bot', 'Firestore에 등록된 공지, 혜택, FAQ를 검색하는 중입니다...');
       try{
-        const faqMatches = await loadAiFaqMatches(question);
-        const localMatches = getLocalAiMatches(question);
-        const matches = [...faqMatches, ...localMatches].sort((a,b) => (b._score || 0) - (a._score || 0)).slice(0, 5);
+        const [settings, matches] = await Promise.all([
+          loadAiSettings(),
+          searchAiAssistant(question)
+        ]);
         qs('#aiChatWindow')?.lastElementChild?.remove?.();
-        appendAiMessage('bot', renderAiAnswer(question, matches));
+        appendAiMessage('bot', renderAiAnswer(question, matches, settings));
         try{
-          await addDoc(collection(db, 'ai_chat_logs'), { uid: auth.currentUser?.uid || null, question, matchedCount: matches.length, matchedTypes: [...new Set(matches.map(m => m.type || 'unknown'))], env: ENV, createdAt: serverTimestamp() });
+          await addDoc(collection(db, 'ai_chat_logs'), {
+            uid: auth.currentUser?.uid || null,
+            question,
+            matchedCount: matches.length,
+            matchedTypes: [...new Set(matches.map(m => m.type || 'unknown'))],
+            topMatchId: matches[0]?.id || null,
+            topMatchTitle: matches[0]?.title || matches[0]?.name || null,
+            env: ENV,
+            createdAt: serverTimestamp()
+          });
         }catch(logError){ console.warn('AI 질문 로그 저장 실패', logError); }
       }catch(error){
         console.error('AI 검색 실패', error);
         qs('#aiChatWindow')?.lastElementChild?.remove?.();
-        appendAiMessage('bot', '검색 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.');
+        appendAiMessage('bot', '검색 중 오류가 발생했습니다. Firestore 규칙과 ai_faq / notices / benefits 컬렉션 권한을 확인해 주세요.');
+      }finally{
+        if(btn) btn.disabled = false;
       }
     }
 
