@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>더운정 마이힐스 | 서비스 개선 중</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo",
+        "Noto Sans KR", "Segoe UI", sans-serif;
+      background:
+        radial-gradient(circle at top left, rgba(37, 99, 235, 0.14), transparent 34%),
+        linear-gradient(135deg, #f8fafc 0%, #eef2ff 100%);
+      color: #111827;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+
+    .wrap {
+      width: 100%;
+      max-width: 460px;
+      animation: fadeUp 0.65s ease both;
+    }
+
+    .card {
+      background: rgba(255, 255, 255, 0.92);
+      border: 1px solid rgba(226, 232, 240, 0.9);
+      border-radius: 28px;
+      padding: 32px 24px;
+      box-shadow: 0 24px 60px rgba(15, 23, 42, 0.12);
+      text-align: center;
+      backdrop-filter: blur(14px);
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 13px;
+      border-radius: 999px;
+      background: #eef2ff;
+      color: #3730a3;
+      font-size: 13px;
+      font-weight: 700;
+      margin-bottom: 18px;
+    }
+
+    .icon {
+      width: 72px;
+      height: 72px;
+      margin: 0 auto 18px;
+      border-radius: 24px;
+      background: linear-gradient(135deg, #2563eb, #7c3aed);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 34px;
+      box-shadow: 0 14px 30px rgba(37, 99, 235, 0.28);
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 24px;
+      line-height: 1.35;
+      letter-spacing: -0.04em;
+    }
+
+    .desc {
+      margin: 16px 0 0;
+      font-size: 15px;
+      line-height: 1.75;
+      color: #4b5563;
+      word-break: keep-all;
+    }
+
+    .notice {
+      margin-top: 22px;
+      padding: 16px;
+      border-radius: 20px;
+      background: #f8fafc;
+      border: 1px solid #e5e7eb;
+      text-align: left;
+    }
+
+    .notice-title {
+      font-size: 14px;
+      font-weight: 800;
+      margin-bottom: 10px;
+      color: #111827;
+    }
+
+    .notice ul {
+      margin: 0;
+      padding-left: 18px;
+      color: #4b5563;
+      font-size: 14px;
+      line-height: 1.8;
+    }
+
+    .footer {
+      margin-top: 22px;
+      font-size: 13px;
+      color: #6b7280;
+      line-height: 1.6;
+    }
+
+    .brand {
+      margin-top: 18px;
+      font-size: 12px;
+      color: #9ca3af;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+
+    @keyframes fadeUp {
+      from {
+        opacity: 0;
+        transform: translateY(14px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @media (max-width: 420px) {
+      .card {
+        padding: 30px 20px;
+        border-radius: 24px;
+      }
+
+      h1 {
+        font-size: 22px;
+      }
+
+      .desc {
+        font-size: 14px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <main class="wrap">
+    <section class="card">
+      <div class="badge">서비스 개선 안내</div>
+
+      <div class="icon">🛠️</div>
+
+      <h1>
+        더 나은 이용을 위해<br />
+        잠시 정비 중입니다
+      </h1>
+
+      <p class="desc">
+        안녕하세요, 솔라입니다.<br />
+        현재 입주민분들께서 주신 의견을 반영하여
+        더 편하고 부담 없이 이용하실 수 있도록
+        서비스 구조를 개선하고 있습니다.
+      </p>
+
+      <div class="notice">
+        <div class="notice-title">개선 예정 내용</div>
+        <ul>
+          <li>회원가입 없이도 주요 혜택 확인 가능</li>
+          <li>개인정보 수집 최소화</li>
+          <li>더 직관적인 이용 방식으로 개편</li>
+        </ul>
+      </div>
+
+      <p class="footer">
+        이용에 불편을 드려 죄송합니다.<br />
+        빠른 시일 내에 더 안정적인 모습으로 다시 찾아뵙겠습니다.
+      </p>
+
+      <div class="brand">더운정 마이힐스</div>
+    </section>
+  </main>
+</body>
+</html>
