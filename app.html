@@ -1601,6 +1601,104 @@ body.gnb-open .bottom-nav{
 /* ===== 간단 확인 신뢰 UX 패치 ===== */
 .trust-hero-badges{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}.trust-hero-badge{display:inline-flex;align-items:center;gap:6px;padding:8px 11px;border-radius:999px;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.22);color:#fff;font-size:12px;font-weight:900;backdrop-filter:blur(8px)}.trust-panel{margin-top:14px;background:linear-gradient(180deg,#f8fafc 0%,#ffffff 100%);border:1px solid rgba(15,23,42,.06)}.trust-panel-head{display:flex;align-items:flex-start;gap:12px;margin-bottom:12px}.trust-panel-icon{width:46px;height:46px;border-radius:16px;display:grid;place-items:center;background:#eff6ff;border:1px solid #bfdbfe;color:#1d4ed8;font-size:22px;flex:0 0 auto}.trust-panel-title{margin:0;font-size:17px;letter-spacing:-.04em}.trust-panel-desc{margin:5px 0 0;color:#475569;font-size:13px;line-height:1.65}.trust-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:12px}.trust-item{padding:13px;border-radius:18px;background:#fff;border:1px solid #e2e8f0;box-shadow:0 10px 22px rgba(15,23,42,.04)}.trust-item strong{display:block;font-size:13px;color:#0f172a}.trust-item span{display:block;margin-top:4px;font-size:11px;line-height:1.45;color:#64748b}.trust-notice-line{margin-top:12px;padding:11px 12px;border-radius:16px;background:#f0fdf4;border:1px solid #bbf7d0;color:#166534;font-size:12px;font-weight:900;line-height:1.55}.privacy-zero-section{border-color:#bfdbfe;background:linear-gradient(180deg,#eff6ff 0%,#ffffff 86%)}.privacy-zero-list{display:grid;gap:10px}.privacy-zero-item{display:flex;align-items:flex-start;gap:10px;padding:13px;border-radius:18px;background:#fff;border:1px solid rgba(37,99,235,.10)}.privacy-zero-icon{width:34px;height:34px;border-radius:13px;display:grid;place-items:center;background:#eff6ff;flex:0 0 auto}.privacy-zero-copy strong{display:block;font-size:13px}.privacy-zero-copy p{margin:4px 0 0;color:#64748b;font-size:12px;line-height:1.55}.privacy-hidden-field{display:none!important}@media(max-width:370px){.trust-grid{grid-template-columns:1fr}.trust-hero-badges{padding-right:58px}}
 
+
+/* ===== 관리자 권한 배지 + 프사 이미지 설정 ===== */
+.user-chip.role-root,
+.gnb-account-card.role-root{
+  border-color:rgba(245,158,11,.42)!important;
+  background:radial-gradient(circle at top right,rgba(251,191,36,.24),transparent 34%),linear-gradient(180deg,#fff7ed 0%,#ffffff 82%)!important;
+  box-shadow:0 18px 38px rgba(245,158,11,.20), inset 0 0 0 1px rgba(251,191,36,.24)!important;
+}
+.user-chip.role-admin,
+.gnb-account-card.role-admin{
+  border-color:rgba(99,102,241,.32)!important;
+  background:radial-gradient(circle at top right,rgba(129,140,248,.18),transparent 34%),linear-gradient(180deg,#eef2ff 0%,#ffffff 86%)!important;
+  box-shadow:0 16px 34px rgba(99,102,241,.14), inset 0 0 0 1px rgba(99,102,241,.16)!important;
+}
+.user-chip.role-root .user-sub,
+.gnb-account-card.role-root .gnb-account-sub{
+  color:#92400e;
+  font-weight:1000;
+}
+.user-chip.role-admin .user-sub,
+.gnb-account-card.role-admin .gnb-account-sub{
+  color:#4338ca;
+  font-weight:1000;
+}
+.user-chip.role-root .user-avatar,
+.gnb-account-card.role-root .gnb-account-avatar{
+  background:linear-gradient(135deg,#fef3c7,#f59e0b);
+  color:#78350f;
+  box-shadow:0 0 0 3px rgba(251,191,36,.18),0 10px 22px rgba(245,158,11,.28), inset 0 0 0 1px rgba(255,255,255,.72);
+}
+.user-chip.role-admin .user-avatar,
+.gnb-account-card.role-admin .gnb-account-avatar{
+  background:linear-gradient(135deg,#e0e7ff,#818cf8);
+  color:#312e81;
+  box-shadow:0 0 0 3px rgba(129,140,248,.14),0 10px 22px rgba(99,102,241,.18), inset 0 0 0 1px rgba(255,255,255,.70);
+}
+.user-avatar.has-photo,
+.gnb-account-avatar.has-photo{
+  padding:0;
+  overflow:hidden;
+  background:#fff!important;
+}
+.user-avatar.has-photo img,
+.gnb-account-avatar.has-photo img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  display:block;
+}
+.role-badge-chip{
+  display:inline-flex;
+  align-items:center;
+  gap:5px;
+  min-height:19px;
+  padding:3px 8px;
+  border-radius:999px;
+  font-size:10px;
+  line-height:1;
+  font-weight:1000;
+  white-space:nowrap;
+}
+.role-badge-chip.root{
+  color:#92400e;
+  background:#fff7ed;
+  border:1px solid #fed7aa;
+  box-shadow:0 8px 18px rgba(245,158,11,.15);
+}
+.role-badge-chip.admin{
+  color:#4338ca;
+  background:#eef2ff;
+  border:1px solid #c7d2fe;
+  box-shadow:0 8px 18px rgba(99,102,241,.10);
+}
+.profile-preview-row{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  padding:12px;
+  border-radius:18px;
+  border:1px solid #e2e8f0;
+  background:#f8fafc;
+}
+.profile-preview-avatar{
+  width:54px;
+  height:54px;
+  border-radius:18px;
+  display:grid;
+  place-items:center;
+  overflow:hidden;
+  background:#eef2ff;
+  color:#334155;
+  font-size:22px;
+  flex:0 0 auto;
+}
+.profile-preview-avatar img{width:100%;height:100%;object-fit:cover;display:block}
+.profile-preview-copy{min-width:0;color:#64748b;font-size:12px;line-height:1.55}
+.profile-preview-copy strong{display:block;color:#0f172a;font-size:13px;margin-bottom:2px}
+
   </style>
 </head>
 <body>
@@ -2510,23 +2608,109 @@ function setPushStatusUi(enabled){
     function getDisplayNickname(){
       return state.currentUserProfile?.nickname || state.currentUser?.displayName || state.currentUser?.email || '입주민';
     }
+    function escapeAttr(value=''){
+      return String(value ?? '')
+        .replaceAll('&','&amp;')
+        .replaceAll('"','&quot;')
+        .replaceAll("'",'&#39;')
+        .replaceAll('<','&lt;')
+        .replaceAll('>','&gt;');
+    }
+
+    function getAccountRoleMeta(profile = {}){
+      const role = String(profile.role || profile.userRole || '').toLowerCase();
+
+      if(role === 'root'){
+        return {
+          role,
+          label: '👑 최고 관리자',
+          chip: '최고 관리자 계정',
+          className: 'role-root',
+          avatar: '👑'
+        };
+      }
+
+      if(role === 'admin'){
+        return {
+          role,
+          label: '🛡️ 일반 관리자',
+          chip: '일반 관리자 계정',
+          className: 'role-admin',
+          avatar: '🛡️'
+        };
+      }
+
+      return {
+        role: 'resident',
+        label: '입주민 계정',
+        chip: '입주민 계정',
+        className: 'role-resident',
+        avatar: '👤'
+      };
+    }
+
     function getDisplayUnitInfo(){
+      const roleMeta = getAccountRoleMeta(state.currentUserProfile || {});
+      if(roleMeta.role === 'root' || roleMeta.role === 'admin') return roleMeta.label;
+
       const building = state.currentUserProfile?.building;
       const unit = state.currentUserProfile?.unit;
       if(building && unit) return `${building}동 ${unit}호`;
-      return '입주민 계정';
+      return roleMeta.label;
     }
+
+    function getProfileImageUrl(){
+      const profile = state.currentUserProfile || {};
+      return String(profile.profileImageUrl || profile.photoUrl || profile.avatarUrl || '').trim();
+    }
+
+    function renderProfileAvatar(target, roleMeta, profileImageUrl){
+      if(!target) return;
+      target.classList.remove('has-photo');
+
+      if(profileImageUrl){
+        target.classList.add('has-photo');
+        target.innerHTML = `<img src="${escapeAttr(profileImageUrl)}" alt="프로필 이미지" loading="lazy">`;
+        return;
+      }
+
+      target.textContent = roleMeta.avatar || '👤';
+    }
+
+    function applyRoleClass(target, className){
+      if(!target) return;
+      target.classList.remove('role-root','role-admin','role-resident');
+      target.classList.add(className || 'role-resident');
+    }
+
     function updateUserChip(){
       const nickname = getDisplayNickname();
       const unitInfo = getDisplayUnitInfo();
+      const profileImageUrl = getProfileImageUrl();
+      const roleMeta = getAccountRoleMeta(state.currentUserProfile || {});
+
       const nicknameEl = qs('#userNickname');
       const unitInfoEl = qs('#userUnitInfo');
       const gnbAccountNameEl = qs('#gnbAccountName');
       const gnbAccountUnitEl = qs('#gnbAccountUnit');
+      const userChipEl = qs('#userChip');
+      const gnbAccountCardEl = qs('#gnbSettingsAccountSummary .gnb-account-card');
+      const userAvatarEl = qs('#userChip .user-avatar');
+      const gnbAvatarEl = qs('#gnbSettingsAccountSummary .gnb-account-avatar');
+
       if(nicknameEl) nicknameEl.textContent = nickname;
-      if(unitInfoEl) unitInfoEl.textContent = unitInfo;
+      if(unitInfoEl) unitInfoEl.innerHTML = roleMeta.role === 'root' || roleMeta.role === 'admin'
+        ? `<span class="role-badge-chip ${roleMeta.role}">${escapeHtml(roleMeta.label)}</span>`
+        : unitInfo;
       if(gnbAccountNameEl) gnbAccountNameEl.textContent = nickname;
-      if(gnbAccountUnitEl) gnbAccountUnitEl.textContent = unitInfo;
+      if(gnbAccountUnitEl) gnbAccountUnitEl.innerHTML = roleMeta.role === 'root' || roleMeta.role === 'admin'
+        ? `<span class="role-badge-chip ${roleMeta.role}">${escapeHtml(roleMeta.chip)}</span>`
+        : unitInfo;
+
+      applyRoleClass(userChipEl, roleMeta.className);
+      applyRoleClass(gnbAccountCardEl, roleMeta.className);
+      renderProfileAvatar(userAvatarEl, roleMeta, profileImageUrl);
+      renderProfileAvatar(gnbAvatarEl, roleMeta, profileImageUrl);
     }
 
     function normalizeProfileInput(value=''){
@@ -2536,11 +2720,25 @@ function setPushStatusUi(enabled){
     function fillAccountEditForm(){
       const profile = state.currentUserProfile || {};
       const nicknameInput = qs('#accountNicknameInput');
+      const profileImageInput = qs('#accountProfileImageInput');
       const buildingInput = qs('#accountBuildingInput');
       const unitInput = qs('#accountUnitInput');
       if(nicknameInput) nicknameInput.value = normalizeProfileInput(profile.nickname || state.currentUser?.displayName || '');
+      if(profileImageInput) profileImageInput.value = normalizeProfileInput(profile.profileImageUrl || profile.photoUrl || profile.avatarUrl || '');
       if(buildingInput) buildingInput.value = normalizeProfileInput(profile.building || '');
       if(unitInput) unitInput.value = normalizeProfileInput(profile.unit || '');
+      updateProfileImagePreview();
+    }
+
+    function updateProfileImagePreview(){
+      const preview = qs('#accountProfilePreview');
+      const profileImageInput = qs('#accountProfileImageInput');
+      if(!preview) return;
+      const url = normalizeProfileInput(profileImageInput?.value || '');
+      const roleMeta = getAccountRoleMeta(state.currentUserProfile || {});
+      preview.innerHTML = url
+        ? `<img src="${escapeAttr(url)}" alt="프로필 미리보기">`
+        : roleMeta.avatar || '👤';
     }
 
     function openAccountEditModal(){
@@ -2566,6 +2764,7 @@ function setPushStatusUi(enabled){
         }
 
         const nickname = normalizeProfileInput(qs('#accountNicknameInput')?.value || '');
+        const profileImageUrl = normalizeProfileInput(qs('#accountProfileImageInput')?.value || '');
         const building = normalizeProfileInput(qs('#accountBuildingInput')?.value || '');
         const unit = normalizeProfileInput(qs('#accountUnitInput')?.value || '');
 
@@ -2577,6 +2776,7 @@ function setPushStatusUi(enabled){
         showGlobalLoading();
         await setDoc(doc(db, 'users', state.currentUser.uid), {
           nickname,
+          profileImageUrl,
           building,
           unit,
           updatedAt: serverTimestamp()
@@ -2585,6 +2785,7 @@ function setPushStatusUi(enabled){
         state.currentUserProfile = {
           ...(state.currentUserProfile || {}),
           nickname,
+          profileImageUrl,
           building,
           unit
         };
@@ -5441,6 +5642,7 @@ function getShareTrackingParams(){
     qs('#openAccountEditBtn')?.addEventListener('click', openAccountEditModal);
     qs('#closeAccountEditModal')?.addEventListener('click', closeAccountEditModal);
     qs('#cancelAccountEditBtn')?.addEventListener('click', closeAccountEditModal);
+    qs('#accountProfileImageInput')?.addEventListener('input', updateProfileImagePreview);
     qs('#accountEditForm')?.addEventListener('submit', saveAccountProfile);
 
     qs('#accountEditModal')?.addEventListener('click', (event) => {
@@ -5654,6 +5856,17 @@ function getShareTrackingParams(){
         <div class="account-edit-field">
           <label for="accountNicknameInput">닉네임</label>
           <input id="accountNicknameInput" name="nickname" type="text" maxlength="20" placeholder="예: 솔라홈 입주민">
+        </div>
+        <div class="account-edit-field">
+          <label for="accountProfileImageInput">프로필 이미지 URL <small style="color:#94a3b8">선택</small></label>
+          <div class="profile-preview-row">
+            <div class="profile-preview-avatar" id="accountProfilePreview">👤</div>
+            <div class="profile-preview-copy">
+              <strong>프사 이미지 설정</strong>
+              <span>이미지 주소를 입력하면 상단 계정칩과 계정 요약에 바로 표시됩니다.</span>
+            </div>
+          </div>
+          <input id="accountProfileImageInput" name="profileImageUrl" type="url" maxlength="500" placeholder="https://.../profile.png">
         </div>
         <div class="account-edit-field privacy-hidden-field">
           <label for="accountBuildingInput">동</label>
