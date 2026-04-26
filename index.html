@@ -695,8 +695,6 @@
     const signupBtn = qs('#signupBtn');
     const noticeEl = qs('#notice');
     const loginForm = qs('#loginForm');
-    const openFindIdBtn = qs('#openFindIdBtn');
-    const openResetPwBtn = qs('#openResetPwBtn');
     const accountHelpModal = qs('#accountHelpModal');
     const accountHelpCloseBtn = qs('#accountHelpCloseBtn');
     const tabFindId = qs('#tabFindId');
@@ -1105,16 +1103,6 @@
       }
       if(!alertEl.classList.contains('show')) return;
       closeModal(false);
-    });
-
-    openFindIdBtn.addEventListener('click', () => {
-      findIdLoginIdEl.value = normalizeLoginId(loginIdEl.value);
-      openAccountHelp('findId');
-    });
-
-    openResetPwBtn.addEventListener('click', () => {
-      resetPwLoginIdEl.value = normalizeLoginId(loginIdEl.value);
-      openAccountHelp('resetPw');
     });
 
     tabFindId.addEventListener('click', () => setActiveHelpTab('findId'));
