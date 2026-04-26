@@ -1596,6 +1596,11 @@ body.gnb-open .bottom-nav{
 .reaction-box{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:12px 0}.reaction-btn{border:1px solid #e2e8f0;background:#fff;border-radius:16px;padding:12px 8px;font-size:13px;font-weight:900;cursor:pointer;transition:transform .16s ease, background-color .16s ease, border-color .16s ease}.reaction-btn:hover{transform:translateY(-1px);background:#f8fafc;border-color:#cbd5e1}.reaction-btn:active{transform:scale(.97)}.reaction-help{margin:-2px 0 12px;padding:10px 12px;border-radius:16px;background:#fff7ed;border:1px solid #fed7aa;color:#c2410c;font-size:12px;font-weight:900;line-height:1.5}
 .share-power{display:inline-flex;align-items:center;gap:5px;padding:5px 8px;border-radius:999px;background:#f8fafc;border:1px solid #e2e8f0;color:#475569;font-size:11px;font-weight:900}.share-power.hot{background:#fff7ed;border-color:#fed7aa;color:#c2410c}.resident-rank-list{display:grid;gap:10px}.resident-rank-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:13px 14px;border-radius:20px;background:#fff;border:1px solid var(--line-soft);box-shadow:0 10px 22px rgba(15,23,42,.05)}.resident-rank-left{display:flex;align-items:center;gap:10px;min-width:0}.resident-rank-medal{width:36px;height:36px;border-radius:14px;display:grid;place-items:center;background:#0f172a;color:#fff;font-weight:1000;flex:0 0 auto}.resident-rank-copy{min-width:0}.resident-rank-name{font-size:14px;font-weight:1000;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:210px}.resident-rank-sub{margin-top:3px;font-size:11px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:210px}.resident-rank-score{text-align:right;flex:0 0 auto}.resident-rank-score strong{display:block;font-size:18px;line-height:1.1}.resident-rank-score span{font-size:11px;color:var(--muted);font-weight:800}@media (max-width:370px){.nearby-proximity-actions,.reaction-box{grid-template-columns:1fr}.resident-rank-name,.resident-rank-sub{max-width:160px}}
 
+  
+
+/* ===== 간단 확인 신뢰 UX 패치 ===== */
+.trust-hero-badges{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}.trust-hero-badge{display:inline-flex;align-items:center;gap:6px;padding:8px 11px;border-radius:999px;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.22);color:#fff;font-size:12px;font-weight:900;backdrop-filter:blur(8px)}.trust-panel{margin-top:14px;background:linear-gradient(180deg,#f8fafc 0%,#ffffff 100%);border:1px solid rgba(15,23,42,.06)}.trust-panel-head{display:flex;align-items:flex-start;gap:12px;margin-bottom:12px}.trust-panel-icon{width:46px;height:46px;border-radius:16px;display:grid;place-items:center;background:#eff6ff;border:1px solid #bfdbfe;color:#1d4ed8;font-size:22px;flex:0 0 auto}.trust-panel-title{margin:0;font-size:17px;letter-spacing:-.04em}.trust-panel-desc{margin:5px 0 0;color:#475569;font-size:13px;line-height:1.65}.trust-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:12px}.trust-item{padding:13px;border-radius:18px;background:#fff;border:1px solid #e2e8f0;box-shadow:0 10px 22px rgba(15,23,42,.04)}.trust-item strong{display:block;font-size:13px;color:#0f172a}.trust-item span{display:block;margin-top:4px;font-size:11px;line-height:1.45;color:#64748b}.trust-notice-line{margin-top:12px;padding:11px 12px;border-radius:16px;background:#f0fdf4;border:1px solid #bbf7d0;color:#166534;font-size:12px;font-weight:900;line-height:1.55}.privacy-zero-section{border-color:#bfdbfe;background:linear-gradient(180deg,#eff6ff 0%,#ffffff 86%)}.privacy-zero-list{display:grid;gap:10px}.privacy-zero-item{display:flex;align-items:flex-start;gap:10px;padding:13px;border-radius:18px;background:#fff;border:1px solid rgba(37,99,235,.10)}.privacy-zero-icon{width:34px;height:34px;border-radius:13px;display:grid;place-items:center;background:#eff6ff;flex:0 0 auto}.privacy-zero-copy strong{display:block;font-size:13px}.privacy-zero-copy p{margin:4px 0 0;color:#64748b;font-size:12px;line-height:1.55}.privacy-hidden-field{display:none!important}@media(max-width:370px){.trust-grid{grid-template-columns:1fr}.trust-hero-badges{padding-right:58px}}
+
   </style>
 </head>
 <body>
@@ -1639,7 +1644,24 @@ body.gnb-open .bottom-nav{
       </div>
     </header>
     <section id="view-home" class="">
-      <div class="hero"><div class="eyebrow">🏠 마이힐스 어플 제시 후 이용</div><div class="env-badge hero-env" id="envBadge"><span class="env-badge-dot"></span><span>DEV ENV</span></div><h2>입주민 혜택을 앱처럼 깔끔하게</h2><p>입주민 전용 제휴 혜택과 매장 정보를 한눈에 확인해보세요.</p><div class="stats"><div class="stat"><strong id="statMax">50%</strong><span>최대 할인</span></div><div class="stat"><strong id="statCount">21</strong><span>전체 제휴</span></div><div class="stat"><strong id="statCat">9</strong><span>카테고리</span></div></div></div>
+      <div class="hero">
+        <div class="eyebrow">🔐 간단 확인 후 입주민 혜택</div>
+        <div class="env-badge hero-env" id="envBadge"><span class="env-badge-dot"></span><span>DEV ENV</span></div>
+        <h2>간단한 확인만으로<br>입주민 혜택을 깔끔하게</h2>
+        <p>부담되는 입력 절차는 줄이고, 필요한 혜택과 공지만 앱처럼 편하게 확인해보세요.</p>
+        <div class="trust-hero-badges" aria-label="안심 이용 안내">
+          <span class="trust-hero-badge">간단 입장</span>
+          <span class="trust-hero-badge">가벼운 확인</span>
+          <span class="trust-hero-badge">혜택 바로 확인</span>
+        </div>
+        <div class="stats"><div class="stat"><strong id="statMax">50%</strong><span>최대 할인</span></div><div class="stat"><strong id="statCount">21</strong><span>전체 제휴</span></div><div class="stat"><strong id="statCat">9</strong><span>카테고리</span></div></div>
+      </div>
+
+      <div class="panel trust-panel" id="privacyTrustPanel">
+        <div class="trust-panel-head"><div class="trust-panel-icon">🔒</div><div><h3 class="trust-panel-title">간단 이용 안내</h3><p class="trust-panel-desc">입주민 전용 혜택을 더 편하게 이용할 수 있도록 입력 절차를 가볍게 정리했습니다.</p></div></div>
+        <div class="trust-grid"><div class="trust-item"><strong>가벼운 입장</strong><span>복잡한 신청 절차 없이 계정 중심으로 이용합니다.</span></div><div class="trust-item"><strong>단순 분류</strong><span>입주민/관리자 등 회원 유형은 권한 구분용입니다.</span></div><div class="trust-item"><strong>기능은 유지</strong><span>혜택, 공지, 즐겨찾기, TOP 5, 지도 기능은 그대로 제공합니다.</span></div><div class="trust-item"><strong>언제든 종료</strong><span>이용 종료 요청 시 계정 정리를 안내합니다.</span></div></div>
+        <div class="trust-notice-line">안심하고 먼저 둘러보실 수 있도록 입력 절차를 가볍게 줄였습니다.</div>
+      </div>
       <div class="panel notice hidden" id="firebaseNotice">Firebase 설정값이 비어 있습니다. firebaseConfig를 확인해 주세요.</div>
 
       <div class="panel" style="margin-top:14px;">
@@ -1969,53 +1991,101 @@ body.gnb-open .bottom-nav{
         window.firebaseMessaging = messaging;
         window.getToken = getToken;
 
-        onMessage(messaging, async (payload) => {
-		  try {
-			const title =
-			  payload?.data?.title ||
-			  payload?.notification?.title ||
-			  '새 알림';
+        function normalizeForegroundPushPayload(payload = {}) {
+          const data = payload?.data || {};
+          return {
+            title: String(data.title || payload?.notification?.title || '새 알림'),
+            body: String(data.body || payload?.notification?.body || ''),
+            url: String(data.url || data.click_action || data.clickUrl || data.link || '/'),
+            noticeId: String(data.noticeId || ''),
+            important: String(data.important || '') === 'true'
+          };
+        }
 
-			const body =
-			  payload?.data?.body ||
-			  payload?.notification?.body ||
-			  '';
+        function openForegroundPushUrl(url = '/') {
+          try {
+            const absoluteUrl = new URL(String(url || '/'), window.location.origin);
+            if (absoluteUrl.origin !== window.location.origin) {
+              window.location.href = '/';
+              return;
+            }
+            window.location.href = absoluteUrl.href;
+          } catch (_) {
+            window.location.href = '/';
+          }
+        }
 
-			const targetUrl =
-			  payload?.data?.url ||
-			  payload?.data?.click_action ||
-			  '/';
+        function ensureForegroundPushToastStyle() {
+          if (document.getElementById('foregroundPushToastStyle')) return;
+          const style = document.createElement('style');
+          style.id = 'foregroundPushToastStyle';
+          style.textContent = [
+            '.foreground-push-toast{',
+            'position:fixed;left:12px;right:12px;top:calc(10px + env(safe-area-inset-top,0px));z-index:100002;display:flex;justify-content:center;pointer-events:none;opacity:0;transform:translateY(-18px) scale(.985);transition:opacity .24s ease, transform .24s ease;',
+            '}',
+            '.foreground-push-toast.show{opacity:1;transform:translateY(0) scale(1);}',
+            '.foreground-push-card{width:min(100%,448px);display:flex;align-items:flex-start;gap:12px;padding:14px 15px;border-radius:22px;background:rgba(15,23,42,.94);color:#fff;border:1px solid rgba(255,255,255,.12);box-shadow:0 18px 42px rgba(15,23,42,.26);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);pointer-events:auto;cursor:pointer;}',
+            '.foreground-push-icon{width:38px;height:38px;border-radius:14px;display:grid;place-items:center;background:rgba(255,255,255,.12);flex:0 0 auto;font-size:18px;}',
+            '.foreground-push-copy{min-width:0;flex:1;}',
+            '.foreground-push-title{font-size:14px;font-weight:900;line-height:1.35;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}',
+            '.foreground-push-body{margin-top:4px;font-size:12px;line-height:1.55;color:rgba(255,255,255,.78);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}',
+            '.foreground-push-close{border:none;background:rgba(255,255,255,.10);color:#fff;width:32px;height:32px;border-radius:12px;cursor:pointer;flex:0 0 auto;font-size:18px;line-height:1;}'
+          ].join('');
+          document.head.appendChild(style);
+        }
 
-			console.log('포그라운드 푸시 수신', payload);
+        function showForegroundPushToast({ title = '새 알림', body = '', url = '/' } = {}) {
+          ensureForegroundPushToastStyle();
+          let host = document.getElementById('foregroundPushToast');
+          if (!host) {
+            host = document.createElement('div');
+            host.id = 'foregroundPushToast';
+            host.className = 'foreground-push-toast';
+            host.innerHTML = '<div class="foreground-push-card" id="foregroundPushCard" role="button" tabindex="0"><div class="foreground-push-icon">🔔</div><div class="foreground-push-copy"><div class="foreground-push-title" id="foregroundPushTitle"></div><div class="foreground-push-body" id="foregroundPushBody"></div></div><button type="button" class="foreground-push-close" id="foregroundPushClose" aria-label="알림 닫기">×</button></div>';
+            document.body.appendChild(host);
+            host.querySelector('#foregroundPushCard')?.addEventListener('click', () => {
+              const targetUrl = host.dataset.url || '/';
+              host.classList.remove('show');
+              openForegroundPushUrl(targetUrl);
+            });
+            host.querySelector('#foregroundPushCard')?.addEventListener('keydown', (event) => {
+              if (event.key !== 'Enter' && event.key !== ' ') return;
+              event.preventDefault();
+              const targetUrl = host.dataset.url || '/';
+              host.classList.remove('show');
+              openForegroundPushUrl(targetUrl);
+            });
+            host.querySelector('#foregroundPushClose')?.addEventListener('click', (event) => {
+              event.stopPropagation();
+              host.classList.remove('show');
+            });
+          }
+          host.dataset.url = url || '/';
+          host.querySelector('#foregroundPushTitle').textContent = title || '새 알림';
+          host.querySelector('#foregroundPushBody').textContent = body || '새로운 알림이 도착했습니다.';
+          host.classList.remove('show');
+          requestAnimationFrame(() => host.classList.add('show'));
+          clearTimeout(showForegroundPushToast._timer);
+          showForegroundPushToast._timer = setTimeout(() => host.classList.remove('show'), 4200);
+        }
 
-			if (window.pushSwRegistration) {
-			  await window.pushSwRegistration.showNotification(title, {
-				body,
-				icon: '/icons/icon-192.png',
-				badge: '/icons/icon-192.png',
-				data: {
-				  url: targetUrl,
-				  noticeId: payload?.data?.noticeId || '',
-				  important: payload?.data?.important || ''
-				},
-                tag: payload?.data?.noticeId ? `notice-${payload.data.noticeId}` : undefined,
-                renotify: payload?.data?.important === 'true',
-                vibrate: payload?.data?.important === 'true' ? [200, 100, 200] : undefined
-			  });
-			  return;
-			}
-
-			if (Notification.permission === 'granted') {
-			  new Notification(title, {
-				body,
-				icon: '/icons/icon-192.png'
-			  });
-			}
-		  } catch (error) {
-			console.error('포그라운드 푸시 처리 실패', error);
-		  }
-		});
-
+        if (!window.__myhillsForegroundPushBound) {
+          window.__myhillsForegroundPushBound = true;
+          onMessage(messaging, (payload) => {
+            try {
+              const item = normalizeForegroundPushPayload(payload);
+              console.log('포그라운드 푸시 수신', payload);
+              // 앱이 열려 있을 때는 시스템 알림을 다시 띄우지 않습니다.
+              // 백그라운드/앱 닫힘 상태의 시스템 알림은 firebase-messaging-sw.js가 처리합니다.
+              if (item.important && navigator.vibrate) {
+                navigator.vibrate([160, 80, 160]);
+              }
+              showForegroundPushToast({ title: item.title, body: item.body, url: item.url });
+            } catch (error) {
+              console.error('포그라운드 푸시 처리 실패', error);
+            }
+          });
+        }
         return true;
       }catch(error){
         console.error('푸시 초기화 실패', error);
@@ -2754,8 +2824,10 @@ async function refreshPushStatus(){
 
           const approvalStatus = String(state.currentUserProfile.approvalStatus || 'pending');
           const accountStatus = String(state.currentUserProfile.accountStatus || 'inactive');
-          const phoneVerificationRequired = state.currentUserProfile.phoneVerificationRequired !== false;
-          const phoneVerified = !!state.currentUserProfile.phoneVerified;
+          // 2026-04-26: 공개앱에서는 휴대폰 인증 단계를 생략합니다.
+          // 기존 필드는 보존하되, 앱 접근 차단 조건으로 사용하지 않습니다.
+          const phoneVerificationRequired = false;
+          const phoneVerified = true;
 
           if(accountStatus === 'withdrawn'){
             await writeSecurityLog('WITHDRAWN_ACCOUNT_ACCESS', { accountStatus });
@@ -5486,6 +5558,15 @@ function getShareTrackingParams(){
             </div>
           </div>
 
+          <div class="gnb-settings-section privacy-zero-section">
+            <div class="gnb-settings-section-header"><div><h4 class="gnb-settings-section-title">안심 이용 안내</h4><p class="gnb-settings-section-desc">입주민 혜택 제공에 필요한 확인 절차만 남기고, 복잡한 입력은 줄였습니다.</p></div></div>
+            <div class="privacy-zero-list">
+              <div class="privacy-zero-item"><div class="privacy-zero-icon">✅</div><div class="privacy-zero-copy"><strong>간단한 계정 중심 이용</strong><p>복잡한 입력 없이 입주민 혜택 화면을 편하게 이용할 수 있도록 정리했습니다.</p></div></div>
+              <div class="privacy-zero-item"><div class="privacy-zero-icon">🏷️</div><div class="privacy-zero-copy"><strong>회원 유형은 단순 권한 분류</strong><p>입주민/관리자 구분은 화면과 기능 접근을 나누기 위한 운영 정보입니다.</p></div></div>
+              <div class="privacy-zero-item"><div class="privacy-zero-icon">🧹</div><div class="privacy-zero-copy"><strong>부담되는 절차 최소화</strong><p>기존 기능은 유지하되, 이용 전환에 방해되는 입력 절차는 줄입니다.</p></div></div>
+            </div>
+          </div>
+
           <div class="gnb-settings-section">
             <div class="gnb-settings-section-header">
               <div>
@@ -5518,7 +5599,7 @@ function getShareTrackingParams(){
             <div class="gnb-settings-section-header">
               <div>
                 <h4 class="gnb-settings-section-title">계정 관리</h4>
-                <p class="gnb-settings-section-desc">자주 쓰지 않는 계정 관련 기능은 별도 구획으로 분리해 실수 클릭을 줄였습니다.</p>
+                <p class="gnb-settings-section-desc">복잡한 입력 부담을 줄이고, 필요한 계정 상태만 간단하게 관리합니다.</p>
               </div>
             </div>
             <div class="gnb-info-grid">
@@ -5526,14 +5607,14 @@ function getShareTrackingParams(){
                 <div class="gnb-info-icon">🛡️</div>
                 <div class="gnb-info-copy">
                   <strong>표시 정보 관리</strong>
-                  <p>운영진이 확인하기 쉬운 닉네임과 동 · 호 정보를 수정할 수 있습니다.</p>
+                  <p>앱 화면에 표시되는 닉네임 중심으로 계정 정보를 관리합니다.</p>
                 </div>
               </div>
             </div>
             <div class="gnb-action-grid" style="margin-top:12px;">
               <button class="account-edit-trigger" id="openAccountEditBtn" type="button">
                 <span>계정 정보 수정</span>
-                <span class="desc">닉네임 · 동 · 호</span>
+                <span class="desc">닉네임 중심</span>
               </button>
               <button class="gnb-action-btn outline" id="logoutBtn" type="button">
                 <span>로그아웃</span>
@@ -5568,17 +5649,17 @@ function getShareTrackingParams(){
       <button class="close-btn" id="closeAccountEditModal" type="button">✕</button>
     </div>
     <div class="modal-body">
-      <div class="account-edit-help">로그인한 계정의 표시 정보를 수정합니다. 운영진 기준으로 확인하기 쉬운 이름과 동·호 정보를 입력해 주세요.</div>
+      <div class="account-edit-help">로그인한 계정의 표시 정보를 수정합니다. 이름·연락처 대신 닉네임 중심으로만 관리합니다.</div>
       <form class="account-edit-form" id="accountEditForm">
         <div class="account-edit-field">
           <label for="accountNicknameInput">닉네임</label>
           <input id="accountNicknameInput" name="nickname" type="text" maxlength="20" placeholder="예: 솔라홈 입주민">
         </div>
-        <div class="account-edit-field">
+        <div class="account-edit-field privacy-hidden-field">
           <label for="accountBuildingInput">동</label>
           <input id="accountBuildingInput" name="building" type="text" maxlength="10" inputmode="numeric" placeholder="예: 101">
         </div>
-        <div class="account-edit-field">
+        <div class="account-edit-field privacy-hidden-field">
           <label for="accountUnitInput">호</label>
           <input id="accountUnitInput" name="unit" type="text" maxlength="10" inputmode="numeric" placeholder="예: 1203">
         </div>
