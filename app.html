@@ -1829,6 +1829,7 @@ body.gnb-open .bottom-nav{
   }
 }
 
+  
 
 /* ===== 자동 로그아웃 iPhone 위젯 스타일 + 시간 애니메이션 ===== */
 .topbar-left-titleline .myhills-idle-widget,
@@ -1984,6 +1985,200 @@ body.gnb-open .bottom-nav{
   }
 }
 
+/* ===== GNB 관리자 전용 프리미엄 영역 / Root 전용 숨김 패널 ===== */
+.admin-only-menu,
+.root-only-panel{
+  display:none;
+}
+body.app-role-root .admin-only-menu,
+body.app-role-admin .admin-only-menu{
+  display:block;
+}
+body.app-role-root .root-only-panel{
+  display:block;
+}
+body.app-role-resident [data-view-link="shareinsights"],
+body.app-role-resident [data-view="shareinsights"]{
+  display:none!important;
+}
+.gnb-admin-premium{
+  position:relative;
+  overflow:hidden;
+  border-radius:26px;
+  padding:16px;
+  border:1px solid rgba(251,191,36,.34);
+  background:linear-gradient(135deg,#fff7ed 0%,#ffffff 58%,#f8fafc 100%);
+  box-shadow:0 18px 38px rgba(245,158,11,.14), inset 0 0 0 1px rgba(255,255,255,.72);
+}
+.gnb-admin-premium::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:radial-gradient(circle at top right,rgba(251,191,36,.24),transparent 36%);
+  pointer-events:none;
+}
+.gnb-admin-premium > *{
+  position:relative;
+  z-index:1;
+}
+.gnb-admin-head{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:12px;
+  margin-bottom:12px;
+}
+.gnb-admin-kicker{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  padding:6px 9px;
+  border-radius:999px;
+  background:#fff7ed;
+  border:1px solid #fed7aa;
+  color:#92400e;
+  font-size:11px;
+  font-weight:1000;
+  line-height:1;
+}
+.gnb-admin-title{
+  margin:8px 0 4px;
+  font-size:18px;
+  letter-spacing:-.04em;
+  color:#0f172a;
+}
+.gnb-admin-desc{
+  margin:0;
+  color:#64748b;
+  font-size:12px;
+  line-height:1.55;
+}
+.gnb-admin-crown{
+  width:44px;
+  height:44px;
+  border-radius:17px;
+  display:grid;
+  place-items:center;
+  background:linear-gradient(135deg,#fef3c7,#f59e0b);
+  box-shadow:0 12px 24px rgba(245,158,11,.22), inset 0 0 0 1px rgba(255,255,255,.75);
+  flex:0 0 auto;
+}
+.gnb-admin-actions{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+  margin-top:12px;
+}
+.gnb-admin-actions .gnb-menu-item,
+.gnb-root-actions .gnb-action-btn{
+  margin:0;
+  justify-content:center;
+  text-align:center;
+}
+.gnb-root-panel{
+  margin-top:12px;
+  padding:14px;
+  border-radius:22px;
+  border:1px solid rgba(245,158,11,.32);
+  background:rgba(255,251,235,.72);
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.72);
+}
+.gnb-root-panel h4{
+  margin:0 0 6px;
+  font-size:15px;
+  letter-spacing:-.03em;
+  color:#78350f;
+}
+.gnb-root-panel p{
+  margin:0 0 12px;
+  color:#92400e;
+  font-size:12px;
+  line-height:1.55;
+}
+.gnb-root-actions{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+}
+@media(max-width:370px){
+  .gnb-admin-actions,
+  .gnb-root-actions{grid-template-columns:1fr;}
+}
+
+/* GNB 계정 glow를 둥근 직사각형 카드 안쪽으로 정리 */
+.gnb-account-card{
+  border-radius:22px;
+  overflow:hidden;
+}
+.gnb-account-card.role-root{
+  border:1px solid rgba(251,191,36,.46)!important;
+  background:linear-gradient(90deg,#fff7ed 0%,#ffffff 64%,#fff7ed 100%)!important;
+  box-shadow:0 12px 26px rgba(245,158,11,.14), inset 0 0 0 1px rgba(251,191,36,.18)!important;
+}
+.gnb-account-card.role-admin{
+  border:1px solid rgba(99,102,241,.36)!important;
+  background:linear-gradient(90deg,#eef2ff 0%,#ffffff 68%,#eef2ff 100%)!important;
+  box-shadow:0 10px 24px rgba(99,102,241,.11), inset 0 0 0 1px rgba(99,102,241,.14)!important;
+}
+/* ===== 프사 이미지 직접 업로드 + 플러스 버튼 ===== */
+.profile-preview-avatar{position:relative;}
+.profile-preview-avatar.profile-uploading{opacity:.72;}
+.profile-upload-plus{
+  position:absolute;right:-6px;bottom:-6px;width:28px;height:28px;border:none;border-radius:999px;display:grid;place-items:center;
+  background:linear-gradient(135deg,#0f172a,#2563eb);color:#fff;font-size:18px;font-weight:1000;line-height:1;cursor:pointer;
+  box-shadow:0 10px 22px rgba(15,23,42,.22), inset 0 0 0 1px rgba(255,255,255,.25);z-index:2;
+  transition:transform .16s ease, box-shadow .16s ease, opacity .16s ease;
+}
+.profile-upload-plus:hover{transform:translateY(-1px) scale(1.04);box-shadow:0 14px 28px rgba(15,23,42,.26)}
+.profile-upload-plus:active{transform:scale(.94)}
+.profile-upload-plus[disabled]{opacity:.55;cursor:wait;transform:none;}
+.profile-file-input{display:none!important;}
+.profile-upload-status{display:block;margin-top:8px;font-size:11px;font-weight:800;color:#64748b;line-height:1.5;}
+.profile-upload-status.success{color:#1d4ed8;}
+.profile-upload-status.error{color:#b91c1c;}
+.account-profile-url-input{display:none!important;}
+.profile-preview-avatar.has-photo img,
+.user-avatar.has-photo img,
+.gnb-account-avatar.has-photo img{
+  width:100%;height:100%;object-fit:cover;border-radius:inherit;display:block;
+}
+.profile-preview-avatar.profile-uploading::after{
+  content:"";position:absolute;inset:-4px;border-radius:22px;border:2px solid rgba(37,99,235,.22);border-top-color:#2563eb;animation:profileSpin .75s linear infinite;
+}
+.profile-preview-avatar.profile-saved,
+.user-avatar.profile-saved,
+.gnb-account-avatar.profile-saved{
+  animation:profileSavedPop .48s ease both;
+}
+@keyframes profileSpin{to{transform:rotate(360deg)}}
+@keyframes profileSavedPop{
+  0%{transform:scale(.94);box-shadow:0 0 0 0 rgba(37,99,235,.0)}
+  45%{transform:scale(1.06);box-shadow:0 0 0 7px rgba(37,99,235,.14)}
+  100%{transform:scale(1);box-shadow:inherit}
+}
+
+
+
+/* ===== 설정 계정 요약 프사 glow 여백 보정 ===== */
+#gnbSettingsAccountSummary .gnb-account-card{
+  padding:10px 14px 10px 18px;
+  overflow:visible;
+}
+#gnbSettingsAccountSummary .gnb-account{
+  gap:14px;
+}
+#gnbSettingsAccountSummary .gnb-account-avatar{
+  margin-left:2px;
+}
+@media (max-width:420px){
+  #gnbSettingsAccountSummary .gnb-account-card{
+    padding:10px 14px 10px 16px;
+  }
+  #gnbSettingsAccountSummary .gnb-account-avatar{
+    margin-left:1px;
+  }
+}
+
   </style>
 </head>
 <body>
@@ -2111,6 +2306,7 @@ body.gnb-open .bottom-nav{
     import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
     import { getFirestore, collection, onSnapshot, doc, getDoc, getDocs, setDoc, updateDoc, increment, serverTimestamp, addDoc, query, orderBy, limit, deleteDoc } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
     import { getMessaging, getToken, onMessage, isSupported } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-messaging.js';
+    import { getStorage, ref as storageRef, uploadBytes, getDownloadURL, deleteObject } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js';
     const firebaseConfig = FIREBASE_CONFIG[ENV];
     const VAPID_PUBLIC_KEY_BY_ENV = {
       dev: 'BHgdDiJQpnMsX0oR_nO3ixVeJAzDMdAkgdnMfBn09ElocDSmefCeXY1gXTVHoZSgYsDg5fojyTuTqSR2c185VhE',
@@ -2125,6 +2321,7 @@ body.gnb-open .bottom-nav{
     const app = initializeApp({ ...firebaseConfig });
     const auth=getAuth(app);
     const db=getFirestore(app);
+    const storage=getStorage(app);
 
     /* =========================
        Security Guard / Session Check
@@ -2786,8 +2983,38 @@ function setPushStatusUi(enabled){
       });
     }
 
+    function getCurrentRoleMeta(){
+      return getAccountRoleMeta(state.currentUserProfile || {});
+    }
+
+    function isAdminRole(){
+      const role = getCurrentRoleMeta().role;
+      return role === 'root' || role === 'admin';
+    }
+
+    function isRootRole(){
+      return getCurrentRoleMeta().role === 'root';
+    }
+
+    function applyBodyRoleClass(roleMeta = getCurrentRoleMeta()){
+      document.body.classList.remove('app-role-root','app-role-admin','app-role-resident');
+      document.body.classList.add(`app-role-${roleMeta.role || 'resident'}`);
+    }
+
+    function enforceShareInsightAccess(){
+      if(state.view === 'shareinsights' && !isAdminRole()){
+        state.view = 'home';
+        return false;
+      }
+      return true;
+    }
+
     function changeView(nextView){
       if(!nextView) return;
+      if(nextView === 'shareinsights' && !isAdminRole()){
+        openModalAlert('공유 인사이트는 관리자 계정에서만 확인할 수 있습니다.');
+        return;
+      }
       saveCurrentViewScroll();
       state.view = nextView;
       if(nextView === 'favorite' || nextView === 'top5' || nextView === 'map' || nextView === 'shareinsights') state.filter = 'all';
@@ -2946,7 +3173,15 @@ function setPushStatusUi(enabled){
 
     function getProfileImageUrl(){
       const profile = state.currentUserProfile || {};
-      return String(profile.profileImageUrl || profile.photoUrl || profile.avatarUrl || '').trim();
+      const rawUrl = String(profile.profileImageUrl || profile.photoUrl || profile.avatarUrl || '').trim();
+      if(!rawUrl) return '';
+      const cacheKey = profile.profileImageCacheKey
+        || profile.profileImageUpdatedAt?.seconds
+        || profile.updatedAt?.seconds
+        || '';
+      if(!cacheKey) return rawUrl;
+      const separator = rawUrl.includes('?') ? '&' : '?';
+      return rawUrl.includes('profileCache=') ? rawUrl : `${rawUrl}${separator}profileCache=${encodeURIComponent(cacheKey)}`;
     }
 
     function renderProfileAvatar(target, roleMeta, profileImageUrl){
@@ -2994,6 +3229,7 @@ function setPushStatusUi(enabled){
 
       applyRoleClass(userChipEl, roleMeta.className);
       applyRoleClass(gnbAccountCardEl, roleMeta.className);
+      applyBodyRoleClass(roleMeta);
       renderProfileAvatar(userAvatarEl, roleMeta, profileImageUrl);
       renderProfileAvatar(gnbAvatarEl, roleMeta, profileImageUrl);
     }
@@ -3005,25 +3241,144 @@ function setPushStatusUi(enabled){
     function fillAccountEditForm(){
       const profile = state.currentUserProfile || {};
       const nicknameInput = qs('#accountNicknameInput');
-      const profileImageInput = qs('#accountProfileImageInput');
       const buildingInput = qs('#accountBuildingInput');
       const unitInput = qs('#accountUnitInput');
       if(nicknameInput) nicknameInput.value = normalizeProfileInput(profile.nickname || state.currentUser?.displayName || '');
-      if(profileImageInput) profileImageInput.value = normalizeProfileInput(profile.profileImageUrl || profile.photoUrl || profile.avatarUrl || '');
       if(buildingInput) buildingInput.value = normalizeProfileInput(profile.building || '');
       if(unitInput) unitInput.value = normalizeProfileInput(profile.unit || '');
       updateProfileImagePreview();
+      setProfileUploadStatus('이미지 파일은 3MB 이하를 권장합니다.');
     }
 
     function updateProfileImagePreview(){
       const preview = qs('#accountProfilePreview');
-      const profileImageInput = qs('#accountProfileImageInput');
       if(!preview) return;
-      const url = normalizeProfileInput(profileImageInput?.value || '');
+      const url = getProfileImageUrl();
       const roleMeta = getAccountRoleMeta(state.currentUserProfile || {});
+      const plusBtn = `<button class="profile-upload-plus" id="accountProfileUploadBtn" type="button" title="프로필 이미지 업로드" aria-label="프로필 이미지 업로드">+</button>`;
+      preview.classList.toggle('has-photo', !!url);
       preview.innerHTML = url
-        ? `<img src="${escapeAttr(url)}" alt="프로필 미리보기">`
-        : roleMeta.avatar || '👤';
+        ? `<img src="${escapeAttr(url)}" alt="프로필 미리보기">${plusBtn}`
+        : `${escapeHtml(roleMeta.avatar || '👤')}${plusBtn}`;
+      bindProfileUploadButton();
+    }
+
+    function animateProfileImageApplied(){
+      ['#accountProfilePreview', '#userChip .user-avatar', '#gnbSettingsAccountSummary .gnb-account-avatar'].forEach((selector) => {
+        const el = qs(selector);
+        if(!el) return;
+        el.classList.remove('profile-saved');
+        void el.offsetWidth;
+        el.classList.add('profile-saved');
+        setTimeout(() => el.classList.remove('profile-saved'), 650);
+      });
+    }
+
+    async function deletePreviousProfileImageIfNeeded(previousPath='', nextPath=''){
+      const oldPath = normalizeProfileInput(previousPath);
+      const newPath = normalizeProfileInput(nextPath);
+      if(!oldPath || oldPath === newPath) return;
+      if(!oldPath.startsWith(`profile-images/${state.currentUser.uid}/`)) return;
+      try{
+        await deleteObject(storageRef(storage, oldPath));
+      }catch(error){
+        console.warn('이전 프로필 이미지 삭제 실패 또는 이미 삭제됨', error);
+      }
+    }
+
+    function setProfileUploadStatus(message, type=''){
+      const statusEl = qs('#accountProfileUploadStatus');
+      if(!statusEl) return;
+      statusEl.textContent = message || '';
+      statusEl.classList.remove('success','error');
+      if(type) statusEl.classList.add(type);
+    }
+
+    function bindProfileUploadButton(){
+      const uploadBtn = qs('#accountProfileUploadBtn');
+      const fileInput = qs('#accountProfileFileInput');
+      if(!uploadBtn || !fileInput || uploadBtn.dataset.bound === '1') return;
+      uploadBtn.dataset.bound = '1';
+      uploadBtn.addEventListener('click', () => fileInput.click());
+    }
+
+    function sanitizeProfileFileName(name='profile'){
+      return String(name || 'profile').replace(/[^a-zA-Z0-9._-]/g, '_').slice(-80) || 'profile.png';
+    }
+
+    function getProfileFileExtension(file){
+      const byType = String(file?.type || '').split('/')[1] || '';
+      const normalized = byType.replace('jpeg','jpg').replace(/[^a-z0-9]/gi,'').toLowerCase();
+      if(normalized) return normalized;
+      const fromName = String(file?.name || '').split('.').pop() || 'png';
+      return fromName.replace(/[^a-z0-9]/gi,'').toLowerCase() || 'png';
+    }
+
+    async function handleProfileImageFileChange(event){
+      const file = event?.target?.files?.[0];
+      if(!file) return;
+      try{
+        if(!state.currentUser?.uid){
+          await openModalAlert('로그인 후 이용해 주세요.');
+          return;
+        }
+        if(!file.type || !file.type.startsWith('image/')){
+          await openModalAlert('이미지 파일만 업로드할 수 있습니다.', qs('#accountProfileUploadBtn'));
+          return;
+        }
+        if(file.size > 3 * 1024 * 1024){
+          await openModalAlert('프로필 이미지는 3MB 이하 파일로 올려 주세요.', qs('#accountProfileUploadBtn'));
+          return;
+        }
+
+        const preview = qs('#accountProfilePreview');
+        const uploadBtn = qs('#accountProfileUploadBtn');
+        const previousPath = state.currentUserProfile?.profileImagePath || '';
+        preview?.classList.add('profile-uploading');
+        if(uploadBtn) uploadBtn.disabled = true;
+        setProfileUploadStatus('프로필 이미지를 업로드하는 중입니다...', '');
+
+        const ext = getProfileFileExtension(file);
+        const cacheKey = Date.now();
+        const path = `profile-images/${state.currentUser.uid}/profile_${cacheKey}.${ext}`;
+        const fileRef = storageRef(storage, path);
+        await uploadBytes(fileRef, file, {
+          contentType:file.type,
+          customMetadata:{ ownerUid:state.currentUser.uid, purpose:'profile-image' }
+        });
+        const downloadUrl = await getDownloadURL(fileRef);
+
+        await setDoc(doc(db, 'users', state.currentUser.uid), {
+          profileImageUrl:downloadUrl,
+          profileImagePath:path,
+          profileImageCacheKey:String(cacheKey),
+          profileImageUpdatedAt:serverTimestamp(),
+          updatedAt:serverTimestamp()
+        }, { merge:true });
+
+        state.currentUserProfile = {
+          ...(state.currentUserProfile || {}),
+          profileImageUrl:downloadUrl,
+          profileImagePath:path,
+          profileImageCacheKey:String(cacheKey)
+        };
+
+        updateUserChip();
+        updateProfileImagePreview();
+        animateProfileImageApplied();
+        setProfileUploadStatus('프로필 이미지가 바로 반영되었습니다.', 'success');
+        deletePreviousProfileImageIfNeeded(previousPath, path);
+      }catch(error){
+        console.error('프로필 이미지 업로드 실패', error);
+        setProfileUploadStatus('업로드 중 오류가 발생했습니다. Storage/Firestore 규칙을 확인해 주세요.', 'error');
+        await openModalAlert('프로필 이미지 업로드 중 오류가 발생했습니다.', qs('#accountProfileUploadBtn'));
+      }finally{
+        const preview = qs('#accountProfilePreview');
+        const uploadBtn = qs('#accountProfileUploadBtn');
+        preview?.classList.remove('profile-uploading');
+        if(uploadBtn) uploadBtn.disabled = false;
+        if(event?.target) event.target.value = '';
+      }
     }
 
     function openAccountEditModal(){
@@ -3049,7 +3404,6 @@ function setPushStatusUi(enabled){
         }
 
         const nickname = normalizeProfileInput(qs('#accountNicknameInput')?.value || '');
-        const profileImageUrl = normalizeProfileInput(qs('#accountProfileImageInput')?.value || '');
         const building = normalizeProfileInput(qs('#accountBuildingInput')?.value || '');
         const unit = normalizeProfileInput(qs('#accountUnitInput')?.value || '');
 
@@ -3061,7 +3415,6 @@ function setPushStatusUi(enabled){
         showGlobalLoading();
         await setDoc(doc(db, 'users', state.currentUser.uid), {
           nickname,
-          profileImageUrl,
           building,
           unit,
           updatedAt: serverTimestamp()
@@ -3070,7 +3423,6 @@ function setPushStatusUi(enabled){
         state.currentUserProfile = {
           ...(state.currentUserProfile || {}),
           nickname,
-          profileImageUrl,
           building,
           unit
         };
@@ -5691,8 +6043,8 @@ function getShareTrackingParams(){
       }catch(error){ console.warn('입주민 활동 랭킹 초기화 실패', error); }
     }
 
-    function updateView(){qsa('[id^="view-"]').forEach(v=>v.classList.add('hidden'));(qs(`#view-${state.view}`)||qs('#view-home')).classList.remove('hidden');qsa('.bottom-nav .nav-btn').forEach(btn=>btn.classList.remove('active'));const active=qsa('.bottom-nav .nav-btn').find(btn=>btn.dataset.view===state.view);if(active)active.classList.add('active');qs('#gnbSheet')?.classList.remove('show');qs('#gnbOverlay')?.classList.remove('show');}
-    const renderAll=()=>{createChips();enableHorizontalDragScroll('#chips');renderStats();renderHome();renderFavorites();renderPopularTop5();renderNotices();updateView();updateGnbActive();updateDistanceFilterHelp();if(state.view==='map') setTimeout(() => renderMapMode(), 60);if(state.view==='shareinsights') setTimeout(() => renderShareInsights(), 60);setTimeout(() => handleCleanDeepLink(), 80);};
+    function updateView(){enforceShareInsightAccess();qsa('[id^="view-"]').forEach(v=>v.classList.add('hidden'));(qs(`#view-${state.view}`)||qs('#view-home')).classList.remove('hidden');qsa('.bottom-nav .nav-btn').forEach(btn=>btn.classList.remove('active'));const active=qsa('.bottom-nav .nav-btn').find(btn=>btn.dataset.view===state.view);if(active)active.classList.add('active');qs('#gnbSheet')?.classList.remove('show');qs('#gnbOverlay')?.classList.remove('show');}
+    const renderAll=()=>{createChips();enableHorizontalDragScroll('#chips');renderStats();renderHome();renderFavorites();renderPopularTop5();renderNotices();updateView();updateGnbActive();updateDistanceFilterHelp();if(state.view==='map') setTimeout(() => renderMapMode(), 60);if(state.view==='shareinsights' && isAdminRole()) setTimeout(() => renderShareInsights(), 60);setTimeout(() => handleCleanDeepLink(), 80);};
     qs('#searchInput').addEventListener('input',(e)=>{state.keyword=e.target.value;renderAll();});
     qs('#resetBtn').onclick=()=>{state.category='전체';localStorage.setItem(LAST_CATEGORY_KEY,'전체');state.keyword='';state.filter='all';state.benefitSortMode='default';state.distanceRadius='all';qs('#searchInput').value='';if(qs('#benefitSortSelect'))qs('#benefitSortSelect').value='default';if(qs('#distanceRadiusSelect'))qs('#distanceRadiusSelect').value='all';changeView('benefits');};
     qs('#benefitSortSelect')?.addEventListener('change', async (e)=>{state.benefitSortMode=e.target.value||'default';await ensureBenefitDistances();renderAll();});
@@ -5808,6 +6160,25 @@ function getShareTrackingParams(){
       }, { threshold: 0.35 });
       targets.forEach((el) => observer.observe(el));
     }
+
+    function openAdminConsole(){
+      if(!isAdminRole()){
+        openModalAlert('관리자 페이지는 관리자 계정에서만 열 수 있습니다.');
+        return;
+      }
+      window.location.href = '/admin';
+    }
+
+    qs('#openAdminPageFromGnbBtn')?.addEventListener('click', openAdminConsole);
+    qs('#rootOpenAdminBtn')?.addEventListener('click', openAdminConsole);
+    qs('#rootRefreshStateBtn')?.addEventListener('click', () => {
+      if(!isRootRole()){
+        openModalAlert('Root 전용 기능입니다.');
+        return;
+      }
+      renderAll();
+      openModalAlert('Root 화면 상태를 새로고침했습니다.');
+    });
 
     gnbCloseBtn?.addEventListener('click', closeGnb);
     gnbOverlay?.addEventListener('click', closeGnb);
@@ -5927,7 +6298,8 @@ function getShareTrackingParams(){
     qs('#openAccountEditBtn')?.addEventListener('click', openAccountEditModal);
     qs('#closeAccountEditModal')?.addEventListener('click', closeAccountEditModal);
     qs('#cancelAccountEditBtn')?.addEventListener('click', closeAccountEditModal);
-    qs('#accountProfileImageInput')?.addEventListener('input', updateProfileImagePreview);
+    qs('#accountProfileFileInput')?.addEventListener('change', handleProfileImageFileChange);
+    bindProfileUploadButton();
     qs('#accountEditForm')?.addEventListener('submit', saveAccountProfile);
 
     qs('#accountEditModal')?.addEventListener('click', (event) => {
@@ -6004,7 +6376,6 @@ function getShareTrackingParams(){
             <button class="gnb-menu-item" type="button" data-view-link="benefits">혜택 전체보기</button>
             <button class="gnb-menu-item" type="button" data-view-link="notices">공지사항 보기</button>
             <button class="gnb-menu-item" type="button" data-view-link="top5">인기 매장 TOP 5</button>
-            <button class="gnb-menu-item" type="button" data-view-link="shareinsights">공유 인사이트</button>
             <button class="gnb-menu-item" type="button" data-view-link="favorite">즐겨찾기 확인</button>
           </div>
         </div>
@@ -6017,7 +6388,38 @@ function getShareTrackingParams(){
             <button class="gnb-menu-subitem" type="button" data-view-link="favorite">즐겨찾기</button>
             <button class="gnb-menu-subitem" type="button" data-view-link="notices">공지사항</button>
             <button class="gnb-menu-subitem" type="button" data-view-link="top5">TOP 5</button>
-            <button class="gnb-menu-subitem" type="button" data-view-link="shareinsights">공유 인사이트</button>
+          </div>
+        </div>
+      </section>
+
+
+      <section class="gnb-section admin-only-menu" aria-label="관리자 전용 메뉴">
+        <div class="gnb-admin-premium">
+          <div class="gnb-admin-head">
+            <div>
+              <span class="gnb-admin-kicker">💎 관리자 전용</span>
+              <h3 class="gnb-admin-title">운영 메뉴</h3>
+              <p class="gnb-admin-desc">공유 흐름과 운영 지표는 관리자 계정에서만 확인할 수 있습니다.</p>
+            </div>
+            <div class="gnb-admin-crown">👑</div>
+          </div>
+          <div class="gnb-admin-actions">
+            <button class="gnb-menu-item" type="button" data-view-link="shareinsights">공유 인사이트</button>
+            <button class="gnb-menu-item" type="button" id="openAdminPageFromGnbBtn">관리자 페이지</button>
+          </div>
+          <div class="gnb-root-panel root-only-panel" aria-label="Root 전용 숨겨진 기능 패널">
+            <h4>👑 Root 전용 숨겨진 기능 패널</h4>
+            <p>최고 관리자 계정에서만 보이는 운영 보조 영역입니다.</p>
+            <div class="gnb-root-actions">
+              <button class="gnb-action-btn primary" type="button" id="rootOpenAdminBtn">
+                <span>관리자 열기</span>
+                <span class="desc">Root</span>
+              </button>
+              <button class="gnb-action-btn outline" type="button" id="rootRefreshStateBtn">
+                <span>화면 새로고침</span>
+                <span class="desc">상태 갱신</span>
+              </button>
+            </div>
           </div>
         </div>
       </section>
@@ -6143,15 +6545,18 @@ function getShareTrackingParams(){
           <input id="accountNicknameInput" name="nickname" type="text" maxlength="20" placeholder="예: 솔라홈 입주민">
         </div>
         <div class="account-edit-field">
-          <label for="accountProfileImageInput">프로필 이미지 URL <small style="color:#94a3b8">선택</small></label>
+          <label>프로필 이미지 <small style="color:#94a3b8">선택</small></label>
           <div class="profile-preview-row">
-            <div class="profile-preview-avatar" id="accountProfilePreview">👤</div>
+            <div class="profile-preview-avatar" id="accountProfilePreview">👤
+              <button class="profile-upload-plus" id="accountProfileUploadBtn" type="button" title="프로필 이미지 업로드" aria-label="프로필 이미지 업로드">+</button>
+            </div>
             <div class="profile-preview-copy">
               <strong>프사 이미지 설정</strong>
-              <span>이미지 주소를 입력하면 상단 계정칩과 계정 요약에 바로 표시됩니다.</span>
+              <span>+ 버튼을 눌러 이미지를 업로드하면 상단 계정칩과 계정 요약에 바로 표시됩니다.</span>
+              <span class="profile-upload-status" id="accountProfileUploadStatus">이미지 파일은 3MB 이하를 권장합니다.</span>
             </div>
           </div>
-          <input id="accountProfileImageInput" name="profileImageUrl" type="url" maxlength="500" placeholder="https://.../profile.png">
+          <input class="profile-file-input" id="accountProfileFileInput" type="file" accept="image/*">
         </div>
         <div class="account-edit-field privacy-hidden-field">
           <label for="accountBuildingInput">동</label>
@@ -6246,7 +6651,6 @@ function handlePushDeepLink() {
 window.addEventListener("load", handlePushDeepLink);
 </script>
 
-
   <script id="myhills-idle-widget-enhancer">
     (function(){
       const TOTAL_SECONDS = 30 * 60;
@@ -6292,4 +6696,5 @@ window.addEventListener("load", handlePushDeepLink);
     })();
   </script>
 
+</body></html>
 </body></html>
