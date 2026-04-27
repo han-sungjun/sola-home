@@ -23,6 +23,9 @@ import {
 
 import { db, auth } from "./firebase-config.js";
 
+// READ OPTIMIZED: 관리자 통계는 당일 전체 문서를 모두 읽지 않고 최근 N건 기준으로 집계합니다.
+const TRACKING_STATS_LIMIT = 300;
+
 
 // =========================
 // 공통 유틸
@@ -341,12 +344,14 @@ export async function getTodayStats() {
 
     const visitQuery = query(
       collection(db, "visit_history"),
-      where("createdAt", ">=", Timestamp.fromDate(today))
+      where("createdAt", ">=", Timestamp.fromDate(today)),
+      limit(TRACKING_STATS_LIMIT)
     );
 
     const loginQuery = query(
       collection(db, "login_history"),
-      where("createdAt", ">=", Timestamp.fromDate(today))
+      where("createdAt", ">=", Timestamp.fromDate(today)),
+      limit(TRACKING_STATS_LIMIT)
     );
 
     const [visitSnap, loginSnap] = await Promise.all([
@@ -396,7 +401,8 @@ export async function getVisitPathStats() {
 
     const visitQuery = query(
       collection(db, "visit_history"),
-      where("createdAt", ">=", Timestamp.fromDate(today))
+      where("createdAt", ">=", Timestamp.fromDate(today)),
+      limit(TRACKING_STATS_LIMIT)
     );
 
     const snap = await getDocs(visitQuery);
@@ -430,12 +436,14 @@ export async function getUserActivityStats() {
 
     const visitQuery = query(
       collection(db, "visit_history"),
-      where("createdAt", ">=", Timestamp.fromDate(today))
+      where("createdAt", ">=", Timestamp.fromDate(today)),
+      limit(TRACKING_STATS_LIMIT)
     );
 
     const loginQuery = query(
       collection(db, "login_history"),
-      where("createdAt", ">=", Timestamp.fromDate(today))
+      where("createdAt", ">=", Timestamp.fromDate(today)),
+      limit(TRACKING_STATS_LIMIT)
     );
 
     const [visitSnap, loginSnap] = await Promise.all([
@@ -500,6 +508,7 @@ export async function getUserActivityStats() {
 
 export async function getRecentActivityLogs(maxItems = 20) {
   try {
+    maxItems = Math.min(Number(maxItems) || 20, 50);
     const [visitSnap, loginSnap] = await Promise.all([
       getDocs(
         query(

@@ -2453,7 +2453,7 @@ body.env-prod #view-ai{
       <div class="chips" id="chips"></div><div class="chips-toggle"><button id="chipsToggle" class="chip chips-toggle-btn hidden" type="button">더보기 ▾</button></div><div class="distance-filter-panel"><div class="distance-filter-row"><div class="distance-select-wrap"><label for="benefitSortSelect">정렬</label><select id="benefitSortSelect"><option value="default">추천/할인순</option><option value="latest">최신 순</option><option value="top">TOP 5 순</option><option value="distance">가까운 순</option></select></div><div class="distance-select-wrap"><label for="distanceRadiusSelect">반경</label><select id="distanceRadiusSelect"><option value="all">전체</option><option value="500">500m 이내</option><option value="1000">1km 이내</option><option value="3000">3km 이내</option></select></div></div><div class="distance-filter-help" id="distanceFilterHelp">가까운 순 또는 반경 필터를 사용하면 현재 위치 기준으로 혜택을 정렬합니다.</div></div></div>
       <div class="section-head"><h3 id="sectionTitle">전체 혜택</h3><small id="resultCount">0건</small></div>
       <div class="loading hidden" id="homeLoading">데이터를 불러오는 중입니다...</div>
-      <div class="list" id="cardList"><div class="panel empty">조건에 맞는 항목이 없습니다.</div></div>
+      <div class="list" id="cardList"><div class="panel empty">조건에 맞는 항목이 없습니다.</div></div><button class="btn btn-soft block hidden" id="benefitMoreBtn" type="button" style="margin-top:14px;">혜택 더보기</button>
     </section>
     <section id="view-favorite" class="hidden"><div class="panel" style="margin-bottom:14px;"><div class="section-head" style="margin-bottom:12px;"><h3>즐겨찾기</h3><small>자주 쓰는 혜택</small></div><div class="helper">관심 있는 매장을 계정에 저장해 두고 빠르게 확인할 수 있습니다. 로그인한 계정 기준으로 동기화됩니다.</div></div><div class="list" id="favoriteList"><div class="panel empty">조건에 맞는 항목이 없습니다.</div></div></section>
 
@@ -2580,7 +2580,7 @@ body.env-prod #view-ai{
     document.body.classList.add(ENV === 'dev' ? 'env-dev' : 'env-prod');
     if (envBadge && ENV === 'dev') envBadge.classList.add('show');
     import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
-    import { getFirestore, collection, onSnapshot, doc, getDoc, getDocs, setDoc, updateDoc, increment, serverTimestamp, addDoc, query, where, orderBy, limit, startAfter, deleteDoc } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
+    import { getFirestore, collection, doc, getDoc, getDocs, setDoc, updateDoc, increment, serverTimestamp, addDoc, query, where, orderBy, limit, startAfter, deleteDoc } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
     import { getMessaging, getToken, onMessage, isSupported } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-messaging.js';
     import { getStorage, ref as storageRef, uploadBytes, getDownloadURL, deleteObject } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js';
     const firebaseConfig = FIREBASE_CONFIG[ENV];
@@ -2953,6 +2953,9 @@ body.env-prod #view-ai{
     }
 
     const state={category:localStorage.getItem(LAST_CATEGORY_KEY)||'전체',keyword:'',filter:'all',view:'home',benefits:[],notices:[],loading:true,currentUser:null,currentUserProfile:null,popularItems:[],favoriteIds:[],currentPushToken:null,isPushEnabledForThisDevice:false,activeDistanceBenefitId:'',distanceRequestSeq:0,benefitSortMode:'default',distanceRadius:'all',userLocation:null,userLocationFetchedAt:0,distanceMap:{},distanceStatus:'idle',scrollMap:{home:0,benefits:0,favorite:0,top5:0,notices:0,shareinsights:0,ai:0}};
+    const READ_OPTIMIZE = { benefitPageSize: 40, noticeLimit: 30, popularLimit: 80, residentRankLimit: 5, cacheMs: 60 * 1000, benefitLastDoc: null, benefitLoading: false, benefitHasMore: true, cache: new Map() };
+    const cacheGet = (key) => { const item = READ_OPTIMIZE.cache.get(key); return item && Date.now() - item.time < READ_OPTIMIZE.cacheMs ? item.value : null; };
+    const cacheSet = (key, value) => READ_OPTIMIZE.cache.set(key, { time: Date.now(), value });
 
     const initialUrlParams = new URLSearchParams(window.location.search || '');
     const pendingDeepLink = {
@@ -4661,15 +4664,19 @@ async function refreshPushStatus(){
       return collection(db, 'users', state.currentUser.uid, 'favorites');
     }
 
-    function subscribeFavorites(){
+    async function subscribeFavorites(){
       const favoritesRef = getFavoritesCollectionRef();
       if(!favoritesRef) return;
-      onSnapshot(favoritesRef, (snapshot) => {
+      const cached = cacheGet('favorites:' + state.currentUser.uid);
+      if(cached){ state.favoriteIds = cached; renderAll(); return; }
+      try{
+        const snapshot = await getDocs(favoritesRef);
         state.favoriteIds = snapshot.docs.map((d) => d.id);
+        cacheSet('favorites:' + state.currentUser.uid, state.favoriteIds);
         renderAll();
-      }, (error) => {
+      }catch(error){
         console.error('즐겨찾기 로드 실패', error);
-      });
+      }
     }
 
     async function toggleFavorite(id, name){
@@ -4703,20 +4710,58 @@ async function refreshPushStatus(){
       }
     }
     const hasFirebaseConfig=()=>firebaseConfig.apiKey&&firebaseConfig.projectId&&firebaseConfig.appId;
-    function subscribeBenefits(){
-      onSnapshot(collection(db, BENEFITS_COLLECTION), (snapshot) => {
-        state.benefits = snapshot.docs.map(d => sanitizeBenefit(d.data(), d.id));
+    async function subscribeBenefits(){
+      READ_OPTIMIZE.benefitLastDoc = null;
+      READ_OPTIMIZE.benefitHasMore = true;
+      state.benefits = [];
+      await loadBenefitsPage(true);
+    }
+
+    async function loadBenefitsPage(reset = false){
+      if(READ_OPTIMIZE.benefitLoading) return;
+      READ_OPTIMIZE.benefitLoading = true;
+      const moreBtn = qs('#benefitMoreBtn');
+      if(moreBtn){ moreBtn.disabled = true; moreBtn.textContent = '불러오는 중...'; }
+      try{
+        if(reset){
+          READ_OPTIMIZE.benefitLastDoc = null;
+          READ_OPTIMIZE.benefitHasMore = true;
+          state.loading = true;
+          renderAll();
+        }
+        const constraints = [orderBy('createdAt', 'desc')];
+        if(READ_OPTIMIZE.benefitLastDoc) constraints.push(startAfter(READ_OPTIMIZE.benefitLastDoc));
+        constraints.push(limit(READ_OPTIMIZE.benefitPageSize));
+        const snapshot = await getDocs(query(collection(db, BENEFITS_COLLECTION), ...constraints));
+        const items = snapshot.docs.map(d => sanitizeBenefit(d.data(), d.id));
+        if(reset) state.benefits = items;
+        else state.benefits = [...state.benefits, ...items].filter((item, index, arr) => arr.findIndex(v => v.id === item.id) === index);
+        READ_OPTIMIZE.benefitLastDoc = snapshot.docs.length ? snapshot.docs[snapshot.docs.length - 1] : READ_OPTIMIZE.benefitLastDoc;
+        READ_OPTIMIZE.benefitHasMore = snapshot.docs.length === READ_OPTIMIZE.benefitPageSize;
         if(state.userLocation) recalculateBenefitDistances();
         state.loading = false;
         renderAll();
+        updateBenefitMoreButton();
         handleCleanDeepLink();
         markInitialDataLoaded('benefits');
-      }, () => {
+      }catch(error){
+        console.error('혜택 로드 실패', error);
         state.loading = false;
         qs('#homeLoading').textContent = '데이터를 불러오지 못했습니다. Firestore 규칙과 설정을 확인해 주세요.';
         renderAll();
+        updateBenefitMoreButton();
         markInitialDataLoaded('benefits');
-      });
+      }finally{
+        READ_OPTIMIZE.benefitLoading = false;
+        if(moreBtn){ moreBtn.disabled = false; moreBtn.textContent = '혜택 더보기'; }
+      }
+    }
+
+    function updateBenefitMoreButton(){
+      const moreBtn = qs('#benefitMoreBtn');
+      if(!moreBtn) return;
+      const shouldShow = state.view === 'benefits' && READ_OPTIMIZE.benefitHasMore && !state.keyword.trim() && state.filter === 'all';
+      moreBtn.classList.toggle('hidden', !shouldShow);
     }
     function formatDateTime(value){
       try{
@@ -4739,8 +4784,19 @@ async function refreshPushStatus(){
       };
     }
 
-    function subscribeNotices(){
-      onSnapshot(collection(db, NOTICES_COLLECTION), (snapshot) => {
+    async function subscribeNotices(){
+      const cached = cacheGet('notices');
+      if(cached){
+        state.notices = cached;
+        renderNotices();
+        handlePendingNoticeDeepLink();
+        handleCleanDeepLink();
+        markInitialDataLoaded('notices');
+        return;
+      }
+      try{
+        const noticeQuery = query(collection(db, NOTICES_COLLECTION), orderBy('createdAt', 'desc'), limit(READ_OPTIMIZE.noticeLimit));
+        const snapshot = await getDocs(noticeQuery);
         state.notices = snapshot.docs
           .map((d) => sanitizeNotice(d.data(), d.id))
           .filter((item) => item.visible !== false)
@@ -4750,14 +4806,15 @@ async function refreshPushStatus(){
             const bTime = b.updatedAt?.seconds || b.createdAt?.seconds || 0;
             return bTime - aTime;
           });
+        cacheSet('notices', state.notices);
         renderNotices();
         handlePendingNoticeDeepLink();
         handleCleanDeepLink();
         markInitialDataLoaded('notices');
-      }, (error) => {
+      }catch(error){
         console.error('공지 로드 실패', error);
         markInitialDataLoaded('notices');
-      });
+      }
     }
 
     function noticeCardTemplate(item){
@@ -5445,21 +5502,26 @@ function getShareTrackingParams(){
       return candidates[0]?.id || '';
     }
 
-    function subscribePopularStats() {
-      const popularQuery = query(
-        collection(db, BENEFIT_STATS_COLLECTION),
-        orderBy('detailViewCount', 'desc'),
-        limit(80)
-      );
-
-      onSnapshot(popularQuery, (snapshot) => {
-        const runtimePreviousRanks = new Map(
-          (state.popularItems || []).map((item, index) => [item.id, index + 1])
+    async function subscribePopularStats() {
+      const cached = cacheGet('popularStats');
+      if(cached){
+        state.popularItems = cached;
+        renderPopularTop5();
+        renderHotNowStores();
+        const updatedText = qs('#popularUpdatedText');
+        if (updatedText) updatedText.textContent = '캐시 집계 · ' + new Date().toLocaleTimeString('ko-KR', { hour:'2-digit', minute:'2-digit' });
+        markInitialDataLoaded('popular');
+        return;
+      }
+      try{
+        const popularQuery = query(
+          collection(db, BENEFIT_STATS_COLLECTION),
+          orderBy('detailViewCount', 'desc'),
+          limit(READ_OPTIMIZE.popularLimit)
         );
-        const storedPreviousRankMap = typeof getPopularPreviousRankMap === 'function'
-          ? getPopularPreviousRankMap()
-          : {};
-
+        const snapshot = await getDocs(popularQuery);
+        const runtimePreviousRanks = new Map((state.popularItems || []).map((item, index) => [item.id, index + 1]));
+        const storedPreviousRankMap = typeof getPopularPreviousRankMap === 'function' ? getPopularPreviousRankMap() : {};
         const rankedItems = snapshot.docs.map((d) => {
           const data = d.data() || {};
           const benefit = state.benefits.find((item) => item.id === d.id);
@@ -5468,7 +5530,6 @@ function getShareTrackingParams(){
           const favoriteCount = Number(data.favoriteCount || 0);
           const shareClickCount = Number(data.shareClickCount || 0);
           const popularScore = calcPopularScoreFromStats(data);
-
           return {
             id: d.id,
             name: data.name || benefit?.name || '이름 없는 매장',
@@ -5500,34 +5561,23 @@ function getShareTrackingParams(){
         .map((item, index) => {
           const currentRank = index + 1;
           const previousRank = runtimePreviousRanks.get(item.id) || Number(storedPreviousRankMap[getPopularItemKey(item)] || 0);
-          return {
-            ...item,
-            rank: currentRank,
-            previousRank,
-            trendClass: getPopularTrendClass(currentRank, previousRank),
-            trendText: getPopularTrendText(currentRank, previousRank)
-          };
+          return { ...item, rank: currentRank, previousRank, trendClass: getPopularTrendClass(currentRank, previousRank), trendText: getPopularTrendText(currentRank, previousRank) };
         });
-
         const shareBestItemId = getShareBestItemId(rankedItems);
-        state.popularItems = rankedItems.map((item) => ({
-          ...item,
-          isShareBest: !!shareBestItemId && item.id === shareBestItemId
-        }));
-
+        state.popularItems = rankedItems.map((item) => ({ ...item, isShareBest: !!shareBestItemId && item.id === shareBestItemId }));
+        cacheSet('popularStats', state.popularItems);
         renderPopularTop5();
         renderHotNowStores();
         if (typeof savePopularRankSnapshot === 'function') savePopularRankSnapshot(state.popularItems);
         const updatedText = qs('#popularUpdatedText');
-        if (updatedText) updatedText.textContent = `실시간 집계 · ${new Date().toLocaleTimeString('ko-KR', { hour:'2-digit', minute:'2-digit' })}`;
+        if (updatedText) updatedText.textContent = '1분 단위 집계 · ' + new Date().toLocaleTimeString('ko-KR', { hour:'2-digit', minute:'2-digit' });
         markInitialDataLoaded('popular');
-      }, () => {
+      }catch(error){
+        console.warn('인기 통계 로드 실패', error);
         const wrap = qs('#popularList');
-        if (wrap) {
-          wrap.innerHTML = '<div class="panel empty">인기 통계를 불러오지 못했습니다.</div>';
-        }
+        if (wrap) wrap.innerHTML = '<div class="panel empty">인기 통계를 불러오지 못했습니다.</div>';
         markInitialDataLoaded('popular');
-      });
+      }
     }
 
     function getRankBadge(rank){
@@ -6397,14 +6447,17 @@ function getShareTrackingParams(){
       }).join('');
     }
 
-    function subscribeResidentActivityRanking(){
+    async function subscribeResidentActivityRanking(){
       try{
-        const rankQuery = query(collection(db, 'user_stats'), orderBy('score','desc'), limit(5));
-        onSnapshot(rankQuery, (snapshot) => {
-          renderResidentRankings(snapshot.docs.map((d) => ({ id:d.id, ...d.data() })));
-          const text = qs('#residentRankUpdatedText'); if(text) text.textContent = `실시간 · ${new Date().toLocaleTimeString('ko-KR', { hour:'2-digit', minute:'2-digit' })}`;
-        }, (error) => { console.warn('입주민 활동 랭킹 로드 실패', error); renderResidentRankings([]); });
-      }catch(error){ console.warn('입주민 활동 랭킹 초기화 실패', error); }
+        const cached = cacheGet('residentRank');
+        if(cached){ renderResidentRankings(cached); return; }
+        const rankQuery = query(collection(db, 'user_stats'), orderBy('score','desc'), limit(READ_OPTIMIZE.residentRankLimit));
+        const snapshot = await getDocs(rankQuery);
+        const items = snapshot.docs.map((d) => ({ id:d.id, ...d.data() }));
+        cacheSet('residentRank', items);
+        renderResidentRankings(items);
+        const text = qs('#residentRankUpdatedText'); if(text) text.textContent = '1분 단위 집계 · ' + new Date().toLocaleTimeString('ko-KR', { hour:'2-digit', minute:'2-digit' });
+      }catch(error){ console.warn('입주민 활동 랭킹 로드 실패', error); renderResidentRankings([]); }
     }
 
 
@@ -6820,7 +6873,7 @@ function getShareTrackingParams(){
     }
 
     function updateView(){enforceShareInsightAccess();if(state.view==='community') setTimeout(()=>loadCommunityPosts(communityState.category||'전체', true), 40);qsa('[id^="view-"]').forEach(v=>v.classList.add('hidden'));(qs(`#view-${state.view}`)||qs('#view-home')).classList.remove('hidden');qsa('.bottom-nav .nav-btn').forEach(btn=>btn.classList.remove('active'));const active=qsa('.bottom-nav .nav-btn').find(btn=>btn.dataset.view===state.view);if(active)active.classList.add('active');qs('#gnbSheet')?.classList.remove('show');qs('#gnbOverlay')?.classList.remove('show');}
-    const renderAll=()=>{createChips();enableHorizontalDragScroll('#chips');enableHorizontalDragScroll('#aiQuickRow');enableHorizontalDragScroll('#communityCategoryFilter');renderStats();renderHome();renderFavorites();renderPopularTop5();renderNotices();updateView();updateGnbActive();updateDistanceFilterHelp();if(state.view==='map') setTimeout(() => renderMapMode(), 60);if(state.view==='community') setTimeout(()=>loadCommunityPosts(communityState.category||'전체', true), 60);if(state.view==='shareinsights' && isAdminRole()) setTimeout(() => renderShareInsights(), 60);setTimeout(() => handleCleanDeepLink(), 80);};
+    const renderAll=()=>{createChips();enableHorizontalDragScroll('#chips');enableHorizontalDragScroll('#aiQuickRow');enableHorizontalDragScroll('#communityCategoryFilter');renderStats();renderHome();renderFavorites();renderPopularTop5();renderNotices();updateBenefitMoreButton();updateView();updateGnbActive();updateDistanceFilterHelp();if(state.view==='map') setTimeout(() => renderMapMode(), 60);if(state.view==='community') setTimeout(()=>loadCommunityPosts(communityState.category||'전체', true), 60);if(state.view==='shareinsights' && isAdminRole()) setTimeout(() => renderShareInsights(), 60);setTimeout(() => handleCleanDeepLink(), 80);};
     qs('#searchInput').addEventListener('input',(e)=>{state.keyword=e.target.value;renderAll();});
     qs('#resetBtn').onclick=()=>{state.category='전체';localStorage.setItem(LAST_CATEGORY_KEY,'전체');state.keyword='';state.filter='all';state.benefitSortMode='default';state.distanceRadius='all';qs('#searchInput').value='';if(qs('#benefitSortSelect'))qs('#benefitSortSelect').value='default';if(qs('#distanceRadiusSelect'))qs('#distanceRadiusSelect').value='all';changeView('benefits');};
     qs('#benefitSortSelect')?.addEventListener('change', async (e)=>{state.benefitSortMode=e.target.value||'default';await ensureBenefitDistances();renderAll();});
@@ -7099,6 +7152,7 @@ function getShareTrackingParams(){
     qs('#logoutBtn').onclick=async()=>{const confirmed=await openModalConfirm('로그아웃 하시겠습니까?', qs('#logoutBtn'), '로그아웃', '로그아웃', '취소'); if(!confirmed) return; try{await signOut(auth);redirectToLogin();}catch(error){await openModalAlert('로그아웃 중 오류가 발생했습니다.', qs('#logoutBtn'));}};
 
     bindGlobalLoadingTriggers();
+    qs('#benefitMoreBtn')?.addEventListener('click', () => loadBenefitsPage(false));
 
     (async()=>{
       await initPushSystem();

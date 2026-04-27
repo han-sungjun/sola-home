@@ -1367,7 +1367,7 @@ body.gnb-open .admin-bottom-nav{
   <script type="module">
     import { initializeApp, getApps, getApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
     import { getAuth, onAuthStateChanged, signInWithCustomToken, signOut, setPersistence, browserLocalPersistence } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
-    import { getFirestore, collection, addDoc, updateDoc, deleteDoc, doc, getDoc, getDocs, onSnapshot, serverTimestamp, writeBatch, query, where, orderBy, limit } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
+    import { getFirestore, collection, addDoc, updateDoc, deleteDoc, doc, getDoc, getDocs, serverTimestamp, writeBatch, query, where, orderBy, limit } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
     import { getMessaging, onMessage } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-messaging.js';
     import { mountIdleTimer } from "./tracking.js";
     import { ENV, FIREBASE_CONFIG, API_URL } from './env-config.js';
@@ -2212,15 +2212,22 @@ const setTextAll = (selector, text) => qsa(selector).forEach(el => el.textConten
       }
     }
 
-    function subscribeMembers(){
-      onSnapshot(collection(db,USERS_COLLECTION),(snapshot)=>{
-        state.members=snapshot.docs.map(d=>sanitizeMember(d.data(),d.id));
+    async function subscribeMembers(){
+      // READ OPTIMIZED: 관리자 회원 목록은 실시간 구독 대신 1회 제한 조회로 처리합니다.
+      // 전체 회원을 계속 감시하면 관리자 탭을 켜둔 것만으로 Read가 누적됩니다.
+      try{
+        const snapshot = await getDocs(query(
+          collection(db, USERS_COLLECTION),
+          orderBy('createdAt','desc'),
+          limit(80)
+        ));
+        state.members = snapshot.docs.map(d=>sanitizeMember(d.data(),d.id));
         renderMemberLists();
         markInitialDataLoaded('users');
-      },(e)=>{
+      }catch(e){
         console.error(e);
         markInitialDataLoaded('users');
-      });
+      }
     }
 
     async function seedDefaultData(){
@@ -2254,21 +2261,32 @@ const setTextAll = (selector, text) => qsa(selector).forEach(el => el.textConten
         await openModalAlert('기본 데이터 업로드에 실패했습니다.', qs('#seedBtn'));
       }
     }
-    function subscribeBenefits(){
-      onSnapshot(collection(db,BENEFITS_COLLECTION),(snapshot)=>{
-        state.benefits=snapshot.docs.map(d=>sanitizeBenefit(d.data(),d.id));
+    async function subscribeBenefits(){
+      // READ OPTIMIZED: 혜택 목록은 관리자 진입 시 1회 조회합니다.
+      try{
+        const snapshot = await getDocs(query(
+          collection(db, BENEFITS_COLLECTION),
+          orderBy('createdAt','desc'),
+          limit(120)
+        ));
+        state.benefits = snapshot.docs.map(d=>sanitizeBenefit(d.data(),d.id));
         mergeBenefitStatsIntoBenefits();
         updateStats();
         renderAdminList();
         markInitialDataLoaded('benefits');
-      },(e)=>{
+      }catch(e){
         console.error(e);
         markInitialDataLoaded('benefits');
-      });
+      }
     }
 
-    function subscribeBenefitStats(){
-      onSnapshot(collection(db,BENEFIT_STATS_COLLECTION),(snapshot)=>{
+    async function subscribeBenefitStats(){
+      // READ OPTIMIZED: 통계도 실시간 구독하지 않고 필요한 수량만 조회합니다.
+      try{
+        const snapshot = await getDocs(query(
+          collection(db, BENEFIT_STATS_COLLECTION),
+          limit(200)
+        ));
         const statsMap = {};
         snapshot.docs.forEach((d) => {
           statsMap[d.id] = d.data() || {};
@@ -2277,32 +2295,44 @@ const setTextAll = (selector, text) => qsa(selector).forEach(el => el.textConten
         mergeBenefitStatsIntoBenefits();
         updateStats();
         renderAdminList();
-      },(e)=>{
-        console.error('benefit_stats 구독 실패', e);
-      });
+      }catch(e){
+        console.error('benefit_stats 조회 실패', e);
+      }
     }
 
-    function subscribeNotices(){
-      onSnapshot(collection(db,NOTICES_COLLECTION),(snapshot)=>{
-        state.notices=snapshot.docs.map(d=>sanitizeNotice(d.data(),d.id));
+    async function subscribeNotices(){
+      // READ OPTIMIZED: 공지는 최근 항목만 1회 조회합니다.
+      try{
+        const snapshot = await getDocs(query(
+          collection(db, NOTICES_COLLECTION),
+          orderBy('createdAt','desc'),
+          limit(50)
+        ));
+        state.notices = snapshot.docs.map(d=>sanitizeNotice(d.data(),d.id));
         updateStats();
         renderNoticeList();
         markInitialDataLoaded('notices');
-      },(e)=>{
+      }catch(e){
         console.error(e);
         markInitialDataLoaded('notices');
-      });
+      }
     }
-    function subscribePushJobs(){
-      onSnapshot(collection(db,PUSH_JOBS_COLLECTION),(snapshot)=>{
-        state.pushJobs=snapshot.docs.map(d=>({id:d.id,...(d.data()||{})}));
+    async function subscribePushJobs(){
+      // READ OPTIMIZED: 푸시 작업 목록은 최근 작업만 제한 조회합니다.
+      try{
+        const snapshot = await getDocs(query(
+          collection(db, PUSH_JOBS_COLLECTION),
+          orderBy('createdAt','desc'),
+          limit(50)
+        ));
+        state.pushJobs = snapshot.docs.map(d=>({id:d.id,...(d.data()||{})}));
         updateStats();
         renderPushJobList();
         markInitialDataLoaded('pushJobs');
-      },(e)=>{
+      }catch(e){
         console.error(e);
         markInitialDataLoaded('pushJobs');
-      });
+      }
     }
     if(hasFirebaseConfig()){
       qs('#firebaseNotice').classList.add('hidden');
