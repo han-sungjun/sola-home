@@ -2367,6 +2367,31 @@ body.app-role-resident [data-view="shareinsights"]{
 
   
 
+
+/* ===== AI 생활 도우미: ChatGPT 스타일 UI + 타이핑 UX ===== */
+.ai-chat-window{min-height:380px;max-height:56dvh;background:linear-gradient(180deg,#ffffff 0%,#f8fafc 100%);border-radius:26px;padding:16px 14px 18px;scroll-behavior:smooth}
+.ai-message{align-items:flex-start;gap:10px;animation:aiMsgIn .18s ease both}.ai-message.bot::before{content:"🤖";width:34px;height:34px;border-radius:14px;display:grid;place-items:center;background:linear-gradient(180deg,#eef2ff 0%,#e0ecff 100%);border:1px solid #dbeafe;box-shadow:0 8px 18px rgba(37,99,235,.10);flex:0 0 auto}.ai-message.user::after{content:"👤";width:34px;height:34px;border-radius:14px;display:grid;place-items:center;background:#0f172a;color:#fff;box-shadow:0 8px 18px rgba(15,23,42,.16);flex:0 0 auto}
+.ai-message.bot .ai-bubble{max-width:82%;border-radius:20px 20px 20px 8px;background:#fff;border:1px solid #dbe3ef;box-shadow:0 14px 30px rgba(15,23,42,.07)}.ai-message.user .ai-bubble{max-width:78%;border-radius:20px 20px 8px 20px;background:linear-gradient(135deg,#0f172a 0%,#172554 100%);box-shadow:0 14px 30px rgba(15,23,42,.16)}
+.ai-answer{white-space:normal}.ai-answer b{font-weight:1000;color:#0f172a}.ai-answer .ai-answer-line{display:block;margin:4px 0}.ai-answer .ai-answer-card{display:block;margin:9px 0;padding:11px 12px;border-radius:16px;background:#f8fafc;border:1px solid #e2e8f0}
+.ai-typing-indicator{display:inline-flex;align-items:center;gap:5px;min-width:54px;min-height:24px}.ai-typing-indicator span{width:7px;height:7px;border-radius:999px;background:#94a3b8;animation:aiTypingDot 1s infinite ease-in-out}.ai-typing-indicator span:nth-child(2){animation-delay:.14s}.ai-typing-indicator span:nth-child(3){animation-delay:.28s}
+.ai-mode-pill{display:inline-flex;align-items:center;gap:6px;margin-top:10px;padding:6px 9px;border-radius:999px;background:#eff6ff;color:#1d4ed8;border:1px solid #bfdbfe;font-size:11px;font-weight:900}
+@keyframes aiMsgIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}@keyframes aiTypingDot{0%,80%,100%{opacity:.35;transform:translateY(0)}40%{opacity:1;transform:translateY(-4px)}}@media (max-width:370px){.ai-message.bot .ai-bubble,.ai-message.user .ai-bubble{max-width:86%}}
+
+
+
+/* ===== AI 대화 기억 / 채팅방 UX ===== */
+.ai-memory-toolbar{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin:2px 0 0}.ai-memory-btn{border:1px solid #dbeafe;background:#fff;color:#1d4ed8;border-radius:16px;padding:11px 10px;font-size:12px;font-weight:1000;cursor:pointer;box-shadow:0 8px 18px rgba(37,99,235,.06);transition:transform .16s ease, background-color .16s ease}.ai-memory-btn:hover{transform:translateY(-1px);background:#eff6ff}.ai-memory-btn:active{transform:scale(.98)}.ai-memory-btn.danger{border-color:#fecdd3;color:#be123c;background:#fff1f2}.ai-memory-status{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:11px 13px;border-radius:18px;background:#f8fafc;border:1px solid #e2e8f0;color:#64748b;font-size:12px;font-weight:900;line-height:1.45}.ai-memory-status strong{color:#0f172a}.ai-conversation-panel{display:none;gap:10px;padding:12px;border-radius:22px;background:#fff;border:1px solid #dbe3ef;box-shadow:0 14px 30px rgba(15,23,42,.07)}.ai-conversation-panel.show{display:grid}.ai-conversation-head{display:flex;align-items:center;justify-content:space-between;gap:10px}.ai-conversation-head strong{font-size:14px}.ai-conversation-list{display:grid;gap:8px;max-height:230px;overflow:auto;padding-right:2px}.ai-conversation-item{width:100%;border:1px solid #e2e8f0;background:#f8fafc;border-radius:16px;padding:12px;text-align:left;cursor:pointer;display:grid;gap:4px}.ai-conversation-item:hover{background:#eff6ff;border-color:#bfdbfe}.ai-conversation-item.active{background:#0f172a;color:#fff;border-color:#0f172a}.ai-conversation-title{font-weight:1000;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.ai-conversation-meta{font-size:11px;color:#64748b}.ai-conversation-item.active .ai-conversation-meta{color:rgba(255,255,255,.72)}.ai-conversation-empty{padding:16px;border-radius:16px;background:#f8fafc;border:1px dashed #cbd5e1;color:#64748b;text-align:center;font-size:12px;font-weight:800;line-height:1.6}.ai-chat-window.memory-loading{opacity:.72;pointer-events:none}@media(max-width:370px){.ai-memory-toolbar{grid-template-columns:1fr}.ai-memory-status{align-items:flex-start;flex-direction:column}}
+
+
+
+/* ===== AI 답변 액션: 혜택 딥링크 + 전자 책자 카드 ===== */
+.ai-action-links{display:grid;gap:8px;margin-top:12px}.ai-action-link{width:100%;border:none;border-radius:16px;padding:11px 12px;background:#0f172a;color:#fff;font-size:13px;font-weight:1000;text-align:left;cursor:pointer;box-shadow:0 10px 22px rgba(15,23,42,.14);transition:transform .16s ease, opacity .16s ease}.ai-action-link:hover{transform:translateY(-1px)}.ai-action-link:active{transform:scale(.985)}.ai-booklet-card,.ai-guide-card{display:grid;gap:4px;padding:12px;border-radius:16px;background:#f8fafc;border:1px solid #dbe3ef;color:#334155}.ai-guide-card{background:#f0fdf4;border-color:#bbf7d0}.ai-booklet-card b,.ai-guide-card b{font-size:13px;color:#0f172a}.ai-booklet-card small,.ai-guide-card small{font-size:11px;color:#64748b}.ai-booklet-card span,.ai-guide-card span{font-size:12px;line-height:1.55;color:#475569}
+
+
+
+/* ===== AI 음성 질문 UX ===== */
+.ai-voice-row{display:flex;align-items:center;gap:8px;margin-top:10px}.ai-voice-btn{border:1px solid #dbeafe;background:#fff;color:#1d4ed8;border-radius:16px;padding:11px 12px;font-size:12px;font-weight:1000;cursor:pointer;box-shadow:0 8px 18px rgba(37,99,235,.06);transition:transform .16s ease, background-color .16s ease, color .16s ease}.ai-voice-btn:hover{transform:translateY(-1px);background:#eff6ff}.ai-voice-btn.listening{background:#ef4444;color:#fff;border-color:#fecaca;animation:aiVoicePulse 1s ease-in-out infinite}.ai-voice-status{flex:1;min-width:0;padding:10px 12px;border-radius:16px;background:#f8fafc;border:1px solid #e2e8f0;color:#64748b;font-size:12px;font-weight:900;line-height:1.45;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}@keyframes aiVoicePulse{0%,100%{box-shadow:0 0 0 0 rgba(239,68,68,.24)}50%{box-shadow:0 0 0 7px rgba(239,68,68,0)}}@media(max-width:370px){.ai-voice-row{align-items:stretch;flex-direction:column}.ai-voice-status{white-space:normal}}
+
 /* 운영계에서는 AI 생활 도우미 진입 UI 비노출 */
 body.env-prod [data-view-link="ai"],
 body.env-prod #view-ai{
@@ -2453,7 +2478,7 @@ body.env-prod #view-ai{
       <div class="chips" id="chips"></div><div class="chips-toggle"><button id="chipsToggle" class="chip chips-toggle-btn hidden" type="button">더보기 ▾</button></div><div class="distance-filter-panel"><div class="distance-filter-row"><div class="distance-select-wrap"><label for="benefitSortSelect">정렬</label><select id="benefitSortSelect"><option value="default">추천/할인순</option><option value="latest">최신 순</option><option value="top">TOP 5 순</option><option value="distance">가까운 순</option></select></div><div class="distance-select-wrap"><label for="distanceRadiusSelect">반경</label><select id="distanceRadiusSelect"><option value="all">전체</option><option value="500">500m 이내</option><option value="1000">1km 이내</option><option value="3000">3km 이내</option></select></div></div><div class="distance-filter-help" id="distanceFilterHelp">가까운 순 또는 반경 필터를 사용하면 현재 위치 기준으로 혜택을 정렬합니다.</div></div></div>
       <div class="section-head"><h3 id="sectionTitle">전체 혜택</h3><small id="resultCount">0건</small></div>
       <div class="loading hidden" id="homeLoading">데이터를 불러오는 중입니다...</div>
-      <div class="list" id="cardList"><div class="panel empty">조건에 맞는 항목이 없습니다.</div></div><button class="btn btn-soft block hidden" id="benefitMoreBtn" type="button" style="margin-top:14px;">혜택 더보기</button>
+      <div class="list" id="cardList"><div class="panel empty">조건에 맞는 항목이 없습니다.</div></div>
     </section>
     <section id="view-favorite" class="hidden"><div class="panel" style="margin-bottom:14px;"><div class="section-head" style="margin-bottom:12px;"><h3>즐겨찾기</h3><small>자주 쓰는 혜택</small></div><div class="helper">관심 있는 매장을 계정에 저장해 두고 빠르게 확인할 수 있습니다. 로그인한 계정 기준으로 동기화됩니다.</div></div><div class="list" id="favoriteList"><div class="panel empty">조건에 맞는 항목이 없습니다.</div></div></section>
 
@@ -2520,23 +2545,47 @@ body.env-prod #view-ai{
 
     <section id="view-ai" class="hidden">
       <div class="ai-view-hero">
-        <span class="ai-ready-pill">🤖 DEV 오픈 · 검색형 챗봇</span>
+        <span class="ai-ready-pill">🤖 DEV 오픈 · Gemini + 대화 기억</span>
         <h3>AI 생활 도우미</h3>
-        <p>공지사항, 혜택, FAQ에 등록된 내용을 기준으로 먼저 찾아드리는 1단계 검색형 챗봇입니다.</p>
+        <p>공지, 혜택, FAQ, 커뮤니티 데이터를 기준으로 답변하고 이전 대화 맥락도 이어서 기억합니다.</p>
       </div>
       <div class="panel ai-chat-panel">
+        <div class="ai-memory-toolbar" aria-label="AI 대화 관리">
+          <button class="ai-memory-btn" type="button" id="aiNewConversationBtn">＋ 새 대화</button>
+          <button class="ai-memory-btn" type="button" id="aiOpenConversationListBtn">🕘 이전 대화</button>
+          <button class="ai-memory-btn danger" type="button" id="aiClearConversationBtn">초기화</button>
+        </div>
+        <div class="ai-memory-status" id="aiConversationStatus">
+          <span>현재 대화: <strong>새 대화</strong></span>
+          <span>최근 맥락 반영</span>
+        </div>
+        <div class="ai-conversation-panel" id="aiConversationPanel" aria-live="polite">
+          <div class="ai-conversation-head">
+            <strong>이전 대화</strong>
+            <button class="btn btn-soft" type="button" id="aiCloseConversationListBtn">닫기</button>
+          </div>
+          <div class="ai-conversation-list" id="aiConversationList">
+            <div class="ai-conversation-empty">이전 대화를 불러오는 중입니다.</div>
+          </div>
+        </div>
         <div class="ai-quick-row" id="aiQuickRow">
           <button class="ai-quick-btn" type="button" data-ai-question="최근 공지 알려줘">최근 공지 알려줘</button>
           <button class="ai-quick-btn" type="button" data-ai-question="혜택 매장 추천해줘">혜택 매장 추천해줘</button>
           <button class="ai-quick-btn" type="button" data-ai-question="지도에서 볼 수 있는 혜택 알려줘">지도 혜택 알려줘</button>
           <button class="ai-quick-btn" type="button" data-ai-question="인기 매장 TOP 5 알려줘">인기 매장 알려줘</button>
+          <button class="ai-quick-btn" type="button" data-ai-question="커뮤니티 메뉴는 어떻게 들어가?">커뮤니티 메뉴는?</button>
+          <button class="ai-quick-btn" type="button" data-ai-question="공지사항은 어디서 봐?">공지사항 위치</button>
         </div>
         <div class="ai-chat-window" id="aiChatWindow" aria-live="polite">
           <div class="ai-message bot"><div class="ai-bubble">안녕하세요. 마이힐스 AI 생활 도우미입니다.
-궁금한 내용을 입력하면 등록된 공지와 혜택 정보를 먼저 찾아드릴게요.<small>현재는 개발계에서만 동작하는 1단계 검색형 버전입니다.</small></div></div>
+궁금한 내용을 입력하면 등록된 공지, 혜택, 전자 책자 정보를 찾아 답변하고, 같은 대화 안에서는 이전 질문도 참고할게요.<small>현재는 개발계에서만 동작하는 Gemini 기반 대화 기억 버전입니다.</small></div></div>
+        </div>
+        <div class="ai-voice-row" id="aiVoiceRow">
+          <button class="ai-voice-btn" type="button" id="aiVoiceBtn">🎙 말로 질문</button>
+          <div class="ai-voice-status" id="aiVoiceStatus">음성 질문은 지원 브라우저에서 사용할 수 있습니다.</div>
         </div>
         <div class="ai-input-row">
-          <input id="aiQuestionInput" type="text" maxlength="120" placeholder="예: 최근 공지 알려줘, 치킨 혜택 있어요?" />
+          <input id="aiQuestionInput" type="text" maxlength="120" placeholder="예: 최근 공지 알려줘, 커뮤니티 메뉴는 어떻게 들어가?" />
           <button class="btn btn-primary" type="button" id="aiAskBtn">질문</button>
         </div>
       </div>
@@ -2580,10 +2629,15 @@ body.env-prod #view-ai{
     document.body.classList.add(ENV === 'dev' ? 'env-dev' : 'env-prod');
     if (envBadge && ENV === 'dev') envBadge.classList.add('show');
     import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
-    import { getFirestore, collection, doc, getDoc, getDocs, setDoc, updateDoc, increment, serverTimestamp, addDoc, query, where, orderBy, limit, startAfter, deleteDoc } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
+    import { getFirestore, collection, onSnapshot, doc, getDoc, getDocs, setDoc, updateDoc, increment, serverTimestamp, addDoc, query, where, orderBy, limit, startAfter, deleteDoc } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
     import { getMessaging, getToken, onMessage, isSupported } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-messaging.js';
     import { getStorage, ref as storageRef, uploadBytes, getDownloadURL, deleteObject } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js';
     const firebaseConfig = FIREBASE_CONFIG[ENV];
+    const AI_FUNCTION_REGION = 'asia-northeast3';
+    const AI_FUNCTION_URL = `https://${AI_FUNCTION_REGION}-${firebaseConfig.projectId}.cloudfunctions.net/askAiAssistant`;
+    const AI_CONVERSATION_KEY = `myhills_ai_conversation_${ENV || 'prod'}`;
+    let aiConversationId = localStorage.getItem(AI_CONVERSATION_KEY) || '';
+    let aiConversationTitle = '새 대화';
     const VAPID_PUBLIC_KEY_BY_ENV = {
       dev: 'BHgdDiJQpnMsX0oR_nO3ixVeJAzDMdAkgdnMfBn09ElocDSmefCeXY1gXTVHoZSgYsDg5fojyTuTqSR2c185VhE',
       prod: 'BJONnfKeKFN8SCWWlo_quJ9pjahri96uw9WZJq2774hBZ8um6edcRb-NP7uRwjmcwHNTTGMuPJX-MUdeThgu5Kw'
@@ -2697,6 +2751,25 @@ body.env-prod #view-ai{
             mode: 'query'
           };
         }
+
+        // 기존 푸시/공유 URL 호환: /app?noticeId=문서ID, /app?benefitId=문서ID
+        const legacyNoticeId = String(params.get('noticeId') || '').trim();
+        if(legacyNoticeId){
+          return {
+            type: 'notice',
+            id: decodeURIComponent(legacyNoticeId),
+            mode: 'legacy-query'
+          };
+        }
+
+        const legacyBenefitId = String(params.get('benefitId') || '').trim();
+        if(legacyBenefitId){
+          return {
+            type: 'benefit',
+            id: decodeURIComponent(legacyBenefitId),
+            mode: 'legacy-query'
+          };
+        }
       }catch(_){ }
 
       // 2) 기존 클린 URL 딥링크
@@ -2732,7 +2805,9 @@ body.env-prod #view-ai{
     function updateCleanDeepLinkUrl(type, id, { replace=false } = {}){
       const cleanId = String(id || '').trim();
       if(!type || !cleanId) return;
-      setCleanUrl(`/${type}/${encodeURIComponent(cleanId)}`, { replace });
+      // Vercel 정적 배포에서 /notice/{id}, /benefit/{id}를 직접 새로고침하면
+      // 서버 라우팅이 없을 때 Not Found가 발생할 수 있으므로, 운영 URL은 /app 쿼리형으로 고정합니다.
+      setCleanUrl(`/app?open=${encodeURIComponent(type)}&id=${encodeURIComponent(cleanId)}`, { replace });
     }
 
     function clearCleanDeepLinkUrl({ replace=true } = {}){
@@ -2953,9 +3028,6 @@ body.env-prod #view-ai{
     }
 
     const state={category:localStorage.getItem(LAST_CATEGORY_KEY)||'전체',keyword:'',filter:'all',view:'home',benefits:[],notices:[],loading:true,currentUser:null,currentUserProfile:null,popularItems:[],favoriteIds:[],currentPushToken:null,isPushEnabledForThisDevice:false,activeDistanceBenefitId:'',distanceRequestSeq:0,benefitSortMode:'default',distanceRadius:'all',userLocation:null,userLocationFetchedAt:0,distanceMap:{},distanceStatus:'idle',scrollMap:{home:0,benefits:0,favorite:0,top5:0,notices:0,shareinsights:0,ai:0}};
-    const READ_OPTIMIZE = { benefitPageSize: 40, noticeLimit: 30, popularLimit: 80, residentRankLimit: 5, cacheMs: 60 * 1000, benefitLastDoc: null, benefitLoading: false, benefitHasMore: true, cache: new Map() };
-    const cacheGet = (key) => { const item = READ_OPTIMIZE.cache.get(key); return item && Date.now() - item.time < READ_OPTIMIZE.cacheMs ? item.value : null; };
-    const cacheSet = (key, value) => READ_OPTIMIZE.cache.set(key, { time: Date.now(), value });
 
     const initialUrlParams = new URLSearchParams(window.location.search || '');
     const pendingDeepLink = {
@@ -4664,19 +4736,15 @@ async function refreshPushStatus(){
       return collection(db, 'users', state.currentUser.uid, 'favorites');
     }
 
-    async function subscribeFavorites(){
+    function subscribeFavorites(){
       const favoritesRef = getFavoritesCollectionRef();
       if(!favoritesRef) return;
-      const cached = cacheGet('favorites:' + state.currentUser.uid);
-      if(cached){ state.favoriteIds = cached; renderAll(); return; }
-      try{
-        const snapshot = await getDocs(favoritesRef);
+      onSnapshot(favoritesRef, (snapshot) => {
         state.favoriteIds = snapshot.docs.map((d) => d.id);
-        cacheSet('favorites:' + state.currentUser.uid, state.favoriteIds);
         renderAll();
-      }catch(error){
+      }, (error) => {
         console.error('즐겨찾기 로드 실패', error);
-      }
+      });
     }
 
     async function toggleFavorite(id, name){
@@ -4710,58 +4778,20 @@ async function refreshPushStatus(){
       }
     }
     const hasFirebaseConfig=()=>firebaseConfig.apiKey&&firebaseConfig.projectId&&firebaseConfig.appId;
-    async function subscribeBenefits(){
-      READ_OPTIMIZE.benefitLastDoc = null;
-      READ_OPTIMIZE.benefitHasMore = true;
-      state.benefits = [];
-      await loadBenefitsPage(true);
-    }
-
-    async function loadBenefitsPage(reset = false){
-      if(READ_OPTIMIZE.benefitLoading) return;
-      READ_OPTIMIZE.benefitLoading = true;
-      const moreBtn = qs('#benefitMoreBtn');
-      if(moreBtn){ moreBtn.disabled = true; moreBtn.textContent = '불러오는 중...'; }
-      try{
-        if(reset){
-          READ_OPTIMIZE.benefitLastDoc = null;
-          READ_OPTIMIZE.benefitHasMore = true;
-          state.loading = true;
-          renderAll();
-        }
-        const constraints = [orderBy('createdAt', 'desc')];
-        if(READ_OPTIMIZE.benefitLastDoc) constraints.push(startAfter(READ_OPTIMIZE.benefitLastDoc));
-        constraints.push(limit(READ_OPTIMIZE.benefitPageSize));
-        const snapshot = await getDocs(query(collection(db, BENEFITS_COLLECTION), ...constraints));
-        const items = snapshot.docs.map(d => sanitizeBenefit(d.data(), d.id));
-        if(reset) state.benefits = items;
-        else state.benefits = [...state.benefits, ...items].filter((item, index, arr) => arr.findIndex(v => v.id === item.id) === index);
-        READ_OPTIMIZE.benefitLastDoc = snapshot.docs.length ? snapshot.docs[snapshot.docs.length - 1] : READ_OPTIMIZE.benefitLastDoc;
-        READ_OPTIMIZE.benefitHasMore = snapshot.docs.length === READ_OPTIMIZE.benefitPageSize;
+    function subscribeBenefits(){
+      onSnapshot(collection(db, BENEFITS_COLLECTION), (snapshot) => {
+        state.benefits = snapshot.docs.map(d => sanitizeBenefit(d.data(), d.id));
         if(state.userLocation) recalculateBenefitDistances();
         state.loading = false;
         renderAll();
-        updateBenefitMoreButton();
         handleCleanDeepLink();
         markInitialDataLoaded('benefits');
-      }catch(error){
-        console.error('혜택 로드 실패', error);
+      }, () => {
         state.loading = false;
         qs('#homeLoading').textContent = '데이터를 불러오지 못했습니다. Firestore 규칙과 설정을 확인해 주세요.';
         renderAll();
-        updateBenefitMoreButton();
         markInitialDataLoaded('benefits');
-      }finally{
-        READ_OPTIMIZE.benefitLoading = false;
-        if(moreBtn){ moreBtn.disabled = false; moreBtn.textContent = '혜택 더보기'; }
-      }
-    }
-
-    function updateBenefitMoreButton(){
-      const moreBtn = qs('#benefitMoreBtn');
-      if(!moreBtn) return;
-      const shouldShow = state.view === 'benefits' && READ_OPTIMIZE.benefitHasMore && !state.keyword.trim() && state.filter === 'all';
-      moreBtn.classList.toggle('hidden', !shouldShow);
+      });
     }
     function formatDateTime(value){
       try{
@@ -4784,19 +4814,8 @@ async function refreshPushStatus(){
       };
     }
 
-    async function subscribeNotices(){
-      const cached = cacheGet('notices');
-      if(cached){
-        state.notices = cached;
-        renderNotices();
-        handlePendingNoticeDeepLink();
-        handleCleanDeepLink();
-        markInitialDataLoaded('notices');
-        return;
-      }
-      try{
-        const noticeQuery = query(collection(db, NOTICES_COLLECTION), orderBy('createdAt', 'desc'), limit(READ_OPTIMIZE.noticeLimit));
-        const snapshot = await getDocs(noticeQuery);
+    function subscribeNotices(){
+      onSnapshot(collection(db, NOTICES_COLLECTION), (snapshot) => {
         state.notices = snapshot.docs
           .map((d) => sanitizeNotice(d.data(), d.id))
           .filter((item) => item.visible !== false)
@@ -4806,15 +4825,14 @@ async function refreshPushStatus(){
             const bTime = b.updatedAt?.seconds || b.createdAt?.seconds || 0;
             return bTime - aTime;
           });
-        cacheSet('notices', state.notices);
         renderNotices();
         handlePendingNoticeDeepLink();
         handleCleanDeepLink();
         markInitialDataLoaded('notices');
-      }catch(error){
+      }, (error) => {
         console.error('공지 로드 실패', error);
         markInitialDataLoaded('notices');
-      }
+      });
     }
 
     function noticeCardTemplate(item){
@@ -4867,9 +4885,12 @@ function getShareBaseOrigin(){
 
     function getShareUrl(type, id, params = {}){
       const shareType = normalizeDeepLinkType(type) || String(type || '').trim();
-      // 카카오 크롤러가 JS 실행 전 OG 태그를 읽을 수 있도록
-      // 정적 app 경로가 아니라 Vercel Function 라우트(/share/...)를 공유합니다.
-      const url = new URL(`${getShareBaseOrigin()}/share/${shareType}/${encodeURIComponent(String(id || ''))}`);
+      // /share/{type}/{id} Function이 없거나 배포되지 않은 경우 카카오/공지 딥링크가 Not Found가 됩니다.
+      // 안정성을 위해 실제 앱 진입 URL은 /app?open=...&id=... 쿼리형으로 고정합니다.
+      const url = new URL(`${getShareBaseOrigin()}/app`);
+      url.searchParams.set('open', shareType);
+      url.searchParams.set('id', String(id || ''));
+      url.searchParams.set('from', 'share');
 
       Object.entries(params || {}).forEach(([key, value]) => {
         if(value !== undefined && value !== null && String(value) !== ''){
@@ -5502,26 +5523,21 @@ function getShareTrackingParams(){
       return candidates[0]?.id || '';
     }
 
-    async function subscribePopularStats() {
-      const cached = cacheGet('popularStats');
-      if(cached){
-        state.popularItems = cached;
-        renderPopularTop5();
-        renderHotNowStores();
-        const updatedText = qs('#popularUpdatedText');
-        if (updatedText) updatedText.textContent = '캐시 집계 · ' + new Date().toLocaleTimeString('ko-KR', { hour:'2-digit', minute:'2-digit' });
-        markInitialDataLoaded('popular');
-        return;
-      }
-      try{
-        const popularQuery = query(
-          collection(db, BENEFIT_STATS_COLLECTION),
-          orderBy('detailViewCount', 'desc'),
-          limit(READ_OPTIMIZE.popularLimit)
+    function subscribePopularStats() {
+      const popularQuery = query(
+        collection(db, BENEFIT_STATS_COLLECTION),
+        orderBy('detailViewCount', 'desc'),
+        limit(80)
+      );
+
+      onSnapshot(popularQuery, (snapshot) => {
+        const runtimePreviousRanks = new Map(
+          (state.popularItems || []).map((item, index) => [item.id, index + 1])
         );
-        const snapshot = await getDocs(popularQuery);
-        const runtimePreviousRanks = new Map((state.popularItems || []).map((item, index) => [item.id, index + 1]));
-        const storedPreviousRankMap = typeof getPopularPreviousRankMap === 'function' ? getPopularPreviousRankMap() : {};
+        const storedPreviousRankMap = typeof getPopularPreviousRankMap === 'function'
+          ? getPopularPreviousRankMap()
+          : {};
+
         const rankedItems = snapshot.docs.map((d) => {
           const data = d.data() || {};
           const benefit = state.benefits.find((item) => item.id === d.id);
@@ -5530,6 +5546,7 @@ function getShareTrackingParams(){
           const favoriteCount = Number(data.favoriteCount || 0);
           const shareClickCount = Number(data.shareClickCount || 0);
           const popularScore = calcPopularScoreFromStats(data);
+
           return {
             id: d.id,
             name: data.name || benefit?.name || '이름 없는 매장',
@@ -5561,23 +5578,34 @@ function getShareTrackingParams(){
         .map((item, index) => {
           const currentRank = index + 1;
           const previousRank = runtimePreviousRanks.get(item.id) || Number(storedPreviousRankMap[getPopularItemKey(item)] || 0);
-          return { ...item, rank: currentRank, previousRank, trendClass: getPopularTrendClass(currentRank, previousRank), trendText: getPopularTrendText(currentRank, previousRank) };
+          return {
+            ...item,
+            rank: currentRank,
+            previousRank,
+            trendClass: getPopularTrendClass(currentRank, previousRank),
+            trendText: getPopularTrendText(currentRank, previousRank)
+          };
         });
+
         const shareBestItemId = getShareBestItemId(rankedItems);
-        state.popularItems = rankedItems.map((item) => ({ ...item, isShareBest: !!shareBestItemId && item.id === shareBestItemId }));
-        cacheSet('popularStats', state.popularItems);
+        state.popularItems = rankedItems.map((item) => ({
+          ...item,
+          isShareBest: !!shareBestItemId && item.id === shareBestItemId
+        }));
+
         renderPopularTop5();
         renderHotNowStores();
         if (typeof savePopularRankSnapshot === 'function') savePopularRankSnapshot(state.popularItems);
         const updatedText = qs('#popularUpdatedText');
-        if (updatedText) updatedText.textContent = '1분 단위 집계 · ' + new Date().toLocaleTimeString('ko-KR', { hour:'2-digit', minute:'2-digit' });
+        if (updatedText) updatedText.textContent = `실시간 집계 · ${new Date().toLocaleTimeString('ko-KR', { hour:'2-digit', minute:'2-digit' })}`;
         markInitialDataLoaded('popular');
-      }catch(error){
-        console.warn('인기 통계 로드 실패', error);
+      }, () => {
         const wrap = qs('#popularList');
-        if (wrap) wrap.innerHTML = '<div class="panel empty">인기 통계를 불러오지 못했습니다.</div>';
+        if (wrap) {
+          wrap.innerHTML = '<div class="panel empty">인기 통계를 불러오지 못했습니다.</div>';
+        }
         markInitialDataLoaded('popular');
-      }
+      });
     }
 
     function getRankBadge(rank){
@@ -6447,17 +6475,14 @@ function getShareTrackingParams(){
       }).join('');
     }
 
-    async function subscribeResidentActivityRanking(){
+    function subscribeResidentActivityRanking(){
       try{
-        const cached = cacheGet('residentRank');
-        if(cached){ renderResidentRankings(cached); return; }
-        const rankQuery = query(collection(db, 'user_stats'), orderBy('score','desc'), limit(READ_OPTIMIZE.residentRankLimit));
-        const snapshot = await getDocs(rankQuery);
-        const items = snapshot.docs.map((d) => ({ id:d.id, ...d.data() }));
-        cacheSet('residentRank', items);
-        renderResidentRankings(items);
-        const text = qs('#residentRankUpdatedText'); if(text) text.textContent = '1분 단위 집계 · ' + new Date().toLocaleTimeString('ko-KR', { hour:'2-digit', minute:'2-digit' });
-      }catch(error){ console.warn('입주민 활동 랭킹 로드 실패', error); renderResidentRankings([]); }
+        const rankQuery = query(collection(db, 'user_stats'), orderBy('score','desc'), limit(5));
+        onSnapshot(rankQuery, (snapshot) => {
+          renderResidentRankings(snapshot.docs.map((d) => ({ id:d.id, ...d.data() })));
+          const text = qs('#residentRankUpdatedText'); if(text) text.textContent = `실시간 · ${new Date().toLocaleTimeString('ko-KR', { hour:'2-digit', minute:'2-digit' })}`;
+        }, (error) => { console.warn('입주민 활동 랭킹 로드 실패', error); renderResidentRankings([]); });
+      }catch(error){ console.warn('입주민 활동 랭킹 초기화 실패', error); }
     }
 
 
@@ -6702,178 +6727,372 @@ function getShareTrackingParams(){
       return score;
     }
 
-    function appendAiMessage(role='bot', html=''){
+    function appendAiMessage(role='bot', html='', options={}){
       const win = qs('#aiChatWindow');
-      if(!win) return;
+      if(!win) return null;
       const row = document.createElement('div');
       row.className = `ai-message ${role === 'user' ? 'user' : 'bot'}`;
+      if(options.pending) row.dataset.pending = 'true';
       row.innerHTML = `<div class="ai-bubble">${html}</div>`;
       win.appendChild(row);
+      bindAiAnswerActions(row);
+      win.scrollTop = win.scrollHeight;
+      return row;
+    }
+
+    function createAiTypingBubble(){
+      return appendAiMessage('bot', '<span class="ai-typing-indicator" aria-label="AI가 답변을 작성 중입니다"><span></span><span></span><span></span></span>', { pending:true });
+    }
+
+    function normalizeAiAnswerHtml(html=''){
+      const wrap = document.createElement('div');
+      wrap.innerHTML = String(html || '');
+      wrap.querySelectorAll('script,style,iframe,object,embed').forEach(el => el.remove());
+      return wrap.innerHTML || '답변을 생성하지 못했습니다.';
+    }
+
+    function typeAiHtml(targetBubble, html='', speed=12){
+      return new Promise((resolve) => {
+        if(!targetBubble){ resolve(); return; }
+        const safeHtml = normalizeAiAnswerHtml(html);
+        const tmp = document.createElement('div');
+        tmp.innerHTML = safeHtml;
+        const text = tmp.textContent || tmp.innerText || '';
+        const win = qs('#aiChatWindow');
+        targetBubble.innerHTML = '';
+        let i = 0;
+        const tick = () => {
+          i += Math.max(1, Math.ceil(text.length / 160));
+          targetBubble.textContent = text.slice(0, i);
+          if(win) win.scrollTop = win.scrollHeight;
+          if(i < text.length){ setTimeout(tick, speed); }
+          else { targetBubble.innerHTML = safeHtml; bindAiAnswerActions(targetBubble); if(win) win.scrollTop = win.scrollHeight; resolve(); }
+        };
+        tick();
+      });
+    }
+
+    function getAiWelcomeHtml(){
+      return `안녕하세요. 마이힐스 AI 생활 도우미입니다.
+궁금한 내용을 입력하면 등록된 공지와 혜택 정보를 찾아 답변하고, 같은 대화 안에서는 이전 질문도 참고할게요.<small>현재는 개발계에서만 동작하는 Gemini 기반 대화 기억 버전입니다.</small>`;
+    }
+
+    function resetAiChatWindow(){
+      const win = qs('#aiChatWindow');
+      if(!win) return;
+      win.innerHTML = `<div class="ai-message bot"><div class="ai-bubble">${getAiWelcomeHtml()}</div></div>`;
       win.scrollTop = win.scrollHeight;
     }
 
-    function normalizeAiItem(raw={}, type='정보', id=''){
-      const item = raw || {};
-      const title = aiValueToText(item.title || item.name || item.storeName || item.question || item.category || '제목 없음').trim() || '제목 없음';
-      const answer = aiValueToText(item.answer || item.content || item.description || item.desc || item.benefit || item.condition || item.summary || item.address || '').trim();
-      return { id, type, ...item, title, answer };
+    function updateAiConversationStatus(title){
+      const el = qs('#aiConversationStatus');
+      if(!el) return;
+      const name = title || aiConversationTitle || (aiConversationId ? '이전 대화' : '새 대화');
+      el.innerHTML = `<span>현재 대화: <strong>${escapeHtml(name)}</strong></span><span>${aiConversationId ? '대화 기억 사용중' : '첫 질문 후 저장'}</span>`;
     }
 
-    function isAiActiveItem(item={}){
-      return item.isActive !== false && item.visible !== false && item.status !== 'deleted' && item.status !== 'hidden';
-    }
-
-    async function fetchAiCollection(collectionName, type, maxCount=80){
-      try{
-        const snap = await getDocs(collection(db, collectionName));
-        return snap.docs
-          .map(d => normalizeAiItem(d.data() || {}, type, d.id))
-          .filter(isAiActiveItem)
-          .slice(0, maxCount);
-      }catch(error){
-        console.warn(`${collectionName} AI 검색 로드 실패`, error);
-        return [];
-      }
-    }
-
-    async function loadAiSettings(){
-      try{
-        const snap = await getDoc(doc(db, 'ai_settings', 'default'));
-        return snap.exists() ? (snap.data() || {}) : {};
-      }catch(error){
-        console.warn('ai_settings 로드 실패', error);
-        return {};
-      }
-    }
-
-    async function loadAiSearchPool(){
-      const localNotices = (state.notices || []).map(item => normalizeAiItem(item, '공지', item.id)).filter(isAiActiveItem);
-      const localBenefits = (state.benefits || []).map(item => normalizeAiItem(item, '혜택', item.id)).filter(isAiActiveItem);
-
-      const [faqItems, noticeItems, benefitItems] = await Promise.all([
-        fetchAiCollection('ai_faq', 'FAQ', 120),
-        localNotices.length ? Promise.resolve(localNotices) : fetchAiCollection('notices', '공지', 120),
-        localBenefits.length ? Promise.resolve(localBenefits) : fetchAiCollection('benefits', '혜택', 200)
-      ]);
-
-      const unique = new Map();
-      [...faqItems, ...noticeItems, ...benefitItems].forEach(item => {
-        const key = `${item.type}:${item.id || item.title}`;
-        if(!unique.has(key)) unique.set(key, item);
+    async function callAiFunction(payload = {}){
+      const idToken = await auth.currentUser?.getIdToken?.();
+      if(!idToken) throw new Error('로그인 정보가 없습니다.');
+      const response = await fetch(AI_FUNCTION_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${idToken}` },
+        body: JSON.stringify({ env: ENV, ...payload })
       });
-      return [...unique.values()];
+      const data = await response.json().catch(() => ({}));
+      if(!response.ok || data.ok === false) throw new Error(data.message || 'AI 함수 호출에 실패했습니다.');
+      return data;
     }
 
-    function getAiIntent(question=''){
-      const q = normalizeAiText(question);
-      if(/최근|최신|공지|안내|알림/.test(q)) return 'notice';
-      if(/인기|top|top5|순위|랭킹|베스트|추천/.test(q)) return 'popular';
-      if(/혜택|할인|매장|상가|가게|쿠폰|이벤트/.test(q)) return 'benefit';
-      if(/지도|위치|거리|근처|주변|길찾기/.test(q)) return 'map';
-      return 'general';
-    }
-
-    function getAiSpecialMatches(question){
-      const intent = getAiIntent(question);
-      if(intent === 'notice'){
-        return (state.notices || [])
-          .filter(isAiActiveItem)
-          .slice(0, 5)
-          .map(item => ({ ...normalizeAiItem(item, '공지', item.id), _score: 8 }));
-      }
-      if(intent === 'popular'){
-        return (state.popularItems || state.benefits || [])
-          .slice(0, 5)
-          .map((item, idx) => ({ ...normalizeAiItem(item, '인기 혜택', item.id), title:`TOP ${idx + 1}. ${item.name || item.title || '혜택'}`, _score: 8 - idx }));
-      }
-      if(intent === 'benefit' || intent === 'map'){
-        return (state.benefits || [])
-          .filter(isAiActiveItem)
-          .slice(0, 8)
-          .map(item => ({ ...normalizeAiItem(item, intent === 'map' ? '지도 혜택' : '혜택', item.id), _score: 5 }));
-      }
-      return [];
-    }
-
-    async function searchAiAssistant(question){
-      const pool = await loadAiSearchPool();
-      const scored = pool
-        .map(item => ({ ...item, _score: scoreAiItem(question, item) }))
-        .filter(item => item._score > 0)
-        .sort((a,b) => (b._score || 0) - (a._score || 0));
-      const special = getAiSpecialMatches(question);
-      const merged = new Map();
-      [...scored, ...special].forEach(item => {
-        const key = `${item.type}:${item.id || item.title}`;
-        const old = merged.get(key);
-        if(!old || (item._score || 0) > (old._score || 0)) merged.set(key, item);
+    function bindAiAnswerActions(scope){
+      const root = scope || qs('#aiChatWindow');
+      if(!root) return;
+      root.querySelectorAll('[data-ai-open-benefit-id]').forEach(btn => {
+        if(btn.dataset.bound === 'true') return;
+        btn.dataset.bound = 'true';
+        btn.addEventListener('click', async (event) => {
+          event.preventDefault();
+          event.stopPropagation();
+          const benefitId = btn.dataset.aiOpenBenefitId || '';
+          const item = (state.benefits || []).find(v => String(v.id) === String(benefitId));
+          if(item){
+            openDetail(item);
+            return;
+          }
+          try{
+            const snap = await getDoc(doc(db, BENEFITS_COLLECTION, benefitId));
+            if(snap.exists()) openDetail(sanitizeBenefit(snap.data(), snap.id));
+            else openModalAlert('해당 혜택 정보를 찾지 못했습니다.');
+          }catch(error){
+            console.error('AI 혜택 딥링크 열기 실패', error);
+            openModalAlert('혜택을 여는 중 오류가 발생했습니다.');
+          }
+        });
       });
-      return [...merged.values()].sort((a,b) => (b._score || 0) - (a._score || 0)).slice(0, 6);
     }
 
-    function renderAiAnswer(question, matches=[], settings={}){
-      if(!matches.length){
-        const fallback = settings.fallbackMessage || '등록된 공지/혜택/FAQ에서 바로 확인되는 답변을 찾지 못했습니다.';
-        return `${escapeHtml(fallback)}<small>관리자에서 ai_faq 컬렉션에 질문/답변/keywords를 추가하면 더 정확하게 답변할 수 있습니다.</small>`;
-      }
+    function renderAiConversationMessages(messages = []){
+      resetAiChatWindow();
+      const win = qs('#aiChatWindow');
+      if(!win) return;
+      messages.forEach((msg) => {
+        if(!msg || !msg.content) return;
+        if(msg.role === 'user') appendAiMessage('user', escapeHtml(msg.content));
+        else appendAiMessage('bot', normalizeAiAnswerHtml(msg.answerHtml || escapeHtml(msg.content)));
+      });
+      win.scrollTop = win.scrollHeight;
+    }
 
-      const top = matches[0];
-      const intent = getAiIntent(question);
-      let headline = '';
-      if(top.type === 'FAQ') headline = aiValueToText(top.answer || top.content || 'FAQ에서 관련 답변을 찾았습니다.');
-      else if(intent === 'notice') headline = '최근 공지에서 관련 내용을 찾았습니다.';
-      else if(intent === 'popular') headline = '인기 혜택 기준으로 관련 매장을 찾았습니다.';
-      else if(intent === 'map') headline = '지도/위치 정보가 있는 혜택을 확인해 보세요.';
-      else headline = aiValueToText(top.answer || top.content || top.description || top.desc || top.benefit || top.condition || '관련 항목을 찾았습니다.');
-
-      const sources = matches.slice(0, 5).map(item => {
-        const body = aiValueToText(item.answer || item.content || item.description || item.desc || item.benefit || item.condition || item.address || '').trim();
-        return `<div class="ai-source-item"><b>${escapeHtml(item.type || '정보')} · ${escapeHtml(item.title || item.name || '제목 없음')}</b>${escapeHtml(body.slice(0, 140) || '상세 내용은 해당 메뉴에서 확인해 주세요.')}</div>`;
+    function renderAiConversationList(conversations = []){
+      const list = qs('#aiConversationList');
+      if(!list) return;
+      if(!conversations.length){ list.innerHTML = '<div class="ai-conversation-empty">저장된 이전 대화가 없습니다.</div>'; return; }
+      list.innerHTML = conversations.map((c) => {
+        const active = c.id && c.id === aiConversationId ? ' active' : '';
+        return `<button class="ai-conversation-item${active}" type="button" data-conversation-id="${escapeHtml(c.id)}"><span class="ai-conversation-title">${escapeHtml(c.title || '제목 없는 대화')}</span><span class="ai-conversation-meta">${escapeHtml(c.updatedText || c.createdText || '')} · 메시지 ${Number(c.messageCount || 0)}개</span></button>`;
       }).join('');
+      list.querySelectorAll('[data-conversation-id]').forEach(btn => btn.addEventListener('click', () => loadAiConversation(btn.dataset.conversationId)));
+    }
 
-      return `${escapeHtml(headline.slice(0, 500))}${sources ? `<div class="ai-source-list">${sources}</div>` : ''}<small>검색 기준: ai_faq, notices, benefits</small>`;
+    async function loadAiConversationList(){
+      if(ENV !== 'dev') return;
+      qs('#aiConversationPanel')?.classList.add('show');
+      const list = qs('#aiConversationList');
+      if(list) list.innerHTML = '<div class="ai-conversation-empty">이전 대화를 불러오는 중입니다.</div>';
+      try{ const data = await callAiFunction({ action: 'listConversations' }); renderAiConversationList(data.conversations || []); }
+      catch(error){ console.error('AI conversation list failed', error); if(list) list.innerHTML = '<div class="ai-conversation-empty">이전 대화를 불러오지 못했습니다.</div>'; }
+    }
+
+    async function loadAiConversation(conversationId){
+      if(!conversationId) return;
+      const win = qs('#aiChatWindow');
+      win?.classList.add('memory-loading');
+      try{
+        const data = await callAiFunction({ action: 'loadConversation', conversationId });
+        aiConversationId = data.conversationId || conversationId;
+        aiConversationTitle = data.title || '이전 대화';
+        localStorage.setItem(AI_CONVERSATION_KEY, aiConversationId);
+        renderAiConversationMessages(data.messages || []);
+        updateAiConversationStatus(aiConversationTitle);
+        qs('#aiConversationPanel')?.classList.remove('show');
+      }catch(error){
+        console.error('AI conversation load failed', error);
+        await openModalAlert('이전 대화를 불러오지 못했습니다.');
+      }finally{
+        win?.classList.remove('memory-loading');
+      }
+    }
+
+    /* ===== AI 음성 질문 UX ===== */
+    let aiRecognition = null;
+    let aiVoiceListening = false;
+    let aiVoiceInitialized = false;
+
+    function getSpeechRecognition(){
+      return window.SpeechRecognition || window.webkitSpeechRecognition || null;
+    }
+
+    function setAiVoiceStatus(message, active=false){
+      const status = qs('#aiVoiceStatus');
+      const btn = qs('#aiVoiceBtn');
+      if(status) status.textContent = message || '';
+      btn?.classList.toggle('listening', !!active);
+      if(btn) btn.textContent = active ? '■ 듣는 중' : '🎙 말로 질문';
+    }
+
+    function stopAiMicTracks(stream){
+      try{ (stream?.getTracks?.() || []).forEach(track => track.stop()); }catch(_error){}
+    }
+
+    async function requestAiMicPermission(){
+      if(!window.isSecureContext){
+        throw new Error('insecure-context');
+      }
+      if(!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia){
+        throw new Error('media-devices-unsupported');
+      }
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      stopAiMicTracks(stream);
+      return true;
+    }
+
+    function createAiRecognition(){
+      const VoiceAPI = getSpeechRecognition();
+      if(!VoiceAPI) return null;
+      const recognition = new VoiceAPI();
+      recognition.lang = 'ko-KR';
+      recognition.continuous = false;
+      recognition.interimResults = true;
+      recognition.maxAlternatives = 1;
+      recognition.onstart = () => {
+        aiVoiceListening = true;
+        setAiVoiceStatus('듣고 있습니다. 질문을 말씀해 주세요.', true);
+      };
+      recognition.onresult = (event) => {
+        let transcript = '';
+        for(let i = event.resultIndex; i < event.results.length; i += 1){
+          transcript += event.results[i][0]?.transcript || '';
+        }
+        transcript = transcript.trim();
+        if(!transcript) return;
+        const input = qs('#aiQuestionInput');
+        if(input) input.value = transcript;
+        setAiVoiceStatus('인식 중: ' + transcript, true);
+        const last = event.results[event.results.length - 1];
+        if(last?.isFinal){
+          window.__AI_LAST_INPUT_MODE = 'voice';
+          aiVoiceListening = false;
+          setAiVoiceStatus('음성 인식 완료. 질문을 전송합니다.', false);
+          setTimeout(() => askAiAssistant(transcript), 180);
+        }
+      };
+      recognition.onerror = (event) => {
+        aiVoiceListening = false;
+        const errorCode = event?.error || '';
+        let msg = '음성 인식 중 오류가 발생했습니다.';
+        if(errorCode === 'not-allowed' || errorCode === 'permission-denied') msg = '마이크 권한이 차단되었습니다. 브라우저 주소창의 권한 설정에서 마이크를 허용해 주세요.';
+        else if(errorCode === 'no-speech') msg = '음성이 인식되지 않았습니다. 다시 눌러 말씀해 주세요.';
+        else if(errorCode === 'audio-capture') msg = '마이크를 찾지 못했습니다. 기기의 마이크 연결을 확인해 주세요.';
+        else if(errorCode === 'network') msg = '음성 인식 네트워크 오류가 발생했습니다.';
+        setAiVoiceStatus(msg, false);
+      };
+      recognition.onend = () => {
+        if(aiVoiceListening){
+          aiVoiceListening = false;
+          setAiVoiceStatus('음성 인식이 종료되었습니다.', false);
+        }
+      };
+      return recognition;
+    }
+
+    async function startAiVoiceRecognition(){
+      const VoiceAPI = getSpeechRecognition();
+      if(!VoiceAPI){
+        setAiVoiceStatus('이 브라우저에서는 음성 질문을 지원하지 않습니다.', false);
+        return;
+      }
+      if(aiVoiceListening && aiRecognition){
+        try{ aiRecognition.stop(); }catch(_error){}
+        aiVoiceListening = false;
+        setAiVoiceStatus('음성 인식을 중지했습니다.', false);
+        return;
+      }
+      try{
+        setAiVoiceStatus('마이크 권한을 확인하는 중입니다...', false);
+        await requestAiMicPermission();
+        aiRecognition = createAiRecognition();
+        if(!aiRecognition) throw new Error('speech-unsupported');
+        window.__AI_LAST_INPUT_MODE = 'voice';
+        aiRecognition.start();
+      }catch(error){
+        console.warn('Voice recognition start failed', error);
+        const message = String(error?.message || error?.name || '');
+        if(message.includes('insecure-context')) setAiVoiceStatus('HTTPS 환경에서만 마이크 권한 요청이 가능합니다.', false);
+        else if(message.includes('media-devices-unsupported')) setAiVoiceStatus('이 브라우저에서는 마이크 권한 요청을 지원하지 않습니다.', false);
+        else if(error?.name === 'NotAllowedError' || error?.name === 'PermissionDeniedError') setAiVoiceStatus('마이크 권한이 거부되었습니다. 브라우저 권한 설정에서 마이크를 허용해 주세요.', false);
+        else if(error?.name === 'NotFoundError') setAiVoiceStatus('사용 가능한 마이크를 찾지 못했습니다.', false);
+        else setAiVoiceStatus('음성 인식을 시작하지 못했습니다. 브라우저 마이크 권한을 확인해 주세요.', false);
+      }
+    }
+
+    function initAiVoiceInput(){
+      const btn = qs('#aiVoiceBtn');
+      if(!btn || aiVoiceInitialized) return;
+      aiVoiceInitialized = true;
+      const VoiceAPI = getSpeechRecognition();
+      if(!VoiceAPI){
+        btn.disabled = true;
+        btn.style.opacity = '.55';
+        setAiVoiceStatus('이 브라우저에서는 음성 질문을 지원하지 않습니다. Chrome 계열 브라우저에서 이용해 주세요.');
+        return;
+      }
+      if(!window.isSecureContext){
+        btn.disabled = true;
+        btn.style.opacity = '.55';
+        setAiVoiceStatus('음성 질문은 HTTPS 환경에서만 사용할 수 있습니다.');
+        return;
+      }
+      setAiVoiceStatus('버튼을 누르면 브라우저 마이크 권한 요청이 표시됩니다.');
+      btn.addEventListener('click', startAiVoiceRecognition);
+    }
+
+    initAiVoiceInput();
+
+    function startNewAiConversation(){
+      aiConversationId = '';
+      aiConversationTitle = '새 대화';
+      localStorage.removeItem(AI_CONVERSATION_KEY);
+      resetAiChatWindow();
+      updateAiConversationStatus(aiConversationTitle);
+      qs('#aiConversationPanel')?.classList.remove('show');
+    }
+
+    async function clearCurrentAiConversation(){
+      if(aiConversationId){
+        try{ await callAiFunction({ action: 'deleteConversation', conversationId: aiConversationId }); }catch(error){ console.warn('AI conversation delete failed', error); }
+      }
+      startNewAiConversation();
+    }
+
+
+    function buildAiSituationContext(){
+      const now = new Date();
+      const hour = now.getHours();
+      let timeBand = '일반 시간대';
+      if(hour >= 5 && hour < 11) timeBand = '아침';
+      else if(hour >= 11 && hour < 15) timeBand = '점심';
+      else if(hour >= 15 && hour < 18) timeBand = '오후';
+      else if(hour >= 18 && hour < 22) timeBand = '저녁';
+      else timeBand = '야간';
+      return {
+        currentView: state.view || '',
+        activeCategory: state.category || '',
+        benefitSortMode: state.benefitSortMode || '',
+        distanceRadius: state.distanceRadius || '',
+        platform: navigator.userAgentData?.platform || navigator.platform || '',
+        userAgent: navigator.userAgent || '',
+        clientTimeText: now.toLocaleString('ko-KR'),
+        hour,
+        timeBand,
+        locationFetchedAt: state.userLocationFetchedAt || 0,
+        location: state.userLocation ? { lat: state.userLocation.lat, lng: state.userLocation.lng } : null
+      };
     }
 
     async function askAiAssistant(rawQuestion=''){
+      if(!window.__AI_LAST_INPUT_MODE) window.__AI_LAST_INPUT_MODE = rawQuestion ? 'quick' : 'text';
       if(ENV !== 'dev') return openModalAlert('기능 준비중 입니다.');
       const input = qs('#aiQuestionInput');
       const btn = qs('#aiAskBtn');
       const question = String(rawQuestion || input?.value || '').trim();
       if(!question) return openModalAlert('질문을 입력해주세요.');
+
       if(input) input.value = '';
-      if(btn) btn.disabled = true;
+      if(btn){ btn.disabled = true; btn.textContent = '작성중'; }
       appendAiMessage('user', escapeHtml(question));
-      appendAiMessage('bot', 'Firestore에 등록된 공지, 혜택, FAQ를 검색하는 중입니다...');
+      const pendingRow = createAiTypingBubble();
+      const pendingBubble = pendingRow?.querySelector('.ai-bubble');
+
       try{
-        const [settings, matches] = await Promise.all([
-          loadAiSettings(),
-          searchAiAssistant(question)
-        ]);
-        qs('#aiChatWindow')?.lastElementChild?.remove?.();
-        appendAiMessage('bot', renderAiAnswer(question, matches, settings));
-        try{
-          await addDoc(collection(db, 'ai_chat_logs'), {
-            uid: auth.currentUser?.uid || null,
-            question,
-            matchedCount: matches.length,
-            matchedTypes: [...new Set(matches.map(m => m.type || 'unknown'))],
-            topMatchId: matches[0]?.id || null,
-            topMatchTitle: matches[0]?.title || matches[0]?.name || null,
-            env: ENV,
-            createdAt: serverTimestamp()
-          });
-        }catch(logError){ console.warn('AI 질문 로그 저장 실패', logError); }
+        const data = await callAiFunction({ action: 'ask', question, conversationId: aiConversationId || '', context: buildAiSituationContext() });
+        if(data.conversationId){ aiConversationId = data.conversationId; localStorage.setItem(AI_CONVERSATION_KEY, aiConversationId); }
+        window.__AI_LAST_INPUT_MODE = 'text';
+        aiConversationTitle = data.conversationTitle || aiConversationTitle || question.slice(0,24);
+        updateAiConversationStatus(aiConversationTitle);
+        const modeLabel = data.answerMode === 'gemini' ? '<span class="ai-mode-pill">Gemini 답변 · 개인화/상황 인식</span>' : '<span class="ai-mode-pill">검색 기반 답변 · 맥락 저장</span>';
+        await typeAiHtml(pendingBubble, `${data.answerHtml || '관련 답변을 찾지 못했습니다.'}${modeLabel}`, 10);
+        if(pendingRow) delete pendingRow.dataset.pending;
       }catch(error){
-        console.error('AI 검색 실패', error);
-        qs('#aiChatWindow')?.lastElementChild?.remove?.();
-        appendAiMessage('bot', '검색 중 오류가 발생했습니다. Firestore 규칙과 ai_faq / notices / benefits 컬렉션 권한을 확인해 주세요.');
+        console.error('AI Cloud Function 검색 실패', error);
+        if(pendingBubble) pendingBubble.innerHTML = '답변 생성 중 오류가 발생했습니다.<br><small>Cloud Function 배포 상태, GEMINI_API_KEY, 권한을 확인해 주세요.</small>';
+        else appendAiMessage('bot', '답변 생성 중 오류가 발생했습니다.');
       }finally{
-        if(btn) btn.disabled = false;
+        if(btn){ btn.disabled = false; btn.textContent = '질문'; }
       }
     }
 
     function updateView(){enforceShareInsightAccess();if(state.view==='community') setTimeout(()=>loadCommunityPosts(communityState.category||'전체', true), 40);qsa('[id^="view-"]').forEach(v=>v.classList.add('hidden'));(qs(`#view-${state.view}`)||qs('#view-home')).classList.remove('hidden');qsa('.bottom-nav .nav-btn').forEach(btn=>btn.classList.remove('active'));const active=qsa('.bottom-nav .nav-btn').find(btn=>btn.dataset.view===state.view);if(active)active.classList.add('active');qs('#gnbSheet')?.classList.remove('show');qs('#gnbOverlay')?.classList.remove('show');}
-    const renderAll=()=>{createChips();enableHorizontalDragScroll('#chips');enableHorizontalDragScroll('#aiQuickRow');enableHorizontalDragScroll('#communityCategoryFilter');renderStats();renderHome();renderFavorites();renderPopularTop5();renderNotices();updateBenefitMoreButton();updateView();updateGnbActive();updateDistanceFilterHelp();if(state.view==='map') setTimeout(() => renderMapMode(), 60);if(state.view==='community') setTimeout(()=>loadCommunityPosts(communityState.category||'전체', true), 60);if(state.view==='shareinsights' && isAdminRole()) setTimeout(() => renderShareInsights(), 60);setTimeout(() => handleCleanDeepLink(), 80);};
+    const renderAll=()=>{createChips();enableHorizontalDragScroll('#chips');enableHorizontalDragScroll('#aiQuickRow');enableHorizontalDragScroll('#communityCategoryFilter');renderStats();renderHome();renderFavorites();renderPopularTop5();renderNotices();updateView();updateGnbActive();updateDistanceFilterHelp();if(state.view==='map') setTimeout(() => renderMapMode(), 60);if(state.view==='community') setTimeout(()=>loadCommunityPosts(communityState.category||'전체', true), 60);if(state.view==='shareinsights' && isAdminRole()) setTimeout(() => renderShareInsights(), 60);setTimeout(() => handleCleanDeepLink(), 80);};
     qs('#searchInput').addEventListener('input',(e)=>{state.keyword=e.target.value;renderAll();});
     qs('#resetBtn').onclick=()=>{state.category='전체';localStorage.setItem(LAST_CATEGORY_KEY,'전체');state.keyword='';state.filter='all';state.benefitSortMode='default';state.distanceRadius='all';qs('#searchInput').value='';if(qs('#benefitSortSelect'))qs('#benefitSortSelect').value='default';if(qs('#distanceRadiusSelect'))qs('#distanceRadiusSelect').value='all';changeView('benefits');};
     qs('#benefitSortSelect')?.addEventListener('change', async (e)=>{state.benefitSortMode=e.target.value||'default';await ensureBenefitDistances();renderAll();});
@@ -7093,7 +7312,12 @@ function getShareTrackingParams(){
     });
 
 
+    updateAiConversationStatus(aiConversationTitle);
     qs('#aiAskBtn')?.addEventListener('click', () => askAiAssistant());
+    qs('#aiNewConversationBtn')?.addEventListener('click', startNewAiConversation);
+    qs('#aiOpenConversationListBtn')?.addEventListener('click', loadAiConversationList);
+    qs('#aiCloseConversationListBtn')?.addEventListener('click', () => qs('#aiConversationPanel')?.classList.remove('show'));
+    qs('#aiClearConversationBtn')?.addEventListener('click', clearCurrentAiConversation);
     qs('#aiQuestionInput')?.addEventListener('keydown', (event) => {
       if(event.key === 'Enter'){
         event.preventDefault();
@@ -7152,7 +7376,6 @@ function getShareTrackingParams(){
     qs('#logoutBtn').onclick=async()=>{const confirmed=await openModalConfirm('로그아웃 하시겠습니까?', qs('#logoutBtn'), '로그아웃', '로그아웃', '취소'); if(!confirmed) return; try{await signOut(auth);redirectToLogin();}catch(error){await openModalAlert('로그아웃 중 오류가 발생했습니다.', qs('#logoutBtn'));}};
 
     bindGlobalLoadingTriggers();
-    qs('#benefitMoreBtn')?.addEventListener('click', () => loadBenefitsPage(false));
 
     (async()=>{
       await initPushSystem();

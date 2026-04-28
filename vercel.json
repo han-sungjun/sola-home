@@ -21,16 +21,20 @@
       "dest": "/phone-verify.html"
     },
     {
-      "src": "/share/([^/]+)/([^/]+)",
-      "dest": "/api/share?type=$1&id=$2"
+      "src": "/share/notice/([^/]+)",
+      "dest": "/app.html?open=notice&id=$1&from=share"
+    },
+    {
+      "src": "/share/benefit/([^/]+)",
+      "dest": "/app.html?open=benefit&id=$1&from=share"
     },
     {
       "src": "/notice/(.*)",
-      "dest": "/app.html"
+      "dest": "/app.html?open=notice&id=$1"
     },
     {
       "src": "/benefit/(.*)",
-      "dest": "/app.html"
+      "dest": "/app.html?open=benefit&id=$1"
     },
     {
       "src": "/(.*\\.(js|css|png|jpg|jpeg|gif|svg|ico|json|webmanifest|txt|map|woff|woff2|ttf))",
