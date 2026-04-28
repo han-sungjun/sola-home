@@ -607,7 +607,7 @@
   <script type="module">
     window.__LOGIN_MODULE_LOADED__ = true;
     import './firebase-config.js?v=20260428-login-fix';
-    import { ENV, API_URL } from './env-config.js?v=20260428-login-fix';
+    import { ENV, API_URL } from './env-config.js';
 
     const envBadge = document.getElementById('envBadge');
     if (envBadge && ENV === 'dev') envBadge.classList.add('show');
@@ -754,7 +754,9 @@
     const LOGIN_FUNCTION_URL = API_URL[ENV].login;
     const PASSWORD_RESET_LOOKUP_URL = API_URL[ENV].getUserForPasswordReset || '';
 
-    document.body.style.opacity = '0';
+    // 카카오톡 인앱 새로고침 시 화면이 잠시 보였다 사라지는 현상 방지
+    // body 전체를 숨기지 않고 pageLoader만 사용합니다.
+    document.body.style.opacity = '1';
 
     const qs = (selector) => document.querySelector(selector);
 
@@ -825,6 +827,12 @@
       }
       loadingCount = 0;
     }
+
+    // iOS/카카오 인앱에서 Auth 초기화가 지연되거나 중단되어도 화면은 반드시 유지합니다.
+    setTimeout(() => {
+      document.body.style.opacity = '1';
+      forceHideLoading();
+    }, 1200);
 
     function replaceWithLoader(url){
       forceHideLoading();
