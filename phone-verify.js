@@ -1,6 +1,3 @@
-import './firebase-config.js';
-import { API_URL } from './env-config.js';
-
 import { getApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
 import {
   getAuth,
@@ -17,6 +14,18 @@ import {
   updateDoc,
   serverTimestamp
 } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
+
+
+const __SOLA_DYNAMIC_IMPORT_VERSION__ = globalThis.__SOLA_DYNAMIC_IMPORT_VERSION__ || (() => {
+  const d = new Date();
+  const pad = (n, len = 2) => String(n).padStart(len, '0');
+  return `${d.getFullYear()}${pad(d.getMonth() + 1)}${pad(d.getDate())}${pad(d.getHours())}${pad(d.getMinutes())}${pad(d.getSeconds())}${pad(d.getMilliseconds(), 3)}`;
+})();
+globalThis.__SOLA_DYNAMIC_IMPORT_VERSION__ = __SOLA_DYNAMIC_IMPORT_VERSION__;
+const __solaNoCache = (url) => `${url}${url.includes('?') ? '&' : '?'}v=${__SOLA_DYNAMIC_IMPORT_VERSION__}`;
+
+await import(__solaNoCache('./firebase-config.js'));
+const { API_URL } = await import(__solaNoCache('./env-config.js'));
 
 const auth = getAuth(getApp());
 const db = getFirestore(getApp());

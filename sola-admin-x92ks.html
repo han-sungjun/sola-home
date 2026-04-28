@@ -1,6 +1,10 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
+  <!-- Dynamic No-Cache: HTML/browser cache bypass -->
+  <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate, max-age=0" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
   <!-- PWA / App Icon -->
   <link rel="manifest" href="/manifest.json" />
   <meta name="theme-color" content="#0F172A" />
@@ -1700,8 +1704,16 @@ body.gnb-open .admin-bottom-nav{
     import { getAuth, onAuthStateChanged, signInWithCustomToken, signOut, setPersistence, browserLocalPersistence } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
     import { getFirestore, collection, addDoc, updateDoc, deleteDoc, doc, getDoc, getDocs, setDoc, serverTimestamp, writeBatch, query, where, orderBy, limit, startAfter, startAt, endAt, terminate, clearIndexedDbPersistence } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
     import { getMessaging, onMessage } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-messaging.js';
-    import { mountIdleTimer } from "./tracking.js";
-    import { ENV, FIREBASE_CONFIG, API_URL } from './env-config.js';
+
+    const __SOLA_DYNAMIC_IMPORT_VERSION__ = globalThis.__SOLA_DYNAMIC_IMPORT_VERSION__ || (() => {
+      const d = new Date();
+      const pad = (n, len = 2) => String(n).padStart(len, '0');
+      return `${d.getFullYear()}${pad(d.getMonth() + 1)}${pad(d.getDate())}${pad(d.getHours())}${pad(d.getMinutes())}${pad(d.getSeconds())}${pad(d.getMilliseconds(), 3)}`;
+    })();
+    globalThis.__SOLA_DYNAMIC_IMPORT_VERSION__ = __SOLA_DYNAMIC_IMPORT_VERSION__;
+    const __solaNoCache = (url) => `${url}${url.includes('?') ? '&' : '?'}v=${__SOLA_DYNAMIC_IMPORT_VERSION__}`;
+    const { mountIdleTimer } = await import(__solaNoCache("./tracking.js"));
+    const { ENV, FIREBASE_CONFIG, API_URL } = await import(__solaNoCache("./env-config.js"));
 
     const envBadge = document.getElementById('envBadge');
     if (envBadge && ENV === 'dev') envBadge.classList.add('show');
@@ -4042,7 +4054,15 @@ const setTextAll = (selector, text) => qsa(selector).forEach(el => el.textConten
 
 
   <script type="module">
-    import { renderAdminStatsUI } from "./tracking.js";
+
+    const __SOLA_DYNAMIC_IMPORT_VERSION__ = globalThis.__SOLA_DYNAMIC_IMPORT_VERSION__ || (() => {
+      const d = new Date();
+      const pad = (n, len = 2) => String(n).padStart(len, '0');
+      return `${d.getFullYear()}${pad(d.getMonth() + 1)}${pad(d.getDate())}${pad(d.getHours())}${pad(d.getMinutes())}${pad(d.getSeconds())}${pad(d.getMilliseconds(), 3)}`;
+    })();
+    globalThis.__SOLA_DYNAMIC_IMPORT_VERSION__ = __SOLA_DYNAMIC_IMPORT_VERSION__;
+    const __solaNoCache = (url) => `${url}${url.includes('?') ? '&' : '?'}v=${__SOLA_DYNAMIC_IMPORT_VERSION__}`;
+    const { renderAdminStatsUI } = await import(__solaNoCache("./tracking.js"));
 
     async function refreshAdminStatsUI(){
       await renderAdminStatsUI({
@@ -4056,7 +4076,17 @@ const setTextAll = (selector, text) => qsa(selector).forEach(el => el.textConten
     window.refreshAdminStatsUIOnce = refreshAdminStatsUI;
   </script>
 
-  <script type="module">import { saveVisit } from "./tracking.js"; saveVisit("admin_page");</script>
+  <script type="module">
+  const __SOLA_DYNAMIC_IMPORT_VERSION__ = globalThis.__SOLA_DYNAMIC_IMPORT_VERSION__ || (() => {
+    const d = new Date();
+    const pad = (n, len = 2) => String(n).padStart(len, '0');
+    return `${d.getFullYear()}${pad(d.getMonth() + 1)}${pad(d.getDate())}${pad(d.getHours())}${pad(d.getMinutes())}${pad(d.getSeconds())}${pad(d.getMilliseconds(), 3)}`;
+  })();
+  globalThis.__SOLA_DYNAMIC_IMPORT_VERSION__ = __SOLA_DYNAMIC_IMPORT_VERSION__;
+  const __solaNoCache = (url) => `${url}${url.includes('?') ? '&' : '?'}v=${__SOLA_DYNAMIC_IMPORT_VERSION__}`;
+  const { saveVisit } = await import(__solaNoCache("./tracking.js"));
+  saveVisit("admin_page");
+</script>
 
 
 <script type="module">

@@ -1,6 +1,10 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
+  <!-- Dynamic No-Cache: HTML/browser cache bypass -->
+  <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate, max-age=0" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
   <!-- PWA / App Icon -->
   <link rel="manifest" href="/manifest.json" />
   <meta name="theme-color" content="#0F172A" />
@@ -608,14 +612,22 @@
   </div>
 
   <script type="module">
-    import { ENV } from './env-config.js';
+
+    const __SOLA_DYNAMIC_IMPORT_VERSION__ = globalThis.__SOLA_DYNAMIC_IMPORT_VERSION__ || (() => {
+      const d = new Date();
+      const pad = (n, len = 2) => String(n).padStart(len, '0');
+      return `${d.getFullYear()}${pad(d.getMonth() + 1)}${pad(d.getDate())}${pad(d.getHours())}${pad(d.getMinutes())}${pad(d.getSeconds())}${pad(d.getMilliseconds(), 3)}`;
+    })();
+    globalThis.__SOLA_DYNAMIC_IMPORT_VERSION__ = __SOLA_DYNAMIC_IMPORT_VERSION__;
+    const __solaNoCache = (url) => `${url}${url.includes('?') ? '&' : '?'}v=${__SOLA_DYNAMIC_IMPORT_VERSION__}`;
+    const { ENV } = await import(__solaNoCache('./env-config.js'));
 
     const envBadgeEl = document.getElementById('envBadge');
     if (envBadgeEl && ENV === 'dev') {
       envBadgeEl.classList.add('show');
     }
 
-    await import('./phone-verify.js');
+    await import(__solaNoCache('./phone-verify.js'));
   </script>
 
   <!-- Add to Home + First Launch UX -->

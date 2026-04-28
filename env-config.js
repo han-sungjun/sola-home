@@ -91,12 +91,15 @@ export const CURRENT_API = API_URL[ENV];
 export const CURRENT_ROUTE = ROUTE_URL[ENV];
 export const CURRENT_APP_ORIGIN = APP_ORIGIN[ENV];
 
-console.log("[env-config] loaded", {
-  host,
-  origin,
-  env: ENV,
-  isDevHost,
-  isProdHost,
-  firebaseProjectId: FIREBASE_CONFIG[ENV]?.projectId,
-  api: API_URL[ENV]
-});
+if (!globalThis.__SOLA_ENV_CONFIG_LOGGED__) {
+  globalThis.__SOLA_ENV_CONFIG_LOGGED__ = true;
+  console.log("[env-config] loaded", {
+    host,
+    origin,
+    env: ENV,
+    isDevHost,
+    isProdHost,
+    firebaseProjectId: FIREBASE_CONFIG[ENV]?.projectId,
+    api: API_URL[ENV]
+  });
+}

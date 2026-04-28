@@ -1,6 +1,10 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
+  <!-- Dynamic No-Cache: HTML/browser cache bypass -->
+  <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate, max-age=0" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <meta name="theme-color" content="#0f172a" />
@@ -64,15 +68,23 @@
         <label class="agree"><input id="agree" type="checkbox" required /><span>입주민 전용 혜택 제공을 위한 최소 계정 생성에 동의합니다.</span></label>
         <div class="sub-actions signup-action-row">
           <button class="btn" id="submitBtn" type="submit">간단 입장 신청</button>
-          <button class="btn btn-soft" type="button" onclick="location.href='/'">로그인으로</button>
+          <button class="btn btn-soft" type="button" onclick="location.replace('/')">로그인으로</button>
         </div>
       </form>
       <div class="status" id="statusBox"></div>
     </section>
   </main>
 <script type="module">
-  import './firebase-config.js';
-  import { ENV, CURRENT_API, CURRENT_ROUTE } from './env-config.js';
+
+  const __SOLA_DYNAMIC_IMPORT_VERSION__ = globalThis.__SOLA_DYNAMIC_IMPORT_VERSION__ || (() => {
+    const d = new Date();
+    const pad = (n, len = 2) => String(n).padStart(len, '0');
+    return `${d.getFullYear()}${pad(d.getMonth() + 1)}${pad(d.getDate())}${pad(d.getHours())}${pad(d.getMinutes())}${pad(d.getSeconds())}${pad(d.getMilliseconds(), 3)}`;
+  })();
+  globalThis.__SOLA_DYNAMIC_IMPORT_VERSION__ = __SOLA_DYNAMIC_IMPORT_VERSION__;
+  const __solaNoCache = (url) => `${url}${url.includes('?') ? '&' : '?'}v=${__SOLA_DYNAMIC_IMPORT_VERSION__}`;
+  await import(__solaNoCache('./firebase-config.js'));
+  const { ENV, CURRENT_API, CURRENT_ROUTE } = await import(__solaNoCache('./env-config.js'));
   import { getApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
   import { getMessaging, onMessage } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-messaging.js';
 
