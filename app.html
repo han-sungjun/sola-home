@@ -1,6 +1,10 @@
 <!DOCTYPE html>
 <!-- saved from url=(0025)https://www.sola-home.kr/ -->
-<html lang="ko"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<html lang="ko"><head>
+  <!-- Dynamic No-Cache: HTML/browser cache bypass -->
+  <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate, max-age=0" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" /><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
   
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#0f172a">
@@ -2398,7 +2402,90 @@ body.env-prod #view-ai{
   display:none!important;
 }
 
-  </style>
+  
+
+/* ===== 혜택 상단 고정 영역 높이 축소: 검색/카테고리/정렬·반경 1줄 고정 ===== */
+.filter-sticky{
+  gap:8px !important;
+  padding:8px 0 10px !important;
+  margin-bottom:6px !important;
+}
+.filter-sticky .panel.searchbox{
+  padding:10px 12px !important;
+  border-radius:20px !important;
+}
+.searchbox{
+  gap:8px !important;
+}
+.searchbox input{
+  min-height:28px;
+  font-size:14px;
+}
+.searchbox .icon-btn,
+.filter-sticky .icon-btn{
+  width:34px !important;
+  height:34px !important;
+  border-radius:13px !important;
+  flex:0 0 34px;
+  box-shadow:0 8px 18px rgba(15,23,42,.07) !important;
+}
+.chips{
+  gap:8px !important;
+  padding:3px 2px 2px !important;
+}
+.chip{
+  min-height:32px !important;
+  padding:7px 11px !important;
+  font-size:13px !important;
+  border-radius:999px !important;
+}
+.chip-icon{
+  font-size:12px !important;
+}
+.distance-filter-panel{
+  gap:8px !important;
+  padding:10px !important;
+  border-radius:18px !important;
+  box-shadow:0 8px 18px rgba(15,23,42,.05) !important;
+}
+.distance-filter-row{
+  grid-template-columns:minmax(0,1fr) minmax(0,1fr) !important;
+  gap:8px !important;
+}
+.distance-select-wrap{
+  gap:4px !important;
+  min-width:0 !important;
+}
+.distance-select-wrap label{
+  font-size:11px !important;
+  line-height:1.2 !important;
+}
+.distance-select-wrap select{
+  min-width:0 !important;
+  min-height:36px !important;
+  height:36px !important;
+  border-radius:12px !important;
+  padding:0 8px !important;
+  font-size:12px !important;
+  line-height:1.2 !important;
+}
+.distance-filter-help{
+  padding:7px 9px !important;
+  border-radius:13px !important;
+  font-size:11.5px !important;
+  line-height:1.35 !important;
+  word-break:keep-all;
+}
+@media (max-width:370px){
+  .distance-filter-row{
+    grid-template-columns:minmax(0,1fr) minmax(0,1fr) !important;
+  }
+  .distance-select-wrap select{
+    font-size:11.5px !important;
+    padding:0 6px !important;
+  }
+}
+</style>
 </head>
 <body>
   <div class="global-loading" id="globalLoadingBar" aria-hidden="true">
@@ -2475,7 +2562,7 @@ body.env-prod #view-ai{
         <div class="helper">매장명, 카테고리, 조건으로 원하는 혜택을 빠르게 찾을 수 있습니다. 카테고리를 눌러 바로 필터링해 보세요. 즐겨찾기는 현재 계정 기준으로 저장됩니다.</div>
       </div>
       <div class="filter-sticky"><div class="panel searchbox"><span>🔍</span><input id="searchInput" type="text" placeholder="매장명, 카테고리, 조건 검색"><button class="icon-btn" id="resetBtn" title="초기화">↺</button></div>
-      <div class="chips" id="chips"></div><div class="chips-toggle"><button id="chipsToggle" class="chip chips-toggle-btn hidden" type="button">더보기 ▾</button></div><div class="distance-filter-panel"><div class="distance-filter-row"><div class="distance-select-wrap"><label for="benefitSortSelect">정렬</label><select id="benefitSortSelect"><option value="default">추천/할인순</option><option value="latest">최신 순</option><option value="top">TOP 5 순</option><option value="distance">가까운 순</option></select></div><div class="distance-select-wrap"><label for="distanceRadiusSelect">반경</label><select id="distanceRadiusSelect"><option value="all">전체</option><option value="500">500m 이내</option><option value="1000">1km 이내</option><option value="3000">3km 이내</option></select></div></div><div class="distance-filter-help" id="distanceFilterHelp">가까운 순 또는 반경 필터를 사용하면 현재 위치 기준으로 혜택을 정렬합니다.</div></div></div>
+      <div class="chips" id="chips"></div><div class="chips-toggle"><button id="chipsToggle" class="chip chips-toggle-btn hidden" type="button">더보기 ▾</button></div><div class="distance-filter-panel"><div class="distance-filter-row"><div class="distance-select-wrap"><label for="benefitSortSelect">정렬</label><select id="benefitSortSelect"><option value="default">추천/할인순</option><option value="latest">최신 순</option><option value="top">TOP 5 순</option><option value="distance">가까운 순</option></select></div><div class="distance-select-wrap"><label for="distanceRadiusSelect">반경</label><select id="distanceRadiusSelect"><option value="all">전체</option><option value="500">500m 이내</option><option value="1000">1km 이내</option><option value="3000">3km 이내</option></select></div></div><div class="distance-filter-help" id="distanceFilterHelp">가까운순·반경은 현재 위치 기준입니다.</div></div></div>
       <div class="section-head"><h3 id="sectionTitle">전체 혜택</h3><small id="resultCount">0건</small></div>
       <div class="loading hidden" id="homeLoading">데이터를 불러오는 중입니다...</div>
       <div class="list" id="cardList"><div class="panel empty">조건에 맞는 항목이 없습니다.</div></div>
@@ -2623,7 +2710,15 @@ body.env-prod #view-ai{
   <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.1/build/qrcode.min.js"></script>
   <script type="module">
     import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
-    import { ENV, FIREBASE_CONFIG } from '/env-config.js';
+
+    const __SOLA_DYNAMIC_IMPORT_VERSION__ = globalThis.__SOLA_DYNAMIC_IMPORT_VERSION__ || (() => {
+      const d = new Date();
+      const pad = (n, len = 2) => String(n).padStart(len, '0');
+      return `${d.getFullYear()}${pad(d.getMonth() + 1)}${pad(d.getDate())}${pad(d.getHours())}${pad(d.getMinutes())}${pad(d.getSeconds())}${pad(d.getMilliseconds(), 3)}`;
+    })();
+    globalThis.__SOLA_DYNAMIC_IMPORT_VERSION__ = __SOLA_DYNAMIC_IMPORT_VERSION__;
+    const __solaNoCache = (url) => `${url}${url.includes('?') ? '&' : '?'}v=${__SOLA_DYNAMIC_IMPORT_VERSION__}`;
+    const { ENV, FIREBASE_CONFIG } = await import(__solaNoCache('/env-config.js'));
 
     const envBadge = document.getElementById('envBadge');
     document.body.classList.add(ENV === 'dev' ? 'env-dev' : 'env-prod');
@@ -2914,7 +3009,7 @@ body.env-prod #view-ai{
           return false;
         }
 
-        const registration = await navigator.serviceWorker.register('/firebase-messaging-sw.js');
+        const registration = await navigator.serviceWorker.register(`/firebase-messaging-sw.js?v=${globalThis.__SOLA_DYNAMIC_IMPORT_VERSION__ || Date.now()}`);
         await registration.update().catch(() => {});
         window.pushSwRegistration = registration;
 
@@ -4349,7 +4444,7 @@ async function refreshPushStatus(){
       if(!help) return;
       help.classList.remove('active','error');
       if(!shouldUseDistanceFilter()){
-        help.textContent = '가까운 순 또는 반경 필터를 사용하면 현재 위치 기준으로 혜택을 정렬합니다.';
+        help.textContent = '가까운순·반경은 현재 위치 기준입니다.';
         return;
       }
       if(state.distanceStatus === 'ready'){
@@ -7658,10 +7753,28 @@ function getShareTrackingParams(){
     </div>
   </div>
 
-<script type="module">import { saveVisit } from "/tracking.js"; saveVisit("app_main");</script>
+<script type="module">
+  const __SOLA_DYNAMIC_IMPORT_VERSION__ = globalThis.__SOLA_DYNAMIC_IMPORT_VERSION__ || (() => {
+    const d = new Date();
+    const pad = (n, len = 2) => String(n).padStart(len, '0');
+    return `${d.getFullYear()}${pad(d.getMonth() + 1)}${pad(d.getDate())}${pad(d.getHours())}${pad(d.getMinutes())}${pad(d.getSeconds())}${pad(d.getMilliseconds(), 3)}`;
+  })();
+  globalThis.__SOLA_DYNAMIC_IMPORT_VERSION__ = __SOLA_DYNAMIC_IMPORT_VERSION__;
+  const __solaNoCache = (url) => `${url}${url.includes('?') ? '&' : '?'}v=${__SOLA_DYNAMIC_IMPORT_VERSION__}`;
+  const { saveVisit } = await import(__solaNoCache("/tracking.js"));
+  saveVisit("app_main");
+</script>
 
 <script type="module">
-  import { saveActivity } from '/tracking.js';
+
+  const __SOLA_DYNAMIC_IMPORT_VERSION__ = globalThis.__SOLA_DYNAMIC_IMPORT_VERSION__ || (() => {
+    const d = new Date();
+    const pad = (n, len = 2) => String(n).padStart(len, '0');
+    return `${d.getFullYear()}${pad(d.getMonth() + 1)}${pad(d.getDate())}${pad(d.getHours())}${pad(d.getMinutes())}${pad(d.getSeconds())}${pad(d.getMilliseconds(), 3)}`;
+  })();
+  globalThis.__SOLA_DYNAMIC_IMPORT_VERSION__ = __SOLA_DYNAMIC_IMPORT_VERSION__;
+  const __solaNoCache = (url) => `${url}${url.includes('?') ? '&' : '?'}v=${__SOLA_DYNAMIC_IMPORT_VERSION__}`;
+  const { saveActivity } = await import(__solaNoCache('/tracking.js'));
 
   function detectView(target) {
     return target?.dataset?.viewLink
@@ -7693,7 +7806,15 @@ function getShareTrackingParams(){
 </script>
 
 <script type="module">
-  import { mountIdleTimer } from "/tracking.js";
+
+  const __SOLA_DYNAMIC_IMPORT_VERSION__ = globalThis.__SOLA_DYNAMIC_IMPORT_VERSION__ || (() => {
+    const d = new Date();
+    const pad = (n, len = 2) => String(n).padStart(len, '0');
+    return `${d.getFullYear()}${pad(d.getMonth() + 1)}${pad(d.getDate())}${pad(d.getHours())}${pad(d.getMinutes())}${pad(d.getSeconds())}${pad(d.getMilliseconds(), 3)}`;
+  })();
+  globalThis.__SOLA_DYNAMIC_IMPORT_VERSION__ = __SOLA_DYNAMIC_IMPORT_VERSION__;
+  const __solaNoCache = (url) => `${url}${url.includes('?') ? '&' : '?'}v=${__SOLA_DYNAMIC_IMPORT_VERSION__}`;
+  const { mountIdleTimer } = await import(__solaNoCache("/tracking.js"));
 
   window.addEventListener("load", () => {
     mountIdleTimer({
