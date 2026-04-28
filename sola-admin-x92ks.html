@@ -1012,9 +1012,305 @@ body.gnb-open .admin-bottom-nav{
 .community-report-top-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:4px;}
 
 /* ===== Admin Community v1 ===== */
-.admin-bottom-nav{grid-template-columns:repeat(5,minmax(0,1fr))!important}.admin-nav-btn .nav-label{font-size:11px!important}.community-admin-toolbar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}.community-admin-card{display:grid;gap:8px}.community-admin-card h4{margin:0;font-size:16px}.community-admin-card p{margin:0;color:#475569;line-height:1.55;font-size:13px}.community-admin-meta{display:flex;gap:8px;flex-wrap:wrap;color:#64748b;font-size:12px}.community-admin-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}.admin-tag-danger{background:#fff1f2!important;border-color:#fecdd3!important;color:#be123c!important}.admin-tag-warn{background:#fffbeb!important;border-color:#fde68a!important;color:#b45309!important}
+.admin-bottom-nav{grid-template-columns:repeat(6,minmax(0,1fr))!important}.admin-nav-btn .nav-label{font-size:11px!important}.community-admin-toolbar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}.community-admin-card{display:grid;gap:8px}.community-admin-card h4{margin:0;font-size:16px}.community-admin-card p{margin:0;color:#475569;line-height:1.55;font-size:13px}.community-admin-meta{display:flex;gap:8px;flex-wrap:wrap;color:#64748b;font-size:12px}.community-admin-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}.admin-tag-danger{background:#fff1f2!important;border-color:#fecdd3!important;color:#be123c!important}.admin-tag-warn{background:#fffbeb!important;border-color:#fde68a!important;color:#b45309!important}
 
-  </style>
+  
+/* ===== AI 생활 도우미 관리자 ===== */
+.ai-admin-hero{
+  position:relative;
+  overflow:hidden;
+  border-radius:28px;
+  padding:18px;
+  color:#fff;
+  background:
+    radial-gradient(circle at 84% 18%,rgba(255,255,255,.28),transparent 34%),
+    linear-gradient(135deg,#111827 0%,#312e81 48%,#7c3aed 100%);
+  box-shadow:0 20px 42px rgba(49,46,129,.18);
+}
+.ai-admin-hero::after{
+  content:"🤖";
+  position:absolute;
+  right:18px;
+  bottom:-10px;
+  font-size:78px;
+  opacity:.18;
+  filter:blur(.2px);
+}
+.ai-admin-hero small{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  padding:7px 11px;
+  border-radius:999px;
+  background:rgba(255,255,255,.14);
+  font-size:12px;
+  font-weight:900;
+}
+.ai-admin-hero h3{
+  position:relative;
+  z-index:1;
+  margin:14px 0 8px;
+  font-size:22px;
+  letter-spacing:-.05em;
+}
+.ai-admin-hero p{
+  position:relative;
+  z-index:1;
+  margin:0;
+  max-width:380px;
+  color:rgba(255,255,255,.86);
+  line-height:1.65;
+  font-size:13px;
+}
+.ai-manager-tabs{
+  display:flex;
+  gap:8px;
+  overflow-x:auto;
+  padding:2px 2px 8px;
+  margin-top:14px;
+  scrollbar-width:none;
+  cursor:grab;
+  -webkit-overflow-scrolling:touch;
+}
+.ai-manager-tabs::-webkit-scrollbar{display:none}
+.ai-manager-tabs.dragging{cursor:grabbing}
+.ai-manager-tab{
+  border:none;
+  border-radius:999px;
+  padding:10px 13px;
+  background:#fff;
+  border:1px solid #e2e8f0;
+  color:#475569;
+  font-size:12px;
+  font-weight:900;
+  white-space:nowrap;
+  cursor:pointer;
+  transition:transform .16s ease, background-color .16s ease, color .16s ease, box-shadow .16s ease;
+}
+.ai-manager-tab:hover{transform:translateY(-1px);box-shadow:0 10px 20px rgba(15,23,42,.07)}
+.ai-manager-tab.active{
+  background:#0f172a;
+  color:#fff;
+  border-color:#0f172a;
+}
+
+
+/* ===== AI 로그 검색/페이징 ===== */
+.ai-log-toolbar{
+  display:grid;
+  gap:10px;
+  margin:12px 0 14px;
+}
+.ai-log-search-row{
+  display:grid;
+  grid-template-columns:1fr auto auto;
+  gap:8px;
+  align-items:center;
+}
+.ai-log-search-row input,
+.ai-log-search-row select{
+  min-height:44px;
+  border:1px solid var(--line);
+  border-radius:16px;
+  background:#fff;
+  color:#0f172a;
+  font-size:13px;
+  font-weight:700;
+  padding:0 12px;
+  outline:none;
+}
+.ai-log-search-row input:focus,
+.ai-log-search-row select:focus{
+  border-color:#93c5fd;
+  box-shadow:0 0 0 4px rgba(59,130,246,.12);
+}
+.ai-log-pagebar{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  flex-wrap:wrap;
+  padding:10px 12px;
+  border-radius:18px;
+  background:#f8fafc;
+  border:1px solid #e2e8f0;
+}
+.ai-log-pagebar small{
+  color:#64748b;
+  font-size:12px;
+  font-weight:800;
+  line-height:1.45;
+}
+.ai-log-page-actions{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+}
+.ai-log-page-actions .btn{
+  padding:9px 12px;
+  border-radius:14px;
+  font-size:12px;
+}
+.ai-log-page-actions .btn[disabled]{
+  opacity:.45;
+  cursor:not-allowed;
+}
+.ai-log-hint{
+  color:#94a3b8;
+  font-size:11px;
+  font-weight:700;
+  line-height:1.55;
+}
+@media(max-width:460px){
+  .ai-log-search-row{grid-template-columns:1fr;}
+  .ai-log-search-row .btn{width:100%;}
+}
+.ai-admin-summary{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:10px;
+}
+.ai-admin-metric{
+  padding:14px;
+  border-radius:20px;
+  background:#fff;
+  border:1px solid #e2e8f0;
+  box-shadow:0 12px 24px rgba(15,23,42,.05);
+}
+.ai-admin-metric strong{display:block;font-size:20px;letter-spacing:-.04em}
+.ai-admin-metric span{display:block;margin-top:4px;font-size:11px;color:#64748b;font-weight:800}
+.ai-admin-content{
+  animation:aiAdminFade .22s ease both;
+}
+@keyframes aiAdminFade{
+  from{opacity:0;transform:translateY(7px)}
+  to{opacity:1;transform:translateY(0)}
+}
+.ai-admin-form{
+  display:grid;
+  gap:12px;
+}
+.ai-admin-toolbar{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:10px;
+  margin-bottom:12px;
+}
+.ai-admin-toolbar .btn{
+  min-height:42px;
+}
+.ai-admin-list{
+  display:grid;
+  gap:10px;
+}
+.ai-admin-item{
+  position:relative;
+  overflow:hidden;
+  background:#fff;
+  border:1px solid #e2e8f0;
+  border-radius:20px;
+  padding:14px;
+  box-shadow:0 12px 24px rgba(15,23,42,.05);
+  animation:aiAdminFade .2s ease both;
+}
+.ai-admin-item::before{
+  content:"";
+  position:absolute;
+  top:0;left:0;right:0;
+  height:3px;
+  background:linear-gradient(90deg,#6366f1,#8b5cf6,#ec4899);
+}
+.ai-admin-item h5{
+  margin:0 0 8px;
+  font-size:15px;
+  letter-spacing:-.03em;
+}
+.ai-admin-item p{
+  margin:0;
+  color:#475569;
+  font-size:13px;
+  line-height:1.6;
+  white-space:pre-line;
+}
+.ai-admin-item-actions{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+  margin-top:12px;
+}
+.ai-admin-item-actions .btn{
+  padding:8px 11px;
+  border-radius:13px;
+  font-size:12px;
+}
+.ai-code-pill{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  max-width:100%;
+  padding:6px 9px;
+  border-radius:999px;
+  background:#f8fafc;
+  border:1px solid #e2e8f0;
+  color:#64748b;
+  font-size:11px;
+  font-weight:900;
+  margin:0 6px 6px 0;
+  word-break:break-word;
+}
+.ai-log-question{
+  padding:10px 12px;
+  border-radius:16px;
+  background:#f8fafc;
+  border:1px solid #e2e8f0;
+  color:#0f172a;
+  font-size:13px;
+  font-weight:800;
+  line-height:1.55;
+}
+.ai-log-answer{
+  margin-top:8px;
+  padding:10px 12px;
+  border-radius:16px;
+  background:#f5f3ff;
+  border:1px solid #ddd6fe;
+  color:#4c1d95;
+  font-size:12px;
+  line-height:1.6;
+  white-space:pre-line;
+}
+.ai-empty{
+  padding:18px;
+  border-radius:20px;
+  background:#f8fafc;
+  border:1px dashed #cbd5e1;
+  color:#64748b;
+  font-size:13px;
+  line-height:1.6;
+  text-align:center;
+}
+.gnb-chip.gnb-tone-ai,
+.gnb-menu-item.gnb-tone-ai,
+.gnb-menu-subitem.gnb-tone-ai{
+  --card-bg1:#f5f3ff;
+  --card-bg2:#ffffff;
+  --card-ring:rgba(124,58,237,.12);
+  --card-shadow:rgba(124,58,237,.12);
+  --card-arrow:#8b5cf6;
+  --tone-bar:linear-gradient(90deg,#7c3aed,#c084fc);
+}
+.gnb-card-icon.ai,
+.admin-all-card.ai .admin-all-card-icon{
+  background:linear-gradient(135deg,#ddd6fe 0%,#fae8ff 100%);
+}
+.admin-all-card.ai{--all-tone:linear-gradient(90deg,#7c3aed,#c084fc)}
+@media (max-width:420px){
+  .ai-admin-summary{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .ai-admin-toolbar{align-items:flex-start;flex-direction:column}
+}
+
+</style>
 
   <!-- Add to Home + First Launch UX -->
   <style id="myhills-install-ux-style">
@@ -1224,6 +1520,7 @@ body.gnb-open .admin-bottom-nav{
             <button class="btn btn-soft" type="button" data-admin-view="members">회원 관리</button>
             <button class="btn btn-soft" type="button" data-admin-view="community">커뮤니티 관리</button>
             <button class="btn btn-soft" type="button" data-admin-view="dashboard-data">데이터 관리</button>
+            <button class="btn btn-soft" type="button" data-admin-view="ai">AI 생활 도우미</button>
           </div>
         </div>
         <div class="admin-card">
@@ -1335,6 +1632,38 @@ body.gnb-open .admin-bottom-nav{
       </div>
     </div>
 
+
+    <div class="admin-view" id="view-ai">
+      <div class="admin-groups">
+        <div class="ai-admin-hero">
+          <small>AI CONTROL CENTER</small>
+          <h3>AI 생활 도우미 관리</h3>
+          <p>FAQ, 전자책, 앱 사용 가이드, 질문 로그와 대화 기록을 한 곳에서 관리합니다.</p>
+        </div>
+
+        <div class="admin-card">
+          <div class="ai-admin-summary">
+            <div class="ai-admin-metric"><strong id="aiMetricFaq">0</strong><span>FAQ</span></div>
+            <div class="ai-admin-metric"><strong id="aiMetricBooklet">0</strong><span>전자책</span></div>
+            <div class="ai-admin-metric"><strong id="aiMetricGuide">0</strong><span>가이드</span></div>
+            <div class="ai-admin-metric"><strong id="aiMetricLogs">0</strong><span>최근 질문</span></div>
+          </div>
+          <div class="ai-manager-tabs" id="aiManagerTabs" aria-label="AI 관리 탭">
+            <button class="ai-manager-tab active" type="button" data-ai-tab="faq">FAQ</button>
+            <button class="ai-manager-tab" type="button" data-ai-tab="booklet">전자책</button>
+            <button class="ai-manager-tab" type="button" data-ai-tab="guide">가이드</button>
+            <button class="ai-manager-tab" type="button" data-ai-tab="settings">설정</button>
+            <button class="ai-manager-tab" type="button" data-ai-tab="logs">질문 로그</button>
+            <button class="ai-manager-tab" type="button" data-ai-tab="conversations">대화 기록</button>
+          </div>
+        </div>
+
+        <div class="admin-card ai-admin-content" id="aiAdminContent">
+          <div class="ai-empty">관리자 로그인 후 AI 관리 데이터를 불러옵니다.</div>
+        </div>
+      </div>
+    </div>
+
     <div class="admin-view" id="view-all">
       <div class="admin-groups">
         <div class="admin-card">
@@ -1348,6 +1677,7 @@ body.gnb-open .admin-bottom-nav{
           <button class="admin-all-card members" type="button" data-admin-view="members"><span class="admin-all-card-icon">👥</span><strong>회원 관리</strong><span>이용 중인 회원과 탈퇴 상태를 확인합니다.</span></button>
           <button class="admin-all-card community" type="button" data-admin-view="community"><span class="admin-all-card-icon">💬</span><strong>커뮤니티 관리</strong><span>게시글, 댓글, 신고, 숨김 처리를 관리합니다.</span></button>
           <button class="admin-all-card data" type="button" data-admin-view="dashboard-data"><span class="admin-all-card-icon">🗂️</span><strong>데이터 관리</strong><span>JSON 내보내기와 기본 데이터 업로드를 실행합니다.</span></button>
+          <button class="admin-all-card ai" type="button" data-admin-view="ai"><span class="admin-all-card-icon">🤖</span><strong>AI 생활 도우미</strong><span>FAQ, 전자책, 가이드, 질문 로그를 관리합니다.</span></button>
           <button class="admin-all-card resident" type="button" onclick="location.href='/'"><span class="admin-all-card-icon">🏠</span><strong>입주민 앱</strong><span>공개 앱 화면으로 이동합니다.</span></button>
         </div>
       </div>
@@ -1361,13 +1691,14 @@ body.gnb-open .admin-bottom-nav{
     <button class="admin-nav-btn" data-admin-view="benefits"><span class="nav-icon">🎁</span><span class="nav-label">혜택</span></button>
     <button class="admin-nav-btn" data-admin-view="notices"><span class="nav-icon">📢</span><span class="nav-label">공지</span></button>
     <button class="admin-nav-btn" data-admin-view="members"><span class="nav-icon">👥</span><span class="nav-label">회원</span></button>
+    <button class="admin-nav-btn" data-admin-view="ai"><span class="nav-icon">🤖</span><span class="nav-label">AI</span></button>
     <button class="admin-nav-btn" data-admin-view="all"><span class="nav-icon">▦</span><span class="nav-label">전체</span></button>
   </nav>
 
   <script type="module">
     import { initializeApp, getApps, getApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
     import { getAuth, onAuthStateChanged, signInWithCustomToken, signOut, setPersistence, browserLocalPersistence } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
-    import { getFirestore, collection, addDoc, updateDoc, deleteDoc, doc, getDoc, getDocs, serverTimestamp, writeBatch, query, where, orderBy, limit } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
+    import { getFirestore, collection, addDoc, updateDoc, deleteDoc, doc, getDoc, getDocs, setDoc, serverTimestamp, writeBatch, query, where, orderBy, limit, startAfter, startAt, endAt, terminate, clearIndexedDbPersistence } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
     import { getMessaging, onMessage } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-messaging.js';
     import { mountIdleTimer } from "./tracking.js";
     import { ENV, FIREBASE_CONFIG, API_URL } from './env-config.js';
@@ -1381,7 +1712,104 @@ body.gnb-open .admin-bottom-nav{
     // 예: https://geocodeaddress-l6mntiaxgq-du.a.run.app
     const GEOCODE_FUNCTION_URL = (API_URL?.[ENV]?.geocodeAddress || '').trim();
     const DEFAULT_BENEFITS=[{name:'엘스킨케어',category:'피부관리',discountValue:50,discountText:'50%',condition:'첫방문 50% / 입주민 정액권 최대 30%',address:'경기 파주시 경의로 1242 209호, 210호',phone:'0507-1433-5760',url:'',visible:true,recommended:true,service:false},{name:'미스터피자 일산탄현점',category:'음식',discountValue:30,discountText:'30%',condition:'포장 30% / 매장식사 20% + 샐러드 증정',address:'경기 고양시 일산서구 탄현로 136 상가동 2층 204호',phone:'031-911-9296',url:'',visible:true,recommended:true,service:false}];
-    const state={benefits:[],benefitStats:{},notices:[],pushJobs:[],members:[],isAdmin:false,view:'dashboard',adminProfile:null}; let benefitSortMode='latest'; const qs=(s)=>document.querySelector(s), qsa=(s)=>[...document.querySelectorAll(s)];
+    const state={benefits:[],benefitStats:{},notices:[],pushJobs:[],members:[],isAdmin:false,view:'dashboard',adminProfile:null}; let benefitSortMode='latest'; let adminDataSubscribed=false; let adminAuthReady=false; const qs=(s)=>document.querySelector(s), qsa=(s)=>[...document.querySelectorAll(s)];
+
+    function canReadAdminData(){
+      return !!(auth?.currentUser && state.isAdmin && db);
+    }
+
+    function requireAdminDataAccess(renderLocked=true){
+      if(canReadAdminData()) return true;
+      if(renderLocked) setAdminDashboardLocked(true);
+      return false;
+    }
+
+    function closeAdminModals(){
+      document.querySelectorAll('dialog[open]').forEach((dialog)=>{
+        try{ dialog.close(); }catch(_){ dialog.removeAttribute('open'); }
+      });
+      document.querySelectorAll('.app-alert.show,.gnb-overlay.show,.gnb-sheet.show').forEach((el)=>el.classList.remove('show'));
+      document.body.classList.remove('gnb-open');
+    }
+
+    function resetAdminRuntimeState(){
+      state.benefits=[];
+      state.benefitStats={};
+      state.notices=[];
+      state.pushJobs=[];
+      state.members=[];
+      state.isAdmin=false;
+      state.adminProfile=null;
+      state.view='dashboard';
+      adminDataSubscribed=false;
+      benefitSortMode='latest';
+    }
+
+    function resetAdminSensitiveUI(){
+      closeAdminModals();
+      resetAdminRuntimeState();
+      localStorage.removeItem('loginUser');
+      sessionStorage.removeItem('loginUser');
+
+      const setText=(selector,text)=>{ const el=qs(selector); if(el) el.textContent=text; };
+      const setHtml=(selector,html)=>{ const el=qs(selector); if(el) el.innerHTML=html; };
+
+      setText('#authStatusText','로그인 필요');
+      setText('#adminTopUser','로그인 필요');
+      setText('#adminTopStatus','관리자 로그인 필요');
+      setText('.stat-max','0%');
+      setText('.stat-count','0');
+      setText('.stat-cat','0');
+
+      setHtml('#adminList','<div class="notice">관리자 로그인 후 혜택 목록을 볼 수 있습니다.</div>');
+      setHtml('#dashboardBenefitList','<div class="notice">관리자 로그인 후 혜택 목록을 볼 수 있습니다.</div>');
+      setHtml('#noticeAdminList','<div class="notice">관리자 로그인 후 공지 목록을 볼 수 있습니다.</div>');
+      setHtml('#dashboardNoticeList','<div class="notice">관리자 로그인 후 공지 목록을 볼 수 있습니다.</div>');
+      setHtml('#pushJobList','<div class="notice">관리자 로그인 후 푸시 작업을 볼 수 있습니다.</div>');
+      setHtml('#activeMemberList','<div class="member-empty">관리자 로그인 후 회원 목록을 볼 수 있습니다.</div>');
+      setHtml('#withdrawnMemberList','<div class="member-empty">관리자 로그인 후 탈퇴 회원 목록을 볼 수 있습니다.</div>');
+      setHtml('#adminCommunityList','<div class="member-empty">관리자 로그인 후 커뮤니티 관리 내역을 볼 수 있습니다.</div>');
+      setHtml('#communityReportTopList','<div class="notice">관리자 로그인 후 신고 누적 게시글을 볼 수 있습니다.</div>');
+      setHtml('#aiFaqList','<div class="ai-empty">관리자 로그인 후 AI FAQ를 볼 수 있습니다.</div>');
+      setHtml('#aiBookletList','<div class="ai-empty">관리자 로그인 후 전자책 데이터를 볼 수 있습니다.</div>');
+      setHtml('#aiGuideList','<div class="ai-empty">관리자 로그인 후 생활 가이드 데이터를 볼 수 있습니다.</div>');
+      setHtml('#aiLogList','<div class="ai-empty">관리자 로그인 후 AI 질문 로그를 볼 수 있습니다.</div>');
+      setHtml('#aiConversationList','<div class="ai-empty">관리자 로그인 후 대화 로그를 볼 수 있습니다.</div>');
+
+      qsa('.admin-view').forEach(v=>v.classList.remove('active'));
+      qs('#view-dashboard')?.classList.add('active');
+      qsa('[data-admin-view]').forEach(btn=>btn.classList.toggle('active', btn.dataset.adminView==='dashboard'));
+
+      const idleHost=document.getElementById('adminIdleTimerHost');
+      if(idleHost){ idleHost.innerHTML=''; idleHost.classList.add('hidden'); }
+      setAdminDashboardLocked(true);
+    }
+
+    async function clearAdminFirestoreCacheAndReload(){
+      // Firestore 오프라인 캐시가 켜져 있었던 경우를 대비한 완전 정리 루틴입니다.
+      // terminate 후 clearIndexedDbPersistence를 시도하고, 재사용 안전성을 위해 페이지를 새로 로드합니다.
+      try{
+        if(db) await terminate(db);
+      }catch(error){
+        console.warn('Firestore terminate skip', error);
+      }
+      try{
+        if(db) await clearIndexedDbPersistence(db);
+      }catch(error){
+        console.warn('Firestore IndexedDB cache clear skip', error);
+      }
+      location.replace('/admin');
+    }
+
+    async function secureAdminSignOut(){
+      resetAdminSensitiveUI();
+      try{
+        if(auth) await signOut(auth);
+      }catch(error){
+        console.warn('Firebase signOut skip', error);
+      }
+      await clearAdminFirestoreCacheAndReload();
+    }
 
     function escapeHtml(value){
       return String(value ?? '')
@@ -1390,6 +1818,25 @@ body.gnb-open .admin-bottom-nav{
         .replace(/>/g, '&gt;')
         .replace(/"/g, '&quot;')
         .replace(/'/g, '&#39;');
+    }
+
+    function valueToText(value){
+      if(value === null || value === undefined) return '';
+      if(typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean') return String(value);
+      if(Array.isArray(value)) return value.map(valueToText).filter(Boolean).join(', ');
+      if(typeof value === 'object'){
+        const preferred = ['text','content','description','desc','title','name','label','value','amount','condition','benefit','address','answer','question'];
+        const parts = [];
+        preferred.forEach((key) => {
+          if(value[key] !== undefined){
+            const t = valueToText(value[key]);
+            if(t) parts.push(t);
+          }
+        });
+        if(parts.length) return parts.join(' ');
+        return Object.values(value).map(valueToText).filter(Boolean).join(' ');
+      }
+      return String(value);
     }
     const globalLoadingBar = qs('#globalLoadingBar');
     let globalLoadingTimer = null;
@@ -1524,6 +1971,7 @@ const setTextAll = (selector, text) => qsa(selector).forEach(el => el.textConten
       document.body.classList.remove('gnb-open');
       window.scrollTo({ top: 0, behavior: 'auto' });
       if(view === 'community') setTimeout(() => loadAdminCommunityPosts('active'), 80);
+      if(view === 'ai') setTimeout(() => openAIManager(aiAdminState.tab || 'faq'), 80);
     }
     window.changeAdminView = changeAdminView;
 
@@ -1536,11 +1984,14 @@ const setTextAll = (selector, text) => qsa(selector).forEach(el => el.textConten
     const COMMUNITY_REPORTS_COLLECTION = 'community_reports';
     function fmtAdminCommunityDate(value){ try{ const d=value?.toDate?value.toDate():(value?new Date(value):null); return d?d.toLocaleString('ko-KR',{month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'}):''; }catch(_){ return ''; } }
 
-    async function loadCommunityReportTopPosts(){ const list = qs('#communityReportTopList'); const count = qs('#communityReportTopCount'); if(!list || !db) return; list.innerHTML = '<div class="notice">신고 누적 게시글을 불러오는 중입니다.</div>'; try{ const snap = await getDocs(query(collection(db, COMMUNITY_POSTS_COLLECTION), where('reportCount','>=',1), orderBy('reportCount','desc'), limit(5))); if(count) count.textContent = `상위 ${snap.size}건`; if(snap.empty){ list.innerHTML = '<div class="member-empty">신고 누적 게시글이 없습니다.</div>'; return; } list.innerHTML = ''; snap.forEach(d => { const p=d.data(); const el=document.createElement('div'); el.className='community-report-top-item'; el.innerHTML = `<div class="community-report-top-left"><strong>${escapeHtml(p.title || '제목 없음')}</strong><span>${escapeHtml(p.authorNickname || '입주민')} · ${escapeHtml(p.category || '자유')} · ${escapeHtml(p.status || 'active')}</span><div class="community-report-top-actions"><button class="btn btn-danger" type="button" data-top-hide-post="${d.id}">숨김</button><button class="btn btn-soft" type="button" data-top-open-reports="${d.id}">신고 내역</button></div></div><div class="community-report-count">${Number(p.reportCount||0)}</div>`; list.appendChild(el); }); list.querySelectorAll('[data-top-hide-post]').forEach(btn => btn.addEventListener('click', async () => { await setCommunityPostStatus(btn.dataset.topHidePost, 'hidden'); await loadCommunityReportTopPosts(); })); list.querySelectorAll('[data-top-open-reports]').forEach(btn => btn.addEventListener('click', async () => { changeAdminView('community'); await loadAdminCommunityReports(btn.dataset.topOpenReports); })); }catch(error){ console.error(error); list.innerHTML = '<div class="member-empty">신고 누적 게시글을 불러오지 못했습니다. Firestore 인덱스를 확인해주세요.</div>'; } }
+    async function loadCommunityReportTopPosts(){
+      if(!requireAdminDataAccess()) return; const list = qs('#communityReportTopList'); const count = qs('#communityReportTopCount'); if(!list || !db) return; list.innerHTML = '<div class="notice">신고 누적 게시글을 불러오는 중입니다.</div>'; try{ const snap = await getDocs(query(collection(db, COMMUNITY_POSTS_COLLECTION), where('reportCount','>=',1), orderBy('reportCount','desc'), limit(5))); if(count) count.textContent = `상위 ${snap.size}건`; if(snap.empty){ list.innerHTML = '<div class="member-empty">신고 누적 게시글이 없습니다.</div>'; return; } list.innerHTML = ''; snap.forEach(d => { const p=d.data(); const el=document.createElement('div'); el.className='community-report-top-item'; el.innerHTML = `<div class="community-report-top-left"><strong>${escapeHtml(p.title || '제목 없음')}</strong><span>${escapeHtml(p.authorNickname || '입주민')} · ${escapeHtml(p.category || '자유')} · ${escapeHtml(p.status || 'active')}</span><div class="community-report-top-actions"><button class="btn btn-danger" type="button" data-top-hide-post="${d.id}">숨김</button><button class="btn btn-soft" type="button" data-top-open-reports="${d.id}">신고 내역</button></div></div><div class="community-report-count">${Number(p.reportCount||0)}</div>`; list.appendChild(el); }); list.querySelectorAll('[data-top-hide-post]').forEach(btn => btn.addEventListener('click', async () => { await setCommunityPostStatus(btn.dataset.topHidePost, 'hidden'); await loadCommunityReportTopPosts(); })); list.querySelectorAll('[data-top-open-reports]').forEach(btn => btn.addEventListener('click', async () => { changeAdminView('community'); await loadAdminCommunityReports(btn.dataset.topOpenReports); })); }catch(error){ console.error(error); list.innerHTML = '<div class="member-empty">신고 누적 게시글을 불러오지 못했습니다. Firestore 인덱스를 확인해주세요.</div>'; } }
 
-    async function loadAdminCommunityPosts(status='active'){ const list = qs('#adminCommunityList'); if(!list || !db) return; list.innerHTML = '<div class="notice">커뮤니티 게시글을 불러오는 중입니다.</div>'; try{ const snap = await getDocs(query(collection(db, COMMUNITY_POSTS_COLLECTION), where('status','==',status), orderBy('createdAt','desc'), limit(50))); qs('#adminCommunityCount').textContent = `${status === 'active' ? '정상' : '숨김'} ${snap.size}건`; if(snap.empty){ list.innerHTML = '<div class="member-empty">표시할 게시글이 없습니다.</div>'; return; } list.innerHTML = ''; snap.forEach(d => { const p = d.data(); const el = document.createElement('div'); el.className = 'mini-item community-admin-card'; el.innerHTML = `<div class="mini-item-head"><div><h4>${escapeHtml(p.title || '제목 없음')}</h4><div class="community-admin-meta"><span class="tag">${escapeHtml(p.category || '자유')}</span><span>${escapeHtml(p.authorNickname || '입주민')}</span><span>댓글 ${Number(p.commentCount||0)}</span><span>신고 ${Number(p.reportCount||0)}</span><span>${fmtAdminCommunityDate(p.createdAt)}</span></div></div><span class="tag ${status==='hidden'?'hidden-tag':'live-tag'}">${status==='hidden'?'숨김':'정상'}</span></div><p>${escapeHtml(String(p.content || '').slice(0,160))}${String(p.content || '').length>160?'...':''}</p><div class="community-admin-actions"><button class="btn btn-danger" type="button" data-hide-post="${d.id}">숨김</button><button class="btn btn-soft" type="button" data-restore-post="${d.id}">복구</button></div>`; list.appendChild(el); }); list.querySelectorAll('[data-hide-post]').forEach(btn => btn.addEventListener('click', () => setCommunityPostStatus(btn.dataset.hidePost, 'hidden'))); list.querySelectorAll('[data-restore-post]').forEach(btn => btn.addEventListener('click', () => setCommunityPostStatus(btn.dataset.restorePost, 'active'))); }catch(error){ console.error(error); list.innerHTML = '<div class="member-empty">커뮤니티 게시글을 불러오지 못했습니다. Firestore 인덱스/규칙을 확인해주세요.</div>'; } }
+    async function loadAdminCommunityPosts(status='active'){
+      if(!requireAdminDataAccess()) return; const list = qs('#adminCommunityList'); if(!list || !db) return; list.innerHTML = '<div class="notice">커뮤니티 게시글을 불러오는 중입니다.</div>'; try{ const snap = await getDocs(query(collection(db, COMMUNITY_POSTS_COLLECTION), where('status','==',status), orderBy('createdAt','desc'), limit(50))); qs('#adminCommunityCount').textContent = `${status === 'active' ? '정상' : '숨김'} ${snap.size}건`; if(snap.empty){ list.innerHTML = '<div class="member-empty">표시할 게시글이 없습니다.</div>'; return; } list.innerHTML = ''; snap.forEach(d => { const p = d.data(); const el = document.createElement('div'); el.className = 'mini-item community-admin-card'; el.innerHTML = `<div class="mini-item-head"><div><h4>${escapeHtml(p.title || '제목 없음')}</h4><div class="community-admin-meta"><span class="tag">${escapeHtml(p.category || '자유')}</span><span>${escapeHtml(p.authorNickname || '입주민')}</span><span>댓글 ${Number(p.commentCount||0)}</span><span>신고 ${Number(p.reportCount||0)}</span><span>${fmtAdminCommunityDate(p.createdAt)}</span></div></div><span class="tag ${status==='hidden'?'hidden-tag':'live-tag'}">${status==='hidden'?'숨김':'정상'}</span></div><p>${escapeHtml(String(p.content || '').slice(0,160))}${String(p.content || '').length>160?'...':''}</p><div class="community-admin-actions"><button class="btn btn-danger" type="button" data-hide-post="${d.id}">숨김</button><button class="btn btn-soft" type="button" data-restore-post="${d.id}">복구</button></div>`; list.appendChild(el); }); list.querySelectorAll('[data-hide-post]').forEach(btn => btn.addEventListener('click', () => setCommunityPostStatus(btn.dataset.hidePost, 'hidden'))); list.querySelectorAll('[data-restore-post]').forEach(btn => btn.addEventListener('click', () => setCommunityPostStatus(btn.dataset.restorePost, 'active'))); }catch(error){ console.error(error); list.innerHTML = '<div class="member-empty">커뮤니티 게시글을 불러오지 못했습니다. Firestore 인덱스/규칙을 확인해주세요.</div>'; } }
     async function setCommunityPostStatus(postId, status){ if(!postId || !db) return; await updateDoc(doc(db, COMMUNITY_POSTS_COLLECTION, postId), { status, updatedAt: serverTimestamp() }); await loadAdminCommunityPosts(status === 'hidden' ? 'active' : 'hidden'); }
-    async function loadAdminCommunityReports(filterPostId=null){ const list = qs('#adminCommunityList'); if(!list || !db) return; list.innerHTML = '<div class="notice">신고 내역을 불러오는 중입니다.</div>'; try{ let reportQuery = query(collection(db, COMMUNITY_REPORTS_COLLECTION), orderBy('createdAt','desc'), limit(50)); if(filterPostId) reportQuery = query(collection(db, COMMUNITY_REPORTS_COLLECTION), where('postId','==',filterPostId), orderBy('createdAt','desc'), limit(50)); const snap = await getDocs(reportQuery); qs('#adminCommunityCount').textContent = `${filterPostId ? '선택 글 신고' : '신고'} ${snap.size}건`; if(snap.empty){ list.innerHTML = '<div class="member-empty">신고 내역이 없습니다.</div>'; return; } list.innerHTML = ''; snap.forEach(d => { const r=d.data(); const el=document.createElement('div'); el.className='mini-item community-admin-card'; el.innerHTML=`<div class="mini-item-head"><div><h4>${r.targetType === 'comment' ? '댓글 신고' : '게시글 신고'}</h4><div class="community-admin-meta"><span class="tag admin-tag-danger">${escapeHtml(r.status || 'pending')}</span><span>게시글 ${escapeHtml(r.postId || '')}</span>${r.commentId?`<span>댓글 ${escapeHtml(r.commentId)}</span>`:''}<span>${fmtAdminCommunityDate(r.createdAt)}</span></div></div></div><p>${escapeHtml(r.reason || '사용자 신고')}</p><div class="community-admin-actions"><button class="btn btn-soft" type="button" data-review-report="${d.id}">검토 완료</button><button class="btn btn-danger" type="button" data-hide-reported-post="${r.postId || ''}">게시글 숨김</button></div>`; list.appendChild(el); }); list.querySelectorAll('[data-review-report]').forEach(btn => btn.addEventListener('click', async () => { await updateDoc(doc(db, COMMUNITY_REPORTS_COLLECTION, btn.dataset.reviewReport), { status:'reviewed', reviewedAt:serverTimestamp() }); loadAdminCommunityReports(); })); list.querySelectorAll('[data-hide-reported-post]').forEach(btn => btn.addEventListener('click', () => setCommunityPostStatus(btn.dataset.hideReportedPost, 'hidden'))); }catch(error){ console.error(error); list.innerHTML = '<div class="member-empty">신고 내역을 불러오지 못했습니다.</div>'; } }
+    async function loadAdminCommunityReports(filterPostId=null){
+      if(!requireAdminDataAccess()) return; const list = qs('#adminCommunityList'); if(!list || !db) return; list.innerHTML = '<div class="notice">신고 내역을 불러오는 중입니다.</div>'; try{ let reportQuery = query(collection(db, COMMUNITY_REPORTS_COLLECTION), orderBy('createdAt','desc'), limit(50)); if(filterPostId) reportQuery = query(collection(db, COMMUNITY_REPORTS_COLLECTION), where('postId','==',filterPostId), orderBy('createdAt','desc'), limit(50)); const snap = await getDocs(reportQuery); qs('#adminCommunityCount').textContent = `${filterPostId ? '선택 글 신고' : '신고'} ${snap.size}건`; if(snap.empty){ list.innerHTML = '<div class="member-empty">신고 내역이 없습니다.</div>'; return; } list.innerHTML = ''; snap.forEach(d => { const r=d.data(); const el=document.createElement('div'); el.className='mini-item community-admin-card'; el.innerHTML=`<div class="mini-item-head"><div><h4>${r.targetType === 'comment' ? '댓글 신고' : '게시글 신고'}</h4><div class="community-admin-meta"><span class="tag admin-tag-danger">${escapeHtml(r.status || 'pending')}</span><span>게시글 ${escapeHtml(r.postId || '')}</span>${r.commentId?`<span>댓글 ${escapeHtml(r.commentId)}</span>`:''}<span>${fmtAdminCommunityDate(r.createdAt)}</span></div></div></div><p>${escapeHtml(r.reason || '사용자 신고')}</p><div class="community-admin-actions"><button class="btn btn-soft" type="button" data-review-report="${d.id}">검토 완료</button><button class="btn btn-danger" type="button" data-hide-reported-post="${r.postId || ''}">게시글 숨김</button></div>`; list.appendChild(el); }); list.querySelectorAll('[data-review-report]').forEach(btn => btn.addEventListener('click', async () => { await updateDoc(doc(db, COMMUNITY_REPORTS_COLLECTION, btn.dataset.reviewReport), { status:'reviewed', reviewedAt:serverTimestamp() }); loadAdminCommunityReports(); })); list.querySelectorAll('[data-hide-reported-post]').forEach(btn => btn.addEventListener('click', () => setCommunityPostStatus(btn.dataset.hideReportedPost, 'hidden'))); }catch(error){ console.error(error); list.innerHTML = '<div class="member-empty">신고 내역을 불러오지 못했습니다.</div>'; } }
     qs('#loadCommunityActiveBtn')?.addEventListener('click', () => loadAdminCommunityPosts('active')); qs('#loadCommunityHiddenBtn')?.addEventListener('click', () => loadAdminCommunityPosts('hidden')); qs('#loadCommunityReportsBtn')?.addEventListener('click', () => loadAdminCommunityReports());
 
     function sanitizeBenefit(item={},id=''){return {id,name:item.name||'',category:item.category||'기타',discountValue:Number(item.discountValue||0),discountText:item.discountText||`${Number(item.discountValue||0)}%`,condition:item.condition||'',address:item.address||'',lat:Number(item.lat||0),lng:Number(item.lng||0),url:item.url||'',phone:item.phone||'',service:!!item.service||String(item.discountText).trim()==='서비스',visible:item.visible!==false,recommended:!!item.recommended,thumbnailUrl:item.thumbnailUrl||item.imageUrl||item.ogImageUrl||'',shareDescription:item.shareDescription||'',shareBest:!!item.shareBest,rankBoost:Number(item.rankBoost||0),viewCount:Number(item.viewCount||item.clickCount||item.detailViewCount||0),favoriteCount:Number(item.favoriteCount||0),shareCount:Number(item.shareCount||item.shareClickCount||0),likeCount:Number(item.likeCount||0),recommendCount:Number(item.recommendCount||0),hotCount:Number(item.hotCount||0),popularScore:Number(item.popularScore||item.score||0),createdAt:item.createdAt||null,updatedAt:item.updatedAt||null};}
@@ -2012,12 +2463,12 @@ const setTextAll = (selector, text) => qsa(selector).forEach(el => el.textConten
       if(!confirmed) return;
       try{
         showGlobalLoading();
-        await signOut(auth);
-        hideGlobalLoading();
+        await secureAdminSignOut();
       }catch(e){
         console.error(e);
         hideGlobalLoading();
-        await openModalAlert('로그아웃 처리 중 오류가 발생했습니다.', qs('#logoutBtn'));
+        resetAdminSensitiveUI();
+        await openModalAlert('로그아웃 처리 중 오류가 발생했습니다. 화면의 민감 데이터는 초기화했습니다.', qs('#logoutBtn'));
       }
     };
     const exportBenefits=async()=>{
@@ -2213,6 +2664,7 @@ const setTextAll = (selector, text) => qsa(selector).forEach(el => el.textConten
     }
 
     async function subscribeMembers(){
+      if(!requireAdminDataAccess()) return;
       // READ OPTIMIZED: 관리자 회원 목록은 실시간 구독 대신 1회 제한 조회로 처리합니다.
       // 전체 회원을 계속 감시하면 관리자 탭을 켜둔 것만으로 Read가 누적됩니다.
       try{
@@ -2262,6 +2714,7 @@ const setTextAll = (selector, text) => qsa(selector).forEach(el => el.textConten
       }
     }
     async function subscribeBenefits(){
+      if(!requireAdminDataAccess()) return;
       // READ OPTIMIZED: 혜택 목록은 관리자 진입 시 1회 조회합니다.
       try{
         const snapshot = await getDocs(query(
@@ -2281,6 +2734,7 @@ const setTextAll = (selector, text) => qsa(selector).forEach(el => el.textConten
     }
 
     async function subscribeBenefitStats(){
+      if(!requireAdminDataAccess()) return;
       // READ OPTIMIZED: 통계도 실시간 구독하지 않고 필요한 수량만 조회합니다.
       try{
         const snapshot = await getDocs(query(
@@ -2301,6 +2755,7 @@ const setTextAll = (selector, text) => qsa(selector).forEach(el => el.textConten
     }
 
     async function subscribeNotices(){
+      if(!requireAdminDataAccess()) return;
       // READ OPTIMIZED: 공지는 최근 항목만 1회 조회합니다.
       try{
         const snapshot = await getDocs(query(
@@ -2318,6 +2773,7 @@ const setTextAll = (selector, text) => qsa(selector).forEach(el => el.textConten
       }
     }
     async function subscribePushJobs(){
+      if(!requireAdminDataAccess()) return;
       // READ OPTIMIZED: 푸시 작업 목록은 최근 작업만 제한 조회합니다.
       try{
         const snapshot = await getDocs(query(
@@ -2574,21 +3030,13 @@ const setTextAll = (selector, text) => qsa(selector).forEach(el => el.textConten
 
       setupForegroundSystemPush(messaging);
 
-      let adminDataSubscribed = false;
-
       onAuthStateChanged(auth, async (user) => {
         state.adminProfile = null;
         state.isAdmin = false;
 
         if(!user){
-          qs('#authStatusText').textContent='로그인 필요';
+          resetAdminSensitiveUI();
           updateAdminHeader(null);
-          setAdminDashboardLocked(true);
-          const idleHost = document.getElementById('adminIdleTimerHost');
-          if (idleHost) {
-            idleHost.innerHTML = '';
-            idleHost.classList.add('hidden');
-          }
           hideGlobalLoading(80);
           return;
         }
@@ -2609,8 +3057,7 @@ const setTextAll = (selector, text) => qsa(selector).forEach(el => el.textConten
             setAdminDashboardLocked(true);
             hideGlobalLoading(80);
             await openModalAlert('다른 기기에서 로그인되어 현재 세션이 종료되었습니다.', qs('#adminLoginId'));
-            localStorage.removeItem('loginUser');
-            await signOut(auth).catch(()=>{});
+            await secureAdminSignOut();
             return;
           }
 
@@ -2625,8 +3072,7 @@ const setTextAll = (selector, text) => qsa(selector).forEach(el => el.textConten
             setAdminDashboardLocked(true);
             hideGlobalLoading(80);
             await openModalAlert('탈퇴된 계정입니다.', qs('#adminLoginId'));
-            localStorage.removeItem('loginUser');
-            await signOut(auth).catch(()=>{});
+            await secureAdminSignOut();
             return;
           }
 
@@ -2640,8 +3086,7 @@ const setTextAll = (selector, text) => qsa(selector).forEach(el => el.textConten
             setAdminDashboardLocked(true);
             hideGlobalLoading(80);
             await openModalAlert('보안 정책에 따라 차단된 계정입니다.', qs('#adminLoginId'));
-            localStorage.removeItem('loginUser');
-            await signOut(auth).catch(()=>{});
+            await secureAdminSignOut();
             return;
           }
 
@@ -2655,14 +3100,14 @@ const setTextAll = (selector, text) => qsa(selector).forEach(el => el.textConten
             setAdminDashboardLocked(true);
             hideGlobalLoading(80);
             await openModalAlert('관리자 권한이 있는 계정만 접근할 수 있습니다.', qs('#adminLoginId'));
-            localStorage.removeItem('loginUser');
-            await signOut(auth).catch(()=>{});
+            await secureAdminSignOut();
             return;
           }
 
           saveVerifiedLoginUser(user, userData, localSessionId || serverSessionId);
 
           state.isAdmin = true;
+          adminAuthReady = true;
           qs('#authStatusText').textContent=`로그인됨: ${userData.loginId || user.email || user.uid}`;
           updateAdminHeader(user);
 
@@ -2681,11 +3126,13 @@ const setTextAll = (selector, text) => qsa(selector).forEach(el => el.textConten
           if (!adminDataSubscribed) {
             adminDataSubscribed = true;
             showGlobalLoading();
-            subscribeBenefits();
-            subscribeBenefitStats();
-            subscribeNotices();
-            subscribePushJobs();
-            subscribeMembers();
+            await Promise.all([
+              subscribeBenefits(),
+              subscribeBenefitStats(),
+              subscribeNotices(),
+              subscribePushJobs(),
+              subscribeMembers()
+            ]);
           }
 
           if (typeof window.refreshAdminStatsUIOnce === 'function') {
@@ -2697,19 +3144,14 @@ const setTextAll = (selector, text) => qsa(selector).forEach(el => el.textConten
             await loadCommunityReportTopPosts();
           }
 
-          if (!window.__adminDashboardIntervalStarted) {
-            window.__adminDashboardIntervalStarted = true;
-            setInterval(() => {
-              window.refreshAdminStatsUIOnce?.();
-              window.render404Stats?.();
-              loadCommunityReportTopPosts?.();
-            }, 30000);
-          }
+          // READ OPTIMIZED: 관리자 대시보드 통계는 실시간/주기 갱신하지 않습니다.
+          // 운영 비용 절감을 위해 로그인 시 1회만 조회하고, 필요 시 페이지 새로고침 또는 메뉴 재진입으로 다시 조회합니다.
+          window.__adminDashboardIntervalStarted = false;
         }catch(error){
           console.error('관리자 권한 확인 실패', error);
           setAdminDashboardLocked(true);
           hideGlobalLoading(80);
-          await signOut(auth).catch(()=>{});
+          resetAdminSensitiveUI();
           await openModalAlert('관리자 권한을 확인할 수 없습니다.', qs('#adminLoginId'));
         }
       });
@@ -2764,6 +3206,623 @@ const setTextAll = (selector, text) => qsa(selector).forEach(el => el.textConten
       }
     });
 
+
+    /* =========================
+       AI 생활 도우미 관리자
+    ========================= */
+    const aiAdminState = { tab:'faq', editing:null, tabReady:false, logs:{pageSize:20, cursors:[], page:1, lastDoc:null, hasNext:false, search:'', mode:'latest'}, conversations:{pageSize:20, cursors:[], page:1, lastDoc:null, hasNext:false, search:'', mode:'latest'} };
+
+    function splitKeywords(value=''){
+      return String(value || '')
+        .split(',')
+        .map(v => v.trim())
+        .filter(Boolean);
+    }
+
+    function joinKeywords(value){
+      return Array.isArray(value) ? value.join(', ') : valueToText(value || '');
+    }
+
+    function formatAiAdminDate(value){
+      try{
+        const d = value?.toDate ? value.toDate() : (value ? new Date(value) : null);
+        if(!d || Number.isNaN(d.getTime())) return '-';
+        return `${d.getFullYear()}.${String(d.getMonth()+1).padStart(2,'0')}.${String(d.getDate()).padStart(2,'0')} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+      }catch(e){ return '-'; }
+    }
+
+    function setAiActiveTab(tab){
+      aiAdminState.tab = tab;
+      qsa('.ai-manager-tab').forEach(btn => btn.classList.toggle('active', btn.dataset.aiTab === tab));
+    }
+
+    async function refreshAiMetrics(){
+      const sets = [
+        ['aiMetricFaq', 'ai_faq'],
+        ['aiMetricBooklet', 'ai_booklet_pages'],
+        ['aiMetricGuide', 'ai_guide_pages'],
+        ['aiMetricLogs', 'ai_chat_logs']
+      ];
+      await Promise.all(sets.map(async ([id, col]) => {
+        const el = qs(`#${id}`);
+        if(!el) return;
+        try{
+          const snap = await getDocs(query(collection(db, col), limit(99)));
+          el.textContent = String(snap.size);
+        }catch(error){
+          el.textContent = '-';
+        }
+      }));
+    }
+
+    function openAIManager(tab='faq'){
+      if(!qs('#aiAdminContent')) return;
+      setAiActiveTab(tab);
+      refreshAiMetrics();
+      if(tab === 'faq') return loadAiFaq();
+      if(tab === 'booklet') return loadAiBooklet();
+      if(tab === 'guide') return loadAiGuide();
+      if(tab === 'settings') return loadAiSettings();
+      if(tab === 'logs') return loadAiLogs();
+      if(tab === 'conversations') return loadAiConversations();
+    }
+    window.openAIManager = openAIManager;
+
+    function renderAiFormHeader(title, desc){
+      return `<div class="ai-admin-toolbar"><div><h3 style="margin:0;font-size:16px;">${escapeHtml(title)}</h3><small style="display:block;margin-top:4px;color:#64748b;line-height:1.45;">${escapeHtml(desc)}</small></div></div>`;
+    }
+
+    async function loadAiFaq(){
+      if(!requireAdminDataAccess()) return;
+      const box = qs('#aiAdminContent');
+      if(!box) return;
+      box.innerHTML = renderAiFormHeader('FAQ 관리', 'AI가 바로 답변할 자주 묻는 질문을 등록합니다.') + `
+        <form class="ai-admin-form" id="aiFaqForm">
+          <input type="hidden" id="aiFaqEditId" value="" />
+          <div class="field"><label>질문</label><input id="aiFaqQuestion" placeholder="예: 음식물쓰레기는 어디에 버리나요?" /></div>
+          <div class="field"><label>답변</label><textarea id="aiFaqAnswer" placeholder="입주민에게 보여줄 답변을 입력하세요."></textarea></div>
+          <div class="field"><label>키워드</label><input id="aiFaqKeywords" placeholder="음식물, 쓰레기, 배출" /></div>
+          <div class="check-row"><label><input type="checkbox" id="aiFaqActive" checked> 사용</label></div>
+          <div class="grid-2"><button class="btn btn-primary" type="submit">저장</button><button class="btn btn-soft" type="button" data-ai-action="reset-faq">초기화</button></div>
+        </form>
+        <div class="section-head" style="margin:18px 2px 10px;"><h3 style="font-size:16px;">등록된 FAQ</h3><small id="aiFaqCount">0건</small></div>
+        <div class="ai-admin-list" id="aiFaqList"><div class="ai-empty">불러오는 중...</div></div>`;
+      qs('#aiFaqForm')?.addEventListener('submit', saveAiFaq);
+      await renderAiFaqList();
+    }
+
+    async function renderAiFaqList(){
+      const list = qs('#aiFaqList');
+      if(!list) return;
+      try{
+        const snap = await getDocs(query(collection(db, 'ai_faq'), limit(80)));
+        qs('#aiFaqCount') && (qs('#aiFaqCount').textContent = `${snap.size}건`);
+        if(!snap.size){ list.innerHTML = '<div class="ai-empty">등록된 FAQ가 없습니다.</div>'; return; }
+        list.innerHTML = snap.docs.map(docSnap => {
+          const d = docSnap.data() || {};
+          return `<div class="ai-admin-item">
+            <h5>${escapeHtml(d.question || '질문 없음')}</h5>
+            <p>${escapeHtml(d.answer || '')}</p>
+            <div style="margin-top:10px;">${splitKeywords(joinKeywords(d.keywords)).map(k => `<span class="ai-code-pill">#${escapeHtml(k)}</span>`).join('')}<span class="ai-code-pill">${d.isActive === false ? 'OFF' : 'ON'}</span></div>
+            <div class="ai-admin-item-actions">
+              <button class="btn btn-soft" type="button" data-ai-action="edit-faq" data-id="${docSnap.id}">수정</button>
+              <button class="btn btn-danger" type="button" data-ai-action="delete-doc" data-collection="ai_faq" data-id="${docSnap.id}">삭제</button>
+            </div>
+          </div>`;
+        }).join('');
+      }catch(error){
+        console.error(error);
+        list.innerHTML = '<div class="ai-empty">FAQ를 불러오지 못했습니다. 권한 또는 규칙을 확인해 주세요.</div>';
+      }
+    }
+
+    async function saveAiFaq(event){
+      event.preventDefault();
+      const id = qs('#aiFaqEditId')?.value || '';
+      const data = {
+        question: qs('#aiFaqQuestion')?.value.trim() || '',
+        answer: qs('#aiFaqAnswer')?.value.trim() || '',
+        keywords: splitKeywords(qs('#aiFaqKeywords')?.value || ''),
+        isActive: !!qs('#aiFaqActive')?.checked,
+        updatedAt: serverTimestamp()
+      };
+      if(!data.question || !data.answer) return openModalAlert('질문과 답변을 입력해 주세요.', null, '입력 필요');
+      if(id) await updateDoc(doc(db, 'ai_faq', id), data);
+      else await addDoc(collection(db, 'ai_faq'), { ...data, createdAt: serverTimestamp() });
+      openModalAlert('AI FAQ가 저장되었습니다.', null, '저장 완료');
+      await loadAiFaq();
+    }
+
+    async function editAiFaq(id){
+      const snap = await getDoc(doc(db, 'ai_faq', id));
+      if(!snap.exists()) return;
+      const d = snap.data() || {};
+      qs('#aiFaqEditId').value = id;
+      qs('#aiFaqQuestion').value = d.question || '';
+      qs('#aiFaqAnswer').value = d.answer || '';
+      qs('#aiFaqKeywords').value = joinKeywords(d.keywords);
+      qs('#aiFaqActive').checked = d.isActive !== false;
+      qs('#aiFaqQuestion')?.scrollIntoView({behavior:'smooth', block:'center'});
+    }
+
+    function resetAiFaqForm(){
+      qs('#aiFaqEditId') && (qs('#aiFaqEditId').value = '');
+      qs('#aiFaqQuestion') && (qs('#aiFaqQuestion').value = '');
+      qs('#aiFaqAnswer') && (qs('#aiFaqAnswer').value = '');
+      qs('#aiFaqKeywords') && (qs('#aiFaqKeywords').value = '');
+      qs('#aiFaqActive') && (qs('#aiFaqActive').checked = true);
+    }
+
+    async function loadAiBooklet(){
+      if(!requireAdminDataAccess()) return;
+      const box = qs('#aiAdminContent');
+      if(!box) return;
+      box.innerHTML = renderAiFormHeader('전자책 관리', '아파트 생활 안내, 규정, 안내문 내용을 AI 검색 데이터로 등록합니다.') + `
+        <form class="ai-admin-form" id="aiBookletForm">
+          <input type="hidden" id="aiBookletEditId" value="" />
+          <div class="grid-2"><div class="field"><label>제목</label><input id="aiBookletTitle" placeholder="예: 분리수거 안내" /></div><div class="field"><label>섹션</label><input id="aiBookletSection" placeholder="예: 생활안내" /></div></div>
+          <div class="field"><label>내용</label><textarea id="aiBookletContent" placeholder="전자책/안내문 내용을 입력하세요."></textarea></div>
+          <div class="field"><label>키워드</label><input id="aiBookletKeywords" placeholder="분리수거, 쓰레기, 재활용" /></div>
+          <div class="check-row"><label><input type="checkbox" id="aiBookletActive" checked> 사용</label></div>
+          <div class="grid-2"><button class="btn btn-primary" type="submit">저장</button><button class="btn btn-soft" type="button" data-ai-action="reset-booklet">초기화</button></div>
+        </form>
+        <div class="section-head" style="margin:18px 2px 10px;"><h3 style="font-size:16px;">전자책 페이지</h3><small id="aiBookletCount">0건</small></div>
+        <div class="ai-admin-list" id="aiBookletList"><div class="ai-empty">불러오는 중...</div></div>`;
+      qs('#aiBookletForm')?.addEventListener('submit', saveAiBooklet);
+      await renderAiBookletList();
+    }
+
+    async function renderAiBookletList(){
+      const list = qs('#aiBookletList');
+      if(!list) return;
+      try{
+        const snap = await getDocs(query(collection(db, 'ai_booklet_pages'), limit(80)));
+        qs('#aiBookletCount') && (qs('#aiBookletCount').textContent = `${snap.size}건`);
+        if(!snap.size){ list.innerHTML = '<div class="ai-empty">등록된 전자책 페이지가 없습니다.</div>'; return; }
+        list.innerHTML = snap.docs.map(docSnap => {
+          const d = docSnap.data() || {};
+          return `<div class="ai-admin-item">
+            <h5>${escapeHtml(d.title || '제목 없음')}</h5>
+            <p>${escapeHtml((d.content || '').slice(0, 240))}</p>
+            <div style="margin-top:10px;"><span class="ai-code-pill">${escapeHtml(d.section || '섹션 없음')}</span>${splitKeywords(joinKeywords(d.keywords)).map(k => `<span class="ai-code-pill">#${escapeHtml(k)}</span>`).join('')}<span class="ai-code-pill">${d.isActive === false ? 'OFF' : 'ON'}</span></div>
+            <div class="ai-admin-item-actions">
+              <button class="btn btn-soft" type="button" data-ai-action="edit-booklet" data-id="${docSnap.id}">수정</button>
+              <button class="btn btn-danger" type="button" data-ai-action="delete-doc" data-collection="ai_booklet_pages" data-id="${docSnap.id}">삭제</button>
+            </div>
+          </div>`;
+        }).join('');
+      }catch(error){
+        console.error(error);
+        list.innerHTML = '<div class="ai-empty">전자책 데이터를 불러오지 못했습니다.</div>';
+      }
+    }
+
+    async function saveAiBooklet(event){
+      event.preventDefault();
+      const id = qs('#aiBookletEditId')?.value || '';
+      const data = {
+        title: qs('#aiBookletTitle')?.value.trim() || '',
+        section: qs('#aiBookletSection')?.value.trim() || '',
+        content: qs('#aiBookletContent')?.value.trim() || '',
+        keywords: splitKeywords(qs('#aiBookletKeywords')?.value || ''),
+        isActive: !!qs('#aiBookletActive')?.checked,
+        updatedAt: serverTimestamp()
+      };
+      if(!data.title || !data.content) return openModalAlert('제목과 내용을 입력해 주세요.', null, '입력 필요');
+      if(id) await updateDoc(doc(db, 'ai_booklet_pages', id), data);
+      else await addDoc(collection(db, 'ai_booklet_pages'), { ...data, createdAt: serverTimestamp() });
+      openModalAlert('전자책 페이지가 저장되었습니다.', null, '저장 완료');
+      await loadAiBooklet();
+    }
+
+    async function editAiBooklet(id){
+      const snap = await getDoc(doc(db, 'ai_booklet_pages', id));
+      if(!snap.exists()) return;
+      const d = snap.data() || {};
+      qs('#aiBookletEditId').value = id;
+      qs('#aiBookletTitle').value = d.title || '';
+      qs('#aiBookletSection').value = d.section || '';
+      qs('#aiBookletContent').value = d.content || '';
+      qs('#aiBookletKeywords').value = joinKeywords(d.keywords);
+      qs('#aiBookletActive').checked = d.isActive !== false;
+      qs('#aiBookletTitle')?.scrollIntoView({behavior:'smooth', block:'center'});
+    }
+
+    function resetAiBookletForm(){
+      ['aiBookletEditId','aiBookletTitle','aiBookletSection','aiBookletContent','aiBookletKeywords'].forEach(id => { const el=qs(`#${id}`); if(el) el.value=''; });
+      qs('#aiBookletActive') && (qs('#aiBookletActive').checked = true);
+    }
+
+    async function loadAiGuide(){
+      if(!requireAdminDataAccess()) return;
+      const box = qs('#aiAdminContent');
+      if(!box) return;
+      box.innerHTML = renderAiFormHeader('가이드 관리', '앱 사용법 질문에 답할 메뉴 이동 안내를 등록합니다.') + `
+        <form class="ai-admin-form" id="aiGuideForm">
+          <input type="hidden" id="aiGuideEditId" value="" />
+          <div class="field"><label>질문/상황</label><input id="aiGuideQuestion" placeholder="예: 커뮤니티 메뉴는 어떻게 들어가?" /></div>
+          <div class="field"><label>답변</label><textarea id="aiGuideAnswer" placeholder="예: 하단 네비바에서 전체 탭을 누른 뒤 커뮤니티를 선택하면 됩니다."></textarea></div>
+          <div class="field"><label>키워드</label><input id="aiGuideKeywords" placeholder="커뮤니티, 메뉴, 전체 탭" /></div>
+          <div class="check-row"><label><input type="checkbox" id="aiGuideActive" checked> 사용</label></div>
+          <div class="grid-2"><button class="btn btn-primary" type="submit">저장</button><button class="btn btn-soft" type="button" data-ai-action="reset-guide">초기화</button></div>
+        </form>
+        <div class="section-head" style="margin:18px 2px 10px;"><h3 style="font-size:16px;">등록된 가이드</h3><small id="aiGuideCount">0건</small></div>
+        <div class="ai-admin-list" id="aiGuideList"><div class="ai-empty">불러오는 중...</div></div>`;
+      qs('#aiGuideForm')?.addEventListener('submit', saveAiGuide);
+      await renderAiGuideList();
+    }
+
+    async function renderAiGuideList(){
+      const list = qs('#aiGuideList');
+      if(!list) return;
+      try{
+        const snap = await getDocs(query(collection(db, 'ai_guide_pages'), limit(80)));
+        qs('#aiGuideCount') && (qs('#aiGuideCount').textContent = `${snap.size}건`);
+        if(!snap.size){ list.innerHTML = '<div class="ai-empty">등록된 가이드가 없습니다.</div>'; return; }
+        list.innerHTML = snap.docs.map(docSnap => {
+          const d = docSnap.data() || {};
+          return `<div class="ai-admin-item">
+            <h5>${escapeHtml(d.question || d.title || '질문 없음')}</h5>
+            <p>${escapeHtml(d.answer || d.content || '')}</p>
+            <div style="margin-top:10px;">${splitKeywords(joinKeywords(d.keywords)).map(k => `<span class="ai-code-pill">#${escapeHtml(k)}</span>`).join('')}<span class="ai-code-pill">${d.isActive === false ? 'OFF' : 'ON'}</span></div>
+            <div class="ai-admin-item-actions">
+              <button class="btn btn-soft" type="button" data-ai-action="edit-guide" data-id="${docSnap.id}">수정</button>
+              <button class="btn btn-danger" type="button" data-ai-action="delete-doc" data-collection="ai_guide_pages" data-id="${docSnap.id}">삭제</button>
+            </div>
+          </div>`;
+        }).join('');
+      }catch(error){
+        console.error(error);
+        list.innerHTML = '<div class="ai-empty">가이드를 불러오지 못했습니다.</div>';
+      }
+    }
+
+    async function saveAiGuide(event){
+      event.preventDefault();
+      const id = qs('#aiGuideEditId')?.value || '';
+      const data = {
+        question: qs('#aiGuideQuestion')?.value.trim() || '',
+        answer: qs('#aiGuideAnswer')?.value.trim() || '',
+        keywords: splitKeywords(qs('#aiGuideKeywords')?.value || ''),
+        isActive: !!qs('#aiGuideActive')?.checked,
+        updatedAt: serverTimestamp()
+      };
+      if(!data.question || !data.answer) return openModalAlert('질문과 답변을 입력해 주세요.', null, '입력 필요');
+      if(id) await updateDoc(doc(db, 'ai_guide_pages', id), data);
+      else await addDoc(collection(db, 'ai_guide_pages'), { ...data, createdAt: serverTimestamp() });
+      openModalAlert('가이드가 저장되었습니다.', null, '저장 완료');
+      await loadAiGuide();
+    }
+
+    async function editAiGuide(id){
+      const snap = await getDoc(doc(db, 'ai_guide_pages', id));
+      if(!snap.exists()) return;
+      const d = snap.data() || {};
+      qs('#aiGuideEditId').value = id;
+      qs('#aiGuideQuestion').value = d.question || d.title || '';
+      qs('#aiGuideAnswer').value = d.answer || d.content || '';
+      qs('#aiGuideKeywords').value = joinKeywords(d.keywords);
+      qs('#aiGuideActive').checked = d.isActive !== false;
+      qs('#aiGuideQuestion')?.scrollIntoView({behavior:'smooth', block:'center'});
+    }
+
+    function resetAiGuideForm(){
+      ['aiGuideEditId','aiGuideQuestion','aiGuideAnswer','aiGuideKeywords'].forEach(id => { const el=qs(`#${id}`); if(el) el.value=''; });
+      qs('#aiGuideActive') && (qs('#aiGuideActive').checked = true);
+    }
+
+    async function loadAiSettings(){
+      if(!requireAdminDataAccess()) return;
+      const box = qs('#aiAdminContent');
+      if(!box) return;
+      let d = {};
+      try{
+        const snap = await getDoc(doc(db, 'ai_settings', 'default'));
+        d = snap.exists() ? (snap.data() || {}) : {};
+      }catch(error){ console.warn(error); }
+      box.innerHTML = renderAiFormHeader('AI 설정', 'AI 생활 도우미의 공개 여부와 답변 문구를 관리합니다.') + `
+        <form class="ai-admin-form" id="aiSettingsForm">
+          <div class="check-row">
+            <label><input type="checkbox" id="aiSettingsEnabled" ${d.enabled !== false ? 'checked' : ''}> AI 사용</label>
+            <label><input type="checkbox" id="aiSettingsPersonal" ${d.usePersonalization !== false ? 'checked' : ''}> 개인화</label>
+            <label><input type="checkbox" id="aiSettingsSituation" ${d.useSituation !== false ? 'checked' : ''}> 상황 인식</label>
+            <label><input type="checkbox" id="aiSettingsVoice" ${d.useVoice !== false ? 'checked' : ''}> 음성 질문</label>
+          </div>
+          <div class="field"><label>환영 문구</label><textarea id="aiSettingsWelcome">${escapeHtml(d.welcomeMessage || '궁금한 내용을 입력해 주세요.')}</textarea></div>
+          <div class="field"><label>검색 실패 문구</label><textarea id="aiSettingsFallback">${escapeHtml(d.fallbackMessage || '현재 등록된 안내에서 답변을 찾지 못했습니다.')}</textarea></div>
+          <div class="field"><label>관리자 지시문</label><textarea id="aiSettingsHint" placeholder="예: 답변은 짧고 친절하게 작성">${escapeHtml(d.systemHint || '')}</textarea></div>
+          <button class="btn btn-primary" type="submit">설정 저장</button>
+        </form>`;
+      qs('#aiSettingsForm')?.addEventListener('submit', saveAiSettings);
+    }
+
+    async function saveAiSettings(event){
+      event.preventDefault();
+      await setDoc(doc(db, 'ai_settings', 'default'), {
+        enabled: !!qs('#aiSettingsEnabled')?.checked,
+        usePersonalization: !!qs('#aiSettingsPersonal')?.checked,
+        useSituation: !!qs('#aiSettingsSituation')?.checked,
+        useVoice: !!qs('#aiSettingsVoice')?.checked,
+        welcomeMessage: qs('#aiSettingsWelcome')?.value.trim() || '',
+        fallbackMessage: qs('#aiSettingsFallback')?.value.trim() || '',
+        systemHint: qs('#aiSettingsHint')?.value.trim() || '',
+        updatedAt: serverTimestamp()
+      }, { merge:true });
+      openModalAlert('AI 설정이 저장되었습니다.', null, '저장 완료');
+      await refreshAiMetrics();
+    }
+
+    function normalizeAiSearchValue(value=''){
+      return String(value || '').trim();
+    }
+
+    function resetAiPaging(kind){
+      const target = aiAdminState[kind];
+      if(!target) return;
+      target.cursors = [];
+      target.page = 1;
+      target.lastDoc = null;
+      target.hasNext = false;
+    }
+
+    function renderAiLogToolbar(kind, title, desc){
+      const state = aiAdminState[kind];
+      const pageSize = state?.pageSize || 20;
+      const search = escapeHtml(state?.search || '');
+      const mode = state?.mode || 'latest';
+      const placeholder = kind === 'logs'
+        ? '질문 검색 또는 uid:사용자UID'
+        : '대화 제목 검색 또는 uid:사용자UID';
+      return renderAiFormHeader(title, desc) + `
+        <div class="ai-log-toolbar" data-ai-paging-kind="${escapeHtml(kind)}">
+          <div class="ai-log-search-row">
+            <input id="${kind}SearchInput" value="${search}" placeholder="${escapeHtml(placeholder)}" />
+            <select id="${kind}PageSize" aria-label="페이지 크기">
+              ${[10,20,30,50].map(n => `<option value="${n}" ${Number(pageSize) === n ? 'selected' : ''}>${n}개</option>`).join('')}
+            </select>
+            <button class="btn btn-primary" type="button" data-ai-action="${kind}-search">검색</button>
+          </div>
+          <div class="ai-log-pagebar">
+            <small id="${kind}PageInfo">${escapeHtml(mode === 'search' ? '검색 결과' : '최신순')} · ${Number(state?.page || 1)}페이지</small>
+            <div class="ai-log-page-actions">
+              <button class="btn btn-soft" type="button" data-ai-action="${kind}-refresh">새로고침</button>
+              <button class="btn btn-soft" type="button" data-ai-action="${kind}-prev" ${Number(state?.page || 1) <= 1 ? 'disabled' : ''}>이전</button>
+              <button class="btn btn-blue" type="button" data-ai-action="${kind}-next" ${state?.hasNext ? '' : 'disabled'}>다음</button>
+            </div>
+          </div>
+          <div class="ai-log-hint">검색은 대량 로그를 고려해 페이지 단위로 조회합니다. 질문/제목 검색은 앞부분 일치, UID 검색은 <b>uid:사용자UID</b> 형식입니다.</div>
+        </div>`;
+    }
+
+    function buildAiPagedQuery(kind){
+      const state = aiAdminState[kind];
+      const pageSize = Number(state?.pageSize || 20);
+      const raw = normalizeAiSearchValue(state?.search || '');
+      const isUidSearch = raw.toLowerCase().startsWith('uid:');
+      const uid = isUidSearch ? raw.slice(4).trim() : '';
+      const colName = kind === 'logs' ? 'ai_chat_logs' : 'ai_conversations';
+      const colRef = collection(db, colName);
+      const clauses = [];
+
+      if(kind === 'conversations'){
+        clauses.push(where('status', '==', 'active'));
+      }
+
+      if(uid){
+        state.mode = 'uid';
+        clauses.push(where('uid', '==', uid));
+        clauses.push(orderBy(kind === 'logs' ? 'createdAt' : 'updatedAt', 'desc'));
+      }else if(raw){
+        state.mode = 'search';
+        const field = kind === 'logs' ? 'question' : 'title';
+        clauses.push(orderBy(field));
+        clauses.push(startAt(raw));
+        clauses.push(endAt(raw + '\uf8ff'));
+      }else{
+        state.mode = 'latest';
+        clauses.push(orderBy(kind === 'logs' ? 'createdAt' : 'updatedAt', 'desc'));
+      }
+
+      const cursor = state.cursors[Math.max(0, Number(state.page || 1) - 2)];
+      if(cursor) clauses.push(startAfter(cursor));
+      clauses.push(limit(pageSize + 1));
+      return query(colRef, ...clauses);
+    }
+
+    async function fetchAiPagedDocs(kind){
+      const state = aiAdminState[kind];
+      const pageSize = Number(state?.pageSize || 20);
+      const snap = await getDocs(buildAiPagedQuery(kind));
+      const docs = snap.docs.slice(0, pageSize);
+      state.hasNext = snap.docs.length > pageSize;
+      state.lastDoc = docs.length ? docs[docs.length - 1] : null;
+      return docs;
+    }
+
+    function updateAiPageCursor(kind){
+      const state = aiAdminState[kind];
+      if(!state?.lastDoc) return;
+      state.cursors[state.page - 1] = state.lastDoc;
+    }
+
+    async function goAiPage(kind, direction){
+      const state = aiAdminState[kind];
+      if(!state) return;
+      if(direction === 'next' && state.hasNext){
+        updateAiPageCursor(kind);
+        state.page += 1;
+      }
+      if(direction === 'prev' && state.page > 1){
+        state.page -= 1;
+      }
+      if(kind === 'logs') await loadAiLogs(false);
+      else await loadAiConversations(false);
+    }
+
+    function applyAiSearch(kind){
+      const state = aiAdminState[kind];
+      if(!state) return;
+      const input = qs(`#${kind}SearchInput`);
+      const size = qs(`#${kind}PageSize`);
+      state.search = normalizeAiSearchValue(input?.value || '');
+      state.pageSize = Number(size?.value || state.pageSize || 20);
+      resetAiPaging(kind);
+      if(kind === 'logs') return loadAiLogs(false);
+      return loadAiConversations(false);
+    }
+
+    async function loadAiLogs(reset=true){
+      if(!requireAdminDataAccess()) return;
+      const box = qs('#aiAdminContent');
+      if(!box) return;
+      if(reset) resetAiPaging('logs');
+      box.innerHTML = renderAiLogToolbar('logs', '질문 로그', '입주민들이 실제로 질문한 내용을 검색하고 페이지 단위로 확인합니다.') + '<div class="ai-admin-list" id="aiLogList"><div class="ai-empty">불러오는 중...</div></div>';
+      const list = qs('#aiLogList');
+      try{
+        const docs = await fetchAiPagedDocs('logs');
+        const state = aiAdminState.logs;
+        const pageInfo = qs('#logsPageInfo');
+        if(pageInfo) pageInfo.textContent = `${state.mode === 'latest' ? '최신순' : '검색 결과'} · ${state.page}페이지 · ${docs.length}건 표시${state.hasNext ? ' · 다음 있음' : ''}`;
+        if(!docs.length){ list.innerHTML = '<div class="ai-empty">표시할 질문 로그가 없습니다.</div>'; return; }
+        list.innerHTML = docs.map(docSnap => {
+          const d = docSnap.data() || {};
+          const answer = valueToText(d.answer || d.answerText || d.answerHtml || d.response || '');
+          return `<div class="ai-admin-item">
+            <div class="ai-log-question">Q. ${escapeHtml(d.question || '-')}</div>
+            ${answer ? `<div class="ai-log-answer">A. ${escapeHtml(answer.slice(0, 500))}</div>` : ''}
+            <div style="margin-top:10px;">
+              <span class="ai-code-pill">${escapeHtml(formatAiAdminDate(d.createdAt))}</span>
+              <span class="ai-code-pill">UID ${escapeHtml(d.uid || '-')}</span>
+              <span class="ai-code-pill">${escapeHtml((d.matchedTypes || []).join(', ') || d.source || 'AI')}</span>
+              <span class="ai-code-pill">매칭 ${escapeHtml(d.matchedCount ?? '-')}</span>
+            </div>
+            <div class="ai-admin-item-actions">
+              <button class="btn btn-soft" type="button" data-ai-action="faq-from-log" data-question="${escapeHtml(d.question || '')}" data-answer="${escapeHtml(answer || '')}">FAQ로 복사</button>
+            </div>
+          </div>`;
+        }).join('');
+		
+		const nextBtn = qs('[data-ai-action="logs-next"]');
+		const prevBtn = qs('[data-ai-action="logs-prev"]');
+
+		if (nextBtn) nextBtn.disabled = !state.hasNext;
+		if (prevBtn) prevBtn.disabled = Number(state.page || 1) <= 1;
+      }catch(error){
+        console.error(error);
+        list.innerHTML = '<div class="ai-empty">질문 로그를 불러오지 못했습니다. 검색 조합에 필요한 Firestore 인덱스 또는 권한을 확인해 주세요.</div>';
+      }
+    }
+
+    async function loadAiConversations(reset=true){
+      if(!requireAdminDataAccess()) return;
+      const box = qs('#aiAdminContent');
+      if(!box) return;
+      if(reset) resetAiPaging('conversations');
+      box.innerHTML = renderAiLogToolbar('conversations', '대화 기록', '대화방 단위로 누적된 AI 사용 흐름을 검색하고 페이지 단위로 확인합니다.') + '<div class="ai-admin-list" id="aiConversationList"><div class="ai-empty">불러오는 중...</div></div>';
+      const list = qs('#aiConversationList');
+      try{
+        const docs = await fetchAiPagedDocs('conversations');
+        const state = aiAdminState.conversations;
+        const pageInfo = qs('#conversationsPageInfo');
+        if(pageInfo) pageInfo.textContent = `${state.mode === 'latest' ? '최신순' : '검색 결과'} · ${state.page}페이지 · ${docs.length}건 표시${state.hasNext ? ' · 다음 있음' : ''}`;
+        if(!docs.length){ list.innerHTML = '<div class="ai-empty">표시할 대화 기록이 없습니다.</div>'; return; }
+        list.innerHTML = docs.map(docSnap => {
+          const d = docSnap.data() || {};
+          return `<div class="ai-admin-item">
+            <h5>${escapeHtml(d.title || '새 대화')}</h5>
+            <p>UID: ${escapeHtml(d.uid || '-')}</p>
+            <div style="margin-top:10px;">
+              <span class="ai-code-pill">생성 ${escapeHtml(formatAiAdminDate(d.createdAt))}</span>
+              <span class="ai-code-pill">수정 ${escapeHtml(formatAiAdminDate(d.updatedAt))}</span>
+              <span class="ai-code-pill">메시지 ${escapeHtml(d.messageCount ?? 0)}</span>
+              <span class="ai-code-pill">${escapeHtml(docSnap.id)}</span>
+            </div>
+          </div>`;
+        }).join('');
+		
+		const nextBtn = qs('[data-ai-action="conversations-next"]');
+		const prevBtn = qs('[data-ai-action="conversations-prev"]');
+
+		if (nextBtn) nextBtn.disabled = !state.hasNext;
+		if (prevBtn) prevBtn.disabled = Number(state.page || 1) <= 1;
+      }catch(error){
+        console.error(error);
+        list.innerHTML = '<div class="ai-empty">대화 기록을 불러오지 못했습니다. 검색 조합에 필요한 Firestore 인덱스 또는 권한을 확인해 주세요.</div>';
+      }
+    }
+
+    async function deleteAiDoc(collectionName, id){
+      if(!collectionName || !id) return;
+      const ok = window.confirm('정말 삭제하시겠습니까?');
+      if(!ok) return;
+      await deleteDoc(doc(db, collectionName, id));
+      openModalAlert('선택한 AI 데이터가 삭제되었습니다.', null, '삭제 완료');
+      await openAIManager(aiAdminState.tab);
+    }
+
+    function seedFaqFromLog(question, answer){
+      changeAdminView('ai');
+      setTimeout(async () => {
+        await openAIManager('faq');
+        qs('#aiFaqQuestion') && (qs('#aiFaqQuestion').value = question || '');
+        qs('#aiFaqAnswer') && (qs('#aiFaqAnswer').value = answer || '');
+        qs('#aiFaqKeywords') && (qs('#aiFaqKeywords').value = splitKeywords(question).join(', '));
+        qs('#aiFaqQuestion')?.scrollIntoView({behavior:'smooth', block:'center'});
+      }, 120);
+    }
+
+    function initAiManagerSwipe(){
+      const el = qs('#aiManagerTabs');
+      if(!el || el.dataset.swipeReady === '1') return;
+      el.dataset.swipeReady = '1';
+      let isDown=false, startX=0, startLeft=0, moved=false;
+      el.addEventListener('pointerdown', (e) => {
+        isDown=true; moved=false; startX=e.clientX; startLeft=el.scrollLeft; el.classList.add('dragging');
+      });
+      el.addEventListener('pointermove', (e) => {
+        if(!isDown) return;
+        const dx = e.clientX - startX;
+        if(Math.abs(dx)>4) moved=true;
+        el.scrollLeft = startLeft - dx;
+      });
+      ['pointerup','pointercancel','pointerleave'].forEach(type => el.addEventListener(type, () => {
+        isDown=false; setTimeout(()=>{ moved=false; }, 0); el.classList.remove('dragging');
+      }));
+      el.addEventListener('click', (e) => {
+        if(moved){ e.preventDefault(); e.stopPropagation(); return; }
+        const btn = e.target.closest('[data-ai-tab]');
+        if(btn) openAIManager(btn.dataset.aiTab);
+      });
+    }
+
+    document.addEventListener('click', async (event) => {
+      const tabBtn = event.target.closest('[data-ai-tab]');
+      if(tabBtn && !tabBtn.closest('#aiManagerTabs')) openAIManager(tabBtn.dataset.aiTab);
+
+      const action = event.target.closest('[data-ai-action]');
+      if(!action) return;
+      const type = action.dataset.aiAction;
+      if(type === 'reset-faq') return resetAiFaqForm();
+      if(type === 'reset-booklet') return resetAiBookletForm();
+      if(type === 'reset-guide') return resetAiGuideForm();
+      if(type === 'edit-faq') return editAiFaq(action.dataset.id);
+      if(type === 'edit-booklet') return editAiBooklet(action.dataset.id);
+      if(type === 'edit-guide') return editAiGuide(action.dataset.id);
+      if(type === 'delete-doc') return deleteAiDoc(action.dataset.collection, action.dataset.id);
+      if(type === 'logs-search') return applyAiSearch('logs');
+      if(type === 'logs-refresh'){ resetAiPaging('logs'); return loadAiLogs(false); }
+      if(type === 'logs-prev') return goAiPage('logs', 'prev');
+      if(type === 'logs-next') return goAiPage('logs', 'next');
+      if(type === 'conversations-search') return applyAiSearch('conversations');
+      if(type === 'conversations-refresh'){ resetAiPaging('conversations'); return loadAiConversations(false); }
+      if(type === 'conversations-prev') return goAiPage('conversations', 'prev');
+      if(type === 'conversations-next') return goAiPage('conversations', 'next');
+      if(type === 'faq-from-log') return seedFaqFromLog(action.dataset.question || '', action.dataset.answer || '');
+    });
+
+    setTimeout(initAiManagerSwipe, 500);
+
+
     const benefitSortSelect=qs('#benefitSortSelect'); if(benefitSortSelect){benefitSortSelect.value=benefitSortMode; benefitSortSelect.addEventListener('change',()=>{benefitSortMode=benefitSortSelect.value||'latest'; renderAdminList();});}
     qs('#benefitForm').addEventListener('submit',saveBenefit);qs('#thumbnailUrl')?.addEventListener('input',(event)=>updateThumbPreview(event.target.value));qs('#noticeForm').addEventListener('submit',saveNotice);qs('#geocodeBtn')?.addEventListener('click', geocodeAddressByNaver);qs('#cancelEditBtn').onclick=resetForm;qs('#cancelNoticeEditBtn').onclick=resetNoticeForm;qs('#loginBtn').onclick=loginAdmin;qs('#logoutBtn').onclick=logoutAdmin;qs('#exportBtn').onclick=exportBenefits;qs('#seedBtn').onclick=seedDefaultData;document.addEventListener('click',(event)=>{const actionBtn=event.target.closest('[data-member-action]');if(!actionBtn) return;updateMemberStatus(actionBtn.dataset.memberId, actionBtn.dataset.memberAction);});resetForm();resetNoticeForm();changeAdminView('dashboard');
   </script>
@@ -2775,6 +3834,7 @@ const setTextAll = (selector, text) => qsa(selector).forEach(el => el.textConten
       <div class="gnb-icons">
         <button class="gnb-icon-btn gnb-home-active" type="button" data-admin-view="dashboard" title="대시보드">⌂</button>
         <button class="gnb-icon-btn" type="button" data-admin-view="community" title="커뮤니티 관리">💬</button>
+        <button class="gnb-icon-btn" type="button" data-admin-view="ai" title="AI 생활 도우미">🤖</button>
         <button class="gnb-icon-btn" type="button" data-admin-view="all" title="전체 기능">▦</button>
         <button class="gnb-close" id="adminGnbCloseBtn" type="button" title="닫기">✕</button>
       </div>
@@ -2833,6 +3893,7 @@ const setTextAll = (selector, text) => qsa(selector).forEach(el => el.textConten
               </span>
             </button>
             <button class="gnb-menu-item gnb-tone-community" type="button" data-admin-view="community"><span class="gnb-active-badge" hidden>ACTIVE</span><span class="gnb-card"><span class="gnb-card-icon community">💬</span><span class="gnb-card-copy"><strong>커뮤니티 관리</strong><span>게시글·댓글·신고</span></span><span class="gnb-card-arrow">›</span></span></button>
+            <button class="gnb-menu-item gnb-tone-ai" type="button" data-admin-view="ai"><span class="gnb-active-badge" hidden>ACTIVE</span><span class="gnb-card"><span class="gnb-card-icon ai">🤖</span><span class="gnb-card-copy"><strong>AI 생활 도우미</strong><span>FAQ·전자책·가이드·질문 로그</span></span><span class="gnb-card-arrow">›</span></span></button>
             <button class="gnb-menu-item gnb-tone-notices" type="button" data-admin-view="notices"><span class="gnb-active-badge" hidden>ACTIVE</span>
               <span class="gnb-card">
                 <span class="gnb-card-icon notices">📢</span>
@@ -2906,6 +3967,7 @@ const setTextAll = (selector, text) => qsa(selector).forEach(el => el.textConten
             </span>
           </button>
           <button class="gnb-menu-subitem gnb-tone-community" type="button" data-admin-view="community"><span class="gnb-active-badge" hidden>ACTIVE</span><span class="gnb-card"><span class="gnb-card-icon community">💬</span><span class="gnb-card-copy"><strong>커뮤니티</strong><span>신고/숨김</span></span><span class="gnb-card-arrow">›</span></span></button>
+          <button class="gnb-menu-subitem gnb-tone-ai" type="button" data-admin-view="ai"><span class="gnb-active-badge" hidden>ACTIVE</span><span class="gnb-card"><span class="gnb-card-icon ai">🤖</span><span class="gnb-card-copy"><strong>AI</strong><span>생활 도우미 데이터 관리</span></span><span class="gnb-card-arrow">›</span></span></button>
           <button class="gnb-menu-subitem gnb-tone-notices" type="button" data-admin-view="notices"><span class="gnb-active-badge" hidden>ACTIVE</span>
             <span class="gnb-card">
               <span class="gnb-card-icon notices">📢</span>
