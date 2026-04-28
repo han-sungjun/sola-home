@@ -525,7 +525,7 @@
 
         <div class="btn-row">
           <button id="loginBtn" class="btn btn-primary" type="submit">로그인</button>
-          <button id="signupBtn" class="btn btn-soft" type="button">회원가입</button>
+          <button id="signupBtn" class="btn btn-soft" type="button" onclick="if(window.__LOGIN_SAFE_SIGNUP__ && !window.__LOGIN_MODULE_READY__){window.__LOGIN_SAFE_SIGNUP__();}">회원가입</button>
         </div>
         <button id="installAppBtn" class="btn btn-install" type="button" hidden>
           📱 앱으로 빠르게 이용하기
@@ -541,9 +541,73 @@
     </div>
   </div>
 
+  <script id="login-runtime-guard">
+    window.__LOGIN_MODULE_LOADED__ = false;
+    window.__LOGIN_MODULE_READY__ = false;
+    window.__LOGIN_MODULE_ERROR__ = null;
+
+    (function(){
+      function goSignup(){
+        window.location.href = '/signup?v=' + Date.now();
+      }
+
+      function showBasicNotice(message){
+        var notice = document.getElementById('notice');
+        if (notice) {
+          notice.className = 'notice show error';
+          notice.textContent = message;
+        }
+      }
+
+      function isKakaoInApp(){
+        return /kakaotalk/i.test(navigator.userAgent || '');
+      }
+
+      function isIOS(){
+        return /iphone|ipad|ipod/i.test(navigator.userAgent || '');
+      }
+
+      window.__LOGIN_SAFE_SIGNUP__ = goSignup;
+      window.__LOGIN_SHOW_BASIC_NOTICE__ = showBasicNotice;
+
+      document.addEventListener('DOMContentLoaded', function(){
+        var signupBtn = document.getElementById('signupBtn');
+        if (signupBtn) {
+          signupBtn.addEventListener('click', function(event){
+            if (window.__LOGIN_MODULE_READY__) return;
+            event.preventDefault();
+            goSignup();
+          });
+        }
+
+        if (isKakaoInApp() && isIOS()) {
+          showBasicNotice('아이폰 카카오톡 안에서는 로그인이나 회원가입이 정상 동작하지 않을 수 있습니다. 우측 하단 공유/더보기 버튼을 눌러 Safari 또는 Chrome으로 열어주세요.');
+        }
+      });
+
+      window.addEventListener('error', function(event){
+        window.__LOGIN_MODULE_ERROR__ = event.message || 'script_error';
+        console.warn('로그인 페이지 스크립트 오류:', event.message, event.filename, event.lineno, event.colno);
+      });
+
+      window.addEventListener('unhandledrejection', function(event){
+        window.__LOGIN_MODULE_ERROR__ = (event.reason && (event.reason.message || event.reason.code)) || 'promise_error';
+        console.warn('로그인 페이지 비동기 오류:', event.reason);
+      });
+
+      setTimeout(function(){
+        if (!window.__LOGIN_MODULE_LOADED__) {
+          showBasicNotice('현재 브라우저에서 로그인 스크립트가 정상 로드되지 않았습니다. 카카오톡 안에서 열었다면 Safari 또는 Chrome으로 다시 열어주세요.');
+          document.body.style.opacity = '1';
+        }
+      }, 1800);
+    })();
+  </script>
+
   <script type="module">
-    import './firebase-config.js';
-    import { ENV, API_URL } from './env-config.js';
+    window.__LOGIN_MODULE_LOADED__ = true;
+    import './firebase-config.js?v=20260428-login-fix';
+    import { ENV, API_URL } from './env-config.js?v=20260428-login-fix';
 
     const envBadge = document.getElementById('envBadge');
     if (envBadge && ENV === 'dev') envBadge.classList.add('show');
@@ -580,12 +644,17 @@
       getLoginLockStatus,
       recordLoginFailureLocal,
       clearLoginFailureLocal
-    } from './tracking.js';
+    } from './tracking.js?v=20260428-login-fix';
 
     const app = getApp();
     const auth = getAuth(app);
     const db = getFirestore(app);
-    const messaging = getMessaging(app);
+    let messaging = null;
+    try {
+      messaging = getMessaging(app);
+    } catch (error) {
+      console.warn('Firebase Messaging 초기화 실패:', error);
+    }
 
     /* =========================
        Foreground 시스템 알림 처리
@@ -798,10 +867,10 @@
 
     function setActiveHelpTab(tab='findId'){
       const isFindId = tab === 'findId';
-      tabFindId.classList.toggle('active', isFindId);
-      tabResetPw.classList.toggle('active', !isFindId);
-      findIdSection.classList.toggle('active', isFindId);
-      resetPwSection.classList.toggle('active', !isFindId);
+      tabFindId?.classList.toggle('active', isFindId);
+      tabResetPw?.classList.toggle('active', !isFindId);
+      findIdSection?.classList.toggle('active', isFindId);
+      resetPwSection?.classList.toggle('active', !isFindId);
       hideSheetResult(findIdResultEl);
       hideSheetResult(resetPwResultEl);
       requestAnimationFrame(() => {
@@ -810,14 +879,14 @@
     }
 
     function openAccountHelp(tab='findEmail'){
-      accountHelpModal.classList.add('show');
-      accountHelpModal.setAttribute('aria-hidden', 'false');
+      accountHelpModal?.classList.add('show');
+      accountHelpModal?.setAttribute('aria-hidden', 'false');
       setActiveHelpTab(tab);
     }
 
     function closeAccountHelp(){
-      accountHelpModal.classList.remove('show');
-      accountHelpModal.setAttribute('aria-hidden', 'true');
+      accountHelpModal?.classList.remove('show');
+      accountHelpModal?.setAttribute('aria-hidden', 'true');
       hideSheetResult(findIdResultEl);
       hideSheetResult(resetPwResultEl);
     }
@@ -827,21 +896,23 @@
     }
 
     function showNotice(message, type='info'){
+      if (!noticeEl) return;
       noticeEl.className = `notice show ${type}`;
       noticeEl.textContent = message;
     }
 
     function hideNotice(){
+      if (!noticeEl) return;
       noticeEl.className = 'notice info';
       noticeEl.textContent = '';
     }
 
     function setLoginLoading(isLoading){
-      loginBtn.disabled = isLoading;
-      loginBtn.textContent = isLoading ? '로그인 중...' : '로그인';
-      signupBtn.disabled = isLoading;
-      loginIdEl.disabled = isLoading;
-      passwordEl.disabled = isLoading;
+      if (loginBtn) loginBtn.disabled = isLoading;
+      if (loginBtn) loginBtn.textContent = isLoading ? '로그인 중...' : '로그인';
+      if (signupBtn) signupBtn.disabled = isLoading;
+      if (loginIdEl) loginIdEl.disabled = isLoading;
+      if (passwordEl) passwordEl.disabled = isLoading;
     }
 
     function normalizeLoginId(value=''){
@@ -1046,16 +1117,16 @@
       icon='⚠️'
     } = {}){
       alertFocusTarget = focusTarget;
-      alertTitleEl.textContent = title;
-      alertMsgEl.textContent = message;
-      alertIconEl.textContent = icon;
-      alertConfirmEl.textContent = confirmText;
-      alertCancelEl.textContent = cancelText;
-      alertCancelEl.classList.toggle('hidden', mode !== 'confirm');
-      alertEl.classList.add('show');
-      alertEl.setAttribute('aria-hidden', 'false');
+      if (alertTitleEl) alertTitleEl.textContent = title;
+      if (alertMsgEl) alertMsgEl.textContent = message;
+      if (alertIconEl) alertIconEl.textContent = icon;
+      if (alertConfirmEl) alertConfirmEl.textContent = confirmText;
+      if (alertCancelEl) alertCancelEl.textContent = cancelText;
+      alertCancelEl?.classList.toggle('hidden', mode !== 'confirm');
+      alertEl?.classList.add('show');
+      alertEl?.setAttribute('aria-hidden', 'false');
       requestAnimationFrame(() => {
-        (mode === 'confirm' ? alertCancelEl : alertConfirmEl).focus();
+        (mode === 'confirm' ? alertCancelEl : alertConfirmEl)?.focus();
       });
       return new Promise((resolve) => {
         alertResolver = resolve;
@@ -1071,8 +1142,8 @@
     }
 
     function closeModal(result=false){
-	  alertEl.classList.remove('show');
-	  alertEl.setAttribute('aria-hidden', 'true');
+	  alertEl?.classList.remove('show');
+	  alertEl?.setAttribute('aria-hidden', 'true');
 
 	  // 항상 포커싱 이동
 	  if(alertFocusTarget){
@@ -1090,42 +1161,42 @@
 	  if(resolver) resolver(result);
 	}
 
-    alertConfirmEl.addEventListener('click', () => closeModal(true));
-    alertCancelEl.addEventListener('click', () => closeModal(false));
-    alertEl.addEventListener('click', (event) => {
+    alertConfirmEl?.addEventListener('click', () => closeModal(true));
+    alertCancelEl?.addEventListener('click', () => closeModal(false));
+    alertEl?.addEventListener('click', (event) => {
       if(event.target === alertEl) closeModal(false);
     });
     window.addEventListener('keydown', (event) => {
       if (event.key !== 'Escape') return;
-      if (accountHelpModal.classList.contains('show')) {
+      if (accountHelpModal?.classList.contains('show')) {
         closeAccountHelp();
         return;
       }
-      if(!alertEl.classList.contains('show')) return;
+      if(!alertEl?.classList.contains('show')) return;
       closeModal(false);
     });
 
-    tabFindId.addEventListener('click', () => setActiveHelpTab('findId'));
-    tabResetPw.addEventListener('click', () => setActiveHelpTab('resetPw'));
-    accountHelpCloseBtn.addEventListener('click', closeAccountHelp);
-    accountHelpModal.addEventListener('click', (event) => {
+    tabFindId?.addEventListener('click', () => setActiveHelpTab('findId'));
+    tabResetPw?.addEventListener('click', () => setActiveHelpTab('resetPw'));
+    accountHelpCloseBtn?.addEventListener('click', closeAccountHelp);
+    accountHelpModal?.addEventListener('click', (event) => {
       if (event.target === accountHelpModal) closeAccountHelp();
     });
 
-    applyFindIdBtn.addEventListener('click', () => {
+    applyFindIdBtn?.addEventListener('click', () => {
       const foundLoginId = normalizeLoginId(findIdLoginIdEl.value);
 
       if (!foundLoginId) {
         setSheetResult(findIdResultEl, '가입 시 사용한 아이디를 입력해 주세요.', 'error');
-        findIdLoginIdEl.focus();
+        findIdLoginIdEl?.focus();
         return;
       }
 
-      loginIdEl.value = foundLoginId;
+      if (loginIdEl) loginIdEl.value = foundLoginId;
       setSheetResult(findIdResultEl, '입력한 아이디를 로그인 칸에 넣었습니다.\n현재 서비스에서는 아이디로 로그인합니다.', 'success');
       setTimeout(() => {
         closeAccountHelp();
-        loginIdEl.focus();
+        loginIdEl?.focus();
       }, 500);
     });
 
@@ -1236,17 +1307,17 @@
       };
     }
 
-    sendResetPwBtn.addEventListener('click', async () => {
+    sendResetPwBtn?.addEventListener('click', async () => {
       const resetLoginId = normalizeLoginId(resetPwLoginIdEl.value);
 
       if (!resetLoginId) {
         setSheetResult(resetPwResultEl, '비밀번호를 재설정할 아이디를 입력해 주세요.', 'error');
-        resetPwLoginIdEl.focus();
+        resetPwLoginIdEl?.focus();
         return;
       }
 
-      sendResetPwBtn.disabled = true;
-      sendResetPwBtn.textContent = '확인 중...';
+      if (sendResetPwBtn) sendResetPwBtn.disabled = true;
+      if (sendResetPwBtn) sendResetPwBtn.textContent = '확인 중...';
       setSheetResult(resetPwResultEl, '회원 정보를 확인하고 있습니다.', 'info');
 
       try {
@@ -1272,14 +1343,14 @@
 
         setSheetResult(resetPwResultEl, message, 'error');
       } finally {
-        sendResetPwBtn.disabled = false;
-        sendResetPwBtn.textContent = '재설정 메일 보내기';
+        if (sendResetPwBtn) sendResetPwBtn.disabled = false;
+        if (sendResetPwBtn) sendResetPwBtn.textContent = '재설정 메일 보내기';
       }
     });
 
 
 
-    signupBtn.addEventListener('click', () => {
+    signupBtn?.addEventListener('click', () => {
       startLoading();
       setTimeout(() => {
         replaceWithLoader(SIGNUP_PAGE_URL);
@@ -1287,7 +1358,7 @@
     });
 
 
-    loginForm.addEventListener('submit', async (event) => {
+    loginForm?.addEventListener('submit', async (event) => {
       event.preventDefault();
       hideNotice();
 
@@ -1426,6 +1497,8 @@
         setLoginLoading(false);
       }
     });
+
+    window.__LOGIN_MODULE_READY__ = true;
 
     onAuthStateChanged(auth, async (user) => {
       document.body.style.opacity = '1';
