@@ -2504,6 +2504,28 @@ body.env-prod #view-ai{
 .distance-select-wrap select{width:100%!important;min-width:0!important;min-height:31px!important;height:31px!important;border-radius:10px!important;padding:0 6px!important;font-size:11.5px!important;line-height:1.1!important;}
 .distance-filter-help{padding:5px 7px!important;border-radius:10px!important;font-size:10.5px!important;line-height:1.25!important;word-break:keep-all;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 @media (max-width:370px){.distance-filter-row{grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important}.distance-select-wrap select{font-size:11px!important;padding:0 5px!important}.distance-filter-help{font-size:10px!important}}
+
+/* ===== AI external_places 자동 추천 카드 UI ===== */
+.ai-auto-card-list{display:grid;gap:12px;margin-top:14px}
+.ai-auto-card-list-title{display:flex;justify-content:space-between;align-items:center;gap:8px;margin:16px 0 8px;font-size:14px;font-weight:900;color:#0f172a}
+.ai-auto-card-list-title small{font-size:11px;color:#64748b;font-weight:900}
+.ai-auto-card{background:linear-gradient(180deg,#ffffff 0%,#f8fafc 100%);border:1px solid #dbeafe;border-radius:22px;padding:16px;box-shadow:0 14px 30px rgba(15,23,42,.08);animation:aiCardRise .24s ease both}
+.ai-auto-card.external{border-color:#bfdbfe}
+.ai-auto-card.internal{border-color:#fed7aa;background:linear-gradient(180deg,#fff7ed 0%,#ffffff 78%)}
+.ai-auto-card-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+.ai-auto-card-title{font-size:16px;font-weight:900;color:#0f172a;line-height:1.35;letter-spacing:-.03em}
+.ai-auto-card-sub{margin-top:4px;font-size:12px;font-weight:800;color:#64748b}
+.ai-match-pill{flex:0 0 auto;padding:7px 10px;border-radius:999px;background:#eef2ff;border:1px solid #c7d2fe;color:#4338ca;font-size:12px;font-weight:900}
+.ai-auto-card-desc{margin:12px 0 0;color:#334155;font-size:13px;line-height:1.65}
+.ai-auto-card-address{margin-top:10px;padding:9px 10px;border-radius:14px;background:#f8fafc;border:1px solid #e2e8f0;color:#475569;font-size:12px;font-weight:800;line-height:1.45}
+.ai-auto-tag-row{display:flex;flex-wrap:wrap;gap:7px;margin-top:12px}
+.ai-auto-tag{display:inline-flex;align-items:center;min-height:25px;padding:6px 9px;border-radius:999px;background:#eff6ff;border:1px solid #bfdbfe;color:#1d4ed8;font-size:11px;font-weight:900}
+.ai-auto-card-actions{display:flex;gap:8px;margin-top:13px}
+.ai-card-btn{flex:1;min-height:42px;display:inline-flex;align-items:center;justify-content:center;border-radius:15px;font-size:13px;font-weight:900;text-decoration:none}
+.ai-card-btn.primary{background:#0f172a;color:#fff}
+.ai-card-btn.soft{background:#fff;color:#0f172a;border:1px solid #e2e8f0}
+@keyframes aiCardRise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
 </style>
 </head>
 <body>
@@ -7173,6 +7195,59 @@ function getShareTrackingParams(){
       };
     }
 
+
+    function normalizeAiCardItem(item){
+      return {
+        id: item.id || item.docId || '',
+        name: item.name || item.title || '이름 없음',
+        category: item.category || '기타',
+        description: item.benefitText || item.description || item.summary || item.answer || '등록된 정보를 확인해보세요.',
+        address: item.address || item.roadAddress || '',
+        phone: item.phone || item.telephone || '',
+        link: item.link || '',
+        sourceType: item.sourceType || '',
+        source: item.source || '',
+        tags: item.aiTags || item.tags || [],
+        matchRate: item.matchRate || 80,
+        distanceKm: item.distanceKm
+      };
+    }
+
+    function renderAiAutoCard(rawItem){
+      const item = normalizeAiCardItem(rawItem);
+      const isExternal = item.source === 'naver_local' || item.sourceType === 'external_place' || item.type === '외부매장';
+      const badges = [isExternal ? '외부 추천' : '입주민 혜택', ...item.tags].filter(Boolean).slice(0, 5);
+      return `
+        <div class="ai-auto-card ${isExternal ? 'external' : 'internal'}" data-id="${escapeHtml(item.id)}">
+          <div class="ai-auto-card-head">
+            <div>
+              <div class="ai-auto-card-title">${escapeHtml(item.name)}</div>
+              <div class="ai-auto-card-sub">${escapeHtml(item.category)}</div>
+            </div>
+            <div class="ai-match-pill">매칭 ${Number(item.matchRate || 80)}%</div>
+          </div>
+          <p class="ai-auto-card-desc">${escapeHtml(item.description)}</p>
+          ${item.address ? `<div class="ai-auto-card-address">📍 ${escapeHtml(item.address)}</div>` : ''}
+          <div class="ai-auto-tag-row">${badges.map(tag => `<span class="ai-auto-tag">${escapeHtml(tag)}</span>`).join('')}</div>
+          <div class="ai-auto-card-actions">
+            ${item.phone ? `<a class="ai-card-btn soft" href="tel:${escapeHtml(item.phone)}">전화</a>` : ''}
+            ${item.link ? `<a class="ai-card-btn primary" href="${escapeHtml(item.link)}" target="_blank" rel="noopener">정보 보기</a>` : ''}
+          </div>
+        </div>`;
+    }
+
+    function appendAiRecommendationCards(recommendations = []){
+      const win = qs('#aiChatWindow');
+      if(!win || !Array.isArray(recommendations) || !recommendations.length) return;
+      const row = document.createElement('div');
+      row.className = 'ai-message bot';
+      const count = recommendations.length;
+      row.innerHTML = `<div class="ai-bubble"><div class="ai-auto-card-list-title"><span>자동 매칭 추천 카드</span><small>${count}개 추천</small></div><div class="ai-auto-card-list">${recommendations.slice(0, 6).map(renderAiAutoCard).join('')}</div></div>`;
+      win.appendChild(row);
+      win.scrollTop = win.scrollHeight;
+    }
+
+
     async function askAiAssistant(rawQuestion=''){
       if(!window.__AI_LAST_INPUT_MODE) window.__AI_LAST_INPUT_MODE = rawQuestion ? 'quick' : 'text';
       if(ENV !== 'dev') return openModalAlert('기능 준비중 입니다.');
@@ -7195,6 +7270,7 @@ function getShareTrackingParams(){
         updateAiConversationStatus(aiConversationTitle);
         const modeLabel = data.answerMode === 'gemini' ? '<span class="ai-mode-pill">Gemini 답변 · 개인화/상황 인식</span>' : '<span class="ai-mode-pill">검색 기반 답변 · 맥락 저장</span>';
         await typeAiHtml(pendingBubble, `${data.answerHtml || '관련 답변을 찾지 못했습니다.'}${modeLabel}`, 10);
+        if(Array.isArray(data.recommendations) && data.recommendations.length) appendAiRecommendationCards(data.recommendations);
         if(pendingRow) delete pendingRow.dataset.pending;
       }catch(error){
         console.error('AI Cloud Function 검색 실패', error);
