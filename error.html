@@ -10,7 +10,7 @@
   <meta name="theme-color" content="#0F172A" />
   <meta name="mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
   <link rel="icon" href="/icons/icon-192.png" />
   <link rel="apple-touch-icon" href="/icons/icon-180.png" />
 
@@ -20,7 +20,7 @@
   <link rel="apple-touch-startup-image" href="/icons/splash-ios-1170x2532.png" media="(device-width: 390px) and (device-height: 844px) and (-webkit-device-pixel-ratio: 3)" />
   <link rel="apple-touch-startup-image" href="/icons/splash-ios-1290x2796.png" media="(device-width: 430px) and (device-height: 932px) and (-webkit-device-pixel-ratio: 3)" />
 <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>페이지를 찾을 수 없습니다</title>
 
   <style>
@@ -219,6 +219,20 @@
       .myhills-install-icon{width:42px;height:42px}
       .myhills-install-btn{min-width:58px;padding:10px 12px}
     }
+  </style>
+
+  <style id="myhills-ios-safearea-fix">
+    :root{--myhills-safe-area-top:env(safe-area-inset-top,0px)}
+    @supports (padding-top: constant(safe-area-inset-top)){
+      :root{--myhills-safe-area-top:constant(safe-area-inset-top)}
+    }
+    .app{padding-top:calc(18px + var(--myhills-safe-area-top)) !important}
+    .page{padding-top:calc(22px + var(--myhills-safe-area-top)) !important}
+    body > .wrap{padding-top:var(--myhills-safe-area-top)}
+    body > .box{margin-top:var(--myhills-safe-area-top)}
+    .topbar-userbar{min-width:0}
+    .user-chip{min-width:0;max-width:min(260px,calc(100vw - 156px))}
+    .user-name{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   </style>
 
 </head>

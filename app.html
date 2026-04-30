@@ -2344,6 +2344,22 @@ body.app-role-resident [data-view="shareinsights"]{
 
   
 
+
+/* ===== AI 자동 혜택 카드 변환 ===== */
+.ai-benefit-card-auto{display:grid;gap:6px;margin:10px 0;padding:12px;border-radius:18px;background:linear-gradient(180deg,#f8fafc 0%,#ffffff 100%);border:1px solid #dbe3ef;box-shadow:0 10px 22px rgba(15,23,42,.06)}
+.ai-benefit-card-auto b{font-size:14px;color:#0f172a}
+.ai-benefit-card-auto span{font-size:12px;line-height:1.55;color:#475569}
+.ai-benefit-card-auto .ai-benefit-meta{display:flex;flex-wrap:wrap;gap:6px;margin-top:2px}
+.ai-benefit-card-auto .ai-benefit-meta em{font-style:normal;padding:5px 8px;border-radius:999px;background:#eff6ff;border:1px solid #bfdbfe;color:#1d4ed8;font-size:10px;font-weight:1000}
+.ai-benefit-card-auto .ai-benefit-meta em.weather,.ai-live-meta em.weather{background:#ecfeff;border-color:#a5f3fc;color:#0e7490}.ai-weather-chip{display:inline-flex;align-items:center;gap:5px;width:max-content;padding:6px 9px;border-radius:999px;background:#ecfeff;border:1px solid #a5f3fc;color:#0e7490;font-size:10px;font-weight:1000;line-height:1}
+.ai-benefit-card-auto button{margin-top:4px;border:none;border-radius:14px;padding:10px 11px;background:#0f172a;color:#fff;font-size:12px;font-weight:1000;cursor:pointer;text-align:left}
+.ai-phone-card-auto{display:flex;align-items:center;gap:12px;margin:12px 0 0;padding:13px 14px;border-radius:18px;background:#f8fafc;border:1px solid #dbeafe;box-shadow:0 10px 22px rgba(15,23,42,.06);color:#0f172a}
+.ai-phone-card-auto .ai-phone-icon{width:38px;height:38px;border-radius:14px;display:grid;place-items:center;background:#eff6ff;color:#1d4ed8;flex:0 0 auto}
+.ai-phone-card-auto .ai-phone-info{min-width:0;flex:1;display:grid;gap:3px}
+.ai-phone-card-auto .ai-phone-info b{font-size:13px;color:#0f172a;line-height:1.25}
+.ai-phone-card-auto .ai-phone-info span{font-size:14px;font-weight:1000;color:#1d4ed8;line-height:1.25;word-break:break-all}
+.ai-phone-card-auto .ai-phone-call{flex:0 0 auto;padding:9px 12px;border-radius:14px;background:#0f172a;color:#fff!important;font-size:12px;font-weight:1000;text-decoration:none}
+
 /* ===== 커뮤니티 카테고리 탭: PC/모바일 드래그 스와이프 + 클릭 유지 ===== */
 .community-filter{
   overflow-x:auto;
@@ -2392,6 +2408,47 @@ body.app-role-resident [data-view="shareinsights"]{
 .ai-action-links{display:grid;gap:8px;margin-top:12px}.ai-action-link{width:100%;border:none;border-radius:16px;padding:11px 12px;background:#0f172a;color:#fff;font-size:13px;font-weight:1000;text-align:left;cursor:pointer;box-shadow:0 10px 22px rgba(15,23,42,.14);transition:transform .16s ease, opacity .16s ease}.ai-action-link:hover{transform:translateY(-1px)}.ai-action-link:active{transform:scale(.985)}.ai-booklet-card,.ai-guide-card{display:grid;gap:4px;padding:12px;border-radius:16px;background:#f8fafc;border:1px solid #dbe3ef;color:#334155}.ai-guide-card{background:#f0fdf4;border-color:#bbf7d0}.ai-booklet-card b,.ai-guide-card b{font-size:13px;color:#0f172a}.ai-booklet-card small,.ai-guide-card small{font-size:11px;color:#64748b}.ai-booklet-card span,.ai-guide-card span{font-size:12px;line-height:1.55;color:#475569}
 
 
+
+
+/* ===== AI 고도화: 스트리밍 + 카드 자동 생성 + 개인화 추천 ===== */
+.ai-stream-shell{display:grid;gap:12px}
+.ai-stream-status{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 12px;border-radius:18px;background:linear-gradient(180deg,#f8fafc 0%,#ffffff 100%);border:1px solid rgba(15,23,42,.06);color:#475569;font-size:12px;font-weight:900}
+.ai-stream-status-left{display:inline-flex;align-items:center;gap:8px;min-width:0}
+.ai-stream-dot{width:8px;height:8px;border-radius:999px;background:#22c55e;box-shadow:0 0 0 0 rgba(34,197,94,.35);animation:aiStreamPulse 1s ease-in-out infinite;flex:0 0 auto}
+.ai-stream-text{white-space:pre-wrap;line-height:1.75;letter-spacing:-.02em}
+.ai-stream-cursor{display:inline-block;width:8px;height:17px;margin-left:2px;border-radius:999px;background:#1d4ed8;vertical-align:-3px;animation:aiCursorBlink .82s steps(2,end) infinite}
+.ai-live-card-dock{display:grid;gap:10px;margin-top:2px}
+.ai-live-card-head{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:12px;color:#475569;font-weight:900}
+.ai-live-card-grid{display:grid;gap:9px}
+.ai-live-card{position:relative;display:grid;gap:7px;padding:13px 14px;border-radius:20px;background:#fff;border:1px solid rgba(37,99,235,.12);box-shadow:0 12px 26px rgba(15,23,42,.07);animation:aiCardRise .22s ease both;overflow:hidden}
+.ai-live-card::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:linear-gradient(180deg,#2563eb,#7c3aed)}
+.ai-live-card b{font-size:14px;letter-spacing:-.03em;color:#0f172a}
+.ai-live-card span{font-size:12px;line-height:1.55;color:#475569}
+.ai-live-card .ai-live-meta{display:flex;flex-wrap:wrap;gap:6px}
+.ai-live-card .ai-live-meta em{font-style:normal;padding:5px 8px;border-radius:999px;background:#eff6ff;border:1px solid #bfdbfe;color:#1d4ed8;font-size:10px;font-weight:1000}
+.ai-answer-upgrade{display:grid;gap:12px}
+.ai-answer-summary{white-space:pre-wrap;line-height:1.78;letter-spacing:-.02em}
+.ai-answer-section{display:grid;gap:10px;margin-top:2px}
+.ai-answer-section-title{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:13px;font-weight:1000;color:#0f172a}
+.ai-answer-section-title small{font-size:11px;color:#64748b;font-weight:800}
+.ai-benefit-card-auto.enhanced{position:relative;display:grid;gap:8px;padding:15px 15px 14px 17px;border-radius:22px;background:linear-gradient(180deg,#ffffff 0%,#f8fbff 100%);border:1px solid rgba(37,99,235,.14);box-shadow:0 14px 30px rgba(15,23,42,.08);overflow:hidden;animation:aiCardRise .26s ease both}
+.ai-benefit-card-auto.enhanced::before{content:"";position:absolute;left:0;top:0;bottom:0;width:5px;background:linear-gradient(180deg,#2563eb,#06b6d4)}
+.ai-benefit-card-auto.enhanced .ai-card-top{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
+.ai-benefit-card-auto.enhanced b{font-size:15px;line-height:1.35;color:#0f172a}
+.ai-match-score{flex:0 0 auto;display:inline-flex;align-items:center;gap:4px;padding:5px 8px;border-radius:999px;background:#eef2ff;color:#3730a3;border:1px solid #c7d2fe;font-size:10px;font-weight:1000}
+.ai-benefit-card-auto.enhanced span{font-size:12.5px;line-height:1.6;color:#475569}
+.ai-benefit-meta{display:flex;flex-wrap:wrap;gap:6px}
+.ai-benefit-meta em{font-style:normal;padding:5px 8px;border-radius:999px;background:#f8fafc;border:1px solid #e2e8f0;color:#475569;font-size:10.5px;font-weight:900}
+.ai-personal-reason{padding:9px 10px;border-radius:14px;background:#fff7ed;border:1px solid #fed7aa;color:#9a3412;font-size:11px;font-weight:900;line-height:1.45}
+.ai-card-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:2px}
+.ai-card-actions button{border:none;border-radius:14px;padding:10px 10px;font-size:12px;font-weight:1000;cursor:pointer}
+.ai-card-actions .primary{background:#0f172a;color:#fff}
+.ai-card-actions .soft{background:#eef2ff;color:#1d4ed8;border:1px solid #dbeafe}
+.ai-mode-pill.upgraded{justify-self:start;background:#ecfdf5;border-color:#bbf7d0;color:#15803d}
+@keyframes aiStreamPulse{0%,100%{box-shadow:0 0 0 0 rgba(34,197,94,.35)}50%{box-shadow:0 0 0 7px rgba(34,197,94,0)}}
+@keyframes aiCursorBlink{0%,45%{opacity:1}46%,100%{opacity:.08}}
+@keyframes aiCardRise{from{opacity:0;transform:translateY(8px) scale(.985)}to{opacity:1;transform:translateY(0) scale(1)}}
+@media(max-width:370px){.ai-card-actions{grid-template-columns:1fr}.ai-stream-status{align-items:flex-start;flex-direction:column}}
 
 /* ===== AI 음성 질문 UX ===== */
 .ai-voice-row{display:flex;align-items:center;gap:8px;margin-top:10px}.ai-voice-btn{border:1px solid #dbeafe;background:#fff;color:#1d4ed8;border-radius:16px;padding:11px 12px;font-size:12px;font-weight:1000;cursor:pointer;box-shadow:0 8px 18px rgba(37,99,235,.06);transition:transform .16s ease, background-color .16s ease, color .16s ease}.ai-voice-btn:hover{transform:translateY(-1px);background:#eff6ff}.ai-voice-btn.listening{background:#ef4444;color:#fff;border-color:#fecaca;animation:aiVoicePulse 1s ease-in-out infinite}.ai-voice-status{flex:1;min-width:0;padding:10px 12px;border-radius:16px;background:#f8fafc;border:1px solid #e2e8f0;color:#64748b;font-size:12px;font-weight:900;line-height:1.45;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}@keyframes aiVoicePulse{0%,100%{box-shadow:0 0 0 0 rgba(239,68,68,.24)}50%{box-shadow:0 0 0 7px rgba(239,68,68,0)}}@media(max-width:370px){.ai-voice-row{align-items:stretch;flex-direction:column}.ai-voice-status{white-space:normal}}
@@ -2505,69 +2562,23 @@ body.env-prod #view-ai{
 .distance-filter-help{padding:5px 7px!important;border-radius:10px!important;font-size:10.5px!important;line-height:1.25!important;word-break:keep-all;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 @media (max-width:370px){.distance-filter-row{grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important}.distance-select-wrap select{font-size:11px!important;padding:0 5px!important}.distance-filter-help{font-size:10px!important}}
 
-/* ===== AI external_places 자동 추천 카드 UI ===== */
-.ai-auto-card-list{display:grid;gap:12px;margin-top:14px}
-.ai-auto-card-list-title{display:flex;justify-content:space-between;align-items:center;gap:8px;margin:16px 0 8px;font-size:14px;font-weight:900;color:#0f172a}
-.ai-auto-card-list-title small{font-size:11px;color:#64748b;font-weight:900}
-.ai-auto-card{background:linear-gradient(180deg,#ffffff 0%,#f8fafc 100%);border:1px solid #dbeafe;border-radius:22px;padding:16px;box-shadow:0 14px 30px rgba(15,23,42,.08);animation:aiCardRise .24s ease both}
-.ai-auto-card.external{border-color:#bfdbfe}
-.ai-auto-card.internal{border-color:#fed7aa;background:linear-gradient(180deg,#fff7ed 0%,#ffffff 78%)}
-.ai-auto-card-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
-.ai-auto-card-title{font-size:16px;font-weight:900;color:#0f172a;line-height:1.35;letter-spacing:-.03em}
-.ai-auto-card-sub{margin-top:4px;font-size:12px;font-weight:800;color:#64748b}
-.ai-match-pill{flex:0 0 auto;padding:7px 10px;border-radius:999px;background:#eef2ff;border:1px solid #c7d2fe;color:#4338ca;font-size:12px;font-weight:900}
-.ai-auto-card-desc{margin:12px 0 0;color:#334155;font-size:13px;line-height:1.65}
-.ai-auto-card-address{margin-top:10px;padding:9px 10px;border-radius:14px;background:#f8fafc;border:1px solid #e2e8f0;color:#475569;font-size:12px;font-weight:800;line-height:1.45}
-.ai-auto-tag-row{display:flex;flex-wrap:wrap;gap:7px;margin-top:12px}
-.ai-auto-tag{display:inline-flex;align-items:center;min-height:25px;padding:6px 9px;border-radius:999px;background:#eff6ff;border:1px solid #bfdbfe;color:#1d4ed8;font-size:11px;font-weight:900}
-.ai-auto-card-actions{display:flex;gap:8px;margin-top:13px}
-.ai-card-btn{flex:1;min-height:42px;display:inline-flex;align-items:center;justify-content:center;border-radius:15px;font-size:13px;font-weight:900;text-decoration:none}
-.ai-card-btn.primary{background:#0f172a;color:#fff}
-.ai-card-btn.soft{background:#fff;color:#0f172a;border:1px solid #e2e8f0}
-@keyframes aiCardRise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
-
-
-
-/* ===== iOS Safe Area Fix: iPhone 상태바/상단 헤더 겹침 방지 ===== */
-:root{
-  --ios-safe-top: env(safe-area-inset-top, 0px);
-  --ios-safe-bottom: env(safe-area-inset-bottom, 0px);
-}
-html{
-  -webkit-text-size-adjust:100%;
-}
-body{
-  min-height:100dvh;
-}
-.app{
-  padding-top:calc(18px + var(--ios-safe-top))!important;
-  padding-bottom:calc(120px + var(--ios-safe-bottom))!important;
-}
-@supports (padding-top: constant(safe-area-inset-top)){
-  .app{
-    padding-top:calc(18px + constant(safe-area-inset-top))!important;
-    padding-bottom:calc(120px + constant(safe-area-inset-bottom))!important;
-  }
-}
-@media (max-width:430px){
-  .topbar{
-    padding-top:2px;
-  }
-  .topbar-row{
-    gap:14px;
-  }
-  .user-chip{
-    min-width:0!important;
-  }
-  .user-name,
-  .user-sub{
-    max-width:100%;
-    overflow:hidden;
-    text-overflow:ellipsis;
-  }
-}
-
+/* ===== AI Cloud Run 스트리밍 연결: 대화 기억 버튼 임시 비노출 ===== */
+.ai-memory-toolbar,.ai-conversation-panel{display:none!important}
+</style>
+  <style id="myhills-ios-safearea-fix">
+    :root{--myhills-safe-area-top:env(safe-area-inset-top,0px)}
+    @supports (padding-top: constant(safe-area-inset-top)){
+      :root{--myhills-safe-area-top:constant(safe-area-inset-top)}
+    }
+    .app{padding-top:calc(18px + var(--myhills-safe-area-top)) !important}
+    .page{padding-top:calc(22px + var(--myhills-safe-area-top)) !important}
+    body > .wrap{padding-top:var(--myhills-safe-area-top)}
+    body > .box{margin-top:var(--myhills-safe-area-top)}
+    .topbar-userbar{min-width:0}
+    .user-chip{min-width:0;max-width:min(260px,calc(100vw - 156px))}
+    .user-name{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   </style>
+
 </head>
 <body>
   <div class="global-loading" id="globalLoadingBar" aria-hidden="true">
@@ -2635,7 +2646,7 @@ body{
         <div class="notice-list" id="homeNoticeList"><div class="notice-empty">등록된 공지가 없습니다.</div></div>
       </div>
       <button class="panel ai-entry-card" type="button" data-view-link="ai" aria-label="AI 생활 도우미 열기">
-        <div class="ai-entry-head"><div class="ai-entry-icon">🤖</div><div class="ai-entry-copy"><h3>AI 생활 도우미</h3><p>공지와 혜택을 빠르게 검색해서 답변합니다.</p><span class="ai-entry-badge">DEV 오픈 · 운영 준비중</span></div></div>
+        <div class="ai-entry-head"><div class="ai-entry-icon">🤖</div><div class="ai-entry-copy"><h3>AI 생활 도우미</h3><p>Gemini가 실시간 스트리밍으로 답변합니다.</p><span class="ai-entry-badge">DEV 오픈 · Cloud Run 스트리밍</span></div></div>
       </button>
     </section>
     <section id="view-benefits" class="hidden">
@@ -2701,7 +2712,7 @@ body{
         <div class="helper">하단 네비바에 모두 담기 어려운 기능을 한 곳에 모았습니다.</div>
       </div>
       <div class="all-menu-grid">
-        <button class="all-menu-card ai-entry-card" type="button" data-view-link="ai"><span class="all-icon">🤖</span><strong>AI 생활 도우미</strong><span>공지와 혜택을 검색해 답변합니다.</span></button>
+        <button class="all-menu-card ai-entry-card" type="button" data-view-link="ai"><span class="all-icon">🤖</span><strong>AI 생활 도우미</strong><span>Gemini 스트리밍으로 답변합니다.</span></button>
         <button class="all-menu-card" type="button" data-view-link="community"><span class="all-icon">💬</span><strong>커뮤니티</strong><span>게시글과 댓글로 입주민 정보를 나눕니다.</span></button>
         <button class="all-menu-card" type="button" data-view-link="map"><span class="all-icon">🗺️</span><strong>지도</strong><span>주변 혜택 매장을 지도에서 확인합니다.</span></button>
         <button class="all-menu-card" type="button" data-view-link="notices"><span class="all-icon">📢</span><strong>공지사항</strong><span>관리자가 등록한 안내를 확인합니다.</span></button>
@@ -2714,7 +2725,7 @@ body{
 
     <section id="view-ai" class="hidden">
       <div class="ai-view-hero">
-        <span class="ai-ready-pill">🤖 DEV 오픈 · Gemini + 대화 기억</span>
+        <span class="ai-ready-pill">🤖 DEV 오픈 · Gemini 2.5 Flash-Lite 스트리밍</span>
         <h3>AI 생활 도우미</h3>
         <p>공지, 혜택, FAQ, 커뮤니티 데이터를 기준으로 답변하고 이전 대화 맥락도 이어서 기억합니다.</p>
       </div>
@@ -2747,7 +2758,7 @@ body{
         </div>
         <div class="ai-chat-window" id="aiChatWindow" aria-live="polite">
           <div class="ai-message bot"><div class="ai-bubble">안녕하세요. 마이힐스 AI 생활 도우미입니다.
-궁금한 내용을 입력하면 등록된 공지, 혜택, 전자 책자 정보를 찾아 답변하고, 같은 대화 안에서는 이전 질문도 참고할게요.<small>현재는 개발계에서만 동작하는 Gemini 기반 대화 기억 버전입니다.</small></div></div>
+궁금한 내용을 입력하면 등록된 공지, 혜택, 전자 책자 정보를 찾아 답변하고, 같은 대화 안에서는 이전 질문도 참고할게요.<small>내부 데이터 기반 Cloud Run 스트리밍 버전입니다.</small></div></div>
         </div>
         <div class="ai-voice-row" id="aiVoiceRow">
           <button class="ai-voice-btn" type="button" id="aiVoiceBtn">🎙 말로 질문</button>
@@ -2812,6 +2823,13 @@ body{
     const firebaseConfig = FIREBASE_CONFIG[ENV];
     const AI_FUNCTION_REGION = 'asia-northeast3';
     const AI_FUNCTION_URL = `https://${AI_FUNCTION_REGION}-${firebaseConfig.projectId}.cloudfunctions.net/askAiAssistant`;
+    // Cloud Run Gemini 스트리밍 서버
+    const AI_STREAM_SERVER_URL_BY_ENV = {
+      dev: 'https://ai-stream-server-dev-292137041544.asia-northeast3.run.app/stream',
+      // 운영계 Cloud Run 배포 후 아래 prod URL을 운영계 /stream 주소로 교체하세요.
+      prod: 'https://ai-stream-server-337132471819.asia-northeast3.run.app/stream'
+    };
+    const AI_STREAM_SERVER_URL = AI_STREAM_SERVER_URL_BY_ENV[ENV] || '';
     const AI_CONVERSATION_KEY = `myhills_ai_conversation_${ENV || 'prod'}`;
     let aiConversationId = localStorage.getItem(AI_CONVERSATION_KEY) || '';
     let aiConversationTitle = '새 대화';
@@ -6951,7 +6969,7 @@ function getShareTrackingParams(){
 
     function getAiWelcomeHtml(){
       return `안녕하세요. 마이힐스 AI 생활 도우미입니다.
-궁금한 내용을 입력하면 등록된 공지와 혜택 정보를 찾아 답변하고, 같은 대화 안에서는 이전 질문도 참고할게요.<small>현재는 개발계에서만 동작하는 Gemini 기반 대화 기억 버전입니다.</small>`;
+궁금한 내용을 입력하면 등록된 공지와 혜택 정보를 찾아 답변하고, 같은 대화 안에서는 이전 질문도 참고할게요.<small>내부 데이터 기반 Cloud Run 스트리밍 버전입니다.</small>`;
     }
 
     function resetAiChatWindow(){
@@ -6981,6 +6999,460 @@ function getShareTrackingParams(){
       return data;
     }
 
+    function cleanAiChunkText(text=''){
+      return String(text || '')
+        .replace(/\*\*/g, '')
+        .replace(/#{1,6}\s?/g, '')
+        .replace(/```[\s\S]*?```/g, (m) => m.replace(/```/g, '').trim())
+        .replace(/\n{3,}/g, '\n\n');
+    }
+
+    function formatAiStreamingText(text=''){
+      const raw = cleanAiChunkText(text);
+      const lines = raw.split('\n').map(line => {
+        let v = line.trim();
+        if(!v) return '';
+        v = v.replace(/^[-•]\s*/g, '• ');
+        v = v.replace(/^(\d+)\.\s*/g, '$1. ');
+        return v;
+      });
+      return lines.join('\n').replace(/\n{3,}/g, '\n\n').trimStart();
+    }
+
+    function createAiStreamRenderer(targetBubble, question=''){
+      let rawText = '';
+      let lastRendered = '';
+      let lastCardSignature = '';
+      const render = (force=false) => {
+        if(!targetBubble) return;
+        const formatted = formatAiStreamingText(rawText);
+        const cards = mapAiBenefitsForQuestion(question, formatted, 3);
+        const cardSignature = cards.map(v => `${v.item?.id || ''}:${v.score || 0}`).join('|');
+        if(!force && formatted === lastRendered && cardSignature === lastCardSignature) return;
+        lastRendered = formatted;
+        lastCardSignature = cardSignature;
+
+        const liveCards = cards.length ? `
+          <div class="ai-live-card-dock">
+            <div class="ai-live-card-head"><span>실시간 매칭 혜택</span><span>${cards.length}개 감지</span></div>
+            <div class="ai-live-card-grid">
+              ${cards.map(({item, reason}) => `
+                <div class="ai-live-card">
+                  <b>${escapeHtml(item.name || item.storeName || item.title || '혜택')}</b>
+                  <span>${escapeHtml(item.benefit || item.description || item.content || '등록된 혜택 정보를 확인해보세요.')}</span>
+                  <div class="ai-live-meta">
+                    ${item.category ? `<em>${escapeHtml(item.category)}</em>` : ''}
+                    ${reason ? `<em>${escapeHtml(reason)}</em>` : ''}
+                    ${shouldAttachWeatherTagToItem(item, question, formatted) ? `<em class="weather">${escapeHtml(shouldAttachWeatherTagToItem(item, question, formatted))}</em>` : ''}
+                    ${pickAiPhone(item) ? `<em>전화 가능</em>` : ''}
+                  </div>
+                </div>`).join('')}
+            </div>
+          </div>` : '';
+
+        targetBubble.innerHTML = `
+          <div class="ai-stream-shell">
+            <div class="ai-stream-status">
+              <span class="ai-stream-status-left"><span class="ai-stream-dot"></span>AI가 답변을 작성하면서 혜택을 매칭 중입니다</span>
+              <span>${cards.length ? '카드 자동 생성' : '스트리밍 수신중'}</span>
+            </div>
+            <div class="ai-stream-text">${escapeHtml(formatted || '답변을 작성 중입니다...').replace(/\n/g,'<br>')}<span class="ai-stream-cursor"></span></div>
+            ${liveCards}
+          </div>`;
+        const win = qs('#aiChatWindow');
+        if(win) win.scrollTop = win.scrollHeight;
+      };
+      return {
+        push(chunk=''){
+          rawText += String(chunk || '');
+          render(false);
+        },
+        full(){ return formatAiStreamingText(rawText).trim(); },
+        flush(){ render(true); return this.full(); }
+      };
+    }
+
+
+
+    function normalizeAiSearchText(value=''){
+      return String(value || '')
+        .toLowerCase()
+        .replace(/\s+/g, '')
+        .replace(/[\[\]{}()<>"'`~!@#$%^&*_+=|\:;,.?/\-]/g, '');
+    }
+
+    function getAiSearchTokens(question=''){
+      const q = String(question || '').trim();
+      const base = q
+        .replace(/[\[\]{}()<>"'`~!@#$%^&*_+=|\:;,.?/\-]/g, ' ')
+        .split(/\s+/)
+        .map(v => v.trim())
+        .filter(v => v.length >= 2);
+      const joined = normalizeAiSearchText(q);
+      const synonyms = [];
+      if(joined.includes('관리사무소') || joined.includes('관리실') || joined.includes('전화') || joined.includes('연락처')){
+        synonyms.push('관리사무소','관리실','생활지원센터','전화번호','연락처','대표번호','민원','사무소');
+      }
+      if(joined.includes('혜택') || joined.includes('할인')) synonyms.push('혜택','할인','제휴','매장');
+      return [...new Set([...base, ...synonyms])];
+    }
+
+    function stringifyAiCandidateText(item={}, type=''){
+      const fields = [
+        type, item.id, item.name, item.storeName, item.title, item.category,
+        item.benefit, item.description, item.content, item.body,
+        item.address, item.phone, item.tel, item.contact, item.officePhone,
+        item.contactNumber, item.phoneNumber, item.department,
+        Array.isArray(item.keywords) ? item.keywords.join(' ') : item.keywords,
+        item.memo, item.note
+      ];
+      return fields.map(v => String(v || '')).join(' ');
+    }
+
+    function pickAiPhone(item={}){
+      return item.phone || item.tel || item.contact || item.officePhone || item.contactNumber || item.phoneNumber || '';
+    }
+
+    function getAiUserPersonalSignals(){
+      const favoriteSet = new Set((state.favoriteIds || []).map(String));
+      const activeCategory = state.category && state.category !== '전체' ? String(state.category) : '';
+      const keyword = String(state.keyword || qs('#searchInput')?.value || '').trim();
+      const recentCategory = localStorage.getItem(LAST_CATEGORY_KEY) || '';
+      const timeBand = buildAiSituationContext?.().timeBand || '';
+      const profile = state.currentUserProfile || {};
+      return {
+        favoriteSet,
+        activeCategory,
+        keyword,
+        recentCategory,
+        timeBand,
+        dong: profile.dong || profile.building || '',
+        ho: profile.ho || profile.unit || ''
+      };
+    }
+
+    function getAiBenefitText(item={}){
+      return stringifyAiCandidateText(item, 'benefit');
+    }
+
+    function inferAiWeatherTag(question='', answerText=''){
+      const source = `${question || ''} ${answerText || ''}`;
+      if(/비|우천|장마|소나기|빗방울|강수/.test(source)) return '☔ 비오는날 추천';
+      if(/눈|폭설|눈날림/.test(source)) return '❄️ 눈오는날 추천';
+      if(/더운|폭염|무더위|기온|여름|실내/.test(source)) return '🔥 더운날 실내 추천';
+      if(/맑|날씨 좋|산책|야외/.test(source)) return '☀️ 날씨 기반 추천';
+      return '';
+    }
+
+    function shouldAttachWeatherTagToItem(item={}, question='', answerText=''){
+      const tag = inferAiWeatherTag(question, answerText);
+      if(!tag) return '';
+      const raw = stringifyAiCandidateText(item, 'benefit');
+      if(tag.includes('비') && /카페|디저트|커피|떡|베이커리|미용|실내|음식|식당|분식/i.test(raw)) return tag;
+      if(tag.includes('눈') && /카페|디저트|커피|음식|식당|실내/i.test(raw)) return tag;
+      if(tag.includes('더운') && /카페|커피|음료|디저트|빙수|실내/i.test(raw)) return tag;
+      if(tag.includes('날씨')) return tag;
+      return '';
+    }
+
+    function scoreAiBenefitMatch(item={}, question='', answerText=''){
+      const signals = getAiUserPersonalSignals();
+      const raw = getAiBenefitText(item);
+      const norm = normalizeAiSearchText(raw);
+      const qNorm = normalizeAiSearchText(question);
+      const aNorm = normalizeAiSearchText(answerText);
+      const nameNorm = normalizeAiSearchText(item.name || item.storeName || item.title || '');
+      const categoryNorm = normalizeAiSearchText(item.category || '');
+      const benefitNorm = normalizeAiSearchText(item.benefit || item.description || item.content || '');
+      const tokens = getAiSearchTokens(`${question} ${answerText}`).map(normalizeAiSearchText).filter(Boolean);
+      let score = 0;
+      const reasons = [];
+
+      if(nameNorm && (aNorm.includes(nameNorm) || qNorm.includes(nameNorm))){
+        score += 18; reasons.push('매장명 일치');
+      }
+      if(categoryNorm && (qNorm.includes(categoryNorm) || aNorm.includes(categoryNorm))){
+        score += 8; reasons.push('카테고리 일치');
+      }
+      tokens.forEach(t => {
+        if(t && norm.includes(t)) score += t.length >= 4 ? 3 : 1.5;
+      });
+      if(benefitNorm && benefitNorm.length >= 4 && aNorm.includes(benefitNorm.slice(0, Math.min(10, benefitNorm.length)))){
+        score += 6; reasons.push('혜택 문구 일치');
+      }
+      if(signals.favoriteSet.has(String(item.id))){
+        score += 7; reasons.push('즐겨찾기 기반');
+      }
+      if(signals.activeCategory && normalizeAiSearchText(signals.activeCategory) === categoryNorm){
+        score += 4; reasons.push('현재 카테고리');
+      }
+      if(signals.recentCategory && signals.recentCategory !== '전체' && normalizeAiSearchText(signals.recentCategory) === categoryNorm){
+        score += 3; reasons.push('최근 관심 카테고리');
+      }
+      if(/가까|근처|주변|거리|위치/.test(question) && item.address){
+        score += 4; reasons.push('위치 정보 있음');
+      }
+      if(/전화|연락|예약|문의/.test(question) && pickAiPhone(item)){
+        score += 4; reasons.push('전화 가능');
+      }
+      if(/점심|식사|밥|저녁|아침/.test(question) && /식당|음식|카페|디저트|베이커리|분식|치킨|피자|한식|중식|일식|양식/i.test(raw)){
+        score += 3; reasons.push('생활 상황');
+      }
+      if(/아이|가족|키즈|자녀/.test(question) && /키즈|가족|아이|디저트|카페|학원|문구|놀이/i.test(raw)){
+        score += 3; reasons.push('가족 상황');
+      }
+      const weatherTag = shouldAttachWeatherTagToItem(item, question, answerText);
+      if(weatherTag){
+        score += 3; reasons.push(weatherTag);
+      }
+
+      return { item, score, reason: reasons[0] || '질문 내용 매칭', reasons: [...new Set(reasons)].slice(0,4), weatherTag };
+    }
+
+    function mapAiBenefitsForQuestion(question='', answerText='', maxCount=4){
+      try{
+        return (state.benefits || [])
+          .filter(item => item && item.visible !== false && item.id)
+          .map(item => scoreAiBenefitMatch(item, question, answerText))
+          .filter(v => v.score >= 3)
+          .sort((a,b) => b.score - a.score)
+          .slice(0, maxCount);
+      }catch(error){
+        console.warn('AI 혜택 매핑 실패:', error);
+        return [];
+      }
+    }
+
+    function getAiPersonalSummary(){
+      const signals = getAiUserPersonalSignals();
+      const bits = [];
+      if(signals.favoriteSet.size) bits.push(`즐겨찾기 ${signals.favoriteSet.size}개`);
+      if(signals.activeCategory) bits.push(`현재 ${signals.activeCategory} 탭`);
+      else if(signals.recentCategory && signals.recentCategory !== '전체') bits.push(`최근 ${signals.recentCategory} 관심`);
+      if(signals.timeBand) bits.push(signals.timeBand);
+      return bits.join(' · ') || '질문 내용 기반';
+    }
+
+
+    function collectAiLocalCandidates(question='', maxCount=12){
+      try{
+        const tokens = getAiSearchTokens(question);
+        const qNorm = normalizeAiSearchText(question);
+        const pool = [];
+        (state.benefits || []).forEach(item => pool.push({ type:'benefit', item }));
+        (state.notices || []).forEach(item => pool.push({ type:'notice', item }));
+
+        const scored = pool.map(({type,item}) => {
+          const raw = stringifyAiCandidateText(item, type);
+          const norm = normalizeAiSearchText(raw);
+          let score = 0;
+          tokens.forEach(t => {
+            const nt = normalizeAiSearchText(t);
+            if(nt && norm.includes(nt)) score += nt.length >= 4 ? 4 : 2;
+          });
+          if(qNorm && norm.includes(qNorm)) score += 10;
+          const phone = pickAiPhone(item);
+          if(phone && /(전화|연락|번호|관리사무소|관리실)/.test(question)) score += 4;
+          if(type === 'benefit' && /(혜택|할인|매장|가게)/.test(question)) score += 2;
+          if(type === 'notice' && /(공지|안내|알림)/.test(question)) score += 2;
+          return { type, item, score };
+        }).filter(v => v.score > 0)
+          .sort((a,b) => b.score - a.score)
+          .slice(0, maxCount);
+
+        return scored.map(({type,item,score}) => ({
+          type,
+          id: item.id || '',
+          title: item.name || item.storeName || item.title || item.department || '',
+          category: item.category || '',
+          benefit: item.benefit || item.description || '',
+          content: item.content || item.body || item.memo || item.note || '',
+          address: item.address || '',
+          phone: pickAiPhone(item),
+          keywords: item.keywords || [],
+          score
+        }));
+      }catch(e){
+        console.warn('collectAiLocalCandidates 실패:', e);
+        return [];
+      }
+    }
+
+    function buildAiPageContext(question=''){
+      try{
+        const now = new Date();
+        return {
+          appName: '더운정 마이힐스',
+          env: ENV,
+          currentView: state.view || document.querySelector('.nav-btn.active')?.dataset?.view || 'home',
+          activeCategory: state.category || document.querySelector('.chip.active')?.textContent?.trim() || '',
+          keyword: state.keyword || document.querySelector('#searchInput')?.value || '',
+          benefitSortMode: state.benefitSortMode || 'default',
+          distanceRadius: state.distanceRadius || 'all',
+          benefitCount: Array.isArray(state.benefits) ? state.benefits.length : 0,
+          noticeCount: Array.isArray(state.notices) ? state.notices.length : 0,
+          localCandidates: collectAiLocalCandidates(question, 12),
+          userLocation: state.userLocation ? { lat: state.userLocation.lat, lng: state.userLocation.lng, fetchedAt: state.userLocationFetchedAt || 0 } : null,
+          location: state.userLocation ? { lat: state.userLocation.lat, lng: state.userLocation.lng } : null,
+          url: location.href,
+          clientTimeText: now.toLocaleString('ko-KR'),
+          timestamp: now.toISOString()
+        };
+      }catch(e){
+        console.warn('buildAiPageContext 실패:', e);
+        return { appName:'더운정 마이힐스', localCandidates:[] };
+      }
+    }
+
+    function extractAiBenefitCards(finalText='', maxCount=3, question=''){
+      const mapped = mapAiBenefitsForQuestion(question, finalText, maxCount);
+      if(mapped.length) return mapped;
+      const text = normalizeAiSearchText(finalText);
+      if(!text) return [];
+      return (state.benefits || [])
+        .filter(item => item && item.visible !== false && item.id)
+        .map(item => {
+          const name = item.name || item.storeName || item.title || '';
+          const n = normalizeAiSearchText(name);
+          const category = normalizeAiSearchText(item.category || '');
+          let score = 0;
+          const reasons = [];
+          if(n && text.includes(n)){ score += 10; reasons.push('매장명 일치'); }
+          if(category && text.includes(category)){ score += 2; reasons.push('카테고리 일치'); }
+          const benefit = normalizeAiSearchText(item.benefit || item.description || '');
+          if(benefit && benefit.length >= 4 && text.includes(benefit.slice(0, Math.min(8, benefit.length)))){ score += 2; reasons.push('혜택 문구 일치'); }
+          return { item, score, reason: reasons[0] || '답변 내용 매칭', reasons };
+        })
+        .filter(v => v.score > 0)
+        .sort((a,b) => b.score - a.score)
+        .slice(0, maxCount);
+    }
+
+    function extractAiPhoneCards(finalText=''){
+      const source = String(finalText || '');
+      const phonePattern = /(?:0\d{1,2}[-.\s]?\d{3,4}[-.\s]?\d{4}|\d{3,4}[-.\s]?\d{4})/g;
+      const found = [...source.matchAll(phonePattern)].map(m => String(m[0] || '').trim()).filter(Boolean);
+      const unique = [...new Set(found)].slice(0, 4);
+      return unique.map(phone => {
+        const clean = phone.replace(/[^\d]/g, '');
+        let label = '전화번호';
+        if(/관리사무소|관리실|생활지원센터|사무소|민원/.test(source)) label = '관리사무소';
+        else if(/업체|매장|가게|상가|혜택/.test(source)) label = '매장 전화번호';
+        return { label, phone, tel: clean };
+      });
+    }
+
+    function buildAiPhoneCardHtml(cards=[]){
+      if(!Array.isArray(cards) || !cards.length) return '';
+      return cards.map(card => `
+        <div class="ai-phone-card-auto">
+          <div class="ai-phone-icon">☎️</div>
+          <div class="ai-phone-info">
+            <b>${escapeHtml(card.label || '전화번호')}</b>
+            <span>${escapeHtml(card.phone || '')}</span>
+          </div>
+          <a class="ai-phone-call" href="tel:${escapeAttr(card.tel || '')}">전화</a>
+        </div>`).join('');
+    }
+
+    function buildAiEnhancedAnswerHtml(finalText='', question=''){
+      const text = String(finalText || '답변을 생성하지 못했습니다.');
+      const cleaned = cleanAiChunkText(text).trim() || '답변을 생성하지 못했습니다.';
+      const safe = escapeHtml(cleaned).replace(/\n/g, '<br>');
+      const phoneCards = buildAiPhoneCardHtml(extractAiPhoneCards(cleaned));
+      const mappedCards = extractAiBenefitCards(cleaned, 4, question);
+      const personalSummary = getAiPersonalSummary();
+      const benefitCards = mappedCards.map(({item, score, reason, reasons}) => `
+        <div class="ai-benefit-card-auto enhanced">
+          <div class="ai-card-top">
+            <b>${escapeHtml(item.name || item.storeName || item.title || '혜택')}</b>
+            <span class="ai-match-score">매칭 ${Math.min(99, Math.round(Number(score || 0) * 7))}%</span>
+          </div>
+          <span>${escapeHtml(item.benefit || item.description || item.content || '등록된 혜택 정보를 확인해보세요.')}</span>
+          <div class="ai-benefit-meta">
+            ${item.category ? `<em>${escapeHtml(item.category)}</em>` : ''}
+            ${item.address ? `<em>위치 등록</em>` : ''}
+            ${pickAiPhone(item) ? `<em>전화 가능</em>` : ''}
+            ${reason ? `<em>${escapeHtml(reason)}</em>` : ''}
+            ${shouldAttachWeatherTagToItem(item, question, cleaned) ? `<em class="weather">${escapeHtml(shouldAttachWeatherTagToItem(item, question, cleaned))}</em>` : ''}
+          </div>
+          <div class="ai-personal-reason">추천 기준: ${escapeHtml((reasons || []).join(' · ') || personalSummary)}</div>
+          <div class="ai-card-actions">
+            <button class="primary" type="button" data-ai-open-benefit-id="${escapeAttr(item.id)}">혜택 상세 보기</button>
+            <button class="soft" type="button" data-view-link="map">지도에서 보기</button>
+          </div>
+        </div>`).join('');
+      return `
+        <div class="ai-answer ai-answer-upgrade">
+          <div class="ai-answer-summary">${safe}</div>
+          ${inferAiWeatherTag(question, cleaned) ? `<div class="ai-weather-chip">${escapeHtml(inferAiWeatherTag(question, cleaned))}</div>` : ''}
+          ${phoneCards}
+          ${benefitCards ? `<div class="ai-answer-section"><div class="ai-answer-section-title"><span>자동 매칭된 혜택 카드</span><small>${mappedCards.length}개 추천</small></div>${benefitCards}</div>` : ''}
+          <span class="ai-mode-pill upgraded">스트리밍 · 혜택 자동 매핑 · 개인화 추천 기준: ${escapeHtml(personalSummary)}</span>
+        </div>`;
+    }
+
+    async function callAiStreamServer(question='', { onChunk } = {}){
+      const q = String(question || '').trim();
+      if(!q) throw new Error('질문이 비어 있습니다.');
+      if(!AI_STREAM_SERVER_URL) throw new Error('AI 스트리밍 서버 URL이 설정되지 않았습니다.');
+
+      let idToken = '';
+      try{
+        idToken = state.currentUser?.getIdToken ? await state.currentUser.getIdToken() : '';
+      }catch(error){
+        console.warn('AI 스트리밍 ID 토큰 생성 실패:', error);
+      }
+
+      const pageContext = typeof buildAiPageContext === 'function' ? buildAiPageContext(q) : {};
+      const localCandidates = collectAiLocalCandidates(q, 12);
+      const response = await fetch(AI_STREAM_SERVER_URL, {
+        method: 'POST',
+        headers: {
+          'Accept': 'text/plain;charset=utf-8',
+          'Content-Type': 'application/json',
+          ...(idToken ? { 'Authorization': `Bearer ${idToken}` } : {})
+        },
+        body: JSON.stringify({
+          question: q,
+          message: q,
+          env: ENV,
+          conversationId: aiConversationId || '',
+          pageContext,
+          context: pageContext,
+          localCandidates
+        })
+      });
+      if(!response.ok){
+        const errorText = await response.text().catch(() => '');
+        throw new Error(errorText || `AI 스트리밍 서버 호출 실패 (${response.status})`);
+      }
+
+      if(!response.body){
+        const text = await response.text();
+        if(onChunk) onChunk(text || '', text || '');
+        return text || '';
+      }
+
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder('utf-8');
+      let result = '';
+      while(true){
+        const { done, value } = await reader.read();
+        if(done) break;
+        const chunk = decoder.decode(value, { stream:true });
+        if(!chunk) continue;
+        result += chunk;
+        if(onChunk) onChunk(chunk, result);
+      }
+      const tail = decoder.decode();
+      if(tail){
+        result += tail;
+        if(onChunk) onChunk(tail, result);
+      }
+      return result;
+    }
+
     function bindAiAnswerActions(scope){
       const root = scope || qs('#aiChatWindow');
       if(!root) return;
@@ -7004,6 +7476,16 @@ function getShareTrackingParams(){
             console.error('AI 혜택 딥링크 열기 실패', error);
             openModalAlert('혜택을 여는 중 오류가 발생했습니다.');
           }
+        });
+      });
+      root.querySelectorAll('[data-view-link]').forEach(btn => {
+        if(btn.dataset.aiViewBound === 'true') return;
+        btn.dataset.aiViewBound = 'true';
+        btn.addEventListener('click', (event) => {
+          event.preventDefault();
+          event.stopPropagation();
+          const view = btn.dataset.viewLink;
+          if(view) changeView(view);
         });
       });
     }
@@ -7236,62 +7718,9 @@ function getShareTrackingParams(){
       };
     }
 
-
-    function normalizeAiCardItem(item){
-      return {
-        id: item.id || item.docId || '',
-        name: item.name || item.title || '이름 없음',
-        category: item.category || '기타',
-        description: item.benefitText || item.description || item.summary || item.answer || '등록된 정보를 확인해보세요.',
-        address: item.address || item.roadAddress || '',
-        phone: item.phone || item.telephone || '',
-        link: item.link || '',
-        sourceType: item.sourceType || '',
-        source: item.source || '',
-        tags: item.aiTags || item.tags || [],
-        matchRate: item.matchRate || 80,
-        distanceKm: item.distanceKm
-      };
-    }
-
-    function renderAiAutoCard(rawItem){
-      const item = normalizeAiCardItem(rawItem);
-      const isExternal = item.source === 'naver_local' || item.sourceType === 'external_place' || item.type === '외부매장';
-      const badges = [isExternal ? '외부 추천' : '입주민 혜택', ...item.tags].filter(Boolean).slice(0, 5);
-      return `
-        <div class="ai-auto-card ${isExternal ? 'external' : 'internal'}" data-id="${escapeHtml(item.id)}">
-          <div class="ai-auto-card-head">
-            <div>
-              <div class="ai-auto-card-title">${escapeHtml(item.name)}</div>
-              <div class="ai-auto-card-sub">${escapeHtml(item.category)}</div>
-            </div>
-            <div class="ai-match-pill">매칭 ${Number(item.matchRate || 80)}%</div>
-          </div>
-          <p class="ai-auto-card-desc">${escapeHtml(item.description)}</p>
-          ${item.address ? `<div class="ai-auto-card-address">📍 ${escapeHtml(item.address)}</div>` : ''}
-          <div class="ai-auto-tag-row">${badges.map(tag => `<span class="ai-auto-tag">${escapeHtml(tag)}</span>`).join('')}</div>
-          <div class="ai-auto-card-actions">
-            ${item.phone ? `<a class="ai-card-btn soft" href="tel:${escapeHtml(item.phone)}">전화</a>` : ''}
-            ${item.link ? `<a class="ai-card-btn primary" href="${escapeHtml(item.link)}" target="_blank" rel="noopener">정보 보기</a>` : ''}
-          </div>
-        </div>`;
-    }
-
-    function appendAiRecommendationCards(recommendations = []){
-      const win = qs('#aiChatWindow');
-      if(!win || !Array.isArray(recommendations) || !recommendations.length) return;
-      const row = document.createElement('div');
-      row.className = 'ai-message bot';
-      const count = recommendations.length;
-      row.innerHTML = `<div class="ai-bubble"><div class="ai-auto-card-list-title"><span>자동 매칭 추천 카드</span><small>${count}개 추천</small></div><div class="ai-auto-card-list">${recommendations.slice(0, 6).map(renderAiAutoCard).join('')}</div></div>`;
-      win.appendChild(row);
-      win.scrollTop = win.scrollHeight;
-    }
-
-
     async function askAiAssistant(rawQuestion=''){
       if(!window.__AI_LAST_INPUT_MODE) window.__AI_LAST_INPUT_MODE = rawQuestion ? 'quick' : 'text';
-      if(ENV !== 'dev') return openModalAlert('기능 준비중 입니다.');
+      if(!AI_STREAM_SERVER_URL) return openModalAlert('AI 생활도우미 서버 URL이 아직 설정되지 않았습니다.');
       const input = qs('#aiQuestionInput');
       const btn = qs('#aiAskBtn');
       const question = String(rawQuestion || input?.value || '').trim();
@@ -7304,18 +7733,26 @@ function getShareTrackingParams(){
       const pendingBubble = pendingRow?.querySelector('.ai-bubble');
 
       try{
-        const data = await callAiFunction({ action: 'ask', question, conversationId: aiConversationId || '', context: buildAiSituationContext() });
-        if(data.conversationId){ aiConversationId = data.conversationId; localStorage.setItem(AI_CONVERSATION_KEY, aiConversationId); }
-        window.__AI_LAST_INPUT_MODE = 'text';
-        aiConversationTitle = data.conversationTitle || aiConversationTitle || question.slice(0,24);
-        updateAiConversationStatus(aiConversationTitle);
-        const modeLabel = data.answerMode === 'gemini' ? '<span class="ai-mode-pill">Gemini 답변 · 개인화/상황 인식</span>' : '<span class="ai-mode-pill">검색 기반 답변 · 맥락 저장</span>';
-        await typeAiHtml(pendingBubble, `${data.answerHtml || '관련 답변을 찾지 못했습니다.'}${modeLabel}`, 10);
-        if(Array.isArray(data.recommendations) && data.recommendations.length) appendAiRecommendationCards(data.recommendations);
+        if(pendingBubble) pendingBubble.textContent = '';
+        const streamRenderer = createAiStreamRenderer(pendingBubble, question);
+        await callAiStreamServer(question, {
+          onChunk: (chunk) => {
+            streamRenderer.push(chunk);
+          }
+        });
+
+        const finalText = streamRenderer.flush() || '답변을 생성하지 못했습니다.';
+        if(pendingBubble){
+          pendingBubble.innerHTML = buildAiEnhancedAnswerHtml(finalText, question);
+          bindAiAnswerActions(pendingBubble);
+        }
         if(pendingRow) delete pendingRow.dataset.pending;
+        window.__AI_LAST_INPUT_MODE = 'text';
+        aiConversationTitle = question.slice(0,24) || '새 대화';
+        updateAiConversationStatus('Cloud Run 스트리밍');
       }catch(error){
-        console.error('AI Cloud Function 검색 실패', error);
-        if(pendingBubble) pendingBubble.innerHTML = '답변 생성 중 오류가 발생했습니다.<br><small>Cloud Function 배포 상태, GEMINI_API_KEY, 권한을 확인해 주세요.</small>';
+        console.error('AI Cloud Run 스트리밍 실패', error);
+        if(pendingBubble) pendingBubble.innerHTML = '답변 생성 중 오류가 발생했습니다.<br><small>Cloud Run URL, CORS 설정, GEMINI_API_KEY, 서버 배포 상태를 확인해 주세요.</small>';
         else appendAiMessage('bot', '답변 생성 중 오류가 발생했습니다.');
       }finally{
         if(btn){ btn.disabled = false; btn.textContent = '질문'; }

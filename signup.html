@@ -39,6 +39,20 @@
     @keyframes loaderPulse{0%{ opacity:.88;}50%{ opacity:1;}100%{ opacity:.9;}}
 
   </style>
+  <style id="myhills-ios-safearea-fix">
+    :root{--myhills-safe-area-top:env(safe-area-inset-top,0px)}
+    @supports (padding-top: constant(safe-area-inset-top)){
+      :root{--myhills-safe-area-top:constant(safe-area-inset-top)}
+    }
+    .app{padding-top:calc(18px + var(--myhills-safe-area-top)) !important}
+    .page{padding-top:calc(22px + var(--myhills-safe-area-top)) !important}
+    body > .wrap{padding-top:var(--myhills-safe-area-top)}
+    body > .box{margin-top:var(--myhills-safe-area-top)}
+    .topbar-userbar{min-width:0}
+    .user-chip{min-width:0;max-width:min(260px,calc(100vw - 156px))}
+    .user-name{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  </style>
+
 </head>
 <body>
   <main class="page">

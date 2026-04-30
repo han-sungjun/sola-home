@@ -47,7 +47,7 @@ export const API_URL = {
     checkNickname: "https://checknickname-292137041544.asia-northeast3.run.app",
 	getUserForPasswordReset: "https://getuserforpasswordreset-l6nmtiaxgq-du.a.run.app",
     updatePasswordAfterPhoneReset: "https://updatepasswordafterphonereset-l6nmtiaxgq-du.a.run.app",
-	geocodeAddress: "https://geocodeaddress-l6nmtiaxgq-uc.a.run.app",
+	geocodeAddress: "https://geocodeaddress-l6nmtiaxgq-du.a.run.app",
   },
   prod: {
     login: "https://loginwithid-ljm6q3t55q-du.a.run.app",
@@ -56,7 +56,7 @@ export const API_URL = {
     checkNickname: "https://checknickname-ljm6q3t55q-du.a.run.app",
 	getUserForPasswordReset: "https://getuserforpasswordreset-ljm6q3t55q-du.a.run.app",
     updatePasswordAfterPhoneReset: "https://updatepasswordafterphonereset-ljm6q3t55q-du.a.run.app",
-	geocodeAddress: "https://geocodeaddress-ljm6q3t55q-uc.a.run.app",
+	geocodeAddress: "https://geocodeaddress-ljm6q3t55q-du.a.run.app",
   }
 };
 
