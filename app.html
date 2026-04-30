@@ -10,7 +10,7 @@
   <meta name="theme-color" content="#0f172a">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="더운정 마이힐스">
   <link rel="apple-touch-icon" href="/icons/icon-180.png">
   <meta name="description" content="더운정 마이힐스 입주민 전용 혜택 웹앱">
@@ -2526,7 +2526,48 @@ body.env-prod #view-ai{
 .ai-card-btn.soft{background:#fff;color:#0f172a;border:1px solid #e2e8f0}
 @keyframes aiCardRise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
 
-</style>
+
+
+/* ===== iOS Safe Area Fix: iPhone 상태바/상단 헤더 겹침 방지 ===== */
+:root{
+  --ios-safe-top: env(safe-area-inset-top, 0px);
+  --ios-safe-bottom: env(safe-area-inset-bottom, 0px);
+}
+html{
+  -webkit-text-size-adjust:100%;
+}
+body{
+  min-height:100dvh;
+}
+.app{
+  padding-top:calc(18px + var(--ios-safe-top))!important;
+  padding-bottom:calc(120px + var(--ios-safe-bottom))!important;
+}
+@supports (padding-top: constant(safe-area-inset-top)){
+  .app{
+    padding-top:calc(18px + constant(safe-area-inset-top))!important;
+    padding-bottom:calc(120px + constant(safe-area-inset-bottom))!important;
+  }
+}
+@media (max-width:430px){
+  .topbar{
+    padding-top:2px;
+  }
+  .topbar-row{
+    gap:14px;
+  }
+  .user-chip{
+    min-width:0!important;
+  }
+  .user-name,
+  .user-sub{
+    max-width:100%;
+    overflow:hidden;
+    text-overflow:ellipsis;
+  }
+}
+
+  </style>
 </head>
 <body>
   <div class="global-loading" id="globalLoadingBar" aria-hidden="true">
