@@ -3603,33 +3603,7 @@ html, body{overflow-x:hidden;}
           return false;
         }
 
-        // [SW 안정화] Service Worker URL은 고정해야 합니다.
-        // ?v=timestamp를 붙이면 브라우저가 매번 다른 서비스워커로 인식해
-        // 운영계에서 등록/활성화가 꼬일 수 있습니다.
-        try {
-          const swStableKey = 'sola_push_sw_stable_20260503';
-          if (localStorage.getItem(swStableKey) !== 'done') {
-            const regs = await navigator.serviceWorker.getRegistrations().catch(() => []);
-            await Promise.all((regs || []).map((reg) => {
-              const urls = [
-                reg?.active?.scriptURL,
-                reg?.waiting?.scriptURL,
-                reg?.installing?.scriptURL
-              ].filter(Boolean);
-
-              const hasOldQuerySw = urls.some((url) =>
-                String(url).includes('/firebase-messaging-sw.js?')
-              );
-
-              return hasOldQuerySw ? reg.unregister().catch(() => false) : false;
-            }));
-            localStorage.setItem(swStableKey, 'done');
-          }
-        } catch (swCleanupError) {
-          console.warn('[push] 기존 query-string 서비스워커 정리 실패:', swCleanupError);
-        }
-
-        const registration = await navigator.serviceWorker.register('/firebase-messaging-sw.js');
+        const registration = await navigator.serviceWorker.register(`/firebase-messaging-sw.js?v=${globalThis.__SOLA_DYNAMIC_IMPORT_VERSION__ || Date.now()}`);
         await registration.update().catch(() => {});
         window.pushSwRegistration = registration;
 
