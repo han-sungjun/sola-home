@@ -914,12 +914,22 @@ body.gnb-open .bottom-nav{
 .location-panel{background:linear-gradient(180deg,#f8fafc 0%,#ffffff 100%);border:1px solid rgba(15,23,42,.07)}
 .location-panel .location-title{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px}
 .location-panel .location-title strong{font-size:13px;color:var(--muted)}
+
+/* ===== Benefit external links / service options ===== */
+.benefit-extra-panel{display:grid;gap:10px}
+.benefit-extra-links{display:flex;flex-wrap:wrap;gap:8px}
+.benefit-extra-links a{display:inline-flex;align-items:center;gap:6px;padding:9px 11px;border-radius:999px;background:#f8fafc;border:1px solid #e2e8f0;color:#334155;font-size:12px;font-weight:900;text-decoration:none}
+.benefit-extra-services{display:flex;flex-wrap:wrap;gap:8px}
+.benefit-extra-services span{display:inline-flex;align-items:center;gap:6px;padding:8px 10px;border-radius:999px;background:#ecfdf5;border:1px solid #bbf7d0;color:#15803d;font-size:12px;font-weight:900}
+.benefit-extra-memo{font-size:13px;color:#475569;line-height:1.6;padding:10px 12px;border-radius:14px;background:#f8fafc;border:1px solid #e2e8f0}
+
 .location-address{color:#0f172a;line-height:1.65;word-break:keep-all}
 .location-distance{margin-top:10px;padding:10px 12px;border-radius:16px;background:#eff6ff;border:1px solid #bfdbfe;color:#1d4ed8;font-size:13px;font-weight:800;line-height:1.45}
 .location-distance.muted{background:#f8fafc;border-color:#e2e8f0;color:#64748b}
 .location-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:8px}
 .location-actions .btn{min-height:48px}
 .location-note{margin-top:8px;font-size:11px;color:var(--muted);line-height:1.55}
+.location-guide{margin-top:10px;padding:11px 12px;border-radius:16px;background:#f8fafc;border:1px solid #e2e8f0;color:#334155;font-size:13px;font-weight:800;line-height:1.55;white-space:pre-line}
 @media (max-width:370px){.location-actions{grid-template-columns:1fr}}
 
 
@@ -2340,7 +2350,7 @@ body.app-role-resident [data-view="shareinsights"]{
 
 
 /* ===== AI 생활 도우미 (1단계: Firestore 검색형) ===== */
-.ai-entry-card{position:relative;overflow:hidden;background:linear-gradient(135deg,#0f172a 0%,#1e293b 48%,#2563eb 100%);color:#fff;border:none;cursor:pointer}.ai-entry-card::after{content:"";position:absolute;right:-28px;top:-28px;width:128px;height:128px;border-radius:42px;background:rgba(255,255,255,.12);transform:rotate(18deg)}.ai-entry-card>*{position:relative;z-index:1}.ai-entry-head{display:flex;align-items:flex-start;gap:14px;justify-content:space-between}.ai-entry-icon{width:48px;height:48px;border-radius:18px;display:grid;place-items:center;background:rgba(255,255,255,.14);font-size:24px;box-shadow:inset 0 0 0 1px rgba(255,255,255,.16)}.ai-entry-copy{min-width:0;flex:1}.ai-entry-copy h3{margin:0;font-size:18px;letter-spacing:-.04em}.ai-entry-copy p{margin:7px 0 0;color:rgba(255,255,255,.82);font-size:13px;line-height:1.6}.ai-entry-badge{display:inline-flex;align-items:center;gap:6px;margin-top:14px;padding:8px 11px;border-radius:999px;background:rgba(255,255,255,.13);border:1px solid rgba(255,255,255,.16);font-size:12px;font-weight:900;color:#fff}.ai-view-hero{position:relative;overflow:hidden;padding:22px;border-radius:30px;color:#fff;background:radial-gradient(circle at top right,rgba(255,255,255,.24),transparent 32%),linear-gradient(135deg,#111827 0%,#1d4ed8 100%);box-shadow:var(--shadow)}.ai-view-hero h3{margin:10px 0 8px;font-size:24px;letter-spacing:-.05em;line-height:1.2}.ai-view-hero p{margin:0;color:rgba(255,255,255,.88);font-size:14px;line-height:1.7}.ai-chat-panel{display:grid;gap:12px;margin-top:14px}.ai-chat-window{min-height:330px;max-height:52dvh;overflow:auto;padding:14px;border-radius:24px;background:rgba(255,255,255,.86);border:1px solid rgba(15,23,42,.06);box-shadow:inset 0 1px 0 rgba(255,255,255,.9)}.ai-message{display:flex;margin:10px 0}.ai-message.user{justify-content:flex-end}.ai-bubble{max-width:88%;padding:13px 15px;border-radius:20px;font-size:14px;line-height:1.65;white-space:pre-line;box-shadow:0 8px 20px rgba(15,23,42,.06)}.ai-message.bot .ai-bubble{background:#fff;color:#0f172a;border:1px solid #e2e8f0;border-top-left-radius:8px}.ai-message.user .ai-bubble{background:#0f172a;color:#fff;border-top-right-radius:8px}.ai-bubble small{display:block;margin-top:8px;color:#64748b;font-size:11px;line-height:1.5}.ai-message.user .ai-bubble small{color:rgba(255,255,255,.72)}.ai-quick-row{display:flex;gap:8px;overflow-x:auto;overflow-y:hidden;padding:2px 2px 4px;scrollbar-width:none;-webkit-overflow-scrolling:touch;touch-action:pan-x;overscroll-behavior-x:contain;cursor:grab;user-select:none;-webkit-user-select:none;scroll-behavior:smooth}.ai-quick-row::-webkit-scrollbar{display:none}.ai-quick-row.dragging{cursor:grabbing;scroll-behavior:auto}.ai-quick-row.dragging .ai-quick-btn{pointer-events:auto}.ai-quick-btn{white-space:nowrap;border:none;border-radius:999px;padding:9px 12px;background:#eff6ff;color:#1d4ed8;border:1px solid #bfdbfe;font-size:12px;font-weight:900;cursor:pointer;flex:0 0 auto;touch-action:manipulation;-webkit-tap-highlight-color:transparent}.ai-input-row{display:flex;gap:10px}.ai-input-row input{flex:1;min-width:0;height:52px;border:1px solid #dbe3ef;background:#fff;border-radius:18px;padding:0 15px;outline:none}.ai-input-row input:focus{border-color:#93c5fd;box-shadow:0 0 0 4px rgba(59,130,246,.12)}.ai-input-row button{height:52px;padding:0 17px;border-radius:18px}.ai-source-list{display:grid;gap:8px;margin-top:10px}.ai-source-item{padding:10px 11px;border-radius:15px;background:#f8fafc;border:1px solid #e2e8f0;font-size:12px;line-height:1.45;color:#334155}.ai-source-item b{display:block;margin-bottom:3px;color:#0f172a}.ai-ready-pill{display:inline-flex;align-items:center;gap:6px;padding:8px 11px;border-radius:999px;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.18);font-size:12px;font-weight:900}@media (max-width:370px){.ai-input-row button{padding:0 13px}.ai-bubble{max-width:94%}}
+.ai-entry-card{position:relative;overflow:hidden;background:linear-gradient(135deg,#0f172a 0%,#1e293b 48%,#2563eb 100%);color:#fff;border:none;cursor:pointer}.ai-entry-card::after{content:"";position:absolute;right:-28px;top:-28px;width:128px;height:128px;border-radius:42px;background:rgba(255,255,255,.12);transform:rotate(18deg)}.ai-entry-card>*{position:relative;z-index:1}.ai-entry-head{display:flex;align-items:flex-start;gap:14px;justify-content:space-between}.ai-entry-icon{width:48px;height:48px;border-radius:18px;display:grid;place-items:center;background:rgba(255,255,255,.14);font-size:24px;box-shadow:inset 0 0 0 1px rgba(255,255,255,.16)}.ai-entry-copy{min-width:0;flex:1}.ai-entry-copy h3{margin:0;font-size:18px;letter-spacing:-.04em}.ai-entry-copy p{margin:7px 0 0;color:rgba(255,255,255,.82);font-size:13px;line-height:1.6}.ai-entry-badge{display:inline-flex;align-items:center;gap:6px;margin-top:14px;padding:8px 11px;border-radius:999px;background:rgba(255,255,255,.13);border:1px solid rgba(255,255,255,.16);font-size:12px;font-weight:900;color:#fff}.ai-view-hero{position:relative;overflow:hidden;padding:22px;border-radius:30px;color:#fff;background:radial-gradient(circle at top right,rgba(255,255,255,.24),transparent 32%),linear-gradient(135deg,#111827 0%,#1d4ed8 100%);box-shadow:var(--shadow)}.ai-view-hero h3{margin:10px 0 8px;font-size:24px;letter-spacing:-.05em;line-height:1.2}.ai-view-hero p{margin:0;color:rgba(255,255,255,.88);font-size:14px;line-height:1.7}.ai-chat-panel{display:grid;gap:12px;margin-top:14px}.ai-chat-window{min-height:330px;max-height:52dvh;overflow:auto;padding:14px;border-radius:24px;background:rgba(255,255,255,.86);border:1px solid rgba(15,23,42,.06);box-shadow:inset 0 1px 0 rgba(255,255,255,.9)}.ai-message{display:flex;margin:10px 0}.ai-message.user{justify-content:flex-end}.ai-bubble{max-width:88%;padding:13px 15px;border-radius:20px;font-size:14px;line-height:1.65;white-space:pre-line;box-shadow:0 8px 20px rgba(15,23,42,.06)}.ai-message.bot .ai-bubble{background:#fff;color:#0f172a;border:1px solid #e2e8f0;border-top-left-radius:8px}.ai-message.user .ai-bubble{background:#0f172a;color:#fff;border-top-right-radius:8px}.ai-bubble small{display:block;margin-top:8px;color:#64748b;font-size:11px;line-height:1.5}.ai-message.user .ai-bubble small{color:rgba(255,255,255,.72)}.ai-quick-row{display:flex;gap:8px;overflow-x:auto;overflow-y:hidden;padding:2px 2px 4px;scrollbar-width:none;-webkit-overflow-scrolling:touch;touch-action:pan-x;overscroll-behavior-x:contain;cursor:grab;user-select:none;-webkit-user-select:none;scroll-behavior:smooth}.ai-quick-row::-webkit-scrollbar{display:none}.ai-quick-row.dragging{cursor:grabbing;scroll-behavior:auto}.ai-quick-row.dragging .ai-quick-btn{pointer-events:auto}.ai-quick-btn{white-space:nowrap;border:none;border-radius:999px;padding:9px 12px;background:#eff6ff;color:#1d4ed8;border:1px solid #bfdbfe;font-size:12px;font-weight:900;cursor:pointer;flex:0 0 auto;touch-action:manipulation;-webkit-tap-highlight-color:transparent}.ai-dialog-action-row{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0 2px}.ai-dialog-action-btn{border:none;border-radius:999px;padding:10px 13px;background:#0f172a;color:#fff;font-size:12px;font-weight:900;cursor:pointer;box-shadow:0 8px 18px rgba(15,23,42,.14)}.ai-dialog-action-btn:nth-child(n+2){background:#eff6ff;color:#1d4ed8;border:1px solid #bfdbfe;box-shadow:none}.ai-input-row{display:flex;gap:10px}.ai-input-row input{flex:1;min-width:0;height:52px;border:1px solid #dbe3ef;background:#fff;border-radius:18px;padding:0 15px;outline:none}.ai-input-row input:focus{border-color:#93c5fd;box-shadow:0 0 0 4px rgba(59,130,246,.12)}.ai-input-row button{height:52px;padding:0 17px;border-radius:18px}.ai-source-list{display:grid;gap:8px;margin-top:10px}.ai-source-item{padding:10px 11px;border-radius:15px;background:#f8fafc;border:1px solid #e2e8f0;font-size:12px;line-height:1.45;color:#334155}.ai-source-item b{display:block;margin-bottom:3px;color:#0f172a}.ai-ready-pill{display:inline-flex;align-items:center;gap:6px;padding:8px 11px;border-radius:999px;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.18);font-size:12px;font-weight:900}@media (max-width:370px){.ai-input-row button{padding:0 13px}.ai-bubble{max-width:94%}}
 
   
 
@@ -2757,7 +2767,16 @@ body:not(.app-role-root) #view-ai{
   .ai-location-detail-card .location-actions{grid-template-columns:1fr}
 }
 
-</style>
+
+/* ===== SNS 링크 아이콘 / 클릭 추적 버튼 ===== */
+.benefit-extra-links{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.benefit-extra-links a{display:inline-flex;align-items:center;gap:6px;padding:8px 10px;border-radius:999px;background:#fff;border:1px solid #e2e8f0;color:#334155;font-size:12px;font-weight:900;text-decoration:none;box-shadow:0 6px 14px rgba(15,23,42,.04)}
+.benefit-extra-links a:hover{transform:translateY(-1px);border-color:#bfdbfe;color:#1d4ed8}
+.ai-social-hint{margin-top:10px;padding:10px 11px;border-radius:16px;background:#f8fafc;border:1px solid #dbeafe;color:#334155;font-size:12px;font-weight:800;line-height:1.6}
+.ai-social-links{display:flex;flex-wrap:wrap;gap:7px;margin-top:8px}
+.ai-social-links a{display:inline-flex;align-items:center;gap:5px;padding:7px 9px;border-radius:999px;background:#fff;border:1px solid #e2e8f0;color:#1d4ed8;font-size:11px;font-weight:1000;text-decoration:none}
+
+  </style>
   <style id="myhills-ios-safearea-fix">
     :root{--myhills-safe-area-top:env(safe-area-inset-top,0px)}
     @supports (padding-top: constant(safe-area-inset-top)){
@@ -4533,6 +4552,9 @@ async function refreshPushStatus(){
       if(key === 'cardClickCount') return 1;
       if(key === 'favoriteCount') return 3;
       if(key === 'shareClickCount') return 5;
+      if(key === 'smartstoreClickCount') return 4;
+      if(key === 'bandClickCount') return 3;
+      if(['homepageClickCount','blogClickCount','instagramClickCount','youtubeClickCount','facebookClickCount','snsClickCount'].includes(key)) return 2;
       return 0;
     }
 
@@ -4580,6 +4602,8 @@ async function refreshPushStatus(){
     function residentActivityPoints(type = ''){
       const key = String(type || '');
       if(key.includes('share')) return 5;
+      if(key === 'smartstore_click') return 4;
+      if(key === 'band_click') return 3;
       if(key === 'favorite') return 3;
       if(key === 'recommend') return 4;
       if(key === 'hot') return 6;
@@ -5004,8 +5028,73 @@ async function refreshPushStatus(){
         });
     }
 
+
+    const SOCIAL_LINK_DEFS = [
+      { key:'homepage', field:'homepageUrl', label:'홈페이지', icon:'🌐', statField:'homepageClickCount' },
+      { key:'blog', field:'blogUrl', label:'블로그', icon:'📝', statField:'blogClickCount' },
+      { key:'instagram', field:'instagramUrl', label:'인스타그램', icon:'📷', statField:'instagramClickCount' },
+      { key:'youtube', field:'youtubeUrl', label:'유튜브', icon:'▶️', statField:'youtubeClickCount' },
+      { key:'facebook', field:'facebookUrl', label:'페이스북', icon:'f', statField:'facebookClickCount' },
+      { key:'smartstore', field:'smartstoreUrl', label:'스마트스토어', icon:'🛒', statField:'smartstoreClickCount' },
+      { key:'band', field:'bandUrl', label:'밴드', icon:'📢', statField:'bandClickCount' }
+    ];
+
+    function getBenefitSocialLinks(item = {}){
+      const external = item.externalLinks || {};
+      return SOCIAL_LINK_DEFS.map((def) => {
+        const url = String(item[def.field] || external[def.key] || (def.key === 'smartstore' ? external.smartStore : '') || '').trim();
+        return url ? { ...def, url } : null;
+      }).filter(Boolean);
+    }
+
+    function benefitSocialLinksHtml(item = {}, { ai = false } = {}){
+      const links = getBenefitSocialLinks(item);
+      if(!links.length) return '';
+      const cls = ai ? 'ai-social-links' : 'benefit-extra-links';
+      return `<div class="${cls}">${links.map((link) => `<a href="${escapeAttr(link.url)}" target="_blank" rel="noopener" data-social-link="${escapeAttr(link.key)}" data-social-stat="${escapeAttr(link.statField)}" data-benefit-id="${escapeAttr(item.id || '')}">${escapeHtml(link.icon)} ${escapeHtml(link.label)}</a>`).join('')}</div>`;
+    }
+
+    function buildAiSocialHintHtml(item = {}){
+      const links = getBenefitSocialLinks(item);
+      if(!links.length) return '';
+      const labels = links.map(v => v.label);
+      const lead = labels.length === 1
+        ? `${labels[0]} 링크가 등록되어 있습니다.`
+        : `${labels.slice(0, -1).join(', ')}${labels.length > 1 ? ', ' : ''}${labels.at(-1)} 링크가 등록되어 있습니다.`;
+      const bandNote = links.some(v => v.key === 'band') ? ' 밴드에서 공지나 이벤트 소식을 확인하기 좋습니다.' : '';
+      const storeNote = links.some(v => v.key === 'smartstore') ? ' 스마트스토어가 있어 상품 구매 연결도 가능합니다.' : '';
+      const instagramNote = links.some(v => v.key === 'instagram') ? ' 인스타그램에서 사진, 메뉴, 이벤트를 확인할 수 있습니다.' : '';
+      return `<div class="ai-social-hint">${escapeHtml(lead + instagramNote + storeNote + bandNote)}${benefitSocialLinksHtml(item, { ai:true })}</div>`;
+    }
+
+    function bindBenefitSocialLinks(item = {}){
+      qsa('#detailModal [data-social-link]').forEach((link) => {
+        link.addEventListener('click', () => {
+          const key = link.dataset.socialLink || 'sns';
+          const statField = link.dataset.socialStat || 'snsClickCount';
+          increaseStat(item.id, item.name, statField);
+          if(!['smartstoreClickCount','bandClickCount'].includes(statField)) increaseStat(item.id, item.name, 'snsClickCount');
+          logBenefitEvent(item.id, `${key}_click`);
+        });
+      });
+    }
+
+    function benefitExtraInfoHtml(item = {}){
+      const links = getBenefitSocialLinks(item);
+      const services = [];
+      if(item.deliveryAvailable || item.serviceTags?.delivery) services.push('배달');
+      if(item.takeoutAvailable || item.serviceTags?.takeout) services.push('포장');
+      const memo = String(item.serviceMemo || item.serviceTags?.memo || '').trim();
+      if(!links.length && !services.length && !memo) return '';
+      const linkHtml = links.length ? benefitSocialLinksHtml(item) : '';
+      const serviceHtml = services.length ? `<div class="benefit-extra-services">${services.map(v => `<span>${escapeHtml(v)}</span>`).join('')}</div>` : '';
+      const memoHtml = memo ? `<div class="benefit-extra-memo">${escapeHtml(memo)}</div>` : '';
+      return `<div class="panel benefit-extra-panel"><strong style="display:block;margin-bottom:2px;font-size:13px;color:var(--muted);">매장 링크 / 이용 옵션</strong>${serviceHtml}${linkHtml}${memoHtml}</div>`;
+    }
+
     function locationPanelHtml(item = {}){
       const address = String(item.address || '').trim();
+      const directionText = String(item.directionText || item.directionGuide || item.locationGuide || item.guideText || '').trim();
       const mapLink = buildMapSearchLink(item);
       const directionLink = buildDirectionLink(item);
       const pos = getBenefitLatLng(item);
@@ -5016,6 +5105,7 @@ async function refreshPushStatus(){
       return `<div class="panel location-panel">
         <div class="location-title"><strong>위치 안내</strong></div>
         <div class="location-address">${address || '등록된 주소가 없습니다.'}</div>
+        ${directionText ? `<div class="location-guide">🧭 ${escapeHtml(directionText)}</div>` : ''}
         <div class="detail-map-box">${pos ? '<div id="detailNaverMap" class="detail-map-canvas"></div>' : '<div class="detail-map-empty">좌표가 등록되면 작은 지도가 표시됩니다.</div>'}</div>
         <div class="location-distance muted" id="distanceText"${distanceAttr}>${distanceText}</div>
         <div class="location-actions">
@@ -5114,7 +5204,39 @@ async function refreshPushStatus(){
       const lngRaw = item.lng ?? item.lon ?? item.longitude ?? item.storeLng ?? item.location?.lng ?? item.location?.lon ?? item.location?.longitude ?? '';
       const lat = Number(latRaw);
       const lng = Number(lngRaw);
-      return {id,name:item.name||'',category:normalizeCategory(item.category||'기타'),discountValue:Number(item.discountValue||0),discountText:item.discountText||`${Number(item.discountValue||0)}%`,condition:item.condition||'',address:item.address||'',phone:item.phone||'',url:item.url||'',imageUrl:item.imageUrl||item.thumbnailUrl||item.thumbnail||item.photoUrl||item.image||'',lat:Number.isFinite(lat)?lat:null,lng:Number.isFinite(lng)?lng:null,service:!!item.service||String(item.discountText).trim()==='서비스',visible:item.visible!==false,recommended:!!item.recommended,createdAt:item.createdAt||null,updatedAt:item.updatedAt||null};
+      return {
+        id,
+        name:item.name||'',
+        category:normalizeCategory(item.category||'기타'),
+        discountValue:Number(item.discountValue||0),
+        discountText:item.discountText||`${Number(item.discountValue||0)}%`,
+        condition:item.condition||'',
+        address:item.address||'',
+        phone:item.phone||'',
+        url:item.url||'',
+        imageUrl:item.imageUrl||item.thumbnailUrl||item.thumbnail||item.photoUrl||item.image||'',
+        thumbnailUrl:item.thumbnailUrl||item.imageUrl||item.thumbnail||item.photoUrl||item.image||'',
+        homepageUrl:item.homepageUrl||item.externalLinks?.homepage||'',
+        blogUrl:item.blogUrl||item.externalLinks?.blog||'',
+        instagramUrl:item.instagramUrl||item.externalLinks?.instagram||'',
+        youtubeUrl:item.youtubeUrl||item.externalLinks?.youtube||'',
+        facebookUrl:item.facebookUrl||item.externalLinks?.facebook||'',
+        smartstoreUrl:item.smartstoreUrl||item.externalLinks?.smartstore||item.externalLinks?.smartStore||'',
+        bandUrl:item.bandUrl||item.externalLinks?.band||'',
+        deliveryAvailable:!!(item.deliveryAvailable||item.serviceTags?.delivery),
+        takeoutAvailable:!!(item.takeoutAvailable||item.serviceTags?.takeout),
+        serviceMemo:item.serviceMemo||item.serviceTags?.memo||'',
+        directionText:item.directionText||item.directionGuide||item.locationGuide||item.guideText||'',
+        externalLinks:item.externalLinks||{},
+        serviceTags:item.serviceTags||{},
+        lat:Number.isFinite(lat)?lat:null,
+        lng:Number.isFinite(lng)?lng:null,
+        service:!!item.service||String(item.discountText).trim()==='서비스',
+        visible:item.visible!==false,
+        recommended:!!item.recommended,
+        createdAt:item.createdAt||null,
+        updatedAt:item.updatedAt||null
+      };
     }
     const getFavorites=()=>state.favoriteIds || [];
 
@@ -6786,7 +6908,7 @@ function getShareTrackingParams(){
       increaseStat(item.id, item.name, 'detailViewCount');
       logBenefitEvent(item.id, 'detail_view');
       const isFav=getFavorites().includes(item.id);
-      qs('#modalBody').innerHTML=`<div class="${getBadgeClass(item)}" style="display:inline-block;min-width:auto;padding:12px 16px;">${item.discountText}</div><h3 style="margin:12px 0 6px;font-size:26px;letter-spacing:-.04em;">${item.name}</h3><div class="tags" style="margin-top:0;margin-bottom:10px;">${item.recommended?'<span class="tag rec">추천 혜택</span>':''}<span class="tag">${item.category}</span>${benefitDateTag(item)}</div><div style="display:grid;gap:10px;margin:16px 0;"><div class="panel"><strong style="display:block;margin-bottom:6px;font-size:13px;color:var(--muted);">혜택 조건</strong>${item.condition}</div>${locationPanelHtml(item)}<div class="panel"><strong style="display:block;margin-bottom:6px;font-size:13px;color:var(--muted);">전화번호</strong>${item.phone || '등록된 전화번호가 없습니다.'}</div>${benefitDetailDateHtml(item)}</div>${residentReactionHtml(item)}<div class="grid-2"><a class="btn btn-primary block" id="callBtn" href="tel:${item.phone}">전화하기</a><button class="btn btn-soft block" id="modalFavBtn">${isFav?'★ 즐겨찾기 해제':'☆ 즐겨찾기 추가'}</button></div>${shareActionsHtml('benefit')}`;
+      qs('#modalBody').innerHTML=`<div class="${getBadgeClass(item)}" style="display:inline-block;min-width:auto;padding:12px 16px;">${item.discountText}</div><h3 style="margin:12px 0 6px;font-size:26px;letter-spacing:-.04em;">${item.name}</h3><div class="tags" style="margin-top:0;margin-bottom:10px;">${item.recommended?'<span class="tag rec">추천 혜택</span>':''}<span class="tag">${item.category}</span>${benefitDateTag(item)}</div><div style="display:grid;gap:10px;margin:16px 0;"><div class="panel"><strong style="display:block;margin-bottom:6px;font-size:13px;color:var(--muted);">혜택 조건</strong>${item.condition}</div>${locationPanelHtml(item)}${benefitExtraInfoHtml(item)}<div class="panel"><strong style="display:block;margin-bottom:6px;font-size:13px;color:var(--muted);">전화번호</strong>${item.phone || '등록된 전화번호가 없습니다.'}</div>${benefitDetailDateHtml(item)}</div>${residentReactionHtml(item)}<div class="grid-2"><a class="btn btn-primary block" id="callBtn" href="tel:${item.phone}">전화하기</a><button class="btn btn-soft block" id="modalFavBtn">${isFav?'★ 즐겨찾기 해제':'☆ 즐겨찾기 추가'}</button></div>${shareActionsHtml('benefit')}`;
       const modal=qs('#detailModal');
       if(modal.open)modal.close();
       modal.showModal();
@@ -6804,6 +6926,7 @@ function getShareTrackingParams(){
       qs('#callBtn').onclick=()=>{increaseStat(item.id, item.name, 'callClickCount');logBenefitEvent(item.id, 'call_click');};
       qs('#mapBtn').onclick=()=>{increaseStat(item.id, item.name, 'mapClickCount');logBenefitEvent(item.id, 'map_click');};
       qs('#directionBtn').onclick=()=>{increaseStat(item.id, item.name, 'mapClickCount');logBenefitEvent(item.id, 'direction_click');};
+      bindBenefitSocialLinks(item);
     }
 
     let residentProximityWatchId = null;
@@ -7208,8 +7331,34 @@ function getShareTrackingParams(){
       return data;
     }
 
+    function extractAiDialogActions(text=''){
+      const raw = String(text || '');
+      const match = raw.match(/\n*\[\[AI_DIALOG_ACTIONS:([\s\S]*?)\]\]\s*$/);
+      if(!match) return { text: raw, actions: null };
+      try{
+        const actions = JSON.parse(match[1]);
+        return { text: raw.slice(0, match.index).trim(), actions };
+      }catch(error){
+        console.warn('AI 대화 버튼 파싱 실패:', error);
+        return { text: raw.replace(match[0], '').trim(), actions: null };
+      }
+    }
+
+    function buildAiDialogActionButtons(actions=null){
+      if(!actions || !Array.isArray(actions.buttons) || !actions.buttons.length) return '';
+      const buttons = actions.buttons.slice(0, 6).map((btn) => {
+        const label = String(btn.label || btn.question || '선택').trim();
+        const question = String(btn.question || btn.label || '').trim();
+        if(!question) return '';
+        return `<button class="ai-dialog-action-btn" type="button" data-ai-dialog-question="${escapeAttr(question)}">${escapeHtml(label)}</button>`;
+      }).filter(Boolean).join('');
+      if(!buttons) return '';
+      return `<div class="ai-dialog-action-row" aria-label="AI 추천 선택 버튼">${buttons}</div>`;
+    }
+
     function cleanAiChunkText(text=''){
-      return String(text || '')
+      const parsed = extractAiDialogActions(text);
+      return String(parsed.text || '')
         .replace(/\*\*/g, '')
         .replace(/#{1,6}\s?/g, '')
         .replace(/```[\s\S]*?```/g, (m) => m.replace(/```/g, '').trim())
@@ -7631,6 +7780,7 @@ function getShareTrackingParams(){
       const item = found.item || {};
       const name = item.name || item.storeName || item.title || '매장';
       const address = item.address || item.roadAddress || '등록된 주소 정보가 없습니다.';
+      const directionText = String(item.directionText || item.directionGuide || item.locationGuide || item.guideText || '').trim();
       const mapUrl = getAiMapUrl(item);
       const dirUrl = getAiDirectionsUrl(item);
       const pos = typeof getBenefitLatLng === 'function' ? getBenefitLatLng(item) : null;
@@ -7641,6 +7791,8 @@ function getShareTrackingParams(){
         <div class="ai-location-detail-card" data-ai-location-benefit-id="${escapeAttr(item.id || '')}">
           <div class="location-title"><strong>위치 안내</strong></div>
           <div class="location-address">${escapeHtml(address)}</div>
+          ${directionText ? `<div class="location-guide">🧭 ${escapeHtml(directionText)}</div>` : ''}
+          ${buildAiSocialHintHtml(item)}
           <div class="detail-map-box">
             ${pos ? `<div class="detail-map-canvas ai-location-map-canvas" data-ai-map-benefit-id="${escapeAttr(item.id || '')}"></div>` : '<div class="detail-map-empty">좌표가 등록되면 작은 지도가 표시됩니다.</div>'}
           </div>
@@ -7861,9 +8013,11 @@ function buildAiMatchedBenefitPhoneCardHtml(mappedCards=[], question=''){
 
 
 function buildAiEnhancedAnswerHtml(finalText='', question=''){
-      const text = String(finalText || '답변을 생성하지 못했습니다.');
+      const parsedDialog = extractAiDialogActions(finalText);
+      const text = String(parsedDialog.text || '답변을 생성하지 못했습니다.');
       const cleaned = cleanAiChunkText(text).trim() || '답변을 생성하지 못했습니다.';
       const safe = escapeHtml(cleaned).replace(/\n/g, '<br>');
+      const dialogButtons = buildAiDialogActionButtons(parsedDialog.actions);
       const mappedCards = isApartmentLifePhoneQuestion(question) ? [] : extractAiBenefitCards(cleaned, 4, question);
       const matchedPhoneCard = isAiPhoneQuestion(question) ? buildAiMatchedBenefitPhoneCardHtml(mappedCards, question) : '';
       const phoneCards = matchedPhoneCard || buildAiPhoneCardHtml(extractAiPhoneCards(cleaned));
@@ -7880,10 +8034,12 @@ function buildAiEnhancedAnswerHtml(finalText='', question=''){
             ${item.category ? `<em>${escapeHtml(item.category)}</em>` : ''}
             ${item.address ? `<em>위치 등록</em>` : ''}
             ${pickAiPhone(item) ? `<em>전화 가능</em>` : ''}
+            ${getBenefitSocialLinks(item).length ? `<em>SNS/링크 있음</em>` : ''}
             ${reason ? `<em>${escapeHtml(reason)}</em>` : ''}
             ${shouldAttachWeatherTagToItem(item, question, cleaned) ? `<em class="weather">${escapeHtml(shouldAttachWeatherTagToItem(item, question, cleaned))}</em>` : ''}
           </div>
           <div class="ai-personal-reason">추천 기준: ${escapeHtml((reasons || []).join(' · ') || personalSummary)}</div>
+          ${buildAiSocialHintHtml(item)}
           <div class="ai-card-actions">
             <button class="primary" type="button" data-ai-open-benefit-id="${escapeAttr(item.id)}">혜택 상세 보기</button>
             <button class="soft" type="button" data-view-link="map">지도에서 보기</button>
@@ -7894,9 +8050,10 @@ function buildAiEnhancedAnswerHtml(finalText='', question=''){
           <div class="ai-answer-summary">${safe}</div>
           ${inferAiWeatherTag(question, cleaned) ? `<div class="ai-weather-chip">${escapeHtml(inferAiWeatherTag(question, cleaned))}</div>` : ''}
           ${phoneCards}
+          ${dialogButtons}
           ${locationMapCard}
           ${benefitCards ? `<div class="ai-answer-section"><div class="ai-answer-section-title"><span>자동 매칭된 혜택 카드</span><small>${mappedCards.length}개 추천</small></div>${benefitCards}</div>` : ''}
-          <span class="ai-mode-pill upgraded">스트리밍 · 혜택 자동 매핑 · 개인화 추천 기준: ${escapeHtml(personalSummary)}</span>
+          <span class="ai-mode-pill upgraded">스트리밍 · 대화 기억 · 후보 버튼 · 개인화 추천 기준: ${escapeHtml(personalSummary)}</span>
         </div>`;
     }
 
@@ -7964,6 +8121,16 @@ function buildAiEnhancedAnswerHtml(finalText='', question=''){
     function bindAiAnswerActions(scope){
       const root = scope || qs('#aiChatWindow');
       if(!root) return;
+      root.querySelectorAll('[data-ai-dialog-question]').forEach(btn => {
+        if(btn.dataset.aiDialogBound === 'true') return;
+        btn.dataset.aiDialogBound = 'true';
+        btn.addEventListener('click', (event) => {
+          event.preventDefault();
+          event.stopPropagation();
+          const question = btn.dataset.aiDialogQuestion || btn.textContent || '';
+          if(question) askAiAssistant(question);
+        });
+      });
       requestAnimationFrame(()=>renderAiLocationMiniMaps(root)); setTimeout(()=>renderAiLocationMiniMaps(root), 300); setTimeout(()=>renderAiLocationMiniMaps(root), 900);
       root.querySelectorAll('[data-ai-open-benefit-id]').forEach(btn => {
         if(btn.dataset.bound === 'true') return;
@@ -7985,6 +8152,19 @@ function buildAiEnhancedAnswerHtml(finalText='', question=''){
             console.error('AI 혜택 딥링크 열기 실패', error);
             openModalAlert('혜택을 여는 중 오류가 발생했습니다.');
           }
+        });
+      });
+      root.querySelectorAll('[data-social-link][data-benefit-id]').forEach(link => {
+        if(link.dataset.aiSocialBound === 'true') return;
+        link.dataset.aiSocialBound = 'true';
+        link.addEventListener('click', () => {
+          const benefitId = link.dataset.benefitId || '';
+          const item = (state.benefits || []).find(v => String(v.id) === String(benefitId)) || { id: benefitId, name: '' };
+          const key = link.dataset.socialLink || 'sns';
+          const statField = link.dataset.socialStat || 'snsClickCount';
+          increaseStat(item.id, item.name, statField);
+          if(!['smartstoreClickCount','bandClickCount'].includes(statField)) increaseStat(item.id, item.name, 'snsClickCount');
+          logBenefitEvent(item.id, `${key}_click`);
         });
       });
       root.querySelectorAll('[data-view-link]').forEach(btn => {
