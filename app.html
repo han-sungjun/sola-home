@@ -7695,9 +7695,45 @@ function getShareTrackingParams(){
       return { title:'야간 시간', question:'지금 확인하면 좋은 공지와 내일 이용 가능한 혜택 알려줘', label:'내일 준비' };
     }
 
-    async function getAiIdTokenSafe(){
+    async function getAiIdTokenSafe(options={}){
+      const waitMs = Number(options.waitMs ?? 5000);
       try{
-        return state.currentUser?.getIdToken ? await state.currentUser.getIdToken() : '';
+        let user = state.currentUser || auth.currentUser || null;
+
+        // 로그인 직후에는 화면 전환보다 Firebase Auth 상태 반영이 늦을 수 있습니다.
+        // 이때 바로 proactive API를 호출하면 Authorization 헤더 없이 요청되어 401이 발생합니다.
+        if(!user){
+          user = await new Promise((resolve) => {
+            let settled = false;
+            let unsubscribe = () => {};
+            const finish = (value) => {
+              if(settled) return;
+              settled = true;
+              clearTimeout(timer);
+              try{ unsubscribe(); }catch(_){}
+              resolve(value || null);
+            };
+            const timer = setTimeout(() => finish(null), waitMs);
+            unsubscribe = onAuthStateChanged(auth,
+              (nextUser) => {
+                if(nextUser && !state.currentUser) state.currentUser = nextUser;
+                finish(nextUser);
+              },
+              (error) => {
+                console.warn('AI 인증 상태 확인 실패:', error);
+                finish(null);
+              }
+            );
+          });
+        }
+
+        if(!user || !user.getIdToken){
+          console.warn('AI ID 토큰 생성 생략: 로그인 사용자가 아직 준비되지 않았습니다.');
+          return '';
+        }
+
+        const token = await user.getIdToken();
+        return token || '';
       }catch(error){
         console.warn('AI ID 토큰 생성 실패:', error);
         return '';
@@ -7724,9 +7760,10 @@ function getShareTrackingParams(){
       if(!AI_ASSISTANT_LOG_URL) return;
       try{
         const idToken = await getAiIdTokenSafe();
+        if(!idToken) return;
         await fetch(AI_ASSISTANT_LOG_URL, {
           method:'POST',
-          headers:{ 'Content-Type':'application/json', ...(idToken ? { 'Authorization':`Bearer ${idToken}` } : {}) },
+          headers:{ 'Content-Type':'application/json', 'Authorization':`Bearer ${idToken}` },
           body: JSON.stringify({ env: ENV, ...payload })
         });
       }catch(error){
@@ -7738,11 +7775,15 @@ function getShareTrackingParams(){
       const win = qs('#aiChatWindow');
       if(!win || !AI_PROACTIVE_URL) return false;
       try{
-        const idToken = await getAiIdTokenSafe();
+        const idToken = await getAiIdTokenSafe({ waitMs: 7000 });
+        if(!idToken){
+          console.warn('개인형 AI 안내 로드 생략: 로그인 토큰이 준비되지 않았습니다.');
+          return false;
+        }
         const pageContext = typeof buildAiPageContext === 'function' ? buildAiPageContext('개인형 비서 선제 추천') : {};
         const response = await fetch(AI_PROACTIVE_URL, {
           method:'POST',
-          headers:{ 'Accept':'application/json', 'Content-Type':'application/json', ...(idToken ? { 'Authorization':`Bearer ${idToken}` } : {}) },
+          headers:{ 'Accept':'application/json', 'Content-Type':'application/json', 'Authorization':`Bearer ${idToken}` },
           body: JSON.stringify({ env: ENV, pageContext, context: pageContext })
         });
         const data = await response.json().catch(()=>({}));
@@ -7784,9 +7825,10 @@ function getShareTrackingParams(){
       if(!AI_DAILY_NUDGE_MARK_URL) return;
       try{
         const idToken = await getAiIdTokenSafe();
+        if(!idToken) return;
         await fetch(AI_DAILY_NUDGE_MARK_URL, {
           method:'POST',
-          headers:{ 'Content-Type':'application/json', ...(idToken ? { 'Authorization':`Bearer ${idToken}` } : {}) },
+          headers:{ 'Content-Type':'application/json', 'Authorization':`Bearer ${idToken}` },
           body: JSON.stringify({ env: ENV, dateKey: getKstDateKey(), action })
         });
       }catch(error){
