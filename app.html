@@ -2394,6 +2394,7 @@ body.app-role-resident [data-view="shareinsights"]{
 .ai-message.bot .ai-bubble{max-width:82%;border-radius:20px 20px 20px 8px;background:#fff;border:1px solid #dbe3ef;box-shadow:0 14px 30px rgba(15,23,42,.07)}.ai-message.user .ai-bubble{max-width:78%;border-radius:20px 20px 8px 20px;background:linear-gradient(135deg,#0f172a 0%,#172554 100%);box-shadow:0 14px 30px rgba(15,23,42,.16)}
 .ai-answer{white-space:normal}.ai-answer b{font-weight:1000;color:#0f172a}.ai-answer .ai-answer-line{display:block;margin:4px 0}.ai-answer .ai-answer-card{display:block;margin:9px 0;padding:11px 12px;border-radius:16px;background:#f8fafc;border:1px solid #e2e8f0}
 .ai-typing-indicator{display:inline-flex;align-items:center;gap:5px;min-width:54px;min-height:24px}.ai-typing-indicator span{width:7px;height:7px;border-radius:999px;background:#94a3b8;animation:aiTypingDot 1s infinite ease-in-out}.ai-typing-indicator span:nth-child(2){animation-delay:.14s}.ai-typing-indicator span:nth-child(3){animation-delay:.28s}
+.ai-thinking{display:flex;align-items:center;gap:10px;color:#475569;font-size:13px;font-weight:900;line-height:1.55}.ai-thinking-text{display:inline-block}.ai-thinking small{display:block;margin-top:2px;color:#94a3b8;font-size:11px;font-weight:800}.ai-thinking .ai-typing-indicator{min-width:auto}.ai-thinking .ai-typing-indicator span{background:#2563eb}
 .ai-mode-pill{display:inline-flex;align-items:center;gap:6px;margin-top:10px;padding:6px 9px;border-radius:999px;background:#eff6ff;color:#1d4ed8;border:1px solid #bfdbfe;font-size:11px;font-weight:900}
 @keyframes aiMsgIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}@keyframes aiTypingDot{0%,80%,100%{opacity:.35;transform:translateY(0)}40%{opacity:1;transform:translateY(-4px)}}@media (max-width:370px){.ai-message.bot .ai-bubble,.ai-message.user .ai-bubble{max-width:86%}}
 
@@ -7126,8 +7127,25 @@ function getShareTrackingParams(){
       return row;
     }
 
-    function createAiTypingBubble(){
-      return appendAiMessage('bot', '<span class="ai-typing-indicator" aria-label="AI가 답변을 작성 중입니다"><span></span><span></span><span></span></span>', { pending:true });
+    function getAiWaitingMessage(question=''){
+      const q = String(question || '').replace(/\s+/g, ' ').trim();
+      if(/영업시간|영업\s*중|열었|닫았|오픈|마감/.test(q)) return '매장 영업시간을 확인하고 있어요.';
+      if(/혜택|추천|매장|카페|식당|맛집|지도|거리|근처|가까운|TOP\s*5|탑\s*5|인기/.test(q)) return '내부 혜택 데이터를 확인하고 있어요.';
+      if(/공지|공지사항|안내|커뮤니티|메뉴|어디|위치/.test(q)) return '등록된 안내 정보를 확인하고 있어요.';
+      return '검색 중입니다.';
+    }
+
+    function buildAiThinkingHtml(message='검색 중입니다.', subText='잠시만 기다려주세요.'){
+      return `<div class="ai-thinking" role="status" aria-live="polite"><span class="ai-typing-indicator" aria-label="AI가 답변을 준비 중입니다"><span></span><span></span><span></span></span><span class="ai-thinking-text">${escapeHtml(message)}${subText ? `<small>${escapeHtml(subText)}</small>` : ''}</span></div>`;
+    }
+
+    function setAiThinkingMessage(pendingBubble, message='검색 중입니다.', subText='잠시만 기다려주세요.'){
+      if(!pendingBubble) return;
+      pendingBubble.innerHTML = buildAiThinkingHtml(message, subText);
+    }
+
+    function createAiTypingBubble(question=''){
+      return appendAiMessage('bot', buildAiThinkingHtml(getAiWaitingMessage(question), '서버 응답을 기다리는 중입니다.'), { pending:true });
     }
 
     function normalizeAiAnswerHtml(html=''){
@@ -8351,11 +8369,14 @@ async function askAiAssistant(rawQuestion=''){
       if(input) input.value = '';
       if(btn){ btn.disabled = true; btn.textContent = '작성중'; }
       appendAiMessage('user', escapeHtml(question));
-      const pendingRow = createAiTypingBubble();
+      const pendingRow = createAiTypingBubble(question);
       const pendingBubble = pendingRow?.querySelector('.ai-bubble');
 
+      let aiWaitTimer1 = null;
+      let aiWaitTimer2 = null;
       try{
-        if(pendingBubble) pendingBubble.textContent = '';
+        aiWaitTimer1 = setTimeout(() => setAiThinkingMessage(pendingBubble, '조금만 더 확인하고 있어요.', '내부 DB와 추천 조건을 정리하는 중입니다.'), 4500);
+        aiWaitTimer2 = setTimeout(() => setAiThinkingMessage(pendingBubble, '응답이 평소보다 오래 걸리고 있어요.', '크롤링/거리 계산이 포함되면 시간이 더 걸릴 수 있습니다.'), 10000);
         const streamRenderer = createAiStreamRenderer(pendingBubble, question);
         await callAiStreamServer(question, {
           onChunk: (chunk) => {
@@ -8363,6 +8384,8 @@ async function askAiAssistant(rawQuestion=''){
           }
         });
 
+        if(aiWaitTimer1) clearTimeout(aiWaitTimer1);
+        if(aiWaitTimer2) clearTimeout(aiWaitTimer2);
         const finalText = streamRenderer.flush() || '답변을 생성하지 못했습니다.';
         if(pendingBubble){
           pendingBubble.innerHTML = buildAiEnhancedAnswerHtml(finalText, question);
@@ -8373,6 +8396,8 @@ async function askAiAssistant(rawQuestion=''){
         aiConversationTitle = question.slice(0,24) || '새 대화';
         updateAiConversationStatus('Cloud Run 스트리밍');
       }catch(error){
+        if(aiWaitTimer1) clearTimeout(aiWaitTimer1);
+        if(aiWaitTimer2) clearTimeout(aiWaitTimer2);
         console.error('AI Cloud Run 스트리밍 실패', error);
         if(pendingBubble) pendingBubble.innerHTML = '답변 생성 중 오류가 발생했습니다.<br><small>Cloud Run URL, CORS 설정, GEMINI_API_KEY, 서버 배포 상태를 확인해 주세요.</small>';
         else appendAiMessage('bot', '답변 생성 중 오류가 발생했습니다.');
