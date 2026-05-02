@@ -194,12 +194,12 @@ messaging.onBackgroundMessage((payload) => {
 });
 
 /* =========================
-   모바일 fallback push 수신
-   - 모바일 data-only push 보강
-   - PC에서는 실행하지 않음
+   fallback push 수신
+   - PC/모바일 모두 data-only push 보강
+   - onBackgroundMessage가 놓치는 케이스를 보완
+   - showPushNotification 내부에서 중복 방지 처리
 ========================= */
 self.addEventListener("push", (event) => {
-  if (!isMobileBrowser()) return;
   if (!event.data) return;
 
   event.waitUntil(
@@ -212,7 +212,7 @@ self.addEventListener("push", (event) => {
         payload = {
           title: "알림",
           body: event.data.text() || "",
-          url: "/"
+          url: "/app"
         };
       }
 
@@ -231,27 +231,32 @@ self.addEventListener("notificationclick", (event) => {
   const noticeId = data.noticeId || "";
   const benefitId = data.benefitId || "";
   const type = data.type || (benefitId ? "benefit" : "");
-  const targetUrl = buildTargetUrl({
+
+  const targetPath = buildTargetUrl({
     url: data.url || "",
     type,
     noticeId,
     benefitId
   });
 
+  const targetUrl = new URL(targetPath || "/app", self.location.origin).href;
+
   event.waitUntil(
     clients.matchAll({ type: "window", includeUncontrolled: true })
       .then(async (clientList) => {
         for (const client of clientList) {
-          if (client.url.includes(self.location.origin) && "focus" in client) {
+          if (client.url.includes(self.location.origin)) {
             client.postMessage({
-              // app.html 기존 리스너와 맞추기 위해 OPEN_NOTICE 유지
-              // pushType/benefitId/url로 공지와 혜택을 분기합니다.
-              type: "OPEN_NOTICE",
+              type: "OPEN_PUSH_URL",
               pushType: type,
               noticeId,
               benefitId,
               url: targetUrl
             });
+
+            if ("navigate" in client) {
+              await client.navigate(targetUrl);
+            }
 
             return client.focus();
           }

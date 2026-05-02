@@ -2350,6 +2350,8 @@ body.app-role-resident [data-view="shareinsights"]{
 
 
 /* ===== AI 생활 도우미 (1단계: Firestore 검색형) ===== */
+
+.ai-daily-nudge-toast{position:fixed;left:50%;bottom:calc(92px + env(safe-area-inset-bottom,0px));width:min( calc(100% - 28px), 430px);transform:translate(-50%, 22px) scale(.98);opacity:0;pointer-events:none;z-index:9998;display:grid;gap:10px;padding:15px 15px 14px;border-radius:24px;background:linear-gradient(135deg,#111827 0%,#1d4ed8 100%);color:#fff;box-shadow:0 18px 42px rgba(15,23,42,.28);border:1px solid rgba(255,255,255,.18);transition:opacity .22s ease, transform .22s ease}.ai-daily-nudge-toast.show{opacity:1;transform:translate(-50%,0) scale(1);pointer-events:auto}.ai-daily-nudge-top{display:flex;align-items:flex-start;gap:11px}.ai-daily-nudge-icon{width:42px;height:42px;border-radius:16px;display:grid;place-items:center;background:rgba(255,255,255,.14);font-size:21px;flex:0 0 auto}.ai-daily-nudge-copy{min-width:0;display:grid;gap:3px}.ai-daily-nudge-copy strong{font-size:14px;letter-spacing:-.03em}.ai-daily-nudge-copy span{font-size:12px;line-height:1.55;color:rgba(255,255,255,.82)}.ai-daily-nudge-actions{display:grid;grid-template-columns:1fr auto;gap:8px}.ai-daily-nudge-actions button{border:none;border-radius:15px;padding:11px 12px;font-size:12px;font-weight:1000;cursor:pointer}.ai-daily-nudge-open{background:#fff;color:#0f172a}.ai-daily-nudge-close{background:rgba(255,255,255,.12);color:#fff;border:1px solid rgba(255,255,255,.16)!important}@media(max-width:370px){.ai-daily-nudge-actions{grid-template-columns:1fr}.ai-daily-nudge-toast{bottom:calc(84px + env(safe-area-inset-bottom,0px));}}
 .ai-entry-card{position:relative;overflow:hidden;background:linear-gradient(135deg,#0f172a 0%,#1e293b 48%,#2563eb 100%);color:#fff;border:none;cursor:pointer}.ai-entry-card::after{content:"";position:absolute;right:-28px;top:-28px;width:128px;height:128px;border-radius:42px;background:rgba(255,255,255,.12);transform:rotate(18deg)}.ai-entry-card>*{position:relative;z-index:1}.ai-entry-head{display:flex;align-items:flex-start;gap:14px;justify-content:space-between}.ai-entry-icon{width:48px;height:48px;border-radius:18px;display:grid;place-items:center;background:rgba(255,255,255,.14);font-size:24px;box-shadow:inset 0 0 0 1px rgba(255,255,255,.16)}.ai-entry-copy{min-width:0;flex:1}.ai-entry-copy h3{margin:0;font-size:18px;letter-spacing:-.04em}.ai-entry-copy p{margin:7px 0 0;color:rgba(255,255,255,.82);font-size:13px;line-height:1.6}.ai-entry-badge{display:inline-flex;align-items:center;gap:6px;margin-top:14px;padding:8px 11px;border-radius:999px;background:rgba(255,255,255,.13);border:1px solid rgba(255,255,255,.16);font-size:12px;font-weight:900;color:#fff}.ai-view-hero{position:relative;overflow:hidden;padding:22px;border-radius:30px;color:#fff;background:radial-gradient(circle at top right,rgba(255,255,255,.24),transparent 32%),linear-gradient(135deg,#111827 0%,#1d4ed8 100%);box-shadow:var(--shadow)}.ai-view-hero h3{margin:10px 0 8px;font-size:24px;letter-spacing:-.05em;line-height:1.2}.ai-view-hero p{margin:0;color:rgba(255,255,255,.88);font-size:14px;line-height:1.7}.ai-chat-panel{display:grid;gap:12px;margin-top:14px}.ai-chat-window{min-height:330px;max-height:52dvh;overflow:auto;padding:14px;border-radius:24px;background:rgba(255,255,255,.86);border:1px solid rgba(15,23,42,.06);box-shadow:inset 0 1px 0 rgba(255,255,255,.9)}.ai-message{display:flex;margin:10px 0}.ai-message.user{justify-content:flex-end}.ai-bubble{max-width:88%;padding:13px 15px;border-radius:20px;font-size:14px;line-height:1.65;white-space:pre-line;box-shadow:0 8px 20px rgba(15,23,42,.06)}.ai-message.bot .ai-bubble{background:#fff;color:#0f172a;border:1px solid #e2e8f0;border-top-left-radius:8px}.ai-message.user .ai-bubble{background:#0f172a;color:#fff;border-top-right-radius:8px}.ai-bubble small{display:block;margin-top:8px;color:#64748b;font-size:11px;line-height:1.5}.ai-message.user .ai-bubble small{color:rgba(255,255,255,.72)}.ai-quick-row{display:flex;gap:8px;overflow-x:auto;overflow-y:hidden;padding:2px 2px 4px;scrollbar-width:none;-webkit-overflow-scrolling:touch;touch-action:pan-x;overscroll-behavior-x:contain;cursor:grab;user-select:none;-webkit-user-select:none;scroll-behavior:smooth}.ai-quick-row::-webkit-scrollbar{display:none}.ai-quick-row.dragging{cursor:grabbing;scroll-behavior:auto}.ai-quick-row.dragging .ai-quick-btn{pointer-events:auto}.ai-quick-btn{white-space:nowrap;border:none;border-radius:999px;padding:9px 12px;background:#eff6ff;color:#1d4ed8;border:1px solid #bfdbfe;font-size:12px;font-weight:900;cursor:pointer;flex:0 0 auto;touch-action:manipulation;-webkit-tap-highlight-color:transparent}.ai-dialog-action-row{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0 2px}.ai-dialog-action-btn{border:none;border-radius:999px;padding:10px 13px;background:#0f172a;color:#fff;font-size:12px;font-weight:900;cursor:pointer;box-shadow:0 8px 18px rgba(15,23,42,.14)}.ai-dialog-action-btn:nth-child(n+2){background:#eff6ff;color:#1d4ed8;border:1px solid #bfdbfe;box-shadow:none}.ai-input-row{display:flex;gap:10px}.ai-input-row input{flex:1;min-width:0;height:52px;border:1px solid #dbe3ef;background:#fff;border-radius:18px;padding:0 15px;outline:none}.ai-input-row input:focus{border-color:#93c5fd;box-shadow:0 0 0 4px rgba(59,130,246,.12)}.ai-input-row button{height:52px;padding:0 17px;border-radius:18px}.ai-source-list{display:grid;gap:8px;margin-top:10px}.ai-source-item{padding:10px 11px;border-radius:15px;background:#f8fafc;border:1px solid #e2e8f0;font-size:12px;line-height:1.45;color:#334155}.ai-source-item b{display:block;margin-bottom:3px;color:#0f172a}.ai-ready-pill{display:inline-flex;align-items:center;gap:6px;padding:8px 11px;border-radius:999px;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.18);font-size:12px;font-weight:900}@media (max-width:370px){.ai-input-row button{padding:0 13px}.ai-bubble{max-width:94%}}
 
   
@@ -2452,7 +2454,7 @@ body.app-role-resident [data-view="shareinsights"]{
 .ai-benefit-meta em{font-style:normal;padding:5px 8px;border-radius:999px;background:#f8fafc;border:1px solid #e2e8f0;color:#475569;font-size:10.5px;font-weight:900}
 .ai-personal-reason{padding:9px 10px;border-radius:14px;background:#fff7ed;border:1px solid #fed7aa;color:#9a3412;font-size:11px;font-weight:900;line-height:1.45}
 .ai-card-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:2px}
-.ai-card-actions button{border:none;border-radius:14px;padding:10px 10px;font-size:12px;font-weight:1000;cursor:pointer}
+.ai-card-actions button{border:none;border-radius:14px;padding:10px 10px;font-size:12px;font-weight:1000;cursor:pointer;display:flex;align-items:center;justify-content:center;text-align:center;line-height:1.25;min-height:42px;width:100%}
 .ai-card-actions .primary{background:#0f172a;color:#fff}
 .ai-card-actions .soft{background:#eef2ff;color:#1d4ed8;border:1px solid #dbeafe}
 .ai-mode-pill.upgraded{justify-self:start;background:#ecfdf5;border-color:#bbf7d0;color:#15803d}
@@ -2463,6 +2465,50 @@ body.app-role-resident [data-view="shareinsights"]{
 
 /* ===== AI 음성 질문 UX ===== */
 .ai-voice-row{display:flex;align-items:center;gap:8px;margin-top:10px}.ai-voice-btn{border:1px solid #dbeafe;background:#fff;color:#1d4ed8;border-radius:16px;padding:11px 12px;font-size:12px;font-weight:1000;cursor:pointer;box-shadow:0 8px 18px rgba(37,99,235,.06);transition:transform .16s ease, background-color .16s ease, color .16s ease}.ai-voice-btn:hover{transform:translateY(-1px);background:#eff6ff}.ai-voice-btn.listening{background:#ef4444;color:#fff;border-color:#fecaca;animation:aiVoicePulse 1s ease-in-out infinite}.ai-voice-status{flex:1;min-width:0;padding:10px 12px;border-radius:16px;background:#f8fafc;border:1px solid #e2e8f0;color:#64748b;font-size:12px;font-weight:900;line-height:1.45;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}@keyframes aiVoicePulse{0%,100%{box-shadow:0 0 0 0 rgba(239,68,68,.24)}50%{box-shadow:0 0 0 7px rgba(239,68,68,0)}}@media(max-width:370px){.ai-voice-row{align-items:stretch;flex-direction:column}.ai-voice-status{white-space:normal}}
+
+
+
+/* ===== AI 응답 중 입력 경로 잠금 UX ===== */
+.ai-busy .ai-quick-btn,
+.ai-busy .ai-dialog-action-btn,
+.ai-busy .ai-voice-btn,
+.ai-busy #aiAskBtn,
+.ai-busy #aiQuestionInput,
+.ai-locked-control,
+.ai-quick-btn:disabled,
+.ai-dialog-action-btn:disabled,
+.ai-voice-btn:disabled,
+#aiAskBtn:disabled,
+#aiQuestionInput:disabled{
+  opacity:.48!important;
+  cursor:not-allowed!important;
+  filter:grayscale(.18);
+}
+.ai-busy .ai-quick-btn,
+.ai-busy .ai-dialog-action-btn,
+.ai-busy .ai-voice-btn{
+  pointer-events:none;
+}
+#aiQuestionInput:disabled{
+  background:#f8fafc!important;
+  color:#94a3b8!important;
+}
+.ai-busy-note{
+  display:none;
+  align-items:center;
+  gap:6px;
+  width:max-content;
+  max-width:100%;
+  padding:8px 11px;
+  border-radius:999px;
+  background:#eff6ff;
+  border:1px solid #bfdbfe;
+  color:#1d4ed8;
+  font-size:11px;
+  font-weight:1000;
+  line-height:1;
+}
+.ai-busy .ai-busy-note{display:inline-flex;}
 
 /* AI 생활 도우미는 운영 테스트 기간 동안 최고 관리자(root)에게만 표시 */
 body:not(.app-role-root) [data-view-link="ai"],
@@ -2776,7 +2822,233 @@ body:not(.app-role-root) #view-ai{
 .ai-social-links{display:flex;flex-wrap:wrap;gap:7px;margin-top:8px}
 .ai-social-links a{display:inline-flex;align-items:center;gap:5px;padding:7px 9px;border-radius:999px;background:#fff;border:1px solid #e2e8f0;color:#1d4ed8;font-size:11px;font-weight:1000;text-decoration:none}
 
-  </style>
+
+
+/* ===== AI 상단 바로가기 버튼: 홈은 깔끔하게, AI는 언제든 호출 ===== */
+.topbar-quick-actions{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  flex:0 0 auto;
+}
+.ai-btn{
+  position:relative;
+  font-size:18px;
+  transition:transform .2s ease, box-shadow .2s ease, background-color .2s ease;
+}
+.ai-btn:hover{
+  transform:translateY(-2px);
+}
+.ai-btn:active{
+  transform:scale(.98);
+}
+.ai-btn::after{
+  content:"";
+  position:absolute;
+  top:5px;
+  right:7px;
+  width:6px;
+  height:6px;
+  border-radius:999px;
+  background:#22c55e;
+  box-shadow:0 0 8px rgba(34,197,94,.62);
+}
+@keyframes aiPulse{
+  0%,100%{transform:scale(1)}
+  50%{transform:scale(1.12)}
+}
+@media (max-width:420px){
+  .topbar-quick-actions{gap:7px}
+  .topbar-quick-actions .icon-btn{width:44px;height:44px;flex:0 0 44px}
+  .user-chip{max-width:calc(100vw - 198px) !important;}
+}
+
+  
+
+/* ===== AI 생활 도우미 모바일 잘림 방지 패치 ===== */
+html, body{overflow-x:hidden;}
+#view-ai,
+#view-ai *{min-width:0;}
+#view-ai{width:100%;max-width:100%;overflow:hidden;}
+#view-ai .panel,
+.ai-chat-panel{width:100%;max-width:100%;overflow:hidden;}
+.ai-chat-window{
+  width:100%;
+  max-width:100%;
+  overflow-y:auto;
+  overflow-x:hidden;
+  box-sizing:border-box;
+  overscroll-behavior:contain;
+}
+.ai-message{
+  width:100%;
+  max-width:100%;
+  min-width:0;
+  box-sizing:border-box;
+}
+.ai-message.bot,
+.ai-message.user{
+  display:flex;
+}
+.ai-message.bot .ai-bubble,
+.ai-message.user .ai-bubble{
+  max-width:calc(100% - 48px)!important;
+  min-width:0;
+  box-sizing:border-box;
+  overflow-wrap:anywhere;
+  word-break:keep-all;
+}
+.ai-bubble,
+.ai-answer,
+.ai-answer-summary,
+.ai-stream-text{
+  max-width:100%;
+  overflow-wrap:anywhere;
+  word-break:keep-all;
+}
+.ai-dialog-action-row,
+.ai-benefit-meta,
+.ai-live-meta{
+  max-width:100%;
+  overflow:hidden;
+}
+.ai-dialog-action-btn,
+.ai-quick-btn{
+  max-width:100%;
+}
+.ai-input-row{
+  width:100%;
+  max-width:100%;
+  display:grid!important;
+  grid-template-columns:minmax(0,1fr) auto;
+  align-items:center;
+  gap:10px;
+}
+.ai-input-row input{
+  width:100%;
+  min-width:0;
+}
+.ai-input-row button,
+#aiAskBtn{
+  flex:0 0 auto;
+  min-width:72px;
+  white-space:nowrap;
+}
+.ai-voice-row{
+  width:100%;
+  max-width:100%;
+  display:grid!important;
+  grid-template-columns:auto minmax(0,1fr);
+  align-items:center;
+}
+.ai-voice-status{
+  width:100%;
+  min-width:0;
+}
+@media (max-width:480px){
+  .app{padding-left:12px;padding-right:12px;}
+  #view-ai .ai-view-hero{padding:18px;border-radius:26px;}
+  #view-ai .ai-chat-panel{padding:14px;border-radius:24px;}
+  .ai-chat-window{
+    min-height:300px!important;
+    max-height:calc(100dvh - 360px)!important;
+    padding:14px 10px 16px!important;
+    border-radius:24px!important;
+  }
+  .ai-message{gap:8px;}
+  .ai-message.bot::before,
+  .ai-message.user::after{
+    width:32px!important;
+    height:32px!important;
+    border-radius:13px!important;
+    flex:0 0 32px!important;
+  }
+  .ai-message.bot .ai-bubble,
+  .ai-message.user .ai-bubble{
+    max-width:calc(100% - 40px)!important;
+    padding:12px 13px!important;
+    font-size:14px!important;
+    line-height:1.68!important;
+  }
+  .ai-memory-toolbar{grid-template-columns:1fr 1fr 1fr;gap:6px;}
+  .ai-memory-btn{padding:10px 7px;font-size:11px;}
+  .ai-memory-status{font-size:11px;padding:10px 11px;}
+  .ai-quick-row{padding-bottom:6px;}
+  .ai-voice-row{grid-template-columns:1fr;align-items:stretch;}
+  .ai-voice-status{white-space:normal;}
+}
+@media (max-width:370px){
+  .ai-memory-toolbar{grid-template-columns:1fr;}
+  .ai-input-row{grid-template-columns:1fr;}
+  #aiAskBtn{width:100%;}
+  .ai-chat-window{max-height:calc(100dvh - 390px)!important;}
+}
+
+  
+
+/* ===== 모바일 상단 헤더 겹침 방지 패치: AI/설치/메뉴 버튼 3개 대응 ===== */
+@media (max-width:420px){
+  .topbar-right{
+    grid-template-columns:minmax(0,1fr) auto auto !important;
+    gap:7px !important;
+    align-items:center !important;
+    overflow:visible !important;
+  }
+  .topbar-quick-actions{
+    width:auto !important;
+    min-width:max-content !important;
+    flex:0 0 auto !important;
+    display:flex !important;
+    align-items:center !important;
+    gap:7px !important;
+  }
+  .topbar-quick-actions .icon-btn,
+  .gnb-wrap .icon-btn{
+    width:44px !important;
+    height:44px !important;
+    flex:0 0 44px !important;
+    border-radius:17px !important;
+  }
+  .gnb-wrap{
+    width:auto !important;
+    min-width:max-content !important;
+    flex:0 0 auto !important;
+  }
+  .user-chip{
+    width:100% !important;
+    min-width:0 !important;
+    max-width:none !important;
+    min-height:52px !important;
+    padding:9px 10px !important;
+    overflow:hidden !important;
+  }
+  .user-avatar{
+    width:34px !important;
+    height:34px !important;
+    border-radius:12px !important;
+  }
+  .user-meta,
+  .user-name,
+  .user-sub{
+    min-width:0 !important;
+    max-width:100% !important;
+  }
+}
+@media (max-width:370px){
+  .topbar-right{gap:6px !important;}
+  .topbar-quick-actions{gap:6px !important;}
+  .topbar-quick-actions .icon-btn,
+  .gnb-wrap .icon-btn{
+    width:42px !important;
+    height:42px !important;
+    flex-basis:42px !important;
+  }
+  .user-chip{padding:8px 9px !important;}
+  .user-name{font-size:12px !important;}
+  .user-sub{font-size:10px !important;}
+}
+
+</style>
   <style id="myhills-ios-safearea-fix">
     :root{--myhills-safe-area-top:env(safe-area-inset-top,0px)}
     @supports (padding-top: constant(safe-area-inset-top)){
@@ -2787,7 +3059,7 @@ body:not(.app-role-root) #view-ai{
     body > .wrap{padding-top:var(--myhills-safe-area-top)}
     body > .box{margin-top:var(--myhills-safe-area-top)}
     .topbar-userbar{min-width:0}
-    .user-chip{min-width:0;max-width:min(260px,calc(100vw - 156px))}
+    .user-chip{min-width:0;max-width:min(260px,calc(100vw - 198px))}
     .user-name{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   </style>
 
@@ -2814,6 +3086,7 @@ body:not(.app-role-root) #view-ai{
             </div>
           </div>
           <div class="topbar-quick-actions">
+            <button class="icon-btn ai-btn" id="aiQuickBtn" type="button" data-view-link="ai" title="AI 생활 도우미" aria-label="AI 생활 도우미 열기">🤖</button>
             <button class="icon-btn" id="installTopBtn" title="앱처럼 설치">📲</button>
           </div>
           <div class="gnb-wrap">
@@ -2857,9 +3130,7 @@ body:not(.app-role-root) #view-ai{
         <div class="section-head" style="margin-bottom:12px;"><h3>최근 공지</h3><small>최신 안내</small></div>
         <div class="notice-list" id="homeNoticeList"><div class="notice-empty">등록된 공지가 없습니다.</div></div>
       </div>
-      <button class="panel ai-entry-card" type="button" data-view-link="ai" aria-label="AI 생활 도우미 열기">
-        <div class="ai-entry-head"><div class="ai-entry-icon">🤖</div><div class="ai-entry-copy"><h3>AI 생활 도우미</h3><p>Gemini가 실시간 스트리밍으로 답변합니다.</p><span class="ai-entry-badge">DEV 오픈 · Cloud Run 스트리밍</span></div></div>
-      </button>
+      <!-- 홈 탭에서는 AI 생활 도우미 카드를 노출하지 않습니다. 상단 🤖 아이콘 또는 전체 기능 메뉴에서 진입합니다. -->
     </section>
     <section id="view-benefits" class="hidden">
       <div class="panel" style="margin-bottom:14px;">
@@ -2924,7 +3195,7 @@ body:not(.app-role-root) #view-ai{
         <div class="helper">하단 네비바에 모두 담기 어려운 기능을 한 곳에 모았습니다.</div>
       </div>
       <div class="all-menu-grid">
-        <button class="all-menu-card ai-entry-card" type="button" data-view-link="ai"><span class="all-icon">🤖</span><strong>AI 생활 도우미</strong><span>Gemini 스트리밍으로 답변합니다.</span></button>
+        <button class="all-menu-card ai-entry-card" type="button" data-view-link="ai"><span class="all-icon">🤖</span><strong>AI 생활 도우미</strong><span>궁금한 정보를 빠르게 찾아드려요.</span></button>
         <button class="all-menu-card" type="button" data-view-link="community"><span class="all-icon">💬</span><strong>커뮤니티</strong><span>게시글과 댓글로 입주민 정보를 나눕니다.</span></button>
         <button class="all-menu-card" type="button" data-view-link="map"><span class="all-icon">🗺️</span><strong>지도</strong><span>주변 혜택 매장을 지도에서 확인합니다.</span></button>
         <button class="all-menu-card" type="button" data-view-link="notices"><span class="all-icon">📢</span><strong>공지사항</strong><span>관리자가 등록한 안내를 확인합니다.</span></button>
@@ -2937,9 +3208,9 @@ body:not(.app-role-root) #view-ai{
 
     <section id="view-ai" class="hidden">
       <div class="ai-view-hero">
-        <span class="ai-ready-pill">🤖 DEV 오픈 · Gemini 2.5 Flash-Lite 스트리밍</span>
+        <span class="ai-ready-pill">🤖 지금 필요한 정보를 바로 도와드릴게요</span>
         <h3>AI 생활 도우미</h3>
-        <p>공지, 혜택, FAQ, 커뮤니티 데이터를 기준으로 답변하고 이전 대화 맥락도 이어서 기억합니다.</p>
+        <p>입주민 생활에 필요한 정보를 빠르게 찾아드려요.<br>생활 · 혜택 · 매장까지 편하게 물어보세요.</p>
       </div>
       <div class="panel ai-chat-panel">
         <div class="ai-memory-toolbar" aria-label="AI 대화 관리">
@@ -2968,9 +3239,15 @@ body:not(.app-role-root) #view-ai{
           <button class="ai-quick-btn" type="button" data-ai-question="커뮤니티 메뉴는 어떻게 들어가?">커뮤니티 메뉴는?</button>
           <button class="ai-quick-btn" type="button" data-ai-question="공지사항은 어디서 봐?">공지사항 위치</button>
         </div>
+        <div class="ai-busy-note" id="aiBusyNote">답변을 준비하는 동안 새 질문은 잠시 멈춰둘게요.</div>
         <div class="ai-chat-window" id="aiChatWindow" aria-live="polite">
-          <div class="ai-message bot"><div class="ai-bubble">안녕하세요. 마이힐스 AI 생활 도우미입니다.
-궁금한 내용을 입력하면 등록된 공지, 혜택, 전자 책자 정보를 찾아 답변하고, 같은 대화 안에서는 이전 질문도 참고할게요.<small>내부 데이터 기반 Cloud Run 스트리밍 버전입니다.</small></div></div>
+          <div class="ai-message bot"><div class="ai-bubble">안녕하세요 😊
+지금 상황에 맞춰 먼저 도와드릴게요.
+
+👉 오늘 갈 만한 혜택 매장을 추천받아보시겠어요?
+👉 최근 공지나 커뮤니티 위치도 바로 안내해드릴 수 있어요.
+
+<div class="ai-dialog-action-row" aria-label="AI 선제 추천 버튼"><button class="ai-dialog-action-btn" type="button" data-ai-dialog-question="지금 상황에 맞는 혜택 매장 TOP3 추천해줘">지금 추천 TOP3</button><button class="ai-dialog-action-btn" type="button" data-ai-dialog-question="아이와 함께 가기 좋은 곳 추천해줘">아이와 함께</button><button class="ai-dialog-action-btn" type="button" data-ai-dialog-question="가까운 혜택 매장 알려줘">가까운 곳</button><button class="ai-dialog-action-btn" type="button" data-ai-dialog-question="최근 공지 알려줘">최근 공지</button></div><small>개인형 비서형 AI 모드: 검색 대기보다 먼저 선택지를 제안합니다.</small></div></div>
         </div>
         <div class="ai-voice-row" id="aiVoiceRow">
           <button class="ai-voice-btn" type="button" id="aiVoiceBtn">🎙 말로 질문</button>
@@ -3042,6 +3319,11 @@ body:not(.app-role-root) #view-ai{
       prod: 'https://ai-stream-server-337132471819.asia-northeast3.run.app/stream'
     };
     const AI_STREAM_SERVER_URL = AI_STREAM_SERVER_URL_BY_ENV[ENV] || '';
+    const AI_STREAM_SERVER_BASE_URL = AI_STREAM_SERVER_URL ? AI_STREAM_SERVER_URL.replace(/\/?stream\/?$/, '') : '';
+    const AI_PROACTIVE_URL = AI_STREAM_SERVER_BASE_URL ? `${AI_STREAM_SERVER_BASE_URL}/assistant/proactive` : '';
+    const AI_ASSISTANT_LOG_URL = AI_STREAM_SERVER_BASE_URL ? `${AI_STREAM_SERVER_BASE_URL}/assistant/log` : '';
+    const AI_DAILY_NUDGE_CHECK_URL = AI_STREAM_SERVER_BASE_URL ? `${AI_STREAM_SERVER_BASE_URL}/assistant/daily-nudge/check` : '';
+    const AI_DAILY_NUDGE_MARK_URL = AI_STREAM_SERVER_BASE_URL ? `${AI_STREAM_SERVER_BASE_URL}/assistant/daily-nudge/mark` : '';
     const AI_CONVERSATION_KEY = `myhills_ai_conversation_${ENV || 'prod'}`;
     let aiConversationId = localStorage.getItem(AI_CONVERSATION_KEY) || '';
     let aiConversationTitle = '새 대화';
@@ -3331,25 +3613,140 @@ body:not(.app-role-root) #view-ai{
 
         function normalizeForegroundPushPayload(payload = {}) {
           const data = payload?.data || {};
+          const benefitId = String(
+            data.benefitId ||
+            data.benefitID ||
+            data.benefitsId ||
+            ((data.type === 'benefit' || data.type === 'proximity') ? data.id : '') ||
+            ''
+          );
+          const noticeId = String(data.noticeId || '');
+          const type = String(data.type || (benefitId ? 'benefit' : (noticeId ? 'notice' : '')) || 'notice');
+          const rawUrl = String(
+            data.url ||
+            data.click_action ||
+            data.clickUrl ||
+            data.link ||
+            payload?.fcmOptions?.link ||
+            payload?.webpush?.fcmOptions?.link ||
+            '/app'
+          );
+
           return {
             title: String(data.title || payload?.notification?.title || '새 알림'),
             body: String(data.body || payload?.notification?.body || ''),
-            url: String(data.url || data.click_action || data.clickUrl || data.link || '/'),
-            noticeId: String(data.noticeId || ''),
+            url: buildForegroundPushUrl({ url: rawUrl, type, noticeId, benefitId }),
+            noticeId,
+            benefitId,
+            type,
             important: String(data.important || '') === 'true'
           };
         }
 
+        function buildForegroundPushUrl({ url = '', type = '', noticeId = '', benefitId = '' } = {}) {
+          const rawUrl = String(url || '').trim();
+          const cleanType = String(type || '').trim().toLowerCase();
+          const cleanNoticeId = String(noticeId || '').trim();
+          const cleanBenefitId = String(benefitId || '').trim();
+
+          if (cleanType === 'ai_nudge' || rawUrl.includes('ai=open')) {
+            return '/app?ai=open';
+          }
+
+          if (cleanBenefitId && (!rawUrl || rawUrl === '/' || rawUrl === '/app')) {
+            return `/app?open=benefit&id=${encodeURIComponent(cleanBenefitId)}&from=push`;
+          }
+
+          if (cleanNoticeId && (!rawUrl || rawUrl === '/' || rawUrl === '/app')) {
+            return `/app?open=notice&id=${encodeURIComponent(cleanNoticeId)}&from=push`;
+          }
+
+          if (cleanType === 'benefit' && cleanBenefitId && !rawUrl.includes('open=benefit')) {
+            return `/app?open=benefit&id=${encodeURIComponent(cleanBenefitId)}&from=push`;
+          }
+
+          return rawUrl || '/app';
+        }
+
         function openForegroundPushUrl(url = '/') {
           try {
-            const absoluteUrl = new URL(String(url || '/'), window.location.origin);
+            const absoluteUrl = new URL(String(url || '/app'), window.location.origin);
             if (absoluteUrl.origin !== window.location.origin) {
-              window.location.href = '/';
+              window.location.href = '/app';
               return;
             }
             window.location.href = absoluteUrl.href;
           } catch (_) {
-            window.location.href = '/';
+            window.location.href = '/app';
+          }
+        }
+
+        function isPcBrowserForForegroundNotification() {
+          const ua = String(navigator.userAgent || '').toLowerCase();
+          return !(
+            ua.includes('android') ||
+            ua.includes('iphone') ||
+            ua.includes('ipad') ||
+            ua.includes('mobile') ||
+            ua.includes('samsungbrowser')
+          );
+        }
+
+        function getForegroundPushKey(item = {}) {
+          return [
+            String(item.type || ''),
+            String(item.noticeId || ''),
+            String(item.benefitId || ''),
+            String(item.title || ''),
+            String(item.body || ''),
+            String(item.url || '')
+          ].join('|');
+        }
+
+        function shouldSkipForegroundSystemNotification(item = {}) {
+          const key = getForegroundPushKey(item);
+          const now = Date.now();
+          if (!shouldSkipForegroundSystemNotification.cache) {
+            shouldSkipForegroundSystemNotification.cache = new Map();
+          }
+          const cache = shouldSkipForegroundSystemNotification.cache;
+          const last = cache.get(key) || 0;
+          cache.set(key, now);
+
+          for (const [k, t] of cache.entries()) {
+            if (now - t > 10000) cache.delete(k);
+          }
+
+          return !!(last && now - last < 4000);
+        }
+
+        async function showForegroundSystemNotification(item = {}) {
+          try {
+            if (!isPcBrowserForForegroundNotification()) return;
+            if (!('Notification' in window)) return;
+            if (Notification.permission !== 'granted') return;
+            if (!('serviceWorker' in navigator)) return;
+            if (shouldSkipForegroundSystemNotification(item)) return;
+
+            const foregroundRegistration = window.pushSwRegistration || await navigator.serviceWorker.ready;
+            if (!foregroundRegistration?.showNotification) return;
+
+            await foregroundRegistration.showNotification(item.title || '새 알림', {
+              body: item.body || '새로운 알림이 도착했습니다.',
+              icon: '/icons/push-icon.png',
+              badge: '/icons/badge-icon.png',
+              vibrate: item.important ? [160, 80, 160] : undefined,
+              tag: `foreground-${getForegroundPushKey(item)}`,
+              renotify: false,
+              data: {
+                url: item.url || '/app',
+                noticeId: item.noticeId || '',
+                benefitId: item.benefitId || '',
+                type: item.type || 'notice'
+              }
+            });
+          } catch (error) {
+            console.warn('포그라운드 시스템 알림 표시 실패', error);
           }
         }
 
@@ -3407,23 +3804,8 @@ body:not(.app-role-root) #view-ai{
           showForegroundPushToast._timer = setTimeout(() => host.classList.remove('show'), 4200);
         }
 
-        if (!window.__myhillsForegroundPushBound) {
-          window.__myhillsForegroundPushBound = true;
-          onMessage(messaging, (payload) => {
-            try {
-              const item = normalizeForegroundPushPayload(payload);
-              console.log('포그라운드 푸시 수신', payload);
-              // 앱이 열려 있을 때는 app.html에서 추가 알림을 띄우지 않습니다.
-              // 시스템 알림은 firebase-messaging-sw.js 한 곳에서만 처리합니다.
-              // 이중 표시 방지를 위해 showNotification/new Notification/인앱 토스트 호출을 하지 않습니다.
-              if (item.important && navigator.vibrate) {
-                navigator.vibrate([160, 80, 160]);
-              }
-            } catch (error) {
-              console.error('포그라운드 푸시 처리 실패', error);
-            }
-          });
-        }
+        // 포그라운드 푸시 표시는 app.html에서 처리하지 않습니다.
+        // 시스템 알림은 firebase-messaging-sw.js 서비스워커 한 곳에서만 처리하여 중복 알림을 방지합니다.
         return true;
       }catch(error){
         console.error('푸시 초기화 실패', error);
@@ -4531,6 +4913,11 @@ async function refreshPushStatus(){
 
           updateUserChip();
           await refreshPushStatus();
+          if(hasAiOpenDeepLink()){
+            setTimeout(() => handleAiOpenDeepLink().catch(error => console.warn('AI 푸시 딥링크 처리 실패:', error)), 500);
+          }else{
+            setTimeout(() => handleDailyAiNudge().catch(error => console.warn('일 1회 AI 유도 처리 실패:', error)), 900);
+          }
 
           const pendingDeepLink = consumePendingDeepLinkSafely();
           if(pendingDeepLink && pendingDeepLink !== location.href){
@@ -7253,22 +7640,22 @@ function getShareTrackingParams(){
     function getAiWaitingMessage(question=''){
       const q = String(question || '').replace(/\s+/g, ' ').trim();
       if(/영업시간|영업\s*중|열었|닫았|오픈|마감/.test(q)) return '매장 영업시간을 확인하고 있어요.';
-      if(/혜택|추천|매장|카페|식당|맛집|지도|거리|근처|가까운|TOP\s*5|탑\s*5|인기/.test(q)) return '내부 혜택 데이터를 확인하고 있어요.';
-      if(/공지|공지사항|안내|커뮤니티|메뉴|어디|위치/.test(q)) return '등록된 안내 정보를 확인하고 있어요.';
-      return '검색 중입니다.';
+      if(/혜택|추천|매장|카페|식당|맛집|지도|거리|근처|가까운|TOP\s*5|탑\s*5|인기/.test(q)) return '혜택 정보를 확인하고 있어요.';
+      if(/공지|공지사항|안내|커뮤니티|메뉴|어디|위치/.test(q)) return '안내 정보를 확인하고 있어요.';
+      return '답변을 준비하고 있어요.';
     }
 
-    function buildAiThinkingHtml(message='검색 중입니다.', subText='잠시만 기다려주세요.'){
+    function buildAiThinkingHtml(message='답변을 준비하고 있어요.', subText='잠시만 기다려주세요.'){
       return `<div class="ai-thinking" role="status" aria-live="polite"><span class="ai-typing-indicator" aria-label="AI가 답변을 준비 중입니다"><span></span><span></span><span></span></span><span class="ai-thinking-text">${escapeHtml(message)}${subText ? `<small>${escapeHtml(subText)}</small>` : ''}</span></div>`;
     }
 
-    function setAiThinkingMessage(pendingBubble, message='검색 중입니다.', subText='잠시만 기다려주세요.'){
+    function setAiThinkingMessage(pendingBubble, message='답변을 준비하고 있어요.', subText='잠시만 기다려주세요.'){
       if(!pendingBubble) return;
       pendingBubble.innerHTML = buildAiThinkingHtml(message, subText);
     }
 
     function createAiTypingBubble(question=''){
-      return appendAiMessage('bot', buildAiThinkingHtml(getAiWaitingMessage(question), '서버 응답을 기다리는 중입니다.'), { pending:true });
+      return appendAiMessage('bot', buildAiThinkingHtml(getAiWaitingMessage(question), '조금만 기다려주세요. 곧 답변드릴게요.'), { pending:true });
     }
 
     function normalizeAiAnswerHtml(html=''){
@@ -7299,16 +7686,231 @@ function getShareTrackingParams(){
       });
     }
 
-    function getAiWelcomeHtml(){
-      return `안녕하세요. 마이힐스 AI 생활 도우미입니다.
-궁금한 내용을 입력하면 등록된 공지와 혜택 정보를 찾아 답변하고, 같은 대화 안에서는 이전 질문도 참고할게요.<small>내부 데이터 기반 Cloud Run 스트리밍 버전입니다.</small>`;
+    function getAiTimePromptLabel(){
+      const hour = new Date().getHours();
+      if(hour >= 5 && hour < 11) return { title:'아침 시간', question:'아침에 가기 좋은 혜택 매장 추천해줘', label:'아침 추천' };
+      if(hour >= 11 && hour < 15) return { title:'점심 시간', question:'점심에 가기 좋은 혜택 매장 TOP3 추천해줘', label:'점심 추천' };
+      if(hour >= 15 && hour < 18) return { title:'오후 시간', question:'오후에 가기 좋은 카페나 혜택 매장 추천해줘', label:'오후 카페' };
+      if(hour >= 18 && hour < 22) return { title:'저녁 시간', question:'저녁에 가기 좋은 맛집 혜택 매장 TOP3 추천해줘', label:'저녁 맛집' };
+      return { title:'야간 시간', question:'지금 확인하면 좋은 공지와 내일 이용 가능한 혜택 알려줘', label:'내일 준비' };
     }
 
-    function resetAiChatWindow(){
+    async function getAiIdTokenSafe(){
+      try{
+        return state.currentUser?.getIdToken ? await state.currentUser.getIdToken() : '';
+      }catch(error){
+        console.warn('AI ID 토큰 생성 실패:', error);
+        return '';
+      }
+    }
+
+    function buildProactiveAiHtml(data={}){
+      const message = String(data.message || '').trim() || getAiWelcomeHtml();
+      const buttons = Array.isArray(data.buttons) ? data.buttons : [];
+      const recs = Array.isArray(data.recommendations) ? data.recommendations : [];
+      const insight = data.insight || {};
+      const buttonHtml = buttons.length ? `<div class="ai-dialog-action-row" aria-label="개인형 AI 추천 버튼">${buttons.map(btn => {
+        const label = typeof btn === 'string' ? btn : (btn.label || btn.text || '추천');
+        const question = typeof btn === 'string' ? btn : (btn.question || btn.value || label);
+        const benefitId = typeof btn === 'object' && btn.benefitId ? ` data-ai-log-benefit-id="${escapeAttr(btn.benefitId)}"` : '';
+        return `<button class="ai-dialog-action-btn" type="button" data-ai-dialog-question="${escapeAttr(question)}" data-ai-log-source="proactive-server" data-ai-log-category="${escapeAttr(label)}"${benefitId}>${escapeHtml(label)}</button>`;
+      }).join('')}</div>` : '';
+      const recHtml = recs.length ? `<div class="ai-answer-section"><div class="ai-answer-section-title"><span>서버 맞춤 추천 후보</span><small>${recs.length}개</small></div>${recs.map(item => `<div class="ai-benefit-card-auto enhanced"><div class="ai-card-top"><b>${escapeHtml(item.name || '추천 매장')}</b><span class="ai-match-score">맞춤 ${Math.min(99, Number(item.score || 0))}%</span></div><span>${escapeHtml(item.benefit || item.category || '등록된 혜택 정보를 확인해보세요.')}</span>${item.id ? `<div class="ai-card-actions"><button class="primary" type="button" data-ai-open-benefit-id="${escapeAttr(item.id)}">혜택 상세 보기</button></div>` : ''}</div>`).join('')}</div>` : '';
+      const insightText = [insight.preference ? `관심 ${insight.preference}` : '', insight.timeLabel || '', insight.isRain ? '비오는날' : '', Number.isFinite(Number(insight.logCount)) ? `로그 ${Number(insight.logCount)}건` : ''].filter(Boolean).join(' · ');
+      return `<div class="ai-answer ai-answer-upgrade"><div class="ai-answer-summary">${escapeHtml(message).replace(/\n/g,'<br>')}</div>${buttonHtml}${recHtml}<span class="ai-mode-pill upgraded">지금 상황에 맞는 정보를 준비했어요.</span></div>`;
+    }
+
+    async function logPersonalAssistantEvent(payload={}){
+      if(!AI_ASSISTANT_LOG_URL) return;
+      try{
+        const idToken = await getAiIdTokenSafe();
+        await fetch(AI_ASSISTANT_LOG_URL, {
+          method:'POST',
+          headers:{ 'Content-Type':'application/json', ...(idToken ? { 'Authorization':`Bearer ${idToken}` } : {}) },
+          body: JSON.stringify({ env: ENV, ...payload })
+        });
+      }catch(error){
+        console.warn('개인형 AI 로그 저장 실패:', error);
+      }
+    }
+
+    async function loadServerProactiveWelcome(){
+      const win = qs('#aiChatWindow');
+      if(!win || !AI_PROACTIVE_URL) return false;
+      try{
+        const idToken = await getAiIdTokenSafe();
+        const pageContext = typeof buildAiPageContext === 'function' ? buildAiPageContext('개인형 비서 선제 추천') : {};
+        const response = await fetch(AI_PROACTIVE_URL, {
+          method:'POST',
+          headers:{ 'Accept':'application/json', 'Content-Type':'application/json', ...(idToken ? { 'Authorization':`Bearer ${idToken}` } : {}) },
+          body: JSON.stringify({ env: ENV, pageContext, context: pageContext })
+        });
+        const data = await response.json().catch(()=>({}));
+        if(!response.ok || data.ok === false) throw new Error(data.message || '선제 추천 호출 실패');
+        win.innerHTML = `<div class="ai-message bot"><div class="ai-bubble">${buildProactiveAiHtml(data)}</div></div>`;
+        bindAiAnswerActions(win);
+        win.scrollTop = win.scrollHeight;
+        return true;
+      }catch(error){
+        console.warn('개인형 AI 안내 로드 실패:', error);
+        return false;
+      }
+    }
+
+
+    function getKstDateKey(){
+      const now = new Date();
+      const kst = new Date(now.getTime() + 9 * 60 * 60 * 1000);
+      return kst.toISOString().slice(0, 10);
+    }
+
+    function getDailyAiNudgeStorageKey(dateKey=getKstDateKey()){
+      const uid = state.currentUser?.uid || 'guest';
+      return `myhills_ai_daily_nudge_${ENV || 'prod'}_${uid}_${dateKey}`;
+    }
+
+    function hideDailyAiNudgeToast(markLocal=true){
+      const toast = qs('#aiDailyNudgeToast');
+      if(!toast) return;
+      toast.classList.remove('show');
+      toast.setAttribute('aria-hidden','true');
+      if(markLocal){
+        localStorage.setItem(getDailyAiNudgeStorageKey(), 'closed');
+      }
+    }
+
+    async function markDailyAiNudgeShown(action='shown'){
+      localStorage.setItem(getDailyAiNudgeStorageKey(), action || 'shown');
+      if(!AI_DAILY_NUDGE_MARK_URL) return;
+      try{
+        const idToken = await getAiIdTokenSafe();
+        await fetch(AI_DAILY_NUDGE_MARK_URL, {
+          method:'POST',
+          headers:{ 'Content-Type':'application/json', ...(idToken ? { 'Authorization':`Bearer ${idToken}` } : {}) },
+          body: JSON.stringify({ env: ENV, dateKey: getKstDateKey(), action })
+        });
+      }catch(error){
+        console.warn('일 1회 AI 유도 기록 실패:', error);
+      }
+    }
+
+    function showDailyAiNudgeToast(payload={}){
+      const toast = qs('#aiDailyNudgeToast');
+      if(!toast) return;
+      const titleEl = qs('#aiDailyNudgeTitle');
+      const msgEl = qs('#aiDailyNudgeMessage');
+      if(titleEl) titleEl.textContent = payload.title || 'AI 생활도우미가 오늘 추천을 준비했어요';
+      if(msgEl) msgEl.textContent = payload.message || '날씨·시간·인기 혜택 기준으로 먼저 확인해볼까요?';
+      toast.classList.add('show');
+      toast.setAttribute('aria-hidden','false');
+      window.clearTimeout(window.__aiDailyNudgeTimer);
+      window.__aiDailyNudgeTimer = window.setTimeout(() => hideDailyAiNudgeToast(false), 11000);
+    }
+
+    function hasAiOpenDeepLink(){
+      try{
+        const params = new URLSearchParams(location.search || '');
+        return params.get('ai') === 'open' || params.get('open') === 'ai' || params.get('view') === 'ai';
+      }catch(_){
+        return false;
+      }
+    }
+
+    function clearAiOpenDeepLink(){
+      try{
+        const url = new URL(location.href);
+        let changed = false;
+        ['ai','open','view'].forEach((key) => {
+          const value = url.searchParams.get(key);
+          if((key === 'ai' && value === 'open') || (key === 'open' && value === 'ai') || (key === 'view' && value === 'ai')){
+            url.searchParams.delete(key);
+            changed = true;
+          }
+        });
+        if(changed){
+          history.replaceState({}, '', `${url.pathname}${url.search}${url.hash}`);
+        }
+      }catch(_){ }
+    }
+
+    async function openAiAssistantFromNudge(source='daily_nudge'){
+      if(!isRootRole()){
+        hideDailyAiNudgeToast(false);
+        await openModalAlert('AI 생활도우미는 현재 관리자 테스트 계정에서만 확인할 수 있습니다.');
+        clearAiOpenDeepLink();
+        return false;
+      }
+      hideDailyAiNudgeToast(false);
+      changeView('ai');
+      setTimeout(() => {
+        resetAiChatWindow({ loadProactive:true });
+        qs('#aiQuestionInput')?.focus?.();
+      }, 80);
+      logPersonalAssistantEvent({ action:'open_ai_assistant', source }).catch(()=>{});
+      clearAiOpenDeepLink();
+      return true;
+    }
+
+    async function handleAiOpenDeepLink(){
+      if(!hasAiOpenDeepLink()) return false;
+      await markDailyAiNudgeShown('push-opened');
+      return openAiAssistantFromNudge('push_deeplink');
+    }
+
+    async function handleDailyAiNudge(){
+      if(!state.currentUser?.uid) return;
+      // 현재 AI 메뉴가 root 전용으로 잠겨 있으므로, 접근 가능한 계정에서만 일 1회 유도 표시
+      if(!isRootRole()) return;
+      const localKey = getDailyAiNudgeStorageKey();
+      if(localStorage.getItem(localKey)) return;
+      let payload = { shouldShow:true };
+      if(AI_DAILY_NUDGE_CHECK_URL){
+        try{
+          const idToken = await getAiIdTokenSafe();
+          const response = await fetch(AI_DAILY_NUDGE_CHECK_URL, {
+            method:'POST',
+            headers:{ 'Accept':'application/json', 'Content-Type':'application/json', ...(idToken ? { 'Authorization':`Bearer ${idToken}` } : {}) },
+            body: JSON.stringify({ env: ENV, dateKey: getKstDateKey() })
+          });
+          const data = await response.json().catch(()=>({}));
+          if(response.ok && data.ok !== false) payload = data;
+        }catch(error){
+          console.warn('일 1회 AI 유도 서버 체크 실패, local 기준으로 표시:', error);
+        }
+      }
+      if(payload.shouldShow === false){
+        localStorage.setItem(localKey, 'server-already-shown');
+        return;
+      }
+      showDailyAiNudgeToast(payload);
+      markDailyAiNudgeShown('shown').catch(()=>{});
+    }
+
+    function getAiWelcomeHtml(){
+      const timePrompt = getAiTimePromptLabel();
+      const topNames = (state.benefits || [])
+        .slice()
+        .sort((a,b) => Number(b.popularScore || b.score || b.detailViewCount || 0) - Number(a.popularScore || a.score || a.detailViewCount || 0))
+        .slice(0, 3)
+        .map(v => v.name)
+        .filter(Boolean);
+      const topHint = topNames.length ? `\n오늘 많이 보는 혜택은 ${topNames.map(escapeHtml).join(' · ')} 쪽이에요.` : '';
+      return `안녕하세요 😊
+현재는 ${escapeHtml(timePrompt.title)}이에요.${topHint}
+
+먼저 필요한 걸 골라보세요. 제가 바로 이어서 추천해드릴게요.
+
+<div class="ai-dialog-action-row" aria-label="AI 선제 추천 버튼"><button class="ai-dialog-action-btn" type="button" data-ai-dialog-question="${escapeAttr(timePrompt.question)}">${escapeHtml(timePrompt.label)}</button><button class="ai-dialog-action-btn" type="button" data-ai-dialog-question="지금 상황에 맞는 혜택 매장 TOP3 추천해줘">상황별 TOP3</button><button class="ai-dialog-action-btn" type="button" data-ai-dialog-question="아이와 함께 가기 좋은 곳 추천해줘">아이와 함께</button><button class="ai-dialog-action-btn" type="button" data-ai-dialog-question="가까운 혜택 매장 알려줘">가까운 곳</button><button class="ai-dialog-action-btn" type="button" data-ai-dialog-question="최근 공지 알려줘">최근 공지</button></div><small>개인형 비서형 AI 모드: 사용자가 묻기 전에 시간·인기·상황 기준으로 먼저 제안합니다.</small>`;
+    }
+
+    function resetAiChatWindow(options={}){
+      const loadProactive = options.loadProactive !== false;
       const win = qs('#aiChatWindow');
       if(!win) return;
       win.innerHTML = `<div class="ai-message bot"><div class="ai-bubble">${getAiWelcomeHtml()}</div></div>`;
+      bindAiAnswerActions(win);
       win.scrollTop = win.scrollHeight;
+      if(loadProactive) loadServerProactiveWelcome();
     }
 
     function updateAiConversationStatus(title){
@@ -7384,7 +7986,8 @@ function getShareTrackingParams(){
       const render = (force=false) => {
         if(!targetBubble) return;
         const formatted = formatAiStreamingText(rawText);
-        const cards = mapAiBenefitsForQuestion(question, formatted, 3);
+        const isApartmentPhone = isApartmentLifePhoneQuestion(question, formatted);
+        const cards = isApartmentPhone ? [] : mapAiBenefitsForQuestion(question, formatted, 3);
         const cardSignature = cards.map(v => `${v.item?.id || ''}:${v.score || 0}`).join('|');
         if(!force && formatted === lastRendered && cardSignature === lastCardSignature) return;
         lastRendered = formatted;
@@ -7411,8 +8014,8 @@ function getShareTrackingParams(){
         targetBubble.innerHTML = `
           <div class="ai-stream-shell">
             <div class="ai-stream-status">
-              <span class="ai-stream-status-left"><span class="ai-stream-dot"></span>AI가 답변을 작성하면서 혜택을 매칭 중입니다</span>
-              <span>${cards.length ? '카드 자동 생성' : '스트리밍 수신중'}</span>
+              <span class="ai-stream-status-left"><span class="ai-stream-dot"></span>${isApartmentPhone ? '아파트 생활 연락처를 확인하고 있습니다' : 'AI가 답변을 작성하면서 혜택을 매칭 중입니다'}</span>
+              <span>${isApartmentPhone ? '생활정보 확인 중' : (cards.length ? '추천 카드 준비 완료' : '답변 준비 중')}</span>
             </div>
             <div class="ai-stream-text">${escapeHtml(formatted || '답변을 작성 중입니다...').replace(/\n/g,'<br>')}<span class="ai-stream-cursor"></span></div>
             ${liveCards}
@@ -7705,7 +8308,7 @@ function getShareTrackingParams(){
 
     function extractAiPhoneCards(finalText=''){
       const source = String(finalText || '');
-      const phonePattern = /(?:0507[-.\s]?\d{3,4}[-.\s]?\d{4}|0\d{1,2}[-.\s]?\d{3,4}[-.\s]?\d{4}|\d{3,4}[-.\s]?\d{4})/g;
+      const phonePattern = /(?:0507[-.\s]?\d{3,4}[-.\s]?\d{4}|0\d{1,2}[-.\s]?\d{3,4}[-.\s]?\d{4}|15\d{2}[-.\s]?\d{4}|16\d{2}[-.\s]?\d{4}|18\d{2}[-.\s]?\d{4})/g;
       const found = [...source.matchAll(phonePattern)].map(m => String(m[0] || '').trim()).filter(Boolean);
       const unique = [...new Set(found)].slice(0, 4);
       return unique.map(phone => {
@@ -7715,6 +8318,96 @@ function getShareTrackingParams(){
         else if(/업체|매장|가게|상가|혜택/.test(source)) label = '매장 전화번호';
         return { label, phone, tel: clean };
       });
+    }
+
+    function inferApartmentLifeContactLabel(question='', answer=''){
+      const q = normalizeAiSearchText(`${question || ''} ${answer || ''}`);
+      const groups = [
+        { label:'분양사무소', keys:['분양사무소','분양'] },
+        { label:'승강기 고장 신고', keys:['승강기고장신고','승강기','엘리베이터','고장신고','고장'] },
+        { label:'운정1동 행정복지센터', keys:['운정1동행정복지센터','행정복지센터','주민센터','전입신고','전입'] },
+        { label:'파주교육지원청', keys:['파주교육지원청','교육지원청','교육청','고등학교','중학교','입학'] },
+        { label:'인터넷 가입', keys:['전화인터넷','인터넷가입','인터넷','통신','kt','sk','lg','가입'] },
+        { label:'서울도시가스', keys:['서울도시가스','도시가스','가스'] },
+        { label:'키불출센터', keys:['키불출센터','키불출','키불출센타'] },
+        { label:'입주증센터', keys:['입주증센터','입주증','입주센터'] },
+        { label:'입주지원센터', keys:['입주지원센터','입주민센터','입주센터'] },
+        { label:'A/S센터', keys:['a/s센터','as센터','as','a/s','에이에스','하자','수리'] },
+        { label:'파주시청', keys:['파주시청','시청'] },
+        { label:'관리사무소', keys:['관리사무소','관리실','생활지원센터','아파트관리','아파트사무소','관리'] }
+      ];
+      const found = groups.find(group => group.keys.some(key => q.includes(normalizeAiSearchText(key))));
+      return found?.label || '전화번호';
+    }
+
+
+    const APARTMENT_LIFE_CONTACT_FALLBACKS = [
+      { label:'서울도시가스', keys:['서울도시가스','도시가스','가스'], phones:['1588-5788','031-946-7229'] },
+      { label:'파주시청', keys:['파주시청','시청'], phones:['031-940-4114'] },
+      { label:'입주증센터', keys:['입주증센터','입주증'], phones:['031-937-8671'] },
+      { label:'승강기 고장 신고', keys:['승강기고장신고','승강기','엘리베이터','고장신고','고장'], phones:['1577-0603'] },
+      { label:'A/S센터', keys:['a/s센터','as센터','as','a/s','에이에스','하자','수리'], phones:['031-937-8681'] },
+      { label:'H리셉션(입주지원센터 [아파트])', keys:['h리셉션','리셉션','버리셀션','비리셀션','입주지원센터','입주민센터'], phones:['031-538-7851'] },
+      { label:'관리사무소', keys:['관리사무소','관리실','생활지원센터','아파트관리','아파트사무소'], phones:['031-949-1212'] },
+      { label:'파주교육지원청', keys:['파주교육지원청','교육지원청','교육청','고등학교','중학교','입학'], phones:['031-940-7114'] },
+      { label:'인터넷 가입', keys:['전화인터넷','인터넷가입','인터넷','통신','kt','sk','lg','가입'], phones:['100','106','101'] },
+      { label:'키불출센터', keys:['키불출센터','키불출','키불출센타'], phones:['031-937-8670'] },
+      { label:'분양사무소', keys:['분양사무소','분양'], phones:['031-941-0331'] },
+      { label:'운정1동 행정복지센터', keys:['운정1동행정복지센터','운정1동','행정복지센터','주민센터','전입신고','전입'], phones:['031-820-7703'] }
+    ];
+
+    function getApartmentLifeFallbackContact(question='', answer=''){
+      const q = normalizeAiSearchText(`${question || ''} ${answer || ''}`);
+      return APARTMENT_LIFE_CONTACT_FALLBACKS.find(row => row.keys.some(key => q.includes(normalizeAiSearchText(key)))) || null;
+    }
+
+    function extractTrustedApartmentLifePhones(question='', answer=''){
+      const source = String(answer || '');
+      const q = normalizeAiSearchText(question);
+      const fullPhonePattern = /(?:0507[-.\s]?\d{3,4}[-.\s]?\d{4}|0\d{1,2}[-.\s]?\d{3,4}[-.\s]?\d{4}|15\d{2}[-.\s]?\d{4}|16\d{2}[-.\s]?\d{4}|18\d{2}[-.\s]?\d{4})/g;
+      let phones = [...source.matchAll(fullPhonePattern)].map(m => String(m[0] || '').replace(/[.\s]+/g, '-').trim()).filter(Boolean);
+
+      // 통신사 대표번호처럼 관리자 연락처 필드에 3자리로 등록되는 값만 질문 문맥이 명확할 때 허용합니다.
+      if(/인터넷|통신|kt|sk|lg|가입/.test(q)){
+        phones.push(...([...source.matchAll(/\b(?:100|101|106)\b/g)].map(m => m[0])));
+      }
+      if(/키불출|입주증/.test(q)){
+        phones.push(...([...source.matchAll(/\b109\b/g)].map(m => m[0])));
+      }
+
+      // 주소/동/지번에서 섞일 수 있는 숫자와 불완전 대표번호는 제거합니다.
+      const blockedByQuestion = new Set();
+      if(/관리사무소|관리실|생활지원센터|분양사무소|분양/.test(q)) ['102','109'].forEach(v => blockedByQuestion.add(v));
+      if(/행정복지센터|주민센터|전입/.test(q)) ['1358'].forEach(v => blockedByQuestion.add(v));
+      if(/승강기|엘리베이터|고장/.test(q)) ['128','1577'].forEach(v => blockedByQuestion.add(v));
+
+      phones = phones
+        .map(v => String(v || '').trim())
+        .filter(Boolean)
+        .filter(v => !blockedByQuestion.has(v.replace(/[^\d]/g, '')))
+        .filter(v => {
+          const digits = v.replace(/[^\d]/g, '');
+          if(/^(100|101|106|109)$/.test(digits)) return /인터넷|통신|kt|sk|lg|가입|키불출|입주증/.test(q);
+          return digits.length >= 8;
+        });
+
+      return [...new Set(phones)].slice(0, 4).map(phone => ({
+        label: inferApartmentLifeContactLabel(question, answer),
+        phone,
+        tel: phone.replace(/[^\d]/g, '')
+      }));
+    }
+
+    function buildAiApartmentLifePhoneCardHtml(question='', answer=''){
+      if(!isApartmentLifePhoneQuestion(question, answer)) return '';
+      let cards = extractTrustedApartmentLifePhones(question, answer);
+      const fallback = getApartmentLifeFallbackContact(question, answer);
+      // 답변 본문에서 전화번호를 못 잡았거나, 질문 명칭과 카드 라벨이 어긋나면 관리자 기준 fallback을 우선합니다.
+      if(fallback && (!cards.length || !cards.some(card => normalizeAiSearchText(card.label).includes(normalizeAiSearchText(fallback.label))))){
+        cards = fallback.phones.map(phone => ({ label: fallback.label, phone, tel: String(phone).replace(/[^\d]/g,'') }));
+      }
+      if(!cards.length) return '';
+      return buildAiPhoneCardHtml(cards.map(card => ({ ...card, label: `${card.label} 전화번호` })));
     }
 
     function buildAiPhoneCardHtml(cards=[]){
@@ -7979,10 +8672,14 @@ function getShareTrackingParams(){
 
     
     
-    function isApartmentLifePhoneQuestion(question=''){
+    function isApartmentLifePhoneQuestion(question='', answer=''){
       const q = normalizeAiSearchText(question);
-      return /(관리사무소|관리실|생활지원센터|사무소|입주지원센터|입주민센터|아파트관리|아파트사무소|경비실|경비|키불출|키불출센터|A\/S|AS|에이에스|하자|분양사무소|분양|전입신고|행정복지센터|주민센터|교육청|고등학교|입학|전화인터넷|인터넷|통신|KT|SK|LG|도시가스|가스|파주시청|시청|승강기|엘리베이터|고장|고장신고|주차|방문차량|택배|민원|분리수거|쓰레기|재활용|음식물)/.test(q)
-        && /(전화번호|전화|연락처|번호|문의|신고|고장|콜|통화)/.test(q);
+      const a = normalizeAiSearchText(answer);
+      const lifeEntity = /(서울도시가스|도시가스|가스|파주시청|시청|입주증센터|입주증|입주지원센터|입주민센터|h리셉션|리셉션|버리셀션|비리셀션|승강기고장신고|승강기|엘리베이터|고장신고|as센터|as|에이에스|하자|h리셉션|리셉션|관리사무소|관리실|생활지원센터|파주교육지원청|교육지원청|교육청|고등학교|입학|전화인터넷|인터넷가입|인터넷|통신|kt|sk|lg|키불출센터|키불출|분양사무소|분양|운정1동행정복지센터|운정1동|행정복지센터|주민센터|전입신고|전입|경비실|경비|주차|방문차량|택배|민원|분리수거|쓰레기|재활용|음식물)/.test(q);
+      const contactAsk = /(전화번호|전화|연락처|번호|문의|신고|고장|콜|통화)/.test(q);
+      const answerHasContact = /(연락처|전화번호|전화번호는|대표번호|지역번호|문의번호|신고번호)/.test(a);
+      // 아파트 생활정보 명칭만 입력해도 서버가 연락처 답변을 내려주면 생활정보 전용 카드/차단 모드로 처리합니다.
+      return lifeEntity && (contactAsk || answerHasContact || q.length <= 24);
     }
 
 
@@ -8017,10 +8714,21 @@ function buildAiEnhancedAnswerHtml(finalText='', question=''){
       const text = String(parsedDialog.text || '답변을 생성하지 못했습니다.');
       const cleaned = cleanAiChunkText(text).trim() || '답변을 생성하지 못했습니다.';
       const safe = escapeHtml(cleaned).replace(/\n/g, '<br>');
+      const isApartmentPhone = isApartmentLifePhoneQuestion(question, cleaned);
+      const apartmentOnlyPhoneCard = isApartmentPhone ? buildAiApartmentLifePhoneCardHtml(question, cleaned) : '';
+      if(isApartmentPhone){
+        return `
+        <div class="ai-answer ai-answer-upgrade apartment-life-answer">
+          <div class="ai-answer-summary">${safe}</div>
+          ${apartmentOnlyPhoneCard}
+          <span class="ai-mode-pill upgraded">관리자 생활정보 기준으로 안내했어요.</span>
+        </div>`;
+      }
       const dialogButtons = buildAiDialogActionButtons(parsedDialog.actions);
-      const mappedCards = isApartmentLifePhoneQuestion(question) ? [] : extractAiBenefitCards(cleaned, 4, question);
-      const matchedPhoneCard = isAiPhoneQuestion(question) ? buildAiMatchedBenefitPhoneCardHtml(mappedCards, question) : '';
-      const phoneCards = matchedPhoneCard || buildAiPhoneCardHtml(extractAiPhoneCards(cleaned));
+      const mappedCards = extractAiBenefitCards(cleaned, 4, question);
+      const apartmentPhoneCard = buildAiApartmentLifePhoneCardHtml(question, cleaned);
+      const matchedPhoneCard = (!apartmentPhoneCard && isAiPhoneQuestion(question)) ? buildAiMatchedBenefitPhoneCardHtml(mappedCards, question) : '';
+      const phoneCards = apartmentPhoneCard || matchedPhoneCard || (isApartmentLifePhoneQuestion(question) ? '' : buildAiPhoneCardHtml(extractAiPhoneCards(cleaned)));
       const personalSummary = getAiPersonalSummary();
       const locationMapCard = buildAiLocationMapCardHtml(mappedCards, question, cleaned);
       const benefitCards = mappedCards.map(({item, score, reason, reasons}) => `
@@ -8048,12 +8756,12 @@ function buildAiEnhancedAnswerHtml(finalText='', question=''){
       return `
         <div class="ai-answer ai-answer-upgrade">
           <div class="ai-answer-summary">${safe}</div>
-          ${inferAiWeatherTag(question, cleaned) ? `<div class="ai-weather-chip">${escapeHtml(inferAiWeatherTag(question, cleaned))}</div>` : ''}
+          ${!isApartmentLifePhoneQuestion(question, cleaned) && inferAiWeatherTag(question, cleaned) ? `<div class="ai-weather-chip">${escapeHtml(inferAiWeatherTag(question, cleaned))}</div>` : ''}
           ${phoneCards}
           ${dialogButtons}
           ${locationMapCard}
-          ${benefitCards ? `<div class="ai-answer-section"><div class="ai-answer-section-title"><span>자동 매칭된 혜택 카드</span><small>${mappedCards.length}개 추천</small></div>${benefitCards}</div>` : ''}
-          <span class="ai-mode-pill upgraded">스트리밍 · 대화 기억 · 후보 버튼 · 개인화 추천 기준: ${escapeHtml(personalSummary)}</span>
+          ${(!isApartmentLifePhoneQuestion(question, cleaned) && benefitCards) ? `<div class="ai-answer-section"><div class="ai-answer-section-title"><span>자동 매칭된 혜택 카드</span><small>${mappedCards.length}개 추천</small></div>${benefitCards}</div>` : ''}
+          <span class="ai-mode-pill upgraded">상황에 맞는 정보를 준비했어요.</span>
         </div>`;
     }
 
@@ -8128,7 +8836,17 @@ function buildAiEnhancedAnswerHtml(finalText='', question=''){
           event.preventDefault();
           event.stopPropagation();
           const question = btn.dataset.aiDialogQuestion || btn.textContent || '';
-          if(question) askAiAssistant(question);
+          if(question){
+            logPersonalAssistantEvent({
+              action:'proactive_button_click',
+              question,
+              buttonLabel: btn.textContent || '',
+              category: btn.dataset.aiLogCategory || btn.textContent || '',
+              benefitId: btn.dataset.aiLogBenefitId || '',
+              source: btn.dataset.aiLogSource || 'dialog_button'
+            });
+            if(!guardAiAssistantBusy()) askAiAssistant(question);
+          }
         });
       });
       requestAnimationFrame(()=>renderAiLocationMiniMaps(root)); setTimeout(()=>renderAiLocationMiniMaps(root), 300); setTimeout(()=>renderAiLocationMiniMaps(root), 900);
@@ -8180,7 +8898,7 @@ function buildAiEnhancedAnswerHtml(finalText='', question=''){
     }
 
     function renderAiConversationMessages(messages = []){
-      resetAiChatWindow();
+      resetAiChatWindow({ loadProactive:false });
       const win = qs('#aiChatWindow');
       if(!win) return;
       messages.forEach((msg) => {
@@ -8314,6 +9032,7 @@ function buildAiEnhancedAnswerHtml(finalText='', question=''){
     }
 
     async function startAiVoiceRecognition(){
+      if(guardAiAssistantBusy()) return;
       const VoiceAPI = getSpeechRecognition();
       if(!VoiceAPI){
         setAiVoiceStatus('이 브라우저에서는 음성 질문을 지원하지 않습니다.', false);
@@ -8361,7 +9080,7 @@ function buildAiEnhancedAnswerHtml(finalText='', question=''){
         return;
       }
       setAiVoiceStatus('버튼을 누르면 브라우저 마이크 권한 요청이 표시됩니다.');
-      btn.addEventListener('click', startAiVoiceRecognition);
+      btn.addEventListener('click', () => { if(!guardAiAssistantBusy()) startAiVoiceRecognition(); });
     }
 
     initAiVoiceInput();
@@ -8522,7 +9241,9 @@ function buildAiEnhancedAnswerHtml(finalText='', question=''){
         </div>`;
     }
 
-    function appendAiRecommendationCardsSafe(data){
+    function appendAiRecommendationCardsSafe(data, question=''){
+      const mode = String(data?.retrievalMode || '');
+      if(isApartmentLifePhoneQuestion(question) || mode.includes('direct-apartment-life-phone')) return;
       if(data && Array.isArray(data.recommendations) && data.recommendations.length) appendAiRecommendationCards(data.recommendations);
     }
 
@@ -8538,25 +9259,223 @@ function buildAiEnhancedAnswerHtml(finalText='', question=''){
     }
 
 
+
+    /* ===== AI 응답 중 전체 입력 경로 잠금 ===== */
+    let aiAssistantBusy = false;
+    const AI_QUESTION_PLACEHOLDER = '예: 최근 공지 알려줘, 커뮤니티 메뉴는 어떻게 들어가?';
+
+    function setAiControlDisabled(selector, disabled){
+      qsa(selector).forEach((el) => {
+        if(!el) return;
+        el.disabled = !!disabled;
+        el.setAttribute('aria-disabled', disabled ? 'true' : 'false');
+        el.classList.toggle('ai-locked-control', !!disabled);
+      });
+    }
+
+    function setAiAssistantBusy(isBusy){
+      aiAssistantBusy = !!isBusy;
+      const aiView = qs('#view-ai');
+      aiView?.classList.toggle('ai-busy', aiAssistantBusy);
+
+      setAiControlDisabled('#aiQuickRow .ai-quick-btn, [data-ai-dialog-question]', aiAssistantBusy);
+      setAiControlDisabled('#aiAskBtn', aiAssistantBusy);
+      setAiControlDisabled('#aiVoiceBtn', aiAssistantBusy);
+
+      const input = qs('#aiQuestionInput');
+      if(input){
+        input.disabled = aiAssistantBusy;
+        input.setAttribute('aria-disabled', aiAssistantBusy ? 'true' : 'false');
+        input.classList.toggle('ai-locked-control', aiAssistantBusy);
+        input.placeholder = aiAssistantBusy ? 'AI가 답변을 준비 중입니다...' : AI_QUESTION_PLACEHOLDER;
+      }
+
+      const askBtn = qs('#aiAskBtn');
+      if(askBtn) askBtn.textContent = aiAssistantBusy ? '작성중' : '질문';
+
+      const busyNote = qs('#aiBusyNote');
+      if(busyNote) busyNote.textContent = aiAssistantBusy ? '답변을 준비하는 동안 새 질문은 잠시 멈춰둘게요.' : '';
+    }
+
+    function isAiAssistantBusy(){
+      return !!aiAssistantBusy;
+    }
+
+    function guardAiAssistantBusy(){
+      if(!isAiAssistantBusy()) return false;
+      try{ openModalAlert('AI가 답변을 준비 중입니다. 잠시만 기다려주세요.'); }catch(_error){}
+      return true;
+    }
+
+    /* ===== AI 입력 방어: 무의미 문자열 / 특수문자 / 비속어 차단 ===== */
+    const AI_INPUT_GUARD_STORAGE_KEY = `myhills_ai_invalid_input_guard_${ENV || 'prod'}`;
+    const AI_BAD_WORD_PATTERNS = [
+      /시\s*발|씨\s*발|ㅅ\s*ㅂ|ㅆ\s*ㅂ/i,
+      /병\s*신|ㅂ\s*ㅅ/i,
+      /미친|존나|졸라|좆|ㅈ\s*같/i,
+      /개\s*새|개\s*색|꺼져|죽어/i
+    ];
+
+    function getAiInvalidInputGuard(){
+      try{
+        const raw = localStorage.getItem(AI_INPUT_GUARD_STORAGE_KEY);
+        const data = raw ? JSON.parse(raw) : {};
+        const now = Date.now();
+        if(data.lockUntil && Number(data.lockUntil) > now) return data;
+        if(data.lockUntil && Number(data.lockUntil) <= now){
+          localStorage.removeItem(AI_INPUT_GUARD_STORAGE_KEY);
+          return { count:0, lockUntil:0 };
+        }
+        return { count:Number(data.count || 0), lockUntil:0 };
+      }catch(_error){
+        return { count:0, lockUntil:0 };
+      }
+    }
+
+    function saveAiInvalidInputGuard(data={}){
+      try{ localStorage.setItem(AI_INPUT_GUARD_STORAGE_KEY, JSON.stringify(data)); }catch(_error){}
+    }
+
+    function resetAiInvalidInputGuard(){
+      try{ localStorage.removeItem(AI_INPUT_GUARD_STORAGE_KEY); }catch(_error){}
+    }
+
+    function registerAiInvalidInput(){
+      const guard = getAiInvalidInputGuard();
+      const count = Number(guard.count || 0) + 1;
+      const next = { count, lockUntil:0, updatedAt:Date.now() };
+      if(count >= 10){
+        next.lockUntil = Date.now() + (30 * 60 * 1000);
+      }
+      saveAiInvalidInputGuard(next);
+      return next;
+    }
+
+    function validateAiUserInput(text=''){
+      const value = String(text || '').trim();
+      if(!value) return { ok:false, message:'질문을 입력해주세요.' };
+
+      const guard = getAiInvalidInputGuard();
+      if(guard.lockUntil && Number(guard.lockUntil) > Date.now()){
+        const remainMin = Math.max(1, Math.ceil((Number(guard.lockUntil) - Date.now()) / 60000));
+        return { ok:false, locked:true, message:`부적절하거나 의미 없는 입력이 반복되어 AI 질문이 잠시 제한되었습니다. 약 ${remainMin}분 후 다시 이용해주세요.` };
+      }
+
+      if(value.length < 2) return { ok:false, message:'질문을 조금 더 자세히 입력해주세요 🙂' };
+
+      const compact = value.replace(/\s+/g, '');
+      const normalized = compact.toLowerCase()
+        .replace(/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>/?`~·•]/g, '')
+        .replace(/[0-9]/g, '');
+
+      if(/^[ㄱ-ㅎㅏ-ㅣ]+$/.test(compact)){
+        return { ok:false, message:'자음/모음만 입력된 것 같아요. 정확한 질문으로 입력해주세요 🙂' };
+      }
+
+      if(/^[^가-힣a-zA-Z0-9]+$/.test(compact)){
+        return { ok:false, message:'의미 있는 질문을 입력해주세요 🙂' };
+      }
+
+      if(/(.)\1{4,}/.test(compact)){
+        return { ok:false, message:'반복 문자를 줄이고 질문 형태로 입력해주세요 🙂' };
+      }
+
+      const chars = Array.from(compact);
+      const specialCount = chars.filter(ch => /[^가-힣a-zA-Z0-9ㄱ-ㅎㅏ-ㅣ]/.test(ch)).length;
+      if(chars.length >= 4 && specialCount / chars.length > 0.4){
+        return { ok:false, message:'특수문자가 너무 많습니다. 질문 형태로 입력해주세요 🙂' };
+      }
+
+      const meaningfulCount = chars.filter(ch => /[가-힣a-zA-Z0-9]/.test(ch)).length;
+      const jamoCount = chars.filter(ch => /[ㄱ-ㅎㅏ-ㅣ]/.test(ch)).length;
+      if(chars.length >= 5 && meaningfulCount / chars.length < 0.45 && jamoCount / chars.length > 0.3){
+        return { ok:false, message:'의미를 파악하기 어려운 입력입니다. 다시 질문해주세요 🙂' };
+      }
+
+      if(AI_BAD_WORD_PATTERNS.some(pattern => pattern.test(value) || pattern.test(normalized))){
+        return { ok:false, message:'부적절한 표현은 사용할 수 없습니다 🙏' };
+      }
+
+      return { ok:true, message:'' };
+    }
+
+    async function guardAiUserInputOrAlert(question=''){
+      const result = validateAiUserInput(question);
+      if(result.ok){
+        resetAiInvalidInputGuard();
+        return true;
+      }
+      const guard = result.locked ? getAiInvalidInputGuard() : registerAiInvalidInput();
+      let message = result.message || '정확한 질문을 입력해주세요 🙂';
+      if(!result.locked && guard.count >= 3 && guard.count < 10){
+        message += '\n\n의미 없는 입력이 반복되면 AI 이용이 일시 제한될 수 있습니다.';
+      }
+      if(!result.locked && guard.lockUntil){
+        message = '부적절하거나 의미 없는 입력이 반복되어 AI 질문이 30분 동안 제한되었습니다.';
+      }
+      try{ await openModalAlert(message); }catch(_error){ alert(message); }
+      return false;
+    }
+
+
+
+function buildDirectApartmentLifeLocalAnswer(question=''){
+      const fallback = getApartmentLifeFallbackContact(question, '');
+      if(!fallback) return '';
+      const label = fallback.label || '생활정보';
+      const phones = Array.isArray(fallback.phones) ? fallback.phones : [];
+      if(!phones.length) return '';
+      const mainPhone = phones.join(', ');
+      const text = `${label} 연락처는 ${mainPhone}입니다.`;
+      const cardHtml = buildAiPhoneCardHtml(phones.map(phone => ({
+        label: `${label} 전화번호`,
+        phone,
+        tel: String(phone || '').replace(/[^\d]/g, '')
+      })));
+      return `
+        <div class="ai-answer ai-answer-upgrade apartment-life-answer">
+          <div class="ai-answer-summary">${escapeHtml(text).replace(/\n/g, '<br>')}</div>
+          ${cardHtml}
+          <span class="ai-mode-pill upgraded">관리자 생활정보 기준으로 안내했어요.</span>
+        </div>`;
+    }
+
 async function askAiAssistant(rawQuestion=''){
+      if(guardAiAssistantBusy()) return;
       if(!window.__AI_LAST_INPUT_MODE) window.__AI_LAST_INPUT_MODE = rawQuestion ? 'quick' : 'text';
       if(!AI_STREAM_SERVER_URL) return openModalAlert('AI 생활도우미 서버 URL이 아직 설정되지 않았습니다.');
       const input = qs('#aiQuestionInput');
       const btn = qs('#aiAskBtn');
       const question = String(rawQuestion || input?.value || '').trim();
       if(!question) return openModalAlert('질문을 입력해주세요.');
+      if(!(await guardAiUserInputOrAlert(question))) return;
+      logPersonalAssistantEvent({ action:'ask', question, category: question, source: window.__AI_LAST_INPUT_MODE || 'text' });
 
       if(input) input.value = '';
-      if(btn){ btn.disabled = true; btn.textContent = '작성중'; }
+      setAiAssistantBusy(true);
       appendAiMessage('user', escapeHtml(question));
       const pendingRow = createAiTypingBubble(question);
       const pendingBubble = pendingRow?.querySelector('.ai-bubble');
 
+      const directApartmentLifeHtml = buildDirectApartmentLifeLocalAnswer(question);
+      if(directApartmentLifeHtml){
+        if(pendingBubble){
+          pendingBubble.innerHTML = directApartmentLifeHtml;
+          bindAiAnswerActions(pendingBubble);
+        }
+        if(pendingRow) delete pendingRow.dataset.pending;
+        window.__AI_LAST_INPUT_MODE = 'text';
+        aiConversationTitle = question.slice(0,24) || '새 대화';
+        updateAiConversationStatus('AI 답변 완료');
+        setAiAssistantBusy(false);
+        return;
+      }
+
       let aiWaitTimer1 = null;
       let aiWaitTimer2 = null;
       try{
-        aiWaitTimer1 = setTimeout(() => setAiThinkingMessage(pendingBubble, '조금만 더 확인하고 있어요.', '내부 DB와 추천 조건을 정리하는 중입니다.'), 4500);
-        aiWaitTimer2 = setTimeout(() => setAiThinkingMessage(pendingBubble, '응답이 평소보다 오래 걸리고 있어요.', '크롤링/거리 계산이 포함되면 시간이 더 걸릴 수 있습니다.'), 10000);
+        aiWaitTimer1 = setTimeout(() => setAiThinkingMessage(pendingBubble, '조금만 더 확인하고 있어요.', '필요한 정보를 정리하는 중입니다.'), 4500);
+        aiWaitTimer2 = setTimeout(() => setAiThinkingMessage(pendingBubble, '답변이 평소보다 조금 더 걸리고 있어요.', '정확한 안내를 위해 한 번 더 확인하고 있습니다.'), 10000);
         const streamRenderer = createAiStreamRenderer(pendingBubble, question);
         await callAiStreamServer(question, {
           onChunk: (chunk) => {
@@ -8574,15 +9493,15 @@ async function askAiAssistant(rawQuestion=''){
         if(pendingRow) delete pendingRow.dataset.pending;
         window.__AI_LAST_INPUT_MODE = 'text';
         aiConversationTitle = question.slice(0,24) || '새 대화';
-        updateAiConversationStatus('Cloud Run 스트리밍');
+        updateAiConversationStatus('AI 답변 완료');
       }catch(error){
         if(aiWaitTimer1) clearTimeout(aiWaitTimer1);
         if(aiWaitTimer2) clearTimeout(aiWaitTimer2);
         console.error('AI Cloud Run 스트리밍 실패', error);
-        if(pendingBubble) pendingBubble.innerHTML = '답변 생성 중 오류가 발생했습니다.<br><small>Cloud Run URL, CORS 설정, GEMINI_API_KEY, 서버 배포 상태를 확인해 주세요.</small>';
+        if(pendingBubble) pendingBubble.innerHTML = '답변을 준비하는 중 문제가 발생했습니다.<br><small>잠시 후 다시 질문해 주세요.</small>';
         else appendAiMessage('bot', '답변 생성 중 오류가 발생했습니다.');
       }finally{
-        if(btn){ btn.disabled = false; btn.textContent = '질문'; }
+        setAiAssistantBusy(false);
       }
     }
 
@@ -8808,7 +9727,8 @@ async function askAiAssistant(rawQuestion=''){
 
 
     updateAiConversationStatus(aiConversationTitle);
-    qs('#aiAskBtn')?.addEventListener('click', () => askAiAssistant());
+    resetAiChatWindow();
+    qs('#aiAskBtn')?.addEventListener('click', () => { if(!guardAiAssistantBusy()) askAiAssistant(); });
     qs('#aiNewConversationBtn')?.addEventListener('click', startNewAiConversation);
     qs('#aiOpenConversationListBtn')?.addEventListener('click', loadAiConversationList);
     qs('#aiCloseConversationListBtn')?.addEventListener('click', () => qs('#aiConversationPanel')?.classList.remove('show'));
@@ -8816,11 +9736,21 @@ async function askAiAssistant(rawQuestion=''){
     qs('#aiQuestionInput')?.addEventListener('keydown', (event) => {
       if(event.key === 'Enter'){
         event.preventDefault();
-        askAiAssistant();
+        if(!guardAiAssistantBusy()) askAiAssistant();
       }
     });
     qsa('[data-ai-question]').forEach(btn => {
-      btn.addEventListener('click', () => askAiAssistant(btn.dataset.aiQuestion || btn.textContent || ''));
+      btn.addEventListener('click', () => { if(!guardAiAssistantBusy()) askAiAssistant(btn.dataset.aiQuestion || btn.textContent || ''); });
+    });
+
+
+    qs('#aiDailyNudgeOpenBtn')?.addEventListener('click', async () => {
+      await markDailyAiNudgeShown('opened');
+      await openAiAssistantFromNudge('toast');
+    });
+    qs('#aiDailyNudgeCloseBtn')?.addEventListener('click', async () => {
+      hideDailyAiNudgeToast(true);
+      await markDailyAiNudgeShown('closed');
     });
 
     qs('#closeModal').onclick=()=>{qs('#detailModal').close(); clearCleanDeepLinkUrl({ replace:true });};
@@ -9153,6 +10083,22 @@ async function askAiAssistant(rawQuestion=''){
     </div>
   </div>
 
+
+
+  <div class="ai-daily-nudge-toast" id="aiDailyNudgeToast" role="status" aria-live="polite" aria-hidden="true">
+    <div class="ai-daily-nudge-top">
+      <div class="ai-daily-nudge-icon">🤖</div>
+      <div class="ai-daily-nudge-copy">
+        <strong id="aiDailyNudgeTitle">AI 생활도우미가 오늘 추천을 준비했어요</strong>
+        <span id="aiDailyNudgeMessage">날씨·시간·인기 혜택 기준으로 먼저 확인해볼까요?</span>
+      </div>
+    </div>
+    <div class="ai-daily-nudge-actions">
+      <button class="ai-daily-nudge-open" id="aiDailyNudgeOpenBtn" type="button">AI 생활도우미 보기</button>
+      <button class="ai-daily-nudge-close" id="aiDailyNudgeCloseBtn" type="button" aria-label="오늘 AI 유도 닫기">닫기</button>
+    </div>
+  </div>
+
 <script type="module">
   const __SOLA_DYNAMIC_IMPORT_VERSION__ = globalThis.__SOLA_DYNAMIC_IMPORT_VERSION__ || (() => {
     const d = new Date();
@@ -9285,7 +10231,25 @@ window.addEventListener("load", handlePushDeepLink);
       observer.observe(document.documentElement, { childList:true, subtree:true, characterData:true });
       window.addEventListener('pageshow', decorateIdleWidget);
     })();
-  </script>
+  
+
+    // AI 상단 아이콘: 하루 1회 가볍게 강조해서 AI 진입을 유도합니다.
+    (function initAiQuickButtonHint(){
+      try{
+        const aiBtn = document.getElementById('aiQuickBtn');
+        if(!aiBtn) return;
+        const todayKey = 'aiQuickHintShown:' + new Date().toISOString().slice(0,10);
+        if(localStorage.getItem(todayKey)) return;
+        aiBtn.style.animation = 'aiPulse 1.25s ease-in-out infinite';
+        setTimeout(() => {
+          aiBtn.style.animation = '';
+          localStorage.setItem(todayKey, '1');
+        }, 4200);
+      }catch(error){
+        console.warn('AI 상단 아이콘 강조 처리 실패:', error);
+      }
+    })();
+</script>
 
 </body></html>
 </body></html>
