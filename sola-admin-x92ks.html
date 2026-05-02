@@ -1314,6 +1314,142 @@ body.gnb-open .admin-bottom-nav{
   .ai-admin-toolbar{align-items:flex-start;flex-direction:column}
 }
 
+
+/* ===== Opening Hours Admin Fields ===== */
+.hours-grid{display:grid;gap:8px}
+.hours-row{display:grid;grid-template-columns:64px 1fr 1fr;gap:8px;align-items:center}
+.hours-row strong{font-size:12px;color:#334155}
+.hours-row input{min-width:0}
+.hours-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+@media(max-width:420px){.hours-row{grid-template-columns:52px 1fr 1fr}}
+
+
+/* ===== Advanced Opening Hours Admin UI ===== */
+.hours-quick-panel{
+  display:grid;
+  grid-template-columns:repeat(5,minmax(0,1fr));
+  gap:8px;
+  padding:12px;
+  border:1px solid #e5e7eb;
+  border-radius:16px;
+  background:#f8fafc;
+  margin-bottom:10px;
+}
+.hours-quick-panel label{
+  font-size:12px;
+  font-weight:800;
+  color:#334155;
+}
+.hours-quick-panel input[type="time"]{
+  width:100%;
+}
+.hours-quick-check{
+  display:flex;
+  align-items:center;
+  gap:6px;
+  grid-column:1/-1;
+  font-size:13px;
+  font-weight:900;
+  color:#0f172a;
+}
+.hours-grid-advanced .hours-row{
+  display:grid;
+  grid-template-columns:48px 70px repeat(5,minmax(86px,1fr)) minmax(120px,1.2fr);
+  gap:8px;
+  align-items:center;
+}
+.hours-grid-advanced .hours-head{
+  font-size:11px;
+  color:#64748b;
+  font-weight:900;
+}
+.hours-grid-advanced .hours-row label{
+  font-size:12px;
+  color:#334155;
+}
+@media(max-width:760px){
+  .hours-quick-panel{grid-template-columns:1fr 1fr}
+  .hours-quick-check{grid-column:1/-1}
+  .hours-grid-advanced .hours-row{
+    grid-template-columns:1fr 1fr;
+    align-items:start;
+    padding:10px 0;
+    border-bottom:1px solid #eef2f7;
+  }
+  .hours-grid-advanced .hours-row strong{grid-column:1/-1}
+  .hours-grid-advanced .hours-head{display:none}
+}
+
+
+/* ===== Opening Hours UI Clean Patch ===== */
+.hours-quick-panel{
+  display:block;
+  padding:12px;
+  border:1px solid #e5e7eb;
+  border-radius:16px;
+  background:#f8fafc;
+  margin-bottom:12px;
+}
+.hours-quick-check{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  font-size:13px;
+  font-weight:900;
+  color:#0f172a;
+  margin-bottom:10px;
+}
+.hours-quick-fields{
+  display:grid;
+  grid-template-columns:repeat(5,minmax(96px,1fr));
+  gap:8px;
+}
+.hours-quick-fields label{
+  display:grid;
+  gap:5px;
+  font-size:12px;
+  font-weight:800;
+  color:#334155;
+}
+.hours-quick-fields input[type="time"]{
+  width:100%;
+  min-width:0;
+}
+.hours-grid-advanced .hours-row{
+  display:grid;
+  grid-template-columns:44px 44px repeat(5,minmax(92px,1fr)) minmax(120px,1.2fr);
+  gap:8px;
+  align-items:center;
+}
+.hours-grid-advanced .hours-head{
+  font-size:11px;
+  color:#64748b;
+  font-weight:900;
+}
+.hours-grid-advanced input[type="checkbox"]{
+  justify-self:center;
+}
+.hours-grid-advanced .hours-row strong{
+  font-size:12px;
+  color:#334155;
+}
+@media(max-width:760px){
+  .hours-quick-fields{grid-template-columns:1fr 1fr}
+  .hours-grid-advanced .hours-row{
+    grid-template-columns:44px 44px 1fr 1fr;
+    gap:8px;
+    padding:10px 0;
+    border-bottom:1px solid #eef2f7;
+  }
+  .hours-grid-advanced .hours-head{display:none}
+  .hours-grid-advanced .hours-row input[id$="BreakStart"],
+  .hours-grid-advanced .hours-row input[id$="BreakEnd"],
+  .hours-grid-advanced .hours-row input[id$="LastOrder"],
+  .hours-grid-advanced .hours-row input[id$="Note"]{
+    grid-column:span 2;
+  }
+}
+
 </style>
 
   <!-- Add to Home + First Launch UX -->
@@ -1585,7 +1721,26 @@ body.gnb-open .admin-bottom-nav{
     
     <div class="admin-view" id="view-benefits">
       <div class="admin-groups">
-        <div class="admin-card"><div class="section-head" style="margin-bottom:12px;"><h3 style="font-size:16px;">혜택 등록 / 수정</h3><small id="formModeLabel">새 항목</small></div><form id="benefitForm" class="form-grid" novalidate><input type="hidden" id="editId" value="" /><div class="field"><label for="name">매장명</label><input id="name" /></div><div class="grid-2"><div class="field"><label for="category">카테고리</label><input id="category" placeholder="예: 음식, 미용, 카페" /></div><div class="field"><label for="discountText">혜택 표기</label><input id="discountText" placeholder="예: 10% 또는 서비스" /></div></div><div class="grid-2"><div class="field"><label for="discountValue">할인 수치</label><input id="discountValue" type="number" min="0" placeholder="서비스면 0" required /></div><div class="field"><label for="serviceType">혜택 유형</label><select id="serviceType"><option value="discount">할인형</option><option value="service">서비스형</option></select></div></div><div class="field"><label>운영 옵션</label><div class="check-row"><label><input type="checkbox" id="visible" checked> 노출</label><label><input type="checkbox" id="recommended"> 추천</label><label><input type="checkbox" id="shareBest"> 공유 BEST 배지</label></div></div><div class="grid-2"><div class="field"><label for="rankBoost">TOP 5 가중치</label><input id="rankBoost" type="number" min="0" step="1" value="0" placeholder="기본 0" /><div class="admin-field-help">조회·즐겨찾기·공유 점수 외에 운영자가 수동으로 더해주는 점수입니다.</div></div><div class="field"><label for="thumbnailUrl">공유/썸네일 이미지 URL</label><input id="thumbnailUrl" placeholder="https://.../og-image.png" /><div class="admin-field-help">카카오 공유 카드와 공개앱 카드 썸네일에 사용할 이미지 주소입니다.</div></div></div><div class="field"><label for="shareDescription">공유 문구</label><input id="shareDescription" placeholder="비워두면 혜택 조건을 자동 사용" /></div><div class="field"><label>썸네일 미리보기</label><div class="admin-thumb-preview" id="thumbPreview">이미지 URL 입력 시 미리보기</div></div><div class="field"><label for="condition">혜택 조건</label><textarea id="condition"></textarea></div><div class="field"><label for="address">주소</label><div class="geo-row"><input id="address" placeholder="예: 경기 파주시 경의로 1242 209호" /><button type="button" class="btn btn-blue geo-btn" id="geocodeBtn">📍 좌표 자동 조회</button></div><div class="geo-status" id="geoStatus">주소 입력 후 좌표 자동 조회를 누르면 위도/경도가 자동 저장됩니다.</div></div><div class="geo-coord-grid"><div class="field"><label for="lat">위도 lat</label><input id="lat" type="number" step="any" inputmode="decimal" placeholder="자동 입력" /></div><div class="field"><label for="lng">경도 lng</label><input id="lng" type="number" step="any" inputmode="decimal" placeholder="자동 입력" /></div></div><div class="field"><label for="url">길찾기 URL</label><input id="url" placeholder="비워두면 네이버 지도 검색 링크를 자동 생성합니다" /></div><div class="field"><label for="phone">전화번호</label><input id="phone" /></div><div class="grid-2"><button type="submit" class="btn btn-primary">저장</button><button type="button" class="btn btn-soft" id="cancelEditBtn">입력 초기화</button></div></form></div>
+        <div class="admin-card"><div class="section-head" style="margin-bottom:12px;"><h3 style="font-size:16px;">혜택 등록 / 수정</h3><small id="formModeLabel">새 항목</small></div><form id="benefitForm" class="form-grid" novalidate><input type="hidden" id="editId" value="" /><div class="field"><label for="name">매장명</label><input id="name" /></div><div class="grid-2"><div class="field"><label for="category">카테고리</label><input id="category" placeholder="예: 음식, 미용, 카페" /></div><div class="field"><label for="discountText">혜택 표기</label><input id="discountText" placeholder="예: 10% 또는 서비스" /></div></div><div class="grid-2"><div class="field"><label for="discountValue">할인 수치</label><input id="discountValue" type="number" min="0" placeholder="서비스면 0" required /></div><div class="field"><label for="serviceType">혜택 유형</label><select id="serviceType"><option value="discount">할인형</option><option value="service">서비스형</option></select></div></div><div class="field"><label>운영 옵션</label><div class="check-row"><label><input type="checkbox" id="visible" checked> 노출</label><label><input type="checkbox" id="recommended"> 추천</label><label><input type="checkbox" id="shareBest"> 공유 BEST 배지</label></div></div><div class="grid-2"><div class="field"><label for="rankBoost">TOP 5 가중치</label><input id="rankBoost" type="number" min="0" step="1" value="0" placeholder="기본 0" /><div class="admin-field-help">조회·즐겨찾기·공유 점수 외에 운영자가 수동으로 더해주는 점수입니다.</div></div><div class="field"><label for="thumbnailUrl">공유/썸네일 이미지 URL</label><input id="thumbnailUrl" placeholder="https://.../og-image.png" /><div class="admin-field-help">카카오 공유 카드와 공개앱 카드 썸네일에 사용할 이미지 주소입니다.</div></div></div><div class="field"><label for="shareDescription">공유 문구</label><input id="shareDescription" placeholder="비워두면 혜택 조건을 자동 사용" /></div><div class="field"><label>썸네일 미리보기</label><div class="admin-thumb-preview" id="thumbPreview">이미지 URL 입력 시 미리보기</div></div><div class="field"><label for="condition">혜택 조건</label><textarea id="condition"></textarea></div><div class="field"><label for="address">주소</label><div class="geo-row"><input id="address" placeholder="예: 경기 파주시 경의로 1242 209호" /><button type="button" class="btn btn-blue geo-btn" id="geocodeBtn">📍 좌표 자동 조회</button></div><div class="geo-status" id="geoStatus">주소 입력 후 좌표 자동 조회를 누르면 위도/경도가 자동 저장됩니다.</div></div><div class="geo-coord-grid"><div class="field"><label for="lat">위도 lat</label><input id="lat" type="number" step="any" inputmode="decimal" placeholder="자동 입력" /></div><div class="field"><label for="lng">경도 lng</label><input id="lng" type="number" step="any" inputmode="decimal" placeholder="자동 입력" /></div></div><div class="field"><label>영업시간</label><div class="admin-field-help">관리자 입력값이 네이버 크롤링 정보보다 우선 적용됩니다. 비워두면 AI가 크롤링 데이터를 보조로 사용합니다.</div><div class="hours-quick-panel" id="dailyHoursPanel">
+  <label class="hours-quick-check"><input id="applyDailySameHours" type="checkbox" /> 매일 동일시간 적용</label>
+  <div class="hours-quick-fields">
+    <label>오픈<input id="dailyOpen" type="time" /></label>
+    <label>마감<input id="dailyClose" type="time" /></label>
+    <label>브레이크 시작<input id="dailyBreakStart" type="time" /></label>
+    <label>브레이크 종료<input id="dailyBreakEnd" type="time" /></label>
+    <label>라스트오더<input id="dailyLastOrder" type="time" /></label>
+  </div>
+</div>
+<div class="hours-grid hours-grid-advanced" id="openingHoursGrid">
+  <div class="hours-row hours-head"><strong>요일</strong><span>휴무</span><span>오픈</span><span>마감</span><span>브레이크 시작</span><span>브레이크 종료</span><span>라스트오더</span><span>비고</span></div>
+  <div class="hours-row"><strong>월</strong><input id="ohMonClosed" type="checkbox" title="휴무" aria-label="휴무" /><input id="ohMonOpen" type="time" /><input id="ohMonClose" type="time" /><input id="ohMonBreakStart" type="time" /><input id="ohMonBreakEnd" type="time" /><input id="ohMonLastOrder" type="time" /><input id="ohMonNote" placeholder="예: 홀/포장/배달 라스트오더 상이" /></div>
+  <div class="hours-row"><strong>화</strong><input id="ohTueClosed" type="checkbox" title="휴무" aria-label="휴무" /><input id="ohTueOpen" type="time" /><input id="ohTueClose" type="time" /><input id="ohTueBreakStart" type="time" /><input id="ohTueBreakEnd" type="time" /><input id="ohTueLastOrder" type="time" /><input id="ohTueNote" placeholder="예: 홀/포장/배달 라스트오더 상이" /></div>
+  <div class="hours-row"><strong>수</strong><input id="ohWedClosed" type="checkbox" title="휴무" aria-label="휴무" /><input id="ohWedOpen" type="time" /><input id="ohWedClose" type="time" /><input id="ohWedBreakStart" type="time" /><input id="ohWedBreakEnd" type="time" /><input id="ohWedLastOrder" type="time" /><input id="ohWedNote" placeholder="예: 홀/포장/배달 라스트오더 상이" /></div>
+  <div class="hours-row"><strong>목</strong><input id="ohThuClosed" type="checkbox" title="휴무" aria-label="휴무" /><input id="ohThuOpen" type="time" /><input id="ohThuClose" type="time" /><input id="ohThuBreakStart" type="time" /><input id="ohThuBreakEnd" type="time" /><input id="ohThuLastOrder" type="time" /><input id="ohThuNote" placeholder="예: 홀/포장/배달 라스트오더 상이" /></div>
+  <div class="hours-row"><strong>금</strong><input id="ohFriClosed" type="checkbox" title="휴무" aria-label="휴무" /><input id="ohFriOpen" type="time" /><input id="ohFriClose" type="time" /><input id="ohFriBreakStart" type="time" /><input id="ohFriBreakEnd" type="time" /><input id="ohFriLastOrder" type="time" /><input id="ohFriNote" placeholder="예: 홀/포장/배달 라스트오더 상이" /></div>
+  <div class="hours-row"><strong>토</strong><input id="ohSatClosed" type="checkbox" title="휴무" aria-label="휴무" /><input id="ohSatOpen" type="time" /><input id="ohSatClose" type="time" /><input id="ohSatBreakStart" type="time" /><input id="ohSatBreakEnd" type="time" /><input id="ohSatLastOrder" type="time" /><input id="ohSatNote" placeholder="예: 홀/포장/배달 라스트오더 상이" /></div>
+  <div class="hours-row"><strong>일</strong><input id="ohSunClosed" type="checkbox" title="휴무" aria-label="휴무" /><input id="ohSunOpen" type="time" /><input id="ohSunClose" type="time" /><input id="ohSunBreakStart" type="time" /><input id="ohSunBreakEnd" type="time" /><input id="ohSunLastOrder" type="time" /><input id="ohSunNote" placeholder="예: 홀/포장/배달 라스트오더 상이" /></div>
+</div><div class="hours-actions"><button type="button" class="btn btn-soft" id="copyWeekdayHoursBtn">월요일 시간 평일 복사</button><button type="button" class="btn btn-soft" id="clearOpeningHoursBtn">영업시간 비우기</button></div></div><div class="field"><label for="url">길찾기 URL</label><input id="url" placeholder="비워두면 네이버 지도 검색 링크를 자동 생성합니다" /></div><div class="field"><label for="phone">전화번호</label><input id="phone" /></div><div class="grid-2"><button type="submit" class="btn btn-primary">저장</button><button type="button" class="btn btn-soft" id="cancelEditBtn">입력 초기화</button></div></form></div>
       
       
         <div class="admin-card"><div class="section-head benefit-list-head" style="margin-bottom:12px;"><h3 style="font-size:16px;">등록된 혜택 목록</h3><div style="display:flex;align-items:center;gap:8px;"><small id="benefitListCount">0건</small><select id="benefitSortSelect" class="benefit-sort-select" aria-label="혜택 정렬"><option value="latest">최신순</option><option value="updated">수정순</option><option value="name">이름순</option></select></div></div><div class="mini-list" id="adminList"></div></div>
@@ -2058,9 +2213,110 @@ const setTextAll = (selector, text) => qsa(selector).forEach(el => el.textConten
       preview.innerHTML=`<img src="${escapeHtml(safeUrl)}" alt="썸네일 미리보기" onerror="this.parentNode.textContent='이미지를 불러올 수 없습니다.'">`;
     }
 
-    function resetForm(){qs('#benefitForm').reset();qs('#editId').value='';qs('#formModeLabel').textContent='새 항목';qs('#discountValue').value=0;qs('#serviceType').value='discount';qs('#visible').checked=true;qs('#recommended').checked=false;if(qs('#shareBest')) qs('#shareBest').checked=false;if(qs('#rankBoost')) qs('#rankBoost').value=0;if(qs('#thumbnailUrl')) qs('#thumbnailUrl').value='';if(qs('#shareDescription')) qs('#shareDescription').value='';updateThumbPreview('');qs('#lat').value='';qs('#lng').value='';setGeoStatus('주소 입력 후 좌표 자동 조회를 누르면 위도/경도가 자동 저장됩니다.','');}
+    function resetForm(){qs('#benefitForm').reset();qs('#editId').value='';qs('#formModeLabel').textContent='새 항목';qs('#discountValue').value=0;qs('#serviceType').value='discount';qs('#visible').checked=true;qs('#recommended').checked=false;if(qs('#shareBest')) qs('#shareBest').checked=false;if(qs('#rankBoost')) qs('#rankBoost').value=0;if(qs('#thumbnailUrl')) qs('#thumbnailUrl').value='';if(qs('#shareDescription')) qs('#shareDescription').value='';updateThumbPreview('');qs('#lat').value='';qs('#lng').value='';setGeoStatus('주소 입력 후 좌표 자동 조회를 누르면 위도/경도가 자동 저장됩니다.','');clearOpeningHoursForm();}
     function resetNoticeForm(){qs('#noticeForm').reset();qs('#noticeEditId').value='';qs('#noticeFormModeLabel').textContent='새 공지';qs('#noticeVisible').checked=true;qs('#noticePinned').checked=false;qs('#noticeCategory').value='일반';qs('#sendPushWithNotice').checked=false;qs('#pushImportantOnly').checked=false;qs('#pushTitle').value='';qs('#pushBody').value='';qs('#pushTargetType').value='all';qs('#pushTargetUid').value='';qs('#pushTargetBuilding').value='';qs('#pushTargetUnit').value='';}
-    function fillForm(item){qs('#editId').value=item.id;qs('#formModeLabel').textContent='수정 중';qs('#name').value=item.name;qs('#category').value=item.category;qs('#discountText').value=item.discountText;qs('#discountValue').value=item.discountValue;qs('#serviceType').value=item.service?'service':'discount';qs('#condition').value=item.condition;qs('#address').value=item.address;qs('#lat').value=item.lat||'';qs('#lng').value=item.lng||'';qs('#url').value=item.url||'';qs('#phone').value=item.phone;qs('#visible').checked=item.visible!==false;qs('#recommended').checked=!!item.recommended;if(qs('#shareBest')) qs('#shareBest').checked=!!item.shareBest;if(qs('#rankBoost')) qs('#rankBoost').value=Number(item.rankBoost||0);if(qs('#thumbnailUrl')) qs('#thumbnailUrl').value=item.thumbnailUrl||'';if(qs('#shareDescription')) qs('#shareDescription').value=item.shareDescription||'';updateThumbPreview(item.thumbnailUrl||'');setGeoStatus(item.lat&&item.lng?`저장된 좌표: ${item.lat}, ${item.lng}`:'주소로 좌표를 조회해 주세요.', item.lat&&item.lng?'success':'');window.scrollTo({top:0,behavior:'smooth'});}
+    
+    function directApplyOpeningHoursToForm(item){
+      const src = item?.openingHoursManual || item?.openingHours || item?.businessHours || {};
+      const map=[
+        ['mon','Mon'], ['tue','Tue'], ['wed','Wed'], ['thu','Thu'], ['fri','Fri'], ['sat','Sat'], ['sun','Sun']
+      ];
+      map.forEach(([day,key])=>{
+        const raw = src?.[day];
+        const row = Array.isArray(raw) ? (raw[0] || {}) : (raw || {});
+        const setVal=(id,val)=>{
+          const el=document.getElementById(id);
+          if(el) el.value = val || '';
+        };
+        const setChk=(id,val)=>{
+          const el=document.getElementById(id);
+          if(el) el.checked = !!val;
+        };
+        setChk(`oh${key}Closed`, row.closed || row.isClosed);
+        setVal(`oh${key}Open`, row.open || row.start || row.from || '');
+        setVal(`oh${key}Close`, row.close || row.end || row.to || '');
+        setVal(`oh${key}BreakStart`, row.breakStart || row.break_start || row.breakFrom || '');
+        setVal(`oh${key}BreakEnd`, row.breakEnd || row.break_end || row.breakTo || '');
+        setVal(`oh${key}LastOrder`, row.lastOrder || row.last_order || '');
+        setVal(`oh${key}Note`, row.note || row.memo || '');
+      });
+      console.log('[admin] openingHours form loaded:', src);
+    }
+
+
+
+    function readOpeningHoursForEdit(item){
+      const src = item?.openingHoursManual || item?.openingHours || item?.businessHours || {};
+      const days=['mon','tue','wed','thu','fri','sat','sun'];
+      const result={};
+      days.forEach(day=>{
+        const raw=src?.[day];
+        if(!raw) return;
+        const row=Array.isArray(raw) ? (raw[0] || {}) : (raw || {});
+        result[day]={
+          closed: !!(row.closed || row.isClosed),
+          open: row.open || row.start || row.from || '',
+          close: row.close || row.end || row.to || '',
+          breakStart: row.breakStart || row.break_start || row.breakFrom || '',
+          breakEnd: row.breakEnd || row.break_end || row.breakTo || '',
+          lastOrder: row.lastOrder || row.last_order || '',
+          note: row.note || row.memo || ''
+        };
+      });
+      return result;
+    }
+
+    function forceSetTimeValue(id, value){
+      const el=document.getElementById(id);
+      if(!el) return;
+      el.value = value || '';
+      el.setAttribute('value', value || '');
+    }
+
+    function forceSetCheckValue(id, value){
+      const el=document.getElementById(id);
+      if(!el) return;
+      el.checked = !!value;
+      if(value) el.setAttribute('checked','checked');
+      else el.removeAttribute('checked');
+    }
+
+    function forceLoadOpeningHoursToForm(item){
+      const data=readOpeningHoursForEdit(item);
+      const map=[
+        ['mon','Mon'], ['tue','Tue'], ['wed','Wed'], ['thu','Thu'], ['fri','Fri'], ['sat','Sat'], ['sun','Sun']
+      ];
+      map.forEach(([day,key])=>{
+        const row=data?.[day] || {};
+        forceSetCheckValue(`oh${key}Closed`, row.closed);
+        forceSetTimeValue(`oh${key}Open`, row.open);
+        forceSetTimeValue(`oh${key}Close`, row.close);
+        forceSetTimeValue(`oh${key}BreakStart`, row.breakStart);
+        forceSetTimeValue(`oh${key}BreakEnd`, row.breakEnd);
+        forceSetTimeValue(`oh${key}LastOrder`, row.lastOrder);
+        forceSetTimeValue(`oh${key}Note`, row.note);
+      });
+      console.log('[admin] forceLoadOpeningHoursToForm', data);
+    }
+
+    async function fillFormWithFreshDoc(item){
+      let freshItem = item || {};
+      try{
+        if(db && item?.id){
+          const snap = await getDoc(doc(db, BENEFITS_COLLECTION, item.id));
+          if(snap.exists()){
+            freshItem = { id:item.id, ...snap.data() };
+            console.log('[admin] fresh benefit loaded', freshItem.openingHoursManual || freshItem.openingHours || freshItem.businessHours || {});
+          }
+        }
+      }catch(e){
+        console.warn('[admin] fresh benefit load failed, fallback item used', e);
+      }
+      fillForm(freshItem);
+    }
+
+
+function fillForm(item){qs('#editId').value=item.id;qs('#formModeLabel').textContent='수정 중';qs('#name').value=item.name;qs('#category').value=item.category;qs('#discountText').value=item.discountText;qs('#discountValue').value=item.discountValue;qs('#serviceType').value=item.service?'service':'discount';qs('#condition').value=item.condition;qs('#address').value=item.address;qs('#lat').value=item.lat||'';qs('#lng').value=item.lng||'';qs('#url').value=item.url||'';qs('#phone').value=item.phone;qs('#visible').checked=item.visible!==false;qs('#recommended').checked=!!item.recommended;if(qs('#shareBest')) qs('#shareBest').checked=!!item.shareBest;if(qs('#rankBoost')) qs('#rankBoost').value=Number(item.rankBoost||0);if(qs('#thumbnailUrl')) qs('#thumbnailUrl').value=item.thumbnailUrl||'';if(qs('#shareDescription')) qs('#shareDescription').value=item.shareDescription||'';updateThumbPreview(item.thumbnailUrl||'');setOpeningHoursToForm(item.openingHoursManual || item.openingHours || item.businessHours || {});forceLoadOpeningHoursToForm(item);setGeoStatus(item.lat&&item.lng?`저장된 좌표: ${item.lat}, ${item.lng}`:'주소로 좌표를 조회해 주세요.', item.lat&&item.lng?'success':'');window.scrollTo({top:0,behavior:'smooth'});}
     function fillNoticeForm(item){qs('#noticeEditId').value=item.id;qs('#noticeFormModeLabel').textContent='수정 중';qs('#noticeTitle').value=item.title;qs('#noticeCategory').value=item.category;qs('#noticeContent').value=item.content;qs('#noticeVisible').checked=item.visible!==false;qs('#noticePinned').checked=!!item.pinned;qs('#sendPushWithNotice').checked=false;qs('#pushImportantOnly').checked=!!item.pinned;qs('#pushTitle').value=item.title||'';qs('#pushBody').value=(item.content||'').slice(0,80);window.scrollTo({top:0,behavior:'smooth'});}
     function getTimestampSeconds(ts){
       if(!ts) return 0;
@@ -2133,7 +2389,7 @@ const setTextAll = (selector, text) => qsa(selector).forEach(el => el.textConten
           const el=document.createElement('div');
           el.className='mini-item';
           el.innerHTML=html;
-          el.querySelector('.edit-btn').onclick=()=>fillForm(item);
+          el.querySelector('.edit-btn').onclick=()=>fillFormWithFreshDoc(item);
           el.querySelector('.del-btn').onclick=()=>deleteBenefit(item.id,item.name);
           list.appendChild(el);
         }
@@ -2141,7 +2397,7 @@ const setTextAll = (selector, text) => qsa(selector).forEach(el => el.textConten
           const el2=document.createElement('div');
           el2.className='mini-item';
           el2.innerHTML=html;
-          el2.querySelector('.edit-btn').onclick=()=>{fillForm(item);changeAdminView('benefits');};
+          el2.querySelector('.edit-btn').onclick=()=>{changeAdminView('benefits');fillFormWithFreshDoc(item);};
           el2.querySelector('.del-btn').onclick=()=>deleteBenefit(item.id,item.name);
           dashboardList.appendChild(el2);
         }
@@ -2295,6 +2551,143 @@ const setTextAll = (selector, text) => qsa(selector).forEach(el => el.textConten
       return true;
     }
 
+
+    function getOpeningHoursFromForm(){
+      const map=[
+        ['mon','Mon'], ['tue','Tue'], ['wed','Wed'], ['thu','Thu'], ['fri','Fri'], ['sat','Sat'], ['sun','Sun']
+      ];
+      const result={};
+      map.forEach(([day,key])=>{
+        const closed=!!qs(`#oh${key}Closed`)?.checked;
+        const open=String(qs(`#oh${key}Open`)?.value||'').trim();
+        const close=String(qs(`#oh${key}Close`)?.value||'').trim();
+        const breakStart=String(qs(`#oh${key}BreakStart`)?.value||'').trim();
+        const breakEnd=String(qs(`#oh${key}BreakEnd`)?.value||'').trim();
+        const lastOrder=String(qs(`#oh${key}LastOrder`)?.value||'').trim();
+        const note=String(qs(`#oh${key}Note`)?.value||'').trim();
+        if(closed || open || close || breakStart || breakEnd || lastOrder || note){
+          result[day]={closed,open,close,breakStart,breakEnd,lastOrder,note};
+        }
+      });
+      return Object.keys(result).length ? result : null;
+    }
+
+    function formatOpeningHoursManualText(openingHours){
+      if(!openingHours || typeof openingHours !== 'object') return '';
+      const labels={mon:'월',tue:'화',wed:'수',thu:'목',fri:'금',sat:'토',sun:'일'};
+      const days=['mon','tue','wed','thu','fri','sat','sun'];
+      const rows=days.map(day=>openingHours?.[day]||{});
+      const allSame=rows.every(row=>{
+        const first=rows[0]||{};
+        return !!row && row.closed===first.closed && row.open===first.open && row.close===first.close && 
+          row.breakStart===first.breakStart && row.breakEnd===first.breakEnd && row.lastOrder===first.lastOrder && !row.note && !first.note;
+      });
+      if(allSame && rows[0] && !rows[0].closed && rows[0].open && rows[0].close){
+        const row=rows[0];
+        const parts=[`매일 ${row.open} - ${row.close}`];
+        if(row.breakStart && row.breakEnd) parts.push(`브레이크 ${row.breakStart} - ${row.breakEnd}`);
+        if(row.lastOrder) parts.push(`라스트오더 ${row.lastOrder}`);
+        return parts.join(' / ');
+      }
+      return days.map(day=>{
+        const row=openingHours?.[day] || {};
+        const label=labels[day];
+        if(row.closed) return `${label} 휴무${row.note ? `(${row.note})` : ''}`;
+        if(!row.open && !row.close) return '';
+        const parts=[`${label} ${row.open || '?'} - ${row.close || '?'}`];
+        if(row.breakStart && row.breakEnd) parts.push(`브레이크 ${row.breakStart} - ${row.breakEnd}`);
+        if(row.lastOrder) parts.push(`라스트오더 ${row.lastOrder}`);
+        if(row.note) parts.push(row.note);
+        return parts.join(' / ');
+      }).filter(Boolean).join(', ');
+    }
+
+
+    function normalizeOpeningHoursForForm(item){
+      const src = item?.openingHoursManual || item?.openingHours || item?.businessHours || null;
+      if(!src || typeof src !== 'object') return {};
+      const days=['mon','tue','wed','thu','fri','sat','sun'];
+      const result={};
+      days.forEach(day=>{
+        const raw = src?.[day];
+        if(!raw) return;
+        const row = Array.isArray(raw) ? (raw[0] || {}) : raw;
+        result[day]={
+          closed: !!(row.closed || row.isClosed),
+          open: row.open || row.start || row.from || '',
+          close: row.close || row.end || row.to || '',
+          breakStart: row.breakStart || row.break_start || row.breakFrom || '',
+          breakEnd: row.breakEnd || row.break_end || row.breakTo || '',
+          lastOrder: row.lastOrder || row.last_order || '',
+          note: row.note || row.memo || ''
+        };
+      });
+      return result;
+    }
+
+    function setOpeningHoursToForm(openingHours){
+      const map=[
+        ['mon','Mon'], ['tue','Tue'], ['wed','Wed'], ['thu','Thu'], ['fri','Fri'], ['sat','Sat'], ['sun','Sun']
+      ];
+      map.forEach(([day,key])=>{
+        const raw=openingHours?.[day];
+        const first=Array.isArray(raw) ? (raw[0] || {}) : (raw || {});
+        if(qs(`#oh${key}Closed`)) qs(`#oh${key}Closed`).checked=!!(first?.closed || first?.isClosed);
+        if(qs(`#oh${key}Open`)) qs(`#oh${key}Open`).value=first?.open || first?.start || first?.from || '';
+        if(qs(`#oh${key}Close`)) qs(`#oh${key}Close`).value=first?.close || first?.end || first?.to || '';
+        if(qs(`#oh${key}BreakStart`)) qs(`#oh${key}BreakStart`).value=first?.breakStart || first?.break_start || first?.breakFrom || '';
+        if(qs(`#oh${key}BreakEnd`)) qs(`#oh${key}BreakEnd`).value=first?.breakEnd || first?.break_end || first?.breakTo || '';
+        if(qs(`#oh${key}LastOrder`)) qs(`#oh${key}LastOrder`).value=first?.lastOrder || first?.last_order || '';
+        if(qs(`#oh${key}Note`)) qs(`#oh${key}Note`).value=first?.note || first?.memo || '';
+      });
+    }
+
+    function applyDailyHoursToAllDays(){
+      const fields=['Open','Close','BreakStart','BreakEnd','LastOrder'];
+      const values={
+        Open:qs('#dailyOpen')?.value||'',
+        Close:qs('#dailyClose')?.value||'',
+        BreakStart:qs('#dailyBreakStart')?.value||'',
+        BreakEnd:qs('#dailyBreakEnd')?.value||'',
+        LastOrder:qs('#dailyLastOrder')?.value||''
+      };
+      ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'].forEach(day=>{
+        if(qs(`#oh${day}Closed`)) qs(`#oh${day}Closed`).checked=false;
+        fields.forEach(field=>{
+          if(qs(`#oh${day}${field}`)) qs(`#oh${day}${field}`).value=values[field];
+        });
+      });
+    }
+
+    function clearOpeningHoursForm(){
+      setOpeningHoursToForm({});
+      ['#dailyOpen','#dailyClose','#dailyBreakStart','#dailyBreakEnd','#dailyLastOrder'].forEach(sel=>{
+        if(qs(sel)) qs(sel).value='';
+      });
+      if(qs('#applyDailySameHours')) qs('#applyDailySameHours').checked=false;
+    }
+
+    function bindOpeningHoursButtons(){
+      qs('#copyWeekdayHoursBtn')?.addEventListener('click',()=>{
+        const open=qs('#ohMonOpen')?.value||'';
+        const close=qs('#ohMonClose')?.value||'';
+        ['Tue','Wed','Thu','Fri'].forEach(day=>{
+          if(qs(`#oh${day}Open`)) qs(`#oh${day}Open`).value=open;
+          if(qs(`#oh${day}Close`)) qs(`#oh${day}Close`).value=close;
+        });
+      });
+      qs('#clearOpeningHoursBtn')?.addEventListener('click', clearOpeningHoursForm);
+      qs('#applyDailySameHours')?.addEventListener('change',(e)=>{
+        if(e.target.checked) applyDailyHoursToAllDays();
+      });
+      ['#dailyOpen','#dailyClose','#dailyBreakStart','#dailyBreakEnd','#dailyLastOrder'].forEach(sel=>{
+        qs(sel)?.addEventListener('change',()=>{
+          if(qs('#applyDailySameHours')?.checked) applyDailyHoursToAllDays();
+        });
+      });
+    }
+
+
     async function saveBenefit(e){
       e.preventDefault();
       if(!state.isAdmin||!db){
@@ -2314,6 +2707,9 @@ const setTextAll = (selector, text) => qsa(selector).forEach(el => el.textConten
         lng = geo.lng;
       }
 
+      const openingHoursManualValue = getOpeningHoursFromForm();
+      const businessHoursManualText = formatOpeningHoursManualText(openingHoursManualValue);
+
       const payload={
         name:qs('#name').value.trim(),
         category:qs('#category').value.trim(),
@@ -2332,6 +2728,11 @@ const setTextAll = (selector, text) => qsa(selector).forEach(el => el.textConten
         rankBoost:Number(qs('#rankBoost')?.value || 0),
         thumbnailUrl:qs('#thumbnailUrl')?.value.trim() || '',
         shareDescription:qs('#shareDescription')?.value.trim() || '',
+        openingHours:openingHoursManualValue,
+        openingHoursManual:openingHoursManualValue,
+        businessHoursManual:businessHoursManualText,
+        openingHoursSource:openingHoursManualValue ? 'admin' : '',
+        businessHoursSource:openingHoursManualValue ? 'admin' : '',
         updatedAt:serverTimestamp()
       };
 
@@ -3851,7 +4252,8 @@ const setTextAll = (selector, text) => qsa(selector).forEach(el => el.textConten
 
     const benefitSortSelect=qs('#benefitSortSelect'); if(benefitSortSelect){benefitSortSelect.value=benefitSortMode; benefitSortSelect.addEventListener('change',()=>{benefitSortMode=benefitSortSelect.value||'latest'; renderAdminList();});}
     qs('#benefitForm').addEventListener('submit',saveBenefit);qs('#thumbnailUrl')?.addEventListener('input',(event)=>updateThumbPreview(event.target.value));qs('#noticeForm').addEventListener('submit',saveNotice);qs('#geocodeBtn')?.addEventListener('click', geocodeAddressByNaver);qs('#cancelEditBtn').onclick=resetForm;qs('#cancelNoticeEditBtn').onclick=resetNoticeForm;qs('#loginBtn').onclick=loginAdmin;qs('#logoutBtn').onclick=logoutAdmin;qs('#exportBtn').onclick=exportBenefits;qs('#seedBtn').onclick=seedDefaultData;document.addEventListener('click',(event)=>{const actionBtn=event.target.closest('[data-member-action]');if(!actionBtn) return;updateMemberStatus(actionBtn.dataset.memberId, actionBtn.dataset.memberAction);});resetForm();resetNoticeForm();changeAdminView('dashboard');
-  </script>
+      bindOpeningHoursButtons();
+</script>
 
   
   <div class="gnb-overlay" id="adminGnbOverlay"></div>
