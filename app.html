@@ -2453,9 +2453,9 @@ body.app-role-resident [data-view="shareinsights"]{
 /* ===== AI 음성 질문 UX ===== */
 .ai-voice-row{display:flex;align-items:center;gap:8px;margin-top:10px}.ai-voice-btn{border:1px solid #dbeafe;background:#fff;color:#1d4ed8;border-radius:16px;padding:11px 12px;font-size:12px;font-weight:1000;cursor:pointer;box-shadow:0 8px 18px rgba(37,99,235,.06);transition:transform .16s ease, background-color .16s ease, color .16s ease}.ai-voice-btn:hover{transform:translateY(-1px);background:#eff6ff}.ai-voice-btn.listening{background:#ef4444;color:#fff;border-color:#fecaca;animation:aiVoicePulse 1s ease-in-out infinite}.ai-voice-status{flex:1;min-width:0;padding:10px 12px;border-radius:16px;background:#f8fafc;border:1px solid #e2e8f0;color:#64748b;font-size:12px;font-weight:900;line-height:1.45;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}@keyframes aiVoicePulse{0%,100%{box-shadow:0 0 0 0 rgba(239,68,68,.24)}50%{box-shadow:0 0 0 7px rgba(239,68,68,0)}}@media(max-width:370px){.ai-voice-row{align-items:stretch;flex-direction:column}.ai-voice-status{white-space:normal}}
 
-/* 운영계에서는 AI 생활 도우미 진입 UI 비노출 */
-body.env-prod [data-view-link="ai"],
-body.env-prod #view-ai{
+/* AI 생활 도우미는 운영 테스트 기간 동안 최고 관리자(root)에게만 표시 */
+body:not(.app-role-root) [data-view-link="ai"],
+body:not(.app-role-root) #view-ai{
   display:none!important;
 }
 
@@ -2564,6 +2564,198 @@ body.env-prod #view-ai{
 
 /* ===== AI Cloud Run 스트리밍 연결: 대화 기억 버튼 임시 비노출 ===== */
 .ai-memory-toolbar,.ai-conversation-panel{display:none!important}
+
+/* ===== AI 생활도우미 카드: 거리 + 영업시간 + 미니지도 통합 ===== */
+.ai-auto-card-list{display:grid;gap:12px;margin-top:14px}
+.ai-auto-card-list-title{display:flex;justify-content:space-between;align-items:center;gap:8px;margin:16px 0 8px;font-size:14px;font-weight:900;color:#0f172a}
+.ai-auto-card-list-title small{font-size:11px;color:#64748b;font-weight:900}
+.ai-auto-card{background:linear-gradient(180deg,#ffffff 0%,#f8fafc 100%);border:1px solid #dbeafe;border-radius:22px;padding:16px;box-shadow:0 14px 30px rgba(15,23,42,.08);animation:aiCardRise .24s ease both}
+.ai-auto-card.external{border-color:#bfdbfe}
+.ai-auto-card.internal{border-color:#fed7aa;background:linear-gradient(180deg,#fff7ed 0%,#ffffff 78%)}
+.ai-auto-card-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+.ai-auto-card-title{font-size:16px;font-weight:900;color:#0f172a;line-height:1.35;letter-spacing:-.03em}
+.ai-auto-card-sub{margin-top:4px;font-size:12px;font-weight:800;color:#64748b}
+.ai-match-pill{flex:0 0 auto;padding:7px 10px;border-radius:999px;background:#eef2ff;border:1px solid #c7d2fe;color:#4338ca;font-size:12px;font-weight:900}
+.ai-auto-card-desc{margin:12px 0 0;color:#334155;font-size:13px;line-height:1.65}
+.ai-auto-card-address{margin-top:10px;padding:9px 10px;border-radius:14px;background:#f8fafc;border:1px solid #e2e8f0;color:#475569;font-size:12px;font-weight:800;line-height:1.45}
+.ai-auto-tag-row{display:flex;flex-wrap:wrap;gap:7px;margin-top:12px}
+.ai-auto-tag{display:inline-flex;align-items:center;min-height:25px;padding:6px 9px;border-radius:999px;background:#eff6ff;border:1px solid #bfdbfe;color:#1d4ed8;font-size:11px;font-weight:900}
+.ai-auto-card-actions{display:flex;gap:8px;margin-top:13px}
+.ai-card-btn{flex:1;min-height:42px;display:inline-flex;align-items:center;justify-content:center;border-radius:15px;font-size:13px;font-weight:900;text-decoration:none}
+.ai-card-btn.primary{background:#0f172a;color:#fff}
+.ai-card-btn.soft{background:#fff;color:#0f172a;border:1px solid #e2e8f0}
+.ai-auto-card-status-row{display:flex;flex-wrap:wrap;gap:7px;margin-top:10px}
+.ai-status-pill{display:inline-flex;align-items:center;gap:5px;padding:6px 9px;border-radius:999px;font-size:11px;font-weight:900;border:1px solid #e2e8f0;background:#fff;color:#475569}
+.ai-status-pill.open{background:#ecfdf5;border-color:#bbf7d0;color:#15803d}
+.ai-status-pill.closed{background:#fff1f2;border-color:#fecdd3;color:#b91c1c}
+.ai-card-summary{margin-top:10px;padding:11px 12px;border-radius:16px;background:#f8fafc;border:1px solid #e2e8f0;color:#334155;font-size:12px;font-weight:800;line-height:1.6;white-space:pre-line}
+.ai-travel-row{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-top:10px}
+.ai-travel-chip{padding:8px 8px;border-radius:14px;background:#f8fafc;border:1px solid #e2e8f0;text-align:center;font-size:11px;font-weight:900;color:#334155}
+.ai-travel-chip strong{display:block;font-size:13px;color:#0f172a;margin-top:2px}
+.ai-mini-map{margin-top:12px;border-radius:18px;overflow:hidden;border:1px solid #dbeafe;background:#eff6ff}
+.ai-mini-map iframe{width:100%;height:148px;border:0;display:block}
+.ai-mini-map-fallback{padding:14px;text-align:center;color:#64748b;font-size:12px;font-weight:900}
+@keyframes aiCardRise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+
+/* ===== AI 위치 질문 미니지도 카드 ===== */
+.ai-location-map-card{
+  margin:12px 0 14px;
+  border:1px solid #dbeafe;
+  border-radius:22px;
+  overflow:hidden;
+  background:#fff;
+  box-shadow:0 12px 26px rgba(15,23,42,.08);
+}
+.ai-location-map-head{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:10px;
+  padding:12px 14px 10px;
+}
+.ai-location-map-head b{
+  display:block;
+  font-size:14px;
+  color:#0f172a;
+  line-height:1.3;
+}
+.ai-location-map-head span{
+  display:block;
+  margin-top:4px;
+  font-size:12px;
+  color:#475569;
+  line-height:1.45;
+}
+.ai-location-map-badge{
+  flex:0 0 auto;
+  padding:6px 9px;
+  border-radius:999px;
+  background:#eff6ff;
+  border:1px solid #bfdbfe;
+  color:#1d4ed8;
+  font-size:11px;
+  font-weight:1000;
+}
+.ai-location-map-visual{
+  position:relative;
+  height:148px;
+  margin:0 12px 12px;
+  border-radius:18px;
+  overflow:hidden;
+  background:
+    radial-gradient(circle at 70% 30%, rgba(59,130,246,.20), transparent 30%),
+    linear-gradient(135deg,#e0f2fe 0%,#f8fafc 50%,#dcfce7 100%);
+  border:1px solid #dbeafe;
+}
+.ai-location-map-visual::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:
+    linear-gradient(35deg, transparent 46%, rgba(37,99,235,.42) 47%, rgba(37,99,235,.42) 50%, transparent 51%),
+    linear-gradient(105deg, transparent 55%, rgba(249,115,22,.38) 56%, rgba(249,115,22,.38) 58%, transparent 59%);
+  opacity:.7;
+}
+.ai-location-map-pin{
+  position:absolute;
+  left:58%;
+  top:38%;
+  transform:translate(-50%,-50%);
+  display:grid;
+  place-items:center;
+  min-width:48px;
+  height:32px;
+  padding:0 10px;
+  border-radius:999px;
+  background:#0f172a;
+  color:#fff;
+  font-size:12px;
+  font-weight:1000;
+  box-shadow:0 12px 24px rgba(15,23,42,.25);
+  z-index:2;
+}
+.ai-location-map-pin::after{
+  content:"";
+  position:absolute;
+  left:50%;
+  top:100%;
+  transform:translateX(-50%);
+  border:8px solid transparent;
+  border-top-color:#0f172a;
+}
+.ai-location-map-dot{
+  position:absolute;
+  left:48%;
+  top:60%;
+  width:13px;
+  height:13px;
+  border-radius:999px;
+  background:#2563eb;
+  border:3px solid #fff;
+  box-shadow:0 0 0 5px rgba(37,99,235,.18);
+  z-index:2;
+}
+.ai-location-map-actions{
+  display:grid;
+  grid-template-columns:1fr 1fr 1fr;
+  gap:8px;
+  padding:0 12px 12px;
+}
+.ai-location-map-actions button,
+.ai-location-map-actions a{
+  min-height:40px;
+  border:none;
+  border-radius:14px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  text-decoration:none;
+  font-size:12px;
+  font-weight:1000;
+  cursor:pointer;
+}
+.ai-location-map-actions .primary{background:#0f172a;color:#fff}
+.ai-location-map-actions .soft{background:#eff6ff;color:#1d4ed8;border:1px solid #bfdbfe}
+.ai-location-map-actions .line{background:#fff;color:#334155;border:1px solid #e2e8f0}
+@media(max-width:380px){
+  .ai-location-map-actions{grid-template-columns:1fr}
+}
+
+
+/* ===== AI 위치 질문: 혜택 상세형 위치 안내 카드 ===== */
+.ai-location-detail-card{
+  margin:12px 0 14px;
+  padding:14px;
+  border-radius:22px;
+  background:linear-gradient(180deg,#f8fafc 0%,#ffffff 100%);
+  border:1px solid rgba(15,23,42,.07);
+  box-shadow:0 12px 26px rgba(15,23,42,.08);
+}
+.ai-location-detail-card .location-title{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  margin-bottom:8px;
+}
+.ai-location-detail-card .location-title strong{
+  font-size:13px;
+  color:var(--muted);
+}
+.ai-location-detail-card .detail-map-box{
+  margin-top:12px;
+}
+.ai-location-detail-card .location-actions{
+  grid-template-columns:1fr 1fr 1fr;
+}
+.ai-location-detail-card .location-actions .btn{
+  text-decoration:none;
+}
+@media(max-width:420px){
+  .ai-location-detail-card .location-actions{grid-template-columns:1fr}
+}
+
 </style>
   <style id="myhills-ios-safearea-fix">
     :root{--myhills-safe-area-top:env(safe-area-inset-top,0px)}
@@ -3618,8 +3810,7 @@ function setPushStatusUi(enabled){
 
     function changeView(nextView){
       if(!nextView) return;
-      if(nextView === 'ai' && ENV !== 'dev'){
-        openModalAlert('기능 준비중 입니다.');
+      if(nextView === 'ai' && !isRootRole()){
         return;
       }
       if(nextView === 'shareinsights' && !isAdminRole()){
@@ -7260,18 +7451,35 @@ function getShareTrackingParams(){
           .sort((a,b) => b.score - a.score)
           .slice(0, maxCount);
 
-        return scored.map(({type,item,score}) => ({
-          type,
-          id: item.id || '',
-          title: item.name || item.storeName || item.title || item.department || '',
-          category: item.category || '',
-          benefit: item.benefit || item.description || '',
-          content: item.content || item.body || item.memo || item.note || '',
-          address: item.address || '',
-          phone: pickAiPhone(item),
-          keywords: item.keywords || [],
-          score
-        }));
+        return scored.map(({type,item,score}) => {
+          const pos = getBenefitLatLng(item) || {};
+          return {
+            type,
+            id: item.id || '',
+            title: item.name || item.storeName || item.title || item.department || '',
+            name: item.name || item.storeName || item.title || item.department || '',
+            category: item.category || '',
+            benefit: item.benefit || item.description || '',
+            description: item.description || item.benefit || item.content || '',
+            content: item.content || item.body || item.memo || item.note || '',
+            address: item.address || item.roadAddress || '',
+            roadAddress: item.roadAddress || '',
+            phone: pickAiPhone(item),
+            link: item.link || item.url || item.naverUrl || '',
+            lat: pos.lat ?? item.lat ?? item.latitude ?? null,
+            lng: pos.lng ?? item.lng ?? item.lon ?? item.longitude ?? null,
+            isOpenNow: item.isOpenNow,
+            businessHoursManual: item.businessHoursManual || item.manualBusinessHours || item.adminBusinessHours || item.adminHoursText || '',
+            openingHoursManual: item.openingHoursManual || null,
+            todayOpenText: item.businessHoursManual || item.manualBusinessHours || item.adminBusinessHours || item.adminHoursText || item.todayOpenText || item.hoursText || item.openHoursText || '',
+            openStatusText: item.openStatusText || '',
+            openingHours: item.openingHoursManual || item.openingHours || null,
+            openingHoursSource: (item.businessHoursManual || item.manualBusinessHours || item.adminBusinessHours || item.adminHoursText || item.openingHoursManual) ? 'admin' : (item.openingHoursSource || ''),
+            naverHome: item.naverHome || null,
+            keywords: item.keywords || [],
+            score
+          };
+        });
       }catch(e){
         console.warn('collectAiLocalCandidates 실패:', e);
         return [];
@@ -7330,7 +7538,7 @@ function getShareTrackingParams(){
 
     function extractAiPhoneCards(finalText=''){
       const source = String(finalText || '');
-      const phonePattern = /(?:0\d{1,2}[-.\s]?\d{3,4}[-.\s]?\d{4}|\d{3,4}[-.\s]?\d{4})/g;
+      const phonePattern = /(?:0507[-.\s]?\d{3,4}[-.\s]?\d{4}|0\d{1,2}[-.\s]?\d{3,4}[-.\s]?\d{4}|\d{3,4}[-.\s]?\d{4})/g;
       const found = [...source.matchAll(phonePattern)].map(m => String(m[0] || '').trim()).filter(Boolean);
       const unique = [...new Set(found)].slice(0, 4);
       return unique.map(phone => {
@@ -7355,13 +7563,294 @@ function getShareTrackingParams(){
         </div>`).join('');
     }
 
-    function buildAiEnhancedAnswerHtml(finalText='', question=''){
+    
+    function isAiLocationQuestion(question='', answer=''){
+      const qRaw = String(question || '').trim();
+      const aRaw = String(answer || '').trim();
+      const q = normalizeAiSearchText(qRaw);
+      const combined = normalizeAiSearchText(`${qRaw} ${aRaw}`);
+
+      // 지도 카드는 사용자가 명시적으로 지도/길찾기/미니지도 표시를 요청한 경우에만 표시합니다.
+      // 예: "아레볼 미니지도로 보여줘", "아레볼 지도 보여줘", "아레볼 길찾기 알려줘"
+      const explicitMapAsk =
+        /(미니지도|지도보여|지도로보여|지도띄워|지도표시|지도혜택|지도에서|길찾기|가는길|찾아가는길|네이버지도|위치지도)/.test(q);
+
+      if(explicitMapAsk) return true;
+
+      // 단순 주소 질문은 텍스트 주소만 답하고 지도 카드는 표시하지 않습니다.
+      // 예: "아레볼 주소가 뭐야?", "아레볼 위치가 어디야?"
+      if(/(주소|위치|어디|어딘)/.test(q) && !/(지도|길찾기|미니지도|보여|띄워|표시)/.test(q)){
+        return false;
+      }
+
+      return false;
+    }
+
+    function getAiMapUrl(item={}){
+      const name = item.name || item.storeName || item.title || '';
+      const address = item.address || item.roadAddress || '';
+      const url = item.url || item.link || item.naverUrl || '';
+      if(url) return url;
+      return `https://map.naver.com/p/search/${encodeURIComponent(`${name} ${address}`.trim())}`;
+    }
+
+    function getAiDirectionsUrl(item={}){
+      const name = item.name || item.storeName || item.title || '';
+      const address = item.address || item.roadAddress || '';
+      const lat = Number(item.lat ?? item.latitude);
+      const lng = Number(item.lng ?? item.lon ?? item.longitude);
+      if(Number.isFinite(lat) && Number.isFinite(lng)){
+        return `https://map.naver.com/p/directions/-/${lng},${lat},${encodeURIComponent(name || '목적지')}`;
+      }
+      return `https://map.naver.com/p/search/${encodeURIComponent(`${name} ${address}`.trim())}`;
+    }
+
+    function buildAiLocationMapCardHtml(mappedCards=[], question='', answer=''){
+      if(!Array.isArray(mappedCards) || !mappedCards.length) return '';
+      if(!isAiLocationQuestion(question, answer)) return '';
+      const found = mappedCards.find(({item}) => item && (item.address || item.roadAddress || item.lat || item.lng));
+      if(!found) return '';
+      const item = found.item || {};
+      const name = item.name || item.storeName || item.title || '매장';
+      const address = item.address || item.roadAddress || '등록된 주소 정보가 없습니다.';
+      const mapUrl = getAiMapUrl(item);
+      const dirUrl = getAiDirectionsUrl(item);
+      const pos = typeof getBenefitLatLng === 'function' ? getBenefitLatLng(item) : null;
+      const distanceText = pos
+        ? '현재 위치 기준 거리를 준비 중입니다.'
+        : '📍 매장 좌표가 아직 등록되지 않아 주소 기준으로 안내합니다.';
+      return `
+        <div class="ai-location-detail-card" data-ai-location-benefit-id="${escapeAttr(item.id || '')}">
+          <div class="location-title"><strong>위치 안내</strong></div>
+          <div class="location-address">${escapeHtml(address)}</div>
+          <div class="detail-map-box">
+            ${pos ? `<div class="detail-map-canvas ai-location-map-canvas" data-ai-map-benefit-id="${escapeAttr(item.id || '')}"></div>` : '<div class="detail-map-empty">좌표가 등록되면 작은 지도가 표시됩니다.</div>'}
+          </div>
+          <div class="location-distance muted" data-ai-distance-benefit-id="${escapeAttr(item.id || '')}">${escapeHtml(distanceText)}</div>
+          <div class="location-actions">
+            <button class="btn btn-soft block" type="button" data-ai-open-benefit-id="${escapeAttr(item.id || '')}">혜택 상세</button>
+            <a class="btn btn-soft block" href="${escapeAttr(mapUrl)}" target="_blank" rel="noopener">📍 지도 보기</a>
+            <a class="btn btn-primary block" href="${escapeAttr(dirUrl)}" target="_blank" rel="noopener">🧭 네이버 길찾기</a>
+          </div>
+          <div class="location-note">현재 위치 권한은 거리 표시를 위해서만 사용됩니다. 좌표가 없는 매장은 주소 기준으로 지도/길찾기만 제공합니다.</div>
+        </div>`;
+    }
+
+    
+    function waitFrames(count = 2){
+      return new Promise((resolve) => {
+        const step = () => {
+          count -= 1;
+          if(count <= 0){ resolve(); return; }
+          requestAnimationFrame(step);
+        };
+        requestAnimationFrame(step);
+      });
+    }
+
+    function waitForVisibleMapElement(el, timeout = 2500){
+      return new Promise((resolve) => {
+        const started = Date.now();
+        const tick = () => {
+          if(!el || !document.body.contains(el)){ resolve(false); return; }
+          const rect = el.getBoundingClientRect();
+          const style = window.getComputedStyle(el);
+          const visible = rect.width >= 120 && rect.height >= 120 && style.display !== 'none' && style.visibility !== 'hidden';
+          if(visible){ resolve(true); return; }
+          if(Date.now() - started > timeout){ resolve(false); return; }
+          requestAnimationFrame(tick);
+        };
+        tick();
+      });
+    }
+
+    function forceNaverMapResize(map, center, bounds){
+      const nm = window.naver?.maps;
+      if(!map || !nm) return;
+      const apply = () => {
+        try{ nm.Event.trigger(map, 'resize'); }catch(_){}
+        try{
+          if(bounds) map.fitBounds(bounds, { top:36, right:36, bottom:36, left:36 });
+          else if(center) map.setCenter(center);
+        }catch(_){
+          try{ if(center) map.setCenter(center); }catch(__){}
+        }
+      };
+      apply();
+      requestAnimationFrame(apply);
+      setTimeout(apply, 80);
+      setTimeout(apply, 220);
+      setTimeout(apply, 520);
+      setTimeout(apply, 950);
+    }
+
+    function clearMapElementForFreshRender(el){
+      if(!el) return;
+      el.innerHTML = '';
+      el.removeAttribute('style');
+      el.style.width = '100%';
+      el.style.height = '178px';
+      el.dataset.rendered = '';
+    }
+
+    
+    async function renderAiLocationMiniMaps(scope){
+      const root = scope || qs('#aiChatWindow') || document;
+      const mapEls = root.querySelectorAll?.('.ai-location-map-canvas[data-ai-map-benefit-id]') || [];
+      if(!mapEls.length) return;
+
+      await waitFrames(2);
+
+      for(const mapEl of mapEls){
+        const benefitId = mapEl.dataset.aiMapBenefitId || '';
+        const item = (state.benefits || []).find(v => String(v.id) === String(benefitId));
+        const pos = item && typeof getBenefitLatLng === 'function' ? getBenefitLatLng(item) : null;
+        if(!item || !pos) continue;
+
+        const visible = await waitForVisibleMapElement(mapEl);
+        if(!visible){
+          mapEl.dataset.rendered = '';
+          continue;
+        }
+
+        // 첫 렌더링 깨짐 방지를 위해 첫 시도에서는 항상 새로 초기화합니다.
+        // 이미 안정적으로 렌더링된 지도는 반복 생성하지 않습니다.
+        if(mapEl.dataset.rendered === 'stable') continue;
+        clearMapElementForFreshRender(mapEl);
+
+        try{
+          await loadNaverMapsSdk();
+          await waitFrames(2);
+
+          const nm = window.naver.maps;
+          const store = new nm.LatLng(pos.lat, pos.lng);
+          const map = new nm.Map(mapEl, {
+            center: store,
+            zoom: 16,
+            zoomControl: false,
+            scrollWheel: false,
+            draggable: true
+          });
+
+          new nm.Marker({
+            position: store,
+            map,
+            icon: { content: '<div class="map-marker-store">매장</div>', anchor: new nm.Point(20,34) },
+            zIndex: 100
+          });
+
+          const distanceEl = root.querySelector?.(`[data-ai-distance-benefit-id="${CSS.escape(String(benefitId))}"]`);
+          const updateDistance = (currentLocation, cached=false) => {
+            if(!distanceEl || !currentLocation) return;
+            const distance = getDistanceMeters(currentLocation.lat, currentLocation.lng, pos.lat, pos.lng);
+            if(distance > 200000){
+              distanceEl.textContent = '매장 좌표가 실제 위치와 맞지 않는 것 같습니다. 주소 기준으로 지도를 확인해 주세요.';
+              distanceEl.classList.add('muted');
+              return;
+            }
+            distanceEl.textContent = `🚶 현재 위치에서 ${formatDistance(distance)} 거리입니다.${cached ? ' (최근 위치 기준)' : ''}`;
+            distanceEl.classList.remove('muted');
+          };
+
+          let bounds = null;
+          if(hasFreshUserLocation()){
+            const me = new nm.LatLng(state.userLocation.lat, state.userLocation.lng);
+            new nm.Marker({
+              position: me,
+              map,
+              icon: { content: '<div class="map-marker-user" title="현재 위치"></div>', anchor: new nm.Point(9,9) },
+              zIndex: 120
+            });
+            new nm.Polyline({
+              map,
+              path: [me, store],
+              strokeColor: '#2563eb',
+              strokeWeight: 4,
+              strokeOpacity: .82
+            });
+            bounds = new nm.LatLngBounds();
+            bounds.extend(me);
+            bounds.extend(store);
+            updateDistance(state.userLocation, true);
+          }else if(navigator.geolocation){
+            getReliableCurrentPosition({ forceRefresh:false })
+              .then((currentLocation) => {
+                updateDistance(currentLocation, false);
+                mapEl.dataset.rendered = '';
+                renderAiLocationMiniMaps(root);
+              })
+              .catch(() => {
+                if(distanceEl){
+                  distanceEl.textContent = '현재 위치 권한을 허용하면 매장까지의 거리를 표시합니다.';
+                  distanceEl.classList.add('muted');
+                }
+              });
+          }
+
+          forceNaverMapResize(map, store, bounds);
+          mapEl.dataset.rendered = 'stable';
+
+          // 일부 모바일 WebView에서 첫 타일 계산이 틀어지는 경우가 있어 한 번 더 새로고침합니다.
+          setTimeout(() => {
+            try{
+              const rect = mapEl.getBoundingClientRect();
+              if(rect.width >= 120 && rect.height >= 120){
+                forceNaverMapResize(map, store, bounds);
+              }
+            }catch(_){}
+          }, 1200);
+        }catch(error){
+          console.warn('AI 위치 미니지도 렌더링 실패', error);
+          mapEl.dataset.rendered = '';
+          mapEl.innerHTML = '<div class="detail-map-empty">지도 로딩에 실패했습니다.</div>';
+        }
+      }
+    }
+
+    
+    
+    function isApartmentLifePhoneQuestion(question=''){
+      const q = normalizeAiSearchText(question);
+      return /(관리사무소|관리실|생활지원센터|사무소|입주지원센터|입주민센터|아파트관리|아파트사무소|경비실|경비|키불출|키불출센터|A\/S|AS|에이에스|하자|분양사무소|분양|전입신고|행정복지센터|주민센터|교육청|고등학교|입학|전화인터넷|인터넷|통신|KT|SK|LG|도시가스|가스|파주시청|시청|승강기|엘리베이터|고장|고장신고|주차|방문차량|택배|민원|분리수거|쓰레기|재활용|음식물)/.test(q)
+        && /(전화번호|전화|연락처|번호|문의|신고|고장|콜|통화)/.test(q);
+    }
+
+
+function buildAiMatchedBenefitPhoneCardHtml(mappedCards=[], question=''){
+      if(isApartmentLifePhoneQuestion(question)) return '';
+      if(!Array.isArray(mappedCards) || !mappedCards.length) return '';
+      const found = mappedCards.find(({item}) => item && pickAiPhone(item));
+      if(!found) return '';
+      const item = found.item || {};
+      const phone = String(pickAiPhone(item) || '').trim();
+      const tel = phone.replace(/[^\d]/g, '');
+      if(!tel) return '';
+      return `
+        <div class="ai-phone-card-auto">
+          <div class="ai-phone-icon">☎️</div>
+          <div class="ai-phone-info">
+            <b>${escapeHtml(item.name || item.storeName || item.title || '매장')} 전화번호</b>
+            <span>${escapeHtml(phone)}</span>
+          </div>
+          <a class="ai-phone-call" href="tel:${escapeAttr(tel)}">전화</a>
+        </div>`;
+    }
+
+    function isAiPhoneQuestion(question=''){
+      const q = normalizeAiSearchText(question);
+      return /(전화번호|전화|연락처|번호|콜|통화)/.test(q);
+    }
+
+
+function buildAiEnhancedAnswerHtml(finalText='', question=''){
       const text = String(finalText || '답변을 생성하지 못했습니다.');
       const cleaned = cleanAiChunkText(text).trim() || '답변을 생성하지 못했습니다.';
       const safe = escapeHtml(cleaned).replace(/\n/g, '<br>');
-      const phoneCards = buildAiPhoneCardHtml(extractAiPhoneCards(cleaned));
-      const mappedCards = extractAiBenefitCards(cleaned, 4, question);
+      const mappedCards = isApartmentLifePhoneQuestion(question) ? [] : extractAiBenefitCards(cleaned, 4, question);
+      const matchedPhoneCard = isAiPhoneQuestion(question) ? buildAiMatchedBenefitPhoneCardHtml(mappedCards, question) : '';
+      const phoneCards = matchedPhoneCard || buildAiPhoneCardHtml(extractAiPhoneCards(cleaned));
       const personalSummary = getAiPersonalSummary();
+      const locationMapCard = buildAiLocationMapCardHtml(mappedCards, question, cleaned);
       const benefitCards = mappedCards.map(({item, score, reason, reasons}) => `
         <div class="ai-benefit-card-auto enhanced">
           <div class="ai-card-top">
@@ -7387,6 +7876,7 @@ function getShareTrackingParams(){
           <div class="ai-answer-summary">${safe}</div>
           ${inferAiWeatherTag(question, cleaned) ? `<div class="ai-weather-chip">${escapeHtml(inferAiWeatherTag(question, cleaned))}</div>` : ''}
           ${phoneCards}
+          ${locationMapCard}
           ${benefitCards ? `<div class="ai-answer-section"><div class="ai-answer-section-title"><span>자동 매칭된 혜택 카드</span><small>${mappedCards.length}개 추천</small></div>${benefitCards}</div>` : ''}
           <span class="ai-mode-pill upgraded">스트리밍 · 혜택 자동 매핑 · 개인화 추천 기준: ${escapeHtml(personalSummary)}</span>
         </div>`;
@@ -7456,6 +7946,7 @@ function getShareTrackingParams(){
     function bindAiAnswerActions(scope){
       const root = scope || qs('#aiChatWindow');
       if(!root) return;
+      requestAnimationFrame(()=>renderAiLocationMiniMaps(root)); setTimeout(()=>renderAiLocationMiniMaps(root), 300); setTimeout(()=>renderAiLocationMiniMaps(root), 900);
       root.querySelectorAll('[data-ai-open-benefit-id]').forEach(btn => {
         if(btn.dataset.bound === 'true') return;
         btn.dataset.bound = 'true';
@@ -7718,7 +8209,138 @@ function getShareTrackingParams(){
       };
     }
 
-    async function askAiAssistant(rawQuestion=''){
+    
+    function normalizeAiCardItem(item){
+      const distanceKm = Number(item.distanceKm);
+      const distanceText = item.distanceText || (
+        Number.isFinite(distanceKm)
+          ? (distanceKm < 1 ? `약 ${Math.round(distanceKm * 1000)}m` : `약 ${distanceKm.toFixed(distanceKm < 10 ? 1 : 0)}km`)
+          : ''
+      );
+
+      return {
+        id: item.id || item.docId || '',
+        name: item.name || item.title || '이름 없음',
+        category: item.category || '기타',
+        description: item.benefitText || item.description || item.summary || item.answer || '등록된 정보를 확인해보세요.',
+        address: item.address || item.roadAddress || '',
+        phone: item.phone || item.telephone || '',
+        link: item.link || item.url || '',
+        sourceType: item.sourceType || '',
+        source: item.source || '',
+        type: item.type || '',
+        tags: item.aiTags || item.tags || [],
+        matchRate: item.matchRate || 80,
+        distanceKm: Number.isFinite(distanceKm) ? distanceKm : null,
+        distanceText,
+        walkMinutes: item.walkMinutes || null,
+        bikeMinutes: item.bikeMinutes || null,
+        carMinutes: item.carMinutes || null,
+        lat: item.lat ?? null,
+        lng: item.lng ?? null,
+        isOpenNow: item.isOpenNow,
+        todayOpenText: item.todayOpenText || item.openingStatus?.todayOpenText || '',
+        openStatusText: item.openStatusText || item.openingStatus?.openStatusText || '',
+        lifeAssistantSummary: item.lifeAssistantSummary || ''
+      };
+    }
+
+    function buildAiMiniMap(item){
+      const lat = Number(item.lat);
+      const lng = Number(item.lng);
+      if(!Number.isFinite(lat) || !Number.isFinite(lng)){
+        return '<div class="ai-mini-map"><div class="ai-mini-map-fallback">좌표 정보가 없어 미니지도를 표시할 수 없습니다.</div></div>';
+      }
+      const q = encodeURIComponent(item.name || item.address || `${lat},${lng}`);
+      const src = `https://maps.google.com/maps?q=${lat},${lng}(${q})&z=16&output=embed`;
+      return `<div class="ai-mini-map"><iframe title="${escapeHtml(item.name)} 미니지도" loading="lazy" src="${src}"></iframe></div>`;
+    }
+
+    function buildNaverMapLink(item){
+      const lat = Number(item.lat);
+      const lng = Number(item.lng);
+      if(Number.isFinite(lat) && Number.isFinite(lng)){
+        return `https://map.naver.com/v5/search/${encodeURIComponent(item.name)}?c=${lng},${lat},16,0,0,0,dh`;
+      }
+      if(item.address || item.name){
+        return `https://map.naver.com/v5/search/${encodeURIComponent(`${item.name || ''} ${item.address || ''}`.trim())}`;
+      }
+      return item.link || '#';
+    }
+
+    function renderAiAutoCard(rawItem){
+      const item = normalizeAiCardItem(rawItem);
+      const isExternal = item.source === 'naver_local' || item.sourceType === 'external_place' || item.type === '외부매장';
+      const badges = [isExternal ? '외부 추천' : '입주민 혜택', ...item.tags].filter(Boolean).slice(0, 5);
+      const openKnown = typeof item.isOpenNow === 'boolean' || item.openStatusText || item.todayOpenText;
+      const openClass = item.isOpenNow === true ? 'open' : (item.isOpenNow === false ? 'closed' : '');
+      const openText = item.openStatusText || (item.isOpenNow === true ? '영업 중' : (item.isOpenNow === false ? '영업 전/종료' : '영업시간 확인'));
+
+      const summary = item.lifeAssistantSummary || [
+        item.distanceText ? `현재 위치에서 ${item.distanceText} 거리입니다.` : '',
+        item.walkMinutes ? `도보 약 ${item.walkMinutes}분, 자전거 약 ${item.bikeMinutes || '-'}분, 자동차 약 ${item.carMinutes || '-'}분 정도 소요됩니다.` : '',
+        item.todayOpenText ? `오늘 영업시간은 ${item.todayOpenText}입니다.` : ''
+      ].filter(Boolean).join('\n');
+
+      const mapLink = buildNaverMapLink(item);
+
+      return `
+        <div class="ai-auto-card ${isExternal ? 'external' : 'internal'}" data-id="${escapeHtml(item.id)}">
+          <div class="ai-auto-card-head">
+            <div>
+              <div class="ai-auto-card-title">${escapeHtml(item.name)}</div>
+              <div class="ai-auto-card-sub">${escapeHtml(item.category)}</div>
+            </div>
+            <div class="ai-match-pill">매칭 ${Number(item.matchRate || 80)}%</div>
+          </div>
+
+          <p class="ai-auto-card-desc">${escapeHtml(item.description)}</p>
+
+          <div class="ai-auto-card-status-row">
+            ${openKnown ? `<span class="ai-status-pill ${openClass}">${item.isOpenNow === true ? '🟢' : (item.isOpenNow === false ? '🔴' : 'ℹ️')} ${escapeHtml(openText)}</span>` : ''}
+            ${item.todayOpenText ? `<span class="ai-status-pill">🕒 ${escapeHtml(item.todayOpenText)}</span>` : ''}
+            ${item.distanceText ? `<span class="ai-status-pill">📍 ${escapeHtml(item.distanceText)}</span>` : ''}
+          </div>
+
+          ${summary ? `<div class="ai-card-summary">${escapeHtml(summary)}</div>` : ''}
+
+          ${item.walkMinutes ? `<div class="ai-travel-row">
+            <div class="ai-travel-chip">자동차<strong>${Number(item.carMinutes || 1)}분</strong></div>
+            <div class="ai-travel-chip">자전거<strong>${Number(item.bikeMinutes || 1)}분</strong></div>
+            <div class="ai-travel-chip">도보<strong>${Number(item.walkMinutes || 1)}분</strong></div>
+          </div>` : ''}
+
+          ${item.address ? `<div class="ai-auto-card-address">📍 ${escapeHtml(item.address)}</div>` : ''}
+
+          ${buildAiMiniMap(item)}
+
+          <div class="ai-auto-tag-row">${badges.map(tag => `<span class="ai-auto-tag">${escapeHtml(tag)}</span>`).join('')}</div>
+
+          <div class="ai-auto-card-actions">
+            ${item.phone ? `<a class="ai-card-btn soft" href="tel:${escapeHtml(item.phone)}">전화</a>` : ''}
+            <a class="ai-card-btn soft" href="${escapeHtml(mapLink)}" target="_blank" rel="noopener">지도 열기</a>
+            ${item.link ? `<a class="ai-card-btn primary" href="${escapeHtml(item.link)}" target="_blank" rel="noopener">정보 보기</a>` : ''}
+          </div>
+        </div>`;
+    }
+
+    function appendAiRecommendationCardsSafe(data){
+      if(data && Array.isArray(data.recommendations) && data.recommendations.length) appendAiRecommendationCards(data.recommendations);
+    }
+
+    function appendAiRecommendationCards(recommendations = []){
+      const win = qs('#aiChatWindow');
+      if(!win || !Array.isArray(recommendations) || !recommendations.length) return;
+      const row = document.createElement('div');
+      row.className = 'ai-message bot';
+      const count = recommendations.length;
+      row.innerHTML = `<div class="ai-bubble"><div class="ai-auto-card-list-title"><span>자동 매칭 추천 카드</span><small>${count}개 추천</small></div><div class="ai-auto-card-list">${recommendations.slice(0, 6).map(renderAiAutoCard).join('')}</div></div>`;
+      win.appendChild(row);
+      win.scrollTop = win.scrollHeight;
+    }
+
+
+async function askAiAssistant(rawQuestion=''){
       if(!window.__AI_LAST_INPUT_MODE) window.__AI_LAST_INPUT_MODE = rawQuestion ? 'quick' : 'text';
       if(!AI_STREAM_SERVER_URL) return openModalAlert('AI 생활도우미 서버 URL이 아직 설정되지 않았습니다.');
       const input = qs('#aiQuestionInput');
@@ -7759,7 +8381,7 @@ function getShareTrackingParams(){
       }
     }
 
-    function updateView(){enforceShareInsightAccess();if(state.view==='community') setTimeout(()=>loadCommunityPosts(communityState.category||'전체', true), 40);qsa('[id^="view-"]').forEach(v=>v.classList.add('hidden'));(qs(`#view-${state.view}`)||qs('#view-home')).classList.remove('hidden');qsa('.bottom-nav .nav-btn').forEach(btn=>btn.classList.remove('active'));const active=qsa('.bottom-nav .nav-btn').find(btn=>btn.dataset.view===state.view);if(active)active.classList.add('active');qs('#gnbSheet')?.classList.remove('show');qs('#gnbOverlay')?.classList.remove('show');}
+    function updateView(){enforceShareInsightAccess();if(state.view==='ai'&&!isRootRole()) state.view='home';if(state.view==='community') setTimeout(()=>loadCommunityPosts(communityState.category||'전체', true), 40);qsa('[id^="view-"]').forEach(v=>v.classList.add('hidden'));(qs(`#view-${state.view}`)||qs('#view-home')).classList.remove('hidden');qsa('.bottom-nav .nav-btn').forEach(btn=>btn.classList.remove('active'));const active=qsa('.bottom-nav .nav-btn').find(btn=>btn.dataset.view===state.view);if(active)active.classList.add('active');qs('#gnbSheet')?.classList.remove('show');qs('#gnbOverlay')?.classList.remove('show');}
     const renderAll=()=>{createChips();enableHorizontalDragScroll('#chips');enableHorizontalDragScroll('#aiQuickRow');enableHorizontalDragScroll('#communityCategoryFilter');renderStats();renderHome();renderFavorites();renderPopularTop5();renderNotices();updateView();updateGnbActive();updateDistanceFilterHelp();if(state.view==='map') setTimeout(() => renderMapMode(), 60);if(state.view==='community') setTimeout(()=>loadCommunityPosts(communityState.category||'전체', true), 60);if(state.view==='shareinsights' && isAdminRole()) setTimeout(() => renderShareInsights(), 60);setTimeout(() => handleCleanDeepLink(), 80);};
     qs('#searchInput').addEventListener('input',(e)=>{state.keyword=e.target.value;renderAll();});
     qs('#resetBtn').onclick=()=>{state.category='전체';localStorage.setItem(LAST_CATEGORY_KEY,'전체');state.keyword='';state.filter='all';state.benefitSortMode='default';state.distanceRadius='all';qs('#searchInput').value='';if(qs('#benefitSortSelect'))qs('#benefitSortSelect').value='default';if(qs('#distanceRadiusSelect'))qs('#distanceRadiusSelect').value='all';changeView('benefits');};
