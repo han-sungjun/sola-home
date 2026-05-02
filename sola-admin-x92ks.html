@@ -2194,13 +2194,20 @@ const setTextAll = (selector, text) => qsa(selector).forEach(el => el.textConten
     function sanitizeNotice(item={},id=''){return {id,title:item.title||'',content:item.content||'',category:item.category||'일반',visible:item.visible!==false,pinned:!!item.pinned,createdAt:item.createdAt||null,updatedAt:item.updatedAt||null};}
     const hasFirebaseConfig=()=>firebaseConfig.apiKey&&firebaseConfig.projectId&&firebaseConfig.appId;
     let auth=null,db=null;
+    // 공개앱 통계 기준과 동일하게 '노출중(visible !== false)' 혜택만 집계합니다.
+    function getVisibleBenefitsForStats(){
+      return (state.benefits || []).filter(item => item && item.visible !== false);
+    }
     function updateStats(){
-      const items=state.benefits;
-      setTextAll('.stat-count', String(items.length));
-      setTextAll('.stat-max', `${Math.max(0,...items.map(v=>v.discountValue))}%`);
-      setTextAll('.stat-cat', String(new Set(items.map(v=>v.category)).size));
-      const dashboardBenefitCountEl=qs('#dashboardBenefitCount'); if(dashboardBenefitCountEl) dashboardBenefitCountEl.textContent=`${items.length}건`;
-      const benefitListCountEl=qs('#benefitListCount'); if(benefitListCountEl) benefitListCountEl.textContent=`${items.length}건`;
+      const visibleItems = getVisibleBenefitsForStats();
+      const allItems = state.benefits || [];
+      const maxDiscount = visibleItems.length ? Math.max(0, ...visibleItems.map(v => Number(v.discountValue || 0))) : 0;
+      const categoryCount = new Set(visibleItems.map(v => v.category || '기타')).size;
+      setTextAll('.stat-count', String(visibleItems.length));
+      setTextAll('.stat-max', `${maxDiscount}%`);
+      setTextAll('.stat-cat', String(categoryCount));
+      const dashboardBenefitCountEl=qs('#dashboardBenefitCount'); if(dashboardBenefitCountEl) dashboardBenefitCountEl.textContent=`${visibleItems.length}건`;
+      const benefitListCountEl=qs('#benefitListCount'); if(benefitListCountEl) benefitListCountEl.textContent=`${allItems.length}건`;
       const dashboardNoticeCountEl=qs('#dashboardNoticeCount'); if(dashboardNoticeCountEl) dashboardNoticeCountEl.textContent=`${state.notices.length}건`;
       const noticeListCountEl=qs('#noticeListCount'); if(noticeListCountEl) noticeListCountEl.textContent=`${state.notices.length}건`;
       const pushCountEl=qs('#pushJobCount'); if(pushCountEl) pushCountEl.textContent=`${state.pushJobs.length}건`;
