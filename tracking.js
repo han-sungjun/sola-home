@@ -63,6 +63,35 @@ function safeText(value, fallback = "-") {
   return String(value);
 }
 
+function toSafeDate(value) {
+  if (!value) return null;
+  if (value instanceof Date) return value;
+  if (typeof value?.toDate === "function") return value.toDate();
+  if (typeof value === "number") return new Date(value);
+  if (typeof value === "string") {
+    const parsed = new Date(value);
+    return Number.isNaN(parsed.getTime()) ? null : parsed;
+  }
+  if (typeof value === "object" && typeof value.seconds === "number") {
+    return new Date(value.seconds * 1000);
+  }
+  return null;
+}
+
+function formatActivityDateTime(value) {
+  const d = toSafeDate(value);
+  if (!d || Number.isNaN(d.getTime())) return "-";
+
+  const pad = (n) => String(n).padStart(2, "0");
+  const yyyy = d.getFullYear();
+  const mm = pad(d.getMonth() + 1);
+  const dd = pad(d.getDate());
+  const hh = pad(d.getHours());
+  const min = pad(d.getMinutes());
+
+  return `${yyyy}.${mm}.${dd} ${hh}:${min}`;
+}
+
 
 // =========================
 // saveActivity
@@ -660,6 +689,9 @@ export async function renderAdminStatsUI({
                 ? `페이지: ${safeText(item.page)} ${item.detail ? `| 상세: ${safeText(item.detail)}` : ""}`
                 : `상태: ${safeText(item.status)} | 사유: ${safeText(item.detail)}`
               }
+            </div>
+            <div class="helper" style="font-size:12px;color:#94a3b8;margin-top:6px;">
+              📅 ${formatActivityDateTime(item.createdAt)}
             </div>
           </div>
         `).join("")
