@@ -3327,7 +3327,6 @@ html, body{overflow-x:hidden;}
     const AI_CONVERSATION_KEY = `myhills_ai_conversation_${ENV || 'prod'}`;
     let aiConversationId = localStorage.getItem(AI_CONVERSATION_KEY) || '';
     let aiConversationTitle = '새 대화';
-    let aiProactiveLoading = false;
     const VAPID_PUBLIC_KEY_BY_ENV = {
       dev: 'BHgdDiJQpnMsX0oR_nO3ixVeJAzDMdAkgdnMfBn09ElocDSmefCeXY1gXTVHoZSgYsDg5fojyTuTqSR2c185VhE',
       prod: 'BJONnfKeKFN8SCWWlo_quJ9pjahri96uw9WZJq2774hBZ8um6edcRb-NP7uRwjmcwHNTTGMuPJX-MUdeThgu5Kw'
@@ -7696,18 +7695,9 @@ function getShareTrackingParams(){
       return { title:'야간 시간', question:'지금 확인하면 좋은 공지와 내일 이용 가능한 혜택 알려줘', label:'내일 준비' };
     }
 
-    async function getAiIdTokenSafe(options={}){
-      const timeoutMs = Number(options.timeoutMs || 2500);
-      const startedAt = Date.now();
+    async function getAiIdTokenSafe(){
       try{
-        let user = state.currentUser || auth.currentUser || null;
-        while(!user && Date.now() - startedAt < timeoutMs){
-          await new Promise(resolve => setTimeout(resolve, 80));
-          user = state.currentUser || auth.currentUser || null;
-        }
-        if(!user?.getIdToken) return '';
-        state.currentUser = state.currentUser || user;
-        return await user.getIdToken(!!options.forceRefresh);
+        return state.currentUser?.getIdToken ? await state.currentUser.getIdToken() : '';
       }catch(error){
         console.warn('AI ID 토큰 생성 실패:', error);
         return '';
@@ -7733,11 +7723,10 @@ function getShareTrackingParams(){
     async function logPersonalAssistantEvent(payload={}){
       if(!AI_ASSISTANT_LOG_URL) return;
       try{
-        const idToken = await getAiIdTokenSafe({ timeoutMs:2000 });
-        if(!idToken) return;
+        const idToken = await getAiIdTokenSafe();
         await fetch(AI_ASSISTANT_LOG_URL, {
           method:'POST',
-          headers:{ 'Content-Type':'application/json', 'Authorization':`Bearer ${idToken}` },
+          headers:{ 'Content-Type':'application/json', ...(idToken ? { 'Authorization':`Bearer ${idToken}` } : {}) },
           body: JSON.stringify({ env: ENV, ...payload })
         });
       }catch(error){
@@ -7747,18 +7736,13 @@ function getShareTrackingParams(){
 
     async function loadServerProactiveWelcome(){
       const win = qs('#aiChatWindow');
-      if(!win || !AI_PROACTIVE_URL || aiProactiveLoading) return false;
-      aiProactiveLoading = true;
+      if(!win || !AI_PROACTIVE_URL) return false;
       try{
-        const idToken = await getAiIdTokenSafe({ timeoutMs:3500 });
-        if(!idToken){
-          console.warn('개인형 AI 안내 로드 보류: Firebase ID 토큰이 아직 준비되지 않았습니다.');
-          return false;
-        }
+        const idToken = await getAiIdTokenSafe();
         const pageContext = typeof buildAiPageContext === 'function' ? buildAiPageContext('개인형 비서 선제 추천') : {};
         const response = await fetch(AI_PROACTIVE_URL, {
           method:'POST',
-          headers:{ 'Accept':'application/json', 'Content-Type':'application/json', 'Authorization':`Bearer ${idToken}` },
+          headers:{ 'Accept':'application/json', 'Content-Type':'application/json', ...(idToken ? { 'Authorization':`Bearer ${idToken}` } : {}) },
           body: JSON.stringify({ env: ENV, pageContext, context: pageContext })
         });
         const data = await response.json().catch(()=>({}));
@@ -7770,8 +7754,6 @@ function getShareTrackingParams(){
       }catch(error){
         console.warn('개인형 AI 안내 로드 실패:', error);
         return false;
-      }finally{
-        aiProactiveLoading = false;
       }
     }
 
@@ -7801,11 +7783,10 @@ function getShareTrackingParams(){
       localStorage.setItem(getDailyAiNudgeStorageKey(), action || 'shown');
       if(!AI_DAILY_NUDGE_MARK_URL) return;
       try{
-        const idToken = await getAiIdTokenSafe({ timeoutMs:2000 });
-        if(!idToken) return;
+        const idToken = await getAiIdTokenSafe();
         await fetch(AI_DAILY_NUDGE_MARK_URL, {
           method:'POST',
-          headers:{ 'Content-Type':'application/json', 'Authorization':`Bearer ${idToken}` },
+          headers:{ 'Content-Type':'application/json', ...(idToken ? { 'Authorization':`Bearer ${idToken}` } : {}) },
           body: JSON.stringify({ env: ENV, dateKey: getKstDateKey(), action })
         });
       }catch(error){
@@ -7885,11 +7866,10 @@ function getShareTrackingParams(){
       let payload = { shouldShow:true };
       if(AI_DAILY_NUDGE_CHECK_URL){
         try{
-          const idToken = await getAiIdTokenSafe({ timeoutMs:2500 });
-          if(!idToken) throw new Error('Firebase ID 토큰이 아직 준비되지 않았습니다.');
+          const idToken = await getAiIdTokenSafe();
           const response = await fetch(AI_DAILY_NUDGE_CHECK_URL, {
             method:'POST',
-            headers:{ 'Accept':'application/json', 'Content-Type':'application/json', 'Authorization':`Bearer ${idToken}` },
+            headers:{ 'Accept':'application/json', 'Content-Type':'application/json', ...(idToken ? { 'Authorization':`Bearer ${idToken}` } : {}) },
             body: JSON.stringify({ env: ENV, dateKey: getKstDateKey() })
           });
           const data = await response.json().catch(()=>({}));
