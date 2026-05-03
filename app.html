@@ -5671,6 +5671,149 @@ body.gnb-open .bottom-nav{
   pointer-events:none;
 }
 
+
+/* ===== spacing 미세 조정 (캘린더 포함) ===== */
+.shell{ gap:14px!important; }
+
+.panel + .panel{ margin-top:12px!important; }
+
+/* 카드 리스트 간격 */
+.list,
+.notice-list,
+.popular-list{ gap:12px!important; }
+
+/* 캘린더 전용 축소 */
+#view-calendar .panel{ margin-bottom:10px!important; }
+#view-calendar .calendar-hero{ margin-bottom:10px!important; }
+#view-calendar .calendar-summary-grid{ margin-bottom:10px!important; }
+#view-calendar .calendar-board,
+#view-calendar .calendar-month-grid{ margin-bottom:6px!important; }
+
+
+/* ===== spacing 추가 보정: 공지/지도/커뮤니티 붙음 해결 ===== */
+
+/* 공지사항: 헤더 패널과 공지 카드 사이 */
+#view-home .notice-list,
+#view-notice .notice-list,
+.notice-list{
+  margin-top:14px!important;
+}
+.notice-item + .notice-item{
+  margin-top:14px!important;
+}
+
+/* 지도: 안내 패널과 지도 캔버스 사이 */
+.map-mode-canvas-wrap,
+#benefitMap,
+.detail-map-box{
+  margin-top:16px!important;
+}
+.map-mode-status + .map-mode-canvas-wrap,
+.map-mode-actions + .map-mode-status,
+.map-mode-panel > * + *{
+  margin-top:14px!important;
+}
+
+/* 커뮤니티: 히어로/게시글 필터/게시글 카드 사이 */
+.community-hero + .panel,
+.community-hero + .community-panel,
+#view-community .panel + .panel,
+#view-community .community-panel + .community-card,
+#view-community .community-panel + .post-card,
+#view-community .post-list,
+#view-community .board-list{
+  margin-top:16px!important;
+}
+#view-community .post-card,
+#view-community .board-card,
+#view-community .community-card{
+  margin-top:16px!important;
+}
+#view-community .post-card:first-child,
+#view-community .board-card:first-child,
+#view-community .community-card:first-child{
+  margin-top:0!important;
+}
+
+/* 일반적으로 같은 뷰 안의 직계 자식이 연속될 때 최소 간격 보장 */
+[id^="view-"] > * + *{
+  margin-top:14px!important;
+}
+
+/* 단, 캘린더 내부는 너무 벌어지지 않게 별도 유지 */
+#view-calendar > * + *{
+  margin-top:10px!important;
+}
+#view-calendar .calendar-board,
+#view-calendar .calendar-month-grid{
+  margin-bottom:6px!important;
+}
+
+/* 카드 리스트 내부는 margin collapse 없이 안정적으로 */
+.list,
+.notice-list,
+.popular-list,
+.calendar-list,
+.map-mode-list,
+.insight-list,
+.post-list,
+.board-list,
+.community-list{
+  display:grid!important;
+  gap:14px!important;
+}
+
+
+/* ===== 캘린더 하단 빈 공간 전용 보정 =====
+   - 캘린더 카드 아래 과한 여백만 제거
+   - 하단 네비는 유지
+*/
+#view-calendar{
+  margin-bottom:0!important;
+  padding-bottom:0!important;
+}
+#view-calendar .panel:last-child,
+#view-calendar .calendar-board,
+#view-calendar .calendar-month-grid,
+#view-calendar .calendar-week-grid,
+#view-calendar .calendar-day-grid{
+  margin-bottom:0!important;
+  padding-bottom:0!important;
+}
+#view-calendar::after{
+  content:none!important;
+  display:none!important;
+}
+body:has(#view-calendar:not(.hidden)) .shell::after{
+  height:0!important;
+}
+body:has(#view-calendar:not(.hidden)) .app{
+  padding-bottom:0!important;
+}
+
+
+/* ===== 캘린더 하단 여백 최종 제거 =====
+   - calendar-view-active에서 다시 들어가던 padding-bottom 84px 제거
+   - 달력 아래 불필요한 빈 공간 제거
+*/
+body.calendar-view-active .app{
+  padding-bottom:0!important;
+}
+body.calendar-view-active .shell::after{
+  content:none!important;
+  display:none!important;
+  height:0!important;
+}
+body.calendar-view-active #view-calendar,
+body.calendar-view-active #view-calendar .panel:last-child,
+body.calendar-view-active #view-calendar .calendar-board,
+body.calendar-view-active #view-calendar .calendar-month-grid,
+body.calendar-view-active #view-calendar .calendar-week-grid,
+body.calendar-view-active #view-calendar .calendar-day-grid{
+  margin-bottom:0!important;
+  padding-bottom:0!important;
+}
+
 </style>
   <style id="myhills-ios-safearea-fix">
     :root{--myhills-safe-area-top:env(safe-area-inset-top,0px)}
