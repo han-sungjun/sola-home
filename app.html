@@ -5370,7 +5370,11 @@ nav.bottom-nav{
 .calendar-view-panel{display:grid;gap:14px;margin-bottom:14px;}
 .calendar-nav-row{display:flex;align-items:center;justify-content:space-between;gap:10px;}
 .calendar-nav-title{border:none;background:#fff;border:1px solid #e2e8f0;border-radius:18px;padding:12px 14px;font-size:16px;font-weight:1000;color:#0f172a;box-shadow:0 8px 18px rgba(15,23,42,.05);cursor:pointer;min-width:0;flex:1;}
+.calendar-nav-title::after{content:"날짜 선택";display:block;margin-top:3px;font-size:10px;font-weight:900;color:#94a3b8;line-height:1;}
+.calendar-nav-title:focus,.calendar-nav-btn:focus,.calendar-today-btn:focus{outline:none;}
+.calendar-nav-title:focus-visible,.calendar-nav-btn:focus-visible,.calendar-today-btn:focus-visible{box-shadow:0 0 0 4px rgba(37,99,235,.12),0 8px 18px rgba(15,23,42,.05);}
 .calendar-nav-btn{width:44px;height:44px;border:none;border-radius:16px;background:#fff;border:1px solid #e2e8f0;color:#0f172a;font-size:18px;font-weight:1000;cursor:pointer;box-shadow:0 8px 18px rgba(15,23,42,.05);}
+.calendar-today-btn{height:44px;border:none;border-radius:16px;background:#0f172a;border:1px solid #0f172a;color:#fff;font-size:13px;font-weight:1000;cursor:pointer;box-shadow:0 10px 22px rgba(15,23,42,.13);padding:0 14px;white-space:nowrap;}
 .calendar-mode-tabs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;}
 .calendar-mode-btn{border:none;border-radius:16px;padding:11px 10px;background:#f8fafc;border:1px solid #e2e8f0;color:#475569;font-weight:1000;cursor:pointer;}
 .calendar-mode-btn.active{background:#0f172a;color:#fff;border-color:#0f172a;box-shadow:0 12px 24px rgba(15,23,42,.14);}
@@ -5393,8 +5397,8 @@ nav.bottom-nav{
 .calendar-week-card{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 16px;border-radius:22px;background:#fff;border:1px solid #e2e8f0;box-shadow:var(--shadow);cursor:pointer;}
 .calendar-week-card.today{border-color:#93c5fd;background:#eff6ff;}
 .calendar-week-card.selected{border-color:#0f172a;background:#0f172a;color:#fff;}
-.calendar-week-date{display:flex;flex-direction:column;gap:4px;min-width:78px;}
-.calendar-week-date strong{font-size:16px;line-height:1;}
+.calendar-week-date{display:flex;flex-direction:column;gap:4px;min-width:126px;}
+.calendar-week-date strong{font-size:16px;line-height:1.2;}
 .calendar-week-date span{font-size:12px;color:#64748b;font-weight:900;}
 .calendar-week-card.selected .calendar-week-date span{color:rgba(255,255,255,.72);}
 .calendar-week-summary{min-width:0;flex:1;text-align:right;font-size:13px;font-weight:900;color:#475569;line-height:1.5;}
@@ -5418,7 +5422,7 @@ nav.bottom-nav{
 .calendar-day-modal-footer{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
 .calendar-hidden-date-picker{position:absolute;opacity:0;pointer-events:none;width:1px;height:1px;}
 @keyframes calendarFocusPulse{0%{transform:scale(1);box-shadow:0 0 0 0 rgba(37,99,235,0)}40%{transform:scale(1.08);box-shadow:0 0 0 7px rgba(37,99,235,.18)}100%{transform:scale(1);box-shadow:0 0 0 0 rgba(37,99,235,0)}}
-@media (max-width:390px){.calendar-date-cell{min-height:58px;border-radius:16px;padding:7px 5px}.calendar-nav-row{gap:6px}.calendar-nav-btn{width:40px}.calendar-day-modal-head{padding-left:12px;padding-right:12px}.calendar-day-modal-body{padding-left:12px;padding-right:12px}.calendar-day-modal-footer{grid-template-columns:1fr}}
+@media (max-width:390px){.calendar-date-cell{min-height:58px;border-radius:16px;padding:7px 5px}.calendar-nav-row{gap:6px}.calendar-nav-btn{width:40px}.calendar-today-btn{height:40px;padding:0 11px;font-size:12px}.calendar-nav-title{padding:10px 8px;font-size:14px}.calendar-day-modal-head{padding-left:12px;padding-right:12px}.calendar-day-modal-body{padding-left:12px;padding-right:12px}.calendar-day-modal-footer{grid-template-columns:1fr}}
 
 /* ===== 캘린더 팝업/하단 목록 UX 보정 ===== */
 .calendar-selected-section{display:none!important;}
@@ -8054,7 +8058,6 @@ nav.bottom-nav{
  </div>
  <div class="all-menu-grid">
  <button class="all-menu-card ai-entry-card" type="button" data-view-link="ai"><span class="all-icon">🤖</span><strong>AI 생활 도우미</strong><span>궁금한 정보를 빠르게 찾아드려요.</span></button>
- <button class="all-menu-card" type="button" data-view-link="community"><span class="all-icon">💬</span><strong>커뮤니티</strong><span>게시글과 댓글로 입주민 정보를 나눕니다.</span></button>
  <button class="all-menu-card" type="button" data-view-link="map"><span class="all-icon">🗺️</span><strong>지도</strong><span>주변 혜택 매장을 지도에서 확인합니다.</span></button>
  <button class="all-menu-card" type="button" data-view-link="calendar"><span class="all-icon">📅</span><strong>캘린더 예약</strong><span>가고 싶은 혜택 매장을 예약하고 알림으로 편하게 이용하세요.</span></button>
  <button class="all-menu-card" type="button" data-view-link="notices"><span class="all-icon">📢</span><strong>공지사항</strong><span>관리자가 등록한 안내를 확인합니다.</span></button>
@@ -8094,7 +8097,6 @@ nav.bottom-nav{
  <button class="ai-quick-btn" type="button" data-ai-question="혜택 매장 추천해줘">혜택 매장 추천해줘</button>
  <button class="ai-quick-btn" type="button" data-ai-question="지도에서 볼 수 있는 혜택 알려줘">지도 혜택 알려줘</button>
  <button class="ai-quick-btn" type="button" data-ai-question="인기 매장 TOP 5 알려줘">인기 매장 알려줘</button>
- <button class="ai-quick-btn" type="button" data-ai-question="커뮤니티 메뉴는 어떻게 들어가?">커뮤니티 메뉴는?</button>
  <button class="ai-quick-btn" type="button" data-ai-question="공지사항은 어디서 봐?">공지사항 위치</button>
  </div>
  <div class="ai-busy-note" id="aiBusyNote">답변을 준비하는 동안 새 질문은 잠시 멈춰둘게요.</div>
@@ -8102,7 +8104,7 @@ nav.bottom-nav{
  <div class="ai-message bot"><div class="ai-bubble"> 지금 상황에 맞춰 먼저 도와드릴게요 😊
 
 👉 시간대에 맞는 혜택 매장을 먼저 골라드릴 수 있어요.
-👉 최근 공지나 커뮤니티 위치도 바로 안내해드릴 수 있어요.
+👉 최근 공지와 혜택 매장 위치도 바로 안내해드릴 수 있어요.
 
 <div class="ai-dialog-action-row" aria-label="AI 선제 추천 버튼"><button class="ai-dialog-action-btn" type="button" data-ai-dialog-question="지금 상황에 맞는 혜택 매장 TOP3 추천해줘">지금 추천 TOP3</button><button class="ai-dialog-action-btn" type="button" data-ai-dialog-question="아이와 함께 가기 좋은 곳 추천해줘">아이와 함께</button><button class="ai-dialog-action-btn" type="button" data-ai-dialog-question="가까운 혜택 매장 알려줘">가까운 곳</button><button class="ai-dialog-action-btn" type="button" data-ai-dialog-question="최근 공지 알려줘">최근 공지</button></div><small>필요한 버튼을 누르면 지금 상황에 맞춰 이어서 안내해드릴게요.</small></div></div>
  </div>
@@ -8111,7 +8113,7 @@ nav.bottom-nav{
  <div class="ai-voice-status" id="aiVoiceStatus">버튼을 누르면 브라우저 마이크 권한 요청이 표시됩니다.</div>
  </div>
  <div class="ai-input-row">
- <input id="aiQuestionInput" type="text" maxlength="120" placeholder="예: 최근 공지 알려줘, 커뮤니티 메뉴는 어떻게 들어가?" />
+ <input id="aiQuestionInput" type="text" maxlength="120" placeholder="예: 최근 공지 알려줘, 혜택 매장 추천해줘" />
  <button class="btn btn-primary" type="button" id="aiAskBtn">질문</button>
  </div>
  </div>
@@ -8135,8 +8137,10 @@ nav.bottom-nav{
  </div>
  <div class="calendar-nav-row">
  <button class="calendar-nav-btn" type="button" id="calendarPrevBtn" aria-label="이전">‹</button>
- <button class="calendar-nav-title" type="button" id="calendarTitleBtn">-</button>
+ <button class="calendar-nav-title" type="button" id="calendarTitleBtn" aria-label="날짜 선택">-</button>
  <button class="calendar-nav-btn" type="button" id="calendarNextBtn" aria-label="다음">›</button>
+ <button class="calendar-today-btn" type="button" id="calendarTodayBtn">오늘</button>
+ <input class="calendar-hidden-date-picker" type="date" id="calendarMainDatePicker" aria-label="캘린더 날짜 선택" />
  </div>
  <div class="calendar-mode-tabs" role="tablist" aria-label="캘린더 보기 전환">
  <button class="calendar-mode-btn active" type="button" data-calendar-mode="month">월간</button>
@@ -12571,14 +12575,14 @@ function getShareTrackingParams(){
  if(mode === 'week'){
  const start = startOfWeek(d);
  const end = addDays(start, 6);
- return `${start.getFullYear()}. ${pad2(start.getMonth()+1)}. ${pad2(start.getDate())} ~ ${pad2(end.getMonth()+1)}. ${pad2(end.getDate())}`;
+ return `${start.getFullYear()}. ${pad2(start.getMonth()+1)}. ${pad2(start.getDate())} ~ ${end.getFullYear()}. ${pad2(end.getMonth()+1)}. ${pad2(end.getDate())}`;
  }
  return formatCalendarDayTitle(dateKeyFromDate(d));
  }
  function formatCalendarDayTitle(dateKey){
  const d = dateFromKey(dateKey);
  const dayNames = ['일','월','화','수','목','금','토'];
- return `${pad2(d.getMonth()+1)}. ${pad2(d.getDate())}. (${dayNames[d.getDay()]})`;
+ return `${d.getFullYear()}. ${pad2(d.getMonth()+1)}. ${pad2(d.getDate())}. (${dayNames[d.getDay()]})`;
  }
  function getReservationVisitDateKey(item={}){
  const visitAt = toDateFromTimestamp(item.visitAt);
@@ -12678,7 +12682,7 @@ function getShareTrackingParams(){
  const items = getReservationsByDateKey(key);
  const first = items[0];
  const classes = ['calendar-week-card', key === todayKey ? 'today' : '', key === selected ? 'selected' : ''].filter(Boolean).join(' ');
- cards.push(`<button class="${classes}" type="button" data-calendar-date="${escapeAttr(key)}"><span class="calendar-week-date"><strong>${formatCalendarDayTitle(key)}</strong><span>${key}</span></span><span class="calendar-week-summary">${items.length ? `${items.length}건 · ${escapeHtml(first.storeName)}` : '예약 없음'}</span></button>`);
+ cards.push(`<button class="${classes}" type="button" data-calendar-date="${escapeAttr(key)}"><span class="calendar-week-date"><strong>${formatCalendarDayTitle(key)}</strong></span><span class="calendar-week-summary">${items.length ? `${items.length}건 · ${escapeHtml(first.storeName)}` : '예약 없음'}</span></button>`);
  }
  board.innerHTML = `<div class="calendar-week-grid">${cards.join('')}</div>`;
  }
@@ -12724,7 +12728,22 @@ function getShareTrackingParams(){
  calendarUiState.cursorDate = dateFromKey(calendarUiState.selectedDateKey || dateKeyFromDate(new Date()));
  renderCalendarReservations();
  }
+ function blurCalendarActiveElement(){
+ try{
+ const active = document.activeElement;
+ if(active && typeof active.blur === 'function') active.blur();
+ }catch(error){}
+ }
+ function preserveCalendarScroll(callback){
+ const x = window.scrollX || 0;
+ const y = window.scrollY || 0;
+ blurCalendarActiveElement();
+ callback?.();
+ requestAnimationFrame(() => window.scrollTo(x, y));
+ setTimeout(() => window.scrollTo(x, y), 40);
+ }
  function moveCalendarView(offset){
+ preserveCalendarScroll(() => {
  ensureCalendarSelectedDate();
  const d = cloneDateOnly(calendarUiState.cursorDate);
  if(calendarUiState.mode === 'month') d.setMonth(d.getMonth() + offset);
@@ -12733,20 +12752,41 @@ function getShareTrackingParams(){
  calendarUiState.cursorDate = d;
  calendarUiState.selectedDateKey = dateKeyFromDate(d);
  renderCalendarReservations();
- focusCalendarDate(calendarUiState.selectedDateKey);
+ focusCalendarDate(calendarUiState.selectedDateKey, { scroll:false });
+ });
  }
  function goCalendarToday(){
+ preserveCalendarScroll(() => {
  const today = cloneDateOnly(new Date());
  calendarUiState.cursorDate = today;
  calendarUiState.selectedDateKey = dateKeyFromDate(today);
  renderCalendarReservations();
- focusCalendarDate(calendarUiState.selectedDateKey);
+ focusCalendarDate(calendarUiState.selectedDateKey, { scroll:false });
+ });
  }
- function focusCalendarDate(dateKey){
+ function openCalendarMainDatePicker(){
+ const picker = qs('#calendarMainDatePicker');
+ if(!picker) return;
+ blurCalendarActiveElement();
+ picker.value = calendarUiState.selectedDateKey || dateKeyFromDate(calendarUiState.cursorDate || new Date());
+ if(typeof picker.showPicker === 'function') picker.showPicker();
+ else picker.click();
+ }
+ function moveCalendarToDate(dateKey){
+ if(!dateKey) return;
+ preserveCalendarScroll(() => {
+ const d = dateFromKey(dateKey);
+ calendarUiState.cursorDate = d;
+ calendarUiState.selectedDateKey = dateKeyFromDate(d);
+ renderCalendarReservations();
+ focusCalendarDate(calendarUiState.selectedDateKey, { scroll:false });
+ });
+ }
+ function focusCalendarDate(dateKey, options={}){
  setTimeout(() => {
  const el = document.querySelector(`[data-calendar-date="${CSS.escape(dateKey)}"]`) || document.querySelector(`[data-calendar-date-card="${CSS.escape(dateKey)}"]`);
  if(!el) return;
- el.scrollIntoView({ behavior:'smooth', block:'center' });
+ if(options.scroll !== false) el.scrollIntoView({ behavior:'smooth', block:'center' });
  el.classList.add('focus-highlight');
  setTimeout(() => el.classList.remove('focus-highlight'), 1100);
  }, 80);
@@ -12770,7 +12810,7 @@ function getShareTrackingParams(){
  
 /* ===== 캘린더 공통 팝업 날짜 제목: 연도 포함 ===== */
 function formatCalendarDayModalTitle(dateKey){
- const d = parseDateKey ? parseDateKey(dateKey) : new Date(String(dateKey || "") + "T00:00:00");
+ const d = (typeof parseDateKey === "function") ? parseDateKey(dateKey) : new Date(String(dateKey || "") + "T00:00:00");
  if (!d || Number.isNaN(d.getTime())) return String(dateKey || "");
  const days = ["일","월","화","수","목","금","토"];
  const yyyy = d.getFullYear();
@@ -13254,8 +13294,7 @@ function renderCalendarDayModal(){
  '관리사무소':['관리사무소','관리실','사무소','전화','문의'],
  '쓰레기':['쓰레기','분리수거','음식물','재활용','배출'],
  '음식물':['음식물','쓰레기','배출','분리수거'],
- '주차':['주차','방문차량','차량','등록'],
- '커뮤니티':['커뮤니티','게시판','글','댓글','문의']
+ '주차':['주차','방문차량','차량','등록']
  };
  const expanded = new Set(tokens);
  tokens.forEach(token => {
@@ -13314,7 +13353,7 @@ function renderCalendarDayModal(){
  const q = String(question || '').replace(/\s+/g, ' ').trim();
  if(/영업시간|영업\s*중|열었|닫았|오픈|마감/.test(q)) return '매장 영업시간을 확인하고 있어요.';
  if(/혜택|추천|매장|카페|식당|맛집|지도|거리|근처|가까운|TOP\s*5|탑\s*5|인기/.test(q)) return '혜택 정보를 확인하고 있어요.';
- if(/공지|공지사항|안내|커뮤니티|메뉴|어디|위치/.test(q)) return '안내 정보를 확인하고 있어요.';
+ if(/공지|공지사항|안내|메뉴|어디|위치/.test(q)) return '안내 정보를 확인하고 있어요.';
  return '답변을 준비하고 있어요.';
  }
 
@@ -14911,7 +14950,7 @@ function buildAiEnhancedAnswerHtml(finalText='', question=''){
 
  /* ===== AI 응답 중 전체 입력 경로 잠금 ===== */
  let aiAssistantBusy = false;
- const AI_QUESTION_PLACEHOLDER = '예: 최근 공지 알려줘, 커뮤니티 메뉴는 어떻게 들어가?';
+ const AI_QUESTION_PLACEHOLDER = '예: 최근 공지 알려줘, 혜택 매장 추천해줘';
 
  function setAiControlDisabled(selector, disabled){
  qsa(selector).forEach((el) => {
@@ -15418,7 +15457,9 @@ async function askAiAssistant(rawQuestion=''){
  qs('#calendarRefreshBtn')?.addEventListener('click', renderCalendarReservations);
  qs('#calendarPrevBtn')?.addEventListener('click', () => moveCalendarView(-1));
  qs('#calendarNextBtn')?.addEventListener('click', () => moveCalendarView(1));
- qs('#calendarTitleBtn')?.addEventListener('click', goCalendarToday);
+ qs('#calendarTitleBtn')?.addEventListener('click', openCalendarMainDatePicker);
+ qs('#calendarTodayBtn')?.addEventListener('click', goCalendarToday);
+ qs('#calendarMainDatePicker')?.addEventListener('change', (event) => moveCalendarToDate(event.target.value));
  qsa('[data-calendar-mode]').forEach(btn => btn.addEventListener('click', () => changeCalendarMode(btn.dataset.calendarMode)));
  qs('#calendarDayPrevBtn')?.addEventListener('click', () => moveCalendarDayModal(-1));
  qs('#calendarDayNextBtn')?.addEventListener('click', () => moveCalendarDayModal(1));
@@ -15540,7 +15581,6 @@ async function askAiAssistant(rawQuestion=''){
  <button class="gnb-menu-item" type="button" data-view-link="benefits">혜택 전체보기</button>
  <button class="gnb-menu-item" type="button" data-view-link="notices">공지사항 보기</button>
  <button class="gnb-menu-item" type="button" data-view-link="calendar">캘린더 예약</button>
- <button class="gnb-menu-item" type="button" data-view-link="community">커뮤니티</button>
  <button class="gnb-menu-item" type="button" data-view-link="top5">인기 매장 TOP 5</button>
  <button class="gnb-menu-item" type="button" data-view-link="favorite">즐겨찾기 확인</button>
  </div>
@@ -15555,7 +15595,6 @@ async function askAiAssistant(rawQuestion=''){
  <button class="gnb-menu-subitem" type="button" data-view-link="favorite">즐겨찾기</button>
  <button class="gnb-menu-subitem" type="button" data-view-link="notices">공지사항</button>
  <button class="gnb-menu-subitem" type="button" data-view-link="calendar">캘린더</button>
- <button class="gnb-menu-subitem" type="button" data-view-link="community">커뮤니티</button>
  <button class="gnb-menu-subitem" type="button" data-view-link="map">지도</button>
  <button class="gnb-menu-subitem" type="button" data-view-link="top5">TOP 5</button>
  </div>
