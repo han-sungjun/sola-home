@@ -2510,11 +2510,7 @@ body.app-role-resident [data-view="shareinsights"]{
 }
 .ai-busy .ai-busy-note{display:inline-flex;}
 
-/* AI 생활 도우미는 운영 테스트 기간 동안 최고 관리자(root)에게만 표시 */
-body:not(.app-role-root) [data-view-link="ai"],
-body:not(.app-role-root) #view-ai{
-  display:none!important;
-}
+/* AI 생활도우미 공개: 승인된 입주민/관리자 모두 접근 가능 */
 
   
 
@@ -4212,9 +4208,6 @@ function setPushStatusUi(enabled){
 
     function changeView(nextView){
       if(!nextView) return;
-      if(nextView === 'ai' && !isRootRole()){
-        return;
-      }
       if(nextView === 'shareinsights' && !isAdminRole()){
         openModalAlert('공유 인사이트는 관리자 계정에서만 확인할 수 있습니다.');
         return;
