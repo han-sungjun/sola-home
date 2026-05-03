@@ -3247,13 +3247,12 @@ html, body{overflow-x:hidden;}
         </div>
         <div class="ai-busy-note" id="aiBusyNote">답변을 준비하는 동안 새 질문은 잠시 멈춰둘게요.</div>
         <div class="ai-chat-window" id="aiChatWindow" aria-live="polite">
-          <div class="ai-message bot"><div class="ai-bubble">안녕하세요 😊
-지금 상황에 맞춰 먼저 도와드릴게요.
+          <div class="ai-message bot"><div class="ai-bubble">솔라님, 지금 상황에 맞춰 먼저 도와드릴게요 😊
 
-👉 오늘 갈 만한 혜택 매장을 추천받아보시겠어요?
+👉 시간대에 맞는 혜택 매장을 먼저 골라드릴 수 있어요.
 👉 최근 공지나 커뮤니티 위치도 바로 안내해드릴 수 있어요.
 
-<div class="ai-dialog-action-row" aria-label="AI 선제 추천 버튼"><button class="ai-dialog-action-btn" type="button" data-ai-dialog-question="지금 상황에 맞는 혜택 매장 TOP3 추천해줘">지금 추천 TOP3</button><button class="ai-dialog-action-btn" type="button" data-ai-dialog-question="아이와 함께 가기 좋은 곳 추천해줘">아이와 함께</button><button class="ai-dialog-action-btn" type="button" data-ai-dialog-question="가까운 혜택 매장 알려줘">가까운 곳</button><button class="ai-dialog-action-btn" type="button" data-ai-dialog-question="최근 공지 알려줘">최근 공지</button></div><small>개인형 비서형 AI 모드: 검색 대기보다 먼저 선택지를 제안합니다.</small></div></div>
+<div class="ai-dialog-action-row" aria-label="AI 선제 추천 버튼"><button class="ai-dialog-action-btn" type="button" data-ai-dialog-question="지금 상황에 맞는 혜택 매장 TOP3 추천해줘">지금 추천 TOP3</button><button class="ai-dialog-action-btn" type="button" data-ai-dialog-question="아이와 함께 가기 좋은 곳 추천해줘">아이와 함께</button><button class="ai-dialog-action-btn" type="button" data-ai-dialog-question="가까운 혜택 매장 알려줘">가까운 곳</button><button class="ai-dialog-action-btn" type="button" data-ai-dialog-question="최근 공지 알려줘">최근 공지</button></div><small>필요한 버튼을 누르면 지금 상황에 맞춰 이어서 안내해드릴게요.</small></div></div>
         </div>
         <div class="ai-voice-row" id="aiVoiceRow">
           <button class="ai-voice-btn" type="button" id="aiVoiceBtn">🎙 말로 질문</button>
@@ -7716,9 +7715,9 @@ function getShareTrackingParams(){
         const label = typeof btn === 'string' ? btn : (btn.label || btn.text || '추천');
         const question = typeof btn === 'string' ? btn : (btn.question || btn.value || label);
         const benefitId = typeof btn === 'object' && btn.benefitId ? ` data-ai-log-benefit-id="${escapeAttr(btn.benefitId)}"` : '';
-        return `<button class="ai-dialog-action-btn" type="button" data-ai-dialog-question="${escapeAttr(question)}" data-ai-log-source="proactive-server" data-ai-log-category="${escapeAttr(label)}"${benefitId}>${escapeHtml(label)}</button>`;
+        return `<button class="ai-dialog-action-btn" type="button" data-ai-dialog-question="${escapeAttr(question)}" data-ai-log-source="proactive-ai" data-ai-log-category="${escapeAttr(label)}"${benefitId}>${escapeHtml(label)}</button>`;
       }).join('')}</div>` : '';
-      const recHtml = recs.length ? `<div class="ai-answer-section"><div class="ai-answer-section-title"><span>서버 맞춤 추천 후보</span><small>${recs.length}개</small></div>${recs.map(item => `<div class="ai-benefit-card-auto enhanced"><div class="ai-card-top"><b>${escapeHtml(item.name || '추천 매장')}</b><span class="ai-match-score">맞춤 ${Math.min(99, Number(item.score || 0))}%</span></div><span>${escapeHtml(item.benefit || item.category || '등록된 혜택 정보를 확인해보세요.')}</span>${item.id ? `<div class="ai-card-actions"><button class="primary" type="button" data-ai-open-benefit-id="${escapeAttr(item.id)}">혜택 상세 보기</button></div>` : ''}</div>`).join('')}</div>` : '';
+      const recHtml = recs.length ? `<div class="ai-answer-section"><div class="ai-answer-section-title"><span>지금 잘 맞는 추천</span><small>${recs.length}개</small></div>${recs.map(item => `<div class="ai-benefit-card-auto enhanced"><div class="ai-card-top"><b>${escapeHtml(item.name || '추천 매장')}</b><span class="ai-match-score">맞춤 ${Math.min(99, Number(item.score || 0))}%</span></div><span>${escapeHtml(item.benefit || item.category || '등록된 혜택 정보를 확인해보세요.')}</span>${item.id ? `<div class="ai-card-actions"><button class="primary" type="button" data-ai-open-benefit-id="${escapeAttr(item.id)}">혜택 상세 보기</button></div>` : ''}</div>`).join('')}</div>` : '';
       const insightText = [insight.preference ? `관심 ${insight.preference}` : '', insight.timeLabel || '', insight.isRain ? '비오는날' : '', Number.isFinite(Number(insight.logCount)) ? `로그 ${Number(insight.logCount)}건` : ''].filter(Boolean).join(' · ');
       return `<div class="ai-answer ai-answer-upgrade"><div class="ai-answer-summary">${escapeHtml(message).replace(/\n/g,'<br>')}</div>${buttonHtml}${recHtml}<span class="ai-mode-pill upgraded">지금 상황에 맞는 정보를 준비했어요.</span></div>`;
     }
