@@ -35,7 +35,9 @@
  .panel{background:var(--surface);border:1px solid rgba(255,255,255,.65);box-shadow:var(--shadow);backdrop-filter:blur(18px);border-radius:var(--radius-xl);padding:18px}.notice{padding:14px 16px;border-radius:18px;background:#eff6ff;border:1px solid #bfdbfe;color:#1d4ed8;font-size:13px;line-height:1.5}.hidden{display:none!important}
  .filter-sticky{position:sticky;top:0;z-index:10;display:flex;flex-direction:column;gap:12px;padding:12px 0 14px;margin-bottom:10px;background:linear-gradient(180deg,rgba(248,250,252,1) 0%,rgba(248,250,252,1) 82%,rgba(248,250,252,.98) 100%);backdrop-filter:blur(10px)}.searchbox{display:flex;align-items:center;gap:12px;padding:16px 18px}.searchbox input{border:none;outline:none;background:transparent;flex:1;color:var(--text)}.chips{display:flex;flex-wrap:nowrap;gap:10px;padding:6px 2px 4px;overflow-x:auto;overflow-y:hidden;-webkit-overflow-scrolling:touch;scrollbar-width:none;cursor:grab;user-select:none;-webkit-user-select:none;touch-action:pan-x}.chips.expanded{max-height:none}.chips::-webkit-scrollbar{display:none}.chips.dragging{cursor:grabbing;scroll-behavior:auto}.chips.dragging .chip{pointer-events:none}.chips-toggle{display:none;text-align:center;margin-top:2px;margin-bottom:2px}.chips-toggle-btn{font-size:12px;padding:8px 14px}.chip{white-space:nowrap;border:none;border-radius:999px;padding:10px 14px;cursor:pointer;background:#fff;color:var(--muted);border:1px solid var(--line);display:inline-flex;align-items:center;gap:6px;flex:0 0 auto}.chip.active{background:var(--primary);color:#fff;font-weight:700}.chip-icon{font-size:13px;line-height:1;display:inline-flex;align-items:center}
  .section-head{display:flex;justify-content:space-between;align-items:center;margin:6px 2px 2px}.section-head h3{margin:0;font-size:18px;letter-spacing:-.03em}.section-head small{color:var(--muted)}.list{display:grid;gap:14px}.card{background:#fff;border:1px solid var(--line-soft);border-radius:24px;padding:18px;box-shadow:var(--shadow);transition:transform .15s ease;cursor:pointer}.card:hover{transform:translateY(-1px)}.card-top{display:flex;gap:12px;align-items:flex-start}.badge{min-width:72px;padding:12px 10px;border-radius:18px;text-align:center;color:#fff;font-weight:800;background:linear-gradient(135deg,var(--accent2),var(--accent));flex:0 0 auto}.badge.service{background:linear-gradient(135deg,#22c55e,#0f766e);font-size:14px}.badge.hot{background:linear-gradient(135deg,#ef4444,#f97316)}.badge.mid{background:linear-gradient(135deg,#f97316,#f59e0b)}.badge.normal{background:linear-gradient(135deg,#2563eb,#06b6d4)}.badge.low{background:linear-gradient(135deg,#64748b,#334155)}.card h4{margin:0 0 6px;font-size:18px;letter-spacing:-.03em}.meta{color:var(--muted);font-size:13px;line-height:1.45}
- .tags{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}.tag{padding:7px 10px;border-radius:999px;background:#f8fafc;border:1px solid var(--line);color:#475569;font-size:12px}.tag.rec{background:#eff6ff;border-color:#bfdbfe;color:var(--blue);font-weight:700}.actions{display:flex;gap:10px;margin-top:16px}.btn{border:none;border-radius:16px;padding:12px 14px;cursor:pointer;font-weight:700;display:inline-flex;align-items:center;justify-content:center;gap:8px}.btn.block{width:100%}.btn-primary{background:var(--primary);color:#fff}.btn-soft{background:#fff;color:var(--text);border:1px solid var(--line)}
+ .tags{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}.tag{padding:7px 10px;border-radius:999px;background:#f8fafc;border:1px solid var(--line);color:#475569;font-size:12px}.tag.rec{background:#eff6ff;border-color:#bfdbfe;color:var(--blue);font-weight:700}
+ .tag.closed-tag{background:#f1f5f9;border-color:#cbd5e1;color:#334155;font-weight:800}
+ .closed-benefit-notice{background:#f8fafc;border:1px solid #cbd5e1;color:#334155;border-radius:18px;padding:14px 16px;line-height:1.6;font-size:14px;margin:12px 0}.actions{display:flex;gap:10px;margin-top:16px}.btn{border:none;border-radius:16px;padding:12px 14px;cursor:pointer;font-weight:700;display:inline-flex;align-items:center;justify-content:center;gap:8px}.btn.block{width:100%}.btn-primary{background:var(--primary);color:#fff}.btn-soft{background:#fff;color:var(--text);border:1px solid var(--line)}
  .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
  .bottom-nav{position:fixed;left:0;right:0;bottom:0;z-index:100;width:100%;max-width:480px;margin:0 auto;display:grid;grid-template-columns:repeat(5,1fr);gap:6px;padding:10px 16px calc(14px + env(safe-area-inset-bottom,0px));border-radius:26px 26px 0 0;background:rgba(15,23,42,.92);color:#cbd5e1;box-shadow:0 10px 30px rgba(15,23,42,.18);backdrop-filter:blur(18px)}.nav-btn{border:none;background:transparent;color:inherit;border-radius:18px;padding:10px 0 12px;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;transition:transform .18s ease, background-color .18s ease, color .18s ease}.nav-btn .nav-icon{font-size:18px;line-height:1;display:block;transition:transform .22s ease, filter .22s ease, opacity .18s ease}.nav-btn .nav-label{font-size:14px;font-weight:700;letter-spacing:-.02em}.nav-btn:hover .nav-icon{transform:translateY(-1px)}.nav-btn.active{background:rgba(255,255,255,.12);color:#fff;transform:translateY(-1px)}.nav-btn.active .nav-icon{animation:navPop .25s ease}.nav-btn:active{transform:scale(.98)}@keyframes navPop{0%{transform:scale(.85)}60%{transform:scale(1.12)}100%{transform:scale(1)}}.empty,.loading{text-align:center;color:var(--muted);padding:24px 14px}
  dialog{width:min(440px,calc(100% - 20px));border:none;border-radius:28px;padding:0;color:var(--text);background:#fff;box-shadow:0 30px 60px rgba(15,23,42,.24)}dialog::backdrop{background:rgba(15,23,42,.42);backdrop-filter:blur(4px)}.modal-head{display:flex;justify-content:space-between;align-items:center;padding:18px 18px 8px}.modal-body{padding:0 18px 18px}.close-btn{width:40px;height:40px;border:none;border-radius:14px;background:#f8fafc;cursor:pointer}.pill{display:inline-flex;align-items:center;gap:8px;border-radius:999px;padding:8px 12px;background:#f8fafc;color:#475569;border:1px solid var(--line)}
@@ -10641,6 +10643,10 @@ async function refreshPushStatus(){
  lng:Number.isFinite(lng)?lng:null,
  service:!!item.service||String(item.discountText).trim()==='서비스',
  visible:item.visible!==false,
+ status:item.status || (item.closed === true ? 'closed' : (item.visible === false ? 'hidden' : 'active')),
+ closed:!!item.closed || item.status === 'closed',
+ closedAt:item.closedAt||'',
+ closedReason:item.closedReason||'',
  recommended:!!item.recommended,
  createdAt:item.createdAt||null,
  updatedAt:item.updatedAt||null
@@ -12196,7 +12202,8 @@ function getShareTrackingParams(){
  });
  renderHotNowStores();
  }
- const getVisibleBenefits=()=>state.benefits.filter(v=>v.visible!==false);
+ const isBenefitClosed=(item={})=>item.closed===true || item.status==='closed';
+ const getVisibleBenefits=()=>state.benefits.filter(v=>v.visible!==false && !isBenefitClosed(v));
  const getCategoryCounts=()=> {
  const counts = {};
  getVisibleBenefits().forEach(v => {
@@ -13007,10 +13014,14 @@ function renderCalendarDayModal(){
  function openDetail(item, options = {}){
  const { skipUrlUpdate = false } = options;
  if(!skipUrlUpdate && item?.id) updateCleanDeepLinkUrl('benefit', item.id);
+ const closedBenefit = isBenefitClosed(item);
+ if(!closedBenefit){
  increaseStat(item.id, item.name, 'detailViewCount');
  logBenefitEvent(item.id, 'detail_view');
+ }
  const isFav=getFavorites().includes(item.id);
- qs('#modalBody').innerHTML=`<div class="${getBadgeClass(item)}" style="display:inline-block;min-width:auto;padding:12px 16px;">${item.discountText}</div><h3 style="margin:12px 0 6px;font-size:26px;letter-spacing:-.04em;">${item.name}</h3><div class="tags" style="margin-top:0;margin-bottom:10px;">${item.recommended?'<span class="tag rec">추천 혜택</span>':''}<span class="tag">${item.category}</span>${benefitDateTag(item)}</div><div style="display:grid;gap:10px;margin:16px 0;"><div class="panel"><strong style="display:block;margin-bottom:6px;font-size:13px;color:var(--muted);">혜택 조건</strong>${item.condition}</div>${locationPanelHtml(item)}${benefitExtraInfoHtml(item)}<div class="panel"><strong style="display:block;margin-bottom:6px;font-size:13px;color:var(--muted);">전화번호</strong>${item.phone || '등록된 전화번호가 없습니다.'}</div>${benefitDetailDateHtml(item)}</div>${residentReactionHtml(item)}<div class="grid-2"><a class="btn btn-primary block" id="callBtn" href="tel:${item.phone}">전화하기</a><button class="btn btn-soft block" id="modalFavBtn">${isFav?'★ 즐겨찾기 해제':'☆ 즐겨찾기 추가'}</button></div><button class="btn btn-soft block" id="openCalendarReservationBtn" style="margin-top:10px;">📅 방문 알림 추가</button>${shareActionsHtml('benefit')}`;
+ const closedNotice = closedBenefit ? `<div class="closed-benefit-notice"><strong>폐점으로 확인된 매장입니다.</strong><br>현재 이 혜택은 이용이 어렵습니다.${item.closedAt ? '<br>확인일: '+item.closedAt : ''}${item.closedReason ? '<br>메모: '+item.closedReason : ''}</div>` : '';
+ qs('#modalBody').innerHTML=`<div class="${getBadgeClass(item)}" style="display:inline-block;min-width:auto;padding:12px 16px;">${closedBenefit?'폐점':item.discountText}</div><h3 style="margin:12px 0 6px;font-size:26px;letter-spacing:-.04em;">${item.name}</h3><div class="tags" style="margin-top:0;margin-bottom:10px;">${closedBenefit?'<span class="tag closed-tag">폐점</span>':(item.recommended?'<span class="tag rec">추천 혜택</span>':'')}<span class="tag">${item.category}</span>${benefitDateTag(item)}</div>${closedNotice}<div style="display:grid;gap:10px;margin:16px 0;"><div class="panel"><strong style="display:block;margin-bottom:6px;font-size:13px;color:var(--muted);">혜택 조건</strong>${closedBenefit?'현재 폐점으로 확인되어 혜택 이용이 어렵습니다.':item.condition}</div>${locationPanelHtml(item)}${benefitExtraInfoHtml(item)}<div class="panel"><strong style="display:block;margin-bottom:6px;font-size:13px;color:var(--muted);">전화번호</strong>${closedBenefit?'폐점 매장입니다.':(item.phone || '등록된 전화번호가 없습니다.')}</div>${benefitDetailDateHtml(item)}</div>${closedBenefit?'':residentReactionHtml(item)}<div class="grid-2"><a class="btn btn-primary block" id="callBtn" href="tel:${item.phone}" ${closedBenefit?'aria-disabled="true" tabindex="-1" style="pointer-events:none;opacity:.45;"':''}>전화하기</a><button class="btn btn-soft block" id="modalFavBtn">${isFav?'★ 즐겨찾기 해제':'☆ 즐겨찾기 추가'}</button></div>${closedBenefit?'':'<button class="btn btn-soft block" id="openCalendarReservationBtn" style="margin-top:10px;">📅 방문 알림 추가</button>'}${shareActionsHtml('benefit')}`;
  const modal=qs('#detailModal');
  if(modal.open)modal.close();
  modal.showModal();
@@ -13018,9 +13029,9 @@ function renderCalendarDayModal(){
  qs('#benefitCopyShareBtn')?.addEventListener('click', () => copyShareUrl('benefit', item));
  qs('#benefitKakaoShareBtn')?.addEventListener('click', () => shareKakaoItem('benefit', item));
  qs('#benefitQrShareBtn')?.addEventListener('click', () => showQrCode('benefit', item));
- bindResidentReactionButtons(item);
- updateDistanceText(item);
- setTimeout(() => renderDetailMiniMap(item), 120);
+ if(!closedBenefit) bindResidentReactionButtons(item);
+ if(!closedBenefit) updateDistanceText(item);
+ if(!closedBenefit) setTimeout(() => renderDetailMiniMap(item), 120);
  qs('#modalFavBtn').onclick=async ()=>{
  const isFavorite = await toggleFavorite(item.id, item.name);
  const btn = qs('#modalFavBtn');
