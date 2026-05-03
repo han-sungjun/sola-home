@@ -5101,8 +5101,7 @@ async function refreshPushStatus(){
         await setDoc(reactionRef, { benefitId, uid, type: reactionType, createdAt: serverTimestamp() }, { merge:true });
         await setDoc(doc(db, BENEFIT_STATS_COLLECTION, benefitId), {benefitId, [statField]: increment(1), popularScore: increment(points), updatedAt: serverTimestamp()}, { merge:true });
         await recordResidentActivity(reactionType, points, benefitId);
-        await openModalAlert(`${labelMap[reactionType] || '반응'}이 반영되었습니다.
-인기점수에 바로 반영됩니다.`);
+        await openModalAlert(`${labelMap[reactionType] || '반응'}이 반영되었습니다.\n인기점수에 바로 반영됩니다.`);
       }catch(error){console.warn('입주민 반응 저장 실패', error); await openModalAlert('반응 저장 중 오류가 발생했습니다.');}
     }
     function residentReactionHtml(item = {}){ if(!item?.id) return ''; return `<div class="reaction-help">🔥 반응을 남기면 이 혜택의 인기 랭킹이 올라갑니다.</div><div class="reaction-box" data-benefit-id="${escapeHtml(item.id)}"><button type="button" class="reaction-btn" data-reaction="like">👍 좋아요</button><button type="button" class="reaction-btn" data-reaction="recommend">❤️ 추천</button><button type="button" class="reaction-btn" data-reaction="hot">🔥 HOT</button></div>`; }
@@ -6080,8 +6079,7 @@ function getShareTrackingParams(){
         return [
           body,
           '더운정 마이힐스에서 자세히 보기'
-        ].join('
-');
+        ].join('\n');
       }
 
       const benefitLine =
@@ -6107,8 +6105,7 @@ function getShareTrackingParams(){
 
       lines.push('더운정 마이힐스 입주민 전용 혜택');
 
-      return lines.join('
-');
+      return lines.join('\n');
     }
 
     async function shareKakaoItem(type, item = {}){
@@ -7601,17 +7598,14 @@ function getShareTrackingParams(){
     async function loadCommunityComments(postId){ const list = qs('#communityCommentList'); if(!list) return; list.innerHTML = '<div class="loading">댓글을 불러오는 중입니다.</div>'; try{ const snap = await getDocs(query(collection(db, COMMUNITY_POSTS_COLLECTION, postId, 'comments'), orderBy('createdAt','asc'), limit(100))); if(snap.empty){ list.innerHTML = '<div class="notice-empty">아직 댓글이 없습니다.</div>'; return; } list.innerHTML = ''; for(const d of snap.docs){ const c={ id:d.id, ...d.data() }; const status = c.status || 'active'; const el=document.createElement('div'); el.className='comment-card'; el.dataset.commentId = d.id; if(status === 'deleted' || status === 'hidden'){ const message = status === 'hidden' ? '관리자에 의해 가려진 댓글입니다.' : '삭제된 댓글입니다.'; el.innerHTML = `${communityActionsHtml('comment', c, { postId, commentId:d.id, type:'comment' })}<div class="community-deleted-placeholder"><span class="reason">🫥 ${message}</span></div>`; }else{ await recordCommunityView('comment', postId, d.id); const liked = await isCommentLiked(postId, d.id); el.innerHTML=`${communityActionsHtml('comment', c, { postId, commentId:d.id, type:'comment' })}${communityAuthorHtml(c, { postAuthorUid:communityState.currentPostAuthorUid })}<p class="comment-content">${escapeHtml(c.content || '')}</p><div class="comment-bottom">${commentMetaHtml(c, liked)}</div>`; } bindCommunityActionButtons(el, c, { postId, commentId:d.id, type:'comment' }); list.appendChild(el); } }catch(error){ console.error(error); list.innerHTML = '<div class="notice-empty">댓글을 불러오지 못했습니다.</div>'; } }
     async function submitCommunityComment(){ const user = auth.currentUser; if(!user || !communityState.currentPostId) return openModalAlert('로그인이 필요합니다.'); const content = qs('#communityCommentContent')?.value?.trim(); if(!content) return openModalAlert('댓글을 입력해주세요.'); const postId = communityState.currentPostId; try{ await addDoc(collection(db, COMMUNITY_POSTS_COLLECTION, postId, 'comments'), { content, authorUid:user.uid, ...getCurrentCommunityAuthorProfile(), status:'active', likeCount:0, viewCount:0, createdAt:serverTimestamp(), updatedAt:serverTimestamp() }); await updateDoc(doc(db, COMMUNITY_POSTS_COLLECTION, postId), { commentCount: increment(1), updatedAt: serverTimestamp() }); qs('#communityCommentContent').value = ''; await loadCommunityComments(postId); }catch(error){ console.error(error); openModalAlert('댓글 등록 중 오류가 발생했습니다.'); } }
     function editCommunityCommentInline(postId, commentId){ const card = qs(`.comment-card[data-comment-id="${CSS.escape(commentId)}"]`); if(!card) return; const p = card.querySelector('.comment-content'); if(!p) return; const current = p.textContent || ''; p.outerHTML = `<div class="comment-edit-box"><textarea maxlength="1000">${escapeHtml(current)}</textarea><div class="comment-edit-actions"><button class="btn btn-soft" type="button" data-comment-edit-cancel>취소</button><button class="btn btn-primary" type="button" data-comment-edit-save>저장</button></div></div>`; const box = card.querySelector('.comment-edit-box'); const textarea = box.querySelector('textarea'); textarea.focus(); textarea.setSelectionRange(textarea.value.length, textarea.value.length); box.querySelector('[data-comment-edit-cancel]')?.addEventListener('click', () => loadCommunityComments(postId)); box.querySelector('[data-comment-edit-save]')?.addEventListener('click', async () => { const value = textarea.value.trim(); if(!value) return openModalAlert('댓글 내용을 입력해주세요.'); try{ await updateDoc(doc(db, COMMUNITY_POSTS_COLLECTION, postId, 'comments', commentId), { content:value, editedAt:serverTimestamp(), updatedAt:serverTimestamp() }); await loadCommunityComments(postId); openModalAlert('댓글이 수정되었습니다.'); }catch(error){ console.error(error); openModalAlert('댓글 수정 중 오류가 발생했습니다.'); } }); }
-    async function deleteCommunityPost(postId){ const ok = await openModalConfirm('게시글을 삭제하시겠습니까?
-삭제된 게시글은 휴지통 상태로 보관되며 복구할 수 있습니다.', null, '게시글 삭제', '삭제', '취소'); if(!ok) return; try{ await updateDoc(doc(db, COMMUNITY_POSTS_COLLECTION, postId), { status:'deleted', deletedAt:serverTimestamp(), deletedBy:auth.currentUser?.uid || null, deletedByRole:isCommunityAdmin()?'admin':'author', updatedAt:serverTimestamp() }); closeDialogSafe(qs('#communityDetailModal')); await loadCommunityPosts(communityState.category || '전체', true); openModalAlert('게시글이 삭제되었습니다.'); }catch(error){ console.error(error); openModalAlert('게시글 삭제 권한이 없거나 처리 중 오류가 발생했습니다.'); } }
+    async function deleteCommunityPost(postId){ const ok = await openModalConfirm('게시글을 삭제하시겠습니까?\n삭제된 게시글은 휴지통 상태로 보관되며 복구할 수 있습니다.', null, '게시글 삭제', '삭제', '취소'); if(!ok) return; try{ await updateDoc(doc(db, COMMUNITY_POSTS_COLLECTION, postId), { status:'deleted', deletedAt:serverTimestamp(), deletedBy:auth.currentUser?.uid || null, deletedByRole:isCommunityAdmin()?'admin':'author', updatedAt:serverTimestamp() }); closeDialogSafe(qs('#communityDetailModal')); await loadCommunityPosts(communityState.category || '전체', true); openModalAlert('게시글이 삭제되었습니다.'); }catch(error){ console.error(error); openModalAlert('게시글 삭제 권한이 없거나 처리 중 오류가 발생했습니다.'); } }
     async function blindCommunityPost(postId){ if(!isCommunityAdmin()) return openModalAlert('관리자만 블라인드 처리할 수 있습니다.'); const ok = await openModalConfirm('게시글을 블라인드 처리하시겠습니까?', null, '게시글 블라인드', '블라인드', '취소'); if(!ok) return; try{ await updateDoc(doc(db, COMMUNITY_POSTS_COLLECTION, postId), { status:'hidden', hiddenAt:serverTimestamp(), hiddenBy:auth.currentUser?.uid || null, updatedAt:serverTimestamp() }); closeDialogSafe(qs('#communityDetailModal')); await loadCommunityPosts(communityState.category || '전체', true); openModalAlert('게시글이 블라인드 처리되었습니다.'); }catch(error){ console.error(error); openModalAlert('블라인드 처리 중 오류가 발생했습니다.'); } }
     async function restoreCommunityPost(postId){ const ok = await openModalConfirm('게시글을 복구하시겠습니까?', null, '게시글 복구', '복구', '취소'); if(!ok) return; try{ await updateDoc(doc(db, COMMUNITY_POSTS_COLLECTION, postId), { status:'active', restoredAt:serverTimestamp(), restoredBy:auth.currentUser?.uid || null, updatedAt:serverTimestamp() }); await loadCommunityPosts(communityState.category || '전체', true); openModalAlert('게시글이 복구되었습니다.'); }catch(error){ console.error(error); openModalAlert('게시글 복구 중 오류가 발생했습니다.'); } }
-    async function deleteCommunityComment(postId, commentId){ const ok = await openModalConfirm('댓글을 삭제하시겠습니까?
-댓글 자리에는 “삭제된 댓글입니다.”가 표시됩니다.', null, '댓글 삭제', '삭제', '취소'); if(!ok) return; try{ const ref = doc(db, COMMUNITY_POSTS_COLLECTION, postId, 'comments', commentId); const snap = await getDoc(ref); const wasActive = snap.exists() && (snap.data().status || 'active') === 'active'; await updateDoc(ref, { status:'deleted', deletedAt:serverTimestamp(), deletedBy:auth.currentUser?.uid || null, deletedByRole:isCommunityAdmin()?'admin':'author', updatedAt:serverTimestamp() }); if(wasActive) await updateDoc(doc(db, COMMUNITY_POSTS_COLLECTION, postId), { commentCount: increment(-1), updatedAt:serverTimestamp() }).catch(()=>{}); await loadCommunityComments(postId); openModalAlert('댓글이 삭제되었습니다.'); }catch(error){ console.error(error); openModalAlert('댓글 삭제 권한이 없거나 처리 중 오류가 발생했습니다.'); } }
+    async function deleteCommunityComment(postId, commentId){ const ok = await openModalConfirm('댓글을 삭제하시겠습니까?\n댓글 자리에는 “삭제된 댓글입니다.”가 표시됩니다.', null, '댓글 삭제', '삭제', '취소'); if(!ok) return; try{ const ref = doc(db, COMMUNITY_POSTS_COLLECTION, postId, 'comments', commentId); const snap = await getDoc(ref); const wasActive = snap.exists() && (snap.data().status || 'active') === 'active'; await updateDoc(ref, { status:'deleted', deletedAt:serverTimestamp(), deletedBy:auth.currentUser?.uid || null, deletedByRole:isCommunityAdmin()?'admin':'author', updatedAt:serverTimestamp() }); if(wasActive) await updateDoc(doc(db, COMMUNITY_POSTS_COLLECTION, postId), { commentCount: increment(-1), updatedAt:serverTimestamp() }).catch(()=>{}); await loadCommunityComments(postId); openModalAlert('댓글이 삭제되었습니다.'); }catch(error){ console.error(error); openModalAlert('댓글 삭제 권한이 없거나 처리 중 오류가 발생했습니다.'); } }
     async function blindCommunityComment(postId, commentId){ if(!isCommunityAdmin()) return openModalAlert('관리자만 블라인드 처리할 수 있습니다.'); const ok = await openModalConfirm('댓글을 블라인드 처리하시겠습니까?', null, '댓글 블라인드', '블라인드', '취소'); if(!ok) return; try{ const ref = doc(db, COMMUNITY_POSTS_COLLECTION, postId, 'comments', commentId); const snap = await getDoc(ref); const wasActive = snap.exists() && (snap.data().status || 'active') === 'active'; await updateDoc(ref, { status:'hidden', hiddenAt:serverTimestamp(), hiddenBy:auth.currentUser?.uid || null, updatedAt:serverTimestamp() }); if(wasActive) await updateDoc(doc(db, COMMUNITY_POSTS_COLLECTION, postId), { commentCount: increment(-1), updatedAt:serverTimestamp() }).catch(()=>{}); await loadCommunityComments(postId); openModalAlert('댓글이 블라인드 처리되었습니다.'); }catch(error){ console.error(error); openModalAlert('댓글 블라인드 처리 중 오류가 발생했습니다.'); } }
     async function restoreCommunityComment(postId, commentId){ const ok = await openModalConfirm('댓글을 복구하시겠습니까?', null, '댓글 복구', '복구', '취소'); if(!ok) return; try{ const ref = doc(db, COMMUNITY_POSTS_COLLECTION, postId, 'comments', commentId); const snap = await getDoc(ref); const wasInactive = snap.exists() && (snap.data().status || 'active') !== 'active'; await updateDoc(ref, { status:'active', restoredAt:serverTimestamp(), restoredBy:auth.currentUser?.uid || null, updatedAt:serverTimestamp() }); if(wasInactive) await updateDoc(doc(db, COMMUNITY_POSTS_COLLECTION, postId), { commentCount: increment(1), updatedAt:serverTimestamp() }).catch(()=>{}); await loadCommunityComments(postId); openModalAlert('댓글이 복구되었습니다.'); }catch(error){ console.error(error); openModalAlert('댓글 복구 중 오류가 발생했습니다.'); } }
     function openCommunityReportModal(targetType, postId, commentId=null, targetPreview=''){ const user = auth.currentUser; if(!user) return openModalAlert('로그인이 필요합니다.'); communityState.reportTarget = { targetType, postId, commentId, targetPreview:String(targetPreview||'').slice(0,80) }; communityState.reportReason = '욕설/비방'; qsa('#communityReportReasons .community-report-reason').forEach(btn => btn.classList.toggle('selected', btn.dataset.reportReason === communityState.reportReason)); openDialogSafe(qs('#communityReportModal')); }
-    async function submitCommunityReport(){ const user = auth.currentUser; const target = communityState.reportTarget; if(!user || !target?.postId) return openModalAlert('신고 대상 정보가 없습니다.'); const reason = communityState.reportReason || '기타'; const commentKey = target.commentId || 'post'; const reportId = `${target.targetType}_${target.postId}_${commentKey}_${user.uid}`; try{ await setDoc(doc(db, COMMUNITY_REPORTS_COLLECTION, reportId), { targetType:target.targetType, postId:target.postId, commentId:target.commentId || null, reason, reasonCode:reason, targetPreview:target.targetPreview || '', reporterUid:user.uid, reporterNickname:getCurrentNickname(), status:'pending', createdAt:serverTimestamp(), updatedAt:serverTimestamp() }); closeDialogSafe(qs('#communityReportModal')); openModalAlert('신고가 접수되었습니다.
-관리자가 확인 후 조치합니다.'); }catch(error){ console.error(error); if(String(error?.code||'').includes('permission-denied')) openModalAlert('이미 신고했거나 신고 권한이 없습니다.'); else openModalAlert('신고 접수 중 오류가 발생했습니다.'); } }
+    async function submitCommunityReport(){ const user = auth.currentUser; const target = communityState.reportTarget; if(!user || !target?.postId) return openModalAlert('신고 대상 정보가 없습니다.'); const reason = communityState.reportReason || '기타'; const commentKey = target.commentId || 'post'; const reportId = `${target.targetType}_${target.postId}_${commentKey}_${user.uid}`; try{ await setDoc(doc(db, COMMUNITY_REPORTS_COLLECTION, reportId), { targetType:target.targetType, postId:target.postId, commentId:target.commentId || null, reason, reasonCode:reason, targetPreview:target.targetPreview || '', reporterUid:user.uid, reporterNickname:getCurrentNickname(), status:'pending', createdAt:serverTimestamp(), updatedAt:serverTimestamp() }); closeDialogSafe(qs('#communityReportModal')); openModalAlert('신고가 접수되었습니다.\n관리자가 확인 후 조치합니다.'); }catch(error){ console.error(error); if(String(error?.code||'').includes('permission-denied')) openModalAlert('이미 신고했거나 신고 권한이 없습니다.'); else openModalAlert('신고 접수 중 오류가 발생했습니다.'); } }
     async function reportCommunityPost(postId){ openCommunityReportModal('post', postId, null, '게시글'); }
     async function reportCommunityComment(postId, commentId){ openCommunityReportModal('comment', postId, commentId, '댓글'); }
     qsa('#communityReportReasons .community-report-reason').forEach(btn => btn.addEventListener('click', () => { communityState.reportReason = btn.dataset.reportReason || '기타'; qsa('#communityReportReasons .community-report-reason').forEach(item => item.classList.toggle('selected', item === btn)); }));
@@ -7807,8 +7801,7 @@ function getShareTrackingParams(){
       }).join('')}</div>` : '';
       const recHtml = recs.length ? `<div class="ai-answer-section"><div class="ai-answer-section-title"><span>지금 잘 맞는 추천</span><small>${recs.length}개</small></div>${recs.map(item => `<div class="ai-benefit-card-auto enhanced"><div class="ai-card-top"><b>${escapeHtml(item.name || '추천 매장')}</b><span class="ai-match-score">맞춤 ${Math.min(99, Number(item.score || 0))}%</span></div><span>${escapeHtml(item.benefit || item.category || '등록된 혜택 정보를 확인해보세요.')}</span>${item.id ? `<div class="ai-card-actions"><button class="primary" type="button" data-ai-open-benefit-id="${escapeAttr(item.id)}">혜택 상세 보기</button></div>` : ''}</div>`).join('')}</div>` : '';
       const insightText = [insight.preference ? `관심 ${insight.preference}` : '', insight.timeLabel || '', insight.isRain ? '비오는날' : '', Number.isFinite(Number(insight.logCount)) ? `로그 ${Number(insight.logCount)}건` : ''].filter(Boolean).join(' · ');
-      return `<div class="ai-answer ai-answer-upgrade"><div class="ai-answer-summary">${escapeHtml(message).replace(/
-/g,'<br>')}</div>${buttonHtml}${recHtml}<span class="ai-mode-pill upgraded">지금 상황에 맞는 정보를 준비했어요.</span></div>`;
+      return `<div class="ai-answer ai-answer-upgrade"><div class="ai-answer-summary">${escapeHtml(message).replace(/\n/g,'<br>')}</div>${buttonHtml}${recHtml}<span class="ai-mode-pill upgraded">지금 상황에 맞는 정보를 준비했어요.</span></div>`;
     }
 
     async function logPersonalAssistantEvent(payload={}){
@@ -7977,8 +7970,7 @@ function getShareTrackingParams(){
         .slice(0, 3)
         .map(v => v.name)
         .filter(Boolean);
-      const topHint = topNames.length ? `
-오늘 많이 보는 혜택은 ${topNames.map(escapeHtml).join(' · ')} 쪽이에요.` : '';
+      const topHint = topNames.length ? `\n오늘 많이 보는 혜택은 ${topNames.map(escapeHtml).join(' · ')} 쪽이에요.` : '';
       return `안녕하세요 😊
 현재는 ${escapeHtml(timePrompt.title)}이에요.${topHint}
 
@@ -8019,8 +8011,7 @@ function getShareTrackingParams(){
 
     function extractAiDialogActions(text=''){
       const raw = String(text || '');
-      const match = raw.match(/
-*\[\[AI_DIALOG_ACTIONS:([\s\S]*?)\]\]\s*$/);
+      const match = raw.match(/\n*\[\[AI_DIALOG_ACTIONS:([\s\S]*?)\]\]\s*$/);
       if(!match) return { text: raw, actions: null };
       try{
         const actions = JSON.parse(match[1]);
@@ -8049,27 +8040,19 @@ function getShareTrackingParams(){
         .replace(/\*\*/g, '')
         .replace(/#{1,6}\s?/g, '')
         .replace(/```[\s\S]*?```/g, (m) => m.replace(/```/g, '').trim())
-        .replace(/
-{3,}/g, '
-
-');
+        .replace(/\n{3,}/g, '\n\n');
     }
 
     function formatAiStreamingText(text=''){
       const raw = cleanAiChunkText(text);
-      const lines = raw.split('
-').map(line => {
+      const lines = raw.split('\n').map(line => {
         let v = line.trim();
         if(!v) return '';
         v = v.replace(/^[-•]\s*/g, '• ');
         v = v.replace(/^(\d+)\.\s*/g, '$1. ');
         return v;
       });
-      return lines.join('
-').replace(/
-{3,}/g, '
-
-').trimStart();
+      return lines.join('\n').replace(/\n{3,}/g, '\n\n').trimStart();
     }
 
     function createAiStreamRenderer(targetBubble, question=''){
@@ -8110,8 +8093,7 @@ function getShareTrackingParams(){
               <span class="ai-stream-status-left"><span class="ai-stream-dot"></span>${isApartmentPhone ? '아파트 생활 연락처를 확인하고 있습니다' : 'AI가 답변을 작성하면서 혜택을 매칭 중입니다'}</span>
               <span>${isApartmentPhone ? '생활정보 확인 중' : (cards.length ? '추천 카드 준비 완료' : '답변 준비 중')}</span>
             </div>
-            <div class="ai-stream-text">${escapeHtml(formatted || '답변을 작성 중입니다...').replace(/
-/g,'<br>')}<span class="ai-stream-cursor"></span></div>
+            <div class="ai-stream-text">${escapeHtml(formatted || '답변을 작성 중입니다...').replace(/\n/g,'<br>')}<span class="ai-stream-cursor"></span></div>
             ${liveCards}
           </div>`;
         const win = qs('#aiChatWindow');
@@ -8807,8 +8789,7 @@ function buildAiEnhancedAnswerHtml(finalText='', question=''){
       const parsedDialog = extractAiDialogActions(finalText);
       const text = String(parsedDialog.text || '답변을 생성하지 못했습니다.');
       const cleaned = cleanAiChunkText(text).trim() || '답변을 생성하지 못했습니다.';
-      const safe = escapeHtml(cleaned).replace(/
-/g, '<br>');
+      const safe = escapeHtml(cleaned).replace(/\n/g, '<br>');
       const isApartmentPhone = isApartmentLifePhoneQuestion(question, cleaned);
       const apartmentOnlyPhoneCard = isApartmentPhone ? buildAiApartmentLifePhoneCardHtml(question, cleaned) : '';
       if(isApartmentPhone){
@@ -9292,8 +9273,7 @@ function buildAiEnhancedAnswerHtml(finalText='', question=''){
         item.distanceText ? `현재 위치에서 ${item.distanceText} 거리입니다.` : '',
         item.walkMinutes ? `도보 약 ${item.walkMinutes}분, 자전거 약 ${item.bikeMinutes || '-'}분, 자동차 약 ${item.carMinutes || '-'}분 정도 소요됩니다.` : '',
         item.todayOpenText ? `오늘 영업시간은 ${item.todayOpenText}입니다.` : ''
-      ].filter(Boolean).join('
-');
+      ].filter(Boolean).join('\n');
 
       const mapLink = buildNaverMapLink(item);
 
@@ -9504,9 +9484,7 @@ function buildAiEnhancedAnswerHtml(finalText='', question=''){
       const guard = result.locked ? getAiInvalidInputGuard() : registerAiInvalidInput();
       let message = result.message || '정확한 질문을 입력해주세요 🙂';
       if(!result.locked && guard.count >= 3 && guard.count < 10){
-        message += '
-
-의미 없는 입력이 반복되면 AI 이용이 일시 제한될 수 있습니다.';
+        message += '\n\n의미 없는 입력이 반복되면 AI 이용이 일시 제한될 수 있습니다.';
       }
       if(!result.locked && guard.lockUntil){
         message = '부적절하거나 의미 없는 입력이 반복되어 AI 질문이 30분 동안 제한되었습니다.';
@@ -9532,8 +9510,7 @@ function buildDirectApartmentLifeLocalAnswer(question=''){
       })));
       return `
         <div class="ai-answer ai-answer-upgrade apartment-life-answer">
-          <div class="ai-answer-summary">${escapeHtml(text).replace(/
-/g, '<br>')}</div>
+          <div class="ai-answer-summary">${escapeHtml(text).replace(/\n/g, '<br>')}</div>
           ${cardHtml}
           <span class="ai-mode-pill upgraded">관리자 생활정보 기준으로 안내했어요.</span>
         </div>`;
