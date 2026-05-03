@@ -699,6 +699,70 @@ body.gnb-open .bottom-nav{
   #accountEditModal .modal-body{padding:0 16px 18px;}
   .account-edit-actions{grid-template-columns:1fr;}
 }
+
+/* ===== 입주민 글자 크기 조정: DB 저장형 접근성 옵션 ===== */
+:root{--app-font-scale:1;}
+html[data-font-size="small"]{--app-font-scale:.94;}
+html[data-font-size="normal"]{--app-font-scale:1;}
+html[data-font-size="large"]{--app-font-scale:1.08;}
+html[data-font-size="xlarge"]{--app-font-scale:1.16;}
+body{font-size:calc(16px * var(--app-font-scale));}
+html[data-font-size] .brand h1{font-size:clamp(22px,calc(24px * var(--app-font-scale)),28px);}
+html[data-font-size] .brand p,
+html[data-font-size] .meta,
+html[data-font-size] .tag,
+html[data-font-size] .notice,
+html[data-font-size] .notice-item p,
+html[data-font-size] .gnb-settings-section-desc,
+html[data-font-size] .gnb-info-copy p,
+html[data-font-size] .helper,
+html[data-font-size] .location-note{font-size:clamp(12px,calc(13px * var(--app-font-scale)),16px);}
+html[data-font-size] .hero h2{font-size:clamp(26px,calc(28px * var(--app-font-scale)),32px);}
+html[data-font-size] .hero p{font-size:clamp(15px,calc(16px * var(--app-font-scale)),19px);}
+html[data-font-size] .section-head h3,
+html[data-font-size] .card h4{font-size:clamp(18px,calc(18px * var(--app-font-scale)),22px);}
+html[data-font-size] .gnb-section-title,
+html[data-font-size] .gnb-menu-group-title{font-size:clamp(20px,calc(20px * var(--app-font-scale)),24px);}
+html[data-font-size] .gnb-settings-section-title{font-size:clamp(17px,calc(17px * var(--app-font-scale)),21px);}
+html[data-font-size] .btn,
+html[data-font-size] .gnb-action-btn,
+html[data-font-size] .account-edit-trigger,
+html[data-font-size] .chip,
+html[data-font-size] .gnb-chip,
+html[data-font-size] .gnb-menu-item,
+html[data-font-size] .gnb-menu-subitem{font-size:clamp(14px,calc(14px * var(--app-font-scale)),17px);line-height:1.25;}
+html[data-font-size] .nav-btn .nav-label{font-size:clamp(11px,calc(12px * var(--app-font-scale)),14px);line-height:1.15;}
+html[data-font-size] .card,
+html[data-font-size] .popular-item,
+html[data-font-size] .notice-item{overflow-wrap:anywhere;}
+html[data-font-size] .card-top{min-width:0;}
+html[data-font-size] .card-top > div:not(.badge){min-width:0;flex:1;}
+html[data-font-size] .actions,
+html[data-font-size] .location-actions,
+html[data-font-size] .share-actions{flex-wrap:wrap;}
+html[data-font-size] .actions .btn{min-width:0;flex:1 1 140px;}
+html[data-font-size="xlarge"] .stats{grid-template-columns:repeat(2,1fr);}
+html[data-font-size="xlarge"] .bottom-nav{gap:4px;padding-left:10px;padding-right:10px;}
+html[data-font-size="xlarge"] .nav-btn{padding:8px 0 10px;}
+html[data-font-size="xlarge"] .nav-btn .nav-icon{font-size:16px;}
+html[data-font-size="xlarge"] .gnb-body{padding-bottom:136px;}
+.font-size-control{display:grid;gap:12px;}
+.font-size-options{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;}
+.font-size-option{position:relative;display:grid;place-items:center;gap:4px;min-height:58px;border:1px solid #e2e8f0;border-radius:18px;background:#fff;color:#334155;font-weight:900;cursor:pointer;transition:transform .16s ease, border-color .16s ease, background-color .16s ease, box-shadow .16s ease;-webkit-tap-highlight-color:transparent;}
+.font-size-option:hover{transform:translateY(-1px);border-color:#bfdbfe;}
+.font-size-option.active{background:#eff6ff;border-color:#93c5fd;color:#1d4ed8;box-shadow:0 10px 22px rgba(37,99,235,.10);}
+.font-size-option .sample{line-height:1;font-weight:1000;}
+.font-size-option[data-font-size="small"] .sample{font-size:13px;}
+.font-size-option[data-font-size="normal"] .sample{font-size:15px;}
+.font-size-option[data-font-size="large"] .sample{font-size:18px;}
+.font-size-option[data-font-size="xlarge"] .sample{font-size:21px;}
+.font-size-option .label{font-size:12px;line-height:1.1;white-space:nowrap;}
+.font-size-status{min-height:20px;font-size:12px;font-weight:800;color:#64748b;line-height:1.5;}
+.font-size-status.saving{color:#1d4ed8;}
+.font-size-status.error{color:#b91c1c;}
+@media (max-width:390px){.font-size-options{grid-template-columns:repeat(2,minmax(0,1fr));}.font-size-option{min-height:54px;}}
+@media (max-width:370px){html[data-font-size="large"] .stats,html[data-font-size="xlarge"] .stats{grid-template-columns:1fr;}html[data-font-size="xlarge"] .grid-2{grid-template-columns:1fr;}}
+
 .notice-list{
   display:grid;
   gap:12px;
@@ -7874,6 +7938,60 @@ nav.bottom-nav{
     const db=getFirestore(app);
     const storage=getStorage(app);
 
+
+    const FONT_SIZE_LABELS = { small:'작게', normal:'기본', large:'크게', xlarge:'아주 크게' };
+    function normalizeFontSize(value){
+      const key = String(value || '').trim().toLowerCase();
+      return Object.prototype.hasOwnProperty.call(FONT_SIZE_LABELS, key) ? key : 'normal';
+    }
+    function applyAppFontSize(value){
+      const next = normalizeFontSize(value);
+      state.appFontSize = next;
+      document.documentElement.dataset.fontSize = next;
+      syncFontSizeSettingUi();
+      return next;
+    }
+    function syncFontSizeSettingUi(){
+      const current = normalizeFontSize(state.appFontSize || state.currentUserProfile?.fontSize || 'normal');
+      qsa('.font-size-option').forEach((btn) => {
+        const active = normalizeFontSize(btn.dataset.fontSize) === current;
+        btn.classList.toggle('active', active);
+        btn.setAttribute('aria-checked', active ? 'true' : 'false');
+      });
+      const status = qs('#fontSizeStatus');
+      if(status && !status.classList.contains('saving')){
+        status.classList.remove('error');
+        status.textContent = `현재 글자 크기: ${FONT_SIZE_LABELS[current] || '기본'}`;
+      }
+    }
+    function setFontSizeStatus(message, type=''){
+      const status = qs('#fontSizeStatus');
+      if(!status) return;
+      status.classList.toggle('saving', type === 'saving');
+      status.classList.toggle('error', type === 'error');
+      status.textContent = message || '';
+    }
+    async function changeAppFontSize(value){
+      const next = applyAppFontSize(value);
+      if(!state.currentUser?.uid){
+        setFontSizeStatus('로그인 후 글자 크기를 저장할 수 있습니다.', 'error');
+        return;
+      }
+      setFontSizeStatus('글자 크기를 저장하고 있습니다...', 'saving');
+      try{
+        await setDoc(doc(db, 'users', state.currentUser.uid), {
+          fontSize: next,
+          appFontSize: next,
+          fontSizeUpdatedAt: serverTimestamp()
+        }, { merge:true });
+        state.currentUserProfile = { ...(state.currentUserProfile || {}), fontSize:next, appFontSize:next };
+        setFontSizeStatus(`글자 크기가 '${FONT_SIZE_LABELS[next]}'로 저장되었습니다.`);
+      }catch(error){
+        console.error('글자 크기 저장 실패', error);
+        setFontSizeStatus('글자 크기 저장 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.', 'error');
+      }
+    }
+
     /* =========================
        Security Guard / Session Check
        - Firestore 기반 계정 상태 검증
@@ -8348,7 +8466,7 @@ nav.bottom-nav{
       }
     }
 
-    const state={category:localStorage.getItem(LAST_CATEGORY_KEY)||'전체',keyword:'',filter:'all',view:'home',benefits:[],notices:[],loading:true,currentUser:null,currentUserProfile:null,popularItems:[],favoriteIds:[],currentPushToken:null,isPushEnabledForThisDevice:false,activeDistanceBenefitId:'',distanceRequestSeq:0,benefitSortMode:'default',distanceRadius:'all',userLocation:null,userLocationFetchedAt:0,distanceMap:{},distanceStatus:'idle',scrollMap:{home:0,benefits:0,favorite:0,top5:0,notices:0,shareinsights:0,ai:0},
+    const state={category:localStorage.getItem(LAST_CATEGORY_KEY)||'전체',keyword:'',filter:'all',view:'home',benefits:[],notices:[],loading:true,currentUser:null,currentUserProfile:null,popularItems:[],favoriteIds:[],currentPushToken:null,isPushEnabledForThisDevice:false,appFontSize:'normal',activeDistanceBenefitId:'',distanceRequestSeq:0,benefitSortMode:'default',distanceRadius:'all',userLocation:null,userLocationFetchedAt:0,distanceMap:{},distanceStatus:'idle',scrollMap:{home:0,benefits:0,favorite:0,top5:0,notices:0,shareinsights:0,ai:0},
       benefitViewMode: localStorage.getItem('benefitViewMode') || 'list'
     };
 
@@ -8967,6 +9085,7 @@ function setPushStatusUi(enabled){
       applyBodyRoleClass(roleMeta);
       renderProfileAvatar(userAvatarEl, roleMeta, profileImageUrl);
       renderProfileAvatar(gnbAvatarEl, roleMeta, profileImageUrl);
+      syncFontSizeSettingUi();
     }
 
     function normalizeProfileInput(value=''){
@@ -9368,6 +9487,7 @@ async function refreshPushStatus(){
 
           state.currentUser = user;
           state.currentUserProfile = await loadCurrentUserProfile(user);
+          applyAppFontSize(state.currentUserProfile?.fontSize || state.currentUserProfile?.appFontSize || 'normal');
 
           if(!state.currentUserProfile){
             await writeSecurityLog('USER_DOC_NOT_FOUND', { uid:user.uid });
@@ -14512,6 +14632,10 @@ async function askAiAssistant(rawQuestion=''){
     qs('#accountProfileFileInput')?.addEventListener('change', handleProfileImageFileChange);
     bindProfileUploadButton();
     qs('#accountEditForm')?.addEventListener('submit', saveAccountProfile);
+    qsa('.font-size-option').forEach((btn) => {
+      btn.addEventListener('click', () => changeAppFontSize(btn.dataset.fontSize));
+    });
+    syncFontSizeSettingUi();
 
     qs('#accountEditModal')?.addEventListener('click', (event) => {
       const modal = qs('#accountEditModal');
@@ -14669,6 +14793,24 @@ async function askAiAssistant(rawQuestion=''){
               <div class="privacy-zero-item"><div class="privacy-zero-icon">✅</div><div class="privacy-zero-copy"><strong>간단한 계정 중심 이용</strong><p>복잡한 입력 없이 입주민 혜택 화면을 편하게 이용할 수 있도록 정리했습니다.</p></div></div>
               <div class="privacy-zero-item"><div class="privacy-zero-icon">🏷️</div><div class="privacy-zero-copy"><strong>회원 유형은 단순 권한 분류</strong><p>입주민/관리자 구분은 화면과 기능 접근을 나누기 위한 운영 정보입니다.</p></div></div>
               <div class="privacy-zero-item"><div class="privacy-zero-icon">🧹</div><div class="privacy-zero-copy"><strong>부담되는 절차 최소화</strong><p>기존 기능은 유지하되, 이용 전환에 방해되는 입력 절차는 줄입니다.</p></div></div>
+            </div>
+          </div>
+
+          <div class="gnb-settings-section" id="fontSizeSettingsSection">
+            <div class="gnb-settings-section-header">
+              <div>
+                <h4 class="gnb-settings-section-title">글자 크기</h4>
+                <p class="gnb-settings-section-desc">선택한 글자 크기는 계정 DB에 저장되어 캐시를 지우거나 다른 기기에서 접속해도 유지됩니다.</p>
+              </div>
+            </div>
+            <div class="font-size-control" role="radiogroup" aria-label="글자 크기 선택">
+              <div class="font-size-options">
+                <button class="font-size-option" type="button" data-font-size="small" role="radio" aria-checked="false"><span class="sample">가</span><span class="label">작게</span></button>
+                <button class="font-size-option" type="button" data-font-size="normal" role="radio" aria-checked="true"><span class="sample">가</span><span class="label">기본</span></button>
+                <button class="font-size-option" type="button" data-font-size="large" role="radio" aria-checked="false"><span class="sample">가</span><span class="label">크게</span></button>
+                <button class="font-size-option" type="button" data-font-size="xlarge" role="radio" aria-checked="false"><span class="sample">가</span><span class="label">아주 크게</span></button>
+              </div>
+              <div class="font-size-status" id="fontSizeStatus">현재 글자 크기를 확인하고 있습니다.</div>
             </div>
           </div>
 
