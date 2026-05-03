@@ -2464,8 +2464,90 @@ body.app-role-resident [data-view="shareinsights"]{
 @media(max-width:370px){.ai-card-actions{grid-template-columns:1fr}.ai-stream-status{align-items:flex-start;flex-direction:column}}
 
 /* ===== AI 음성 질문 UX ===== */
-.ai-voice-row{display:flex;align-items:center;gap:8px;margin-top:10px}.ai-voice-btn{border:1px solid #dbeafe;background:#fff;color:#1d4ed8;border-radius:16px;padding:11px 12px;font-size:12px;font-weight:1000;cursor:pointer;box-shadow:0 8px 18px rgba(37,99,235,.06);transition:transform .16s ease, background-color .16s ease, color .16s ease}.ai-voice-btn:hover{transform:translateY(-1px);background:#eff6ff}.ai-voice-btn.listening{background:#ef4444;color:#fff;border-color:#fecaca;animation:aiVoicePulse 1s ease-in-out infinite}.ai-voice-status{flex:1;min-width:0;padding:10px 12px;border-radius:16px;background:#f8fafc;border:1px solid #e2e8f0;color:#64748b;font-size:12px;font-weight:900;line-height:1.45;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}@keyframes aiVoicePulse{0%,100%{box-shadow:0 0 0 0 rgba(239,68,68,.24)}50%{box-shadow:0 0 0 7px rgba(239,68,68,0)}}@media(max-width:370px){.ai-voice-row{align-items:stretch;flex-direction:column}.ai-voice-status{white-space:normal}}
-
+.ai-voice-row{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  margin-top:10px;
+}
+.ai-voice-btn{
+  flex:0 0 auto;
+  border:1px solid #dbeafe;
+  background:#fff;
+  color:#1d4ed8;
+  border-radius:16px;
+  padding:11px 12px;
+  font-size:12px;
+  font-weight:1000;
+  cursor:pointer;
+  box-shadow:0 8px 18px rgba(37,99,235,.06);
+  transition:transform .16s ease, background-color .16s ease, color .16s ease;
+  white-space:nowrap;
+}
+.ai-voice-btn:hover{
+  transform:translateY(-1px);
+  background:#eff6ff;
+}
+.ai-voice-btn.listening{
+  background:#ef4444;
+  color:#fff;
+  border-color:#fecaca;
+  animation:aiVoicePulse 1s ease-in-out infinite;
+}
+.ai-voice-status{
+  flex:1 1 auto;
+  min-width:0;
+  padding:10px 12px;
+  border-radius:16px;
+  background:#f8fafc;
+  border:1px solid #e2e8f0;
+  color:#64748b;
+  font-size:12px;
+  font-weight:900;
+  line-height:1.45;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+@keyframes aiVoicePulse{
+  0%,100%{box-shadow:0 0 0 0 rgba(239,68,68,.24)}
+  50%{box-shadow:0 0 0 7px rgba(239,68,68,0)}
+}
+@media(max-width:480px){
+  .ai-voice-row{
+    display:flex;
+    flex-direction:row;
+    align-items:center;
+    gap:8px;
+  }
+  .ai-voice-btn{
+    flex:0 0 auto;
+    padding:10px 11px;
+    font-size:12px;
+  }
+  .ai-voice-status{
+    flex:1 1 0;
+    min-width:0;
+    padding:10px 11px;
+    font-size:12px;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+  }
+}
+@media(max-width:370px){
+  .ai-voice-row{
+    gap:6px;
+  }
+  .ai-voice-btn{
+    padding:9px 9px;
+    font-size:11px;
+  }
+  .ai-voice-status{
+    padding:9px 9px;
+    font-size:11px;
+  }
+}
 
 
 /* ===== AI 응답 중 입력 경로 잠금 UX ===== */
@@ -3256,7 +3338,7 @@ html, body{overflow-x:hidden;}
         </div>
         <div class="ai-voice-row" id="aiVoiceRow">
           <button class="ai-voice-btn" type="button" id="aiVoiceBtn">🎙 말로 질문</button>
-          <div class="ai-voice-status" id="aiVoiceStatus">음성 질문은 지원 브라우저에서 사용할 수 있습니다.</div>
+          <div class="ai-voice-status" id="aiVoiceStatus">버튼을 누르면 브라우저 마이크 권한 요청이 표시됩니다.</div>
         </div>
         <div class="ai-input-row">
           <input id="aiQuestionInput" type="text" maxlength="120" placeholder="예: 최근 공지 알려줘, 커뮤니티 메뉴는 어떻게 들어가?" />
