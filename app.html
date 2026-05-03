@@ -3044,6 +3044,16 @@ html, body{overflow-x:hidden;}
   .user-sub{font-size:10px !important;}
 }
 
+
+
+/* AI 생활도우미 상단 버튼 터치 보정: 모바일 브라우저에서 투명 레이어보다 우선 클릭되도록 처리 */
+#aiQuickBtn{
+  position:relative;
+  z-index:130;
+  pointer-events:auto;
+  touch-action:manipulation;
+  -webkit-tap-highlight-color:transparent;
+}
 </style>
   <style id="myhills-ios-safearea-fix">
     :root{--myhills-safe-area-top:env(safe-area-inset-top,0px)}
@@ -7827,12 +7837,6 @@ function getShareTrackingParams(){
     }
 
     async function openAiAssistantFromNudge(source='daily_nudge'){
-      if(!isRootRole()){
-        hideDailyAiNudgeToast(false);
-        await openModalAlert('AI 생활도우미는 현재 관리자 테스트 계정에서만 확인할 수 있습니다.');
-        clearAiOpenDeepLink();
-        return false;
-      }
       hideDailyAiNudgeToast(false);
       changeView('ai');
       setTimeout(() => {
@@ -7852,8 +7856,6 @@ function getShareTrackingParams(){
 
     async function handleDailyAiNudge(){
       if(!state.currentUser?.uid) return;
-      // 현재 AI 메뉴가 root 전용으로 잠겨 있으므로, 접근 가능한 계정에서만 일 1회 유도 표시
-      if(!isRootRole()) return;
       const localKey = getDailyAiNudgeStorageKey();
       if(localStorage.getItem(localKey)) return;
       let payload = { shouldShow:true };
@@ -9498,7 +9500,7 @@ async function askAiAssistant(rawQuestion=''){
       }
     }
 
-    function updateView(){enforceShareInsightAccess();if(state.view==='ai'&&!isRootRole()) state.view='home';if(state.view==='community') setTimeout(()=>loadCommunityPosts(communityState.category||'전체', true), 40);qsa('[id^="view-"]').forEach(v=>v.classList.add('hidden'));(qs(`#view-${state.view}`)||qs('#view-home')).classList.remove('hidden');qsa('.bottom-nav .nav-btn').forEach(btn=>btn.classList.remove('active'));const active=qsa('.bottom-nav .nav-btn').find(btn=>btn.dataset.view===state.view);if(active)active.classList.add('active');qs('#gnbSheet')?.classList.remove('show');qs('#gnbOverlay')?.classList.remove('show');}
+    function updateView(){enforceShareInsightAccess();if(state.view==='community') setTimeout(()=>loadCommunityPosts(communityState.category||'전체', true), 40);qsa('[id^="view-"]').forEach(v=>v.classList.add('hidden'));(qs(`#view-${state.view}`)||qs('#view-home')).classList.remove('hidden');qsa('.bottom-nav .nav-btn').forEach(btn=>btn.classList.remove('active'));const active=qsa('.bottom-nav .nav-btn').find(btn=>btn.dataset.view===state.view);if(active)active.classList.add('active');qs('#gnbSheet')?.classList.remove('show');qs('#gnbOverlay')?.classList.remove('show');}
     const renderAll=()=>{createChips();enableHorizontalDragScroll('#chips');enableHorizontalDragScroll('#aiQuickRow');enableHorizontalDragScroll('#communityCategoryFilter');renderStats();renderHome();renderFavorites();renderPopularTop5();renderNotices();updateView();updateGnbActive();updateDistanceFilterHelp();if(state.view==='map') setTimeout(() => renderMapMode(), 60);if(state.view==='community') setTimeout(()=>loadCommunityPosts(communityState.category||'전체', true), 60);if(state.view==='shareinsights' && isAdminRole()) setTimeout(() => renderShareInsights(), 60);setTimeout(() => handleCleanDeepLink(), 80);};
     qs('#searchInput').addEventListener('input',(e)=>{state.keyword=e.target.value;renderAll();});
     qs('#resetBtn').onclick=()=>{state.category='전체';localStorage.setItem(LAST_CATEGORY_KEY,'전체');state.keyword='';state.filter='all';state.benefitSortMode='default';state.distanceRadius='all';qs('#searchInput').value='';if(qs('#benefitSortSelect'))qs('#benefitSortSelect').value='default';if(qs('#distanceRadiusSelect'))qs('#distanceRadiusSelect').value='all';changeView('benefits');};
@@ -9716,6 +9718,17 @@ async function askAiAssistant(rawQuestion=''){
         }
         closeGnb();
       });
+    });
+
+    // AI 생활도우미 공개 전환: 상단 로봇 버튼은 입주민 계정에서도 즉시 AI 화면으로 이동합니다.
+    qs('#aiQuickBtn')?.addEventListener('click', (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+      changeView('ai');
+      setTimeout(() => {
+        resetAiChatWindow({ loadProactive:true });
+        qs('#aiQuestionInput')?.focus?.();
+      }, 80);
     });
 
 
