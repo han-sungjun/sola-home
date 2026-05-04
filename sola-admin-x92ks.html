@@ -4720,6 +4720,12 @@ function fillForm(item){qs('#editId').value=item.id;qs('#formModeLabel').textCon
     const APP_MENUS_COLLECTION='app_menus';
     const MENU_STATS_COLLECTION='menu_stats';
     let adminMenuItems=[];
+
+    /* Bottom nav settings safe wrappers: real functions are attached below */
+    window.__bottomNavSettingsPending = false;
+    window.renderBottomNavSettings = window.renderBottomNavSettings || function(){ window.__bottomNavSettingsPending = true; };
+    window.loadBottomNavSettings = window.loadBottomNavSettings || async function(){ window.__bottomNavSettingsPending = true; };
+
     function getMenuCheckedValues(name){ return [...document.querySelectorAll(`input[name="${name}"]:checked`)].map(el=>el.value); }
     function setMenuCheckedValues(name, values=[]){ document.querySelectorAll(`input[name="${name}"]`).forEach(el=>{ el.checked = values.includes(el.value); }); }
     function normalizeAdminMenu(raw={}, id=''){
@@ -4739,7 +4745,7 @@ function fillForm(item){qs('#editId').value=item.id;qs('#formModeLabel').textCon
     async function loadAdminMenus(){
       if(!requireAdminDataAccess(false)) return;
       const list=qs('#menuAdminList'); if(list) list.innerHTML='<div class="notice">GNB 메뉴를 불러오는 중입니다.</div>';
-      try{ const snap=await getDocs(collection(db, APP_MENUS_COLLECTION)); adminMenuItems=snap.docs.map(d=>normalizeAdminMenu(d.data(), d.id)); renderAdminMenus(); renderBottomNavSettings?.(); }
+      try{ const snap=await getDocs(collection(db, APP_MENUS_COLLECTION)); adminMenuItems=snap.docs.map(d=>normalizeAdminMenu(d.data(), d.id)); renderAdminMenus(); }
       catch(error){ console.error(error); if(list) list.innerHTML='<div class="notice">GNB 메뉴를 불러오지 못했습니다. Firestore Rules를 확인해 주세요.</div>'; }
     }
     function resetMenuForm(){
@@ -4790,7 +4796,7 @@ function fillForm(item){qs('#editId').value=item.id;qs('#formModeLabel').textCon
         });
       return candidates;
     }
-    function renderBottomNavSettings(){
+    window.renderBottomNavSettings = function renderBottomNavSettings(){
       const picker=qs('#bottomNavMenuPicker');
       const selected=qs('#bottomNavSelectedList');
       const fill=qs('#bottomNavUseAdminDefaultFill');
@@ -4822,7 +4828,7 @@ function fillForm(item){qs('#editId').value=item.id;qs('#formModeLabel').textCon
           </div>`).join('')
         : '<div class="notice">선택된 기본 메뉴가 없습니다. 저장 시 코드 기본값(혜택/즐겨찾기/TOP5)이 사용됩니다.</div>';
     }
-    async function loadBottomNavSettings(){
+    window.loadBottomNavSettings = async function loadBottomNavSettings(){
       if(!requireAdminDataAccess(false)) return;
       try{
         const snap=await getDoc(doc(db, BOTTOM_NAV_SETTINGS_COLLECTION, BOTTOM_NAV_SETTINGS_DOC));
@@ -4840,7 +4846,7 @@ function fillForm(item){qs('#editId').value=item.id;qs('#formModeLabel').textCon
         bottomNavUseAdminDefaultFill=true;
       }
       renderBottomNavSettings();
-    }
+    };
     async function saveBottomNavSettings(){
       if(!requireAdminDataAccess()) return;
       bottomNavUseAdminDefaultFill=qs('#bottomNavUseAdminDefaultFill')?.checked !== false;
@@ -4892,7 +4898,7 @@ function fillForm(item){qs('#editId').value=item.id;qs('#formModeLabel').textCon
     document.addEventListener('click', (event)=>{ const edit=event.target.closest('[data-menu-edit]'); if(edit){ const item=adminMenuItems.find(v=>v.id===edit.dataset.menuEdit); if(item) fillMenuForm(item); return; } const del=event.target.closest('[data-menu-delete]'); if(del){ deleteMenu(del.dataset.menuDelete); } });
     qs('#menuForm')?.addEventListener('submit', saveMenu); qs('#menuResetBtn')?.addEventListener('click', resetMenuForm);
     const __origChangeAdminViewForMenus = changeAdminView;
-    changeAdminView = function(view){ __origChangeAdminViewForMenus(view); if(view === 'menus') setTimeout(async()=>{ await loadAdminMenus(); await loadBottomNavSettings?.(); }, 80); };
+    changeAdminView = function(view){ __origChangeAdminViewForMenus(view); if(view === 'menus') setTimeout(async()=>{ await loadAdminMenus(); await window.loadBottomNavSettings?.(); }, 80); };
     window.changeAdminView = changeAdminView;
     resetMenuForm();
 
