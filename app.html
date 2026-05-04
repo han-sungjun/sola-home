@@ -7973,6 +7973,1042 @@ dialog:not(.app-alert) .modal-body{
 
 <!-- benefit-final-date-zindex-fixed-v2 -->
 <!-- sticky-filter-final-v1 -->
+
+<style id="dynamic-gnb-menu-db-style-v1">
+  .gnb-search-box{display:flex;align-items:center;gap:10px;border:1px solid rgba(15,23,42,.08);background:#f8fafc;border-radius:20px;padding:12px 14px;margin-bottom:12px}
+  .gnb-search-box::before{content:'🔍';font-size:16px;opacity:.8}.gnb-search-box input{width:100%;border:none;outline:none;background:transparent;font-weight:800;color:#0f172a}
+  .gnb-menu-search-results{display:grid;gap:10px;margin-top:10px}.gnb-search-result-title{font-size:12px;font-weight:900;color:#64748b;margin:6px 2px 2px}.gnb-empty{width:100%;padding:13px 14px;border-radius:18px;background:#f8fafc;border:1px dashed #cbd5e1;color:#64748b;font-size:13px;font-weight:800}.gnb-menu-count{display:inline-flex;margin-left:6px;font-size:11px;color:#64748b;font-weight:900}.gnb-chip .gnb-menu-count,.gnb-menu-item .gnb-menu-count,.gnb-menu-subitem .gnb-menu-count{opacity:.76}
+</style>
+
+<style>
+.all-menu-card{position:relative;overflow:hidden;}
+.all-menu-badge{
+ position:absolute;
+ top:14px;
+ right:14px;
+ min-width:42px;
+ height:26px;
+ padding:0 9px;
+ border-radius:999px;
+ display:inline-flex;
+ align-items:center;
+ justify-content:center;
+ font-size:11px!important;
+ font-weight:1000;
+ line-height:1;
+ letter-spacing:-.02em;
+ border:1px solid rgba(15,23,42,.06);
+ box-shadow:0 8px 18px rgba(15,23,42,.08);
+}
+.all-menu-badge.popular{
+ background:#fff7ed;
+ color:#c2410c!important;
+ border-color:#fed7aa;
+}
+.all-menu-badge.recent{
+ background:#eff6ff;
+ color:#1d4ed8!important;
+ border-color:#bfdbfe;
+}
+</style>
+
+
+<style>
+/* ===== Dynamic Full Menu + GNB AI Menu Analysis ===== */
+.all-menu-card{position:relative;overflow:hidden;}
+.all-menu-badge{
+ position:absolute;top:14px;right:14px;min-width:42px;height:26px;padding:0 9px;border-radius:999px;
+ display:inline-flex;align-items:center;justify-content:center;font-size:11px!important;font-weight:1000;line-height:1;
+ border:1px solid rgba(15,23,42,.06);box-shadow:0 8px 18px rgba(15,23,42,.08);
+}
+.all-menu-badge.popular{background:#fff7ed;color:#c2410c!important;border-color:#fed7aa;}
+.all-menu-badge.recent{background:#eff6ff;color:#1d4ed8!important;border-color:#bfdbfe;}
+.all-menu-search{
+ display:flex;align-items:center;gap:10px;margin:0 0 14px;padding:13px 15px;border-radius:20px;
+ background:#fff;border:1px solid rgba(15,23,42,.08);box-shadow:0 10px 22px rgba(15,23,42,.05);
+}
+.all-menu-search input{border:none;outline:none;background:transparent;min-width:0;flex:1;color:#0f172a;font-weight:800;}
+.all-menu-search input::placeholder{color:#94a3b8;}
+.gnb-ai-menu-hint{
+ padding:14px 15px;border-radius:20px;background:linear-gradient(180deg,#f8fafc 0%,#fff 100%);
+ border:1px solid rgba(15,23,42,.07);color:#334155;font-size:13px;font-weight:800;line-height:1.65;
+}
+.gnb-ai-menu-hint b{color:#0f172a;}
+.gnb-ai-menu-hint .hint-chip{
+ display:inline-flex;align-items:center;gap:5px;margin:4px 4px 0 0;padding:6px 9px;border-radius:999px;
+ background:#eff6ff;border:1px solid #bfdbfe;color:#1d4ed8;font-size:12px;font-weight:900;
+}
+</style>
+
+
+<style>
+/* ===== Full Menu Badges: 인기/최근 개별 표시 + 중복 시 나란히 표시 ===== */
+.all-menu-badge-wrap{
+  position:absolute;
+  top:14px;
+  right:14px;
+  display:flex;
+  align-items:center;
+  gap:4px;
+  flex-wrap:wrap;
+  justify-content:flex-end;
+  max-width:112px;
+  z-index:2;
+}
+.all-menu-badge-wrap .all-menu-badge{
+  position:static!important;
+  top:auto!important;
+  right:auto!important;
+}
+</style>
+
+
+<style>
+/* ===== Full Menu Auto Trend System: NEW ribbon + badge layout ===== */
+.all-menu-card{
+  position:relative;
+  overflow:hidden;
+}
+.all-menu-ribbon{
+  position:absolute;
+  top:12px;
+  left:-10px;
+  z-index:3;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-width:58px;
+  height:24px;
+  padding:0 12px;
+  transform:rotate(-18deg);
+  border-radius:8px;
+  background:linear-gradient(135deg,#ef4444,#f97316);
+  color:#fff;
+  font-size:10px!important;
+  font-weight:1000;
+  letter-spacing:.04em;
+  box-shadow:0 8px 18px rgba(239,68,68,.22);
+}
+.all-menu-badge-wrap{
+  position:absolute;
+  top:14px;
+  right:14px;
+  z-index:3;
+  display:flex;
+  align-items:center;
+  justify-content:flex-end;
+  gap:4px;
+  flex-wrap:wrap;
+  max-width:118px;
+}
+.all-menu-badge-wrap .all-menu-badge{
+  position:static!important;
+  top:auto!important;
+  right:auto!important;
+}
+</style>
+
+
+<style>
+/* ===== Menu Trend Badges for GNB + Bottom Nav ===== */
+.menu-trend-ribbon{
+  position:absolute;
+  top:7px;
+  left:-9px;
+  z-index:4;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-width:44px;
+  height:18px;
+  padding:0 8px;
+  transform:rotate(-18deg);
+  border-radius:7px;
+  background:linear-gradient(135deg,#ef4444,#f97316);
+  color:#fff;
+  font-size:9px!important;
+  font-weight:1000;
+  letter-spacing:.04em;
+  box-shadow:0 8px 18px rgba(239,68,68,.20);
+  pointer-events:none;
+}
+.menu-trend-badge-wrap{
+  position:absolute;
+  top:8px;
+  right:8px;
+  z-index:4;
+  display:flex;
+  gap:3px;
+  align-items:center;
+  justify-content:flex-end;
+  pointer-events:none;
+}
+.menu-trend-badge{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-width:32px;
+  height:20px;
+  padding:0 7px;
+  border-radius:999px;
+  font-size:10px!important;
+  font-weight:1000;
+  line-height:1;
+  border:1px solid rgba(15,23,42,.06);
+  box-shadow:0 8px 16px rgba(15,23,42,.07);
+  background:#f8fafc;
+}
+.menu-trend-badge.popular{
+  background:#fff7ed;
+  color:#c2410c!important;
+  border-color:#fed7aa;
+}
+.menu-trend-badge.recent{
+  background:#eff6ff;
+  color:#1d4ed8!important;
+  border-color:#bfdbfe;
+}
+.gnb-chip,.gnb-menu-item,.gnb-menu-subitem,.nav-btn{
+  position:relative;
+  overflow:hidden;
+}
+.nav-btn .menu-trend-ribbon{
+  top:2px;
+  left:-8px;
+  min-width:38px;
+  height:16px;
+  font-size:8px!important;
+}
+.nav-btn .menu-trend-badge-wrap{
+  top:3px;
+  right:4px;
+}
+.nav-btn .menu-trend-badge{
+  min-width:28px;
+  height:17px;
+  padding:0 6px;
+  font-size:8px!important;
+}
+.gnb-chip .menu-trend-ribbon,
+.gnb-menu-item .menu-trend-ribbon,
+.gnb-menu-subitem .menu-trend-ribbon{
+  top:8px;
+  left:-8px;
+}
+.gnb-chip .menu-trend-badge-wrap,
+.gnb-menu-item .menu-trend-badge-wrap,
+.gnb-menu-subitem .menu-trend-badge-wrap{
+  top:10px;
+  right:10px;
+}
+</style>
+
+
+<style>
+.gnb-menu-label{
+  display:inline-flex;
+  align-items:center;
+  gap:4px;
+  min-width:0;
+}
+.gnb-menu-count{
+  margin-left:5px;
+  font-size:11px;
+  color:#64748b;
+  font-weight:900;
+}
+</style>
+
+
+<style>
+/* ===== Different NEW ribbons: 신규 메뉴 vs 인기 급상승 ===== */
+.all-menu-ribbon.new-source-manual,
+.menu-trend-ribbon.new-source-manual{
+  background:linear-gradient(135deg,#ef4444,#f97316)!important;
+  color:#fff!important;
+}
+.all-menu-ribbon.new-source-trending,
+.menu-trend-ribbon.new-source-trending{
+  background:linear-gradient(135deg,#7c3aed,#2563eb)!important;
+  color:#fff!important;
+  box-shadow:0 8px 18px rgba(37,99,235,.22)!important;
+}
+.all-menu-ribbon.new-source-both,
+.menu-trend-ribbon.new-source-both{
+  background:linear-gradient(135deg,#ef4444 0%,#f97316 45%,#7c3aed 100%)!important;
+  color:#fff!important;
+  box-shadow:0 8px 18px rgba(124,58,237,.22)!important;
+}
+</style>
+
+
+<style>
+/* ===== Bottom Nav Trend Upgrade: TOP1 highlight + AI recommendation + animated shine ===== */
+.menu-trend-ribbon,
+.all-menu-ribbon,
+.menu-trend-badge,
+.all-menu-badge{
+  overflow:hidden;
+  position:relative;
+}
+.menu-trend-ribbon::after,
+.all-menu-ribbon::after,
+.menu-trend-badge::after,
+.all-menu-badge::after{
+  content:"";
+  position:absolute;
+  top:-55%;
+  left:-70%;
+  width:46%;
+  height:210%;
+  transform:rotate(24deg);
+  background:linear-gradient(90deg,rgba(255,255,255,0),rgba(255,255,255,.72),rgba(255,255,255,0));
+  animation:badgeShine 2.7s ease-in-out infinite;
+  pointer-events:none;
+}
+.menu-trend-badge.recent::after,
+.all-menu-badge.recent::after{
+  animation-delay:.55s;
+}
+.menu-trend-badge.popular::after,
+.all-menu-badge.popular::after{
+  animation-delay:.15s;
+}
+@keyframes badgeShine{
+  0%{left:-75%;opacity:0}
+  16%{opacity:.95}
+  38%{left:128%;opacity:0}
+  100%{left:128%;opacity:0}
+}
+
+.bottom-nav .nav-btn.nav-top1{
+  background:rgba(255,255,255,.16);
+  color:#fff;
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.10), 0 0 0 0 rgba(251,191,36,.18);
+  animation:bottomTopPulse 2.4s ease-in-out infinite;
+}
+.bottom-nav .nav-btn.nav-top1 .nav-icon{
+  filter:drop-shadow(0 0 8px rgba(251,191,36,.38));
+  animation:bottomTopIconFloat 1.8s ease-in-out infinite;
+}
+.bottom-nav .nav-btn.nav-top1::after{
+  content:"TOP";
+  position:absolute;
+  bottom:4px;
+  right:6px;
+  min-width:26px;
+  height:14px;
+  padding:0 5px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  border-radius:999px;
+  background:linear-gradient(135deg,#f59e0b,#f97316);
+  color:#fff;
+  font-size:7px;
+  font-weight:1000;
+  letter-spacing:.04em;
+  box-shadow:0 6px 12px rgba(245,158,11,.22);
+}
+@keyframes bottomTopPulse{
+  0%,100%{transform:translateY(0);box-shadow:inset 0 0 0 1px rgba(255,255,255,.10),0 0 0 0 rgba(251,191,36,.0)}
+  50%{transform:translateY(-2px);box-shadow:inset 0 0 0 1px rgba(255,255,255,.14),0 0 0 5px rgba(251,191,36,.08)}
+}
+@keyframes bottomTopIconFloat{
+  0%,100%{transform:translateY(0) scale(1)}
+  50%{transform:translateY(-1px) scale(1.08)}
+}
+
+.ai-bottom-reco{
+  position:fixed;
+  left:50%;
+  bottom:calc(78px + env(safe-area-inset-bottom,0px));
+  transform:translateX(-50%);
+  width:min(448px,calc(100% - 32px));
+  z-index:99;
+  display:none;
+  align-items:center;
+  gap:10px;
+  padding:10px 12px;
+  border-radius:20px;
+  background:rgba(15,23,42,.92);
+  color:#fff;
+  box-shadow:0 18px 34px rgba(15,23,42,.22);
+  backdrop-filter:blur(14px);
+  -webkit-backdrop-filter:blur(14px);
+  border:1px solid rgba(255,255,255,.10);
+  cursor:pointer;
+  animation:aiRecoIn .26s ease both;
+}
+.ai-bottom-reco.show{display:flex}
+.ai-bottom-reco-icon{
+  width:32px;
+  height:32px;
+  flex:0 0 auto;
+  border-radius:12px;
+  display:grid;
+  place-items:center;
+  background:rgba(255,255,255,.12);
+}
+.ai-bottom-reco-copy{
+  min-width:0;
+  flex:1;
+  display:grid;
+  gap:2px;
+}
+.ai-bottom-reco-copy strong{
+  font-size:12px;
+  line-height:1.2;
+  letter-spacing:-.02em;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.ai-bottom-reco-copy span{
+  font-size:11px;
+  line-height:1.35;
+  color:rgba(255,255,255,.76);
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.ai-bottom-reco-arrow{
+  font-size:14px;
+  color:rgba(255,255,255,.74);
+}
+@keyframes aiRecoIn{
+  from{opacity:0;transform:translateX(-50%) translateY(8px) scale(.98)}
+  to{opacity:1;transform:translateX(-50%) translateY(0) scale(1)}
+}
+@media (max-width:380px){
+  .ai-bottom-reco{
+    bottom:calc(74px + env(safe-area-inset-bottom,0px));
+    padding:9px 10px;
+  }
+  .ai-bottom-reco-copy strong{font-size:11px}
+  .ai-bottom-reco-copy span{font-size:10px}
+}
+@media (prefers-reduced-motion: reduce){
+  .menu-trend-ribbon::after,
+  .all-menu-ribbon::after,
+  .menu-trend-badge::after,
+  .all-menu-badge::after,
+  .bottom-nav .nav-btn.nav-top1,
+  .bottom-nav .nav-btn.nav-top1 .nav-icon{
+    animation:none!important;
+  }
+}
+</style>
+
+
+<style>
+/* 하단 네비바 전용 미니 사이즈 */
+.bottom-nav .menu-trend-ribbon{
+  top:1px!important;
+  left:-7px!important;
+  min-width:32px!important;
+  height:14px!important;
+  padding:0 5px!important;
+  font-size:7px!important;
+  border-radius:5px!important;
+  transform:rotate(-14deg)!important;
+}
+.bottom-nav .menu-trend-badge-wrap{
+  top:2px!important;
+  right:3px!important;
+  gap:2px!important;
+}
+.bottom-nav .menu-trend-badge{
+  min-width:23px!important;
+  height:14px!important;
+  padding:0 4px!important;
+  font-size:7px!important;
+}
+</style>
+
+
+<style id="trend-badge-subtle-final">
+/* ===== Trend Badge Subtle Final Patch ===== */
+/* 전체 기능 카드 NEW/HOT 리본: 과한 사선 띠 → 작고 반투명한 좌상단 배지 */
+.all-menu-card .all-menu-ribbon{
+  position:absolute!important;
+  top:12px!important;
+  left:12px!important;
+  min-width:38px!important;
+  width:auto!important;
+  height:22px!important;
+  padding:0 9px!important;
+  transform:none!important;
+  border-radius:999px!important;
+  font-size:10px!important;
+  font-weight:1000!important;
+  letter-spacing:.02em!important;
+  opacity:.88!important;
+  box-shadow:0 8px 16px rgba(15,23,42,.10)!important;
+  backdrop-filter:blur(10px)!important;
+  -webkit-backdrop-filter:blur(10px)!important;
+}
+.all-menu-card .all-menu-ribbon.new-source-manual{
+  background:rgba(249,115,22,.82)!important;
+  border:1px solid rgba(253,186,116,.55)!important;
+}
+.all-menu-card .all-menu-ribbon.new-source-trending{
+  background:rgba(37,99,235,.82)!important;
+  border:1px solid rgba(147,197,253,.50)!important;
+}
+.all-menu-card .all-menu-ribbon.new-source-both{
+  background:linear-gradient(135deg,rgba(249,115,22,.84),rgba(37,99,235,.84))!important;
+  border:1px solid rgba(255,255,255,.32)!important;
+}
+
+/* 우상단 인기/최근 배지: 반투명 + 작은 광택만 */
+.all-menu-badge,
+.menu-trend-badge{
+  opacity:.88!important;
+  backdrop-filter:blur(10px)!important;
+  -webkit-backdrop-filter:blur(10px)!important;
+}
+.all-menu-badge.popular,
+.menu-trend-badge.popular{
+  background:rgba(255,247,237,.78)!important;
+  color:#c2410c!important;
+  border-color:rgba(253,186,116,.58)!important;
+}
+.all-menu-badge.recent,
+.menu-trend-badge.recent{
+  background:rgba(239,246,255,.78)!important;
+  color:#1d4ed8!important;
+  border-color:rgba(147,197,253,.58)!important;
+}
+
+/* 광택 효과를 배지 안에서만 은은하게 */
+.menu-trend-ribbon::after,
+.all-menu-ribbon::after,
+.menu-trend-badge::after,
+.all-menu-badge::after{
+  width:30%!important;
+  height:160%!important;
+  top:-35%!important;
+  left:-55%;
+  opacity:.55!important;
+  background:linear-gradient(90deg,rgba(255,255,255,0),rgba(255,255,255,.45),rgba(255,255,255,0))!important;
+  animation:badgeShineSoft 3.8s ease-in-out infinite!important;
+}
+@keyframes badgeShineSoft{
+  0%{left:-60%;opacity:0}
+  18%{opacity:.55}
+  34%{left:125%;opacity:0}
+  100%{left:125%;opacity:0}
+}
+
+/* 하단 네비바는 더욱 작게 */
+.bottom-nav .menu-trend-ribbon{
+  top:2px!important;
+  left:4px!important;
+  min-width:25px!important;
+  height:13px!important;
+  padding:0 4px!important;
+  transform:none!important;
+  border-radius:999px!important;
+  font-size:7px!important;
+  opacity:.78!important;
+}
+.bottom-nav .menu-trend-badge-wrap{
+  top:2px!important;
+  right:3px!important;
+}
+.bottom-nav .menu-trend-badge{
+  min-width:22px!important;
+  height:13px!important;
+  padding:0 4px!important;
+  font-size:7px!important;
+  opacity:.78!important;
+}
+
+/* GNB 내부 배지도 카드 방해하지 않게 작게 */
+.gnb-chip .menu-trend-ribbon,
+.gnb-menu-item .menu-trend-ribbon,
+.gnb-menu-subitem .menu-trend-ribbon{
+  top:8px!important;
+  left:10px!important;
+  transform:none!important;
+  min-width:32px!important;
+  height:17px!important;
+  border-radius:999px!important;
+  font-size:8px!important;
+  opacity:.82!important;
+}
+</style>
+
+
+<style id="gnb-badge-clean-final">
+/* ===== GNB badge clean final: GNB는 깨지지 않게 inline pill만 표시 ===== */
+.gnb-chip .menu-trend-ribbon,
+.gnb-menu-item .menu-trend-ribbon,
+.gnb-menu-subitem .menu-trend-ribbon,
+.gnb-chip .menu-trend-badge-wrap,
+.gnb-menu-item .menu-trend-badge-wrap,
+.gnb-menu-subitem .menu-trend-badge-wrap{
+  display:none!important;
+}
+
+.gnb-inline-badges{
+  display:inline-flex;
+  align-items:center;
+  gap:3px;
+  margin-left:6px;
+  vertical-align:middle;
+}
+
+.gnb-inline-badge{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  height:17px;
+  min-width:27px;
+  padding:0 6px;
+  border-radius:999px;
+  font-size:9px!important;
+  font-weight:1000;
+  line-height:1;
+  border:1px solid rgba(15,23,42,.06);
+  opacity:.86;
+  overflow:hidden;
+  position:relative;
+  white-space:nowrap;
+}
+
+.gnb-inline-badge.new{
+  background:rgba(249,115,22,.82);
+  color:#fff;
+  border-color:rgba(253,186,116,.55);
+}
+.gnb-inline-badge.hot{
+  background:rgba(37,99,235,.82);
+  color:#fff;
+  border-color:rgba(147,197,253,.50);
+}
+.gnb-inline-badge.popular{
+  background:rgba(255,247,237,.78);
+  color:#c2410c;
+  border-color:rgba(253,186,116,.58);
+}
+.gnb-inline-badge.recent{
+  background:rgba(239,246,255,.78);
+  color:#1d4ed8;
+  border-color:rgba(147,197,253,.58);
+}
+
+.gnb-inline-badge::after{
+  content:"";
+  position:absolute;
+  top:-40%;
+  left:-65%;
+  width:30%;
+  height:180%;
+  transform:rotate(24deg);
+  background:linear-gradient(90deg,rgba(255,255,255,0),rgba(255,255,255,.45),rgba(255,255,255,0));
+  animation:badgeShineSoft 3.8s ease-in-out infinite;
+  pointer-events:none;
+}
+
+/* 하단 네비 TOP 배지가 아이콘과 충돌하지 않게 살짝 위로 */
+.bottom-nav .nav-btn.nav-top1::after{
+  bottom:auto!important;
+  top:3px!important;
+  right:4px!important;
+  height:13px!important;
+  min-width:22px!important;
+  font-size:7px!important;
+  padding:0 4px!important;
+  opacity:.86;
+}
+</style>
+
+
+<style id="trend-context-final-v2">
+/* ===== Trend Context Final v2 ===== */
+/* 하단 네비바 미니 배지 */
+.bottom-nav .nav-mini-trend{
+  position:absolute;
+  top:3px;
+  right:6px;
+  z-index:5;
+  min-width:25px;
+  height:14px;
+  padding:0 5px;
+  border-radius:999px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  font-size:7px!important;
+  font-weight:1000;
+  line-height:1;
+  letter-spacing:.03em;
+  opacity:.88;
+  overflow:hidden;
+  border:1px solid rgba(255,255,255,.18);
+  box-shadow:0 5px 10px rgba(15,23,42,.16);
+  backdrop-filter:blur(8px);
+  -webkit-backdrop-filter:blur(8px);
+}
+.bottom-nav .nav-mini-trend.hot{
+  background:rgba(37,99,235,.88);
+  color:#fff;
+}
+.bottom-nav .nav-mini-trend.new{
+  background:rgba(249,115,22,.88);
+  color:#fff;
+}
+.bottom-nav .nav-mini-trend::after,
+.view-title-trend-badge::after,
+.gnb-context-badge::after{
+  content:"";
+  position:absolute;
+  top:-45%;
+  left:-60%;
+  width:34%;
+  height:180%;
+  transform:rotate(24deg);
+  background:linear-gradient(90deg,rgba(255,255,255,0),rgba(255,255,255,.45),rgba(255,255,255,0));
+  animation:badgeShineSoft 3.8s ease-in-out infinite;
+  pointer-events:none;
+}
+.bottom-nav .nav-btn{
+  position:relative!important;
+  overflow:visible!important;
+}
+
+/* 본 화면 제목 왼쪽 트렌드 배지 */
+.view-title-trend-badges{
+  display:inline-flex;
+  align-items:center;
+  gap:5px;
+  margin-right:8px;
+  vertical-align:middle;
+}
+.view-title-trend-badge{
+  position:relative;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  height:22px;
+  min-width:38px;
+  padding:0 9px;
+  border-radius:999px;
+  font-size:10px!important;
+  font-weight:1000;
+  line-height:1;
+  overflow:hidden;
+  opacity:.92;
+  box-shadow:0 8px 16px rgba(15,23,42,.10);
+}
+.view-title-trend-badge.hot{
+  background:rgba(37,99,235,.88);
+  color:#fff;
+}
+.view-title-trend-badge.new{
+  background:rgba(249,115,22,.88);
+  color:#fff;
+}
+
+/* GNB 안에서는 섹션 성격에 맞는 배지만 inline으로 표시 */
+.gnb-context-badges{
+  display:inline-flex;
+  align-items:center;
+  gap:4px;
+  margin-left:6px;
+  vertical-align:middle;
+}
+.gnb-context-badge{
+  position:relative;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  height:17px;
+  min-width:29px;
+  padding:0 6px;
+  border-radius:999px;
+  font-size:9px!important;
+  font-weight:1000;
+  line-height:1;
+  overflow:hidden;
+  opacity:.88;
+}
+.gnb-context-badge.hot{
+  background:rgba(37,99,235,.84);
+  color:#fff;
+}
+.gnb-context-badge.new{
+  background:rgba(249,115,22,.84);
+  color:#fff;
+}
+/* 기존 GNB 리본/전역 배지는 숨김 유지 */
+.gnb-chip .menu-trend-ribbon,
+.gnb-menu-item .menu-trend-ribbon,
+.gnb-menu-subitem .menu-trend-ribbon,
+.gnb-chip .menu-trend-badge-wrap,
+.gnb-menu-item .menu-trend-badge-wrap,
+.gnb-menu-subitem .menu-trend-badge-wrap,
+.gnb-inline-badges{
+  display:none!important;
+}
+</style>
+
+
+<style id="trend-final-force-display">
+/* ===== Trend Final Force Display ===== */
+.bottom-nav .nav-btn{
+  position:relative!important;
+  overflow:visible!important;
+}
+.bottom-nav .nav-final-trend-badge{
+  position:absolute!important;
+  top:2px!important;
+  right:4px!important;
+  z-index:30!important;
+  height:14px!important;
+  min-width:25px!important;
+  padding:0 5px!important;
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  border-radius:999px!important;
+  font-size:7px!important;
+  line-height:1!important;
+  font-weight:1000!important;
+  letter-spacing:.03em!important;
+  color:#fff!important;
+  opacity:.92!important;
+  box-shadow:0 5px 10px rgba(15,23,42,.18)!important;
+  border:1px solid rgba(255,255,255,.22)!important;
+  pointer-events:none!important;
+  overflow:hidden!important;
+}
+.bottom-nav .nav-final-trend-badge.hot{
+  background:rgba(37,99,235,.90)!important;
+}
+.bottom-nav .nav-final-trend-badge.new{
+  background:rgba(249,115,22,.90)!important;
+}
+.bottom-nav .nav-final-trend-badge::after,
+.view-final-trend-badge::after{
+  content:"";
+  position:absolute;
+  top:-45%;
+  left:-65%;
+  width:34%;
+  height:180%;
+  transform:rotate(24deg);
+  background:linear-gradient(90deg,rgba(255,255,255,0),rgba(255,255,255,.46),rgba(255,255,255,0));
+  animation:badgeShineSoft 3.8s ease-in-out infinite;
+  pointer-events:none;
+}
+.view-final-trend-badges{
+  display:inline-flex!important;
+  align-items:center!important;
+  gap:5px!important;
+  margin-right:8px!important;
+  vertical-align:middle!important;
+}
+.view-final-trend-badge{
+  position:relative!important;
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  height:22px!important;
+  min-width:38px!important;
+  padding:0 9px!important;
+  border-radius:999px!important;
+  font-size:10px!important;
+  line-height:1!important;
+  font-weight:1000!important;
+  color:#fff!important;
+  opacity:.92!important;
+  overflow:hidden!important;
+  box-shadow:0 8px 16px rgba(15,23,42,.10)!important;
+}
+.view-final-trend-badge.hot{
+  background:rgba(37,99,235,.90)!important;
+}
+.view-final-trend-badge.new{
+  background:rgba(249,115,22,.90)!important;
+}
+</style>
+
+
+<style id="gnb-badges-off-keep-card-title-nav">
+/* ===== 최종 배지 노출 범위 =====
+   유지: 하단 네비바 / 각 화면 타이틀 / 전체 기능 카드
+   제거: GNB 내부 메뉴 배지
+*/
+#gnbSheet .menu-trend-ribbon,
+#gnbSheet .menu-trend-badge-wrap,
+#gnbSheet .gnb-inline-badges,
+#gnbSheet .gnb-context-badges,
+#gnbSheet .gnb-context-badge,
+#gnbSheet .gnb-inline-badge{
+  display:none!important;
+}
+
+/* GNB 메뉴는 텍스트만 깔끔하게 */
+#gnbSheet .gnb-menu-label{
+  display:inline-flex!important;
+  align-items:center!important;
+  gap:4px!important;
+}
+
+/* 하단 네비바 배지는 계속 작게 유지 */
+.bottom-nav .nav-final-trend-badge,
+.bottom-nav .nav-mini-trend{
+  display:inline-flex!important;
+}
+
+/* 타이틀 배지 유지 */
+.view-final-trend-badges,
+.view-title-trend-badges{
+  display:inline-flex!important;
+}
+
+/* 카드 배지 유지 */
+.all-menu-ribbon,
+.all-menu-badge-wrap{
+  display:inline-flex;
+}
+</style>
+
+
+<style id="trend-final-polish-bottom-card-title">
+/* HOT 메뉴만 은은하게 강조 */
+.bottom-nav .nav-final-trend-badge.hot,
+.bottom-nav .nav-mini-trend.hot{
+  box-shadow:0 0 0 2px rgba(37,99,235,.12), 0 6px 12px rgba(37,99,235,.20)!important;
+}
+
+.all-menu-card:has(.all-menu-ribbon.new-source-trending),
+.all-menu-card:has(.view-final-trend-badge.hot){
+  box-shadow:0 18px 34px rgba(37,99,235,.10), inset 0 0 0 1px rgba(37,99,235,.06);
+}
+
+/* 카드 HOT/NEW 배지는 너무 튀지 않게 유지 */
+.all-menu-ribbon{
+  opacity:.9!important;
+}
+</style>
+
+
+<style id="bottom-nav-badge-final-robot-style">
+/* ===== Bottom Nav Badge Final: 상단 로봇 아이콘 느낌의 작은 플로팅 배지 ===== */
+.bottom-nav .nav-btn{
+  position:relative!important;
+  overflow:visible!important;
+}
+.bottom-nav .nav-final-trend-badge,
+.bottom-nav .nav-mini-trend,
+.bottom-nav .nav-robot-trend-badge{
+  position:absolute!important;
+  top:5px!important;
+  right:8px!important;
+  z-index:50!important;
+  min-width:18px!important;
+  width:18px!important;
+  height:18px!important;
+  padding:0!important;
+  border-radius:999px!important;
+  display:grid!important;
+  place-items:center!important;
+  font-size:9px!important;
+  line-height:1!important;
+  font-weight:1000!important;
+  color:#fff!important;
+  opacity:.96!important;
+  border:2px solid rgba(255,255,255,.92)!important;
+  box-shadow:0 6px 14px rgba(15,23,42,.28)!important;
+  pointer-events:none!important;
+  overflow:hidden!important;
+}
+.bottom-nav .nav-final-trend-badge.hot,
+.bottom-nav .nav-mini-trend.hot,
+.bottom-nav .nav-robot-trend-badge.hot{
+  background:linear-gradient(135deg,#2563eb,#7c3aed)!important;
+}
+.bottom-nav .nav-final-trend-badge.new,
+.bottom-nav .nav-mini-trend.new,
+.bottom-nav .nav-robot-trend-badge.new{
+  background:linear-gradient(135deg,#f97316,#ef4444)!important;
+}
+.bottom-nav .nav-final-trend-badge.hot::before,
+.bottom-nav .nav-mini-trend.hot::before,
+.bottom-nav .nav-robot-trend-badge.hot::before{
+  content:"H";
+}
+.bottom-nav .nav-final-trend-badge.new::before,
+.bottom-nav .nav-mini-trend.new::before,
+.bottom-nav .nav-robot-trend-badge.new::before{
+  content:"N";
+}
+.bottom-nav .nav-final-trend-badge,
+.bottom-nav .nav-mini-trend,
+.bottom-nav .nav-robot-trend-badge{
+  color:transparent!important;
+}
+.bottom-nav .nav-final-trend-badge::after,
+.bottom-nav .nav-mini-trend::after,
+.bottom-nav .nav-robot-trend-badge::after{
+  content:"";
+  position:absolute;
+  top:-40%;
+  left:-70%;
+  width:42%;
+  height:180%;
+  transform:rotate(24deg);
+  background:linear-gradient(90deg,rgba(255,255,255,0),rgba(255,255,255,.55),rgba(255,255,255,0));
+  animation:badgeShineSoft 3.4s ease-in-out infinite;
+}
+</style>
+
+
+<style id="dynamic-bottom-nav-settings-style">
+/* ===== Dynamic Bottom Nav: fixed Home/All + up to 3 custom middle menus ===== */
+.bottom-nav{
+  grid-template-columns:repeat(var(--bottom-nav-count, 5), minmax(0,1fr))!important;
+}
+.bottom-nav .nav-btn{
+  position:relative!important;
+  overflow:visible!important;
+}
+.bottom-nav .nav-label{
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  max-width:100%;
+}
+.bottom-nav[data-count="2"]{
+  max-width:280px;
+  left:50%;
+  right:auto;
+  transform:translateX(-50%);
+}
+.bottom-nav[data-count="3"]{
+  max-width:340px;
+  left:50%;
+  right:auto;
+  transform:translateX(-50%);
+}
+.bottom-nav[data-count="4"]{
+  max-width:420px;
+  left:50%;
+  right:auto;
+  transform:translateX(-50%);
+}
+.bottom-nav[data-count="5"]{
+  max-width:480px;
+  left:0;
+  right:0;
+  transform:none;
+}
+</style>
+
 </head>
 <body>
  <div class="global-loading" id="globalLoadingBar" aria-hidden="true">
@@ -8137,14 +9173,8 @@ dialog:not(.app-alert) .modal-body{
  <div class="section-head" style="margin-bottom:12px;"><h3>전체 기능</h3><small>서비스 메뉴</small></div>
  <div class="helper">하단 네비바에 모두 담기 어려운 기능을 한 곳에 모았습니다.</div>
  </div>
- <div class="all-menu-grid">
- <button class="all-menu-card ai-entry-card" type="button" data-view-link="ai"><span class="all-icon">🤖</span><strong>AI 생활 도우미</strong><span>궁금한 정보를 빠르게 찾아드려요.</span></button>
- <button class="all-menu-card" type="button" data-view-link="map"><span class="all-icon">🗺️</span><strong>지도</strong><span>주변 혜택 매장을 지도에서 확인합니다.</span></button>
- <button class="all-menu-card" type="button" data-view-link="calendar"><span class="all-icon">📅</span><strong>캘린더 예약</strong><span>가고 싶은 혜택 매장을 예약하고 알림으로 편하게 이용하세요.</span></button>
- <button class="all-menu-card" type="button" data-view-link="notices"><span class="all-icon">📢</span><strong>공지사항</strong><span>관리자가 등록한 안내를 확인합니다.</span></button>
- <button class="all-menu-card" type="button" data-view-link="top5"><span class="all-icon">🏆</span><strong>TOP 5</strong><span>입주민이 많이 보는 인기 매장입니다.</span></button>
- <button class="all-menu-card" type="button" data-view-link="favorite"><span class="all-icon">⭐</span><strong>즐겨찾기</strong><span>자주 쓰는 혜택을 빠르게 봅니다.</span></button>
- <button class="all-menu-card" type="button" data-view-link="benefits"><span class="all-icon">🎁</span><strong>혜택 전체</strong><span>모든 제휴 혜택을 검색합니다.</span></button>
+ <div class="all-menu-grid" id="allMenuGrid">
+ <div class="panel empty" style="grid-column:1/-1;">전체 기능 메뉴를 불러오는 중입니다.</div>
  </div>
  </section>
 
@@ -8238,7 +9268,17 @@ dialog:not(.app-alert) .modal-body{
 
  <section id="view-top5" class="hidden"><div class="panel" style="margin-bottom:14px;"><div class="section-head" style="margin-bottom:12px;"><h3>인기 매장 TOP 5</h3><small id="popularUpdatedText">실시간 집계</small></div><div class="helper">상세조회 + 클릭 + 즐겨찾기 + 공유수 + 입주민 반응을 합산한 실시간 인기 매장입니다.</div></div><div id="hotNowPanel" class="panel hot-now-panel hidden"><div class="hot-now-head"><div><h3 class="hot-now-title">🔥 지금 뜨는 매장</h3><p class="hot-now-desc">공유수와 인기점수가 빠르게 올라가는 매장을 자동 표시합니다.</p></div><span class="hot-now-live">LIVE</span></div><div class="hot-now-list" id="hotNowList"></div></div><div id="nearbyProximityPanel" class="panel nearby-proximity-panel"><div class="nearby-proximity-head"><div><h3 class="nearby-proximity-title">📍 근처 자동 알림</h3><p class="nearby-proximity-desc">100m / 300m 안에 들어오면 앱 실행 중 토스트와 브라우저 알림으로 알려줍니다.</p></div></div><div class="nearby-proximity-actions"><button type="button" class="nearby-mini-btn" id="enableNearbyAutoPushBtn">근처 알림 시작</button><button type="button" class="nearby-mini-btn soft" id="checkNearbyNowBtn">지금 주변 확인</button></div><div class="nearby-proximity-status" id="nearbyProximityStatus">위치 권한을 허용하면 근처 혜택 알림이 동작합니다.</div></div><div class="list popular-list" id="popularList"><div class="panel empty">아직 집계된 인기 매장이 없습니다.</div></div><div id="residentRankPanel" class="panel resident-rank-panel"><div class="resident-rank-head"><div><h3 class="resident-rank-title">🏆 입주민 활동 랭킹</h3><p class="resident-rank-desc">조회, 공유, 추천, HOT 반응을 점수로 합산합니다.</p></div><small id="residentRankUpdatedText">실시간 집계</small></div><div class="resident-rank-list" id="residentRankList"><div class="notice-empty">아직 활동 랭킹 정보가 없습니다.</div></div></div></section>
  </div></div>
- <nav class="bottom-nav"><button class="nav-btn active" data-view="home"><span class="nav-icon">🏠</span><span class="nav-label">홈</span></button><button class="nav-btn" data-view="benefits"><span class="nav-icon">🎁</span><span class="nav-label">혜택</span></button><button class="nav-btn" data-view="favorite"><span class="nav-icon">⭐</span><span class="nav-label">즐겨찾기</span></button><button class="nav-btn" data-view="top5"><span class="nav-icon">🏆</span><span class="nav-label">TOP 5</span></button><button class="nav-btn" data-view="all"><span class="nav-icon">☰</span><span class="nav-label">전체</span></button></nav>
+ 
+<div id="aiBottomReco" class="ai-bottom-reco" role="button" tabindex="0" aria-label="AI 추천 메뉴 열기">
+  <div class="ai-bottom-reco-icon">🤖</div>
+  <div class="ai-bottom-reco-copy">
+    <strong id="aiBottomRecoTitle">AI 추천 메뉴</strong>
+    <span id="aiBottomRecoText">오늘 자주 쓰는 메뉴를 추천해드릴게요.</span>
+  </div>
+  <div class="ai-bottom-reco-arrow">›</div>
+</div>
+
+<nav class="bottom-nav"><button class="nav-btn active" data-view="home"><span class="nav-icon">🏠</span><span class="nav-label">홈</span></button><button class="nav-btn" data-view="benefits"><span class="nav-icon">🎁</span><span class="nav-label">혜택</span></button><button class="nav-btn" data-view="favorite"><span class="nav-icon">⭐</span><span class="nav-label">즐겨찾기</span></button><button class="nav-btn" data-view="top5"><span class="nav-icon">🏆</span><span class="nav-label">TOP 5</span></button><button class="nav-btn" data-view="all"><span class="nav-icon">☰</span><span class="nav-label">전체</span></button></nav>
  <dialog id="detailModal"><div class="modal-head"><div class="pill">혜택 상세</div><button class="close-btn" id="closeModal">✕</button></div><div class="modal-body" id="modalBody"></div></dialog>
  <dialog id="calendarReservationModal">
  <div class="modal-head"><div class="pill">방문 알림 추가</div><button class="close-btn" id="closeCalendarReservationModal">✕</button></div>
@@ -9313,6 +10353,29 @@ function setPushStatusUi(enabled){
  return false;
  }
  return true;
+ }
+
+
+ function makeViewTitleTrendBadges(menu){
+  if(!menu) return '';
+  const flags = getMenuTrendFlags(menu);
+  const pieces = [];
+  if(flags.isPopular || flags.isHot) pieces.push('<span class="view-title-trend-badge hot">HOT</span>');
+  if(flags.isNew) pieces.push('<span class="view-title-trend-badge new">NEW</span>');
+  return pieces.length ? `<span class="view-title-trend-badges">${pieces.join('')}</span>` : '';
+ }
+ function refreshCurrentViewTitleTrendBadges(){
+  qsa('.view-title-trend-badges').forEach(el => el.remove());
+  const view = state?.view || 'home';
+  const menu = findMenuByView(view);
+  const html = makeViewTitleTrendBadges(menu);
+  if(!html) return;
+  const viewEl = qs(`#view-${view}`);
+  if(!viewEl) return;
+  const title = viewEl.querySelector('.hero h2, .calendar-hero h3, .ai-view-hero h3, .section-head h3, h3, h2');
+  if(title){
+    title.insertAdjacentHTML('afterbegin', html);
+  }
  }
 
  function changeView(nextView){
@@ -10777,7 +11840,7 @@ async function refreshPushStatus(){
  }
  const hasFirebaseConfig=()=>firebaseConfig.apiKey&&firebaseConfig.projectId&&firebaseConfig.appId;
  function subscribeBenefits(){
- onSnapshot(collection(db, BENEFITS_COLLECTION), (snapshot) => {
+ onSnapshot(query(collection(db, BENEFITS_COLLECTION), where("status","==","active")), (snapshot) => {
  state.benefits = snapshot.docs.map(d => sanitizeBenefit(d.data(), d.id));
  if(state.userLocation) recalculateBenefitDistances();
  state.loading = false;
@@ -14748,6 +15811,20 @@ function buildAiEnhancedAnswerHtml(finalText='', question=''){
  aiConversationTitle = data.title || '이전 대화';
  localStorage.setItem(AI_CONVERSATION_KEY, aiConversationId);
  renderAiConversationMessages(data.messages || []);
+ 
+ qs('#aiBottomReco')?.addEventListener('click', () => {
+   const view = qs('#aiBottomReco')?.dataset?.viewLink || 'ai';
+   trackGnbMenuVisitByView(view);
+   qs('#aiBottomReco')?.classList.remove('show');
+   changeView(view);
+ });
+ qs('#aiBottomReco')?.addEventListener('keydown', (event) => {
+   if(event.key === 'Enter' || event.key === ' '){
+     event.preventDefault();
+     qs('#aiBottomReco')?.click();
+   }
+ });
+
  updateAiConversationStatus(aiConversationTitle);
  qs('#aiConversationPanel')?.classList.remove('show');
  }catch(error){
@@ -15519,6 +16596,744 @@ async function askAiAssistant(rawQuestion=''){
  );
  });
 
+
+
+ // ===== Dynamic GNB menu DB personalization v1 =====
+ const APP_MENUS_COLLECTION = 'app_menus';
+ const USER_MENU_HISTORY_COLLECTION = 'user_menu_history';
+ const MENU_STATS_COLLECTION = 'menu_stats';
+ const BOTTOM_NAV_SETTINGS_COLLECTION = 'app_settings';
+ const BOTTOM_NAV_SETTINGS_DOC = 'bottom_nav';
+ const DEFAULT_GNB_MENUS = [
+  {menuId:'home', name:'홈', icon:'🏠', view:'home', sections:['main'], order:10, keywords:['홈','메인','처음']},
+  {menuId:'ai', name:'AI 생활 도우미', icon:'🤖', view:'ai', sections:['new','main'], order:20, keywords:['ai','도우미','질문','생활','챗봇']},
+  {menuId:'benefits', name:'혜택 전체보기', icon:'🎁', view:'benefits', sections:['new','main'], order:30, keywords:['혜택','할인','매장','제휴','전체']},
+  {menuId:'favorite', name:'즐겨찾기 확인', icon:'⭐', view:'favorite', sections:['new','main'], order:40, keywords:['즐겨찾기','찜','저장']},
+  {menuId:'notices', name:'공지사항 보기', icon:'📢', view:'notices', sections:['new','main'], order:50, keywords:['공지','안내','소식']},
+  {menuId:'calendar', name:'캘린더 예약', icon:'📅', view:'calendar', sections:['new','main'], order:60, keywords:['캘린더','예약','일정','알림','방문']},
+  {menuId:'map', name:'지도', icon:'🗺️', view:'map', sections:['main'], order:70, keywords:['지도','위치','근처','거리']},
+  {menuId:'top5', name:'인기 매장 TOP 5', icon:'🏆', view:'top5', sections:['new','main'], order:80, keywords:['top','top5','인기','랭킹','순위']},
+  {menuId:'shareinsights', name:'공유 인사이트', icon:'📈', view:'shareinsights', sections:['admin'], order:200, roles:['admin','root'], keywords:['공유','통계','인사이트','관리자']}
+ ];
+ let gnbMenuCache = [];
+ let recentGnbMenuIdSet = new Set();
+ let popularGnbMenuIdSet = new Set();
+ let popularGnbStatsMap = new Map();
+
+ function getCurrentUserRole(){ return state.currentUserProfile?.role || 'resident'; }
+ function canUseGnbMenu(menu){
+  if(menu?.isActive === false || menu?.visible === false) return false;
+  const role = getCurrentUserRole();
+  const roles = Array.isArray(menu?.roles) ? menu.roles : (menu?.role ? [menu.role] : []);
+  return !roles.length || roles.includes(role) || (role === 'root');
+ }
+ function normalizeGnbMenu(raw={}, fallbackId=''){
+  const menuId = String(raw.menuId || raw.id || fallbackId || raw.view || raw.route || '').trim();
+  const view = String(raw.view || raw.viewLink || raw.route || menuId || 'home').replace(/^#|^\//,'').trim();
+  const sections = Array.isArray(raw.sections)
+    ? raw.sections.map(v => String(v).trim()).filter(Boolean)
+    : String(raw.sections || raw.section || raw.type || 'main').split(',').map(v => v.trim()).filter(Boolean);
+  const keywords = Array.isArray(raw.keywords) ? raw.keywords : String(raw.keywords || '').split(',').map(v=>v.trim()).filter(Boolean);
+  return { ...raw, menuId, view, route:view, name:raw.name || raw.title || menuId, icon:raw.icon || '•', sections, keywords, order:Number(raw.order ?? 999), isActive: raw.isActive !== false, roles:Array.isArray(raw.roles)?raw.roles:(raw.role?[raw.role]:[]) };
+ }
+ 
+ const FALLBACK_BOTTOM_MENUS = ['benefits','favorite','top5'];
+
+ function uniqBottomMenuIds(list=[]){
+  const result = [];
+  for(const raw of list || []){
+    const id = String(raw || '').replace(/^#|^\//,'').trim();
+    if(!id || id === 'home' || id === 'all') continue;
+    if(!result.includes(id)) result.push(id);
+    if(result.length >= 3) break;
+  }
+  return result;
+ }
+
+ async function loadBottomNavSettings(){
+  const uid = auth?.currentUser?.uid || '';
+  let userMenus = [];
+  let adminMenus = [];
+  let useAdminDefaultFill = true;
+
+  try{
+    if(uid && db){
+      const userSnap = await getDoc(doc(db, 'users', uid));
+      if(userSnap.exists()){
+        userMenus = uniqBottomMenuIds(userSnap.data().bottomNavMenus || []);
+      }
+    }
+  }catch(error){
+    console.warn('사용자 하단 네비 설정 로딩 실패', error);
+  }
+
+  try{
+    if(db){
+      const adminSnap = await getDoc(doc(db, BOTTOM_NAV_SETTINGS_COLLECTION, BOTTOM_NAV_SETTINGS_DOC));
+      if(adminSnap.exists()){
+        const data = adminSnap.data() || {};
+        adminMenus = uniqBottomMenuIds(data.defaultMenus || data.menus || []);
+        useAdminDefaultFill = data.useAdminDefaultFill !== false;
+      }
+    }
+  }catch(error){
+    console.warn('관리자 하단 네비 기본값 로딩 실패', error);
+  }
+
+  return { userMenus, adminMenus, useAdminDefaultFill };
+ }
+
+ function resolveBottomMenuIds(userMenus=[], adminMenus=[], useAdminDefaultFill=true){
+  const result = [];
+
+  for(const id of uniqBottomMenuIds(userMenus)){
+    if(!result.includes(id)) result.push(id);
+    if(result.length >= 3) return result;
+  }
+
+  if(useAdminDefaultFill){
+    const fillSource = adminMenus.length ? adminMenus : FALLBACK_BOTTOM_MENUS;
+    for(const id of uniqBottomMenuIds(fillSource)){
+      if(!result.includes(id)) result.push(id);
+      if(result.length >= 3) return result;
+    }
+
+    for(const id of FALLBACK_BOTTOM_MENUS){
+      if(!result.includes(id)) result.push(id);
+      if(result.length >= 3) return result;
+    }
+  }
+
+  return result;
+ }
+
+ function getMenuByIdOrFallback(id){
+  const key = String(id || '').replace(/^#|^\//,'').trim();
+  if(!key) return null;
+  const found = (gnbMenuCache || []).find(m =>
+    String(m.menuId || '') === key ||
+    String(m.view || '').replace(/^#|^\//,'').trim() === key ||
+    String(m.route || '').replace(/^#|^\//,'').trim() === key
+  );
+  if(found) return found;
+
+  const fallbackMap = {
+    home:{menuId:'home',name:'홈',icon:'🏠',view:'home',route:'home',sections:['bottom'],order:0},
+    all:{menuId:'all',name:'전체',icon:'☰',view:'all',route:'all',sections:['bottom'],order:9999},
+    benefits:{menuId:'benefits',name:'혜택',icon:'🎁',view:'benefits',route:'benefits',sections:['bottom'],order:10},
+    favorite:{menuId:'favorite',name:'즐겨찾기',icon:'⭐',view:'favorite',route:'favorite',sections:['bottom'],order:20},
+    top5:{menuId:'top5',name:'TOP5',icon:'🏆',view:'top5',route:'top5',sections:['bottom'],order:30}
+  };
+  return fallbackMap[key] || {menuId:key,name:key,icon:'•',view:key,route:key,sections:['bottom'],order:999};
+ }
+
+ function makeBottomNavButton(menu, fixed=false){
+  const view = menu.view || menu.route || menu.menuId;
+  const label = menu.bottomLabel || menu.navLabel || menu.shortName || menu.name || menu.menuId;
+  return `<button class="nav-btn${fixed && view === state.view ? ' active' : ''}" data-view-link="${escapeHtml(view)}" type="button">
+    <span class="nav-icon">${escapeHtml(menu.icon || '•')}</span>
+    <span class="nav-label">${escapeHtml(label)}</span>
+  </button>`;
+ }
+
+ async function renderDynamicBottomNav(){
+  const nav = document.querySelector('.bottom-nav');
+  if(!nav) return;
+
+  const { userMenus, adminMenus, useAdminDefaultFill } = await loadBottomNavSettings();
+  const middleIds = resolveBottomMenuIds(userMenus, adminMenus, useAdminDefaultFill);
+  const middleMenus = middleIds.map(getMenuByIdOrFallback).filter(Boolean);
+  const menus = [getMenuByIdOrFallback('home'), ...middleMenus, getMenuByIdOrFallback('all')].filter(Boolean);
+
+  nav.innerHTML = menus.map(menu => makeBottomNavButton(menu, true)).join('');
+  nav.dataset.count = String(menus.length);
+  nav.style.setProperty('--bottom-nav-count', String(menus.length));
+
+  updateBottomNavActiveState?.();
+  syncBottomNavTrendBadgesFinal?.();
+  syncBottomNavSafeOffset?.();
+  syncGnbNavSafe?.();
+  scheduleTrendFinalDisplay?.();
+ }
+
+ function updateBottomNavActiveState(){
+  const current = String(state?.view || 'home');
+  qsa('.bottom-nav [data-view-link]').forEach(btn => {
+    const view = String(btn.dataset.viewLink || '');
+    btn.classList.toggle('active', view === current);
+  });
+ }
+
+async function loadGnbMenusFromDb(){
+  try{
+   const snap = await getDocs(collection(db, APP_MENUS_COLLECTION));
+   const rows = snap.docs.map(d => normalizeGnbMenu({ id:d.id, ...d.data() }, d.id)).filter(canUseGnbMenu).sort((a,b)=>a.order-b.order);
+   gnbMenuCache = rows.length ? rows : DEFAULT_GNB_MENUS.filter(canUseGnbMenu);
+  }catch(error){
+   console.warn('GNB 메뉴 DB 로딩 실패, 기본 메뉴 사용', error);
+   gnbMenuCache = DEFAULT_GNB_MENUS.filter(canUseGnbMenu);
+  }
+  renderDynamicGnbMenus();
+  renderDynamicAllMenus();
+  refreshBottomNavMiniTrendBadges(); syncBottomNavTrendBadgesFinal?.();
+  await Promise.allSettled([loadRecentGnbMenus(), loadPopularGnbMenus()]);
+  renderDynamicAllMenus();
+  refreshBottomTrendUi();
+ }
+
+ function makeGnbInlineTrendBadges(menu){
+  const pieces = [];
+  const source = getNewRibbonSource(menu);
+  if(source === 'trending') pieces.push('<span class="gnb-inline-badge hot">HOT</span>');
+  else if(source) pieces.push('<span class="gnb-inline-badge new">NEW</span>');
+
+  const id = String(menu?.menuId || '');
+  if(popularGnbMenuIdSet.has(id)) pieces.push('<span class="gnb-inline-badge popular">인기</span>');
+  if(recentGnbMenuIdSet.has(id)) pieces.push('<span class="gnb-inline-badge recent">최근</span>');
+
+  return pieces.length ? `<span class="gnb-inline-badges">${pieces.join('')}</span>` : '';
+ }
+
+
+ function makeGnbContextBadges(menu, mode=''){
+  const pieces = [];
+  if(mode === 'popular' && isTrendingMenu(menu)){
+    pieces.push('<span class="gnb-context-badge hot">HOT</span>');
+  }
+  if(mode === 'new' && isMenuNew(menu)){
+    pieces.push('<span class="gnb-context-badge new">NEW</span>');
+  }
+  return pieces.length ? `<span class="gnb-context-badges">${pieces.join('')}</span>` : '';
+ }
+ function getMenuTrendFlags(menu){
+  return {
+    isNew: isMenuNew(menu),
+    isHot: isTrendingMenu(menu),
+    isPopular: popularGnbMenuIdSet.has(String(menu?.menuId || '')),
+    isRecent: recentGnbMenuIdSet.has(String(menu?.menuId || ''))
+  };
+ }
+
+ function makeGnbMenuButton(menu, className='gnb-menu-subitem', countText='', mode=''){
+  const label = `<span class="gnb-menu-label">${escapeHtml(menu.icon || '')} ${escapeHtml(menu.name || '')}${countText ? `<span class="gnb-menu-count">${escapeHtml(countText)}</span>` : ''}</span>`;
+  return `<button class="${className}" type="button" data-gnb-dynamic-menu="${escapeHtml(menu.menuId)}" data-view-link="${escapeHtml(menu.view || menu.route || menu.menuId)}">${label}</button>`;
+ }
+ function renderDynamicGnbMenus(){
+  const newMenus = gnbMenuCache.filter(m => m.sections.includes('new'));
+  const mainMenus = gnbMenuCache.filter(m => m.sections.includes('main') || m.sections.includes('gnb'));
+  const newEl = qs('#gnbNewMenus');
+  const mainEl = qs('#gnbMainMenus');
+  if(newEl) newEl.innerHTML = newMenus.length ? newMenus.map(m=>makeGnbMenuButton(m,'gnb-menu-item','', 'new')).join('') : '<div class="gnb-empty">관리자 메뉴에서 새 메뉴를 등록하면 여기에 표시됩니다.</div>';
+  if(mainEl) mainEl.innerHTML = mainMenus.length ? mainMenus.map(m=>makeGnbMenuButton(m,'gnb-menu-subitem')).join('') : '<div class="gnb-empty">표시할 메뉴가 없습니다.</div>';
+ }
+
+
+ function toMenuDate(value){
+  if(!value) return null;
+  try{
+    if(typeof value.toDate === 'function') return value.toDate();
+    if(typeof value.seconds === 'number') return new Date(value.seconds * 1000);
+    const d = new Date(value);
+    return Number.isNaN(d.getTime()) ? null : d;
+  }catch(_){ return null; }
+ }
+ function isWithinDays(dateValue, days){
+  const d = toMenuDate(dateValue);
+  if(!d) return false;
+  const diff = Date.now() - d.getTime();
+  return diff >= 0 && diff < days * 24 * 60 * 60 * 1000;
+ }
+ function isMenuNew(menu){
+  const sections = Array.isArray(menu?.sections) ? menu.sections : [];
+  if(!sections.includes('new')) return false;
+  // 관리자에서 createdAt이 없던 기존 메뉴는 updatedAt을 보조 기준으로 사용합니다.
+  return isWithinDays(menu.createdAt || menu.created || menu.createdAtText || menu.updatedAt, 7);
+ }
+ function isTrendingMenu(menu){
+  const id = String(menu?.menuId || '');
+  const stat = popularGnbStatsMap.get(id);
+  if(!stat) return false;
+  const total = Number(stat.totalClickCount || stat.clickCount || 0);
+  const recent = isWithinDays(stat.lastClickedAt || stat.updatedAt, 1);
+  // 최근 24시간 내 클릭되고, 누적 3회 이상이면 급상승 NEW로 봅니다.
+  return recent && total >= 3;
+ }
+ function shouldShowNewRibbon(menu){
+  return isMenuNew(menu) || isTrendingMenu(menu);
+ }
+
+ function getNewRibbonSource(menu){
+  const manual = isMenuNew(menu);
+  const trending = isTrendingMenu(menu);
+  if(manual && trending) return 'both';
+  if(trending) return 'trending';
+  if(manual) return 'manual';
+  return '';
+ }
+ function makeNewRibbonHtml(baseClass='all-menu-ribbon', menu){
+  const source = getNewRibbonSource(menu);
+  if(!source) return '';
+  const label = source === 'trending' ? 'HOT' : 'NEW';
+  return `<span class="${baseClass} new-source-${source}">${label}</span>`;
+ }
+
+
+ function getAllMenuDescription(menu){
+  return menu.description || menu.desc || menu.memo || menu.adminMemo || menu.subtitle || menu.summary || '필요한 기능을 바로 이용할 수 있습니다.';
+ }
+ function getAllMenuBadge(menu){
+  const id = String(menu?.menuId || '');
+  const badges = [];
+  // 인기와 최근이 같은 메뉴면 [인기][최근] 모두 표시
+  if(popularGnbMenuIdSet.has(id)) badges.push({ label:'인기', className:'popular' });
+  if(recentGnbMenuIdSet.has(id)) badges.push({ label:'최근', className:'recent' });
+  return badges;
+ }
+
+ function makeMenuTrendDecor(menu){
+  const ribbonHtml = makeNewRibbonHtml('menu-trend-ribbon', menu);
+  const badges = getAllMenuBadge(menu);
+  const badgeHtml = badges.length
+    ? `<span class="menu-trend-badge-wrap">${badges.map(b => `<span class="menu-trend-badge ${b.className}">${b.label}</span>`).join('')}</span>`
+    : '';
+  return ribbonHtml + badgeHtml;
+ }
+ function findMenuByView(view){
+  const key = String(view || '').replace(/^#|^\//,'').trim();
+  return gnbMenuCache.find(m =>
+    String(m.view || '').replace(/^#|^\//,'').trim() === key ||
+    String(m.route || '').replace(/^#|^\//,'').trim() === key ||
+    String(m.menuId || '').trim() === key
+  ) || null;
+ }
+
+ function getPopularTopMenu(){
+  const id = [...popularGnbMenuIdSet][0];
+  return id ? findMenuByView(id) || gnbMenuCache.find(m => String(m.menuId) === String(id)) : null;
+ }
+ function getRecentTopMenu(){
+  const id = [...recentGnbMenuIdSet][0];
+  return id ? findMenuByView(id) || gnbMenuCache.find(m => String(m.menuId) === String(id)) : null;
+ }
+ function pickAiRecommendedMenu(){
+  const popular = getPopularTopMenu();
+  const recent = getRecentTopMenu();
+  const hour = new Date().getHours();
+
+  // 우선순위: 인기 TOP1 → 최근 메뉴 → 시간대 기반 추천 → AI 메뉴
+  if(popular) return { menu: popular, reason: '요즘 가장 많이 쓰는 메뉴예요.' };
+  if(recent) return { menu: recent, reason: '방금 보셨던 메뉴를 이어서 볼 수 있어요.' };
+
+  const timeKeywords = hour < 11 ? ['공지','혜택','AI'] : hour < 15 ? ['혜택','지도','AI'] : hour < 20 ? ['캘린더','혜택','지도'] : ['AI','공지','캘린더'];
+  for(const key of timeKeywords){
+    const found = gnbMenuCache.find(m => canUseGnbMenu(m) && String(m.menuId) !== 'home' && [m.name,m.menuId,m.view,...(m.keywords||[])].join(' ').includes(key));
+    if(found) return { menu: found, reason: '지금 시간대에 보기 좋은 메뉴예요.' };
+  }
+  const fallback = gnbMenuCache.find(m => String(m.view || m.menuId) === 'ai') || gnbMenuCache.find(m => String(m.menuId) !== 'home');
+  return fallback ? { menu: fallback, reason: '필요한 정보를 빠르게 찾을 수 있어요.' } : null;
+ }
+ function refreshBottomNavTopHighlight(){
+  const topMenu = getPopularTopMenu();
+  qsa('.bottom-nav [data-view-link]').forEach(btn => {
+    btn.classList.remove('nav-top1');
+    if(!topMenu) return;
+    const view = String(btn.dataset.viewLink || '');
+    if(view === String(topMenu.view) || view === String(topMenu.route) || view === String(topMenu.menuId)){
+      btn.classList.add('nav-top1');
+    }
+  });
+ }
+
+function getAiRecoDailyKey(){
+  const uid = auth?.currentUser?.uid || 'guest';
+  const d = new Date();
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `aiBottomRecoShown:${uid}:${y}-${m}-${day}`;
+}
+function hasShownAiRecoToday(){
+  try{ return localStorage.getItem(getAiRecoDailyKey()) === '1'; }catch(_){ return false; }
+}
+function markAiRecoShownToday(){
+  try{ localStorage.setItem(getAiRecoDailyKey(), '1'); }catch(_){}
+}
+
+ function refreshAiBottomRecommendation(){
+  const box = qs('#aiBottomReco');
+  if(!box) return;
+
+  // AI 추천 토스트는 사용자별 하루 1회만 노출합니다.
+  if(hasShownAiRecoToday()){
+    box.classList.remove('show');
+    return;
+  }
+
+  const picked = pickAiRecommendedMenu();
+  if(!picked || !picked.menu){
+    box.classList.remove('show');
+    return;
+  }
+
+  const menu = picked.menu;
+  box.dataset.viewLink = menu.view || menu.route || menu.menuId;
+  box.setAttribute('role','button');
+  box.setAttribute('tabindex','0');
+  qs('#aiBottomRecoTitle') && (qs('#aiBottomRecoTitle').textContent = `AI 추천 · ${menu.name || menu.menuId}`);
+  qs('#aiBottomRecoText') && (qs('#aiBottomRecoText').textContent = picked.reason);
+  box.classList.add('show');
+  markAiRecoShownToday();
+ }
+
+ function forceBottomNavTopPopularBadge(){
+  const topMenu = getPopularTopMenu?.();
+  if(!topMenu) return;
+  const topKeys = [topMenu.view, topMenu.route, topMenu.menuId].map(v => String(v || '').replace(/^#|^\//,'').trim()).filter(Boolean);
+  qsa('.bottom-nav [data-view-link]').forEach(btn => {
+    const view = String(btn.dataset.viewLink || '').replace(/^#|^\//,'').trim();
+    if(!topKeys.includes(view)) return;
+    btn.classList.add('nav-top1');
+    if(!btn.querySelector('.menu-trend-badge.popular')){
+      let wrap = btn.querySelector('.menu-trend-badge-wrap');
+      if(!wrap){
+        wrap = document.createElement('span');
+        wrap.className = 'menu-trend-badge-wrap';
+        btn.insertAdjacentElement('afterbegin', wrap);
+      }
+      const b = document.createElement('span');
+      b.className = 'menu-trend-badge popular';
+      b.textContent = '인기';
+      wrap.appendChild(b);
+    }
+  });
+ }
+
+
+ function refreshBottomNavMiniTrendBadges(){
+  qsa('.bottom-nav [data-view-link]').forEach(btn => {
+    btn.querySelectorAll('.nav-mini-trend,.menu-trend-ribbon,.menu-trend-badge-wrap').forEach(el => el.remove());
+    const menu = findMenuByView(btn.dataset.viewLink);
+    if(!menu) return;
+    const flags = getMenuTrendFlags(menu);
+    let label = '';
+    let cls = '';
+    // 하단 네비바는 공간이 작으므로 HOT 우선, 그다음 NEW만 표시
+    if(flags.isPopular || flags.isHot){ label = 'HOT'; cls = 'hot'; }
+    else if(flags.isNew){ label = 'NEW'; cls = 'new'; }
+    if(label){
+      btn.insertAdjacentHTML('afterbegin', `<span class="nav-mini-trend ${cls}">${label}</span>`);
+    }
+  });
+ }
+
+ function refreshBottomTrendUi(){
+  refreshStaticNavTrendBadges?.();
+  refreshBottomNavTopHighlight();
+  refreshAiBottomRecommendation();
+  forceBottomNavTopPopularBadge();
+  refreshBottomNavMiniTrendBadges(); syncBottomNavTrendBadgesFinal?.();
+  refreshCurrentViewTitleTrendBadges();
+ }
+
+ function refreshStaticNavTrendBadges(){
+  qsa('.bottom-nav [data-view-link]').forEach(btn => {
+    btn.querySelectorAll('.menu-trend-ribbon,.menu-trend-badge-wrap').forEach(el => el.remove());
+    const menu = findMenuByView(btn.dataset.viewLink);
+    if(!menu) return;
+    const decor = makeMenuTrendDecor(menu);
+    if(decor) btn.insertAdjacentHTML('afterbegin', decor);
+  });
+ }
+
+ function makeAllMenuCard(menu){
+  const badges = getAllMenuBadge(menu);
+  const ribbonHtml = makeNewRibbonHtml('all-menu-ribbon', menu);
+  const badgeHtml = badges.length
+    ? `<span class="all-menu-badge-wrap">${badges.map(b => `<span class="all-menu-badge ${b.className}">${b.label}</span>`).join('')}</span>`
+    : '';
+  const isAi = String(menu.view || menu.route || menu.menuId) === 'ai' ? ' ai-entry-card' : '';
+  return `<button class="all-menu-card${isAi}" type="button" data-gnb-dynamic-menu="${escapeHtml(menu.menuId)}" data-view-link="${escapeHtml(menu.view || menu.route || menu.menuId)}">${ribbonHtml}${badgeHtml}<span class="all-icon">${escapeHtml(menu.icon || '•')}</span><strong>${escapeHtml(menu.name || menu.menuId)}</strong><span>${escapeHtml(getAllMenuDescription(menu))}</span></button>`;
+ }
+ function renderDynamicAllMenus(){
+  const el = qs('#allMenuGrid');
+  if(!el) return;
+  const rows = gnbMenuCache
+    .filter(canUseGnbMenu)
+    .filter(m => String(m.menuId) !== 'home')
+    // 전체 기능은 관리자에서 노출 구역에 "all"을 체크한 메뉴만 표시합니다.
+    // 주의: sections에 admin이 함께 있어도 all이 있으면 표시해야 합니다.
+    .filter(m => Array.isArray(m.sections) && m.sections.includes('all'))
+    .sort((a,b)=>a.order-b.order);
+  el.innerHTML = rows.length ? rows.map(makeAllMenuCard).join('') : '<div class="panel empty" style="grid-column:1/-1;">관리자 메뉴에서 전체 기능에 표시할 메뉴를 등록해 주세요.</div>';
+ }
+ async function trackGnbMenuVisitByView(view){
+  const user = auth?.currentUser; if(!user || !view || !db) return;
+  const menu = gnbMenuCache.find(m => String(m.view) === String(view) || String(m.route) === String(view) || String(m.menuId) === String(view)) || normalizeGnbMenu({menuId:view,name:view,view,sections:['main']});
+  const historyId = `${user.uid}_${menu.menuId}`;
+  const payload = { uid:user.uid, userId:user.uid, menuId:menu.menuId, menuName:menu.name, name:menu.name, icon:menu.icon || '', route:menu.route || menu.view, view:menu.view || menu.route, sections:menu.sections || [], keywords:menu.keywords || [], clickCount:increment(1), lastVisitedAt:serverTimestamp(), updatedAt:serverTimestamp() };
+  try{
+   const hRef = doc(db, USER_MENU_HISTORY_COLLECTION, historyId);
+   // 입주민 권한에서는 아직 없는 history 문서를 getDoc()으로 먼저 읽으면 Rules에서 차단될 수 있습니다.
+   // 그래서 읽기 없이 merge 저장만 수행합니다.
+   await setDoc(hRef, payload, { merge:true });
+   await setDoc(doc(db, MENU_STATS_COLLECTION, menu.menuId), { menuId:menu.menuId, menuName:menu.name, name:menu.name, icon:menu.icon || '', route:menu.route || menu.view, view:menu.view || menu.route, sections:menu.sections || [], keywords:menu.keywords || [], totalClickCount:increment(1), lastClickedAt:serverTimestamp(), updatedAt:serverTimestamp() }, { merge:true });
+   setTimeout(()=>{ loadRecentGnbMenus(); loadPopularGnbMenus(); scheduleTrendFinalDisplay?.(); }, 250);
+  }catch(error){ console.warn('GNB 메뉴 방문 기록 실패', error); }
+ }
+ async function loadRecentGnbMenus(){
+  const el = qs('#gnbRecentMenus'); const user = auth?.currentUser; if(!el || !user || !db) return;
+  try{
+   const snap = await getDocs(query(collection(db, USER_MENU_HISTORY_COLLECTION), where('uid','==',user.uid), orderBy('lastVisitedAt','desc'), limit(1)));
+   const rows = snap.docs.map(d=>normalizeGnbMenu({ id:d.id, ...d.data() }, d.data().menuId)).filter(canUseGnbMenu);
+   recentGnbMenuIdSet = new Set(rows.slice(0,1).map(m => String(m.menuId)));
+   el.innerHTML = rows.length ? rows.map(m=>makeGnbMenuButton(m,'gnb-chip')).join('') : '<div class="gnb-empty">메뉴를 방문하면 가장 최근 메뉴가 표시됩니다.</div>';
+   renderDynamicAllMenus();
+  }catch(error){ el.innerHTML = '<div class="gnb-empty">최근 메뉴를 불러오려면 Firestore 인덱스를 확인해 주세요.</div>'; renderDynamicAllMenus(); refreshBottomTrendUi(); }
+ }
+ async function loadPopularGnbMenus(){
+  const el = qs('#gnbPopularMenus'); if(!el || !db) return;
+  try{
+   const snap = await getDocs(query(collection(db, MENU_STATS_COLLECTION), orderBy('totalClickCount','desc'), limit(5)));
+   const rows = snap.docs.map(d=>normalizeGnbMenu({ id:d.id, ...d.data() }, d.data().menuId)).filter(canUseGnbMenu).slice(0,1);
+      popularGnbMenuIdSet = new Set(rows.slice(0,1).map(m => String(m.menuId)));
+   popularGnbStatsMap = new Map(rows.map(m => [String(m.menuId), m]));
+popularGnbMenuIdSet = new Set(rows.slice(0,1).map(m => String(m.menuId)));
+   el.innerHTML = rows.length ? rows.map(m=>makeGnbMenuButton(m,'gnb-chip', `${Number(m.totalClickCount||m.clickCount||0)}회`, 'popular')).join('') : '<div class="gnb-empty">방문이 쌓이면 가장 인기 있는 메뉴가 표시됩니다.</div>';
+   renderDynamicAllMenus();
+  }catch(error){ el.innerHTML = '<div class="gnb-empty">인기 메뉴를 불러오지 못했습니다.</div>'; renderDynamicAllMenus(); refreshBottomTrendUi(); }
+ }
+ function renderGnbMenuSearch(keyword=''){
+  const box = qs('#gnbMenuSearchResults'); if(!box) return;
+  const q = String(keyword || '').trim().toLowerCase();
+  if(!q){ box.classList.add('hidden'); box.innerHTML=''; return; }
+  const rows = gnbMenuCache.filter(m => [m.name, m.menuId, m.view, ...(m.keywords||[])].join(' ').toLowerCase().includes(q)).slice(0,8);
+  box.classList.remove('hidden');
+  box.innerHTML = `<div class="gnb-search-result-title">통합검색 결과</div>` + (rows.length ? rows.map(m=>makeGnbMenuButton(m,'gnb-menu-subitem')).join('') : '<div class="gnb-empty">검색 결과가 없습니다.</div>');
+ }
+ qs('#gnbMenuSearchInput')?.addEventListener('input', (event)=>renderGnbMenuSearch(event.target.value));
+ document.addEventListener('click', (event) => {
+  const btn = event.target.closest('[data-view-link]');
+  if(!btn) return;
+
+  const view = btn.dataset.viewLink;
+  const isInGnbSheet = !!btn.closest('#gnbSheet');
+  const isInAllMenuGrid = !!btn.closest('#allMenuGrid');
+  const isDynamicMenu = btn.hasAttribute('data-gnb-dynamic-menu');
+
+  // DB에서 렌더링된 GNB/전체기능 메뉴는 초기 qsa 바인딩 이후 생성되므로
+  // 이벤트 위임 방식으로 직접 화면 이동 + 방문 기록을 처리합니다.
+  if(view && (isDynamicMenu || isInGnbSheet || isInAllMenuGrid)){
+    event.preventDefault();
+    event.stopPropagation();
+    trackGnbMenuVisitByView(view);
+    changeView(view);
+    if(isInGnbSheet) closeGnb();
+  }else if(isInGnbSheet || btn.closest('.bottom-nav') || btn.id === 'aiQuickBtn'){
+    trackGnbMenuVisitByView(view);
+  }
+ }, true);
+ setTimeout(loadGnbMenusFromDb, 900);
+
+/* Dynamic bottom nav delegated click */
+document.addEventListener('click', (event) => {
+  const btn = event.target.closest?.('.bottom-nav [data-view-link]');
+  if(!btn) return;
+  event.preventDefault();
+  event.stopPropagation();
+  const view = btn.dataset.viewLink || 'home';
+  try{ trackGnbMenuVisitByView(view); }catch(_){}
+  changeView(view);
+  updateBottomNavActiveState?.();
+  setTimeout(() => {
+    syncBottomNavTrendBadgesFinal?.();
+    syncBottomNavSafeOffset?.();
+  }, 80);
+}, true);
+
+
+/* ===== Bottom Nav HOT/NEW Final Force Sync ===== */
+function getBottomNavTrendMenuByKey(key){
+  key = String(key || '').replace(/^#|^\//,'').trim();
+  if(!key) return null;
+  return (gnbMenuCache || []).find(m => {
+    const keys = [m.menuId, m.view, m.route].map(v => String(v || '').replace(/^#|^\//,'').trim());
+    return keys.includes(key);
+  }) || null;
+}
+function getBottomNavPopularTopId(){
+  try{
+    const ids = Array.from(popularGnbMenuIdSet || []);
+    if(ids.length) return String(ids[0]);
+  }catch(_){}
+  try{
+    let best = null;
+    (gnbMenuCache || []).forEach(m => {
+      const count = Number(m.totalClickCount || m.clickCount || 0);
+      const last = m.lastClickedAt?.toDate?.() || (m.lastClickedAt ? new Date(m.lastClickedAt) : null);
+      if(!best || count > best.count || (count === best.count && last && best.last && last > best.last)){
+        best = { id:String(m.menuId || ''), count, last };
+      }
+    });
+    return best?.count > 0 ? best.id : '';
+  }catch(_){ return ''; }
+}
+function bottomNavMenuIsNew(menu){
+  try{ return isMenuNew(menu); }catch(_){ return Array.isArray(menu?.sections) && menu.sections.includes('new'); }
+}
+function syncBottomNavTrendBadgesFinal(){
+  const popularId = getBottomNavPopularTopId();
+  const popularMenu = popularId ? getBottomNavTrendMenuByKey(popularId) : null;
+  const popularKeys = popularMenu ? [popularMenu.menuId, popularMenu.view, popularMenu.route].map(v => String(v || '').replace(/^#|^\//,'').trim()).filter(Boolean) : [];
+
+  document.querySelectorAll('.bottom-nav [data-view-link]').forEach(btn => {
+    btn.querySelectorAll('.nav-final-trend-badge,.nav-mini-trend,.nav-robot-trend-badge,.menu-trend-ribbon,.menu-trend-badge-wrap').forEach(el => el.remove());
+
+    const viewKey = String(btn.dataset.viewLink || '').replace(/^#|^\//,'').trim();
+    const menu = getBottomNavTrendMenuByKey(viewKey);
+
+    let type = '';
+    if(popularKeys.includes(viewKey)){
+      type = 'hot';
+    }else if(bottomNavMenuIsNew(menu)){
+      type = 'new';
+    }
+
+    if(type){
+      btn.insertAdjacentHTML('afterbegin', `<span class="nav-robot-trend-badge ${type}" aria-hidden="true"></span>`);
+    }
+  });
+}
+window.syncBottomNavTrendBadgesFinal = syncBottomNavTrendBadgesFinal;
+document.addEventListener('click', () => setTimeout(syncBottomNavTrendBadgesFinal, 80), true);
+window.addEventListener('load', () => {
+  setTimeout(syncBottomNavTrendBadgesFinal, 200);
+  setTimeout(syncBottomNavTrendBadgesFinal, 900);
+  setTimeout(syncBottomNavTrendBadgesFinal, 1800);
+});
+setInterval(syncBottomNavTrendBadgesFinal, 2500);
+
+setTimeout(syncBottomNavTrendBadgesFinal, 1000);
+
+/* ===== Trend Final Force Sync ===== */
+function normalizeTrendViewKey(value){
+  return String(value || '').replace(/^#|^\//,'').trim();
+}
+function findTrendMenuByView(value){
+  const key = normalizeTrendViewKey(value);
+  if(!key) return null;
+  return (gnbMenuCache || []).find(m => {
+    return normalizeTrendViewKey(m.view) === key ||
+      normalizeTrendViewKey(m.route) === key ||
+      normalizeTrendViewKey(m.menuId) === key;
+  }) || null;
+}
+function getTrendMenuFlagsSafe(menu){
+  if(!menu) return { hot:false, new:false };
+  const id = String(menu.menuId || '');
+  let hot = false;
+  let isNewFlag = false;
+  try{
+    hot = (popularGnbMenuIdSet && popularGnbMenuIdSet.has(id)) || isTrendingMenu(menu);
+  }catch(_){
+    hot = popularGnbMenuIdSet && popularGnbMenuIdSet.has(id);
+  }
+  try{
+    isNewFlag = isMenuNew(menu);
+  }catch(_){
+    isNewFlag = Array.isArray(menu.sections) && menu.sections.includes('new');
+  }
+  return { hot, new:isNewFlag };
+}
+function makeTrendBadgeHtmlForView(menu, mode='nav'){
+  const flags = getTrendMenuFlagsSafe(menu);
+  if(flags.hot) return `<span class="${mode === 'nav' ? 'nav-final-trend-badge' : 'view-final-trend-badge'} hot">HOT</span>`;
+  if(flags.new) return `<span class="${mode === 'nav' ? 'nav-final-trend-badge' : 'view-final-trend-badge'} new">NEW</span>`;
+  return '';
+}
+function refreshBottomNavFinalTrendBadges(){
+  document.querySelectorAll('.bottom-nav [data-view-link]').forEach(btn => {
+    btn.querySelectorAll('.nav-final-trend-badge,.nav-mini-trend,.menu-trend-ribbon,.menu-trend-badge-wrap').forEach(el => el.remove());
+    const menu = findTrendMenuByView(btn.dataset.viewLink);
+    const html = makeTrendBadgeHtmlForView(menu, 'nav');
+    if(html) btn.insertAdjacentHTML('afterbegin', html);
+  });
+}
+function getCurrentVisibleViewKey(){
+  const activeNav = document.querySelector('.bottom-nav .nav-btn.active[data-view-link]');
+  if(activeNav?.dataset?.viewLink) return normalizeTrendViewKey(activeNav.dataset.viewLink);
+
+  const visible = Array.from(document.querySelectorAll('section[id^="view-"]')).find(sec => !sec.classList.contains('hidden'));
+  if(visible?.id) return visible.id.replace(/^view-/, '');
+
+  return normalizeTrendViewKey(state?.view || 'home');
+}
+function refreshCurrentViewFinalTrendBadge(){
+  document.querySelectorAll('.view-final-trend-badges').forEach(el => el.remove());
+  const view = getCurrentVisibleViewKey();
+  const menu = findTrendMenuByView(view);
+  const hotNew = [];
+  const flags = getTrendMenuFlagsSafe(menu);
+  if(flags.hot) hotNew.push('<span class="view-final-trend-badge hot">HOT</span>');
+  if(flags.new) hotNew.push('<span class="view-final-trend-badge new">NEW</span>');
+  if(!hotNew.length) return;
+
+  const viewEl = document.querySelector(`#view-${CSS.escape(view)}`) || document.querySelector('section[id^="view-"]:not(.hidden)');
+  if(!viewEl) return;
+
+  const title = viewEl.querySelector('.hero h2, .calendar-hero h3, .ai-view-hero h3, .section-head h3, h3, h2');
+  if(!title) return;
+  title.insertAdjacentHTML('afterbegin', `<span class="view-final-trend-badges">${hotNew.join('')}</span>`);
+}
+function refreshTrendFinalDisplay(){
+  refreshBottomNavFinalTrendBadges(); syncBottomNavTrendBadgesFinal?.();
+  refreshCurrentViewFinalTrendBadge();
+}
+function scheduleTrendFinalDisplay(){
+  setTimeout(refreshTrendFinalDisplay, 0);
+  setTimeout(refreshTrendFinalDisplay, 150);
+  setTimeout(refreshTrendFinalDisplay, 600);
+}
+document.addEventListener('click', (event) => {
+  if(event.target.closest?.('[data-view-link], .bottom-nav, #gnbSheet, #allMenuGrid')){
+    scheduleTrendFinalDisplay();
+  }
+}, true);
+window.addEventListener('load', scheduleTrendFinalDisplay);
+setInterval(refreshTrendFinalDisplay, 2500);
+try{
+  const trendObserver = new MutationObserver(() => scheduleTrendFinalDisplay());
+  trendObserver.observe(document.body, { childList:true, subtree:true, attributes:true, attributeFilter:['class'] });
+}catch(_){}
+
+scheduleTrendFinalDisplay();
+
+// AI 추천 토스트: 동적 생성/재렌더 후에도 항상 이동되도록 전역 위임
+document.addEventListener('click', (event) => {
+  const box = event.target.closest?.('#aiBottomReco');
+  if(!box) return;
+  event.preventDefault();
+  event.stopPropagation();
+  const view = box.dataset.viewLink || 'ai';
+  try{ trackGnbMenuVisitByView(view); }catch(_){}
+  markAiRecoShownToday?.();
+  box.classList.remove('show');
+  changeView(view);
+}, true);
+
+document.addEventListener('keydown', (event) => {
+  const box = event.target.closest?.('#aiBottomReco');
+  if(!box) return;
+  if(event.key === 'Enter' || event.key === ' '){
+    event.preventDefault();
+    const view = box.dataset.viewLink || 'ai';
+    try{ trackGnbMenuVisitByView(view); }catch(_){}
+    box.classList.remove('show');
+    changeView(view);
+  }
+}, true);
+
+
+
  qsa('[data-view-link]').forEach(btn => {
  btn.addEventListener('click', () => {
  const view = btn.dataset.viewLink;
@@ -15683,38 +17498,30 @@ async function askAiAssistant(rawQuestion=''){
  <span>›</span>
  </div>
 
+ <section class="gnb-section gnb-search-section">
+ <h3 class="gnb-section-title premium-section-title section-animate"><span class="title-icon">🔎</span><span class="title-text">메뉴 검색</span></h3>
+ <div class="gnb-search-box"><input id="gnbMenuSearchInput" type="search" placeholder="메뉴 통합검색, 인기메뉴, 최근메뉴" autocomplete="off" /></div>
+ <div class="gnb-menu-search-results hidden" id="gnbMenuSearchResults"></div>
+ </section>
+
  <section class="gnb-section">
- <h3 class="gnb-section-title" class="premium-section-title section-animate"><span class="title-icon">🕘</span><span class="title-text">최근에 봤어요</span></h3>
- <div class="gnb-chip-row">
- <button class="gnb-chip" type="button" data-view-link="benefits">전체 혜택</button>
- </div>
+ <h3 class="gnb-section-title premium-section-title section-animate"><span class="title-icon">🕘</span><span class="title-text">최근에 봤어요</span></h3>
+ <div class="gnb-chip-row" id="gnbRecentMenus"><div class="gnb-empty">최근 방문 메뉴를 불러오는 중입니다.</div></div>
+ </section>
+
+ <section class="gnb-section">
+ <h3 class="gnb-section-title premium-section-title section-animate"><span class="title-icon">🔥</span><span class="title-text">인기 메뉴</span></h3>
+ <div class="gnb-chip-row" id="gnbPopularMenus"><div class="gnb-empty">인기 메뉴를 불러오는 중입니다.</div></div>
  </section>
 
  <section class="gnb-section">
  <div class="gnb-menu-group">
  <h4 class="gnb-menu-group-title">📌 새로 나왔어요</h4>
- <div class="gnb-new-section"><div class="gnb-menu-list">
- <button class="gnb-menu-item" type="button" data-view-link="ai">AI 생활 도우미</button>
- <button class="gnb-menu-item" type="button" data-view-link="benefits">혜택 전체보기</button>
- <button class="gnb-menu-item" type="button" data-view-link="notices">공지사항 보기</button>
- <button class="gnb-menu-item" type="button" data-view-link="calendar">캘린더 예약</button>
- <button class="gnb-menu-item" type="button" data-view-link="top5">인기 매장 TOP 5</button>
- <button class="gnb-menu-item" type="button" data-view-link="favorite">즐겨찾기 확인</button>
+ <div class="gnb-new-section"><div class="gnb-menu-list" id="gnbNewMenus"><div class="gnb-empty">새 메뉴를 불러오는 중입니다.</div></div></div>
  </div>
- </div>
-
  <div class="gnb-menu-group">
  <h4 class="gnb-menu-group-title">🏠 더운정 마이힐스</h4>
- <div class="gnb-menu-sublist">
- <button class="gnb-menu-subitem" type="button" data-view-link="home">홈</button>
- <button class="gnb-menu-subitem" type="button" data-view-link="ai">AI 도우미</button>
- <button class="gnb-menu-subitem" type="button" data-view-link="benefits">혜택</button>
- <button class="gnb-menu-subitem" type="button" data-view-link="favorite">즐겨찾기</button>
- <button class="gnb-menu-subitem" type="button" data-view-link="notices">공지사항</button>
- <button class="gnb-menu-subitem" type="button" data-view-link="calendar">캘린더</button>
- <button class="gnb-menu-subitem" type="button" data-view-link="map">지도</button>
- <button class="gnb-menu-subitem" type="button" data-view-link="top5">TOP 5</button>
- </div>
+ <div class="gnb-menu-sublist" id="gnbMainMenus"><div class="gnb-empty">메뉴를 불러오는 중입니다.</div></div>
  </div>
  </section>
 

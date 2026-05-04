@@ -1855,6 +1855,74 @@ body.gnb-open .admin-bottom-nav{
 }
 </style>
 
+
+<style id="bottom-nav-admin-settings-style">
+.bottom-nav-admin-box{
+  display:grid;
+  gap:12px;
+}
+.bottom-nav-admin-help{
+  font-size:12px;
+  color:#64748b;
+  line-height:1.65;
+  padding:12px 14px;
+  border-radius:16px;
+  background:#f8fafc;
+  border:1px solid #e2e8f0;
+}
+.bottom-nav-selected-list{
+  display:grid;
+  gap:8px;
+}
+.bottom-nav-selected-item{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  padding:11px 12px;
+  border-radius:16px;
+  background:#fff;
+  border:1px solid #e2e8f0;
+}
+.bottom-nav-selected-item strong{
+  font-size:13px;
+}
+.bottom-nav-selected-item span{
+  font-size:12px;
+  color:#64748b;
+}
+.bottom-nav-menu-pick-grid{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:8px;
+}
+.bottom-nav-menu-pick{
+  border:1px solid #e2e8f0;
+  border-radius:16px;
+  background:#fff;
+  padding:11px 12px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:8px;
+  cursor:pointer;
+  font-size:13px;
+  font-weight:800;
+}
+.bottom-nav-menu-pick.active{
+  background:#eff6ff;
+  border-color:#93c5fd;
+  color:#1d4ed8;
+}
+.bottom-nav-menu-pick.disabled{
+  opacity:.45;
+  cursor:not-allowed;
+}
+@media(max-width:420px){
+  .bottom-nav-menu-pick-grid{grid-template-columns:1fr;}
+}
+</style>
+
 </head>
 <body>
   <div class="global-loading" id="globalLoadingBar" aria-hidden="true">
@@ -1990,12 +2058,48 @@ body.gnb-open .admin-bottom-nav{
             <div class="grid-2"><div class="field"><label for="menuIcon">아이콘</label><input id="menuIcon" placeholder="예: 📅" /></div><div class="field"><label for="menuView">이동 view</label><input id="menuView" placeholder="예: calendar" required /></div></div>
             <div class="field"><label for="menuKeywords">검색 키워드</label><input id="menuKeywords" placeholder="예약, 알림, 일정, 달력" /><div class="admin-field-help">쉼표로 구분합니다. GNB 검색과 AI 메뉴 안내에 같이 활용됩니다.</div></div>
             <div class="grid-2"><div class="field"><label for="menuOrder">정렬 순서</label><input id="menuOrder" type="number" value="100" /></div><div class="field"><label for="menuDescription">관리 메모</label><input id="menuDescription" placeholder="사용자에게 노출될 설명 또는 운영 메모" /></div></div>
-            <div class="field"><label>노출 구역</label><div class="menu-section-row"><label><input type="checkbox" name="menuSection" value="main" checked> 더운정 마이힐스</label><label><input type="checkbox" name="menuSection" value="all"> 전체 기능</label><label><input type="checkbox" name="menuSection" value="new"> 새로 나왔어요</label><label><input type="checkbox" name="menuSection" value="gnb"> GNB 기본</label><label><input type="checkbox" name="menuSection" value="admin"> 관리자</label></div></div>
+            <div class="field"><label>노출 구역</label><div class="menu-section-row"><label><input type="checkbox" name="menuSection" value="main" checked> 더운정 마이힐스</label><label><input type="checkbox" name="menuSection" value="all"> 전체 기능</label><label><input type="checkbox" name="menuSection" value="bottom"> 하단 네비 후보</label><label><input type="checkbox" name="menuSection" value="new"> 새로 나왔어요</label><label><input type="checkbox" name="menuSection" value="gnb"> GNB 기본</label><label><input type="checkbox" name="menuSection" value="admin"> 관리자</label></div></div>
             <div class="field"><label>노출 권한</label><div class="menu-role-row"><label><input type="checkbox" name="menuRole" value="resident" checked> 입주민</label><label><input type="checkbox" name="menuRole" value="admin" checked> 관리자</label><label><input type="checkbox" name="menuRole" value="root" checked> Root</label></div></div>
             <div class="field"><label>상태</label><div class="check-row"><label><input type="checkbox" id="menuIsActive" checked> 공개앱 노출</label></div></div>
             <div class="grid-2"><button class="btn btn-primary" type="submit">메뉴 저장</button><button class="btn btn-soft" type="button" id="menuResetBtn">새 메뉴 작성</button></div>
           </form>
         </div>
+
+        <div class="admin-card">
+          <div class="section-head" style="margin-bottom:12px;">
+            <h3 style="font-size:16px;">하단 네비 기본 메뉴 설정</h3>
+            <small>기본 ON</small>
+          </div>
+          <div class="bottom-nav-admin-box">
+            <div class="bottom-nav-admin-help">
+              홈은 맨 왼쪽, 전체는 맨 오른쪽에 고정됩니다.<br>
+              가운데 기본 메뉴는 최대 3개까지 지정할 수 있으며, 사용자가 1~2개만 개인화한 경우 빈자리는 관리자 기본 메뉴로 채워집니다.
+            </div>
+            <div class="field">
+              <label>기본 메뉴 자동 채움</label>
+              <div class="check-row">
+                <label><input type="checkbox" id="bottomNavUseAdminDefaultFill" checked> 사용자 선택 메뉴가 3개 미만일 때 관리자 기본 메뉴로 빈자리 채우기</label>
+              </div>
+            </div>
+            <div class="field">
+              <label>관리자 기본 메뉴 선택 <small style="color:#64748b;">최대 3개</small></label>
+              <div class="bottom-nav-menu-pick-grid" id="bottomNavMenuPicker">
+                <div class="notice">GNB 메뉴를 먼저 불러오는 중입니다.</div>
+              </div>
+            </div>
+            <div class="field">
+              <label>현재 기본 구성</label>
+              <div class="bottom-nav-selected-list" id="bottomNavSelectedList">
+                <div class="notice">저장된 설정을 불러오는 중입니다.</div>
+              </div>
+            </div>
+            <div class="grid-2">
+              <button class="btn btn-primary" type="button" id="bottomNavSaveBtn">기본 메뉴 저장</button>
+              <button class="btn btn-soft" type="button" id="bottomNavResetBtn">기본값으로</button>
+            </div>
+          </div>
+        </div>
+
         <div class="admin-card">
           <div class="section-head" style="margin-bottom:12px;"><h3 style="font-size:16px;">등록된 GNB 메뉴</h3><small id="menuListCount">0건</small></div>
           <div class="menu-admin-list" id="menuAdminList"><div class="notice">관리자 로그인 후 메뉴를 불러옵니다.</div></div>
@@ -4635,7 +4739,7 @@ function fillForm(item){qs('#editId').value=item.id;qs('#formModeLabel').textCon
     async function loadAdminMenus(){
       if(!requireAdminDataAccess(false)) return;
       const list=qs('#menuAdminList'); if(list) list.innerHTML='<div class="notice">GNB 메뉴를 불러오는 중입니다.</div>';
-      try{ const snap=await getDocs(collection(db, APP_MENUS_COLLECTION)); adminMenuItems=snap.docs.map(d=>normalizeAdminMenu(d.data(), d.id)); renderAdminMenus(); }
+      try{ const snap=await getDocs(collection(db, APP_MENUS_COLLECTION)); adminMenuItems=snap.docs.map(d=>normalizeAdminMenu(d.data(), d.id)); renderAdminMenus(); renderBottomNavSettings?.(); }
       catch(error){ console.error(error); if(list) list.innerHTML='<div class="notice">GNB 메뉴를 불러오지 못했습니다. Firestore Rules를 확인해 주세요.</div>'; }
     }
     function resetMenuForm(){
@@ -4653,13 +4757,142 @@ function fillForm(item){qs('#editId').value=item.id;qs('#formModeLabel').textCon
       const payload={ menuId, name, icon:qs('#menuIcon').value.trim()||'•', view, route:view, keywords, sections:sections.length?sections:['main'], roles:roles.length?roles:['resident','admin','root'], order:Number(qs('#menuOrder').value||100), description:qs('#menuDescription').value.trim(), isActive:qs('#menuIsActive').checked, updatedAt:serverTimestamp() };
       const editId=qs('#menuEditId').value.trim();
       await setDoc(doc(db, APP_MENUS_COLLECTION, editId || menuId), editId ? payload : {...payload, createdAt:serverTimestamp()}, {merge:true});
-      await openModalAlert('GNB 메뉴가 저장되었습니다.', qs('#menuName')); resetMenuForm(); await loadAdminMenus();
+      await openModalAlert('GNB 메뉴가 저장되었습니다.', qs('#menuName')); resetMenuForm();
+
+    /* =========================
+       Bottom Nav Default Settings
+    ========================= */
+    const BOTTOM_NAV_SETTINGS_COLLECTION='app_settings';
+    const BOTTOM_NAV_SETTINGS_DOC='bottom_nav';
+    let bottomNavSelectedMenus=[];
+    let bottomNavUseAdminDefaultFill=true;
+
+    function normalizeBottomNavIds(list=[]){
+      const result=[];
+      for(const raw of list||[]){
+        const id=String(raw||'').replace(/^#|^\//,'').trim();
+        if(!id || id==='home' || id==='all') continue;
+        if(!result.includes(id)) result.push(id);
+        if(result.length>=3) break;
+      }
+      return result;
+    }
+    function getBottomNavCandidateMenus(){
+      const preferred=['benefits','favorite','top5','ai','calendar','map','notices'];
+      const candidates=[...adminMenuItems]
+        .filter(item=>item.isActive!==false)
+        .filter(item=>!['home','all'].includes(String(item.menuId)))
+        .filter(item=>!(Array.isArray(item.sections)&&item.sections.includes('admin')&&!item.sections.includes('bottom')))
+        .sort((a,b)=>{
+          const ai=preferred.indexOf(a.menuId), bi=preferred.indexOf(b.menuId);
+          if(ai!==-1 || bi!==-1) return (ai===-1?999:ai)-(bi===-1?999:bi);
+          return a.order-b.order;
+        });
+      return candidates;
+    }
+    function renderBottomNavSettings(){
+      const picker=qs('#bottomNavMenuPicker');
+      const selected=qs('#bottomNavSelectedList');
+      const fill=qs('#bottomNavUseAdminDefaultFill');
+      if(fill) fill.checked=bottomNavUseAdminDefaultFill!==false;
+      if(!picker || !selected) return;
+
+      const candidates=getBottomNavCandidateMenus();
+      if(!candidates.length){
+        picker.innerHTML='<div class="notice">선택 가능한 공개 메뉴가 없습니다. 먼저 GNB 메뉴를 등록해 주세요.</div>';
+      }else{
+        picker.innerHTML=candidates.map(item=>{
+          const active=bottomNavSelectedMenus.includes(item.menuId);
+          const disabled=!active && bottomNavSelectedMenus.length>=3;
+          return `<button type="button" class="bottom-nav-menu-pick ${active?'active':''} ${disabled?'disabled':''}" data-bottom-nav-pick="${escapeHtml(item.menuId)}">
+            <span>${escapeHtml(item.icon||'•')} ${escapeHtml(item.name||item.menuId)}</span>
+            <small>${active?'선택됨':'선택'}</small>
+          </button>`;
+        }).join('');
+      }
+
+      const selectedItems=bottomNavSelectedMenus
+        .map(id=>adminMenuItems.find(item=>item.menuId===id) || {menuId:id,name:id,icon:'•'})
+        .filter(Boolean);
+
+      selected.innerHTML=selectedItems.length
+        ? selectedItems.map((item,idx)=>`<div class="bottom-nav-selected-item">
+            <div><strong>${idx+1}. ${escapeHtml(item.icon||'•')} ${escapeHtml(item.name||item.menuId)}</strong><span>${escapeHtml(item.menuId)}</span></div>
+            <button type="button" class="btn btn-soft" data-bottom-nav-remove="${escapeHtml(item.menuId)}">제거</button>
+          </div>`).join('')
+        : '<div class="notice">선택된 기본 메뉴가 없습니다. 저장 시 코드 기본값(혜택/즐겨찾기/TOP5)이 사용됩니다.</div>';
+    }
+    async function loadBottomNavSettings(){
+      if(!requireAdminDataAccess(false)) return;
+      try{
+        const snap=await getDoc(doc(db, BOTTOM_NAV_SETTINGS_COLLECTION, BOTTOM_NAV_SETTINGS_DOC));
+        if(snap.exists()){
+          const data=snap.data()||{};
+          bottomNavSelectedMenus=normalizeBottomNavIds(data.defaultMenus || data.menus || []);
+          bottomNavUseAdminDefaultFill=data.useAdminDefaultFill!==false;
+        }else{
+          bottomNavSelectedMenus=['benefits','favorite','top5'];
+          bottomNavUseAdminDefaultFill=true;
+        }
+      }catch(error){
+        console.warn('하단 네비 설정 로딩 실패', error);
+        bottomNavSelectedMenus=['benefits','favorite','top5'];
+        bottomNavUseAdminDefaultFill=true;
+      }
+      renderBottomNavSettings();
+    }
+    async function saveBottomNavSettings(){
+      if(!requireAdminDataAccess()) return;
+      bottomNavUseAdminDefaultFill=qs('#bottomNavUseAdminDefaultFill')?.checked !== false;
+      const payload={
+        defaultMenus:normalizeBottomNavIds(bottomNavSelectedMenus),
+        useAdminDefaultFill:bottomNavUseAdminDefaultFill,
+        fixedLeft:'home',
+        fixedRight:'all',
+        maxCustomMenus:3,
+        updatedAt:serverTimestamp()
+      };
+      await setDoc(doc(db, BOTTOM_NAV_SETTINGS_COLLECTION, BOTTOM_NAV_SETTINGS_DOC), payload, {merge:true});
+      await openModalAlert('하단 네비 기본 메뉴 설정이 저장되었습니다.');
+      await loadBottomNavSettings();
+    }
+    function resetBottomNavSettingsToDefault(){
+      bottomNavSelectedMenus=['benefits','favorite','top5'];
+      bottomNavUseAdminDefaultFill=true;
+      renderBottomNavSettings();
+    }
+    document.addEventListener('click',(event)=>{
+      const pick=event.target.closest('[data-bottom-nav-pick]');
+      if(pick){
+        const id=pick.dataset.bottomNavPick;
+        if(bottomNavSelectedMenus.includes(id)){
+          bottomNavSelectedMenus=bottomNavSelectedMenus.filter(v=>v!==id);
+        }else{
+          if(bottomNavSelectedMenus.length>=3){
+            openModalAlert('하단 네비 기본 메뉴는 최대 3개까지 선택할 수 있습니다.');
+            return;
+          }
+          bottomNavSelectedMenus=[...bottomNavSelectedMenus,id];
+        }
+        renderBottomNavSettings();
+        return;
+      }
+      const remove=event.target.closest('[data-bottom-nav-remove]');
+      if(remove){
+        bottomNavSelectedMenus=bottomNavSelectedMenus.filter(v=>v!==remove.dataset.bottomNavRemove);
+        renderBottomNavSettings();
+      }
+    });
+    qs('#bottomNavSaveBtn')?.addEventListener('click', saveBottomNavSettings);
+    qs('#bottomNavResetBtn')?.addEventListener('click', resetBottomNavSettingsToDefault);
+    qs('#bottomNavUseAdminDefaultFill')?.addEventListener('change', (event)=>{ bottomNavUseAdminDefaultFill=event.target.checked; renderBottomNavSettings(); });
+ await loadAdminMenus();
     }
     async function deleteMenu(id){ if(!id || !requireAdminDataAccess()) return; const ok=await openModalConfirm('해당 GNB 메뉴를 삭제할까요?\n공개앱 GNB와 검색 결과에서 제외됩니다.'); if(!ok) return; await deleteDoc(doc(db, APP_MENUS_COLLECTION, id)); await loadAdminMenus(); }
     document.addEventListener('click', (event)=>{ const edit=event.target.closest('[data-menu-edit]'); if(edit){ const item=adminMenuItems.find(v=>v.id===edit.dataset.menuEdit); if(item) fillMenuForm(item); return; } const del=event.target.closest('[data-menu-delete]'); if(del){ deleteMenu(del.dataset.menuDelete); } });
     qs('#menuForm')?.addEventListener('submit', saveMenu); qs('#menuResetBtn')?.addEventListener('click', resetMenuForm);
     const __origChangeAdminViewForMenus = changeAdminView;
-    changeAdminView = function(view){ __origChangeAdminViewForMenus(view); if(view === 'menus') setTimeout(loadAdminMenus, 80); };
+    changeAdminView = function(view){ __origChangeAdminViewForMenus(view); if(view === 'menus') setTimeout(async()=>{ await loadAdminMenus(); await loadBottomNavSettings?.(); }, 80); };
     window.changeAdminView = changeAdminView;
     resetMenuForm();
 
