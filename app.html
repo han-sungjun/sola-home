@@ -4,8 +4,11 @@
  <!-- Dynamic No-Cache: HTML/browser cache bypass -->
  <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate, max-age=0" />
  <meta http-equiv="Pragma" content="no-cache" />
- <meta http-equiv="Expires" content="0" /><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
- 
+ <meta http-equiv="Expires" content="0" />
+ <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <!-- PWA / App Icon -->
+  <link rel="manifest" href="/manifest.json" />
+  
  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
  <meta name="theme-color" content="#0f172a">
  <meta name="apple-mobile-web-app-capable" content="yes">
@@ -26,6 +29,15 @@
  <meta name="twitter:title" content="더운정 마이힐스">
  <meta name="twitter:description" content="입주민 전용 혜택과 공지 바로가기">
  <meta name="twitter:image" content="__BASE_URL__/icons/icon-512.png?v=20260425b">
+ 
+   <link rel="icon" href="/icons/icon-192.png" />
+
+  <!-- iOS Splash Images -->
+  <link rel="apple-touch-startup-image" href="/icons/splash-ios-750x1334.png" media="(device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2)" />
+  <link rel="apple-touch-startup-image" href="/icons/splash-ios-828x1792.png" media="(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2)" />
+  <link rel="apple-touch-startup-image" href="/icons/splash-ios-1170x2532.png" media="(device-width: 390px) and (device-height: 844px) and (-webkit-device-pixel-ratio: 3)" />
+  <link rel="apple-touch-startup-image" href="/icons/splash-ios-1290x2796.png" media="(device-width: 430px) and (device-height: 932px) and (-webkit-device-pixel-ratio: 3)" />
+
  <style>
  :root{--bg:#f5f7fb;--surface:rgba(255,255,255,.82);--line:#e5e7eb;--line-soft:rgba(15,23,42,.08);--text:#0f172a;--muted:#64748b;--primary:#0f172a;--accent:#ef4444;--accent2:#f59e0b;--blue:#2563eb;--shadow:0 20px 40px rgba(15,23,42,.08);--radius-xl:28px}
  *{box-sizing:border-box}html,body{margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Noto Sans KR","Segoe UI",sans-serif;background:linear-gradient(180deg,#f8fafc 0%,#eef2ff 100%);color:var(--text)}body{max-width:480px;margin:0 auto}button,input,select,textarea{font:inherit}a{color:inherit;text-decoration:none}
@@ -18247,7 +18259,7 @@ document.addEventListener('keydown', (event) => {
  <div class="gnb-settings-section-header">
  <div>
  <h4 class="gnb-settings-section-title">글자 크기</h4>
- <p class="gnb-settings-section-desc">한 번 선택한 글자 크기는 내 계정에 저장되어, 다음 접속 시에도 그대로 적용됩니다.</p>
+ <p class="gnb-settings-section-desc">선택한 글자 크기는 계정 DB에 저장되어 캐시를 지우거나 다른 기기에서 접속해도 유지됩니다.</p>
  </div>
  </div>
  <div class="font-size-control" role="radiogroup" aria-label="글자 크기 선택">

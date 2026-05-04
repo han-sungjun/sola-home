@@ -1,14 +1,44 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <!-- Dynamic No-Cache: HTML/browser cache bypass -->
-  <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate, max-age=0" />
-  <meta http-equiv="Pragma" content="no-cache" />
-  <meta http-equiv="Expires" content="0" />
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <meta name="theme-color" content="#0f172a" />
-  <title>더운정 마이힐스 · 간단 입장</title>
+ <!-- Dynamic No-Cache: HTML/browser cache bypass -->
+ <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate, max-age=0" />
+ <meta http-equiv="Pragma" content="no-cache" />
+ <meta http-equiv="Expires" content="0" />
+ <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <!-- PWA / App Icon -->
+  <link rel="manifest" href="/manifest.json" />
+  
+ <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+ <meta name="theme-color" content="#0f172a">
+ <meta name="apple-mobile-web-app-capable" content="yes">
+ <meta name="mobile-web-app-capable" content="yes">
+ <meta name="apple-mobile-web-app-status-bar-style" content="default">
+ <meta name="apple-mobile-web-app-title" content="더운정 마이힐스">
+ <link rel="apple-touch-icon" href="/icons/icon-180.png">
+ <meta name="description" content="더운정 마이힐스 입주민 전용 혜택 웹앱">
+ <meta name="robots" content="index,follow">
+ <title>더운정 마이힐스 · 간단 입장</title>
+ <meta property="og:type" content="website">
+ <meta property="og:site_name" content="더운정 마이힐스">
+ <meta property="og:title" content="더운정 마이힐스">
+ <meta property="og:description" content="더운정 마이힐스 · 간단 입장">
+ <meta property="og:image" content="__BASE_URL__/icons/icon-512.png?v=20260425b">
+ <meta property="og:url" content="__BASE_URL__/app">
+ <meta name="twitter:card" content="summary_large_image">
+ <meta name="twitter:title" content="더운정 마이힐스">
+ <meta name="twitter:description" content="더운정 마이힐스 · 간단 입장">
+ <meta name="twitter:image" content="__BASE_URL__/icons/icon-512.png?v=20260425b">
+  
+  <link rel="icon" href="/icons/icon-192.png" />
+
+  <!-- iOS Splash Images -->
+  <link rel="apple-touch-startup-image" href="/icons/splash-ios-750x1334.png" media="(device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2)" />
+  <link rel="apple-touch-startup-image" href="/icons/splash-ios-828x1792.png" media="(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2)" />
+  <link rel="apple-touch-startup-image" href="/icons/splash-ios-1170x2532.png" media="(device-width: 390px) and (device-height: 844px) and (-webkit-device-pixel-ratio: 3)" />
+  <link rel="apple-touch-startup-image" href="/icons/splash-ios-1290x2796.png" media="(device-width: 430px) and (device-height: 932px) and (-webkit-device-pixel-ratio: 3)" />
+
+
   <style>
     :root{--bg:#f5f7fb;--surface:#fff;--text:#0f172a;--muted:#64748b;--line:#e5e7eb;--primary:#0f172a;--blue:#2563eb;--danger:#dc2626;--ok:#15803d;--radius:24px;--shadow:0 22px 46px rgba(15,23,42,.10)}
     *{box-sizing:border-box}html,body{margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Noto Sans KR","Segoe UI",sans-serif;background:linear-gradient(180deg,#f8fafc 0%,#eef2ff 100%);color:var(--text)}body{max-width:480px;margin:0 auto}.page{min-height:100dvh;padding:22px 16px 40px}.brand{display:flex;align-items:center;gap:12px;margin-bottom:16px}.logo{width:50px;height:50px;border-radius:18px;background:#fff;display:grid;place-items:center;box-shadow:var(--shadow);font-size:24px}.brand h1{margin:0;font-size:23px;letter-spacing:-.05em}.brand p{margin:3px 0 0;color:var(--muted);font-size:13px}.hero{padding:24px;border-radius:30px;color:#fff;background:radial-gradient(circle at top right,rgba(255,255,255,.28),transparent 32%),linear-gradient(135deg,#111827 0%,#1f2937 48%,#2563eb 100%);box-shadow:var(--shadow);margin-bottom:14px}.eyebrow{display:inline-flex;align-items:center;gap:8px;padding:8px 12px;border-radius:999px;background:rgba(255,255,255,.15);font-size:12px;font-weight:900}.hero h2{margin:14px 0 8px;font-size:27px;line-height:1.18;letter-spacing:-.05em}.hero p{margin:0;color:rgba(255,255,255,.9);line-height:1.7;font-size:14px}.safe-row{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}.safe-chip{padding:8px 10px;border-radius:999px;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.22);font-size:12px;font-weight:900}.panel{background:rgba(255,255,255,.9);border:1px solid rgba(255,255,255,.75);box-shadow:var(--shadow);border-radius:var(--radius);padding:18px;margin-top:14px}.panel h3{margin:0 0 8px;font-size:18px;letter-spacing:-.04em}.helper{color:var(--muted);font-size:13px;line-height:1.65}.zero-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}.zero-item{padding:13px;border-radius:18px;background:#f8fafc;border:1px solid #e2e8f0}.zero-item strong{display:block;font-size:13px}.zero-item span{display:block;margin-top:4px;color:#64748b;font-size:11px;line-height:1.45}.form{display:grid;gap:13px;margin-top:14px}.field{display:grid;gap:7px}.field label{font-size:13px;font-weight:900;color:#334155}.input-row{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center}.field input,.field select{width:100%;height:52px;border:1px solid #dbe3ef;border-radius:17px;background:#f8fafc;padding:0 15px;font-size:15px;outline:none}.field input:focus,.field select:focus{background:#fff;border-color:#93c5fd;box-shadow:0 0 0 4px rgba(59,130,246,.12)}.field input.invalid,.field select.invalid{background:#fff;border-color:#fb7185;box-shadow:0 0 0 4px rgba(244,63,94,.12)}.field input.valid{background:#fff;border-color:#86efac;box-shadow:0 0 0 4px rgba(34,197,94,.10)}.check-btn{height:52px;border:none;border-radius:17px;padding:0 13px;background:#0f172a;color:#fff;font-size:12px;font-weight:900;white-space:nowrap;cursor:pointer}.check-btn:disabled{opacity:.45;cursor:not-allowed}.field-msg{min-height:18px;font-size:12px;font-weight:800;line-height:1.45;color:#94a3b8}.field-msg.ok{color:var(--ok)}.field-msg.err{color:#b91c1c}.agree.invalid{border-color:#fb7185;box-shadow:0 0 0 4px rgba(244,63,94,.10)}.notice{padding:13px;border-radius:18px;background:#eff6ff;border:1px solid #bfdbfe;color:#1d4ed8;font-size:12px;font-weight:800;line-height:1.6}.agree{display:flex;align-items:flex-start;gap:10px;padding:13px;border-radius:18px;background:#fff;border:1px solid var(--line);font-size:13px;line-height:1.55;color:#334155}.agree input{margin-top:3px}.btn{width:100%;height:54px;border:none;border-radius:18px;background:linear-gradient(135deg,#0f172a 0%,#111f46 100%);color:#fff;font-weight:900;font-size:15px;cursor:pointer;box-shadow:0 16px 30px rgba(15,23,42,.16)}.btn:disabled{opacity:.48;cursor:not-allowed}.sub-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}.btn-soft{height:48px;border-radius:16px;background:#fff;color:#0f172a;border:1px solid var(--line);box-shadow:none}.status{display:none;margin-top:12px;padding:13px;border-radius:18px;font-size:13px;font-weight:900;line-height:1.6}.status.show{display:block}.status.ok{background:#f0fdf4;border:1px solid #bbf7d0;color:#166534}.status.err{background:#fff1f2;border:1px solid #fecdd3;color:#b91c1c}.signup-action-row{margin-top:2px}.signup-action-row .btn{height:54px;margin-top:0}.signup-action-row .btn-soft{height:54px}
