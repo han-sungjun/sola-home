@@ -5511,7 +5511,7 @@ nav.bottom-nav{
  - 하단 네비와 safe-area는 최소 여백만 유지
 */
 body.calendar-view-active .app{
- padding-bottom:calc(84px + env(safe-area-inset-bottom,0px))!important;
+ padding-bottom:calc(var(--bottom-nav-safe-offset) + 12px)!important;
 }
 body.calendar-view-active #view-calendar{
  padding-bottom:0!important;
@@ -7900,6 +7900,75 @@ nav.bottom-nav{
  display:none !important;
 }
 
+
+
+/* =========================================================
+   Bottom Navigation Auto Safe Visibility Patch v2
+   - 하단 네비바 실제 높이를 CSS 변수로 반영
+   - 과도한 .shell::after spacer 제거
+   - 컨텐츠가 네비에 가리지 않을 만큼만 최소 여백 확보
+   ========================================================= */
+:root{
+  --bottom-nav-safe-offset: 96px;
+  --bottom-nav-extra-gap: 16px;
+}
+
+html,
+body{
+  min-height:100%;
+  scroll-padding-bottom:calc(var(--bottom-nav-safe-offset) + var(--bottom-nav-extra-gap));
+}
+
+.app{
+  padding-bottom:calc(var(--bottom-nav-safe-offset) + var(--bottom-nav-extra-gap)) !important;
+}
+
+.shell{
+  padding-bottom:0 !important;
+}
+
+.shell::after{
+  content:none !important;
+  display:none !important;
+  height:0 !important;
+}
+
+/* 리스트 자체에는 작은 여백만 둡니다. 전체 하단 보호는 .app padding에서 처리합니다. */
+#cardList,
+#favoriteList,
+#popularList,
+#noticeList,
+#homeNoticeList,
+#calendarList,
+.notice-list,
+.benefit-list,
+.popular-list,
+.favorite-list,
+.calendar-list,
+.list{
+  padding-bottom:16px !important;
+}
+
+/* dialog 상세 화면도 모바일 하단/상단 safe-area 안에서 끝까지 스크롤 가능 */
+dialog:not(.app-alert){
+  max-height:calc(100dvh - 24px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px)) !important;
+  overflow:auto !important;
+  -webkit-overflow-scrolling:touch;
+}
+
+dialog:not(.app-alert) .modal-body{
+  padding-bottom:calc(24px + env(safe-area-inset-bottom, 0px)) !important;
+}
+
+@supports (height: 100svh){
+  dialog:not(.app-alert){
+    max-height:calc(100svh - 24px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px)) !important;
+  }
+}
+
+.bottom-nav{
+  padding-bottom:calc(14px + env(safe-area-inset-bottom, 0px)) !important;
+}
 </style>
 
 <!-- benefit-final-date-zindex-fixed-v2 -->
@@ -16069,6 +16138,526 @@ window.addEventListener("load", handlePushDeepLink);
  setInterval(syncCalendarViewPaddingClass, 1200);
 })();
 
+</script>
+
+
+
+<script>
+/* =========================================================
+   Bottom Navigation Dynamic Safe Offset v2
+   실제 하단 네비바 높이를 계산해서 최소 하단 여백만 반영합니다.
+   ========================================================= */
+(function(){
+  var rafId = null;
+
+  function syncBottomNavSafeOffset(){
+    if(rafId) cancelAnimationFrame(rafId);
+    rafId = requestAnimationFrame(function(){
+      try{
+        var nav = document.querySelector('.bottom-nav');
+        var root = document.documentElement;
+        if(!root) return;
+
+        var fallback = 96;
+        var navHeight = fallback;
+
+        if(nav){
+          var rect = nav.getBoundingClientRect();
+          navHeight = Math.ceil(rect.height || nav.offsetHeight || fallback);
+        }
+
+        // 네비 실제 높이 + 최소 여유 8px만 변수에 반영합니다.
+        // 추가 여백은 CSS의 --bottom-nav-extra-gap(16px)에서 한 번만 더해집니다.
+        var offset = Math.max(72, navHeight + 8);
+        root.style.setProperty('--bottom-nav-safe-offset', offset + 'px');
+      }catch(e){
+        console.warn('[bottom-nav-safe-offset] sync skipped', e);
+      }
+    });
+  }
+
+  window.syncBottomNavSafeOffset = syncBottomNavSafeOffset;
+
+  document.addEventListener('DOMContentLoaded', function(){
+    syncBottomNavSafeOffset();
+    setTimeout(syncBottomNavSafeOffset, 150);
+    setTimeout(syncBottomNavSafeOffset, 500);
+    setTimeout(syncBottomNavSafeOffset, 1000);
+
+    var nav = document.querySelector('.bottom-nav');
+    if(nav && 'ResizeObserver' in window){
+      try{
+        var observer = new ResizeObserver(syncBottomNavSafeOffset);
+        observer.observe(nav);
+      }catch(e){}
+    }
+  });
+
+  window.addEventListener('load', syncBottomNavSafeOffset, { passive:true });
+  window.addEventListener('resize', syncBottomNavSafeOffset, { passive:true });
+  window.addEventListener('orientationchange', function(){
+    setTimeout(syncBottomNavSafeOffset, 250);
+    setTimeout(syncBottomNavSafeOffset, 700);
+  }, { passive:true });
+
+  document.addEventListener('click', function(){
+    setTimeout(syncBottomNavSafeOffset, 80);
+  }, true);
+})();
+</script>
+
+
+<!-- calendar-bottom-nav-safe-final-v3 -->
+<style id="calendar-bottom-nav-safe-final-v3">
+/* =========================================================
+   Calendar Bottom Navigation Safe Patch v3
+   - 기존 캘린더 전용 padding:0 과보정 무효화
+   - 하단 네비 실제 높이 변수(--bottom-nav-safe-offset)를 그대로 사용
+   - 캘린더 월간/주간/일간 마지막 영역이 네비바에 가리지 않도록 최소 여백만 확보
+   ========================================================= */
+body.calendar-view-active .app,
+body:has(#view-calendar:not(.hidden)) .app{
+  padding-bottom:calc(var(--bottom-nav-safe-offset, 96px) + var(--bottom-nav-extra-gap, 16px)) !important;
+}
+
+body.calendar-view-active #view-calendar,
+body:has(#view-calendar:not(.hidden)) #view-calendar{
+  padding-bottom:18px !important;
+  margin-bottom:0 !important;
+}
+
+body.calendar-view-active #view-calendar .panel:last-child,
+body:has(#view-calendar:not(.hidden)) #view-calendar .panel:last-child{
+  padding-bottom:18px !important;
+  margin-bottom:0 !important;
+}
+
+body.calendar-view-active .calendar-board,
+body.calendar-view-active .calendar-month-grid,
+body.calendar-view-active .calendar-week-grid,
+body.calendar-view-active .calendar-day-grid,
+body:has(#view-calendar:not(.hidden)) .calendar-board,
+body:has(#view-calendar:not(.hidden)) .calendar-month-grid,
+body:has(#view-calendar:not(.hidden)) .calendar-week-grid,
+body:has(#view-calendar:not(.hidden)) .calendar-day-grid{
+  padding-bottom:8px !important;
+  margin-bottom:0 !important;
+}
+</style>
+
+
+
+<!-- premium-ui-interaction-hierarchy-patch-v4 -->
+<style id="premium-ui-interaction-hierarchy-patch-v4">
+/* =========================================================
+   Premium UI Interaction / Header Shrink / Visual Hierarchy Patch v4
+   - iOS 느낌 카드 눌림/튕김 효과
+   - 스크롤 시 상단 헤더 자연스러운 축소
+   - TOP5 / 혜택 / 공지 섹션 시각적 계층 강화
+   - 하단 네비 자동 여백 패치와 충돌하지 않도록 spacer 사용 금지
+   ========================================================= */
+:root{
+  --section-gap:14px;
+  --card-gap:12px;
+  --inner-gap:10px;
+}
+
+.shell::after{
+  content:none !important;
+  display:none !important;
+  height:0 !important;
+}
+
+.shell{
+  gap:var(--section-gap) !important;
+}
+
+.filter-sticky{
+  margin-top:12px !important;
+  gap:var(--inner-gap) !important;
+}
+
+.list,
+.notice-list,
+.popular-list,
+.calendar-list{
+  gap:var(--card-gap) !important;
+}
+
+.section-head{
+  margin-bottom:6px !important;
+}
+
+/* 상단 헤더: 앱형 sticky + 스크롤 축소 */
+.topbar{
+  position:sticky !important;
+  top:0 !important;
+  z-index:88 !important;
+  padding:8px 0 10px !important;
+  margin-top:-8px !important;
+  background:linear-gradient(180deg,rgba(248,250,252,.96) 0%,rgba(248,250,252,.90) 78%,rgba(248,250,252,0) 100%) !important;
+  backdrop-filter:blur(14px);
+  -webkit-backdrop-filter:blur(14px);
+  transition:padding .22s ease, box-shadow .22s ease, background .22s ease, transform .22s ease;
+}
+body.app-scrolled .topbar{
+  padding:6px 0 8px !important;
+  background:linear-gradient(180deg,rgba(248,250,252,.98) 0%,rgba(248,250,252,.94) 86%,rgba(248,250,252,.60) 100%) !important;
+  box-shadow:0 12px 26px rgba(15,23,42,.07);
+}
+.topbar .brand .logo,
+.topbar .brand h1,
+.topbar .brand p,
+.topbar .user-chip,
+.topbar .icon-btn{
+  transition:width .22s ease, height .22s ease, font-size .22s ease, opacity .18s ease, transform .22s ease, padding .22s ease, max-height .22s ease, margin .22s ease;
+}
+body.app-scrolled .topbar .brand .logo{
+  width:40px !important;
+  height:40px !important;
+  border-radius:14px !important;
+  font-size:19px !important;
+}
+body.app-scrolled .topbar .brand h1{
+  font-size:21px !important;
+}
+body.app-scrolled .topbar .brand p{
+  opacity:.72;
+  transform:translateY(-1px);
+}
+body.app-scrolled .topbar .user-chip{
+  padding:8px 11px !important;
+  border-radius:17px !important;
+}
+body.app-scrolled .topbar .icon-btn{
+  width:40px !important;
+  height:40px !important;
+  border-radius:14px !important;
+}
+
+/* iOS 카드 인터랙션 */
+.card,
+.notice-item,
+.popular-item,
+.calendar-item,
+.summary-card,
+.calendar-summary-card,
+.insight-card,
+.map-place-card,
+.community-card,
+.panel.hot-now-panel,
+.panel.nearby-proximity-panel,
+.resident-rank-panel,
+.gnb-settings-section,
+.btn,
+.chip,
+.nav-btn,
+.icon-btn,
+.user-chip{
+  -webkit-tap-highlight-color:transparent;
+  transform-origin:center center;
+}
+.card,
+.notice-item,
+.popular-item,
+.calendar-item,
+.summary-card,
+.calendar-summary-card,
+.insight-card,
+.map-place-card,
+.community-card{
+  transition:transform .18s cubic-bezier(.2,.8,.2,1), box-shadow .18s ease, border-color .18s ease, background-color .18s ease, filter .18s ease !important;
+}
+.card.is-pressing,
+.notice-item.is-pressing,
+.popular-item.is-pressing,
+.calendar-item.is-pressing,
+.summary-card.is-pressing,
+.calendar-summary-card.is-pressing,
+.insight-card.is-pressing,
+.map-place-card.is-pressing,
+.community-card.is-pressing{
+  transform:scale(.982) translateY(1px) !important;
+  filter:saturate(1.03);
+  box-shadow:0 12px 26px rgba(15,23,42,.07) !important;
+}
+.card.press-rebound,
+.notice-item.press-rebound,
+.popular-item.press-rebound,
+.calendar-item.press-rebound,
+.summary-card.press-rebound,
+.calendar-summary-card.press-rebound,
+.insight-card.press-rebound,
+.map-place-card.press-rebound,
+.community-card.press-rebound{
+  animation:iosCardRebound .28s cubic-bezier(.18,1.2,.28,1) both;
+}
+@keyframes iosCardRebound{
+  0%{transform:scale(.982) translateY(1px)}
+  58%{transform:scale(1.006) translateY(-1px)}
+  100%{transform:scale(1) translateY(0)}
+}
+
+/* 섹션 계층 강화: 혜택 */
+#view-benefits > .panel:first-child,
+#view-notices > .panel:first-child,
+#view-top5 > .panel:first-child{
+  position:relative;
+  overflow:hidden;
+  border:1px solid rgba(15,23,42,.06) !important;
+  box-shadow:0 18px 36px rgba(15,23,42,.07) !important;
+}
+#view-benefits > .panel:first-child::before,
+#view-notices > .panel:first-child::before,
+#view-top5 > .panel:first-child::before{
+  content:"";
+  position:absolute;
+  left:18px;
+  right:18px;
+  top:0;
+  height:4px;
+  border-radius:0 0 999px 999px;
+  opacity:.95;
+}
+#view-benefits > .panel:first-child{
+  background:linear-gradient(180deg,#ffffff 0%,#f8fbff 100%) !important;
+}
+#view-benefits > .panel:first-child::before{
+  background:linear-gradient(90deg,#2563eb,#60a5fa);
+}
+#view-benefits > .panel:first-child .section-head h3::before{
+  content:"🎁 ";
+}
+#view-benefits .filter-sticky{
+  border-top:1px solid rgba(15,23,42,.05);
+  padding-top:10px !important;
+}
+
+/* 섹션 계층 강화: 공지 */
+#view-notices > .panel:first-child{
+  background:linear-gradient(180deg,#ffffff 0%,#fff8f8 100%) !important;
+}
+#view-notices > .panel:first-child::before{
+  background:linear-gradient(90deg,#ef4444,#fb923c);
+}
+#view-notices > .panel:first-child .section-head h3::before{
+  content:"📢 ";
+}
+.notice-item{
+  border-left:4px solid rgba(37,99,235,.16) !important;
+}
+.notice-item.pinned{
+  border-left-color:#fb923c !important;
+}
+
+/* 섹션 계층 강화: TOP5 */
+#view-top5 > .panel:first-child{
+  background:linear-gradient(180deg,#ffffff 0%,#fffaf0 100%) !important;
+}
+#view-top5 > .panel:first-child::before{
+  background:linear-gradient(90deg,#f59e0b,#ef4444);
+}
+#view-top5 > .panel:first-child .section-head h3::before{
+  content:"🏆 ";
+}
+#view-top5 .popular-item{
+  border-left:4px solid rgba(245,158,11,.22) !important;
+}
+#view-top5 .popular-item.rank-1{
+  transform-origin:center center;
+}
+#view-top5 .popular-item.rank-1:not(.is-pressing){
+  box-shadow:0 20px 42px rgba(245,158,11,.16), inset 0 0 0 1px rgba(251,191,36,.18) !important;
+}
+
+/* 마지막 요소가 네비 위에서 살짝 떠 보이되, 큰 공백은 만들지 않음 */
+#view-benefits .list > *:last-child,
+#view-notices .notice-list > *:last-child,
+#view-top5 .popular-list > *:last-child,
+#view-calendar .calendar-list > *:last-child{
+  margin-bottom:6px !important;
+}
+
+@media (prefers-reduced-motion:reduce){
+  .card,
+  .notice-item,
+  .popular-item,
+  .calendar-item,
+  .summary-card,
+  .calendar-summary-card,
+  .insight-card,
+  .map-place-card,
+  .community-card,
+  .topbar,
+  .topbar *{
+    transition:none !important;
+    animation:none !important;
+  }
+}
+</style>
+<script id="premium-ui-interaction-hierarchy-script-v4">
+(function(){
+  'use strict';
+
+  function ready(fn){
+    if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', fn, {once:true});
+    else fn();
+  }
+
+  function setupScrollHeader(){
+    var ticking = false;
+    function apply(){
+      ticking = false;
+      var y = window.scrollY || document.documentElement.scrollTop || 0;
+      document.body.classList.toggle('app-scrolled', y > 18);
+      document.body.classList.toggle('app-deep-scrolled', y > 120);
+    }
+    function requestApply(){
+      if(ticking) return;
+      ticking = true;
+      requestAnimationFrame(apply);
+    }
+    window.addEventListener('scroll', requestApply, {passive:true});
+    window.addEventListener('resize', requestApply, {passive:true});
+    if(window.visualViewport){
+      window.visualViewport.addEventListener('resize', requestApply, {passive:true});
+    }
+    apply();
+  }
+
+  function setupPressEffect(){
+    var selector = [
+      '.card',
+      '.notice-item',
+      '.popular-item',
+      '.calendar-item',
+      '.summary-card',
+      '.calendar-summary-card',
+      '.insight-card',
+      '.map-place-card',
+      '.community-card'
+    ].join(',');
+    var activeEl = null;
+
+    function clear(el, rebound){
+      if(!el) return;
+      el.classList.remove('is-pressing');
+      if(rebound){
+        el.classList.remove('press-rebound');
+        void el.offsetWidth;
+        el.classList.add('press-rebound');
+        window.setTimeout(function(){ el.classList.remove('press-rebound'); }, 320);
+      }
+    }
+
+    document.addEventListener('pointerdown', function(e){
+      if(e.button !== undefined && e.button !== 0) return;
+      var el = e.target && e.target.closest ? e.target.closest(selector) : null;
+      if(!el) return;
+      activeEl = el;
+      el.classList.add('is-pressing');
+    }, {passive:true});
+
+    document.addEventListener('pointerup', function(){
+      clear(activeEl, true);
+      activeEl = null;
+    }, {passive:true});
+
+    document.addEventListener('pointercancel', function(){
+      clear(activeEl, false);
+      activeEl = null;
+    }, {passive:true});
+
+    document.addEventListener('pointerleave', function(e){
+      if(activeEl && e.target === activeEl){
+        clear(activeEl, false);
+        activeEl = null;
+      }
+    }, {passive:true});
+  }
+
+  function markActiveViewForCalendarSafe(){
+    function sync(){
+      var calendar = document.getElementById('view-calendar');
+      document.body.classList.toggle('calendar-view-active', !!calendar && !calendar.classList.contains('hidden'));
+    }
+    var root = document.querySelector('.shell') || document.body;
+    if(window.MutationObserver && root){
+      new MutationObserver(sync).observe(root, {subtree:true, attributes:true, attributeFilter:['class']});
+    }
+    sync();
+  }
+
+  ready(function(){
+    setupScrollHeader();
+    setupPressEffect();
+    markActiveViewForCalendarSafe();
+  });
+})();
+</script>
+
+
+
+<!-- ===== v5: GNB 하단 네비 가림 방지 + 혜택 필터 간격 최종 보정 ===== -->
+<style id="gnb-benefit-spacing-safe-v5">
+  /* GNB가 열릴 때는 하단 네비를 완전히 숨겨 메뉴 내용이 가려지지 않도록 처리 */
+  .gnb-overlay{
+    z-index:30000 !important;
+  }
+  .gnb-sheet{
+    z-index:30010 !important;
+  }
+  body.gnb-open .bottom-nav,
+  body.gnb-open .bottom-tab,
+  body.gnb-open .mobile-bottom-nav,
+  body.gnb-open nav.bottom-nav{
+    opacity:0 !important;
+    visibility:hidden !important;
+    pointer-events:none !important;
+    transform:translateY(110%) !important;
+  }
+  body.gnb-open .gnb-body{
+    padding-bottom:calc(34px + env(safe-area-inset-bottom,0px)) !important;
+  }
+
+  /* 혜택 설명 카드와 필터 영역 사이 최소 간격 확보 */
+  #view-benefits .filter-sticky:not(.is-fixed){
+    margin-top:16px !important;
+    margin-bottom:12px !important;
+  }
+  #view-benefits > .panel + .filter-sticky:not(.is-fixed),
+  #view-benefits > .benefit-hero + .filter-sticky:not(.is-fixed),
+  #view-benefits > .section-hero + .filter-sticky:not(.is-fixed){
+    margin-top:18px !important;
+  }
+
+  /* 고정 상태에서는 기존 위치 유지 */
+  #view-benefits .filter-sticky.is-fixed{
+    margin-top:0 !important;
+  }
+</style>
+<script id="gnb-menu-nav-visibility-safe-v5">
+(function(){
+  'use strict';
+  function syncGnbNavSafe(){
+    var sheet = document.querySelector('.gnb-sheet');
+    var overlay = document.querySelector('.gnb-overlay');
+    var opened = !!((sheet && sheet.classList.contains('show')) || (overlay && overlay.classList.contains('show')));
+    document.body.classList.toggle('gnb-open', opened);
+  }
+  function ready(fn){
+    if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', fn, {once:true});
+    else fn();
+  }
+  ready(function(){
+    syncGnbNavSafe();
+    if(window.MutationObserver){
+      new MutationObserver(syncGnbNavSafe).observe(document.body, {subtree:true, attributes:true, attributeFilter:['class']});
+    }
+    document.addEventListener('click', function(){ setTimeout(syncGnbNavSafe, 0); }, true);
+    window.addEventListener('resize', syncGnbNavSafe, {passive:true});
+  });
+})();
 </script>
 
 </body></html>
