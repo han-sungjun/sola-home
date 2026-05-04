@@ -11,7 +11,8 @@ const files = [
   "app.html",
   "signup.html",
   "phone-verify.html",
-  "error.html"
+  "error.html",
+  "sola-admin-x92ks.html"
 ];
 
 files.forEach(file => {
