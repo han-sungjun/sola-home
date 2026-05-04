@@ -1,4 +1,6 @@
 {
+  "buildCommand": "node replace-env.js",
+  "outputDirectory": ".",
   "routes": [
     {
       "src": "/",
