@@ -1025,7 +1025,7 @@ body.gnb-open .admin-bottom-nav{
 .community-report-top-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:4px;}
 
 /* ===== Admin Community v1 ===== */
-.admin-bottom-nav{grid-template-columns:repeat(6,minmax(0,1fr))!important}.admin-nav-btn .nav-label{font-size:11px!important}.community-admin-toolbar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}.community-admin-card{display:grid;gap:8px}.community-admin-card h4{margin:0;font-size:16px}.community-admin-card p{margin:0;color:#475569;line-height:1.55;font-size:13px}.community-admin-meta{display:flex;gap:8px;flex-wrap:wrap;color:#64748b;font-size:12px}.community-admin-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}.admin-tag-danger{background:#fff1f2!important;border-color:#fecdd3!important;color:#be123c!important}.admin-tag-warn{background:#fffbeb!important;border-color:#fde68a!important;color:#b45309!important}
+.admin-bottom-nav{grid-template-columns:repeat(5,minmax(0,1fr))!important}.admin-nav-btn .nav-label{font-size:11px!important}.community-admin-toolbar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}.community-admin-card{display:grid;gap:8px}.community-admin-card h4{margin:0;font-size:16px}.community-admin-card p{margin:0;color:#475569;line-height:1.55;font-size:13px}.community-admin-meta{display:flex;gap:8px;flex-wrap:wrap;color:#64748b;font-size:12px}.community-admin-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}.admin-tag-danger{background:#fff1f2!important;border-color:#fecdd3!important;color:#be123c!important}.admin-tag-warn{background:#fffbeb!important;border-color:#fde68a!important;color:#b45309!important}
 
   
 /* ===== AI 생활 도우미 관리자 ===== */
@@ -1791,6 +1791,70 @@ body.gnb-open .admin-bottom-nav{
     .user-name{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   </style>
 
+
+<style id="admin-dynamic-menu-manager-style-v1">
+  .menu-admin-grid{display:grid;gap:14px}.menu-admin-form{display:grid;gap:12px}.menu-admin-list{display:grid;gap:10px}.menu-role-row,.menu-section-row{display:flex;flex-wrap:wrap;gap:10px;padding:12px 14px;border:1px solid var(--line);border-radius:16px;background:#fff}.menu-role-row label,.menu-section-row label{display:inline-flex;gap:8px;align-items:center;font-size:13px;font-weight:800;color:#334155}.menu-card{background:#fff;border:1px solid var(--line);border-radius:20px;padding:14px;display:grid;gap:10px}.menu-card-head{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}.menu-card-title{display:flex;gap:10px;align-items:center}.menu-card-title strong{font-size:15px}.menu-card-title span{font-size:20px}.menu-card-meta{display:flex;flex-wrap:wrap;gap:6px}.menu-search-preview{display:grid;gap:10px;margin-top:10px}.admin-bottom-nav{grid-template-columns:repeat(7,minmax(0,1fr))!important}
+</style>
+
+<style>
+/* ===== GNB 메뉴 노출구역: 전체 기능 체크 추가 ===== */
+.menu-section-row{
+  display:flex;
+  flex-wrap:wrap;
+  gap:12px 14px;
+}
+.menu-section-row label{
+  min-width:82px;
+}
+@media (max-width:420px){
+  .menu-section-row{
+    gap:10px 12px;
+  }
+  .menu-section-row label{
+    min-width:72px;
+    font-size:13px;
+  }
+}
+</style>
+
+
+<style>
+/* ===== Admin bottom nav final compact patch: 주요 기능 4개 + 더보기 ===== */
+.admin-bottom-nav{
+  grid-template-columns:repeat(5,minmax(0,1fr))!important;
+  gap:6px!important;
+}
+.admin-bottom-nav .admin-nav-btn{
+  min-width:0!important;
+}
+.admin-bottom-nav .admin-nav-btn .nav-label{
+  font-size:11px!important;
+  line-height:1.15!important;
+}
+.admin-bottom-nav .admin-nav-btn[data-admin-view="all"]{
+  background:rgba(255,255,255,.06);
+}
+.admin-bottom-nav .admin-nav-btn[data-admin-view="all"].active{
+  background:rgba(255,255,255,.16);
+}
+@media (max-width:380px){
+  .admin-bottom-nav{
+    gap:4px!important;
+    padding-left:10px!important;
+    padding-right:10px!important;
+  }
+  .admin-bottom-nav .admin-nav-btn{
+    padding:8px 0 10px!important;
+  }
+  .admin-bottom-nav .admin-nav-btn .nav-icon{
+    font-size:16px!important;
+  }
+  .admin-bottom-nav .admin-nav-btn .nav-label{
+    font-size:10px!important;
+  }
+}
+</style>
+
 </head>
 <body>
   <div class="global-loading" id="globalLoadingBar" aria-hidden="true">
@@ -1840,6 +1904,7 @@ body.gnb-open .admin-bottom-nav{
             <button class="btn btn-soft" type="button" data-admin-view="community">커뮤니티 관리</button>
             <button class="btn btn-soft" type="button" data-admin-view="dashboard-data">데이터 관리</button>
             <button class="btn btn-soft" type="button" data-admin-view="ai">AI 생활 도우미</button>
+            <button class="btn btn-soft" type="button" data-admin-view="menus">GNB 메뉴 관리</button>
           </div>
         </div>
         <div class="admin-card">
@@ -1914,6 +1979,30 @@ body.gnb-open .admin-bottom-nav{
     </div>
 
     
+
+    <div class="admin-view" id="view-menus">
+      <div class="admin-grid menu-admin-grid">
+        <div class="admin-card">
+          <div class="section-head" style="margin-bottom:12px;"><h3 style="font-size:16px;">GNB 메뉴 등록 / 수정</h3><small id="menuFormModeLabel">새 메뉴</small></div>
+          <form id="menuForm" class="menu-admin-form" novalidate>
+            <input type="hidden" id="menuEditId" value="" />
+            <div class="grid-2"><div class="field"><label for="menuId">메뉴 ID</label><input id="menuId" placeholder="예: calendar" required /></div><div class="field"><label for="menuName">메뉴명</label><input id="menuName" placeholder="예: 캘린더 예약" required /></div></div>
+            <div class="grid-2"><div class="field"><label for="menuIcon">아이콘</label><input id="menuIcon" placeholder="예: 📅" /></div><div class="field"><label for="menuView">이동 view</label><input id="menuView" placeholder="예: calendar" required /></div></div>
+            <div class="field"><label for="menuKeywords">검색 키워드</label><input id="menuKeywords" placeholder="예약, 알림, 일정, 달력" /><div class="admin-field-help">쉼표로 구분합니다. GNB 검색과 AI 메뉴 안내에 같이 활용됩니다.</div></div>
+            <div class="grid-2"><div class="field"><label for="menuOrder">정렬 순서</label><input id="menuOrder" type="number" value="100" /></div><div class="field"><label for="menuDescription">관리 메모</label><input id="menuDescription" placeholder="사용자에게 노출될 설명 또는 운영 메모" /></div></div>
+            <div class="field"><label>노출 구역</label><div class="menu-section-row"><label><input type="checkbox" name="menuSection" value="main" checked> 더운정 마이힐스</label><label><input type="checkbox" name="menuSection" value="all"> 전체 기능</label><label><input type="checkbox" name="menuSection" value="new"> 새로 나왔어요</label><label><input type="checkbox" name="menuSection" value="gnb"> GNB 기본</label><label><input type="checkbox" name="menuSection" value="admin"> 관리자</label></div></div>
+            <div class="field"><label>노출 권한</label><div class="menu-role-row"><label><input type="checkbox" name="menuRole" value="resident" checked> 입주민</label><label><input type="checkbox" name="menuRole" value="admin" checked> 관리자</label><label><input type="checkbox" name="menuRole" value="root" checked> Root</label></div></div>
+            <div class="field"><label>상태</label><div class="check-row"><label><input type="checkbox" id="menuIsActive" checked> 공개앱 노출</label></div></div>
+            <div class="grid-2"><button class="btn btn-primary" type="submit">메뉴 저장</button><button class="btn btn-soft" type="button" id="menuResetBtn">새 메뉴 작성</button></div>
+          </form>
+        </div>
+        <div class="admin-card">
+          <div class="section-head" style="margin-bottom:12px;"><h3 style="font-size:16px;">등록된 GNB 메뉴</h3><small id="menuListCount">0건</small></div>
+          <div class="menu-admin-list" id="menuAdminList"><div class="notice">관리자 로그인 후 메뉴를 불러옵니다.</div></div>
+        </div>
+      </div>
+    </div>
+
     <div class="admin-view" id="view-notices">
       <div class="admin-groups">
         <div class="admin-card"><div class="section-head" style="margin-bottom:12px;"><h3 style="font-size:16px;">공지 등록 / 수정</h3><small id="noticeFormModeLabel">새 공지</small></div><form id="noticeForm" class="form-grid" novalidate><input type="hidden" id="noticeEditId" value="" /><div class="field"><label for="noticeTitle">공지 제목</label><input id="noticeTitle" /></div><div class="grid-2"><div class="field"><label for="noticeCategory">공지 구분</label><input id="noticeCategory" placeholder="예: 일반, 점검, 이벤트" /></div><div class="field"><label>공지 옵션</label><div class="check-row"><label><input type="checkbox" id="noticeVisible" checked> 노출</label><label><input type="checkbox" id="noticePinned"> 중요 공지</label></div></div></div><div class="field"><label for="noticeContent">공지 내용</label><textarea id="noticeContent"></textarea></div><div class="field"><label>푸시 발송 옵션</label><div class="check-row"><label><input type="checkbox" id="sendPushWithNotice"> 저장 후 푸시 작업 생성</label><label><input type="checkbox" id="pushImportantOnly"> 중요 공지로 표시</label></div></div><div class="grid-2"><div class="field"><label for="pushTitle">푸시 제목</label><input id="pushTitle" placeholder="비워두면 공지 제목 사용" /></div><div class="field"><label for="pushBody">푸시 내용</label><input id="pushBody" placeholder="비워두면 공지 내용 앞부분 사용" /></div></div><div class="field"><label for="pushTargetType">푸시 대상</label><select id="pushTargetType"><option value="all" selected>전체 이용자</option><option value="user">특정 회원 UID</option></select></div><div class="field"><label for="pushTargetUid">회원 UID</label><input id="pushTargetUid" placeholder="특정 회원 발송 시 입력" /></div><input id="pushTargetBuilding" type="hidden" value="" /><input id="pushTargetUnit" type="hidden" value="" /><div class="grid-2"><button type="submit" class="btn btn-primary">공지 저장</button><button type="button" class="btn btn-soft" id="cancelNoticeEditBtn">입력 초기화</button></div></form></div>
@@ -2016,6 +2105,7 @@ body.gnb-open .admin-bottom-nav{
           <button class="admin-all-card community" type="button" data-admin-view="community"><span class="admin-all-card-icon">💬</span><strong>커뮤니티 관리</strong><span>게시글, 댓글, 신고, 숨김 처리를 관리합니다.</span></button>
           <button class="admin-all-card data" type="button" data-admin-view="dashboard-data"><span class="admin-all-card-icon">🗂️</span><strong>데이터 관리</strong><span>JSON 내보내기와 기본 데이터 업로드를 실행합니다.</span></button>
           <button class="admin-all-card ai" type="button" data-admin-view="ai"><span class="admin-all-card-icon">🤖</span><strong>AI 생활 도우미</strong><span>FAQ, 전자책, 가이드, 질문 로그를 관리합니다.</span></button>
+          <button class="admin-all-card data" type="button" data-admin-view="menus"><span class="admin-all-card-icon">🧭</span><strong>GNB 메뉴 관리</strong><span>공개앱 메뉴, 검색 키워드, 노출 구역과 권한을 관리합니다.</span></button>
           <button class="admin-all-card resident" type="button" onclick="location.href='/'"><span class="admin-all-card-icon">🏠</span><strong>입주민 앱</strong><span>공개 앱 화면으로 이동합니다.</span></button>
         </div>
       </div>
@@ -2029,8 +2119,7 @@ body.gnb-open .admin-bottom-nav{
     <button class="admin-nav-btn" data-admin-view="benefits"><span class="nav-icon">🎁</span><span class="nav-label">혜택</span></button>
     <button class="admin-nav-btn" data-admin-view="notices"><span class="nav-icon">📢</span><span class="nav-label">공지</span></button>
     <button class="admin-nav-btn" data-admin-view="members"><span class="nav-icon">👥</span><span class="nav-label">회원</span></button>
-    <button class="admin-nav-btn" data-admin-view="ai"><span class="nav-icon">🤖</span><span class="nav-label">AI</span></button>
-    <button class="admin-nav-btn" data-admin-view="all"><span class="nav-icon">▦</span><span class="nav-label">전체</span></button>
+    <button class="admin-nav-btn" data-admin-view="all"><span class="nav-icon">☰</span><span class="nav-label">더보기</span></button>
   </nav>
 
   <script type="module">
@@ -4519,6 +4608,61 @@ function fillForm(item){qs('#editId').value=item.id;qs('#formModeLabel').textCon
     setTimeout(initAiManagerSwipe, 500);
 
 
+
+
+    /* =========================
+       Dynamic GNB Menu Manager v1
+    ========================= */
+    const APP_MENUS_COLLECTION='app_menus';
+    const MENU_STATS_COLLECTION='menu_stats';
+    let adminMenuItems=[];
+    function getMenuCheckedValues(name){ return [...document.querySelectorAll(`input[name="${name}"]:checked`)].map(el=>el.value); }
+    function setMenuCheckedValues(name, values=[]){ document.querySelectorAll(`input[name="${name}"]`).forEach(el=>{ el.checked = values.includes(el.value); }); }
+    function normalizeAdminMenu(raw={}, id=''){
+      const menuId=String(raw.menuId||id||raw.view||'').trim();
+      const sections=Array.isArray(raw.sections)?raw.sections:[raw.section||raw.type||'main'].filter(Boolean);
+      const roles=Array.isArray(raw.roles)?raw.roles:(raw.role?[raw.role]:['resident','admin','root']);
+      const keywords=Array.isArray(raw.keywords)?raw.keywords:String(raw.keywords||'').split(',').map(v=>v.trim()).filter(Boolean);
+      return {...raw, id, menuId, name:raw.name||raw.title||menuId, icon:raw.icon||'•', view:raw.view||raw.route||menuId, route:raw.route||raw.view||menuId, keywords, sections, roles, order:Number(raw.order??100), isActive:raw.isActive!==false};
+    }
+    function renderAdminMenus(){
+      const list=qs('#menuAdminList'); const count=qs('#menuListCount'); if(!list) return;
+      const items=[...adminMenuItems].sort((a,b)=>a.order-b.order);
+      if(count) count.textContent=`${items.length}건`;
+      if(!items.length){ list.innerHTML='<div class="notice">등록된 메뉴가 없습니다. 기본 메뉴를 먼저 등록해 주세요.</div>'; return; }
+      list.innerHTML=items.map(item=>`<div class="menu-card"><div class="menu-card-head"><div class="menu-card-title"><span>${escapeHtml(item.icon)}</span><div><strong>${escapeHtml(item.name)}</strong><div style="font-size:12px;color:#64748b;margin-top:3px;">${escapeHtml(item.menuId)} · ${escapeHtml(item.view)}</div></div></div><div class="member-actions"><button class="btn btn-soft" type="button" data-menu-edit="${escapeHtml(item.id)}">수정</button><button class="btn btn-danger" type="button" data-menu-delete="${escapeHtml(item.id)}">삭제</button></div></div><div class="menu-card-meta"><span class="tag ${item.isActive?'live-tag':'hidden-tag'}">${item.isActive?'노출':'숨김'}</span><span class="tag">순서 ${item.order}</span>${item.sections.map(s=>`<span class="tag rec">${escapeHtml(s)}</span>`).join('')}${item.roles.map(r=>`<span class="tag">${escapeHtml(r)}</span>`).join('')}</div>${item.keywords?.length?`<div style="font-size:12px;color:#64748b;line-height:1.5;">검색어: ${escapeHtml(item.keywords.join(', '))}</div>`:''}</div>`).join('');
+    }
+    async function loadAdminMenus(){
+      if(!requireAdminDataAccess(false)) return;
+      const list=qs('#menuAdminList'); if(list) list.innerHTML='<div class="notice">GNB 메뉴를 불러오는 중입니다.</div>';
+      try{ const snap=await getDocs(collection(db, APP_MENUS_COLLECTION)); adminMenuItems=snap.docs.map(d=>normalizeAdminMenu(d.data(), d.id)); renderAdminMenus(); }
+      catch(error){ console.error(error); if(list) list.innerHTML='<div class="notice">GNB 메뉴를 불러오지 못했습니다. Firestore Rules를 확인해 주세요.</div>'; }
+    }
+    function resetMenuForm(){
+      qs('#menuForm')?.reset(); if(qs('#menuEditId')) qs('#menuEditId').value=''; if(qs('#menuOrder')) qs('#menuOrder').value=100; if(qs('#menuIsActive')) qs('#menuIsActive').checked=true; setMenuCheckedValues('menuSection',['main']); setMenuCheckedValues('menuRole',['resident','admin','root']); if(qs('#menuFormModeLabel')) qs('#menuFormModeLabel').textContent='새 메뉴';
+    }
+    function fillMenuForm(item){
+      qs('#menuEditId').value=item.id||item.menuId; qs('#menuId').value=item.menuId; qs('#menuName').value=item.name; qs('#menuIcon').value=item.icon||''; qs('#menuView').value=item.view||item.route||item.menuId; qs('#menuKeywords').value=(item.keywords||[]).join(', '); qs('#menuOrder').value=item.order||100; qs('#menuDescription').value=item.description||''; qs('#menuIsActive').checked=item.isActive!==false; setMenuCheckedValues('menuSection', item.sections?.length?item.sections:['main']); setMenuCheckedValues('menuRole', item.roles?.length?item.roles:['resident','admin','root']); qs('#menuFormModeLabel').textContent='수정 중'; window.scrollTo({top:0,behavior:'smooth'});
+    }
+    async function saveMenu(event){
+      event?.preventDefault?.(); if(!requireAdminDataAccess()) return;
+      const menuId=qs('#menuId').value.trim(); const name=qs('#menuName').value.trim(); const view=qs('#menuView').value.trim();
+      if(!menuId || !name || !view){ await openModalAlert('메뉴 ID, 메뉴명, 이동 view를 입력해 주세요.', qs('#menuId')); return; }
+      const keywords=qs('#menuKeywords').value.split(',').map(v=>v.trim()).filter(Boolean);
+      const sections=getMenuCheckedValues('menuSection'); const roles=getMenuCheckedValues('menuRole');
+      const payload={ menuId, name, icon:qs('#menuIcon').value.trim()||'•', view, route:view, keywords, sections:sections.length?sections:['main'], roles:roles.length?roles:['resident','admin','root'], order:Number(qs('#menuOrder').value||100), description:qs('#menuDescription').value.trim(), isActive:qs('#menuIsActive').checked, updatedAt:serverTimestamp() };
+      const editId=qs('#menuEditId').value.trim();
+      await setDoc(doc(db, APP_MENUS_COLLECTION, editId || menuId), editId ? payload : {...payload, createdAt:serverTimestamp()}, {merge:true});
+      await openModalAlert('GNB 메뉴가 저장되었습니다.', qs('#menuName')); resetMenuForm(); await loadAdminMenus();
+    }
+    async function deleteMenu(id){ if(!id || !requireAdminDataAccess()) return; const ok=await openModalConfirm('해당 GNB 메뉴를 삭제할까요?\n공개앱 GNB와 검색 결과에서 제외됩니다.'); if(!ok) return; await deleteDoc(doc(db, APP_MENUS_COLLECTION, id)); await loadAdminMenus(); }
+    document.addEventListener('click', (event)=>{ const edit=event.target.closest('[data-menu-edit]'); if(edit){ const item=adminMenuItems.find(v=>v.id===edit.dataset.menuEdit); if(item) fillMenuForm(item); return; } const del=event.target.closest('[data-menu-delete]'); if(del){ deleteMenu(del.dataset.menuDelete); } });
+    qs('#menuForm')?.addEventListener('submit', saveMenu); qs('#menuResetBtn')?.addEventListener('click', resetMenuForm);
+    const __origChangeAdminViewForMenus = changeAdminView;
+    changeAdminView = function(view){ __origChangeAdminViewForMenus(view); if(view === 'menus') setTimeout(loadAdminMenus, 80); };
+    window.changeAdminView = changeAdminView;
+    resetMenuForm();
+
     const benefitSortSelect=qs('#benefitSortSelect'); if(benefitSortSelect){benefitSortSelect.value=benefitSortMode; benefitSortSelect.addEventListener('change',()=>{benefitSortMode=benefitSortSelect.value||'latest'; renderAdminList();});}
     qs('#benefitForm').addEventListener('submit',saveBenefit);qs('#thumbnailUrl')?.addEventListener('input',(event)=>updateThumbPreview(event.target.value));qs('#thumbnailUploadBtn')?.addEventListener('click', uploadThumbnailFile);qs('#noticeForm').addEventListener('submit',saveNotice);qs('#geocodeBtn')?.addEventListener('click', geocodeAddressByNaver);qs('#cancelEditBtn').onclick=resetForm;qs('#cancelNoticeEditBtn').onclick=resetNoticeForm;qs('#loginBtn').onclick=loginAdmin;qs('#logoutBtn').onclick=logoutAdmin;qs('#exportBtn').onclick=exportBenefits;qs('#seedBtn').onclick=seedDefaultData;document.addEventListener('click',(event)=>{const actionBtn=event.target.closest('[data-member-action]');if(!actionBtn) return;updateMemberStatus(actionBtn.dataset.memberId, actionBtn.dataset.memberAction);});resetForm();resetNoticeForm();changeAdminView('dashboard');
       bindOpeningHoursButtons();
@@ -4532,6 +4676,7 @@ function fillForm(item){qs('#editId').value=item.id;qs('#formModeLabel').textCon
         <button class="gnb-icon-btn gnb-home-active" type="button" data-admin-view="dashboard" title="대시보드">⌂</button>
         <button class="gnb-icon-btn" type="button" data-admin-view="community" title="커뮤니티 관리">💬</button>
         <button class="gnb-icon-btn" type="button" data-admin-view="ai" title="AI 생활 도우미">🤖</button>
+        <button class="gnb-icon-btn" type="button" data-admin-view="menus" title="GNB 메뉴 관리">🧭</button>
         <button class="gnb-icon-btn" type="button" data-admin-view="all" title="전체 기능">▦</button>
         <button class="gnb-close" id="adminGnbCloseBtn" type="button" title="닫기">✕</button>
       </div>
