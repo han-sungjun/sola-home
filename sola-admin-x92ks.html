@@ -1286,6 +1286,8 @@ body.gnb-open .admin-bottom-nav{
 .ai-attachment-name a{font-size:12px;font-weight:1000;color:#0f172a;text-decoration:none;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:260px}
 .ai-attachment-name small{font-size:11px;color:#64748b;font-weight:800}
 .ai-attachment-delete{border:none;border-radius:12px;padding:8px 10px;background:#fff1f2;color:#be123c;font-size:11px;font-weight:1000;cursor:pointer}
+.ai-attachment-actions{display:flex;align-items:center;gap:6px;flex:0 0 auto}
+.ai-attachment-download{display:inline-flex;align-items:center;justify-content:center;border:none;border-radius:12px;padding:8px 10px;background:#eff6ff;color:#1d4ed8;font-size:11px;font-weight:1000;text-decoration:none;cursor:pointer;white-space:nowrap}
 
 .ai-code-pill{
   display:inline-flex;
@@ -4264,6 +4266,60 @@ function fillForm(item){qs('#editId').value=item.id;qs('#formModeLabel').textCon
       return `${(n / 1024 / 1024).toFixed(1)}MB`;
     }
 
+    const AI_ATTACHMENT_DOWNLOAD_BASE_BY_ENV = {
+      dev: 'https://ai-stream-server-dev-292137041544.asia-northeast3.run.app',
+      prod: 'https://ai-stream-server-337132471819.asia-northeast3.run.app'
+    };
+
+    function getAiAttachmentDownloadBase(){
+      const globalBase = String(window.AI_ATTACHMENT_DOWNLOAD_BASE || window.AI_STREAM_SERVER_BASE_URL || '').trim();
+      if(globalBase) return globalBase.replace(/\/?stream\/?$/, '').replace(/\/+$/, '');
+      return (AI_ATTACHMENT_DOWNLOAD_BASE_BY_ENV[ENV] || AI_ATTACHMENT_DOWNLOAD_BASE_BY_ENV.prod || '').replace(/\/+$/, '');
+    }
+
+    function getAiAttachmentDownloadPath(a={}){
+      return a.path || a.storagePath || a.filePath || '';
+    }
+
+    function buildAiAttachmentDownloadUrl(a={}){
+      const path = getAiAttachmentDownloadPath(a);
+      const base = getAiAttachmentDownloadBase();
+      if(!path || !base) return '';
+      return `${base}/download-ai-attachment?path=${encodeURIComponent(path)}&name=${encodeURIComponent(a.name || 'attachment')}`;
+    }
+
+    function getAiAttachmentDownloadButtonHtml(a={}, label='다운로드'){
+      const path = getAiAttachmentDownloadPath(a);
+      const url = buildAiAttachmentDownloadUrl(a);
+      if(!path || !url) return '';
+      return `<button class="ai-attachment-download" type="button" data-ai-attachment-download="1" data-ai-attachment-path="${escapeHtml(path)}" data-ai-attachment-name="${escapeHtml(a.name || 'attachment')}">${escapeHtml(label)}</button>`;
+    }
+
+    function downloadAiAttachmentFromButton(button){
+      const path = button?.dataset?.aiAttachmentPath || '';
+      const name = button?.dataset?.aiAttachmentName || 'attachment';
+      const base = getAiAttachmentDownloadBase();
+      if(!path){ openModalAlert('다운로드 경로가 없습니다.'); return; }
+      if(!base){ openModalAlert('다운로드 서버 주소가 설정되지 않았습니다.'); return; }
+      window.location.href = `${base}/download-ai-attachment?path=${encodeURIComponent(path)}&name=${encodeURIComponent(name)}`;
+    }
+
+    function getAiAttachmentDownloadsHtml(d={}){
+      const arr = Array.isArray(d.attachments) ? d.attachments.filter(a => a && a.url) : [];
+      if(!arr.length) return '';
+      return `<div class="ai-attachment-list" style="margin-top:10px;">${arr.map((a) => {
+        const isImage = getAiAttachmentType(a) === 'image';
+        const size = formatAiAttachmentSize(a.size || a.sizeBytes);
+        return `<div class="ai-attachment-item">
+          <div class="ai-attachment-left">
+            ${isImage ? `<img class="ai-attachment-thumb" src="${escapeHtml(a.url)}" alt="첨부 이미지">` : `<span class="ai-attachment-fileicon">📎</span>`}
+            <span class="ai-attachment-name"><span style="font-size:12px;font-weight:1000;color:#0f172a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:260px;display:block;">${escapeHtml(a.name || '첨부파일')}</span><small>${escapeHtml(isImage ? '이미지' : '파일')}${size ? ` · ${escapeHtml(size)}` : ''}</small></span>
+          </div>
+          <div class="ai-attachment-actions">${getAiAttachmentDownloadButtonHtml(a, isImage ? '이미지 저장' : '파일 받기')}</div>
+        </div>`;
+      }).join('')}</div>`;
+    }
+
     function renderAiAttachmentList(kind, collectionName='', docId='', attachments=[]){
       const list = qs(`#${kind}AttachmentList`);
       if(!list) return;
@@ -4275,9 +4331,12 @@ function fillForm(item){qs('#editId').value=item.id;qs('#formModeLabel').textCon
         return `<div class="ai-attachment-item">
           <div class="ai-attachment-left">
             ${isImage ? `<img class="ai-attachment-thumb" src="${escapeHtml(a.url)}" alt="첨부 이미지">` : `<span class="ai-attachment-fileicon">📎</span>`}
-            <span class="ai-attachment-name"><a href="${escapeHtml(a.url)}" target="_blank" rel="noopener">${escapeHtml(a.name || '첨부파일')}</a><small>${escapeHtml(isImage ? '이미지' : '파일')}${size ? ` · ${escapeHtml(size)}` : ''}</small></span>
+            <span class="ai-attachment-name"><span style="font-size:12px;font-weight:1000;color:#0f172a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:260px;display:block;">${escapeHtml(a.name || '첨부파일')}</span><small>${escapeHtml(isImage ? '이미지' : '파일')}${size ? ` · ${escapeHtml(size)}` : ''}</small></span>
           </div>
-          ${collectionName && docId ? `<button class="ai-attachment-delete" type="button" data-ai-action="delete-attachment" data-kind="${escapeHtml(kind)}" data-collection="${escapeHtml(collectionName)}" data-id="${escapeHtml(docId)}" data-index="${index}">삭제</button>` : ''}
+          <div class="ai-attachment-actions">
+            ${getAiAttachmentDownloadButtonHtml(a, isImage ? '이미지 저장' : '파일 받기')}
+            ${collectionName && docId ? `<button class="ai-attachment-delete" type="button" data-ai-action="delete-attachment" data-kind="${escapeHtml(kind)}" data-collection="${escapeHtml(collectionName)}" data-id="${escapeHtml(docId)}" data-index="${index}">삭제</button>` : ''}
+          </div>
         </div>`;
       }).join('');
     }
@@ -4327,20 +4386,43 @@ function fillForm(item){qs('#editId').value=item.id;qs('#formModeLabel').textCon
     }
 
     async function saveAiDocWithAttachments(collectionName, id, data, kind){
+      const input = qs(`#${kind}AttachmentInput`);
+      const hasNewFiles = !!(input?.files && input.files.length);
       let ref;
       let current = [];
+
       if(id){
         ref = doc(db, collectionName, id);
         const snap = await getDoc(ref);
         current = snap.exists() && Array.isArray(snap.data()?.attachments) ? snap.data().attachments : [];
-        await updateDoc(ref, data);
       }else{
-        ref = await addDoc(collection(db, collectionName), { ...data, createdAt: serverTimestamp() });
+        // addDoc를 먼저 실행하면 파일 업로드 실패 시 빈 데이터가 남을 수 있어,
+        // 문서 ID만 먼저 예약하고 파일 업로드 성공 후 setDoc 합니다.
+        ref = doc(collection(db, collectionName));
       }
-      const uploaded = await uploadAiAttachments(collectionName, ref.id, kind);
+
+      let uploaded = [];
+      if(hasNewFiles){
+        try{
+          uploaded = await uploadAiAttachments(collectionName, ref.id, kind);
+        }catch(uploadError){
+          setAiAttachmentStatus(kind, uploadError.message || '첨부파일 업로드 중 오류가 발생했습니다.', 'error');
+          throw uploadError;
+        }
+      }
+
+      const nextAttachments = uploaded.length ? [...current, ...uploaded] : current;
+      const payload = uploaded.length
+        ? { ...data, attachments: nextAttachments, attachmentCount: nextAttachments.length, updatedAt: serverTimestamp() }
+        : data;
+
+      if(id){
+        await updateDoc(ref, payload);
+      }else{
+        await setDoc(ref, { ...payload, createdAt: serverTimestamp() });
+      }
+
       if(uploaded.length){
-        const next = [...current, ...uploaded];
-        await updateDoc(ref, { attachments: next, attachmentCount: next.length, updatedAt: serverTimestamp() });
         setAiAttachmentStatus(kind, `${uploaded.length}개 첨부파일이 저장되었습니다.`, 'success');
       }
       return ref.id;
@@ -4403,6 +4485,7 @@ function fillForm(item){qs('#editId').value=item.id;qs('#formModeLabel').textCon
             <h5>${escapeHtml(d.question || '질문 없음')}</h5>
             <p>${escapeHtml(d.answer || '')}</p>
             <div style="margin-top:10px;">${splitKeywords(joinKeywords(d.keywords)).map(k => `<span class="ai-code-pill">#${escapeHtml(k)}</span>`).join('')}<span class="ai-code-pill">${d.isActive === false ? 'OFF' : 'ON'}</span>${getAiAttachmentCountPill(d)}</div>
+            ${getAiAttachmentDownloadsHtml(d)}
             <div class="ai-admin-item-actions">
               <button class="btn btn-soft" type="button" data-ai-action="edit-faq" data-id="${docSnap.id}">수정</button>
               <button class="btn btn-danger" type="button" data-ai-action="delete-doc" data-collection="ai_faq" data-id="${docSnap.id}">삭제</button>
@@ -4494,6 +4577,7 @@ function fillForm(item){qs('#editId').value=item.id;qs('#formModeLabel').textCon
             <h5>${escapeHtml(d.title || '제목 없음')}</h5>
             <p>${escapeHtml((d.content || '').slice(0, 240))}</p>
             <div style="margin-top:10px;"><span class="ai-code-pill">${escapeHtml(d.section || '섹션 없음')}</span>${splitKeywords(joinKeywords(d.keywords)).map(k => `<span class="ai-code-pill">#${escapeHtml(k)}</span>`).join('')}<span class="ai-code-pill">${d.isActive === false ? 'OFF' : 'ON'}</span>${getAiAttachmentCountPill(d)}</div>
+            ${getAiAttachmentDownloadsHtml(d)}
             <div class="ai-admin-item-actions">
               <button class="btn btn-soft" type="button" data-ai-action="edit-booklet" data-id="${docSnap.id}">수정</button>
               <button class="btn btn-danger" type="button" data-ai-action="delete-doc" data-collection="ai_booklet_pages" data-id="${docSnap.id}">삭제</button>
@@ -4584,6 +4668,7 @@ function fillForm(item){qs('#editId').value=item.id;qs('#formModeLabel').textCon
             <h5>${escapeHtml(d.question || d.title || '질문 없음')}</h5>
             <p>${escapeHtml(d.answer || d.content || '')}</p>
             <div style="margin-top:10px;">${splitKeywords(joinKeywords(d.keywords)).map(k => `<span class="ai-code-pill">#${escapeHtml(k)}</span>`).join('')}<span class="ai-code-pill">${d.isActive === false ? 'OFF' : 'ON'}</span>${getAiAttachmentCountPill(d)}</div>
+            ${getAiAttachmentDownloadsHtml(d)}
             <div class="ai-admin-item-actions">
               <button class="btn btn-soft" type="button" data-ai-action="edit-guide" data-id="${docSnap.id}">수정</button>
               <button class="btn btn-danger" type="button" data-ai-action="delete-doc" data-collection="ai_guide_pages" data-id="${docSnap.id}">삭제</button>
@@ -4923,6 +5008,13 @@ function fillForm(item){qs('#editId').value=item.id;qs('#formModeLabel').textCon
     }
 
     document.addEventListener('click', async (event) => {
+      const downloadBtn = event.target.closest('[data-ai-attachment-download]');
+      if(downloadBtn){
+        event.preventDefault();
+        event.stopPropagation();
+        return downloadAiAttachmentFromButton(downloadBtn);
+      }
+
       const tabBtn = event.target.closest('[data-ai-tab]');
       if(tabBtn && !tabBtn.closest('#aiManagerTabs')) openAIManager(tabBtn.dataset.aiTab);
 
