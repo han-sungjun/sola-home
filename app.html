@@ -20286,7 +20286,21 @@ if(window.MutationObserver){
 <script>
 /* ===== AI 첨부파일 다운로드: Cloud Run 다운로드 API 연결 ===== */
 (function(){
-  const AI_ATTACHMENT_DOWNLOAD_BASE = "https://ai-stream-server-dev-292137041544.asia-northeast3.run.app";
+  const AI_ATTACHMENT_DOWNLOAD_BASE = (function(){
+    try {
+      if (typeof AI_STREAM_SERVER_URL === "string" && AI_STREAM_SERVER_URL) {
+        return AI_STREAM_SERVER_URL.replace(/\/stream\/?$/, "");
+      }
+
+      if (typeof ENV !== "undefined" && ENV === "dev") {
+        return "https://ai-stream-server-dev-292137041544.asia-northeast3.run.app";
+      }
+
+      return "https://ai-stream-server-337132471819.asia-northeast3.run.app";
+    } catch (e) {
+      return "https://ai-stream-server-337132471819.asia-northeast3.run.app";
+    }
+  })();
 
   function resolveAiAttachmentPath(input){
     if (!input) return "";
