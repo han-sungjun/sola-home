@@ -1,3 +1,4 @@
+/* firebase-messaging-sw.js - no duplicate background notification build */
 importScripts("https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js");
 importScripts("https://www.gstatic.com/firebasejs/10.12.2/firebase-messaging-compat.js");
 
@@ -195,9 +196,9 @@ messaging.onBackgroundMessage((payload) => {
 
 /* =========================
    fallback push 수신
-   - PC/모바일 모두 data-only push 보강
-   - onBackgroundMessage가 놓치는 케이스를 보완
-   - showPushNotification 내부에서 중복 방지 처리
+   - FCM payload는 messaging.onBackgroundMessage에서만 처리
+   - 비-FCM fallback push만 여기서 처리
+   - 앱 닫힘 상태 2회 알림 방지
 ========================= */
 self.addEventListener("push", (event) => {
   if (!event.data) return;
@@ -214,6 +215,20 @@ self.addEventListener("push", (event) => {
           body: event.data.text() || "",
           url: "/app"
         };
+      }
+
+      // FCM Web Push는 onBackgroundMessage에서도 동일하게 들어오기 때문에
+      // 여기서 다시 showNotification을 호출하면 앱 닫힘 상태에서 2회 표시됩니다.
+      const isFcmPayload =
+        !!payload?.data ||
+        !!payload?.notification ||
+        !!payload?.fcmOptions ||
+        !!payload?.webpush ||
+        String(payload?.from || "").includes("firebase") ||
+        String(payload?.collapse_key || "").includes("firebase");
+
+      if (isFcmPayload) {
+        return;
       }
 
       await showPushNotification(payload);

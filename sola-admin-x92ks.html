@@ -1271,6 +1271,22 @@ body.gnb-open .admin-bottom-nav{
   border-radius:13px;
   font-size:12px;
 }
+
+.ai-attachment-field{display:grid;gap:8px;padding:12px 14px;border:1px dashed #cbd5e1;border-radius:18px;background:#f8fafc}
+.ai-attachment-field input[type="file"]{padding:10px;background:#fff;border:1px solid #e2e8f0;border-radius:14px}
+.ai-attachment-help{font-size:12px;color:#64748b;line-height:1.55;font-weight:800}
+.ai-attachment-status{min-height:18px;font-size:12px;color:#64748b;font-weight:900;line-height:1.5}
+.ai-attachment-status.success{color:#15803d}.ai-attachment-status.error{color:#b91c1c}
+.ai-attachment-list{display:grid;gap:8px;margin-top:4px}
+.ai-attachment-item{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 11px;border-radius:16px;background:#fff;border:1px solid #e2e8f0}
+.ai-attachment-left{min-width:0;display:flex;align-items:center;gap:9px}
+.ai-attachment-thumb{width:42px;height:42px;border-radius:13px;object-fit:cover;background:#eef2ff;border:1px solid #dbeafe;flex:0 0 auto}
+.ai-attachment-fileicon{width:42px;height:42px;border-radius:13px;display:grid;place-items:center;background:#eef2ff;border:1px solid #dbeafe;flex:0 0 auto}
+.ai-attachment-name{min-width:0;display:grid;gap:3px}
+.ai-attachment-name a{font-size:12px;font-weight:1000;color:#0f172a;text-decoration:none;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:260px}
+.ai-attachment-name small{font-size:11px;color:#64748b;font-weight:800}
+.ai-attachment-delete{border:none;border-radius:12px;padding:8px 10px;background:#fff1f2;color:#be123c;font-size:11px;font-weight:1000;cursor:pointer}
+
 .ai-code-pill{
   display:inline-flex;
   align-items:center;
@@ -1628,6 +1644,46 @@ body.gnb-open .admin-bottom-nav{
 .admin-thumb-progress-track.show{display:block;}
 .admin-thumb-progress-bar{width:0%;height:100%;border-radius:999px;background:linear-gradient(90deg,#111827,#2563eb);transition:width .18s ease;}
 @media (max-width:420px){.admin-thumb-upload-row{grid-template-columns:1fr;}.admin-thumb-upload-row .btn{width:100%;}}
+
+
+/* ===== Admin All Menu icon alignment/fill fix ===== */
+.admin-all-card-icon{
+  width:52px !important;
+  height:52px !important;
+  border-radius:18px !important;
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  line-height:1 !important;
+  font-size:26px !important;
+  margin-bottom:14px !important;
+  overflow:hidden !important;
+  text-align:center !important;
+  vertical-align:middle !important;
+}
+.admin-all-card-icon > *{
+  display:block !important;
+  line-height:1 !important;
+  transform:none !important;
+}
+.admin-all-card{
+  min-height:126px !important;
+  padding:18px !important;
+}
+.admin-all-card strong{
+  margin-top:2px !important;
+}
+@media (max-width:420px){
+  .admin-all-card-icon{
+    width:50px !important;
+    height:50px !important;
+    font-size:25px !important;
+    margin-bottom:12px !important;
+  }
+  .admin-all-card{
+    min-height:112px !important;
+  }
+}
 
 </style>
 
@@ -2245,7 +2301,7 @@ body.gnb-open .admin-bottom-nav{
     import { getAuth, onAuthStateChanged, signInWithCustomToken, signOut, setPersistence, browserLocalPersistence } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
     import { getFirestore, collection, addDoc, updateDoc, deleteDoc, doc, getDoc, getDocs, setDoc, serverTimestamp, writeBatch, query, where, orderBy, limit, startAfter, startAt, endAt, terminate, clearIndexedDbPersistence } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
     import { getMessaging, onMessage } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-messaging.js';
-    import { getStorage, ref as storageRef, uploadBytesResumable, getDownloadURL } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js';
+    import { getStorage, ref as storageRef, uploadBytesResumable, getDownloadURL, deleteObject } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js';
 
     const __SOLA_DYNAMIC_IMPORT_VERSION__ = globalThis.__SOLA_DYNAMIC_IMPORT_VERSION__ || (() => {
       const d = new Date();
@@ -4175,6 +4231,144 @@ function fillForm(item){qs('#editId').value=item.id;qs('#formModeLabel').textCon
       return `<div class="ai-admin-toolbar"><div><h3 style="margin:0;font-size:16px;">${escapeHtml(title)}</h3><small style="display:block;margin-top:4px;color:#64748b;line-height:1.45;">${escapeHtml(desc)}</small></div></div>`;
     }
 
+
+    const AI_ATTACHMENT_ACCEPT = 'image/*,.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.hwp,.hwpx,.txt';
+    const AI_ATTACHMENT_MAX_SIZE = 10 * 1024 * 1024;
+
+    function getAiAttachmentInputHtml(kind){
+      return `<div class="ai-attachment-field">
+        <label>사진 / 첨부파일</label>
+        <input id="${kind}AttachmentInput" type="file" multiple accept="${AI_ATTACHMENT_ACCEPT}" />
+        <div class="ai-attachment-help">이미지는 AI 답변에 바로 표시하고, PDF/문서 파일은 다운로드 링크로 안내됩니다. 파일은 Firebase Storage에 저장됩니다.</div>
+        <div class="ai-attachment-list" id="${kind}AttachmentList"></div>
+        <div class="ai-attachment-status" id="${kind}AttachmentStatus"></div>
+      </div>`;
+    }
+
+    function sanitizeAiStorageFileName(name='attachment'){
+      const safe = String(name || 'attachment').replace(/[^a-zA-Z0-9가-힣._-]/g, '_').slice(-100);
+      return safe || 'attachment';
+    }
+
+    function getAiAttachmentType(fileOrItem={}){
+      const mime = String(fileOrItem.type || fileOrItem.mimeType || '').toLowerCase();
+      const name = String(fileOrItem.name || fileOrItem.fileName || '').toLowerCase();
+      if(mime.startsWith('image/') || /\.(png|jpe?g|gif|webp|bmp|svg)$/.test(name)) return 'image';
+      return 'file';
+    }
+
+    function formatAiAttachmentSize(size=0){
+      const n = Number(size || 0);
+      if(!Number.isFinite(n) || n <= 0) return '';
+      if(n < 1024 * 1024) return `${Math.ceil(n / 1024)}KB`;
+      return `${(n / 1024 / 1024).toFixed(1)}MB`;
+    }
+
+    function renderAiAttachmentList(kind, collectionName='', docId='', attachments=[]){
+      const list = qs(`#${kind}AttachmentList`);
+      if(!list) return;
+      const arr = Array.isArray(attachments) ? attachments.filter(a => a && a.url) : [];
+      if(!arr.length){ list.innerHTML = '<div class="ai-empty" style="padding:10px 12px;">첨부된 파일이 없습니다.</div>'; return; }
+      list.innerHTML = arr.map((a, index) => {
+        const isImage = getAiAttachmentType(a) === 'image';
+        const size = formatAiAttachmentSize(a.size || a.sizeBytes);
+        return `<div class="ai-attachment-item">
+          <div class="ai-attachment-left">
+            ${isImage ? `<img class="ai-attachment-thumb" src="${escapeHtml(a.url)}" alt="첨부 이미지">` : `<span class="ai-attachment-fileicon">📎</span>`}
+            <span class="ai-attachment-name"><a href="${escapeHtml(a.url)}" target="_blank" rel="noopener">${escapeHtml(a.name || '첨부파일')}</a><small>${escapeHtml(isImage ? '이미지' : '파일')}${size ? ` · ${escapeHtml(size)}` : ''}</small></span>
+          </div>
+          ${collectionName && docId ? `<button class="ai-attachment-delete" type="button" data-ai-action="delete-attachment" data-kind="${escapeHtml(kind)}" data-collection="${escapeHtml(collectionName)}" data-id="${escapeHtml(docId)}" data-index="${index}">삭제</button>` : ''}
+        </div>`;
+      }).join('');
+    }
+
+    function setAiAttachmentStatus(kind, message='', type=''){
+      const el = qs(`#${kind}AttachmentStatus`);
+      if(!el) return;
+      el.textContent = message || '';
+      el.classList.remove('success','error');
+      if(type) el.classList.add(type);
+    }
+
+    async function uploadAiAttachments(collectionName, docId, kind){
+      const input = qs(`#${kind}AttachmentInput`);
+      const files = [...(input?.files || [])];
+      if(!files.length) return [];
+      if(!storage) throw new Error('Firebase Storage가 초기화되지 않았습니다.');
+      const uploaded = [];
+      for(const file of files){
+        if(file.size > AI_ATTACHMENT_MAX_SIZE){
+          throw new Error(`${file.name} 파일은 10MB 이하만 업로드할 수 있습니다.`);
+        }
+        setAiAttachmentStatus(kind, `${file.name} 업로드 중...`);
+        const safeName = sanitizeAiStorageFileName(file.name);
+        const path = `ai-content/${collectionName}/${docId}/${Date.now()}_${safeName}`;
+        const fileRef = storageRef(storage, path);
+        const uploadTask = uploadBytesResumable(fileRef, file, {
+          contentType: file.type || 'application/octet-stream',
+          // Firebase Storage가 브라우저에서 새창 미리보기로 열지 않고 다운로드로 처리하도록 설정
+          contentDisposition: `attachment; filename*=UTF-8''${encodeURIComponent(file.name || 'attachment')}`,
+          customMetadata:{ source:'myhills-ai-admin', collectionName, docId }
+        });
+        await new Promise((resolve, reject) => uploadTask.on('state_changed', null, reject, resolve));
+        const url = await getDownloadURL(fileRef);
+        uploaded.push({
+          type: getAiAttachmentType(file),
+          name: file.name,
+          url,
+          path,
+          mimeType: file.type || '',
+          size: file.size || 0,
+          uploadedAt: new Date().toISOString()
+        });
+      }
+      input.value = '';
+      return uploaded;
+    }
+
+    async function saveAiDocWithAttachments(collectionName, id, data, kind){
+      let ref;
+      let current = [];
+      if(id){
+        ref = doc(db, collectionName, id);
+        const snap = await getDoc(ref);
+        current = snap.exists() && Array.isArray(snap.data()?.attachments) ? snap.data().attachments : [];
+        await updateDoc(ref, data);
+      }else{
+        ref = await addDoc(collection(db, collectionName), { ...data, createdAt: serverTimestamp() });
+      }
+      const uploaded = await uploadAiAttachments(collectionName, ref.id, kind);
+      if(uploaded.length){
+        const next = [...current, ...uploaded];
+        await updateDoc(ref, { attachments: next, attachmentCount: next.length, updatedAt: serverTimestamp() });
+        setAiAttachmentStatus(kind, `${uploaded.length}개 첨부파일이 저장되었습니다.`, 'success');
+      }
+      return ref.id;
+    }
+
+    async function deleteAiAttachment(collectionName='', docId='', index=0, kind=''){
+      if(!collectionName || !docId) return;
+      const confirmed = await openModalConfirm('첨부파일을 삭제하시겠습니까?', null, '첨부 삭제', '삭제', '취소');
+      if(!confirmed) return;
+      const ref = doc(db, collectionName, docId);
+      const snap = await getDoc(ref);
+      if(!snap.exists()) return;
+      const attachments = Array.isArray(snap.data()?.attachments) ? [...snap.data().attachments] : [];
+      const idx = Number(index);
+      const [removed] = attachments.splice(idx, 1);
+      await updateDoc(ref, { attachments, attachmentCount: attachments.length, updatedAt: serverTimestamp() });
+      if(removed?.path){
+        try{ await deleteObject(storageRef(storage, removed.path)); }catch(error){ console.warn('Storage 첨부 삭제 실패 또는 이미 삭제됨', error); }
+      }
+      renderAiAttachmentList(kind, collectionName, docId, attachments);
+      openModalAlert('첨부파일이 삭제되었습니다.', null, '삭제 완료');
+    }
+
+    function getAiAttachmentCountPill(d={}){
+      const count = Array.isArray(d.attachments) ? d.attachments.length : Number(d.attachmentCount || 0);
+      return count > 0 ? `<span class="ai-code-pill">📎 ${count}개 첨부</span>` : '';
+    }
+
     async function loadAiFaq(){
       if(!requireAdminDataAccess()) return;
       const box = qs('#aiAdminContent');
@@ -4185,12 +4379,14 @@ function fillForm(item){qs('#editId').value=item.id;qs('#formModeLabel').textCon
           <div class="field"><label>질문</label><input id="aiFaqQuestion" placeholder="예: 음식물쓰레기는 어디에 버리나요?" /></div>
           <div class="field"><label>답변</label><textarea id="aiFaqAnswer" placeholder="입주민에게 보여줄 답변을 입력하세요."></textarea></div>
           <div class="field"><label>키워드</label><input id="aiFaqKeywords" placeholder="음식물, 쓰레기, 배출" /></div>
+          ${getAiAttachmentInputHtml('aiFaq')}
           <div class="check-row"><label><input type="checkbox" id="aiFaqActive" checked> 사용</label></div>
           <div class="grid-2"><button class="btn btn-primary" type="submit">저장</button><button class="btn btn-soft" type="button" data-ai-action="reset-faq">초기화</button></div>
         </form>
         <div class="section-head" style="margin:18px 2px 10px;"><h3 style="font-size:16px;">등록된 FAQ</h3><small id="aiFaqCount">0건</small></div>
         <div class="ai-admin-list" id="aiFaqList"><div class="ai-empty">불러오는 중...</div></div>`;
       qs('#aiFaqForm')?.addEventListener('submit', saveAiFaq);
+      renderAiAttachmentList('aiFaq');
       await renderAiFaqList();
     }
 
@@ -4206,7 +4402,7 @@ function fillForm(item){qs('#editId').value=item.id;qs('#formModeLabel').textCon
           return `<div class="ai-admin-item">
             <h5>${escapeHtml(d.question || '질문 없음')}</h5>
             <p>${escapeHtml(d.answer || '')}</p>
-            <div style="margin-top:10px;">${splitKeywords(joinKeywords(d.keywords)).map(k => `<span class="ai-code-pill">#${escapeHtml(k)}</span>`).join('')}<span class="ai-code-pill">${d.isActive === false ? 'OFF' : 'ON'}</span></div>
+            <div style="margin-top:10px;">${splitKeywords(joinKeywords(d.keywords)).map(k => `<span class="ai-code-pill">#${escapeHtml(k)}</span>`).join('')}<span class="ai-code-pill">${d.isActive === false ? 'OFF' : 'ON'}</span>${getAiAttachmentCountPill(d)}</div>
             <div class="ai-admin-item-actions">
               <button class="btn btn-soft" type="button" data-ai-action="edit-faq" data-id="${docSnap.id}">수정</button>
               <button class="btn btn-danger" type="button" data-ai-action="delete-doc" data-collection="ai_faq" data-id="${docSnap.id}">삭제</button>
@@ -4230,10 +4426,15 @@ function fillForm(item){qs('#editId').value=item.id;qs('#formModeLabel').textCon
         updatedAt: serverTimestamp()
       };
       if(!data.question || !data.answer) return openModalAlert('질문과 답변을 입력해 주세요.', null, '입력 필요');
-      if(id) await updateDoc(doc(db, 'ai_faq', id), data);
-      else await addDoc(collection(db, 'ai_faq'), { ...data, createdAt: serverTimestamp() });
-      openModalAlert('AI FAQ가 저장되었습니다.', null, '저장 완료');
-      await loadAiFaq();
+      try{
+        await saveAiDocWithAttachments('ai_faq', id, data, 'aiFaq');
+        openModalAlert('AI FAQ가 저장되었습니다.', null, '저장 완료');
+        await loadAiFaq();
+      }catch(error){
+        console.error('AI FAQ 저장/첨부 업로드 실패', error);
+        setAiAttachmentStatus('aiFaq', error.message || '첨부파일 업로드 중 오류가 발생했습니다.', 'error');
+        openModalAlert(error.message || 'AI FAQ 저장 중 오류가 발생했습니다.', null, '저장 실패');
+      }
     }
 
     async function editAiFaq(id){
@@ -4245,6 +4446,7 @@ function fillForm(item){qs('#editId').value=item.id;qs('#formModeLabel').textCon
       qs('#aiFaqAnswer').value = d.answer || '';
       qs('#aiFaqKeywords').value = joinKeywords(d.keywords);
       qs('#aiFaqActive').checked = d.isActive !== false;
+      renderAiAttachmentList('aiFaq', 'ai_faq', id, d.attachments || []);
       qs('#aiFaqQuestion')?.scrollIntoView({behavior:'smooth', block:'center'});
     }
 
@@ -4254,6 +4456,8 @@ function fillForm(item){qs('#editId').value=item.id;qs('#formModeLabel').textCon
       qs('#aiFaqAnswer') && (qs('#aiFaqAnswer').value = '');
       qs('#aiFaqKeywords') && (qs('#aiFaqKeywords').value = '');
       qs('#aiFaqActive') && (qs('#aiFaqActive').checked = true);
+      renderAiAttachmentList('aiFaq');
+      setAiAttachmentStatus('aiFaq', '');
     }
 
     async function loadAiBooklet(){
@@ -4266,12 +4470,14 @@ function fillForm(item){qs('#editId').value=item.id;qs('#formModeLabel').textCon
           <div class="grid-2"><div class="field"><label>제목</label><input id="aiBookletTitle" placeholder="예: 분리수거 안내" /></div><div class="field"><label>섹션</label><input id="aiBookletSection" placeholder="예: 생활안내" /></div></div>
           <div class="field"><label>내용</label><textarea id="aiBookletContent" placeholder="전자책/안내문 내용을 입력하세요."></textarea></div>
           <div class="field"><label>키워드</label><input id="aiBookletKeywords" placeholder="분리수거, 쓰레기, 재활용" /></div>
+          ${getAiAttachmentInputHtml('aiBooklet')}
           <div class="check-row"><label><input type="checkbox" id="aiBookletActive" checked> 사용</label></div>
           <div class="grid-2"><button class="btn btn-primary" type="submit">저장</button><button class="btn btn-soft" type="button" data-ai-action="reset-booklet">초기화</button></div>
         </form>
         <div class="section-head" style="margin:18px 2px 10px;"><h3 style="font-size:16px;">전자책 페이지</h3><small id="aiBookletCount">0건</small></div>
         <div class="ai-admin-list" id="aiBookletList"><div class="ai-empty">불러오는 중...</div></div>`;
       qs('#aiBookletForm')?.addEventListener('submit', saveAiBooklet);
+      renderAiAttachmentList('aiBooklet');
       await renderAiBookletList();
     }
 
@@ -4287,7 +4493,7 @@ function fillForm(item){qs('#editId').value=item.id;qs('#formModeLabel').textCon
           return `<div class="ai-admin-item">
             <h5>${escapeHtml(d.title || '제목 없음')}</h5>
             <p>${escapeHtml((d.content || '').slice(0, 240))}</p>
-            <div style="margin-top:10px;"><span class="ai-code-pill">${escapeHtml(d.section || '섹션 없음')}</span>${splitKeywords(joinKeywords(d.keywords)).map(k => `<span class="ai-code-pill">#${escapeHtml(k)}</span>`).join('')}<span class="ai-code-pill">${d.isActive === false ? 'OFF' : 'ON'}</span></div>
+            <div style="margin-top:10px;"><span class="ai-code-pill">${escapeHtml(d.section || '섹션 없음')}</span>${splitKeywords(joinKeywords(d.keywords)).map(k => `<span class="ai-code-pill">#${escapeHtml(k)}</span>`).join('')}<span class="ai-code-pill">${d.isActive === false ? 'OFF' : 'ON'}</span>${getAiAttachmentCountPill(d)}</div>
             <div class="ai-admin-item-actions">
               <button class="btn btn-soft" type="button" data-ai-action="edit-booklet" data-id="${docSnap.id}">수정</button>
               <button class="btn btn-danger" type="button" data-ai-action="delete-doc" data-collection="ai_booklet_pages" data-id="${docSnap.id}">삭제</button>
@@ -4312,10 +4518,15 @@ function fillForm(item){qs('#editId').value=item.id;qs('#formModeLabel').textCon
         updatedAt: serverTimestamp()
       };
       if(!data.title || !data.content) return openModalAlert('제목과 내용을 입력해 주세요.', null, '입력 필요');
-      if(id) await updateDoc(doc(db, 'ai_booklet_pages', id), data);
-      else await addDoc(collection(db, 'ai_booklet_pages'), { ...data, createdAt: serverTimestamp() });
-      openModalAlert('전자책 페이지가 저장되었습니다.', null, '저장 완료');
-      await loadAiBooklet();
+      try{
+        await saveAiDocWithAttachments('ai_booklet_pages', id, data, 'aiBooklet');
+        openModalAlert('전자책 페이지가 저장되었습니다.', null, '저장 완료');
+        await loadAiBooklet();
+      }catch(error){
+        console.error('전자책 저장/첨부 업로드 실패', error);
+        setAiAttachmentStatus('aiBooklet', error.message || '첨부파일 업로드 중 오류가 발생했습니다.', 'error');
+        openModalAlert(error.message || '전자책 저장 중 오류가 발생했습니다.', null, '저장 실패');
+      }
     }
 
     async function editAiBooklet(id){
@@ -4328,12 +4539,15 @@ function fillForm(item){qs('#editId').value=item.id;qs('#formModeLabel').textCon
       qs('#aiBookletContent').value = d.content || '';
       qs('#aiBookletKeywords').value = joinKeywords(d.keywords);
       qs('#aiBookletActive').checked = d.isActive !== false;
+      renderAiAttachmentList('aiBooklet', 'ai_booklet_pages', id, d.attachments || []);
       qs('#aiBookletTitle')?.scrollIntoView({behavior:'smooth', block:'center'});
     }
 
     function resetAiBookletForm(){
       ['aiBookletEditId','aiBookletTitle','aiBookletSection','aiBookletContent','aiBookletKeywords'].forEach(id => { const el=qs(`#${id}`); if(el) el.value=''; });
       qs('#aiBookletActive') && (qs('#aiBookletActive').checked = true);
+      renderAiAttachmentList('aiBooklet');
+      setAiAttachmentStatus('aiBooklet', '');
     }
 
     async function loadAiGuide(){
@@ -4346,12 +4560,14 @@ function fillForm(item){qs('#editId').value=item.id;qs('#formModeLabel').textCon
           <div class="field"><label>질문/상황</label><input id="aiGuideQuestion" placeholder="예: 커뮤니티 메뉴는 어떻게 들어가?" /></div>
           <div class="field"><label>답변</label><textarea id="aiGuideAnswer" placeholder="예: 하단 네비바에서 전체 탭을 누른 뒤 커뮤니티를 선택하면 됩니다."></textarea></div>
           <div class="field"><label>키워드</label><input id="aiGuideKeywords" placeholder="커뮤니티, 메뉴, 전체 탭" /></div>
+          ${getAiAttachmentInputHtml('aiGuide')}
           <div class="check-row"><label><input type="checkbox" id="aiGuideActive" checked> 사용</label></div>
           <div class="grid-2"><button class="btn btn-primary" type="submit">저장</button><button class="btn btn-soft" type="button" data-ai-action="reset-guide">초기화</button></div>
         </form>
         <div class="section-head" style="margin:18px 2px 10px;"><h3 style="font-size:16px;">등록된 가이드</h3><small id="aiGuideCount">0건</small></div>
         <div class="ai-admin-list" id="aiGuideList"><div class="ai-empty">불러오는 중...</div></div>`;
       qs('#aiGuideForm')?.addEventListener('submit', saveAiGuide);
+      renderAiAttachmentList('aiGuide');
       await renderAiGuideList();
     }
 
@@ -4367,7 +4583,7 @@ function fillForm(item){qs('#editId').value=item.id;qs('#formModeLabel').textCon
           return `<div class="ai-admin-item">
             <h5>${escapeHtml(d.question || d.title || '질문 없음')}</h5>
             <p>${escapeHtml(d.answer || d.content || '')}</p>
-            <div style="margin-top:10px;">${splitKeywords(joinKeywords(d.keywords)).map(k => `<span class="ai-code-pill">#${escapeHtml(k)}</span>`).join('')}<span class="ai-code-pill">${d.isActive === false ? 'OFF' : 'ON'}</span></div>
+            <div style="margin-top:10px;">${splitKeywords(joinKeywords(d.keywords)).map(k => `<span class="ai-code-pill">#${escapeHtml(k)}</span>`).join('')}<span class="ai-code-pill">${d.isActive === false ? 'OFF' : 'ON'}</span>${getAiAttachmentCountPill(d)}</div>
             <div class="ai-admin-item-actions">
               <button class="btn btn-soft" type="button" data-ai-action="edit-guide" data-id="${docSnap.id}">수정</button>
               <button class="btn btn-danger" type="button" data-ai-action="delete-doc" data-collection="ai_guide_pages" data-id="${docSnap.id}">삭제</button>
@@ -4391,10 +4607,15 @@ function fillForm(item){qs('#editId').value=item.id;qs('#formModeLabel').textCon
         updatedAt: serverTimestamp()
       };
       if(!data.question || !data.answer) return openModalAlert('질문과 답변을 입력해 주세요.', null, '입력 필요');
-      if(id) await updateDoc(doc(db, 'ai_guide_pages', id), data);
-      else await addDoc(collection(db, 'ai_guide_pages'), { ...data, createdAt: serverTimestamp() });
-      openModalAlert('가이드가 저장되었습니다.', null, '저장 완료');
-      await loadAiGuide();
+      try{
+        await saveAiDocWithAttachments('ai_guide_pages', id, data, 'aiGuide');
+        openModalAlert('가이드가 저장되었습니다.', null, '저장 완료');
+        await loadAiGuide();
+      }catch(error){
+        console.error('가이드 저장/첨부 업로드 실패', error);
+        setAiAttachmentStatus('aiGuide', error.message || '첨부파일 업로드 중 오류가 발생했습니다.', 'error');
+        openModalAlert(error.message || '가이드 저장 중 오류가 발생했습니다.', null, '저장 실패');
+      }
     }
 
     async function editAiGuide(id){
@@ -4406,12 +4627,15 @@ function fillForm(item){qs('#editId').value=item.id;qs('#formModeLabel').textCon
       qs('#aiGuideAnswer').value = d.answer || d.content || '';
       qs('#aiGuideKeywords').value = joinKeywords(d.keywords);
       qs('#aiGuideActive').checked = d.isActive !== false;
+      renderAiAttachmentList('aiGuide', 'ai_guide_pages', id, d.attachments || []);
       qs('#aiGuideQuestion')?.scrollIntoView({behavior:'smooth', block:'center'});
     }
 
     function resetAiGuideForm(){
       ['aiGuideEditId','aiGuideQuestion','aiGuideAnswer','aiGuideKeywords'].forEach(id => { const el=qs(`#${id}`); if(el) el.value=''; });
       qs('#aiGuideActive') && (qs('#aiGuideActive').checked = true);
+      renderAiAttachmentList('aiGuide');
+      setAiAttachmentStatus('aiGuide', '');
     }
 
     async function loadAiSettings(){
@@ -4712,6 +4936,7 @@ function fillForm(item){qs('#editId').value=item.id;qs('#formModeLabel').textCon
       if(type === 'edit-booklet') return editAiBooklet(action.dataset.id);
       if(type === 'edit-guide') return editAiGuide(action.dataset.id);
       if(type === 'delete-doc') return deleteAiDoc(action.dataset.collection, action.dataset.id);
+      if(type === 'delete-attachment') return deleteAiAttachment(action.dataset.collection, action.dataset.id, action.dataset.index, action.dataset.kind);
       if(type === 'logs-search') return applyAiSearch('logs');
       if(type === 'logs-refresh'){ resetAiPaging('logs'); return loadAiLogs(false); }
       if(type === 'logs-prev') return goAiPage('logs', 'prev');

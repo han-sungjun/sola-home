@@ -2531,6 +2531,24 @@ body.app-role-resident [data-view="shareinsights"]{
 .ai-card-actions .primary{background:#0f172a;color:#fff}
 .ai-card-actions .soft{background:#eef2ff;color:#1d4ed8;border:1px solid #dbeafe}
 .ai-mode-pill.upgraded{justify-self:start;background:#ecfdf5;border-color:#bbf7d0;color:#15803d}
+
+
+.ai-attachment-download-link,
+.ai-attachment-file-link{border:none;font:inherit;cursor:pointer;text-align:left}
+
+.ai-attachment-section{display:grid;gap:10px;margin-top:2px}
+.ai-attachment-grid{display:grid;gap:9px}
+.ai-attachment-image-card{display:grid;gap:7px;padding:10px;border-radius:18px;background:#fff;border:1px solid #dbeafe;box-shadow:0 10px 24px rgba(37,99,235,.08)}
+.ai-attachment-image-card img{width:100%;max-height:260px;object-fit:contain;border-radius:14px;background:#f8fafc;border:1px solid #e2e8f0}
+.ai-attachment-caption{font-size:11px;color:#64748b;font-weight:900;line-height:1.45}
+.ai-attachment-image-actions{display:grid;grid-template-columns:1fr;gap:7px}
+.ai-attachment-download-link{border:none;width:100%;font:inherit;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 12px;border-radius:14px;background:#eff6ff;border:1px solid #bfdbfe;text-decoration:none;color:#1d4ed8;font-size:12px;font-weight:1000}
+.ai-attachment-download-link span{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ai-attachment-download-link em{font-style:normal;flex:0 0 auto}
+.ai-attachment-file-link{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 13px;border-radius:16px;background:#f8fafc;border:1px solid #e2e8f0;text-decoration:none;color:#0f172a;font-size:12px;font-weight:1000}
+.ai-attachment-file-link span{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ai-attachment-file-link em{font-style:normal;color:#2563eb;flex:0 0 auto}
+
 @keyframes aiStreamPulse{0%,100%{box-shadow:0 0 0 0 rgba(34,197,94,.35)}50%{box-shadow:0 0 0 7px rgba(34,197,94,0)}}
 @keyframes aiCursorBlink{0%,45%{opacity:1}46%,100%{opacity:.08}}
 @keyframes aiCardRise{from{opacity:0;transform:translateY(8px) scale(.985)}to{opacity:1;transform:translateY(0) scale(1)}}
@@ -5715,6 +5733,309 @@ body:has(#view-calendar:not(.hidden)) .app{
 .notice-detail-actions{margin-top:2px;}
 #noticeModal .modal-body{padding-bottom:22px;}
 #noticeModal .share-actions{margin-top:0;}
+
+
+/* ===== AI 첨부 이미지 확대 보기 ===== */
+.ai-image-zoom-backdrop{
+  position:fixed;
+  inset:0;
+  z-index:10020;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  padding:18px;
+  background:rgba(15,23,42,.72);
+  backdrop-filter:blur(8px);
+  -webkit-backdrop-filter:blur(8px);
+}
+.ai-image-zoom-backdrop.show{display:flex;}
+.ai-image-zoom-card{
+  position:relative;
+  width:min(100%,460px);
+  max-height:92dvh;
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+  padding:12px;
+  border-radius:24px;
+  background:rgba(255,255,255,.98);
+  box-shadow:0 30px 70px rgba(15,23,42,.32);
+  border:1px solid rgba(255,255,255,.72);
+}
+.ai-image-zoom-scroll{
+  overflow:auto;
+  -webkit-overflow-scrolling:touch;
+  max-height:calc(92dvh - 78px);
+  border-radius:18px;
+  background:#f8fafc;
+  display:grid;
+  place-items:center;
+}
+.ai-image-zoom-img{
+  display:block;
+  max-width:100%;
+  width:auto;
+  height:auto;
+  border-radius:16px;
+  object-fit:contain;
+}
+.ai-image-zoom-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  padding:2px 2px 0;
+}
+.ai-image-zoom-title{
+  min-width:0;
+  flex:1;
+  font-size:13px;
+  font-weight:900;
+  color:#334155;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.ai-image-zoom-close{
+  width:38px;
+  height:38px;
+  border:none;
+  border-radius:14px;
+  background:#0f172a;
+  color:#fff;
+  font-size:18px;
+  font-weight:900;
+  cursor:pointer;
+  display:grid;
+  place-items:center;
+}
+.ai-attachment-preview-img,
+.ai-attachment-card img,
+.ai-answer-attachments img{
+  cursor:zoom-in;
+}
+
+
+/* ===== AI 첨부파일 아이콘 / 안내 / 이미지 확대 ===== */
+.ai-attachment-guide{
+  margin:8px 0 10px;
+  padding:11px 13px;
+  border-radius:16px;
+  background:#f8fafc;
+  border:1px solid #e2e8f0;
+  color:#475569;
+  font-size:13px;
+  font-weight:800;
+  line-height:1.55;
+}
+.ai-attachment-image-preview{
+  position:relative;
+  display:block;
+  border-radius:14px;
+  overflow:hidden;
+  background:#f8fafc;
+}
+.ai-attachment-image-preview img{
+  display:block;
+  width:100%;
+  cursor:zoom-in;
+}
+.ai-attachment-zoom-badge{
+  position:absolute;
+  right:10px;
+  bottom:10px;
+  width:36px;
+  height:36px;
+  border:none;
+  border-radius:999px;
+  display:grid;
+  place-items:center;
+  background:rgba(15,23,42,.90);
+  color:#fff;
+  font-size:18px;
+  box-shadow:0 10px 22px rgba(15,23,42,.22);
+  pointer-events:none;
+}
+.ai-attachment-file-icon{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  width:26px;
+  height:26px;
+  margin-right:6px;
+  border-radius:9px;
+  background:#eef2ff;
+  border:1px solid #dbeafe;
+  flex:0 0 auto;
+}
+.ai-image-zoom-backdrop{
+  position:fixed;
+  inset:0;
+  z-index:10020;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  padding:18px;
+  background:rgba(15,23,42,.74);
+  backdrop-filter:blur(8px);
+  -webkit-backdrop-filter:blur(8px);
+}
+.ai-image-zoom-backdrop.show{display:flex;}
+.ai-image-zoom-card{
+  position:relative;
+  width:min(100%,460px);
+  max-height:92dvh;
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+  padding:12px;
+  border-radius:24px;
+  background:rgba(255,255,255,.98);
+  box-shadow:0 30px 70px rgba(15,23,42,.32);
+  border:1px solid rgba(255,255,255,.72);
+}
+.ai-image-zoom-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  padding:2px 2px 0;
+}
+.ai-image-zoom-title{
+  min-width:0;
+  flex:1;
+  font-size:13px;
+  font-weight:900;
+  color:#334155;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.ai-image-zoom-close{
+  width:38px;
+  height:38px;
+  border:none;
+  border-radius:14px;
+  background:#0f172a;
+  color:#fff;
+  font-size:18px;
+  font-weight:900;
+  cursor:pointer;
+  display:grid;
+  place-items:center;
+}
+.ai-image-zoom-scroll{
+  overflow:auto;
+  -webkit-overflow-scrolling:touch;
+  max-height:calc(92dvh - 78px);
+  border-radius:18px;
+  background:#f8fafc;
+  display:grid;
+  place-items:center;
+}
+.ai-image-zoom-img{
+  display:block;
+  max-width:100%;
+  width:auto;
+  height:auto;
+  border-radius:16px;
+  object-fit:contain;
+}
+
+
+/* ===== AI 첨부 이미지 전체화면 확대 팝업 - 강제 적용 ===== */
+.ai-image-zoom-backdrop{
+  position:fixed!important;
+  inset:0!important;
+  z-index:2147483000!important;
+  display:none;
+  background:rgba(0,0,0,.94)!important;
+  overflow:hidden;
+}
+.ai-image-zoom-backdrop.show{display:block!important;}
+.ai-image-zoom-close{
+  position:fixed!important;
+  top:calc(12px + env(safe-area-inset-top,0px))!important;
+  right:14px!important;
+  z-index:2147483002!important;
+  width:46px!important;
+  height:46px!important;
+  border:none!important;
+  border-radius:999px!important;
+  background:rgba(15,23,42,.92)!important;
+  color:#fff!important;
+  font-size:26px!important;
+  font-weight:900!important;
+  display:grid!important;
+  place-items:center!important;
+  cursor:pointer!important;
+  box-shadow:0 12px 28px rgba(0,0,0,.34)!important;
+}
+.ai-image-zoom-title{
+  position:fixed!important;
+  left:14px!important;
+  right:74px!important;
+  top:calc(19px + env(safe-area-inset-top,0px))!important;
+  z-index:2147483001!important;
+  color:#fff!important;
+  font-size:13px!important;
+  font-weight:900!important;
+  white-space:nowrap!important;
+  overflow:hidden!important;
+  text-overflow:ellipsis!important;
+}
+.ai-image-zoom-scroll{
+  position:absolute!important;
+  inset:0!important;
+  overflow:auto!important;
+  -webkit-overflow-scrolling:touch!important;
+  display:flex!important;
+  align-items:flex-start!important;
+  justify-content:center!important;
+  padding:calc(64px + env(safe-area-inset-top,0px)) 0 calc(24px + env(safe-area-inset-bottom,0px))!important;
+}
+.ai-image-zoom-img{
+  display:block!important;
+  width:auto;
+  max-width:none!important;
+  height:auto!important;
+  max-height:none!important;
+  background:#fff!important;
+  box-shadow:0 18px 50px rgba(0,0,0,.42)!important;
+}
+@media (max-width:480px){
+  .ai-image-zoom-img{width:100vw!important;min-width:100vw!important;}
+}
+.ai-attachment-image-preview,
+.ai-attachment-image-preview img,
+.ai-attachment-image-card img,
+[data-ai-attachment-image="true"]{
+  cursor:zoom-in!important;
+}
+.ai-attachment-image-preview{
+  position:relative!important;
+  border:none!important;
+  padding:0!important;
+  background:transparent!important;
+  display:block!important;
+  width:100%!important;
+  -webkit-tap-highlight-color:transparent;
+}
+.ai-attachment-zoom-badge{
+  position:absolute!important;
+  right:10px!important;
+  bottom:10px!important;
+  width:38px!important;
+  height:38px!important;
+  border-radius:999px!important;
+  display:grid!important;
+  place-items:center!important;
+  background:rgba(15,23,42,.92)!important;
+  color:#fff!important;
+  font-size:18px!important;
+  box-shadow:0 10px 22px rgba(15,23,42,.22)!important;
+  pointer-events:none!important;
+}
 
 </style>
  <style id="myhills-ios-safearea-fix">
@@ -9637,6 +9958,46 @@ window.syncGnbNavSafe = window.syncGnbNavSafe || function(){ return; };
  const AI_STREAM_SERVER_BASE_URL = AI_STREAM_SERVER_URL ? AI_STREAM_SERVER_URL.replace(/\/?stream\/?$/, '') : '';
  const AI_PROACTIVE_URL = AI_STREAM_SERVER_BASE_URL ? `${AI_STREAM_SERVER_BASE_URL}/assistant/proactive` : '';
  const AI_ASSISTANT_LOG_URL = AI_STREAM_SERVER_BASE_URL ? `${AI_STREAM_SERVER_BASE_URL}/assistant/log` : '';
+
+ // AI 첨부파일 다운로드는 Firebase Storage URL을 직접 열지 않고 Cloud Run 다운로드 API를 사용합니다.
+ function extractAiAttachmentStoragePath(url=''){
+ try{
+ const raw = String(url || '');
+ const marker = '/o/';
+ const start = raw.indexOf(marker);
+ if(start < 0) return '';
+ const after = raw.slice(start + marker.length);
+ const encodedPath = after.split('?')[0];
+ return decodeURIComponent(encodedPath);
+ }catch(error){
+ console.warn('AI 첨부파일 Storage 경로 추출 실패:', error);
+ return '';
+ }
+ }
+
+ function getAiAttachmentDownloadUrl(attachment={}){
+ const path = String(attachment.path || '').trim() || extractAiAttachmentStoragePath(attachment.url || '');
+ const name = String(attachment.name || path.split('/').pop() || 'attachment');
+ if(!AI_STREAM_SERVER_BASE_URL || !path) return String(attachment.url || '');
+ const params = new URLSearchParams({ path, name, mime: getAiAttachmentMimeType(attachment), ext: getAiAttachmentExt(name || path) });
+ return `${AI_STREAM_SERVER_BASE_URL}/download-ai-attachment?${params.toString()}`;
+ }
+
+ function downloadAiAttachmentByDataset(button){
+ try{
+ const path = button?.dataset?.aiAttachmentPath || button?.dataset?.attachmentPath || button?.dataset?.path || '';
+ const url = button?.dataset?.aiAttachmentUrl || button?.dataset?.attachmentUrl || '';
+ const name = button?.dataset?.aiAttachmentName || button?.dataset?.attachmentName || button?.dataset?.name || 'attachment';
+ const mimeType = button?.dataset?.aiAttachmentMime || button?.dataset?.attachmentMime || button?.dataset?.mime || '';
+ const downloadUrl = getAiAttachmentDownloadUrl({ path, url, name, mimeType });
+ if(!downloadUrl) return;
+ window.location.href = downloadUrl;
+ }catch(error){
+ console.warn('AI 첨부파일 다운로드 실패:', error);
+ showAppAlert?.('다운로드 안내', '파일 다운로드를 시작하지 못했습니다. 잠시 후 다시 시도해주세요.');
+ }
+}
+
  const AI_DAILY_NUDGE_CHECK_URL = AI_STREAM_SERVER_BASE_URL ? `${AI_STREAM_SERVER_BASE_URL}/assistant/daily-nudge/check` : '';
  const AI_DAILY_NUDGE_MARK_URL = AI_STREAM_SERVER_BASE_URL ? `${AI_STREAM_SERVER_BASE_URL}/assistant/daily-nudge/mark` : '';
  const AI_CONVERSATION_KEY = `myhills_ai_conversation_${ENV || 'prod'}`;
@@ -10229,7 +10590,7 @@ window.syncGnbNavSafe = window.syncGnbNavSafe || function(){ return; };
  }
  }
 
- const state={category:localStorage.getItem(LAST_CATEGORY_KEY)||'전체',keyword:'',filter:'all',view:'home',benefits:[],notices:[],loading:true,currentUser:null,currentUserProfile:null,popularItems:[],favoriteIds:[],currentPushToken:null,isPushEnabledForThisDevice:false,appFontSize:'normal',calendarReservations:[],activeDistanceBenefitId:'',distanceRequestSeq:0,benefitSortMode:'default',distanceRadius:'all',userLocation:null,userLocationFetchedAt:0,distanceMap:{},distanceStatus:'idle',scrollMap:{home:0,benefits:0,favorite:0,top5:0,notices:0,calendar:0,shareinsights:0,ai:0},
+ const state={category:localStorage.getItem(LAST_CATEGORY_KEY)||'전체',keyword:'',filter:'all',view:'home',benefits:[],notices:[],loading:true,currentUser:null,currentUserProfile:null,popularItems:[],favoriteIds:[],aiKnowledge:[],currentPushToken:null,isPushEnabledForThisDevice:false,appFontSize:'normal',calendarReservations:[],activeDistanceBenefitId:'',distanceRequestSeq:0,benefitSortMode:'default',distanceRadius:'all',userLocation:null,userLocationFetchedAt:0,distanceMap:{},distanceStatus:'idle',scrollMap:{home:0,benefits:0,favorite:0,top5:0,notices:0,calendar:0,shareinsights:0,ai:0},
  benefitViewMode: localStorage.getItem('benefitViewMode') || 'list'
  };
 
@@ -15228,6 +15589,178 @@ function renderCalendarDayModal(){
  return [...new Set([...base, ...synonyms])];
  }
 
+
+ function splitAiKeywords(value=''){
+ if(Array.isArray(value)) return value.map(v => String(v || '').trim()).filter(Boolean);
+ return String(value || '').split(/[\n,，#]+/).map(v => v.trim()).filter(Boolean);
+ }
+
+ 
+function getAiAttachmentExt(fileName=''){
+ const clean = String(fileName || '').split('?')[0].split('#')[0];
+ const last = clean.split('/').pop() || '';
+ const idx = last.lastIndexOf('.');
+ return idx >= 0 ? last.slice(idx + 1).toLowerCase() : '';
+}
+
+function getAiAttachmentMimeType(attachment={}){
+ const explicit = String(attachment.mimeType || attachment.contentType || '').trim();
+ if(explicit && explicit.includes('/')) return explicit;
+ const fileName = attachment.name || attachment.fileName || attachment.path || attachment.url || '';
+ const ext = getAiAttachmentExt(fileName);
+ const map = {
+  jpg:'image/jpeg', jpeg:'image/jpeg', png:'image/png', gif:'image/gif', webp:'image/webp', svg:'image/svg+xml',
+  pdf:'application/pdf',
+  xls:'application/vnd.ms-excel',
+  xlsx:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+  csv:'text/csv',
+  doc:'application/msword',
+  docx:'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+  ppt:'application/vnd.ms-powerpoint',
+  pptx:'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+  hwp:'application/x-hwp',
+  hwpx:'application/vnd.hancom.hwpx',
+  txt:'text/plain',
+  zip:'application/zip'
+ };
+ return map[ext] || 'application/octet-stream';
+}
+
+function getAiAttachmentIcon(attachment={}){
+ const mime = getAiAttachmentMimeType(attachment).toLowerCase();
+ const name = attachment.name || attachment.fileName || attachment.path || attachment.url || '';
+ const ext = getAiAttachmentExt(name);
+ if(mime.startsWith('image/') || ['jpg','jpeg','png','gif','webp','svg'].includes(ext)) return '🖼️';
+ if(mime.includes('pdf') || ext === 'pdf') return '📕';
+ if(['xls','xlsx','csv'].includes(ext)) return '📊';
+ if(['doc','docx','hwp','hwpx'].includes(ext)) return '📄';
+ if(['ppt','pptx'].includes(ext)) return '📽️';
+ if(['zip','7z','rar'].includes(ext)) return '🗂️';
+ if(['txt','md'].includes(ext)) return '📝';
+ return '📎';
+}
+
+function getAiAttachmentGuideText(attachments=[]){
+ const list = Array.isArray(attachments) ? attachments : [];
+ const hasImage = list.some(a => getAiAttachmentType(a) === 'image');
+ const hasFile = list.some(a => getAiAttachmentType(a) !== 'image');
+ if(hasImage && hasFile) return '이미지와 파일이 있으니 참고하여 주시기 바랍니다. 이미지는 클릭하면 확대 가능하며 이미지와 파일 모두 다운로드 받을 수 있습니다.';
+ if(hasImage) return '이미지를 클릭하면 확대해서 확인이 가능하며, 필요 시 다운로드도 가능합니다.';
+ if(hasFile) return '파일을 다운받아서 확인이 가능합니다.';
+ return '';
+}
+
+function getAiAttachmentType(item={}){
+ const mime = String(item.mimeType || item.type || '').toLowerCase();
+ const name = String(item.name || '').toLowerCase();
+ if(mime.startsWith('image/') || /\.(png|jpe?g|gif|webp|bmp|svg)$/.test(name)) return 'image';
+ return 'file';
+ }
+
+ function sanitizeAiKnowledgeDoc(raw={}, id='', source=''){
+ const attachments = Array.isArray(raw.attachments) ? raw.attachments.filter(a => a && a.url).map(a => ({
+ type: getAiAttachmentType(a),
+ name: String(a.name || '첨부파일'),
+ url: String(a.url || ''),
+ path: String(a.path || ''),
+ mimeType: String(a.mimeType || ''),
+ size: Number(a.size || a.sizeBytes || 0)
+ })) : [];
+ return {
+ type: source,
+ id,
+ title: raw.title || raw.question || raw.name || '',
+ name: raw.title || raw.question || raw.name || '',
+ question: raw.question || raw.title || '',
+ answer: raw.answer || raw.content || '',
+ content: raw.content || raw.answer || '',
+ section: raw.section || '',
+ keywords: splitAiKeywords(raw.keywords || ''),
+ isActive: raw.isActive !== false,
+ attachments,
+ attachmentCount: attachments.length
+ };
+ }
+
+ function scoreAiKnowledgeMatch(item={}, question='', answerText=''){
+ const raw = stringifyAiCandidateText(item, item.type || 'ai');
+ const norm = normalizeAiSearchText(raw);
+ const source = `${question || ''} ${answerText || ''}`;
+ const qNorm = normalizeAiSearchText(source);
+ const titleNorm = normalizeAiSearchText(item.title || item.question || item.name || '');
+ const tokens = getAiSearchTokens(source).map(normalizeAiSearchText).filter(Boolean);
+ let score = 0;
+ if(titleNorm && qNorm.includes(titleNorm)) score += 15;
+ tokens.forEach(t => { if(t && norm.includes(t)) score += t.length >= 4 ? 4 : 2; });
+ if(Array.isArray(item.keywords)) item.keywords.forEach(k => { const nk = normalizeAiSearchText(k); if(nk && qNorm.includes(nk)) score += 5; });
+ if(item.attachments?.length && score > 0) score += 2;
+ return score;
+ }
+
+ function getMatchedAiKnowledgeAttachments(question='', answerText='', maxDocs=2){
+ try{
+ return (state.aiKnowledge || [])
+ .filter(item => item && item.isActive !== false && Array.isArray(item.attachments) && item.attachments.length)
+ .map(item => ({ item, score: scoreAiKnowledgeMatch(item, question, answerText) }))
+ .filter(v => v.score >= 4)
+ .sort((a,b) => b.score - a.score)
+ .slice(0, maxDocs);
+ }catch(error){
+ console.warn('AI 첨부 매칭 실패', error);
+ return [];
+ }
+ }
+
+ function buildAiAttachmentsHtml(matches=[]){
+ const attachments = [];
+ const sourceList = Array.isArray(matches) ? matches : [];
+ sourceList.forEach(entry => {
+   // 1) 기존 매칭 객체 형태: { item, score }
+   if(entry && entry.item){
+     const item = entry.item || {};
+     (Array.isArray(item.attachments) ? item.attachments : []).forEach(a => {
+       if(a) attachments.push({ ...a, sourceTitle: item.title || item.question || item.section || 'AI 안내' });
+     });
+     return;
+   }
+   // 2) 엄격 매칭 함수가 바로 첨부파일 배열을 반환하는 형태도 허용
+   if(entry && (entry.url || entry.path || entry.name || entry.fileName)){
+     attachments.push({ ...entry, name: entry.name || entry.fileName || '첨부파일', sourceTitle: entry.sourceTitle || 'AI 안내' });
+   }
+ });
+ const unique = [];
+ const seen = new Set();
+ attachments.forEach(a => {
+ const key = a.url || a.path || a.name;
+ if(!key || seen.has(key)) return;
+ seen.add(key);
+ unique.push(a);
+ });
+ if(!unique.length) return '';
+ const images = unique.filter(a => getAiAttachmentType(a) === 'image').slice(0, 3);
+ const files = unique.filter(a => getAiAttachmentType(a) !== 'image').slice(0, 5);
+ const imageHtml = images.length ? `<div class="ai-attachment-grid">${images.map(a => `<div class="ai-attachment-image-card"><button class="ai-attachment-image-preview" type="button" data-ai-image-zoom="1" data-ai-image-src="${escapeAttr(a.url || '')}" data-ai-image-title="${escapeAttr(a.name || a.sourceTitle || '안내 이미지')}" onclick="return window.openAiImageZoomFromElement ? window.openAiImageZoomFromElement(this) : false;"><img src="${escapeAttr(a.url)}" alt="${escapeAttr(a.name || '안내 이미지')}" loading="eager" decoding="async" fetchpriority="high" data-ai-attachment-image="true" onclick="return window.openAiImageZoomFromElement ? window.openAiImageZoomFromElement(this.closest('[data-ai-image-zoom]') || this) : false;"><span class="ai-attachment-zoom-badge" aria-hidden="true">🔍</span></button><div class="ai-attachment-caption">🖼️ ${escapeHtml(a.name || a.sourceTitle || '안내 이미지')}</div><div class="ai-attachment-image-actions"><button class="ai-attachment-download-link" type="button" data-ai-attachment-download="1" data-ai-attachment-path="${escapeAttr(a.path || '')}" data-ai-attachment-url="${escapeAttr(a.url || '')}" data-ai-attachment-name="${escapeAttr(a.name || 'image')}" data-ai-attachment-mime="${escapeAttr(a.mimeType || a.contentType || getAiAttachmentMimeType(a))}"><span>이미지 저장</span><em>다운로드</em></button></div></div>`).join('')}</div>` : '';
+ const fileHtml = files.length ? `<div class="ai-attachment-grid">${files.map(a => `<button class="ai-attachment-file-link" type="button" data-ai-attachment-download="1" data-ai-attachment-path="${escapeAttr(a.path || '')}" data-ai-attachment-url="${escapeAttr(a.url || '')}" data-ai-attachment-name="${escapeAttr(a.name || 'attachment')}" data-ai-attachment-mime="${escapeAttr(a.mimeType || a.contentType || getAiAttachmentMimeType(a))}"><span><span class="ai-attachment-file-icon">${getAiAttachmentIcon(a)}</span>${escapeHtml(a.name || '첨부파일')}</span><em>다운로드</em></button>`).join('')}</div>` : '';
+ const guideText = getAiAttachmentGuideText(unique);
+ const guideHtml = guideText ? `<div class="ai-attachment-guide">${escapeHtml(guideText)}</div>` : '';
+ return `<div class="ai-attachment-section"><div class="ai-answer-section-title"><span>관련 이미지/첨부파일</span><small>${unique.length}개</small></div>${guideHtml}${imageHtml}${fileHtml}</div>`;
+ }
+
+ function subscribeAiKnowledge(){
+ const targets = [
+ { collectionName:'ai_faq', type:'faq' },
+ { collectionName:'ai_booklet_pages', type:'booklet' },
+ { collectionName:'ai_guide_pages', type:'guide' }
+ ];
+ const buckets = {};
+ targets.forEach(({collectionName, type}) => {
+ onSnapshot(query(collection(db, collectionName), limit(120)), (snapshot) => {
+ buckets[type] = snapshot.docs.map(d => sanitizeAiKnowledgeDoc(d.data(), d.id, type));
+ state.aiKnowledge = Object.values(buckets).flat();
+ }, (error) => console.warn(`${collectionName} AI 지식 데이터 로드 실패`, error));
+ });
+ }
+
  function stringifyAiCandidateText(item={}, type=''){
  const fields = [
  type, item.id, item.name, item.storeName, item.title, item.category,
@@ -15235,7 +15768,8 @@ function renderCalendarDayModal(){
  item.address, item.phone, item.tel, item.contact, item.officePhone,
  item.contactNumber, item.phoneNumber, item.department,
  Array.isArray(item.keywords) ? item.keywords.join(' ') : item.keywords,
- item.memo, item.note
+ item.memo, item.note,
+ Array.isArray(item.attachments) ? item.attachments.map(a => [a.name, a.mimeType].filter(Boolean).join(' ')).join(' ') : ''
  ];
  return fields.map(v => String(v || '')).join(' ');
  }
@@ -15371,6 +15905,7 @@ function renderCalendarDayModal(){
  const pool = [];
  (state.benefits || []).forEach(item => pool.push({ type:'benefit', item }));
  (state.notices || []).forEach(item => pool.push({ type:'notice', item }));
+ (state.aiKnowledge || []).forEach(item => pool.push({ type:item.type || 'ai', item }));
 
  const scored = pool.map(({type,item}) => {
  const raw = stringifyAiCandidateText(item, type);
@@ -15416,6 +15951,8 @@ function renderCalendarDayModal(){
  openingHoursSource: (item.businessHoursManual || item.manualBusinessHours || item.adminBusinessHours || item.adminHoursText || item.openingHoursManual) ? 'admin' : (item.openingHoursSource || ''),
  naverHome: item.naverHome || null,
  keywords: item.keywords || [],
+ attachments: Array.isArray(item.attachments) ? item.attachments : [],
+ attachmentCount: Array.isArray(item.attachments) ? item.attachments.length : Number(item.attachmentCount || 0),
  score
  };
  });
@@ -15454,6 +15991,28 @@ function renderCalendarDayModal(){
  function extractAiBenefitCards(finalText='', maxCount=3, question=''){
  const mapped = mapAiBenefitsForQuestion(question, finalText, maxCount);
  if(mapped.length) return mapped;
+ const qNorm = normalizeAiSearchText(question || '');
+ const explicitRecommendation = /(혜택|할인|매장|가게|상가|추천|데이트|아이와|점심|저녁|밥|카페|맛집|디저트|비오는날|비올때|눈|눈올때|눈이|비|맑음|흐림|추울때|더울때|날씨|가기좋은|가기 좋은|가까운|근처|TOP5|TOP\s*5|탑5)/.test(qNorm);
+ if(explicitRecommendation){
+   const fallback = (state.benefits || [])
+     .filter(item => item && item.visible !== false && item.id)
+     .map(item => {
+       const score = Number(item.popularScore || item.score || item.recommendScore || 0)
+         + Number(item.favoriteCount || 0) * 2
+         + Number(item.detailViewCount || 0) * 0.2
+         + Number(item.shareClickCount || 0) * 1.5
+         + (item.recommended ? 8 : 0)
+         + (item.isHot || item.hot ? 5 : 0);
+       const reasons = [];
+       if(item.recommended) reasons.push('추천 혜택');
+       if(item.category) reasons.push(item.category);
+       if(item.address) reasons.push('위치 정보 있음');
+       return { item, score: Math.max(4, score || 4), reason: reasons[0] || '혜택 추천', reasons: reasons.slice(0,4) };
+     })
+     .sort((a,b) => b.score - a.score)
+     .slice(0, maxCount);
+   if(fallback.length) return fallback;
+ }
  const text = normalizeAiSearchText(finalText);
  if(!text) return [];
  return (state.benefits || [])
@@ -15870,11 +16429,303 @@ function buildAiMatchedBenefitPhoneCardHtml(mappedCards=[], question=''){
  return /(전화번호|전화|연락처|번호|콜|통화)/.test(q);
  }
 
+
+function isExplicitAiBenefitQuestion(question='', answer=''){
+ const q = normalizeAiSearchText(`${question || ''} ${answer || ''}`);
+ return /(혜택|할인|매장|가게|상가|추천|TOP5|TOP\s*5|탑5|지도|거리|영업|전화|예약|즐겨찾기|쿠폰|정액권|방문|식당|카페|피자|치킨|디저트|미용|학원|병원|약국|베이커리|떡카페|데이트|아이와|점심|저녁|밥|가족|비오는날|비올때|눈|눈올때|눈이|비|맑음|흐림|추울때|더울때|날씨|가기좋은|가기 좋은)/.test(q);
+}
+
+function isApartmentLifeKnowledgeQuestion(question='', answer=''){
+ const q = normalizeAiSearchText(`${question || ''} ${answer || ''}`);
+ return /(대형폐기물|폐기물|쓰레기|분리수거|재활용|음식물|배출|수거|관리사무소|관리실|생활지원|입주|전입|키불출|하자|승강기|엘리베이터|주차|택배|민원|가스|인터넷|교육지원청|행정복지센터|수수료|스티커)/.test(q);
+}
+
+
+function isAiDialogCandidateConfirmAnswer(finalText='', question=''){
+ const text = normalizeAiSearchText(`${finalText || ''}`);
+ return /찾으시려는건가요/.test(text) && /맞다고말씀해주시면/.test(text);
+}
+
+
+// ===== AI 오타/영문키 확인 응답 이어가기 =====
+// 예: 사용자가 dkfpqh 입력 → AI가 “아레볼 맞나요?” 확인 → 사용자가 “맞습니다” 입력 시
+// 다음 질문을 “아레볼”로 치환해서 카드/검색 흐름이 끊기지 않도록 합니다.
+let aiPendingConfirmCandidate = '';
+
+function normalizeAiFollowupAnswerText(text=''){
+ return String(text || '')
+   .trim()
+   .replace(/[\s.!?。．,，~…;:;、]+/g, '')
+   .toLowerCase();
+}
+
+function isAiAffirmativeFollowupAnswer(text=''){
+ const compact = normalizeAiFollowupAnswerText(text);
+ if(!compact) return false;
+ return /^(네|네네|넵|넵넵|예|예예|옙|옙옙|응|응응|어|어어|ㅇㅇ|맞아|맞아요|맞습니다|맞습니다요|맞다|맞음|맞네|맞습니다네|그래|그래요|그거|그겁니다|그게맞아|그게맞아요|yes|y|ok|okay)$/i.test(compact);
+}
+
+const AI_DUBEOL_INITIALS = ['ㄱ','ㄲ','ㄴ','ㄷ','ㄸ','ㄹ','ㅁ','ㅂ','ㅃ','ㅅ','ㅆ','ㅇ','ㅈ','ㅉ','ㅊ','ㅋ','ㅌ','ㅍ','ㅎ'];
+const AI_DUBEOL_MEDIALS = ['ㅏ','ㅐ','ㅑ','ㅒ','ㅓ','ㅔ','ㅕ','ㅖ','ㅗ','ㅘ','ㅙ','ㅚ','ㅛ','ㅜ','ㅝ','ㅞ','ㅟ','ㅠ','ㅡ','ㅢ','ㅣ'];
+const AI_DUBEOL_FINALS = ['', 'ㄱ','ㄲ','ㄳ','ㄴ','ㄵ','ㄶ','ㄷ','ㄹ','ㄺ','ㄻ','ㄼ','ㄽ','ㄾ','ㄿ','ㅀ','ㅁ','ㅂ','ㅄ','ㅅ','ㅆ','ㅇ','ㅈ','ㅊ','ㅋ','ㅌ','ㅍ','ㅎ'];
+const AI_DUBEOL_FINAL_TO_INITIAL = {'ㄱ':'ㄱ','ㄲ':'ㄲ','ㄴ':'ㄴ','ㄷ':'ㄷ','ㄹ':'ㄹ','ㅁ':'ㅁ','ㅂ':'ㅂ','ㅅ':'ㅅ','ㅆ':'ㅆ','ㅇ':'ㅇ','ㅈ':'ㅈ','ㅊ':'ㅊ','ㅋ':'ㅋ','ㅌ':'ㅌ','ㅍ':'ㅍ','ㅎ':'ㅎ'};
+const AI_DUBEOL_KEY_TO_JAMO = {
+ r:'ㄱ', R:'ㄲ', s:'ㄴ', e:'ㄷ', E:'ㄸ', f:'ㄹ', a:'ㅁ', q:'ㅂ', Q:'ㅃ', t:'ㅅ', T:'ㅆ', d:'ㅇ', w:'ㅈ', W:'ㅉ', c:'ㅊ', z:'ㅋ', x:'ㅌ', v:'ㅍ', g:'ㅎ',
+ k:'ㅏ', o:'ㅐ', i:'ㅑ', O:'ㅒ', j:'ㅓ', p:'ㅔ', u:'ㅕ', P:'ㅖ', h:'ㅗ', y:'ㅛ', n:'ㅜ', b:'ㅠ', m:'ㅡ', l:'ㅣ'
+};
+const AI_DUBEOL_VOWEL_COMBINE = {'ㅗㅏ':'ㅘ','ㅗㅐ':'ㅙ','ㅗㅣ':'ㅚ','ㅜㅓ':'ㅝ','ㅜㅔ':'ㅞ','ㅜㅣ':'ㅟ','ㅡㅣ':'ㅢ'};
+const AI_DUBEOL_FINAL_COMBINE = {'ㄱㅅ':'ㄳ','ㄴㅈ':'ㄵ','ㄴㅎ':'ㄶ','ㄹㄱ':'ㄺ','ㄹㅁ':'ㄻ','ㄹㅂ':'ㄼ','ㄹㅅ':'ㄽ','ㄹㅌ':'ㄾ','ㄹㅍ':'ㄿ','ㄹㅎ':'ㅀ','ㅂㅅ':'ㅄ'};
+const AI_DUBEOL_FINAL_SPLIT = {'ㄳ':['ㄱ','ㅅ'],'ㄵ':['ㄴ','ㅈ'],'ㄶ':['ㄴ','ㅎ'],'ㄺ':['ㄹ','ㄱ'],'ㄻ':['ㄹ','ㅁ'],'ㄼ':['ㄹ','ㅂ'],'ㄽ':['ㄹ','ㅅ'],'ㄾ':['ㄹ','ㅌ'],'ㄿ':['ㄹ','ㅍ'],'ㅀ':['ㄹ','ㅎ'],'ㅄ':['ㅂ','ㅅ']};
+
+function composeAiHangulSyllable(initial, medial, final=''){
+ const i = AI_DUBEOL_INITIALS.indexOf(initial);
+ const m = AI_DUBEOL_MEDIALS.indexOf(medial);
+ const f = AI_DUBEOL_FINALS.indexOf(final || '');
+ if(i < 0 || m < 0 || f < 0) return `${initial || ''}${medial || ''}${final || ''}`;
+ return String.fromCharCode(0xAC00 + ((i * 21 + m) * 28) + f);
+}
+
+function isAiJamoVowel(jamo){ return AI_DUBEOL_MEDIALS.includes(jamo); }
+function isAiJamoConsonant(jamo){ return AI_DUBEOL_INITIALS.includes(jamo); }
+
+function convertAiDubeolSegmentToHangul(segment=''){
+ const jamos = Array.from(String(segment || '')).map(ch => AI_DUBEOL_KEY_TO_JAMO[ch] || ch);
+ let out = '';
+ let initial = '';
+ let medial = '';
+ let final = '';
+ const flush = () => {
+   if(initial && medial) out += composeAiHangulSyllable(initial, medial, final);
+   else out += `${initial || ''}${medial || ''}${final || ''}`;
+   initial = ''; medial = ''; final = '';
+ };
+
+ for(const jamo of jamos){
+   if(isAiJamoVowel(jamo)){
+     if(!initial){
+       initial = 'ㅇ';
+       medial = jamo;
+       continue;
+     }
+     if(initial && !medial){
+       medial = jamo;
+       continue;
+     }
+     if(initial && medial && !final){
+       const combined = AI_DUBEOL_VOWEL_COMBINE[medial + jamo];
+       if(combined){
+         medial = combined;
+       }else{
+         flush();
+         initial = 'ㅇ';
+         medial = jamo;
+       }
+       continue;
+     }
+     if(initial && medial && final){
+       const split = AI_DUBEOL_FINAL_SPLIT[final];
+       if(split){
+         final = split[0];
+         flush();
+         initial = AI_DUBEOL_FINAL_TO_INITIAL[split[1]] || split[1];
+         medial = jamo;
+       }else{
+         const carry = AI_DUBEOL_FINAL_TO_INITIAL[final] || final;
+         final = '';
+         flush();
+         initial = carry;
+         medial = jamo;
+       }
+       continue;
+     }
+   }
+
+   if(isAiJamoConsonant(jamo)){
+     if(!initial){
+       initial = jamo;
+       continue;
+     }
+     if(initial && !medial){
+       out += initial;
+       initial = jamo;
+       continue;
+     }
+     if(initial && medial && !final){
+       final = jamo;
+       continue;
+     }
+     if(initial && medial && final){
+       const combined = AI_DUBEOL_FINAL_COMBINE[final + jamo];
+       if(combined){
+         final = combined;
+       }else{
+         flush();
+         initial = jamo;
+       }
+       continue;
+     }
+   }
+
+   flush();
+   out += jamo;
+ }
+ flush();
+ return out;
+}
+
+function normalizeAiTypoQueryForSearch(text=''){
+ const original = String(text || '').trim();
+ if(!original) return '';
+ let cleaned = original
+   .replace(/[\u200B-\u200D\uFEFF]/g, '')
+   .replace(/^[\s.!?。．,，~…;:;、]+|[\s.!?。．,，~…;:;、]+$/g, '')
+   .trim();
+
+ // 한글 매장명 뒤에 잘못 붙은 영문/특수문자 노이즈 보정: "아레볼;f" → "아레볼"
+ cleaned = cleaned.replace(/^([가-힣][가-힣\s]{1,30}?)[\s;:,.!?~`'"“”‘’()\[\]{}<>\\/|_-]*[a-zA-Z]{1,4}$/g, '$1').trim();
+
+ // 영문 자판 + 한글 혼합 오타 보정: "dkfp볼" → "아레볼"
+ if(/[a-zA-Z]/.test(cleaned) && /[가-힣]/.test(cleaned)){
+   cleaned = cleaned.replace(/[a-zA-Z]+/g, segment => convertAiDubeolSegmentToHangul(segment));
+ }
+
+ // 순수 영문 오타는 너무 넓게 변환하면 일반 영어 질문까지 망가질 수 있어,
+ // 변환 결과가 실제 등록 혜택명과 강하게 맞을 때만 보정합니다.
+ if(/^[a-zA-Z]{2,16}$/.test(cleaned)){
+   const converted = convertAiDubeolSegmentToHangul(cleaned);
+   if(/[가-힣]/.test(converted) && isLikelyKnownBenefitKeyword(converted)){
+     cleaned = converted;
+   }
+ }
+ return cleaned || original;
+}
+
+function isLikelyKnownBenefitKeyword(keyword=''){
+ const key = normalizeAiSearchText(keyword || '');
+ if(!key || key.length < 2) return false;
+ const list = Array.isArray(state?.benefits) ? state.benefits : [];
+ return list.some(item => {
+   const name = normalizeAiSearchText(item?.name || item?.title || '');
+   return name && (name.includes(key) || key.includes(name));
+ });
+}
+
+function extractAiConfirmCandidateFromText(finalText=''){
+ const text = String(finalText || '').trim();
+ if(!text) return '';
+ const patterns = [
+   /[“"]([^“”"]{2,40})[”"]\s*(?:을|를)?\s*입력하신\s*건가요/i,
+   /[“"]([^“”"]{2,40})[”"]\s*로\s*바로\s*이어서\s*찾아볼게요/i,
+   /혹시\s+(.{2,40}?)\s*(?:을|를)?\s*찾으시려는\s*건가요/i,
+   /(.{2,40}?)\s*(?:맞나요|맞으신가요|찾으시려는건가요)/i
+ ];
+ for(const pattern of patterns){
+   const match = text.match(pattern);
+   const candidate = match?.[1] ? normalizeAiTypoQueryForSearch(String(match[1]).trim()) : '';
+   if(candidate && !/[?？!！.。]\s*$/.test(candidate)){
+     return candidate.replace(/[“”"'`]/g, '').trim();
+   }
+ }
+ return '';
+}
+
+function rememberAiConfirmCandidate(finalText=''){
+ const candidate = extractAiConfirmCandidateFromText(finalText);
+ if(candidate){
+   aiPendingConfirmCandidate = candidate;
+   try{ sessionStorage.setItem('aiPendingConfirmCandidate', candidate); }catch(_error){}
+ }
+ return candidate;
+}
+
+function resolveAiFollowupQuestion(rawQuestion=''){
+ const original = String(rawQuestion || '').trim();
+ const stored = aiPendingConfirmCandidate || (() => { try{ return sessionStorage.getItem('aiPendingConfirmCandidate') || ''; }catch(_error){ return ''; } })();
+ if(stored && isAiAffirmativeFollowupAnswer(original)){
+   aiPendingConfirmCandidate = '';
+   try{ sessionStorage.removeItem('aiPendingConfirmCandidate'); }catch(_error){}
+   return { originalQuestion: original, effectiveQuestion: stored, usedConfirmCandidate: true };
+ }
+ if(original && !isAiAffirmativeFollowupAnswer(original)){
+   aiPendingConfirmCandidate = '';
+   try{ sessionStorage.removeItem('aiPendingConfirmCandidate'); }catch(_error){}
+ }
+ const normalizedQuestion = normalizeAiTypoQueryForSearch(original);
+ return { originalQuestion: original, effectiveQuestion: normalizedQuestion || original, usedConfirmCandidate: false, normalizedTypo: normalizedQuestion && normalizedQuestion !== original };
+}
+
+
+function normalizeAiAttachmentTitleText(value=''){
+ return normalizeAiSearchText(value || '')
+   .replace(/처리안내|이용안내|안내문|안내|방법|정보|관련|자료|수수료|리스트|목록/g,'')
+   .trim();
+}
+
+function isAiKnowledgeAttachmentQuestion(question=''){
+ const q = normalizeAiSearchText(question || '');
+ if(!q) return false;
+ if(/(최근공지|공지알려|공지사항|혜택매장추천|혜택추천|매장추천|지도혜택|인기|TOP5|TOP\s*5|탑5|가까운|근처|할인매장|혜택매장|데이트|아이와|점심|저녁|밥|카페추천|맛집추천)/.test(q)) return false;
+ return /(대형폐기물|폐기물|쓰레기|분리수거|재활용|음식물|배출|수거|관리사무소|관리실|생활지원|입주|전입|키불출|하자|승강기|엘리베이터|주차|택배|민원|가스|인터넷|교육지원청|행정복지센터|수수료|스티커|전자책|가이드|FAQ|faq|안내)/.test(q);
+}
+
+function getMatchedAiKnowledgeAttachmentsStrict(question='', answer=''){
+ if(!isAiKnowledgeAttachmentQuestion(question)) return [];
+ const qNorm = normalizeAiAttachmentTitleText(question);
+ if(!qNorm) return [];
+
+ const list = Array.isArray(state.aiKnowledge) ? state.aiKnowledge : [];
+ const scored = [];
+
+ list.forEach(item => {
+   const attachments = Array.isArray(item.attachments) ? item.attachments.filter(a => a && (a.url || a.path || a.name)) : [];
+   if(!attachments.length) return;
+
+   const typeText = normalizeAiSearchText(item.type || item.category || '');
+   const isKnowledgeType = /(faq|전자책|가이드|생활|안내|booklet|guide)/.test(typeText);
+   if(!isKnowledgeType) return;
+
+   const title = item.question || item.title || item.name || item.keywords || '';
+   const titleNorm = normalizeAiAttachmentTitleText(Array.isArray(title) ? title.join(' ') : title);
+   const keywordNorm = normalizeAiAttachmentTitleText(Array.isArray(item.keywords) ? item.keywords.join(' ') : (item.keywords || ''));
+   const contentNorm = normalizeAiAttachmentTitleText(`${item.answer || ''} ${item.content || ''}`);
+
+   let score = 0;
+   if(titleNorm && titleNorm === qNorm) score += 100;
+   if(titleNorm && (titleNorm.includes(qNorm) || qNorm.includes(titleNorm))) score += 70;
+   if(keywordNorm && (keywordNorm.includes(qNorm) || qNorm.includes(keywordNorm))) score += 45;
+
+   // 핵심어 교집합 기준: 대형폐기물 -> 대형폐기물 처리 안내 허용
+   const qTokens = (qNorm.match(/[가-힣a-z0-9]{2,}/g) || []).filter(t => t.length >= 2);
+   qTokens.forEach(t => {
+     if(titleNorm.includes(t)) score += 18;
+     else if(keywordNorm.includes(t)) score += 12;
+     else if(contentNorm.includes(t)) score += 4;
+   });
+
+   if(score >= 35) scored.push({ item, attachments, score });
+ });
+
+ scored.sort((a,b)=>b.score-a.score);
+ return scored.slice(0, 2).flatMap(v => v.attachments).slice(0, 6);
+}
+
+function shouldShowAiKnowledgeAttachments(question='', answer=''){
+ return getMatchedAiKnowledgeAttachmentsStrict(question, answer).length > 0;
+}
+
 function buildAiEnhancedAnswerHtml(finalText='', question=''){
  const parsedDialog = extractAiDialogActions(finalText);
  const text = String(parsedDialog.text || '답변을 생성하지 못했습니다.');
  const cleaned = cleanAiChunkText(text).trim() || '답변을 생성하지 못했습니다.';
  const safe = escapeHtml(cleaned).replace(/\n/g, '<br>');
+ if(isAiDialogCandidateConfirmAnswer(cleaned, question)){
+ return `
+ <div class="ai-answer ai-answer-upgrade">
+ <div class="ai-answer-summary">${safe}</div>
+ ${buildAiDialogActionButtons(parsedDialog.actions)}
+ <span class="ai-mode-pill upgraded">확인 후 바로 찾아볼게요.</span>
+ </div>`;
+ }
  const isApartmentPhone = isApartmentLifePhoneQuestion(question, cleaned);
  const apartmentOnlyPhoneCard = isApartmentPhone ? buildAiApartmentLifePhoneCardHtml(question, cleaned) : '';
  if(isApartmentPhone){
@@ -15892,6 +16743,7 @@ function buildAiEnhancedAnswerHtml(finalText='', question=''){
  const phoneCards = apartmentPhoneCard || matchedPhoneCard || (isApartmentLifePhoneQuestion(question) ? '' : buildAiPhoneCardHtml(extractAiPhoneCards(cleaned)));
  const personalSummary = getAiPersonalSummary();
  const locationMapCard = buildAiLocationMapCardHtml(mappedCards, question, cleaned);
+ const aiAttachmentHtml = shouldShowAiKnowledgeAttachments(question, cleaned) ? buildAiAttachmentsHtml(getMatchedAiKnowledgeAttachmentsStrict(question, cleaned)) : '';
  const benefitCards = mappedCards.map(({item, score, reason, reasons}) => `
  <div class="ai-benefit-card-auto enhanced">
  <div class="ai-card-top">
@@ -15914,6 +16766,16 @@ function buildAiEnhancedAnswerHtml(finalText='', question=''){
  <button class="soft" type="button" data-view-link="map">지도에서 보기</button>
  </div>
  </div>`).join('');
+ const hasAiKnowledgeAttachments = /class="ai-attachment-section"/.test(aiAttachmentHtml || '');
+ // 혜택/매장/날씨 기반 추천 질문은 답변 문장에 공지/생활 안내 표현이 섞여도 카드가 보여야 합니다.
+ // 단, 대형폐기물/생활안내처럼 실제 첨부파일을 보여주는 질문은 혜택 카드를 숨깁니다.
+ const isExplicitBenefitCardIntent = isExplicitAiBenefitQuestion(question, '');
+ const shouldHideBenefitCardsForKnowledge = isApartmentLifeKnowledgeQuestion(question, cleaned) && !isExplicitBenefitCardIntent;
+ const shouldShowBenefitCards =
+   !isApartmentLifePhoneQuestion(question, cleaned) &&
+   !shouldHideBenefitCardsForKnowledge &&
+   !hasAiKnowledgeAttachments &&
+   !!benefitCards;
  return `
  <div class="ai-answer ai-answer-upgrade">
  <div class="ai-answer-summary">${safe}</div>
@@ -15921,7 +16783,8 @@ function buildAiEnhancedAnswerHtml(finalText='', question=''){
  ${phoneCards}
  ${dialogButtons}
  ${locationMapCard}
- ${(!isApartmentLifePhoneQuestion(question, cleaned) && benefitCards) ? `<div class="ai-answer-section"><div class="ai-answer-section-title"><span>자동 매칭된 혜택 카드</span><small>${mappedCards.length}개 추천</small></div>${benefitCards}</div>` : ''}
+ ${aiAttachmentHtml}
+ ${shouldShowBenefitCards ? `<div class="ai-answer-section"><div class="ai-answer-section-title"><span>자동 매칭된 혜택 카드</span><small>${mappedCards.length}개 추천</small></div>${benefitCards}</div>` : ''}
  <span class="ai-mode-pill upgraded">상황에 맞는 정보를 준비했어요.</span>
  </div>`;
  }
@@ -16615,14 +17478,23 @@ async function askAiAssistant(rawQuestion=''){
  if(!AI_STREAM_SERVER_URL) return openModalAlert('AI 생활도우미 서버 URL이 아직 설정되지 않았습니다.');
  const input = qs('#aiQuestionInput');
  const btn = qs('#aiAskBtn');
- const question = String(rawQuestion || input?.value || '').trim();
- if(!question) return openModalAlert('질문을 입력해주세요.');
- if(!(await guardAiUserInputOrAlert(question))) return;
- logPersonalAssistantEvent({ action:'ask', question, category: question, source: window.__AI_LAST_INPUT_MODE || 'text' });
+ const rawInputQuestion = String(rawQuestion || input?.value || '').trim();
+ const followup = resolveAiFollowupQuestion(rawInputQuestion);
+ const question = followup.effectiveQuestion;
+ const displayQuestion = followup.originalQuestion || question;
+ if(!displayQuestion) return openModalAlert('질문을 입력해주세요.');
+ if(!(await guardAiUserInputOrAlert(displayQuestion))) return;
+ logPersonalAssistantEvent({
+ action:'ask',
+ question,
+ originalQuestion: displayQuestion,
+ category: question,
+ source: followup.usedConfirmCandidate ? 'confirm_followup' : (window.__AI_LAST_INPUT_MODE || 'text')
+ });
 
  if(input) input.value = '';
  setAiAssistantBusy(true);
- appendAiMessage('user', escapeHtml(question));
+ appendAiMessage('user', escapeHtml(displayQuestion));
  const pendingRow = createAiTypingBubble(question);
  const pendingBubble = pendingRow?.querySelector('.ai-bubble');
 
@@ -16655,6 +17527,7 @@ async function askAiAssistant(rawQuestion=''){
  if(aiWaitTimer1) clearTimeout(aiWaitTimer1);
  if(aiWaitTimer2) clearTimeout(aiWaitTimer2);
  const finalText = streamRenderer.flush() || '답변을 생성하지 못했습니다.';
+ rememberAiConfirmCandidate(finalText);
  if(pendingBubble){
  pendingBubble.innerHTML = buildAiEnhancedAnswerHtml(finalText, question);
  bindAiAnswerActions(pendingBubble);
@@ -18134,6 +19007,7 @@ document.addEventListener('keydown', (event) => {
  showGlobalLoading();
  subscribeBenefits();
  subscribeNotices();
+ subscribeAiKnowledge();
  subscribePopularStats();
  subscribeResidentActivityRanking();
  subscribeFavorites();
@@ -19157,6 +20031,401 @@ if(window.MutationObserver){
     }
     document.addEventListener('click', function(){ setTimeout(syncGnbNavSafe, 0); }, true);
     window.addEventListener('resize', syncGnbNavSafe, {passive:true});
+  });
+})();
+
+ document.addEventListener('click', (event) => {
+ const downloadBtn = event.target.closest?.('[data-ai-attachment-download]');
+ if(!downloadBtn) return;
+ event.preventDefault();
+ event.stopPropagation();
+ downloadAiAttachmentByDataset(downloadBtn);
+ });
+
+</script>
+
+
+<script>
+/* ===== AI 첨부파일 다운로드: Cloud Run 다운로드 API 연결 ===== */
+(function(){
+  const AI_ATTACHMENT_DOWNLOAD_BASE = "https://ai-stream-server-dev-292137041544.asia-northeast3.run.app";
+
+  function resolveAiAttachmentPath(input){
+    if (!input) return "";
+    if (typeof input === "string") return input;
+
+    if (input.dataset) {
+      return input.dataset.aiAttachmentPath ||
+             input.dataset.attachmentPath ||
+             input.dataset.path ||
+             input.dataset.filePath ||
+             input.dataset.storagePath ||
+             "";
+    }
+
+    return "";
+  }
+
+  function resolveAiAttachmentName(input, fallback){
+    if (fallback) return fallback;
+
+    if (input && input.dataset) {
+      return input.dataset.aiAttachmentName ||
+             input.dataset.attachmentName ||
+             input.dataset.name ||
+             input.dataset.fileName ||
+             "download";
+    }
+
+    return "download";
+  }
+
+  window.downloadAiAttachment = function(pathOrButton, name){
+    const safePath = resolveAiAttachmentPath(pathOrButton);
+    const safeName = resolveAiAttachmentName(pathOrButton, name);
+
+    if (!safePath) {
+      alert("다운로드 경로가 없습니다.");
+      return;
+    }
+
+    const url =
+      AI_ATTACHMENT_DOWNLOAD_BASE +
+      "/download-ai-attachment?path=" + encodeURIComponent(safePath) +
+      "&name=" + encodeURIComponent(safeName || "download");
+
+    window.location.href = url;
+  };
+
+  window.downloadAiAttachmentByDataset = function(button){
+    window.downloadAiAttachment(button, null);
+  };
+})();
+</script>
+
+
+
+
+<!-- AI 첨부 이미지 전체화면 확대 팝업 -->
+<div id="aiImageZoomBackdrop" class="ai-image-zoom-backdrop" aria-hidden="true">
+  <div id="aiImageZoomTitle" class="ai-image-zoom-title">이미지 확대 보기</div>
+  <button type="button" id="aiImageZoomCloseBtn" class="ai-image-zoom-close" aria-label="닫기" onclick="window.closeAiImageZoom && window.closeAiImageZoom()">×</button>
+  <div id="aiImageZoomScroll" class="ai-image-zoom-scroll">
+    <img id="aiImageZoomImg" class="ai-image-zoom-img" src="" alt="확대 이미지">
+  </div>
+</div>
+
+<script>
+/* ===== AI 첨부 이미지 전체화면 확대 - 직접 호출형 ===== */
+(function(){
+  function byId(id){ return document.getElementById(id); }
+
+  window.openAiImageZoom = function(src, title){
+    var backdrop = byId("aiImageZoomBackdrop");
+    var img = byId("aiImageZoomImg");
+    var titleEl = byId("aiImageZoomTitle");
+    var scroll = byId("aiImageZoomScroll");
+    if(!backdrop || !img || !src) return false;
+
+    img.src = src;
+    img.alt = title || "확대 이미지";
+    if(titleEl) titleEl.textContent = title || "이미지 확대 보기";
+    if(scroll) scroll.scrollTop = 0;
+
+    backdrop.classList.add("show");
+    backdrop.setAttribute("aria-hidden", "false");
+    document.documentElement.style.overflow = "hidden";
+    document.body.style.overflow = "hidden";
+    return false;
+  };
+
+  window.closeAiImageZoom = function(){
+    var backdrop = byId("aiImageZoomBackdrop");
+    var img = byId("aiImageZoomImg");
+    if(!backdrop || !img) return false;
+
+    backdrop.classList.remove("show");
+    backdrop.setAttribute("aria-hidden", "true");
+    img.removeAttribute("src");
+    document.documentElement.style.overflow = "";
+    document.body.style.overflow = "";
+    return false;
+  };
+
+  window.openAiImageZoomFromElement = function(el){
+    if(!el) return false;
+    var img = el.tagName === "IMG" ? el : el.querySelector && el.querySelector("img");
+    if(!img) return false;
+    var src = el.getAttribute("data-ai-image-src") || img.currentSrc || img.src || "";
+    var title = el.getAttribute("data-ai-image-title") || img.alt || "이미지 확대 보기";
+    return window.openAiImageZoom(src, title);
+  };
+
+  document.addEventListener("click", function(e){
+    var closeBtn = e.target && e.target.closest ? e.target.closest("#aiImageZoomCloseBtn") : null;
+    if(closeBtn){
+      e.preventDefault();
+      e.stopPropagation();
+      window.closeAiImageZoom();
+      return;
+    }
+
+    var backdrop = byId("aiImageZoomBackdrop");
+    if(e.target === backdrop){
+      e.preventDefault();
+      window.closeAiImageZoom();
+      return;
+    }
+
+    var target = e.target && e.target.closest ? e.target.closest("[data-ai-image-zoom='1'], [data-ai-attachment-image='true'], .ai-attachment-image-card img") : null;
+    if(target){
+      e.preventDefault();
+      e.stopPropagation();
+      window.openAiImageZoomFromElement(target);
+    }
+  }, true);
+
+  document.addEventListener("keydown", function(e){
+    if(e.key === "Escape") window.closeAiImageZoom();
+  });
+})();
+</script>
+
+
+
+
+<script>
+/* ===== AI 첨부 이미지 확대 팝업 - 헤더 고정 / 이미지 영역 분리 ===== */
+(function(){
+  function getViewportWidth(){
+    return Math.max(320, Math.floor((window.visualViewport && window.visualViewport.width) || window.innerWidth || document.documentElement.clientWidth || 360));
+  }
+
+  function applyZoomImageSize(){
+    var img = document.getElementById("aiRuntimeImageZoomImg");
+    var backdrop = document.getElementById("aiRuntimeImageZoomBackdrop");
+    if(!img || !backdrop || backdrop.style.display === "none") return;
+
+    var vw = getViewportWidth();
+    img.style.width = vw + "px";
+    img.style.maxWidth = "100%";
+    img.style.minWidth = "0";
+    img.style.height = "auto";
+    img.style.maxHeight = "none";
+    img.style.objectFit = "contain";
+  }
+
+  function ensureAiRuntimeZoomLayer(){
+    var old = document.getElementById("aiRuntimeImageZoomBackdrop");
+    if(old) return old;
+
+    var backdrop = document.createElement("div");
+    backdrop.id = "aiRuntimeImageZoomBackdrop";
+    backdrop.setAttribute("aria-hidden", "true");
+    backdrop.style.cssText = [
+      "position:fixed",
+      "inset:0",
+      "z-index:2147483647",
+      "display:none",
+      "background:rgba(0,0,0,.94)",
+      "overflow:hidden",
+      "box-sizing:border-box"
+    ].join(";");
+
+    var header = document.createElement("div");
+    header.id = "aiRuntimeImageZoomHeader";
+    header.style.cssText = [
+      "position:absolute",
+      "left:0",
+      "right:0",
+      "top:0",
+      "height:calc(58px + env(safe-area-inset-top,0px))",
+      "padding:calc(10px + env(safe-area-inset-top,0px)) 12px 8px",
+      "box-sizing:border-box",
+      "display:flex",
+      "align-items:center",
+      "gap:12px",
+      "background:rgba(0,0,0,.92)",
+      "border-bottom:1px solid rgba(255,255,255,.16)",
+      "box-shadow:0 10px 24px rgba(0,0,0,.25)",
+      "z-index:2"
+    ].join(";");
+
+    var title = document.createElement("div");
+    title.id = "aiRuntimeImageZoomTitle";
+    title.style.cssText = [
+      "min-width:0",
+      "flex:1",
+      "color:#fff",
+      "font-size:14px",
+      "font-weight:900",
+      "white-space:nowrap",
+      "overflow:hidden",
+      "text-overflow:ellipsis"
+    ].join(";");
+
+    var close = document.createElement("button");
+    close.type = "button";
+    close.textContent = "×";
+    close.setAttribute("aria-label", "닫기");
+    close.style.cssText = [
+      "width:42px",
+      "height:42px",
+      "border:0",
+      "border-radius:999px",
+      "background:rgba(15,23,42,.96)",
+      "color:#fff",
+      "font-size:26px",
+      "font-weight:900",
+      "display:grid",
+      "place-items:center",
+      "cursor:pointer",
+      "box-shadow:0 10px 24px rgba(0,0,0,.32)",
+      "flex:0 0 auto",
+      "line-height:1"
+    ].join(";");
+
+    var scroll = document.createElement("div");
+    scroll.id = "aiRuntimeImageZoomScroll";
+    scroll.style.cssText = [
+      "position:absolute",
+      "left:0",
+      "right:0",
+      "top:calc(58px + env(safe-area-inset-top,0px))",
+      "bottom:0",
+      "overflow:auto",
+      "-webkit-overflow-scrolling:touch",
+      "display:flex",
+      "align-items:flex-start",
+      "justify-content:center",
+      "box-sizing:border-box",
+      "padding:0 0 calc(24px + env(safe-area-inset-bottom,0px))"
+    ].join(";");
+
+    var img = document.createElement("img");
+    img.id = "aiRuntimeImageZoomImg";
+    img.alt = "확대 이미지";
+    img.style.cssText = [
+      "display:block",
+      "width:100vw",
+      "max-width:100%",
+      "min-width:0",
+      "height:auto",
+      "max-height:none",
+      "object-fit:contain",
+      "background:#fff",
+      "box-shadow:0 18px 50px rgba(0,0,0,.42)"
+    ].join(";");
+
+    close.addEventListener("click", function(e){
+      e.preventDefault();
+      e.stopPropagation();
+      window.closeAiImageZoom();
+    });
+
+    backdrop.addEventListener("click", function(e){
+      if(e.target === backdrop) window.closeAiImageZoom();
+    });
+
+    header.appendChild(title);
+    header.appendChild(close);
+    scroll.appendChild(img);
+    backdrop.appendChild(header);
+    backdrop.appendChild(scroll);
+    document.body.appendChild(backdrop);
+    return backdrop;
+  }
+
+  window.openAiImageZoom = function(src, title){
+    if(!src) return false;
+
+    var backdrop = ensureAiRuntimeZoomLayer();
+    var img = document.getElementById("aiRuntimeImageZoomImg");
+    var titleEl = document.getElementById("aiRuntimeImageZoomTitle");
+    var scroll = document.getElementById("aiRuntimeImageZoomScroll");
+
+    if(!backdrop || !img) return false;
+
+    img.src = src;
+    img.alt = title || "확대 이미지";
+    if(titleEl) titleEl.textContent = title || "이미지 확대 보기";
+
+    backdrop.style.display = "block";
+    backdrop.setAttribute("aria-hidden", "false");
+    if(scroll){
+      scroll.scrollTop = 0;
+      scroll.scrollLeft = 0;
+    }
+
+    document.documentElement.style.overflow = "hidden";
+    document.body.style.overflow = "hidden";
+
+    requestAnimationFrame(applyZoomImageSize);
+    setTimeout(applyZoomImageSize, 80);
+    return false;
+  };
+
+  window.closeAiImageZoom = function(){
+    var backdrop = document.getElementById("aiRuntimeImageZoomBackdrop");
+    var img = document.getElementById("aiRuntimeImageZoomImg");
+    if(backdrop){
+      backdrop.style.display = "none";
+      backdrop.setAttribute("aria-hidden", "true");
+    }
+    if(img) img.removeAttribute("src");
+
+    document.documentElement.style.overflow = "";
+    document.body.style.overflow = "";
+    return false;
+  };
+
+  window.openAiImageZoomFromElement = function(el){
+    if(!el) return false;
+    var img = el.tagName === "IMG" ? el : (el.querySelector ? el.querySelector("img") : null);
+    if(!img) return false;
+
+    var src =
+      el.getAttribute("data-ai-image-src") ||
+      img.currentSrc ||
+      img.src ||
+      "";
+
+    var title =
+      el.getAttribute("data-ai-image-title") ||
+      img.getAttribute("alt") ||
+      "이미지 확대 보기";
+
+    return window.openAiImageZoom(src, title);
+  };
+
+  document.addEventListener("click", function(e){
+    var target = e.target && e.target.closest
+      ? e.target.closest("[data-ai-image-zoom='1'], [data-ai-attachment-image='true'], .ai-attachment-image-card img")
+      : null;
+
+    if(!target) return;
+
+    e.preventDefault();
+    e.stopPropagation();
+    window.openAiImageZoomFromElement(target);
+  }, true);
+
+  window.addEventListener("resize", function(){
+    requestAnimationFrame(applyZoomImageSize);
+  });
+
+  if(window.visualViewport){
+    window.visualViewport.addEventListener("resize", function(){
+      requestAnimationFrame(applyZoomImageSize);
+    });
+  }
+
+  window.addEventListener("orientationchange", function(){
+    setTimeout(applyZoomImageSize, 160);
+  });
+
+  document.addEventListener("keydown", function(e){
+    if(e.key === "Escape") window.closeAiImageZoom();
   });
 })();
 </script>
