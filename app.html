@@ -10633,7 +10633,9 @@ function setPushStatusUi(enabled){
   return pieces.length ? `<span class="view-title-trend-badges">${pieces.join('')}</span>` : '';
  }
  function refreshCurrentViewTitleTrendBadges(){
-  qsa('.view-title-trend-badges').forEach(el => el.remove());
+  // HOT/NEW 제목 배지는 legacy(.view-title-*)와 final(.view-final-*) 로직이 함께 실행될 수 있어
+  // 두 계열을 모두 제거한 뒤 1회만 다시 렌더링합니다.
+  qsa('.view-title-trend-badges,.view-final-trend-badges').forEach(el => el.remove());
   const view = state?.view || 'home';
   const menu = findMenuByView(view);
   const html = makeViewTitleTrendBadges(menu);
@@ -10641,7 +10643,7 @@ function setPushStatusUi(enabled){
   const viewEl = qs(`#view-${view}`);
   if(!viewEl) return;
   const title = viewEl.querySelector('.hero h2, .calendar-hero h3, .ai-view-hero h3, .section-head h3, h3, h2');
-  if(title){
+  if(title && !title.querySelector('.view-title-trend-badges,.view-final-trend-badges')){
     title.insertAdjacentHTML('afterbegin', html);
   }
  }
@@ -17931,7 +17933,8 @@ function getCurrentVisibleViewKey(){
   return normalizeTrendViewKey(state?.view || 'home');
 }
 function refreshCurrentViewFinalTrendBadge(){
-  document.querySelectorAll('.view-final-trend-badges').forEach(el => el.remove());
+  // legacy 제목 배지와 final 제목 배지가 동시에 붙으면서 HOT이 2번 보이는 현상 방지
+  document.querySelectorAll('.view-title-trend-badges,.view-final-trend-badges').forEach(el => el.remove());
   const view = getCurrentVisibleViewKey();
   const menu = findTrendMenuByView(view);
   const hotNew = [];
@@ -17944,7 +17947,7 @@ function refreshCurrentViewFinalTrendBadge(){
   if(!viewEl) return;
 
   const title = viewEl.querySelector('.hero h2, .calendar-hero h3, .ai-view-hero h3, .section-head h3, h3, h2');
-  if(!title) return;
+  if(!title || title.querySelector('.view-title-trend-badges,.view-final-trend-badges')) return;
   title.insertAdjacentHTML('afterbegin', `<span class="view-final-trend-badges">${hotNew.join('')}</span>`);
 }
 function refreshTrendFinalDisplay(){
