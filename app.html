@@ -20287,18 +20287,28 @@ if(window.MutationObserver){
 /* ===== AI 첨부파일 다운로드: Cloud Run 다운로드 API 연결 ===== */
 (function(){
   const AI_ATTACHMENT_DOWNLOAD_BASE = (function(){
+    const DEV_BASE = "https://ai-stream-server-dev-292137041544.asia-northeast3.run.app";
+    const PROD_BASE = "https://ai-stream-server-337132471819.asia-northeast3.run.app";
+
     try {
-      if (typeof AI_STREAM_SERVER_URL === "string" && AI_STREAM_SERVER_URL) {
-        return AI_STREAM_SERVER_URL.replace(/\/stream\/?$/, "");
+      const host = String(location.hostname || "").toLowerCase();
+
+      // 이 스크립트는 일반 script 영역이라 module 내부 const ENV에 접근할 수 없습니다.
+      // 따라서 다운로드 BASE는 도메인 기준으로만 안전하게 분기합니다.
+      if (host.includes("sola-home-dev.kr") ||
+          host.includes("localhost") ||
+          host.includes("127.0.0.1") ||
+          host.includes("vercel.app")) {
+        return DEV_BASE;
       }
 
-      if (typeof ENV !== "undefined" && ENV === "dev") {
-        return "https://ai-stream-server-dev-292137041544.asia-northeast3.run.app";
+      if (host.includes("sola-home.kr")) {
+        return PROD_BASE;
       }
 
-      return "https://ai-stream-server-337132471819.asia-northeast3.run.app";
+      return DEV_BASE;
     } catch (e) {
-      return "https://ai-stream-server-337132471819.asia-northeast3.run.app";
+      return DEV_BASE;
     }
   })();
 
