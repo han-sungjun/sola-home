@@ -15894,6 +15894,72 @@ function getAiAttachmentType(item={}){
  return '';
  }
 
+
+ function inferAiAudienceSituationIntent(question=''){
+ const q = normalizeAiSearchText(question || '');
+ const compact = String(question || '').replace(/\s+/g, '');
+ const hasAny = (patterns) => patterns.some(re => re.test(q) || re.test(compact));
+ const audience = [];
+ if(hasAny([/키즈|아이|아이와|아이랑|아이하고|아이들과|자녀|어린이|유아|아기|아가|초등/])) audience.push('키즈');
+ if(hasAny([/가족|부모님|부모|어르신|어른|시니어|노인|할머니|할아버지|엄마|아빠/])) audience.push('가족');
+ if(hasAny([/10대|십대|청소년|학생|중학생|고등학생/])) audience.push('10대');
+ if(hasAny([/20대|이십대|대학생|청년|젊은|친구|데이트|소개팅/])) audience.push('20대');
+ if(hasAny([/30대|삼십대|직장인|신혼|부부|육아/])) audience.push('30대');
+ if(hasAny([/40대|사십대|중년|가장/])) audience.push('40대');
+ if(hasAny([/50대|오십대|중장년/])) audience.push('50대');
+ if(hasAny([/60대|육십대|시니어|어르신/])) audience.push('60대');
+ if(hasAny([/70대|칠십대|고령|어르신/])) audience.push('70대');
+ if(hasAny([/80대|팔십대|고령|어르신/])) audience.push('80대');
+ const situation = [];
+ if(hasAny([/데이트|소개팅|연인|커플|분위기|예쁜|감성/])) situation.push('데이트');
+ if(hasAny([/혼밥|혼자|1인|혼자먹|혼자갈|혼자서/])) situation.push('혼밥');
+ if(hasAny([/비오는날|비올때|비와|우천|장마|실내/])) situation.push('비오는날');
+ if(hasAny([/운동|헬스|필라테스|요가|체육|스포츠|야구|골프|짐|pt/])) situation.push('운동');
+ if(hasAny([/미용|헤어|네일|피부|뷰티|왁싱|마사지|관리|염색|커트|펌/])) situation.push('미용');
+ return { audience:[...new Set(audience)], situation:[...new Set(situation)], raw:q };
+ }
+
+ function scoreAiAudienceSituationItem(item={}, question=''){
+ const intent = inferAiAudienceSituationIntent(question);
+ if(!intent.audience.length && !intent.situation.length) return { score:0, reasons:[] };
+ const raw = stringifyAiCandidateText(item, 'benefit');
+ const hay = normalizeAiSearchText(raw);
+ const has = (words) => words.some(word => hay.includes(normalizeAiSearchText(word)));
+ let score = 0;
+ const reasons = [];
+ const add = (value, reason) => { score += value; if(reason) reasons.push(reason); };
+
+ intent.audience.forEach(tag => {
+   if(tag === '키즈') {
+     if(has(['키즈','아이','어린이','유아','아동','초등','체험','놀이','야구','스포츠','분식','피자','치킨','디저트','베이커리','카페','가족'])) add(9, '키즈 추천');
+   } else if(tag === '가족') {
+     if(has(['가족','부모','어르신','시니어','식당','음식','카페','베이커리','미용','병원','약국','건강','주차','편한'])) add(9, '가족 추천');
+   } else if(tag === '10대') {
+     if(has(['10대','학생','청소년','학원','문구','분식','치킨','피자','카페','디저트','야구','스포츠','체험'])) add(8, '10대 추천');
+   } else if(tag === '20대') {
+     if(has(['20대','청년','대학생','데이트','카페','디저트','미용','뷰티','네일','피부','헬스','운동','맛집','베이커리','사진'])) add(8, '20대 추천');
+   } else if(tag === '30대') {
+     if(has(['30대','직장인','신혼','부부','육아','카페','맛집','식당','미용','운동','헬스','피부','베이커리','가족'])) add(7, '30대 추천');
+   } else if(tag === '40대') {
+     if(has(['40대','중년','가족','식당','카페','미용','운동','헬스','병원','약국','건강','베이커리'])) add(7, '40대 추천');
+   } else if(tag === '50대') {
+     if(has(['50대','중장년','식당','카페','미용','병원','약국','건강','한의원','운동','편한','주차'])) add(7, '50대 추천');
+   } else if(['60대','70대','80대'].includes(tag)) {
+     if(has([tag,'시니어','어르신','노인','고령','건강','병원','약국','한의원','식당','카페','미용','편한','주차','가까운'])) add(9, `${tag} 추천`);
+   }
+ });
+
+ intent.situation.forEach(tag => {
+   if(tag === '데이트' && has(['데이트','분위기','카페','디저트','브런치','베이커리','맛집','식당','미용','뷰티','사진','감성'])) add(9, '데이트 추천');
+   if(tag === '혼밥' && has(['혼밥','1인','분식','김밥','식당','맛집','피자','치킨','카페','브런치','간편','포장'])) add(9, '혼밥 추천');
+   if(tag === '비오는날' && has(['실내','카페','커피','디저트','베이커리','음식','식당','미용','따뜻','브런치'])) add(8, '비오는날 추천');
+   if(tag === '운동' && has(['운동','헬스','필라테스','요가','스포츠','야구','골프','체육','pt','짐','건강'])) add(10, '운동 추천');
+   if(tag === '미용' && has(['미용','헤어','네일','피부','뷰티','왁싱','마사지','관리','염색','커트','펌'])) add(10, '미용 추천');
+ });
+
+ return { score, reasons:[...new Set(reasons)].slice(0,4) };
+ }
+
  function scoreAiBenefitMatch(item={}, question='', answerText=''){
  const signals = getAiUserPersonalSignals();
  const raw = getAiBenefitText(item);
@@ -15937,8 +16003,46 @@ function getAiAttachmentType(item={}){
  if(/점심|식사|밥|저녁|아침/.test(question) && /식당|음식|카페|디저트|베이커리|분식|치킨|피자|한식|중식|일식|양식/i.test(raw)){
  score += 3; reasons.push('생활 상황');
  }
- if(/아이|가족|키즈|자녀/.test(question) && /키즈|가족|아이|디저트|카페|학원|문구|놀이/i.test(raw)){
- score += 3; reasons.push('가족 상황');
+ if(/아이|아이랑|아이하고|아이들과|가족|키즈|자녀|어린이/.test(question) && /키즈|가족|아이|어린이|디저트|카페|학원|문구|놀이|체험|야구|스포츠|베이커리/i.test(raw)){
+ score += 5; reasons.push('아이/가족 상황');
+ }
+ if(/부모님|부모|어르신|어른|시니어|노인/.test(question) && /부모|어르신|시니어|건강|병원|약국|한의원|식당|카페|베이커리|미용|편한|주차/i.test(raw)){
+ score += 5; reasons.push('부모님/어르신 상황');
+ }
+ if(/10대|십대|청소년|학생|중학생|고등학생/.test(question) && /학생|청소년|학원|문구|카페|디저트|분식|치킨|피자|야구|스포츠|체험/i.test(raw)){
+ score += 5; reasons.push('10대 상황');
+ }
+ if(/20대|이십대|청년|젊은|친구|데이트/.test(question) && /카페|디저트|미용|뷰티|네일|피부|헬스|운동|데이트|식당|맛집|베이커리|사진|술|펍/i.test(raw)){
+ score += 5; reasons.push('20대 상황');
+ }
+ if(/30대|삼십대|직장인|신혼|부부|육아/.test(question) && /카페|맛집|식당|미용|운동|헬스|피부|베이커리|가족|육아/i.test(raw)){
+ score += 5; reasons.push('30대 상황');
+ }
+ if(/40대|사십대|중년|가장/.test(question) && /가족|식당|카페|미용|운동|헬스|병원|약국|건강|베이커리/i.test(raw)){
+ score += 5; reasons.push('40대 상황');
+ }
+ if(/50대|오십대|중장년/.test(question) && /식당|카페|미용|병원|약국|건강|한의원|운동|편한|주차/i.test(raw)){
+ score += 5; reasons.push('50대 상황');
+ }
+ if(/60대|육십대|70대|칠십대|80대|팔십대|시니어|고령/.test(question) && /시니어|어르신|노인|건강|병원|약국|한의원|식당|카페|미용|편한|주차|가까운/i.test(raw)){
+ score += 6; reasons.push('시니어 상황');
+ }
+ if(/데이트|소개팅|연인|커플|분위기|감성/.test(question) && /데이트|분위기|카페|디저트|브런치|베이커리|맛집|식당|미용|뷰티|사진|감성/i.test(raw)){
+ score += 5; reasons.push('데이트 상황');
+ }
+ if(/혼밥|혼자|1인|혼자먹|혼자갈/.test(question) && /혼밥|1인|분식|김밥|식당|맛집|피자|치킨|카페|브런치|간편|포장/i.test(raw)){
+ score += 5; reasons.push('혼밥 상황');
+ }
+ if(/운동|헬스|필라테스|요가|체육|스포츠|야구|골프|짐|pt/i.test(question) && /운동|헬스|필라테스|요가|스포츠|야구|골프|체육|pt|짐|건강/i.test(raw)){
+ score += 6; reasons.push('운동 상황');
+ }
+ if(/미용|헤어|네일|피부|뷰티|왁싱|마사지|관리|염색|커트|펌/.test(question) && /미용|헤어|네일|피부|뷰티|왁싱|마사지|관리|염색|커트|펌/i.test(raw)){
+ score += 6; reasons.push('미용 상황');
+ }
+ const audienceSituationScore = scoreAiAudienceSituationItem(item, question);
+ if(audienceSituationScore.score){
+ score += audienceSituationScore.score;
+ reasons.push(...audienceSituationScore.reasons);
  }
  const weatherTag = shouldAttachWeatherTagToItem(item, question, answerText);
  if(weatherTag){
@@ -16066,7 +16170,7 @@ function getAiAttachmentType(item={}){
  const mapped = mapAiBenefitsForQuestion(question, finalText, maxCount);
  if(mapped.length) return mapped;
  const qNorm = normalizeAiSearchText(question || '');
- const explicitRecommendation = /(혜택|할인|매장|가게|상가|추천|데이트|아이와|점심|저녁|밥|카페|맛집|디저트|비오는날|비올때|눈|눈올때|눈이|비|맑음|흐림|추울때|더울때|날씨|가기좋은|가기 좋은|가까운|근처|TOP5|TOP\s*5|탑5)/.test(qNorm);
+ const explicitRecommendation = /(혜택|할인|매장|가게|상가|추천|데이트|아이와|아이랑|아이하고|아이들과|자녀|키즈|부모님|부모|어르신|어른|시니어|노인|10대|십대|청소년|학생|20대|이십대|청년|젊은|30대|삼십대|40대|사십대|50대|오십대|60대|육십대|70대|칠십대|80대|팔십대|고령|데이트|혼밥|혼자|운동|헬스|필라테스|요가|스포츠|미용|헤어|네일|피부|뷰티|갈만한|갈만한곳|가기좋은|가기 좋은|점심|저녁|밥|카페|맛집|디저트|비오는날|비올때|눈|눈올때|눈이|비|맑음|흐림|추울때|더울때|날씨|가까운|근처|TOP5|TOP\s*5|탑5)/.test(qNorm);
  if(explicitRecommendation){
    const fallback = (state.benefits || [])
      .filter(item => item && item.visible !== false && item.id)
@@ -16508,7 +16612,7 @@ function buildAiMatchedBenefitPhoneCardHtml(mappedCards=[], question=''){
 
 function isExplicitAiBenefitQuestion(question='', answer=''){
  const q = normalizeAiSearchText(`${question || ''} ${answer || ''}`);
- return /(혜택|할인|매장|가게|상가|추천|TOP5|TOP\s*5|탑5|지도|거리|영업|전화|예약|즐겨찾기|쿠폰|정액권|방문|식당|카페|피자|치킨|디저트|미용|학원|병원|약국|베이커리|떡카페|데이트|아이와|점심|저녁|밥|가족|비오는날|비올때|눈|눈올때|눈이|비|맑음|흐림|추울때|더울때|날씨|가기좋은|가기 좋은)/.test(q);
+ return /(혜택|할인|매장|가게|상가|추천|TOP5|TOP\s*5|탑5|지도|거리|영업|전화|예약|즐겨찾기|쿠폰|정액권|방문|식당|카페|피자|치킨|디저트|미용|학원|병원|약국|베이커리|떡카페|데이트|아이와|아이랑|아이하고|자녀|키즈|부모님|부모|어르신|어른|시니어|10대|십대|청소년|학생|20대|이십대|청년|갈만한|갈만한곳|점심|저녁|밥|가족|비오는날|비올때|눈|눈올때|눈이|비|맑음|흐림|추울때|더울때|날씨|가기좋은|가기 좋은)/.test(q);
 }
 
 function isApartmentLifeKnowledgeQuestion(question='', answer=''){
@@ -16538,7 +16642,9 @@ function normalizeAiFollowupAnswerText(text=''){
 function isAiAffirmativeFollowupAnswer(text=''){
  const compact = normalizeAiFollowupAnswerText(text);
  if(!compact) return false;
- return /^(네|네네|넵|넵넵|예|예예|옙|옙옙|응|응응|어|어어|ㅇㅇ|맞아|맞아요|맞습니다|맞습니다요|맞다|맞음|맞네|맞습니다네|그래|그래요|그거|그겁니다|그게맞아|그게맞아요|yes|y|ok|okay)$/i.test(compact);
+ if(/^(네|네네|넵|넵넵|예|예예|옙|옙옙|응|응응|어|어어|ㅇㅇ|맞아|맞아요|맞습니다|맞습니다요|맞다|맞음|맞네|맞습니다네|그래|그래요|그거|그겁니다|그게맞아|그게맞아요|yes|y|ok|okay)$/i.test(compact)) return true;
+ // 사용자가 문장형으로 답해도 이어서 검색되도록 보강합니다. 예: "네 맞습니다", "맞습니다 찾아주세요"
+ return /(맞습니다|맞아요|맞아|맞음|그게맞|네맞|예맞|응맞|yes|okay|ok)/i.test(compact);
 }
 
 const AI_DUBEOL_INITIALS = ['ㄱ','ㄲ','ㄴ','ㄷ','ㄸ','ㄹ','ㅁ','ㅂ','ㅃ','ㅅ','ㅆ','ㅇ','ㅈ','ㅉ','ㅊ','ㅋ','ㅌ','ㅍ','ㅎ'];
@@ -16687,22 +16793,51 @@ function isLikelyKnownBenefitKeyword(keyword=''){
 }
 
 function extractAiConfirmCandidateFromText(finalText=''){
- const text = String(finalText || '').trim();
- if(!text) return '';
- const patterns = [
-   /[“"]([^“”"]{2,40})[”"]\s*(?:을|를)?\s*입력하신\s*건가요/i,
-   /[“"]([^“”"]{2,40})[”"]\s*로\s*바로\s*이어서\s*찾아볼게요/i,
-   /혹시\s+(.{2,40}?)\s*(?:을|를)?\s*찾으시려는\s*건가요/i,
-   /(.{2,40}?)\s*(?:맞나요|맞으신가요|찾으시려는건가요)/i
- ];
- for(const pattern of patterns){
-   const match = text.match(pattern);
-   const candidate = match?.[1] ? normalizeAiTypoQueryForSearch(String(match[1]).trim()) : '';
-   if(candidate && !/[?？!！.。]\s*$/.test(candidate)){
-     return candidate.replace(/[“”"'`]/g, '').trim();
-   }
- }
- return '';
+  const text = String(finalText || '').trim();
+  if(!text) return '';
+
+  const cleanCandidate = (value='') => {
+    let out = String(value || '').trim();
+    ['“','”','"',"'",'`'].forEach(ch => { out = out.split(ch).join(''); });
+    ['혹시','그러면','그럼','네','예'].forEach(prefix => {
+      if(out.startsWith(prefix)) out = out.slice(prefix.length).trim();
+    });
+    const suffixes = ['맞나요','맞으신가요','맞을까요','찾으시려는 건가요','찾으시려는건가요','입력하신 건가요','입력하신건가요'];
+    suffixes.forEach(suffix => {
+      const idx = out.indexOf(suffix);
+      if(idx >= 0) out = out.slice(0, idx).trim();
+    });
+    ['을','를','이','가'].forEach(p => {
+      if(out.endsWith(p) && out.length > 2) out = out.slice(0, -1).trim();
+    });
+    return normalizeAiTypoQueryForSearch(out);
+  };
+
+  const quotePairs = [['“','”'], ['"','"']];
+  for(const [open, close] of quotePairs){
+    const a = text.indexOf(open);
+    if(a >= 0){
+      const b = text.indexOf(close, a + 1);
+      if(b > a){
+        const candidate = cleanCandidate(text.slice(a + 1, b));
+        if(candidate && candidate.length >= 2 && candidate.length <= 40) return candidate;
+      }
+    }
+  }
+
+  const markers = ['찾으시려는 건가요','찾으시려는건가요','맞나요','맞으신가요','맞을까요','입력하신 건가요','입력하신건가요'];
+  for(const marker of markers){
+    const idx = text.indexOf(marker);
+    if(idx > 0){
+      let before = text.slice(0, idx).trim();
+      const maybeIdx = before.lastIndexOf('혹시');
+      if(maybeIdx >= 0) before = before.slice(maybeIdx + 2).trim();
+      const chunks = before.split(' ');
+      let candidate = cleanCandidate(chunks.slice(-3).join(' '));
+      if(candidate && candidate.length >= 2 && candidate.length <= 40) return candidate;
+    }
+  }
+  return '';
 }
 
 function rememberAiConfirmCandidate(finalText=''){
@@ -16720,7 +16855,7 @@ function resolveAiFollowupQuestion(rawQuestion=''){
  if(stored && isAiAffirmativeFollowupAnswer(original)){
    aiPendingConfirmCandidate = '';
    try{ sessionStorage.removeItem('aiPendingConfirmCandidate'); }catch(_error){}
-   return { originalQuestion: original, effectiveQuestion: stored, usedConfirmCandidate: true };
+   return { originalQuestion: original, effectiveQuestion: normalizeAiTypoQueryForSearch(stored) || stored, usedConfirmCandidate: true };
  }
  if(original && !isAiAffirmativeFollowupAnswer(original)){
    aiPendingConfirmCandidate = '';
