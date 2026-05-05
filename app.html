@@ -16635,16 +16635,43 @@ let aiPendingConfirmCandidate = '';
 function normalizeAiFollowupAnswerText(text=''){
  return String(text || '')
    .trim()
-   .replace(/[\s.!?。．,，~…;:;、]+/g, '')
+   .split(' ').join('')
+   .split('\n').join('')
+   .split('\t').join('')
+   .split('.').join('')
+   .split('!').join('')
+   .split('?').join('')
+   .split('。').join('')
+   .split('．').join('')
+   .split(',').join('')
+   .split('，').join('')
+   .split('~').join('')
+   .split('…').join('')
+   .split(';').join('')
+   .split(':').join('')
+   .split('、').join('')
    .toLowerCase();
 }
 
 function isAiAffirmativeFollowupAnswer(text=''){
  const compact = normalizeAiFollowupAnswerText(text);
  if(!compact) return false;
- if(/^(네|네네|넵|넵넵|예|예예|옙|옙옙|응|응응|어|어어|ㅇㅇ|맞아|맞아요|맞습니다|맞습니다요|맞다|맞음|맞네|맞습니다네|그래|그래요|그거|그겁니다|그게맞아|그게맞아요|yes|y|ok|okay)$/i.test(compact)) return true;
- // 사용자가 문장형으로 답해도 이어서 검색되도록 보강합니다. 예: "네 맞습니다", "맞습니다 찾아주세요"
- return /(맞습니다|맞아요|맞아|맞음|그게맞|네맞|예맞|응맞|yes|okay|ok)/i.test(compact);
+ const exactConfirms = [
+   '네','네네','넵','넵넵','예','예예','옙','옙옙','응','응응','어','어어','ㅇㅇ','ㅇㅋ','오케이',
+   '맞아','맞아요','맞습니다','맞습니다요','맞다','맞음','맞네','맞네요','맞습니다네',
+   '그렇습니다','그렇네요','그렇죠','그럼요','그래','그래요','그거','그겁니다',
+   '그게맞아','그게맞아요','그게맞습니다','맞는것같아요','맞는것같습니다',
+   'yes','y','ok','okay'
+ ];
+ if(exactConfirms.includes(compact)) return true;
+ // 사용자가 문장형으로 답해도 이어서 검색되도록 보강합니다. 예: "네 맞습니다", "그렇습니다", "맞습니다 찾아주세요"
+ const partialConfirms = [
+   '맞습니다','맞아요','맞아','맞음','맞네요','맞는것같',
+   '그렇습니다','그렇네요','그렇죠','그럼요','그게맞',
+   '네맞','예맞','응맞','넵맞','맞습니다찾아','확인해줘','찾아주세요',
+   'yes','okay','ok','오케이'
+ ];
+ return partialConfirms.some(keyword => compact.includes(keyword));
 }
 
 const AI_DUBEOL_INITIALS = ['ㄱ','ㄲ','ㄴ','ㄷ','ㄸ','ㄹ','ㅁ','ㅂ','ㅃ','ㅅ','ㅆ','ㅇ','ㅈ','ㅉ','ㅊ','ㅋ','ㅌ','ㅍ','ㅎ'];
