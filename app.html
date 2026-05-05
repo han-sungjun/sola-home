@@ -10561,7 +10561,7 @@ function setPushStatusUi(enabled){
  state.isPushEnabledForThisDevice = !!enabled;
 
  if(statusEl){
- statusEl.textContent = enabled ? '이 기기 수신 중' : '이 기기는 아직 미등록 상태입니다';
+ statusEl.textContent = enabled ? '🔔 푸시 알림 켜짐' : '이 기기는 아직 🔕 푸시 알림 꺼짐입니다';
  }
  if(subEl){
  subEl.textContent = enabled
@@ -10572,7 +10572,7 @@ function setPushStatusUi(enabled){
  if(disableBtn) disableBtn.classList.toggle('hidden', !enabled);
 
  if(gnbStatusPill){
- gnbStatusPill.textContent = enabled ? '🔔 이 기기 수신 중' : '🔕 미등록 상태';
+ gnbStatusPill.textContent = enabled ? '🔔 푸시 알림 켜짐' : '🔕 푸시 알림 꺼짐';
  gnbStatusPill.style.background = enabled ? '#eff6ff' : '#f8fafc';
  gnbStatusPill.style.color = enabled ? '#1d4ed8' : '#475569';
  gnbStatusPill.style.borderColor = enabled ? '#bfdbfe' : '#e2e8f0';
@@ -18246,14 +18246,6 @@ document.addEventListener('keydown', (event) => {
  </div>
  </div>
 
- <div class="gnb-settings-section privacy-zero-section">
- <div class="gnb-settings-section-header"><div><h4 class="gnb-settings-section-title">안심 이용 안내</h4><p class="gnb-settings-section-desc">입주민 혜택 제공에 필요한 확인 절차만 남기고, 복잡한 입력은 줄였습니다.</p></div></div>
- <div class="privacy-zero-list">
- <div class="privacy-zero-item"><div class="privacy-zero-icon">✅</div><div class="privacy-zero-copy"><strong>간단한 계정 중심 이용</strong><p>복잡한 입력 없이 입주민 혜택 화면을 편하게 이용할 수 있도록 정리했습니다.</p></div></div>
- <div class="privacy-zero-item"><div class="privacy-zero-icon">🏷️</div><div class="privacy-zero-copy"><strong>회원 유형은 단순 권한 분류</strong><p>입주민/관리자 구분은 화면과 기능 접근을 나누기 위한 운영 정보입니다.</p></div></div>
- <div class="privacy-zero-item"><div class="privacy-zero-icon">🧹</div><div class="privacy-zero-copy"><strong>부담되는 절차 최소화</strong><p>기존 기능은 유지하되, 이용 전환에 방해되는 입력 절차는 줄입니다.</p></div></div>
- </div>
- </div>
 
  <div class="gnb-settings-section" id="fontSizeSettingsSection">
  <div class="gnb-settings-section-header">
@@ -18317,7 +18309,7 @@ document.addEventListener('keydown', (event) => {
  <div class="gnb-info-item">
  <div class="gnb-info-icon">🔔</div>
  <div class="gnb-info-copy">
- <strong>알림 알림 상태</strong>
+ <strong>푸시 알림 상태</strong>
  <p id="gnbPushStatusText">현재 브라우저의 알림 수신 상태를 확인하고 있습니다.</p>
  </div>
  </div>
