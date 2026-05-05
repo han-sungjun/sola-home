@@ -9956,6 +9956,10 @@ window.syncGnbNavSafe = window.syncGnbNavSafe || function(){ return; };
  };
  const AI_STREAM_SERVER_URL = AI_STREAM_SERVER_URL_BY_ENV[ENV] || '';
  const AI_STREAM_SERVER_BASE_URL = AI_STREAM_SERVER_URL ? AI_STREAM_SERVER_URL.replace(/\/?stream\/?$/, '') : '';
+ // 일반 script 영역에서도 운영/개발 첨부파일 다운로드 API를 동일하게 사용할 수 있도록 전역에 노출합니다.
+ window.SOLA_ENV = ENV;
+ window.AI_STREAM_SERVER_BASE_URL = AI_STREAM_SERVER_BASE_URL;
+ window.AI_ATTACHMENT_DOWNLOAD_BASE = AI_STREAM_SERVER_BASE_URL;
  const AI_PROACTIVE_URL = AI_STREAM_SERVER_BASE_URL ? `${AI_STREAM_SERVER_BASE_URL}/assistant/proactive` : '';
  const AI_ASSISTANT_LOG_URL = AI_STREAM_SERVER_BASE_URL ? `${AI_STREAM_SERVER_BASE_URL}/assistant/log` : '';
 
@@ -20048,7 +20052,19 @@ if(window.MutationObserver){
 <script>
 /* ===== AI 첨부파일 다운로드: Cloud Run 다운로드 API 연결 ===== */
 (function(){
-  const AI_ATTACHMENT_DOWNLOAD_BASE = "https://ai-stream-server-dev-292137041544.asia-northeast3.run.app";
+  const AI_ATTACHMENT_DOWNLOAD_BASE_BY_ENV = {
+    dev: "https://ai-stream-server-dev-292137041544.asia-northeast3.run.app",
+    prod: "https://ai-stream-server-337132471819.asia-northeast3.run.app"
+  };
+
+  function getAiAttachmentDownloadBase(){
+    const globalBase = String(window.AI_ATTACHMENT_DOWNLOAD_BASE || window.AI_STREAM_SERVER_BASE_URL || '').trim();
+    if (globalBase) return globalBase.replace(/\/?stream\/?$/, '').replace(/\/+$/, '');
+
+    const env = String(window.SOLA_ENV || '').trim() ||
+      (document.body.classList.contains('env-dev') ? 'dev' : 'prod');
+    return (AI_ATTACHMENT_DOWNLOAD_BASE_BY_ENV[env] || AI_ATTACHMENT_DOWNLOAD_BASE_BY_ENV.prod || '').replace(/\/+$/, '');
+  }
 
   function resolveAiAttachmentPath(input){
     if (!input) return "";
@@ -20089,8 +20105,14 @@ if(window.MutationObserver){
       return;
     }
 
+    const downloadBase = getAiAttachmentDownloadBase();
+    if (!downloadBase) {
+      alert("다운로드 서버 주소가 설정되지 않았습니다.");
+      return;
+    }
+
     const url =
-      AI_ATTACHMENT_DOWNLOAD_BASE +
+      downloadBase +
       "/download-ai-attachment?path=" + encodeURIComponent(safePath) +
       "&name=" + encodeURIComponent(safeName || "download");
 
