@@ -10434,6 +10434,40 @@ window.syncGnbNavSafe = window.syncGnbNavSafe || function(){ return; };
  );
  }
 
+ function isMobileEdgeBrowser() {
+ const ua = String(navigator.userAgent || '').toLowerCase();
+ const isMobile =
+ ua.includes('android') ||
+ ua.includes('iphone') ||
+ ua.includes('ipad') ||
+ ua.includes('mobile');
+ const isEdge =
+ ua.includes('edga') ||
+ ua.includes('edgios') ||
+ ua.includes('edg/') ||
+ ua.includes('edg');
+ return isMobile && isEdge;
+ }
+
+ async function isMobileEdgePushEndpointBroken() {
+ if (!isMobileEdgeBrowser()) return false;
+ try {
+ if (!('serviceWorker' in navigator) || !('PushManager' in window)) return true;
+ const reg = window.pushSwRegistration || await navigator.serviceWorker.ready;
+ const sub = await reg.pushManager.getSubscription();
+ const endpoint = String(sub?.endpoint || '');
+ window.fcmDebugLog?.('MOBILE_EDGE_ENDPOINT_CHECK', endpoint || 'empty endpoint');
+ return !endpoint || endpoint.includes('permanently-removed.invalid');
+ } catch (error) {
+ window.fcmDebugLog?.('MOBILE_EDGE_ENDPOINT_CHECK_ERROR', String(error && (error.stack || error.message) || error));
+ return true;
+ }
+ }
+
+ function shouldUseMobileEdgeInAppFallback() {
+ return isMobileEdgeBrowser();
+ }
+
  function getForegroundPushKey(item = {}) {
  return [
  String(item.type || ''),
@@ -10467,16 +10501,15 @@ window.syncGnbNavSafe = window.syncGnbNavSafe || function(){ return; };
  try {
  const isCalendarPush = String(item.type || '').toLowerCase() === 'calendar' || !!item.reservationId;
 
- // 기존 포그라운드 일반 알림는 PC 중복 방지 정책을 유지합니다.
- // 단, 방문 예약 알림는 사용자가 진동이 있는 알림을 원하므로 모바일/PC 모두 허용합니다.
- if (!isCalendarPush && !isPcBrowserForForegroundNotification()) return;
- if (!('Notification' in window)) return;
- if (Notification.permission !== 'granted') return;
- if (!('serviceWorker' in navigator)) return;
- if (shouldSkipForegroundSystemNotification(item)) return;
+ // 포그라운드 푸시는 브라우저/기기 구분 없이 시스템 알림을 우선 시도합니다.
+ // 알림 권한/브라우저 정책 때문에 실패하면 호출부에서 내부 토스트로 fallback합니다.
+ if (!('Notification' in window)) return false;
+ if (Notification.permission !== 'granted') return false;
+ if (!('serviceWorker' in navigator)) return false;
+ if (shouldSkipForegroundSystemNotification(item)) return true;
 
  const foregroundRegistration = window.pushSwRegistration || await navigator.serviceWorker.ready;
- if (!foregroundRegistration?.showNotification) return;
+ if (!foregroundRegistration?.showNotification) return false;
 
  await foregroundRegistration.showNotification(item.title || '새 알림', {
  body: item.body || '새로운 알림이 도착했습니다.',
@@ -10495,8 +10528,10 @@ window.syncGnbNavSafe = window.syncGnbNavSafe || function(){ return; };
  type: item.type || 'notice'
  }
  });
+ return true;
  } catch (error) {
  console.warn('포그라운드 알림 표시 실패', error);
+ return false;
  }
  }
 
@@ -10555,35 +10590,171 @@ window.syncGnbNavSafe = window.syncGnbNavSafe || function(){ return; };
  }
 
  // Data-only FCM은 앱이 열려 있을 때 서비스워커 onBackgroundMessage를 타지 않습니다.
- // 방문 예약 알림는 포그라운드에서도 serviceWorkerRegistration.showNotification()으로 알림 + 진동을 1회 표시합니다.
- // 일반 알림는 기존처럼 앱 내부 토스트 중심으로 유지합니다.
- onMessage(messaging, async (payload) => {
+ // 앱 실행 중에도 모든 포그라운드 푸시는 시스템 알림을 우선 시도합니다.
+ // 브라우저 정책/권한 문제로 시스템 알림 표시가 실패하면 내부 토스트로 fallback합니다.
+ 
+function isMobileForegroundNotificationTarget() {
+  const ua = String(navigator.userAgent || "").toLowerCase();
+
+  const isMobile =
+    ua.includes("android") ||
+    ua.includes("iphone") ||
+    ua.includes("ipad") ||
+    ua.includes("mobile");
+
+  const isInAppBrowser =
+    ua.includes("kakaotalk") ||
+    ua.includes("naver(inapp") ||
+    ua.includes("naverapp");
+
+  // 카카오톡 / 네이버 인앱은 시스템 알림 초기화가 제한되는 경우가 많아 내부 토스트 fallback
+  if (isInAppBrowser) return false;
+
+  const isChrome = ua.includes("chrome") || ua.includes("crios");
+  const isSamsung = ua.includes("samsungbrowser");
+  const isWhale = ua.includes("whale");
+  const isFirefox = ua.includes("firefox") || ua.includes("fxios");
+
+  // 모바일 Edge는 일부 기기에서 Push endpoint가 생성되어도 실제 push 이벤트가 오지 않는 경우가 있어
+  // 앱 실행 중에는 시스템 알림 대신 내부 토스트 fallback을 우선 사용합니다.
+  const isEdge =
+    ua.includes("edga") ||
+    ua.includes("edgios") ||
+    ua.includes("edg/") ||
+    ua.includes("edg");
+
+  if (isEdge) return false;
+
+  return isMobile && (isChrome || isSamsung || isWhale || isFirefox);
+}
+
+function isPcForegroundNotificationTarget() {
+  // PC는 FCM/Service Worker/브라우저 자동 알림과 foreground showNotification이 중복될 수 있어 제외합니다.
+  return false;
+}
+
+
+function isDesktopSupportedBrowser() {
+  const ua = String(navigator.userAgent || "").toLowerCase();
+
+  const isDesktop =
+    !ua.includes("android") &&
+    !ua.includes("iphone") &&
+    !ua.includes("ipad") &&
+    !ua.includes("mobile");
+
+  return (
+    isDesktop &&
+    (
+      ua.includes("chrome") ||
+      ua.includes("edg") ||
+      ua.includes("edge") ||
+      ua.includes("whale") ||
+      ua.includes("firefox")
+    )
+  );
+}
+
+function shouldUseForegroundSystemNotification(payload) {
+  return isMobileForegroundNotificationTarget() || isPcForegroundNotificationTarget();
+}
+
+
+const ENABLE_PUSH_DEBUG_LOG = localStorage.getItem('myhillsPushDebug') === '1';
+window.fcmDebugLog = function(step, detail) {
+  if (!ENABLE_PUSH_DEBUG_LOG) return;
+  try {
+    const info = {
+      step,
+      detail,
+      permission: window.Notification ? Notification.permission : "unsupported",
+      serviceWorker: !!navigator.serviceWorker,
+      secureContext: window.isSecureContext,
+      visibility: document.visibilityState,
+      userAgent: String(navigator.userAgent || ""),
+      time: new Date().toISOString()
+    };
+    console.debug("[FCM_DEBUG]", info);
+  } catch (e) {}
+}
+
+
+window.pushFlowLog = window.pushFlowLog || function(step, detail) {
+  if (!ENABLE_PUSH_DEBUG_LOG) return;
+  try {
+    const info = {
+      step,
+      detail,
+      permission: window.Notification ? Notification.permission : "unsupported",
+      serviceWorker: !!navigator.serviceWorker,
+      controller: !!navigator.serviceWorker?.controller,
+      secureContext: window.isSecureContext,
+      visibility: document.visibilityState,
+      focus: document.hasFocus ? document.hasFocus() : null,
+      userAgent: String(navigator.userAgent || ""),
+      time: new Date().toISOString()
+    };
+    console.debug("[PUSH_FLOW]", info);
+  } catch (e) {}
+};
+
+if (navigator.serviceWorker) {
+  navigator.serviceWorker.addEventListener("message", (event) => {
+    const data = event.data || {};
+    if (ENABLE_PUSH_DEBUG_LOG && (data.type === "SW_FLOW" || data.type === "SW_DEBUG" || data.type === "SW_RAW_PUSH")) {
+      window.pushFlowLog?.("SW_MESSAGE_RECEIVED", data);
+      window.fcmDebugLog?.("SW_MESSAGE_RECEIVED", data);
+    }
+  });
+
+  if (ENABLE_PUSH_DEBUG_LOG) {
+    navigator.serviceWorker.ready
+      .then((reg) => {
+        window.pushFlowLog?.("SERVICE_WORKER_READY_RESOLVED", {
+          scope: reg.scope,
+          active: !!reg.active,
+          activeState: reg.active?.state || "",
+          installing: !!reg.installing,
+          waiting: !!reg.waiting
+        });
+      })
+      .catch((e) => {
+        window.pushFlowLog?.("SERVICE_WORKER_READY_ERROR", String(e && (e.stack || e.message) || e));
+      });
+  }
+}
+onMessage(messaging, async (payload) => {
  try {
  const item = normalizeForegroundPushPayload(payload);
  if (!item) return;
 
- if (item.type === 'calendar') {
- await showForegroundSystemNotification({
+ const isCalendarPush = String(item.type || '').toLowerCase() === 'calendar' || !!item.reservationId;
+ const normalizedItem = {
  ...item,
- title: item.title || '예약 알림 시간이 되었습니다',
- body: item.body || '등록한 혜택 매장 방문 알림입니다.',
- url: item.url || '/app?view=calendar',
- important: true
- });
- return;
- }
+ title: item.title || (isCalendarPush ? '예약 알림 시간이 되었습니다' : '새 알림'),
+ body: item.body || (isCalendarPush ? '등록한 혜택 매장 방문 알림입니다.' : '새로운 알림이 도착했습니다.'),
+ url: item.url || (isCalendarPush ? '/app?view=calendar' : '/app'),
+ important: isCalendarPush ? true : item.important
+ };
 
- if (shouldSkipForegroundSystemNotification(item)) return;
- showForegroundPushToast({
- title: item.title || '새 알림',
- body: item.body || '새로운 알림이 도착했습니다.',
- url: item.url || '/app'
- });
+ try {
+ if (shouldUseForegroundSystemNotification(normalizedItem)) {
+  const shownAsSystemNotification = await showForegroundSystemNotification(normalizedItem);
+
+  if (shownAsSystemNotification) return;
+ }
+} catch (e) {
+}
+
+showForegroundPushToast({
+ title: normalizedItem.title,
+ body: normalizedItem.body,
+ url: normalizedItem.url
+});
  } catch (error) {
  console.warn('포그라운드 알림 처리 실패', error);
  }
  });
-
  return true;
  }catch(error){
  console.error('알림 초기화 실패', error);
@@ -10606,6 +10777,40 @@ window.syncGnbNavSafe = window.syncGnbNavSafe || function(){ return; };
  let pendingNoticeOpened = false;
  
  const qs=(s)=>document.querySelector(s), qsa=(s)=>[...document.querySelectorAll(s)];
+
+ function isMobileEdgeBrowserGlobal() {
+ const ua = String(navigator.userAgent || '').toLowerCase();
+ const isMobile =
+ ua.includes('android') ||
+ ua.includes('iphone') ||
+ ua.includes('ipad') ||
+ ua.includes('mobile');
+ const isEdge =
+ ua.includes('edga') ||
+ ua.includes('edgios') ||
+ ua.includes('edg/') ||
+ ua.includes('edg');
+ return isMobile && isEdge;
+ }
+
+ async function isMobileEdgePushEndpointBroken() {
+ if(!isMobileEdgeBrowserGlobal()) return false;
+ try{
+ if(!('serviceWorker' in navigator) || !('PushManager' in window)) return true;
+ const reg = window.pushSwRegistration || await navigator.serviceWorker.ready;
+ const sub = await reg.pushManager.getSubscription();
+ const endpoint = String(sub?.endpoint || '');
+ window.fcmDebugLog?.('MOBILE_EDGE_ENDPOINT_CHECK', endpoint || 'empty endpoint');
+ return !endpoint || endpoint.includes('permanently-removed.invalid');
+ }catch(error){
+ window.fcmDebugLog?.('MOBILE_EDGE_ENDPOINT_CHECK_ERROR', String(error && (error.stack || error.message) || error));
+ return true;
+ }
+ }
+
+ function shouldUseMobileEdgeInAppFallback() {
+ return isMobileEdgeBrowserGlobal();
+ }
 
  function dateLikeToDate(value){
  if(!value) return null;
@@ -11458,13 +11663,14 @@ async function enablePushNotifications(){
  return;
  }
  }
-const permission = await Notification.requestPermission();
+ const permission = await Notification.requestPermission();
  if(permission !== 'granted'){
  state.currentPushToken = null;
  setPushStatusUi(false);
  await openModalAlert('브라우저 알림 권한이 허용되지 않았습니다.');
  return;
  }
+
 
  const token = await window.getToken(window.firebaseMessaging, {
  vapidKey: window.VAPID_PUBLIC_KEY,
@@ -11475,6 +11681,16 @@ const permission = await Notification.requestPermission();
  state.currentPushToken = null;
  setPushStatusUi(false);
  await openModalAlert('알림 토큰을 생성하지 못했습니다.');
+ return;
+ }
+
+ if(await isMobileEdgePushEndpointBroken()){
+ state.currentPushToken = null;
+ setPushStatusUi(false);
+ try{ localStorage.setItem(`myhills_mobile_edge_fallback_${ENV || 'prod'}`, '1'); }catch(_){}
+ await openModalAlert(
+ '현재 모바일 Edge에서는 휴대폰 시스템 알림 수신이 안정적이지 않습니다.\n\n대신 웹앱을 열어두신 동안에는 새 공지, 예약 알림, 근처 혜택을 화면 안의 알림으로 안내해드릴게요.\n\n앱이 꺼져 있어도 알림을 받고 싶으시면 Chrome 또는 삼성 인터넷 이용을 권장드립니다.'
+ );
  return;
  }
 
@@ -11715,6 +11931,8 @@ async function refreshPushStatus(){
 
  updateUserChip();
  await refreshPushStatus();
+ if(shouldUseMobileEdgeInAppFallback()){
+ }
  if(hasAiOpenDeepLink()){
  setTimeout(() => handleAiOpenDeepLink().catch(error => console.warn('AI 알림 딥링크 처리 실패:', error)), 500);
  }else{
@@ -12584,8 +12802,67 @@ stationAccessText:item.stationAccessText||item.transitText||item.stationGuide||i
  };
  }
 
+ let mobileEdgeNoticeToastReady = false;
+ let mobileEdgeNoticeToastStartedAt = Date.now();
+ const MOBILE_EDGE_NOTICE_TOAST_SESSION_PREFIX = `myhills_mobile_edge_notice_toast_${ENV || 'prod'}_`;
+
+ function getNoticeTimeMillisForToast(data = {}) {
+ const value = data.updatedAt || data.createdAt || null;
+ if(!value) return 0;
+ if(value?.toMillis) return value.toMillis();
+ if(value?.seconds) return Number(value.seconds) * 1000;
+ if(value instanceof Date) return value.getTime();
+ const parsed = Date.parse(String(value));
+ return Number.isFinite(parsed) ? parsed : 0;
+ }
+
+ function isNoticePushLike(data = {}) {
+ return data.pushEnabled === true || data.autoPush === true || data.sendPush === true;
+ }
+
+ function getMobileEdgeNoticeToastSeenKey(noticeId = '') {
+ const uid = state.currentUser?.uid || 'guest';
+ return `${MOBILE_EDGE_NOTICE_TOAST_SESSION_PREFIX}${uid}_${noticeId}`;
+ }
+
+ function handleMobileEdgeNoticeToastFallback(snapshot) {
+ if(!shouldUseMobileEdgeInAppFallback()) return;
+ if(!snapshot) return;
+
+ if(!mobileEdgeNoticeToastReady){
+ mobileEdgeNoticeToastReady = true;
+ mobileEdgeNoticeToastStartedAt = Date.now();
+ return;
+ }
+
+ snapshot.docChanges().forEach((change) => {
+ if(change.type !== 'added') return;
+ const raw = change.doc.data() || {};
+ const noticeId = change.doc.id;
+ if(raw.visible === false) return;
+ if(!isNoticePushLike(raw)) return;
+
+ const createdAtMillis = getNoticeTimeMillisForToast(raw);
+ if(createdAtMillis && createdAtMillis < mobileEdgeNoticeToastStartedAt - 5000) return;
+
+ const seenKey = getMobileEdgeNoticeToastSeenKey(noticeId);
+ try{
+ if(sessionStorage.getItem(seenKey) === '1') return;
+ sessionStorage.setItem(seenKey, '1');
+ }catch(_){}
+
+ const title = String(raw.pushTitle || raw.title || '새 공지가 등록되었습니다').trim() || '새 공지가 등록되었습니다';
+ const bodySource = String(raw.pushBody || raw.summary || raw.content || raw.title || '공지사항을 확인해 주세요.').trim();
+ const body = bodySource.length > 90 ? `${bodySource.slice(0, 90)}…` : bodySource;
+ const url = `/app?open=notice&id=${encodeURIComponent(noticeId)}&from=edge-toast`;
+
+ showForegroundPushToast({ title, body, url });
+ });
+ }
+
  function subscribeNotices(){
  onSnapshot(collection(db, NOTICES_COLLECTION), (snapshot) => {
+ handleMobileEdgeNoticeToastFallback(snapshot);
  state.notices = snapshot.docs
  .map((d) => sanitizeNotice(d.data(), d.id))
  .filter((item) => item.visible !== false)
