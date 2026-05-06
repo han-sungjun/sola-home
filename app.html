@@ -47,7 +47,9 @@
  .panel{background:var(--surface);border:1px solid rgba(255,255,255,.65);box-shadow:var(--shadow);backdrop-filter:blur(18px);border-radius:var(--radius-xl);padding:18px}.notice{padding:14px 16px;border-radius:18px;background:#eff6ff;border:1px solid #bfdbfe;color:#1d4ed8;font-size:13px;line-height:1.5}.hidden{display:none!important}
  .filter-sticky{position:sticky;top:0;z-index:10;display:flex;flex-direction:column;gap:12px;padding:12px 0 14px;margin-bottom:10px;background:linear-gradient(180deg,rgba(248,250,252,1) 0%,rgba(248,250,252,1) 82%,rgba(248,250,252,.98) 100%);backdrop-filter:blur(10px)}.searchbox{display:flex;align-items:center;gap:12px;padding:16px 18px}.searchbox input{border:none;outline:none;background:transparent;flex:1;color:var(--text)}.chips{display:flex;flex-wrap:nowrap;gap:10px;padding:6px 2px 4px;overflow-x:auto;overflow-y:hidden;-webkit-overflow-scrolling:touch;scrollbar-width:none;cursor:grab;user-select:none;-webkit-user-select:none;touch-action:pan-x}.chips.expanded{max-height:none}.chips::-webkit-scrollbar{display:none}.chips.dragging{cursor:grabbing;scroll-behavior:auto}.chips.dragging .chip{pointer-events:none}.chips-toggle{display:none;text-align:center;margin-top:2px;margin-bottom:2px}.chips-toggle-btn{font-size:12px;padding:8px 14px}.chip{white-space:nowrap;border:none;border-radius:999px;padding:10px 14px;cursor:pointer;background:#fff;color:var(--muted);border:1px solid var(--line);display:inline-flex;align-items:center;gap:6px;flex:0 0 auto}.chip.active{background:var(--primary);color:#fff;font-weight:700}.chip-icon{font-size:13px;line-height:1;display:inline-flex;align-items:center}
  .section-head{display:flex;justify-content:space-between;align-items:center;margin:6px 2px 2px}.section-head h3{margin:0;font-size:18px;letter-spacing:-.03em}.section-head small{color:var(--muted)}.list{display:grid;gap:14px}.card{background:#fff;border:1px solid var(--line-soft);border-radius:24px;padding:18px;box-shadow:var(--shadow);transition:transform .15s ease;cursor:pointer}.card:hover{transform:translateY(-1px)}.card-top{display:flex;gap:12px;align-items:flex-start}.badge{min-width:72px;padding:12px 10px;border-radius:18px;text-align:center;color:#fff;font-weight:800;background:linear-gradient(135deg,var(--accent2),var(--accent));flex:0 0 auto}.badge.service{background:linear-gradient(135deg,#22c55e,#0f766e);font-size:14px}.badge.hot{background:linear-gradient(135deg,#ef4444,#f97316)}.badge.mid{background:linear-gradient(135deg,#f97316,#f59e0b)}.badge.normal{background:linear-gradient(135deg,#2563eb,#06b6d4)}.badge.low{background:linear-gradient(135deg,#64748b,#334155)}.card h4{margin:0 0 6px;font-size:18px;letter-spacing:-.03em}.meta{color:var(--muted);font-size:13px;line-height:1.45}
- .tags{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}.tag{padding:7px 10px;border-radius:999px;background:#f8fafc;border:1px solid var(--line);color:#475569;font-size:12px}.tag.rec{background:#eff6ff;border-color:#bfdbfe;color:var(--blue);font-weight:700}.actions{display:flex;gap:10px;margin-top:16px}.btn{border:none;border-radius:16px;padding:12px 14px;cursor:pointer;font-weight:700;display:inline-flex;align-items:center;justify-content:center;gap:8px}.btn.block{width:100%}.btn-primary{background:var(--primary);color:#fff}.btn-soft{background:#fff;color:var(--text);border:1px solid var(--line)}
+ .tags{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}.tag{padding:7px 10px;border-radius:999px;background:#f8fafc;border:1px solid var(--line);color:#475569;font-size:12px}
+.benefit-status-row{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}.status-chip{display:inline-flex;align-items:center;gap:4px;padding:6px 9px;border-radius:999px;border:1px solid var(--line);font-size:11px;font-weight:900;line-height:1.1}.status-chip.compact-status{width:24px;height:24px;padding:0;justify-content:center;font-size:0}.status-chip.compact-status::before{font-size:12px;line-height:1}.status-chip.compact-store-preparing::before{content:'🛠️'}.status-chip.compact-store-active::before{content:'🏪'}.status-chip.compact-store-paused::before{content:'⏸️'}.status-chip.compact-store-closed::before{content:'🌙'}.status-chip.compact-store-shutdown::before{content:'🚫'}.status-chip.compact-store-reopened::before{content:'🎉'}.status-chip.compact-store-hidden::before{content:'🙈'}.status-chip.compact-benefit-preparing::before{content:'🔜'}.status-chip.compact-benefit-active::before{content:'✅'}.status-chip.compact-benefit-ended::before{content:'🏁'}.status-chip.compact-benefit-none::before{content:'➖'}.status-chip.compact-benefit-resumed::before{content:'🔄'}.status-store-preparing{background:#eff6ff;border-color:#bfdbfe;color:#1d4ed8}.status-store-active{background:#ecfdf5;border-color:#bbf7d0;color:#15803d}.status-store-paused{background:#fffbeb;border-color:#fde68a;color:#92400e}.status-store-closed{background:#f8fafc;border-color:#cbd5e1;color:#475569}.status-store-shutdown{background:#111827;border-color:#111827;color:#fff}.status-store-reopened{background:#f5f3ff;border-color:#ddd6fe;color:#6d28d9;box-shadow:0 0 0 3px rgba(124,58,237,.08)}.status-benefit-preparing{background:#f0f9ff;border-color:#bae6fd;color:#0369a1}.status-benefit-active{background:#ecfdf5;border-color:#bbf7d0;color:#15803d}.status-benefit-ended{background:#fff7ed;border-color:#fed7aa;color:#c2410c}.status-benefit-none{background:#f1f5f9;border-color:#cbd5e1;color:#475569}.status-benefit-resumed{background:#f0fdf4;border-color:#86efac;color:#166534;box-shadow:0 0 0 3px rgba(34,197,94,.10)}.card.status-muted{opacity:.86}.card.status-shutdown{filter:grayscale(.28)}.status-reason-line{margin-top:7px;color:#64748b;font-size:12px;line-height:1.45}
+.tag.rec{background:#eff6ff;border-color:#bfdbfe;color:var(--blue);font-weight:700}.actions{display:flex;gap:10px;margin-top:16px}.btn{border:none;border-radius:16px;padding:12px 14px;cursor:pointer;font-weight:700;display:inline-flex;align-items:center;justify-content:center;gap:8px}.btn.block{width:100%}.btn-primary{background:var(--primary);color:#fff}.btn-soft{background:#fff;color:var(--text);border:1px solid var(--line)}
  .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
  .bottom-nav{position:fixed;left:0;right:0;bottom:0;z-index:100;width:100%;max-width:480px;margin:0 auto;display:grid;grid-template-columns:repeat(5,1fr);gap:6px;padding:10px 16px calc(14px + env(safe-area-inset-bottom,0px));border-radius:26px 26px 0 0;background:rgba(15,23,42,.92);color:#cbd5e1;box-shadow:0 10px 30px rgba(15,23,42,.18);backdrop-filter:blur(18px)}.nav-btn{border:none;background:transparent;color:inherit;border-radius:18px;padding:10px 0 12px;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;transition:transform .18s ease, background-color .18s ease, color .18s ease}.nav-btn .nav-icon{font-size:18px;line-height:1;display:block;transition:transform .22s ease, filter .22s ease, opacity .18s ease}.nav-btn .nav-label{font-size:14px;font-weight:700;letter-spacing:-.02em}.nav-btn:hover .nav-icon{transform:translateY(-1px)}.nav-btn.active{background:rgba(255,255,255,.12);color:#fff;transform:translateY(-1px)}.nav-btn.active .nav-icon{animation:navPop .25s ease}.nav-btn:active{transform:scale(.98)}@keyframes navPop{0%{transform:scale(.85)}60%{transform:scale(1.12)}100%{transform:scale(1)}}.empty,.loading{text-align:center;color:var(--muted);padding:24px 14px}
  dialog{width:min(440px,calc(100% - 20px));border:none;border-radius:28px;padding:0;color:var(--text);background:#fff;box-shadow:0 30px 60px rgba(15,23,42,.24)}dialog::backdrop{background:rgba(15,23,42,.42);backdrop-filter:blur(4px)}.modal-head{display:flex;justify-content:space-between;align-items:center;padding:18px 18px 8px}.modal-body{padding:0 18px 18px}.close-btn{width:40px;height:40px;border:none;border-radius:14px;background:#f8fafc;cursor:pointer}.pill{display:inline-flex;align-items:center;gap:8px;border-radius:999px;padding:8px 12px;background:#f8fafc;color:#475569;border:1px solid var(--line)}
@@ -12065,7 +12067,7 @@ async function refreshPushStatus(){
  const now = Date.now();
  const history = readProximityAlertHistory();
  const candidates = [];
- getVisibleBenefits().forEach((item) => {
+ getVisibleBenefits().filter(isRecommendableBenefit).forEach((item) => {
  if(item.visible === false) return;
  const pos = getBenefitLatLng(item);
  if(!pos) return;
@@ -12429,6 +12431,17 @@ const stationAccessText = String(item.stationAccessText || item.transitText || i
  '기타':'📍'
  };
  const getCategoryIcon = (category) => CATEGORY_ICONS[normalizeCategory(category)] || '📍';
+
+ const STORE_STATUS_META={preparing:{label:'영업 준비 중',cls:'status-store-preparing'},active:{label:'정상 영업',cls:'status-store-active'},paused:{label:'휴업',cls:'status-store-paused'},closed:{label:'영업 종료',cls:'status-store-closed'},shutdown:{label:'폐점',cls:'status-store-shutdown'},reopened:{label:'재영업',cls:'status-store-reopened'},hidden:{label:'숨김',cls:'status-store-closed'}};
+ const BENEFIT_STATUS_META={preparing:{label:'혜택 준비 중',cls:'status-benefit-preparing'},active:{label:'혜택 진행 중',cls:'status-benefit-active'},ended:{label:'혜택 종료',cls:'status-benefit-ended'},none:{label:'혜택 없음',cls:'status-benefit-none'},resumed:{label:'혜택 재개',cls:'status-benefit-resumed'}};
+ function normalizeBenefitStoreStatus(item={}){const raw=String(item.storeStatus||item.operationStatus||item.status||'').toLowerCase();if(item.visible===false||raw==='hidden')return 'hidden';if(item.closed===true||raw==='shutdown')return 'shutdown';if(['preparing','active','paused','closed','shutdown','reopened','hidden'].includes(raw))return raw;return 'active';}
+ function normalizeResidentBenefitStatus(item={}){const raw=String(item.benefitStatus||item.residentBenefitStatus||item.discountStatus||'').toLowerCase();if(['preparing','active','ended','none','resumed'].includes(raw))return raw;return 'active';}
+ function isPubliclyVisibleBenefit(item={}){return item.visible!==false && normalizeBenefitStoreStatus(item)!=='hidden';}
+ function isRecommendableBenefit(item={}){const store=normalizeBenefitStoreStatus(item);const benefit=normalizeResidentBenefitStatus(item);return isPubliclyVisibleBenefit(item) && ['active','reopened'].includes(store) && ['active','resumed'].includes(benefit);}
+ function benefitStatusChipsHtml(item={}, options={}){const compact=!!options.compact;const storeKey=normalizeBenefitStoreStatus(item);const benefitKey=normalizeResidentBenefitStatus(item);const store=STORE_STATUS_META[storeKey]||STORE_STATUS_META.active;const benefit=BENEFIT_STATUS_META[benefitKey]||BENEFIT_STATUS_META.active;const storeText=compact?'':store.label;const benefitText=compact?'':benefit.label;const storeTitle=escapeHtml(store.label);const benefitTitle=escapeHtml(benefit.label);return `<div class="benefit-status-row"><span class="status-chip ${store.cls}${compact?` compact-status compact-store-${storeKey}`:''}" title="${storeTitle}" aria-label="${storeTitle}">${storeText}</span><span class="status-chip ${benefit.cls}${compact?` compact-status compact-benefit-${benefitKey}`:''}" title="${benefitTitle}" aria-label="${benefitTitle}">${benefitText}</span></div>`;}
+ function benefitStatusReasonHtml(item={}){const lines=[];const store=normalizeBenefitStoreStatus(item);const benefit=normalizeResidentBenefitStatus(item);if(item.storeStatusReason)lines.push(item.storeStatusReason);if(benefit==='ended'&&item.benefitEndedAt)lines.push(`${item.benefitEndedAt} 혜택 종료`);if(item.benefitStatusReason)lines.push(item.benefitStatusReason);return lines.length?`<div class="status-reason-line">${escapeHtml(lines.join(' · '))}</div>`:'';}
+ function benefitCardStatusClass(item={}){const store=normalizeBenefitStoreStatus(item);const benefit=normalizeResidentBenefitStatus(item);if(store==='shutdown')return 'status-shutdown status-muted';if(['paused','closed'].includes(store)||['ended','none'].includes(benefit))return 'status-muted';return '';}
+
  function sanitizeBenefit(item={},id=''){
  const latRaw = item.lat ?? item.latitude ?? item.storeLat ?? item.location?.lat ?? item.location?.latitude ?? '';
  const lngRaw = item.lng ?? item.lon ?? item.longitude ?? item.storeLng ?? item.location?.lng ?? item.location?.lon ?? item.location?.longitude ?? '';
@@ -12473,6 +12486,13 @@ stationAccessText:item.stationAccessText||item.transitText||item.stationGuide||i
  lng:Number.isFinite(lng)?lng:null,
  service:!!item.service||String(item.discountText).trim()==='서비스',
  visible:item.visible!==false,
+ storeStatus:normalizeBenefitStoreStatus(item),
+ benefitStatus:normalizeResidentBenefitStatus(item),
+ storeStatusReason:item.storeStatusReason||item.closedReason||item.closedMemo||item.closeReason||item.closeMemo||'',
+ benefitStatusReason:item.benefitStatusReason||item.statusReason||item.discountStatusReason||'',
+ benefitEndedAt:item.benefitEndedAt||item.discountEndedAt||item.benefitEndDate||'',
+ closedAt:item.closedAt||item.closedDate||item.closedConfirmedAt||'',
+ closed:!!item.closed,
  recommended:!!item.recommended,
  createdAt:item.createdAt||null,
  updatedAt:item.updatedAt||null
@@ -12528,7 +12548,8 @@ stationAccessText:item.stationAccessText||item.transitText||item.stationGuide||i
  }
  const hasFirebaseConfig=()=>firebaseConfig.apiKey&&firebaseConfig.projectId&&firebaseConfig.appId;
  function subscribeBenefits(){
- onSnapshot(query(collection(db, BENEFITS_COLLECTION), where("status","==","active")), (snapshot) => {
+ const benefitsQuery = query(collection(db, BENEFITS_COLLECTION), where('visible', '==', true));
+ onSnapshot(benefitsQuery, (snapshot) => {
  state.benefits = snapshot.docs.map(d => sanitizeBenefit(d.data(), d.id));
  if(state.userLocation) recalculateBenefitDistances();
  state.loading = false;
@@ -13352,7 +13373,7 @@ ${item.content || ''}`);
  benefit: benefit || null
  };
  })
- .filter((item) => item.popularScore > 0)
+ .filter((item) => item.popularScore > 0 && isRecommendableBenefit(item.benefit || item))
  .sort((a, b) => {
  const scoreDiff = Number(b.popularScore || 0) - Number(a.popularScore || 0);
  if (scoreDiff) return scoreDiff;
@@ -14075,7 +14096,7 @@ ${item.content || ''}`);
  });
  renderHotNowStores();
  }
- const getVisibleBenefits=()=>state.benefits.filter(v=>v.visible!==false);
+ const getVisibleBenefits=()=>state.benefits.filter(isPubliclyVisibleBenefit);
  const getCategoryCounts=()=> {
  const counts = {};
  getVisibleBenefits().forEach(v => {
@@ -14172,6 +14193,7 @@ ${item.content || ''}`);
  <div class="card-info">
  <h4>${item.name}</h4>
  <div class="meta">${item.condition}</div>
+ ${benefitStatusChipsHtml(item,{compact:true})}
  </div>
  <div class="list-meta">
  <span class="category-icon-tag" title="${escapeHtml(item.category)}">${categoryIcon}</span>
@@ -14214,7 +14236,7 @@ ${item.content || ''}`);
  items.forEach(item=>{
  const card=document.createElement('article');
  const topRank=getBenefitTopRank(item);
- card.className=`card ${topRank ? `top-rank-${topRank}` : ''}`;
+ card.className=`card ${benefitCardStatusClass(item)} ${topRank ? `top-rank-${topRank}` : ''}`;
  card.innerHTML=cardTemplate(item,favorites.has(item.id));
  card.onclick=()=>{increaseStat(item.id, item.name, 'cardClickCount');logBenefitEvent(item.id, 'card_click');openDetail(item);};
  card.querySelector('.detail-btn')?.addEventListener('click',(e)=>{e.stopPropagation();openDetail(item);});
@@ -14906,7 +14928,7 @@ function renderCalendarDayModal(){
  increaseStat(item.id, item.name, 'detailViewCount');
  logBenefitEvent(item.id, 'detail_view');
  const isFav=getFavorites().includes(item.id);
- qs('#modalBody').innerHTML=`<div class="${getBadgeClass(item)}" style="display:inline-block;min-width:auto;padding:12px 16px;">${item.discountText}</div><h3 style="margin:12px 0 6px;font-size:26px;letter-spacing:-.04em;">${item.name}</h3><div class="tags" style="margin-top:0;margin-bottom:10px;">${item.recommended?'<span class="tag rec">추천 혜택</span>':''}<span class="tag">${item.category}</span>${benefitDateTag(item)}</div><div style="display:grid;gap:10px;margin:16px 0;"><div class="panel"><strong style="display:block;margin-bottom:6px;font-size:13px;color:var(--muted);">혜택 조건</strong>${item.condition}</div>${benefitPriceDetailsHtml(item)}${locationPanelHtml(item)}${benefitExtraInfoHtml(item)}<div class="panel"><strong style="display:block;margin-bottom:6px;font-size:13px;color:var(--muted);">연락처</strong>${benefitContactHtml(item)}</div>${benefitDetailDateHtml(item)}</div>${residentReactionHtml(item)}<div class="grid-2"><a class="btn btn-primary block" id="callBtn" href="tel:${item.phone}">전화하기</a><button class="btn btn-soft block" id="modalFavBtn">${isFav?'★ 즐겨찾기 해제':'☆ 즐겨찾기 추가'}</button></div><button class="btn btn-soft block" id="openCalendarReservationBtn" style="margin-top:10px;">📅 방문 알림 추가</button>${shareActionsHtml('benefit')}`;
+ qs('#modalBody').innerHTML=`<div class="${getBadgeClass(item)}" style="display:inline-block;min-width:auto;padding:12px 16px;">${item.discountText}</div><h3 style="margin:12px 0 6px;font-size:26px;letter-spacing:-.04em;">${item.name}</h3><div class="tags" style="margin-top:0;margin-bottom:10px;">${item.recommended?'<span class="tag rec">추천 혜택</span>':''}<span class="tag">${item.category}</span>${benefitDateTag(item)}</div>${benefitStatusChipsHtml(item)}${benefitStatusReasonHtml(item)}<div style="display:grid;gap:10px;margin:16px 0;"><div class="panel"><strong style="display:block;margin-bottom:6px;font-size:13px;color:var(--muted);">혜택 조건</strong>${item.condition}</div>${benefitPriceDetailsHtml(item)}${locationPanelHtml(item)}${benefitExtraInfoHtml(item)}<div class="panel"><strong style="display:block;margin-bottom:6px;font-size:13px;color:var(--muted);">연락처</strong>${benefitContactHtml(item)}</div>${benefitDetailDateHtml(item)}</div>${residentReactionHtml(item)}<div class="grid-2"><a class="btn btn-primary block" id="callBtn" href="tel:${item.phone}">전화하기</a><button class="btn btn-soft block" id="modalFavBtn">${isFav?'★ 즐겨찾기 해제':'☆ 즐겨찾기 추가'}</button></div><button class="btn btn-soft block" id="openCalendarReservationBtn" style="margin-top:10px;">📅 방문 알림 추가</button>${shareActionsHtml('benefit')}`;
  const modal=qs('#detailModal');
  if(modal.open)modal.close();
  modal.showModal();
@@ -14974,6 +14996,7 @@ function renderCalendarDayModal(){
  if(!qs('#nearbyProximityPanel') || !state.userLocation) return;
  const candidates = (state.popularItems || []).map((item) => {
  const benefit = item.benefit || state.benefits.find((v) => v.id === item.id) || item;
+ if(!isRecommendableBenefit(benefit)) return null;
  const pos = getBenefitLatLng(benefit); if(!pos) return null;
  const distance = getDistanceMeters(state.userLocation.lat, state.userLocation.lng, pos.lat, pos.lng);
  let distanceBonus = 0; if(distance <= 100) distanceBonus = 30; else if(distance <= 300) distanceBonus = 20; else if(distance <= 500) distanceBonus = 10;

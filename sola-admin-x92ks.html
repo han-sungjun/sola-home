@@ -48,7 +48,9 @@
     .section-head{display:flex;justify-content:space-between;align-items:center;margin:2px 2px 0}.section-head h3{margin:0;font-size:18px;letter-spacing:-.03em}.section-head small{color:var(--muted)}.admin-grid,.form-grid,.mini-list{display:grid;gap:12px}.field{display:grid;gap:6px}.field label{font-size:13px;color:#334155;font-weight:700}.field input,.field select,.field textarea{border:1px solid var(--line);border-radius:14px;padding:12px 14px;outline:none;background:#fff}.field textarea{min-height:82px;resize:vertical}.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:10px}.check-row{display:flex;gap:18px;flex-wrap:nowrap;align-items:center;flex-wrap:wrap;padding:12px 14px;border:1px solid var(--line);border-radius:14px;background:#fff}.check-row label{display:inline-flex;align-items:center;gap:8px;white-space:nowrap;cursor:pointer;font-size:14px;color:#334155;font-weight:700}
     .btn{border:none;border-radius:16px;padding:12px 14px;cursor:pointer;font-weight:700;display:inline-flex;align-items:center;justify-content:center;gap:8px}.btn-primary{background:var(--primary);color:#fff}.btn-soft{background:#fff;color:var(--text);border:1px solid var(--line)}.btn-blue{background:var(--blue);color:#fff}.btn-danger{background:#fee2e2;color:var(--danger)}
     .mini-item{border:1px solid var(--line);border-radius:18px;padding:12px;background:#fff}.mini-item-head{display:flex;justify-content:space-between;gap:10px;align-items:start}.mini-item h5{margin:0;font-size:15px}.tags{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}.tag{padding:7px 10px;border-radius:999px;background:#f8fafc;border:1px solid var(--line);color:#475569;font-size:12px}.tag.rec{background:#eff6ff;border-color:#bfdbfe;color:#2563eb;font-weight:700}.tag.hidden-tag{background:#fef2f2;border-color:#fecaca;color:#b91c1c;font-weight:700}.tag.live-tag{background:#ecfdf5;border-color:#bbf7d0;color:#15803d;font-weight:700}.tag.phone-ok{background:#ecfdf5;border-color:#bbf7d0;color:#15803d;font-weight:700}.tag.phone-wait{background:#fff7ed;border-color:#fed7aa;color:#c2410c;font-weight:700}.tag.phone-exempt{background:#eef2ff;border-color:#c7d2fe;color:#4338ca;font-weight:700}
-.tag.closed-tag{background:#f1f5f9;border-color:#cbd5e1;color:#334155;font-weight:800}.tag.status-tag{font-weight:800}.member-card{display:grid;gap:10px}.member-meta{display:grid;gap:6px;color:#475569;font-size:13px;line-height:1.55}.member-proof{display:inline-flex;align-items:center;gap:8px;width:max-content}.member-reject-box{display:grid;gap:8px;margin-top:8px}.member-reject-box textarea{min-height:76px;border:1px solid var(--line);border-radius:14px;padding:12px 14px;background:#fff;resize:vertical}.member-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}.member-actions .btn{padding:9px 12px}.member-empty{padding:14px 16px;border-radius:18px;background:#f8fafc;border:1px solid var(--line);color:#64748b;font-size:13px;line-height:1.5}
+.tag.closed-tag{background:#f1f5f9;border-color:#cbd5e1;color:#334155;font-weight:800}
+.tag.store-preparing-tag{background:#eff6ff;border-color:#bfdbfe;color:#1d4ed8;font-weight:800}.tag.store-active-tag{background:#ecfdf5;border-color:#bbf7d0;color:#15803d;font-weight:800}.tag.store-paused-tag{background:#fffbeb;border-color:#fde68a;color:#92400e;font-weight:800}.tag.store-closed-tag{background:#f8fafc;border-color:#cbd5e1;color:#475569;font-weight:800}.tag.store-shutdown-tag{background:#111827;border-color:#111827;color:#fff;font-weight:800}.tag.store-reopened-tag{background:#f5f3ff;border-color:#ddd6fe;color:#6d28d9;font-weight:800}.tag.benefit-preparing-tag{background:#f0f9ff;border-color:#bae6fd;color:#0369a1;font-weight:800}.tag.benefit-active-tag{background:#ecfdf5;border-color:#bbf7d0;color:#15803d;font-weight:800}.tag.benefit-ended-tag{background:#fff7ed;border-color:#fed7aa;color:#c2410c;font-weight:800}.tag.benefit-none-tag{background:#f1f5f9;border-color:#cbd5e1;color:#475569;font-weight:800}.tag.benefit-resumed-tag{background:#f0fdf4;border-color:#86efac;color:#166534;font-weight:900;box-shadow:0 0 0 3px rgba(34,197,94,.10)}
+.tag.status-tag{font-weight:800}.member-card{display:grid;gap:10px}.member-meta{display:grid;gap:6px;color:#475569;font-size:13px;line-height:1.55}.member-proof{display:inline-flex;align-items:center;gap:8px;width:max-content}.member-reject-box{display:grid;gap:8px;margin-top:8px}.member-reject-box textarea{min-height:76px;border:1px solid var(--line);border-radius:14px;padding:12px 14px;background:#fff;resize:vertical}.member-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}.member-actions .btn{padding:9px 12px}.member-empty{padding:14px 16px;border-radius:18px;background:#f8fafc;border:1px solid var(--line);color:#64748b;font-size:13px;line-height:1.5}
     @media (max-width:370px){.stats,.grid-2{grid-template-columns:1fr}}
   
 .admin-topbar{
@@ -2101,7 +2103,7 @@ body.gnb-open .admin-bottom-nav{
     
     <div class="admin-view" id="view-benefits">
       <div class="admin-groups">
-        <div class="admin-card"><div class="section-head" style="margin-bottom:12px;"><h3 style="font-size:16px;">혜택 등록 / 수정</h3><small id="formModeLabel">새 항목</small></div><form id="benefitForm" class="form-grid" novalidate><input type="hidden" id="editId" value="" /><div class="field"><label for="name">매장명</label><input id="name" /></div><div class="grid-2"><div class="field"><label for="category">카테고리</label><input id="category" placeholder="예: 음식, 미용, 카페" /></div><div class="field"><label for="discountText">혜택 표기</label><input id="discountText" placeholder="예: 10% 또는 서비스" /></div></div><div class="grid-2"><div class="field"><label for="discountValue">할인 수치</label><input id="discountValue" type="number" min="0" placeholder="서비스면 0" required /></div><div class="field"><label for="serviceType">혜택 유형</label><select id="serviceType"><option value="discount">할인형</option><option value="service">서비스형</option></select></div></div><div class="field"><label>운영 옵션</label><div class="check-row"><label><input type="checkbox" id="visible" checked> 노출</label><label><input type="checkbox" id="recommended"> 추천</label><label><input type="checkbox" id="shareBest"> 공유 BEST 배지</label></div></div><div class="field"><label for="benefitStatus">매장 운영 상태</label><select id="benefitStatus"><option value="active">정상 운영</option><option value="closed">폐점</option><option value="hidden">숨김</option></select><div class="admin-field-help">폐점은 데이터와 통계는 보존하고, 공개앱 추천/목록에서는 제외됩니다.</div></div><div class="grid-2"><div class="field"><label for="closedAt">폐점 확인일</label><input id="closedAt" type="date" /></div><div class="field"><label for="closedReason">폐점 메모</label><input id="closedReason" placeholder="예: 네이버 지도 폐업 확인 / 현장 확인" /></div></div><div class="grid-2"><div class="field"><label for="rankBoost">TOP 5 가중치</label><input id="rankBoost" type="number" min="0" step="1" value="0" placeholder="기본 0" /><div class="admin-field-help">조회·즐겨찾기·공유 점수 외에 운영자가 수동으로 더해주는 점수입니다.</div></div><div class="field"><label for="thumbnailUrl">공유/썸네일 이미지 URL</label><input id="thumbnailUrl" placeholder="https://.../og-image.png" /><div class="admin-field-help">카카오 공유 카드와 공개앱 카드 썸네일에 사용할 이미지 주소입니다.</div></div></div><div class="field"><label>썸네일 이미지 업로드</label><div class="admin-thumb-upload-box"><div class="admin-thumb-upload-row"><input id="thumbnailFile" class="admin-thumb-file" type="file" accept="image/png,image/jpeg,image/webp,image/gif" /><button type="button" class="btn btn-blue" id="thumbnailUploadBtn">이미지 업로드</button></div><div class="admin-thumb-progress-track" id="thumbnailUploadProgressTrack"><div class="admin-thumb-progress-bar" id="thumbnailUploadProgressBar"></div></div><div class="admin-thumb-upload-status" id="thumbnailUploadStatus">이미지를 선택 후 업로드하면 URL이 자동 입력됩니다. 권장: 1200×630 또는 정사각형 JPG/PNG/WebP</div></div></div><div class="field"><label for="shareDescription">공유 문구</label><input id="shareDescription" placeholder="비워두면 혜택 조건을 자동 사용" /></div><div class="field"><label>썸네일 미리보기</label><div class="admin-thumb-preview" id="thumbPreview">이미지 URL 입력 시 미리보기</div></div><div class="field"><label for="condition">혜택 조건</label><textarea id="condition"></textarea></div><div class="field"><label for="priceDetails">세부 관리 내용 및 비용 <span style="font-weight:600;color:#94a3b8;">(선택)</span></label><textarea id="priceDetails" placeholder="예: 기본베이직 (60분) 60,000원&#10;스페셜베이직 (70분) 80,000원&#10;여드름문제성 피부관리 80,000~150,000원"></textarea><div class="benefit-extra-help">이미지처럼 항목별 비용이나 상세 서비스 내용을 줄바꿈으로 입력하세요. 공개앱 상세와 AI 생활도우미 답변에서 보조 정보로 활용됩니다.</div></div><div class="grid-2"><div class="field"><label for="zipcode">우편번호</label><input id="zipcode" inputmode="numeric" placeholder="예: 10874" /></div><div class="field"><label for="detailAddress">상세주소</label><input id="detailAddress" placeholder="예: 101동 1층 102호" /></div></div><div class="field"><label for="roadAddress">도로명주소</label><div class="geo-row"><input id="roadAddress" placeholder="예: 경기 파주시 경의로 1242" /><button type="button" class="btn btn-blue geo-btn" id="geocodeBtn">📍 좌표 자동 조회</button></div><div class="admin-field-help">좌표 조회는 도로명주소를 우선 사용하고, 비어 있으면 지번주소로 조회합니다.</div><div class="geo-status" id="geoStatus">도로명주소 또는 지번주소 입력 후 좌표 자동 조회를 누르면 위도/경도가 자동 저장됩니다.</div></div><div class="field"><label for="jibunAddress">지번주소</label><input id="jibunAddress" placeholder="예: 경기 파주시 야당동 000-0" /></div><input id="address" type="hidden" /><div class="geo-coord-grid"><div class="field"><label for="lat">위도 lat</label><input id="lat" type="number" step="any" inputmode="decimal" placeholder="자동 입력" /></div><div class="field"><label for="lng">경도 lng</label><input id="lng" type="number" step="any" inputmode="decimal" placeholder="자동 입력" /></div></div><div class="field"><label>영업시간</label><div class="admin-field-help">관리자 입력값이 네이버 크롤링 정보보다 우선 적용됩니다. 비워두면 AI가 크롤링 데이터를 보조로 사용합니다.</div><div class="hours-quick-panel" id="dailyHoursPanel">
+        <div class="admin-card"><div class="section-head" style="margin-bottom:12px;"><h3 style="font-size:16px;">혜택 등록 / 수정</h3><small id="formModeLabel">새 항목</small></div><form id="benefitForm" class="form-grid" novalidate><input type="hidden" id="editId" value="" /><div class="field"><label for="name">매장명</label><input id="name" /></div><div class="grid-2"><div class="field"><label for="category">카테고리</label><input id="category" placeholder="예: 음식, 미용, 카페" /></div><div class="field"><label for="discountText">혜택 표기</label><input id="discountText" placeholder="예: 10% 또는 서비스" /></div></div><div class="grid-2"><div class="field"><label for="discountValue">할인 수치</label><input id="discountValue" type="number" min="0" placeholder="서비스면 0" required /></div><div class="field"><label for="serviceType">혜택 유형</label><select id="serviceType"><option value="discount">할인형</option><option value="service">서비스형</option></select></div></div><div class="field"><label>운영 옵션</label><div class="check-row"><label><input type="checkbox" id="visible" checked> 노출</label><label><input type="checkbox" id="recommended"> 추천</label><label><input type="checkbox" id="shareBest"> 공유 BEST 배지</label></div></div><div class="grid-2"><div class="field"><label for="storeStatus">매장 상태</label><select id="storeStatus"><option value="preparing">영업 준비 중</option><option value="active">정상 영업</option><option value="paused">휴업</option><option value="closed">영업 종료</option><option value="shutdown">폐점</option><option value="reopened">재영업</option><option value="hidden">숨김</option></select><div class="admin-field-help">숨김은 공개앱에서 미노출됩니다. 휴업은 리모델링 공사 등 장기 미영업 매장에 사용하세요.</div></div><div class="field"><label for="benefitStatus">혜택 상태</label><select id="benefitStatus"><option value="preparing">혜택 준비 중</option><option value="active">혜택 진행 중</option><option value="ended">혜택 종료</option><option value="none">혜택 없음</option><option value="resumed">혜택 재개</option></select><div class="admin-field-help">추천/TOP5는 정상 영업·재영업이면서 혜택 진행 중·재개인 매장만 반영됩니다.</div></div></div><div class="grid-2"><div class="field"><label for="benefitEndedAt">혜택 종료일</label><input id="benefitEndedAt" type="date" /></div><div class="field"><label for="benefitStatusReason">혜택 상태 사유</label><input id="benefitStatusReason" placeholder="예: 매장 요청 / 이벤트 종료" /></div></div><div class="grid-2"><div class="field"><label for="closedAt">매장 상태 확인일</label><input id="closedAt" type="date" /></div><div class="field"><label for="closedReason">매장 상태 사유</label><input id="closedReason" placeholder="예: 리모델링 공사 / 재영업 확인 / 폐점 확인" /></div></div><div class="grid-2"><div class="field"><label for="rankBoost">TOP 5 가중치</label><input id="rankBoost" type="number" min="0" step="1" value="0" placeholder="기본 0" /><div class="admin-field-help">조회·즐겨찾기·공유 점수 외에 운영자가 수동으로 더해주는 점수입니다.</div></div><div class="field"><label for="thumbnailUrl">공유/썸네일 이미지 URL</label><input id="thumbnailUrl" placeholder="https://.../og-image.png" /><div class="admin-field-help">카카오 공유 카드와 공개앱 카드 썸네일에 사용할 이미지 주소입니다.</div></div></div><div class="field"><label>썸네일 이미지 업로드</label><div class="admin-thumb-upload-box"><div class="admin-thumb-upload-row"><input id="thumbnailFile" class="admin-thumb-file" type="file" accept="image/png,image/jpeg,image/webp,image/gif" /><button type="button" class="btn btn-blue" id="thumbnailUploadBtn">이미지 업로드</button></div><div class="admin-thumb-progress-track" id="thumbnailUploadProgressTrack"><div class="admin-thumb-progress-bar" id="thumbnailUploadProgressBar"></div></div><div class="admin-thumb-upload-status" id="thumbnailUploadStatus">이미지를 선택 후 업로드하면 URL이 자동 입력됩니다. 권장: 1200×630 또는 정사각형 JPG/PNG/WebP</div></div></div><div class="field"><label for="shareDescription">공유 문구</label><input id="shareDescription" placeholder="비워두면 혜택 조건을 자동 사용" /></div><div class="field"><label>썸네일 미리보기</label><div class="admin-thumb-preview" id="thumbPreview">이미지 URL 입력 시 미리보기</div></div><div class="field"><label for="condition">혜택 조건</label><textarea id="condition"></textarea></div><div class="field"><label for="priceDetails">세부 관리 내용 및 비용 <span style="font-weight:600;color:#94a3b8;">(선택)</span></label><textarea id="priceDetails" placeholder="예: 기본베이직 (60분) 60,000원&#10;스페셜베이직 (70분) 80,000원&#10;여드름문제성 피부관리 80,000~150,000원"></textarea><div class="benefit-extra-help">이미지처럼 항목별 비용이나 상세 서비스 내용을 줄바꿈으로 입력하세요. 공개앱 상세와 AI 생활도우미 답변에서 보조 정보로 활용됩니다.</div></div><div class="grid-2"><div class="field"><label for="zipcode">우편번호</label><input id="zipcode" inputmode="numeric" placeholder="예: 10874" /></div><div class="field"><label for="detailAddress">상세주소</label><input id="detailAddress" placeholder="예: 101동 1층 102호" /></div></div><div class="field"><label for="roadAddress">도로명주소</label><div class="geo-row"><input id="roadAddress" placeholder="예: 경기 파주시 경의로 1242" /><button type="button" class="btn btn-blue geo-btn" id="geocodeBtn">📍 좌표 자동 조회</button></div><div class="admin-field-help">좌표 조회는 도로명주소를 우선 사용하고, 비어 있으면 지번주소로 조회합니다.</div><div class="geo-status" id="geoStatus">도로명주소 또는 지번주소 입력 후 좌표 자동 조회를 누르면 위도/경도가 자동 저장됩니다.</div></div><div class="field"><label for="jibunAddress">지번주소</label><input id="jibunAddress" placeholder="예: 경기 파주시 야당동 000-0" /></div><input id="address" type="hidden" /><div class="geo-coord-grid"><div class="field"><label for="lat">위도 lat</label><input id="lat" type="number" step="any" inputmode="decimal" placeholder="자동 입력" /></div><div class="field"><label for="lng">경도 lng</label><input id="lng" type="number" step="any" inputmode="decimal" placeholder="자동 입력" /></div></div><div class="field"><label>영업시간</label><div class="admin-field-help">관리자 입력값이 네이버 크롤링 정보보다 우선 적용됩니다. 비워두면 AI가 크롤링 데이터를 보조로 사용합니다.</div><div class="hours-quick-panel" id="dailyHoursPanel">
   <label class="hours-quick-check"><input id="applyDailySameHours" type="checkbox" /> 매일 동일시간 적용</label>
   <div class="hours-quick-fields">
     <label>오픈<input id="dailyOpen" type="time" /></label>
@@ -2661,7 +2663,65 @@ const setTextAll = (selector, text) => qsa(selector).forEach(el => el.textConten
       })).filter(s=>s.line||s.name||s.exit||s.distance).sort((a,b)=>(a.distance||999999)-(b.distance||999999));
     }
     function getPrimaryStationAccessText(stations=[]){ return formatStationAccess((stations||[])[0]||{}); }
-    function sanitizeBenefit(item={},id=''){return {id,name:item.name||'',category:item.category||'기타',discountValue:Number(item.discountValue||0),discountText:item.discountText||`${Number(item.discountValue||0)}%`,condition:item.condition||'',priceDetails:item.priceDetails||item.priceInfo||item.servicePriceText||item.servicePriceDetails||'',address:item.address||'',zipcode:item.zipcode||item.addressParts?.zipcode||'',roadAddress:item.roadAddress||item.addressParts?.road||'',jibunAddress:item.jibunAddress||item.addressParts?.jibun||'',detailAddress:item.detailAddress||item.addressParts?.detail||'',displayAddress:item.displayAddress||item.addressParts?.display||'',stations:normalizeBenefitStations(item),stationAccessText:item.stationAccessText||item.transitText||item.stationGuide||item.nearStationText||'',lat:Number(item.lat||0),lng:Number(item.lng||0),url:item.url||'',phone:item.phone||item.contact?.phone||'',emergencyPhone:item.emergencyPhone||item.contact?.emergency||'',contact:item.contact||{},service:!!item.service||String(item.discountText).trim()==='서비스',visible:item.visible!==false,recommended:!!item.recommended,thumbnailUrl:item.thumbnailUrl||item.imageUrl||item.ogImageUrl||'',shareDescription:item.shareDescription||'',shareBest:!!item.shareBest,rankBoost:Number(item.rankBoost||0),viewCount:Number(item.viewCount||item.clickCount||item.detailViewCount||0),favoriteCount:Number(item.favoriteCount||0),shareCount:Number(item.shareCount||item.shareClickCount||0),likeCount:Number(item.likeCount||0),recommendCount:Number(item.recommendCount||0),hotCount:Number(item.hotCount||0),popularScore:Number(item.popularScore||item.score||0),status:item.status || (item.closed === true ? 'closed' : (item.visible === false ? 'hidden' : 'active')),closed:!!item.closed || item.status === 'closed',closedAt:item.closedAt||'',closedReason:item.closedReason||'',createdAt:item.createdAt||null,updatedAt:item.updatedAt||null};}
+    function sanitizeBenefit(item={},id=''){
+      const normalizedStoreStatus = item.storeStatus || item.operationStatus || item.status || (item.closed === true ? 'shutdown' : (item.visible === false ? 'hidden' : 'active'));
+      const normalizedBenefitStatus = item.benefitStatus || item.residentBenefitStatus || item.discountStatus || 'active';
+      return {
+        id,
+        name:item.name||'',
+        category:item.category||'기타',
+        discountValue:Number(item.discountValue||0),
+        discountText:item.discountText||`${Number(item.discountValue||0)}%`,
+        condition:item.condition||'',
+        priceDetails:item.priceDetails||item.priceInfo||item.servicePriceText||item.servicePriceDetails||'',
+        address:item.address||'',
+        zipcode:item.zipcode||item.addressParts?.zipcode||'',
+        roadAddress:item.roadAddress||item.addressParts?.road||'',
+        jibunAddress:item.jibunAddress||item.addressParts?.jibun||'',
+        detailAddress:item.detailAddress||item.addressParts?.detail||'',
+        displayAddress:item.displayAddress||item.addressParts?.display||'',
+        stations:normalizeBenefitStations(item),
+        stationAccessText:item.stationAccessText||item.transitText||item.stationGuide||item.nearStationText||'',
+        lat:Number(item.lat||0),
+        lng:Number(item.lng||0),
+        url:item.url||'',
+        phone:item.phone||item.contact?.phone||'',
+        emergencyPhone:item.emergencyPhone||item.contact?.emergency||'',
+        contact:item.contact||{},
+        service:!!item.service||String(item.discountText).trim()==='서비스',
+        visible:item.visible!==false,
+        recommended:!!item.recommended,
+        thumbnailUrl:item.thumbnailUrl||item.imageUrl||item.ogImageUrl||'',
+        shareDescription:item.shareDescription||'',
+        shareBest:!!item.shareBest,
+        rankBoost:Number(item.rankBoost||0),
+        viewCount:Number(item.viewCount||item.clickCount||item.detailViewCount||0),
+        favoriteCount:Number(item.favoriteCount||0),
+        shareCount:Number(item.shareCount||item.shareClickCount||0),
+        likeCount:Number(item.likeCount||0),
+        recommendCount:Number(item.recommendCount||0),
+        hotCount:Number(item.hotCount||0),
+        popularScore:Number(item.popularScore||item.score||0),
+        // 신규 상태 필드는 목록 렌더링/수정 재조회 시 사라지지 않도록 반드시 보존합니다.
+        storeStatus:normalizedStoreStatus,
+        operationStatus:item.operationStatus || normalizedStoreStatus,
+        status:item.status || normalizedStoreStatus,
+        benefitStatus:normalizedBenefitStatus,
+        residentBenefitStatus:item.residentBenefitStatus || normalizedBenefitStatus,
+        discountStatus:item.discountStatus || normalizedBenefitStatus,
+        benefitEndedAt:item.benefitEndedAt||item.discountEndedAt||'',
+        discountEndedAt:item.discountEndedAt||item.benefitEndedAt||'',
+        benefitStatusReason:item.benefitStatusReason||item.statusReason||item.discountStatusReason||'',
+        discountStatusReason:item.discountStatusReason||item.benefitStatusReason||item.statusReason||'',
+        statusReason:item.statusReason||item.benefitStatusReason||item.discountStatusReason||'',
+        closed:!!item.closed || normalizedStoreStatus === 'shutdown' || normalizedStoreStatus === 'closed',
+        closedAt:item.closedAt||'',
+        closedReason:item.closedReason||item.storeStatusReason||'',
+        storeStatusReason:item.storeStatusReason||item.closedReason||'',
+        createdAt:item.createdAt||null,
+        updatedAt:item.updatedAt||null
+      };
+    }
     function mergeBenefitStatsIntoBenefits(){
       state.benefits = state.benefits.map((item) => {
         const stats = state.benefitStats[item.id] || {};
@@ -2681,7 +2741,12 @@ const setTextAll = (selector, text) => qsa(selector).forEach(el => el.textConten
     const hasFirebaseConfig=()=>firebaseConfig.apiKey&&firebaseConfig.projectId&&firebaseConfig.appId;
     let auth=null,db=null,storage=null;
     function getPublicVisibleBenefitsForStats(){
-      return (state.benefits || []).filter(item => item && item.visible !== false && item.status !== 'closed' && item.closed !== true);
+      return (state.benefits || []).filter(item => {
+        if(!item || item.visible === false) return false;
+        const storeStatus = normalizeAdminStoreStatus(item);
+        const benefitStatus = normalizeAdminBenefitStatus(item);
+        return ['active','reopened'].includes(storeStatus) && ['active','resumed'].includes(benefitStatus);
+      });
     }
 
     function updateStats(){
@@ -2784,7 +2849,14 @@ const setTextAll = (selector, text) => qsa(selector).forEach(el => el.textConten
       }
     }
 
-    function resetForm(){qs('#benefitForm').reset();qs('#editId').value='';qs('#formModeLabel').textContent='새 항목';qs('#discountValue').value=0;qs('#serviceType').value='discount';qs('#visible').checked=true;qs('#recommended').checked=false;if(qs('#shareBest')) qs('#shareBest').checked=false;if(qs('#rankBoost')) qs('#rankBoost').value=0;if(qs('#benefitStatus')) qs('#benefitStatus').value='active';if(qs('#closedAt')) qs('#closedAt').value='';if(qs('#closedReason')) qs('#closedReason').value='';['#zipcode','#roadAddress','#jibunAddress','#detailAddress','#address','#emergencyPhone','#priceDetails'].forEach(sel=>{if(qs(sel)) qs(sel).value='';});if(qs('#thumbnailUrl')) qs('#thumbnailUrl').value='';if(qs('#thumbnailFile')) qs('#thumbnailFile').value='';setThumbnailUploadProgress(0,false);setThumbnailUploadStatus('이미지를 선택 후 업로드하면 URL이 자동 입력됩니다. 권장: 1200×630 또는 정사각형 JPG/PNG/WebP');if(qs('#shareDescription')) qs('#shareDescription').value='';['#homepageUrl','#blogUrl','#instagramUrl','#youtubeUrl','#facebookUrl','#smartstoreUrl','#bandUrl','#serviceMemo','#directionText','#stationAccessText'].forEach(sel=>{if(qs(sel)) qs(sel).value='';});if(qs('#deliveryAvailable')) qs('#deliveryAvailable').checked=false;if(qs('#takeoutAvailable')) qs('#takeoutAvailable').checked=false;updateThumbPreview('');qs('#lat').value='';qs('#lng').value='';setGeoStatus('도로명주소 또는 지번주소 입력 후 좌표 자동 조회를 누르면 위도/경도가 자동 저장됩니다.','');clearOpeningHoursForm();setStationRows([]);}
+
+    const STORE_STATUS_META={preparing:{label:'영업 준비 중',cls:'store-preparing-tag'},active:{label:'정상 영업',cls:'store-active-tag'},paused:{label:'휴업',cls:'store-paused-tag'},closed:{label:'영업 종료',cls:'store-closed-tag'},shutdown:{label:'폐점',cls:'store-shutdown-tag'},reopened:{label:'재영업',cls:'store-reopened-tag'},hidden:{label:'숨김',cls:'hidden-tag'}};
+    const BENEFIT_STATUS_META={preparing:{label:'혜택 준비 중',cls:'benefit-preparing-tag'},active:{label:'혜택 진행 중',cls:'benefit-active-tag'},ended:{label:'혜택 종료',cls:'benefit-ended-tag'},none:{label:'혜택 없음',cls:'benefit-none-tag'},resumed:{label:'혜택 재개',cls:'benefit-resumed-tag'}};
+    function normalizeAdminStoreStatus(item={}){const raw=String(item.storeStatus||item.operationStatus||item.status||'').toLowerCase();if(item.visible===false||raw==='hidden')return 'hidden';if(item.closed===true||raw==='shutdown')return 'shutdown';if(['preparing','active','paused','closed','shutdown','reopened','hidden'].includes(raw))return raw;return 'active';}
+    function normalizeAdminBenefitStatus(item={}){const raw=String(item.benefitStatus||item.residentBenefitStatus||item.discountStatus||'').toLowerCase();if(['preparing','active','ended','none','resumed'].includes(raw))return raw;return 'active';}
+    function adminStatusTagHtml(meta, fallback){const info=meta||fallback;return `<span class="tag status-tag ${info.cls}">${info.label}</span>`;}
+
+    function resetForm(){qs('#benefitForm').reset();qs('#editId').value='';qs('#formModeLabel').textContent='새 항목';qs('#discountValue').value=0;qs('#serviceType').value='discount';qs('#visible').checked=true;qs('#recommended').checked=false;if(qs('#shareBest')) qs('#shareBest').checked=false;if(qs('#rankBoost')) qs('#rankBoost').value=0;if(qs('#storeStatus')) qs('#storeStatus').value='active';if(qs('#benefitStatus')) qs('#benefitStatus').value='active';if(qs('#benefitEndedAt')) qs('#benefitEndedAt').value='';if(qs('#benefitStatusReason')) qs('#benefitStatusReason').value='';if(qs('#closedAt')) qs('#closedAt').value='';if(qs('#closedReason')) qs('#closedReason').value='';['#zipcode','#roadAddress','#jibunAddress','#detailAddress','#address','#emergencyPhone','#priceDetails'].forEach(sel=>{if(qs(sel)) qs(sel).value='';});if(qs('#thumbnailUrl')) qs('#thumbnailUrl').value='';if(qs('#thumbnailFile')) qs('#thumbnailFile').value='';setThumbnailUploadProgress(0,false);setThumbnailUploadStatus('이미지를 선택 후 업로드하면 URL이 자동 입력됩니다. 권장: 1200×630 또는 정사각형 JPG/PNG/WebP');if(qs('#shareDescription')) qs('#shareDescription').value='';['#homepageUrl','#blogUrl','#instagramUrl','#youtubeUrl','#facebookUrl','#smartstoreUrl','#bandUrl','#serviceMemo','#directionText','#stationAccessText'].forEach(sel=>{if(qs(sel)) qs(sel).value='';});if(qs('#deliveryAvailable')) qs('#deliveryAvailable').checked=false;if(qs('#takeoutAvailable')) qs('#takeoutAvailable').checked=false;updateThumbPreview('');qs('#lat').value='';qs('#lng').value='';setGeoStatus('도로명주소 또는 지번주소 입력 후 좌표 자동 조회를 누르면 위도/경도가 자동 저장됩니다.','');clearOpeningHoursForm();setStationRows([]);}
     function resetNoticeForm(){qs('#noticeForm').reset();qs('#noticeEditId').value='';qs('#noticeFormModeLabel').textContent='새 공지';qs('#noticeVisible').checked=true;qs('#noticePinned').checked=false;qs('#noticeCategory').value='일반';qs('#sendPushWithNotice').checked=false;qs('#pushImportantOnly').checked=false;qs('#pushTitle').value='';qs('#pushBody').value='';qs('#pushTargetType').value='all';qs('#pushTargetUid').value='';qs('#pushTargetBuilding').value='';qs('#pushTargetUnit').value='';}
     
     function directApplyOpeningHoursToForm(item){
@@ -2922,7 +2994,7 @@ function fillForm(item){
       setStationRows(item.stations && item.stations.length ? item.stations : normalizeBenefitStations(item)); if(qs('#stationAccessText')) qs('#stationAccessText').value=getPrimaryStationAccessText(getStationRows());
       qs('#visible').checked=item.visible!==false;
       qs('#recommended').checked=!!item.recommended;
-      if(qs('#benefitStatus')) qs('#benefitStatus').value=item.status||(item.closed?'closed':(item.visible===false?'hidden':'active'));
+      if(qs('#storeStatus')) qs('#storeStatus').value=normalizeAdminStoreStatus(item);if(qs('#benefitStatus')) qs('#benefitStatus').value=normalizeAdminBenefitStatus(item);if(qs('#benefitEndedAt')) qs('#benefitEndedAt').value=item.benefitEndedAt||item.discountEndedAt||'';if(qs('#benefitStatusReason')) qs('#benefitStatusReason').value=item.benefitStatusReason||item.statusReason||item.discountStatusReason||'';
       if(qs('#closedAt')) qs('#closedAt').value=item.closedAt||'';
       if(qs('#closedReason')) qs('#closedReason').value=item.closedReason||'';
       if(qs('#shareBest')) qs('#shareBest').checked=!!item.shareBest;
@@ -2987,7 +3059,7 @@ function fillForm(item){
       const updatedText = formatAdminDate(item.updatedAt);
       const dateLine = `등록 ${createdText} · 수정 ${updatedText}`;
       const metrics=`<div class="admin-metric-row"><span class="admin-metric-chip">👁 ${item.viewCount||0}</span><span class="admin-metric-chip">⭐ ${item.favoriteCount||0}</span><span class="admin-metric-chip">🔗 ${item.shareCount||0}</span><span class="admin-metric-chip">👍 ${item.likeCount||0}</span><span class="admin-metric-chip">✅ 추천 ${item.recommendCount||0}</span><span class="admin-metric-chip">🔥 HOT ${item.hotCount||0}</span>${item.rankBoost?`<span class="admin-metric-chip">⚡ 가중치 ${item.rankBoost}</span>`:''}${item.shareBest?'<span class="admin-metric-chip share-best">BEST 공유</span>':''}${item.thumbnailUrl?'<span class="admin-metric-chip">🖼 썸네일</span>':''}</div>`;
-      return `<div class="mini-item-head"><div><h5>${item.name}</h5><div style="color:#64748b;font-size:13px;line-height:1.45;">${item.category} · ${item.discountText} · ${item.phone}</div><div class="benefit-date-line">${dateLine}</div><div class="tags">${isRecentlyUpdatedBenefit(item)?'<span class="tag updated-tag">최근 수정</span>':''}${item.recommended?'<span class="tag rec">추천</span>':''}${item.status==='closed'||item.closed?'<span class="tag closed-tag">폐점</span>':(item.visible===false||item.status==='hidden'?'<span class="tag hidden-tag">비노출</span>':'<span class="tag live-tag">노출중</span>')}</div>${item.status==='closed'||item.closed?`<div class="benefit-date-line">폐점 확인 ${item.closedAt||'-'}${item.closedReason?' · '+item.closedReason:''}</div>`:''}${metrics}</div><div class="tags" style="margin-top:0;"><button class="btn btn-soft edit-btn" style="padding:8px 10px;">수정</button><button class="btn btn-danger del-btn" style="padding:8px 10px;">삭제</button></div></div>`;
+      const storeStatus=normalizeAdminStoreStatus(item);const benefitStatus=normalizeAdminBenefitStatus(item);const storeMeta=STORE_STATUS_META[storeStatus]||STORE_STATUS_META.active;const benefitMeta=BENEFIT_STATUS_META[benefitStatus]||BENEFIT_STATUS_META.active;const storeReason=item.closedReason||item.storeStatusReason||'';const benefitReason=item.benefitStatusReason||item.statusReason||item.discountStatusReason||'';return `<div class="mini-item-head"><div><h5>${item.name}</h5><div style="color:#64748b;font-size:13px;line-height:1.45;">${item.category} · ${item.discountText} · ${item.phone}</div><div class="benefit-date-line">${dateLine}</div><div class="tags">${isRecentlyUpdatedBenefit(item)?'<span class="tag updated-tag">최근 수정</span>':''}${item.recommended?'<span class="tag rec">추천</span>':''}${adminStatusTagHtml(storeMeta)}${adminStatusTagHtml(benefitMeta)}</div>${(storeReason||item.closedAt)?`<div class="benefit-date-line">매장 상태 ${item.closedAt||'-'}${storeReason?' · '+storeReason:''}</div>`:''}${(benefitReason||item.benefitEndedAt)?`<div class="benefit-date-line">혜택 상태 ${item.benefitEndedAt||'-'}${benefitReason?' · '+benefitReason:''}</div>`:''}${metrics}</div><div class="tags" style="margin-top:0;"><button class="btn btn-soft edit-btn" style="padding:8px 10px;">수정</button><button class="btn btn-danger del-btn" style="padding:8px 10px;">삭제</button></div></div>`;
     }
 
     function renderAdminList(){
@@ -3358,6 +3430,9 @@ function fillForm(item){
       if(qs('#stationAccessText')) qs('#stationAccessText').value = primaryStationText;
       if(qs('#address')) qs('#address').value = addressParts.display;
 
+      const selectedStoreStatus = qs('#storeStatus')?.value || 'active';
+      const selectedBenefitStatus = qs('#benefitStatus')?.value || 'active';
+      const selectedVisible = selectedStoreStatus === 'hidden' ? false : qs('#visible').checked;
       const payload={
         name:qs('#name').value.trim(),
         category:qs('#category').value.trim(),
@@ -3382,11 +3457,21 @@ function fillForm(item){
         emergencyPhone:qs('#emergencyPhone')?.value.trim() || '',
         contact:{ phone:qs('#phone').value.trim(), emergency:qs('#emergencyPhone')?.value.trim() || '' },
         service:qs('#serviceType').value==='service',
-        status:qs('#benefitStatus')?.value || 'active',
-        closed:(qs('#benefitStatus')?.value || 'active') === 'closed',
+        storeStatus:selectedStoreStatus,
+        operationStatus:selectedStoreStatus,
+        status:selectedStoreStatus,
+        benefitStatus:selectedBenefitStatus,
+        residentBenefitStatus:selectedBenefitStatus,
+        discountStatus:selectedBenefitStatus,
+        closed:selectedStoreStatus === 'shutdown',
         closedAt:qs('#closedAt')?.value || '',
         closedReason:qs('#closedReason')?.value.trim() || '',
-        visible:(qs('#benefitStatus')?.value || 'active') === 'hidden' ? false : qs('#visible').checked,
+        storeStatusReason:qs('#closedReason')?.value.trim() || '',
+        benefitEndedAt:qs('#benefitEndedAt')?.value || '',
+        discountEndedAt:qs('#benefitEndedAt')?.value || '',
+        benefitStatusReason:qs('#benefitStatusReason')?.value.trim() || '',
+        discountStatusReason:qs('#benefitStatusReason')?.value.trim() || '',
+        visible:selectedVisible,
         recommended:qs('#recommended').checked,
         shareBest:qs('#shareBest')?.checked || false,
         rankBoost:Number(qs('#rankBoost')?.value || 0),
@@ -3435,8 +3520,15 @@ function fillForm(item){
         const editId=qs('#editId').value;
         if(editId){
           await updateDoc(doc(db,BENEFITS_COLLECTION,editId),payload);
+          // 저장 직후 목록에 이전 상태가 남아 보이지 않도록 로컬 상태도 즉시 동기화합니다.
+          state.benefits = (state.benefits || []).map(item => item.id === editId ? sanitizeBenefit({...item, ...payload}, editId) : item);
+          updateStats();
+          renderList();
         }else{
-          await addDoc(collection(db,BENEFITS_COLLECTION),{...payload,createdAt:serverTimestamp()});
+          const addedRef = await addDoc(collection(db,BENEFITS_COLLECTION),{...payload,createdAt:serverTimestamp()});
+          state.benefits = [sanitizeBenefit({...payload}, addedRef.id), ...(state.benefits || [])];
+          updateStats();
+          renderList();
         }
         hideGlobalLoading();
         resetForm();
