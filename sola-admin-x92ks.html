@@ -3523,12 +3523,12 @@ function fillForm(item){
           // 저장 직후 목록에 이전 상태가 남아 보이지 않도록 로컬 상태도 즉시 동기화합니다.
           state.benefits = (state.benefits || []).map(item => item.id === editId ? sanitizeBenefit({...item, ...payload}, editId) : item);
           updateStats();
-          renderList();
+          renderAdminList();
         }else{
           const addedRef = await addDoc(collection(db,BENEFITS_COLLECTION),{...payload,createdAt:serverTimestamp()});
           state.benefits = [sanitizeBenefit({...payload}, addedRef.id), ...(state.benefits || [])];
           updateStats();
-          renderList();
+          renderAdminList();
         }
         hideGlobalLoading();
         resetForm();
