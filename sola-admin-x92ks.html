@@ -2268,6 +2268,7 @@ body.gnb-open .admin-bottom-nav{
             <button class="ai-manager-tab" type="button" data-ai-tab="booklet">전자책</button>
             <button class="ai-manager-tab" type="button" data-ai-tab="guide">가이드</button>
             <button class="ai-manager-tab" type="button" data-ai-tab="settings">설정</button>
+            <button class="ai-manager-tab" type="button" data-ai-tab="voice">음성 테스트</button>
             <button class="ai-manager-tab" type="button" data-ai-tab="logs">질문 로그</button>
             <button class="ai-manager-tab" type="button" data-ai-tab="conversations">대화 기록</button>
           </div>
@@ -2325,7 +2326,7 @@ body.gnb-open .admin-bottom-nav{
     globalThis.__SOLA_DYNAMIC_IMPORT_VERSION__ = __SOLA_DYNAMIC_IMPORT_VERSION__;
     const __solaNoCache = (url) => `${url}${url.includes('?') ? '&' : '?'}v=${__SOLA_DYNAMIC_IMPORT_VERSION__}`;
     const { mountIdleTimer } = await import(__solaNoCache("./tracking.js"));
-    const { ENV, FIREBASE_CONFIG, API_URL } = await import(__solaNoCache("./env-config.js"));
+    const { ENV, FIREBASE_CONFIG, API_URL, TTS_SERVICE_URL } = await import(__solaNoCache("./env-config.js"));
 
     const envBadge = document.getElementById('envBadge');
     if (envBadge && ENV === 'dev') envBadge.classList.add('show');
@@ -2335,6 +2336,7 @@ body.gnb-open .admin-bottom-nav{
     // Firebase Functions geocodeAddress 엔드포인트입니다. 배포 후 dev/prod URL을 입력하세요.
     // 예: https://geocodeaddress-l6mntiaxgq-du.a.run.app
     const GEOCODE_FUNCTION_URL = (API_URL?.[ENV]?.geocodeAddress || '').trim();
+    const TTS_SERVICE_BASE_URL = (TTS_SERVICE_URL?.[ENV] || '').trim();
     const DEFAULT_BENEFITS=[{name:'엘스킨케어',category:'피부관리',discountValue:50,discountText:'50%',condition:'첫방문 50% / 입주민 정액권 최대 30%',address:'경기 파주시 경의로 1242 209호, 210호',phone:'0507-1433-5760',url:'',visible:true,recommended:true,service:false},{name:'미스터피자 일산탄현점',category:'음식',discountValue:30,discountText:'30%',condition:'포장 30% / 매장식사 20% + 샐러드 증정',address:'경기 고양시 일산서구 탄현로 136 상가동 2층 204호',phone:'031-911-9296',url:'',visible:true,recommended:true,service:false}];
     const state={benefits:[],benefitStats:{},notices:[],pushJobs:[],members:[],isAdmin:false,view:'dashboard',adminProfile:null}; let benefitSortMode='latest'; let adminDataSubscribed=false; let adminAuthReady=false; const qs=(s)=>document.querySelector(s), qsa=(s)=>[...document.querySelectorAll(s)];
 
@@ -4482,6 +4484,7 @@ function fillForm(item){
       if(tab === 'booklet') return loadAiBooklet();
       if(tab === 'guide') return loadAiGuide();
       if(tab === 'settings') return loadAiSettings();
+      if(tab === 'voice') return loadAiVoiceTest();
       if(tab === 'logs') return loadAiLogs();
       if(tab === 'conversations') return loadAiConversations();
     }
@@ -4979,6 +4982,151 @@ function fillForm(item){
       qs('#aiGuideActive') && (qs('#aiGuideActive').checked = true);
       renderAiAttachmentList('aiGuide');
       setAiAttachmentStatus('aiGuide', '');
+    }
+
+    let aiAdminTtsAudio = null;
+    let aiAdminTtsObjectUrl = null;
+
+    function getAiVoiceTestSamples(){
+      return [
+        '안녕하세요. 운정온 AI 생활도우미입니다. 문의하신 내용을 기준으로 차분하게 안내드릴게요.',
+        '대형폐기물 배출은 먼저 신청 후, 지정된 장소에 배출하시면 됩니다.',
+        '오늘은 비가 오고 있어서 가까운 혜택 매장 위주로 추천드릴게요.'
+      ].join('\n');
+    }
+
+    function stopAiVoicePreview(){
+      if(aiAdminTtsAudio){
+        try{ aiAdminTtsAudio.pause(); aiAdminTtsAudio.currentTime = 0; }catch(e){}
+        aiAdminTtsAudio = null;
+      }
+      if(aiAdminTtsObjectUrl){
+        try{ URL.revokeObjectURL(aiAdminTtsObjectUrl); }catch(e){}
+        aiAdminTtsObjectUrl = null;
+      }
+      const btn = qs('#aiTtsPreviewBtn');
+      if(btn){ btn.disabled = false; btn.textContent = '🔊 미리 듣기'; }
+      const stopBtn = qs('#aiTtsStopBtn');
+      if(stopBtn) stopBtn.disabled = true;
+    }
+
+    function setAiVoiceTestStatus(message='', tone=''){
+      const el = qs('#aiTtsStatus');
+      if(!el) return;
+      el.textContent = message || '';
+      el.className = `admin-field-help ${tone === 'error' ? 'danger-text' : ''}`;
+      if(tone === 'success') el.style.color = '#2563eb';
+      else if(tone === 'error') el.style.color = '#dc2626';
+      else el.style.color = '#64748b';
+    }
+
+    function getSelectedAiTtsPayload(){
+      const text = String(qs('#aiTtsText')?.value || '').trim();
+      const voice = String(qs('#aiTtsVoice')?.value || 'nova').trim();
+      const type = String(qs('#aiTtsType')?.value || 'default').trim();
+      const speedRaw = Number(qs('#aiTtsSpeed')?.value || 1);
+      const speed = Number.isFinite(speedRaw) ? Math.min(Math.max(speedRaw, 0.8), 1.15) : 1;
+      return { text, voice, type, speed };
+    }
+
+    async function playAiVoicePreview(event){
+      event?.preventDefault?.();
+      if(!TTS_SERVICE_BASE_URL){
+        await openModalAlert('env-config.js의 TTS_SERVICE_URL을 먼저 확인해 주세요.', null, '음성 테스트');
+        return;
+      }
+      if(!auth?.currentUser){
+        await openModalAlert('관리자 로그인 후 음성 테스트를 사용할 수 있습니다.', qs('#adminLoginId'), '음성 테스트');
+        return;
+      }
+      const payload = getSelectedAiTtsPayload();
+      if(!payload.text){
+        await openModalAlert('미리 들을 문장을 입력해 주세요.', qs('#aiTtsText'), '음성 테스트');
+        return;
+      }
+      stopAiVoicePreview();
+      const btn = qs('#aiTtsPreviewBtn');
+      const stopBtn = qs('#aiTtsStopBtn');
+      if(btn){ btn.disabled = true; btn.textContent = '음성 준비 중...'; }
+      if(stopBtn) stopBtn.disabled = false;
+      setAiVoiceTestStatus('TTS 서버에서 안내 음성을 생성하는 중입니다...', '');
+      try{
+        const idToken = await auth.currentUser.getIdToken?.();
+        const res = await fetch(`${TTS_SERVICE_BASE_URL.replace(/\/$/, '')}/tts`, {
+          method:'POST',
+          headers:{
+            'Content-Type':'application/json',
+            ...(idToken ? { Authorization:`Bearer ${idToken}` } : {})
+          },
+          body:JSON.stringify(payload)
+        });
+        if(!res.ok){
+          let detail = '';
+          try{ detail = await res.text(); }catch(e){}
+          throw new Error(detail || `TTS 요청 실패 (${res.status})`);
+        }
+        const blob = await res.blob();
+        if(!blob || !blob.size) throw new Error('생성된 음성 파일이 비어 있습니다.');
+        aiAdminTtsObjectUrl = URL.createObjectURL(blob);
+        aiAdminTtsAudio = new Audio(aiAdminTtsObjectUrl);
+        aiAdminTtsAudio.onended = () => {
+          setAiVoiceTestStatus('음성 재생이 완료되었습니다.', 'success');
+          stopAiVoicePreview();
+        };
+        aiAdminTtsAudio.onerror = () => {
+          setAiVoiceTestStatus('브라우저에서 음성 재생을 시작하지 못했습니다.', 'error');
+          stopAiVoicePreview();
+        };
+        await aiAdminTtsAudio.play();
+        if(btn) btn.textContent = '🔊 재생 중';
+        setAiVoiceTestStatus(`재생 중입니다. voice: ${payload.voice}, speed: ${payload.speed}`, 'success');
+      }catch(error){
+        console.error('[AI TTS TEST] failed', error);
+        setAiVoiceTestStatus(error?.message || '음성 테스트에 실패했습니다.', 'error');
+        if(btn){ btn.disabled = false; btn.textContent = '🔊 미리 듣기'; }
+        if(stopBtn) stopBtn.disabled = true;
+      }
+    }
+
+    async function loadAiVoiceTest(){
+      if(!requireAdminDataAccess()) return;
+      const box = qs('#aiAdminContent');
+      if(!box) return;
+      const voices = [
+        ['nova', 'nova · 여성/비서 느낌 후보'],
+        ['shimmer', 'shimmer · 부드러운 안내 후보'],
+        ['coral', 'coral · 밝고 선명한 후보'],
+        ['sage', 'sage · 차분한 후보'],
+        ['marin', 'marin · 고품질 권장 후보'],
+        ['cedar', 'cedar · 고품질 권장 후보'],
+        ['alloy', 'alloy · 중성/기본'],
+        ['ash', 'ash'],
+        ['ballad', 'ballad'],
+        ['echo', 'echo'],
+        ['fable', 'fable'],
+        ['onyx', 'onyx'],
+        ['verse', 'verse']
+      ];
+      box.innerHTML = renderAiFormHeader('AI 음성 테스트', 'OpenAI TTS 음성을 관리자 화면에서 미리 들어보고 기본 후보를 고를 수 있습니다.') + `
+        <form class="ai-admin-form" id="aiTtsTestForm">
+          <div class="notice">현재 연결된 TTS 서버: <strong>${escapeHtml(TTS_SERVICE_BASE_URL || '미설정')}</strong><br>운영 반영 전에는 개발계에서 voice와 속도를 먼저 비교해보세요.</div>
+          <div class="grid-2">
+            <div class="field"><label for="aiTtsVoice">보이스</label><select id="aiTtsVoice">${voices.map(([value, label]) => `<option value="${escapeHtml(value)}">${escapeHtml(label)}</option>`).join('')}</select><div class="admin-field-help">여성 안내 비서 톤은 nova, shimmer, coral부터 들어보는 것을 권장합니다.</div></div>
+            <div class="field"><label for="aiTtsType">읽기 유형</label><select id="aiTtsType"><option value="default">기본 안내</option><option value="notice">공지 안내</option><option value="benefit">혜택 추천</option><option value="file">파일 분석</option></select><div class="admin-field-help">유형에 따라 서버에서 안내 지시문을 다르게 적용합니다.</div></div>
+          </div>
+          <div class="field"><label for="aiTtsSpeed">속도</label><input id="aiTtsSpeed" type="range" min="0.8" max="1.15" step="0.05" value="1" oninput="document.getElementById('aiTtsSpeedValue').textContent=this.value" /><div class="admin-field-help">현재 속도: <strong id="aiTtsSpeedValue">1</strong> · 안내용은 0.95~1.0이 무난합니다.</div></div>
+          <div class="field"><label for="aiTtsText">테스트 문장</label><textarea id="aiTtsText" style="min-height:150px;" placeholder="테스트할 안내 문장을 입력하세요.">${escapeHtml(getAiVoiceTestSamples())}</textarea></div>
+          <div class="grid-2">
+            <button class="btn btn-primary" type="submit" id="aiTtsPreviewBtn">🔊 미리 듣기</button>
+            <button class="btn btn-soft" type="button" id="aiTtsStopBtn" disabled>⏹ 정지</button>
+          </div>
+          <div id="aiTtsStatus" class="admin-field-help">음성 후보를 선택한 뒤 미리 듣기를 눌러주세요.</div>
+        </form>`;
+      qs('#aiTtsTestForm')?.addEventListener('submit', playAiVoicePreview);
+      qs('#aiTtsStopBtn')?.addEventListener('click', () => {
+        stopAiVoicePreview();
+        setAiVoiceTestStatus('음성 재생을 정지했습니다.', '');
+      });
     }
 
     async function loadAiSettings(){
@@ -5946,6 +6094,41 @@ function fillForm(item){
       }
     })();
   </script>
+
+
+<script id="ai-composer-ctrl-enter-fixed">
+(function(){
+  function isAiTextarea(el){
+    if (!el) return false;
+    if (el.tagName !== 'TEXTAREA') return false;
+    var id = (el.id || '').toLowerCase();
+    var cls = (el.className || '').toString().toLowerCase();
+    return id.includes('ai') || id.includes('question') || cls.includes('ai') || cls.includes('question') || cls.includes('composer');
+  }
+
+  document.addEventListener('keydown', function(e){
+    if (!isAiTextarea(e.target)) return;
+
+    if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+      e.preventDefault();
+      e.stopPropagation();
+      if (typeof e.stopImmediatePropagation === 'function') e.stopImmediatePropagation();
+
+      var sendBtn =
+        document.getElementById('aiSendBtn') ||
+        document.getElementById('sendAiBtn') ||
+        document.getElementById('askAiBtn') ||
+        document.getElementById('aiAskBtn') ||
+        document.querySelector('.ai-send-btn, .ai-submit-btn, button[data-ai-send="true"]');
+
+      if (sendBtn && !sendBtn.disabled) {
+        sendBtn.click();
+      }
+      return false;
+    }
+  }, true);
+})();
+</script>
 
 </body>
 </html>

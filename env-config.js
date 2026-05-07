@@ -82,6 +82,11 @@ export const APP_ORIGIN = {
   prod: "https://www.sola-home.kr"
 };
 
+export const TTS_SERVICE_URL = {
+  dev: "https://tts-service-dev-292137041544.asia-northeast3.run.app",
+  prod: "https://tts-service-337132471819.asia-northeast3.run.app"
+};
+
 export const IS_DEV = ENV === "dev";
 export const IS_PROD = ENV === "prod";
 
@@ -100,6 +105,7 @@ if (!globalThis.__SOLA_ENV_CONFIG_LOGGED__) {
     isDevHost,
     isProdHost,
     firebaseProjectId: FIREBASE_CONFIG[ENV]?.projectId,
-    api: API_URL[ENV]
+    api: API_URL[ENV],
+    ttsService: TTS_SERVICE_URL[ENV]
   });
 }
