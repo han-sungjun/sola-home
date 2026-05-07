@@ -17398,7 +17398,7 @@ function shouldShowAiKnowledgeAttachments(question='', answer=''){
 }
 
 
-const AI_TTS_DEFAULT_VOICE = 'marin';
+const AI_TTS_DEFAULT_VOICE = ''; // 서버의 관리자 기본 voice 설정을 사용합니다.
 let currentAiTtsAudio = null;
 let currentAiTtsObjectUrl = '';
 let currentAiTtsButton = null;
@@ -17481,9 +17481,8 @@ async function playAiTtsFromButton(button){
      },
      body: JSON.stringify({
        text,
-       voice: AI_TTS_DEFAULT_VOICE,
+       ...(AI_TTS_DEFAULT_VOICE ? { voice: AI_TTS_DEFAULT_VOICE } : {}),
        type: button.dataset.aiTtsType || 'default',
-       speed: 1.0,
        env: ENV
      })
    });
