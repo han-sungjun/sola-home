@@ -106,7 +106,7 @@
         <div class="field"><label for="password">비밀번호</label><input id="password" name="password" type="password" autocomplete="new-password" minlength="8" placeholder="8자 이상" required /><div class="field-msg" id="passwordMsg">8자 이상 입력해 주세요.</div></div>
         <div class="field"><label for="passwordConfirm">비밀번호 확인</label><input id="passwordConfirm" name="passwordConfirm" type="password" autocomplete="new-password" minlength="8" placeholder="비밀번호 재입력" required /><div class="field-msg" id="passwordMatchMsg">비밀번호를 한 번 더 입력해 주세요.</div></div>
         <div class="field"><label for="nickname">닉네임</label><div class="input-row"><input id="nickname" name="nickname" maxlength="20" placeholder="예: 마이힐스 입주민" required /><button class="check-btn" type="button" id="checkNicknameBtn">중복 확인</button></div><div class="field-msg" id="nicknameMsg">앱 화면에 표시되는 이름입니다.</div></div>
-        <div class="field"><label for="memberType">회원 유형</label><select id="memberType" name="memberType" required><option value="resident">입주민</option><option value="etc">기타</option></select></div>
+        <div class="field"><label for="memberType">회원 유형</label><select id="memberType" name="memberType" required><option value="resident_apartment">입주민(아파트)</option><option value="resident_officetel">입주민(오피스텔)</option><option value="etc">기타</option></select><div class="field-msg">단지 구분을 위한 단순 분류입니다.</div></div>
         <div class="field"><label for="inviteCode">초대 코드 / 안내 코드 <small style="color:#94a3b8">선택</small></label><input id="inviteCode" name="inviteCode" maxlength="40" placeholder="운영진이 안내한 경우에만 입력" /></div>
         <div class="notice">※ 입력한 계정 정보로 바로 이용할 수 있습니다. 아이디와 닉네임은 중복 확인 후 진행해 주세요.</div>
         <label class="agree"><input id="agree" type="checkbox" required /><span>입주민 전용 혜택 제공을 위한 최소 계정 생성에 동의합니다.</span></label>
@@ -517,7 +517,7 @@
     const nickname = normalizeNickname(fields.nickname.value);
     const password = fields.password.value || '';
     const passwordConfirm = fields.passwordConfirm.value || '';
-    const memberType = String(fields.memberType.value || 'resident').trim();
+    const memberType = String(fields.memberType.value || 'resident_apartment').trim();
     const inviteCode = String(fields.inviteCode.value || '').trim();
     const agree = !!fields.agree.checked;
 
