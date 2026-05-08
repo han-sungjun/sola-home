@@ -1046,7 +1046,7 @@ html[data-font-size="xlarge"] .calendar-summary-grid{grid-template-columns:1fr;}
 
 .location-address{color:#0f172a;line-height:1.65;word-break:keep-all}
 .location-distance{margin-top:10px;padding:10px 12px;border-radius:16px;background:#eff6ff;border:1px solid #bfdbfe;color:#1d4ed8;font-size:13px;font-weight:800;line-height:1.45}
-.location-distance.muted{background:#f8fafc;border-color:#e2e8f0;color:#64748b}
+.location-distance.muted{background:#f8fafc;border-color:#e2e8f0;color:#64748b}.location-travel-times{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;margin-top:9px}.location-travel-chip{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;min-height:46px;padding:8px 6px;border-radius:14px;background:#fff;border:1px solid #bfdbfe;color:#1d4ed8;text-align:center;line-height:1.2}.location-travel-chip b{font-size:12px;font-weight:1000;white-space:nowrap}.location-travel-chip span{font-size:11px;font-weight:900;color:#334155;white-space:nowrap}.location-travel-note{margin-top:7px;font-size:11px;font-weight:800;color:#64748b;line-height:1.45}@media(max-width:370px){.location-travel-times{grid-template-columns:1fr}.location-travel-chip{min-height:40px;flex-direction:row;justify-content:space-between;padding:9px 10px}}
 .location-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:8px}
 .location-actions .btn{min-height:48px}
 .location-note{margin-top:8px;font-size:11px;color:var(--muted);line-height:1.55}
@@ -12415,6 +12415,41 @@ async function refreshPushStatus(){
  return `약 ${(n / 1000).toFixed(n < 10000 ? 1 : 0)}km`;
  }
 
+function formatTravelDuration(minutes){
+ const n = Math.max(1, Math.round(Number(minutes) || 0));
+ if(n < 60) return `약 ${n}분`;
+ const h = Math.floor(n / 60);
+ const m = n % 60;
+ return m ? `약 ${h}시간 ${m}분` : `약 ${h}시간`;
+ }
+
+ function estimateTravelTimes(meters){
+ const distance = Number(meters);
+ if(!Number.isFinite(distance) || distance <= 0) return null;
+
+ // 단순 예상 시간입니다. 실제 네이버 길찾기 결과와는 교통상황/경로에 따라 달라질 수 있습니다.
+ const WALK_M_PER_MIN = 67;   // 약 4km/h
+ const BIKE_M_PER_MIN = 250;  // 약 15km/h
+ const CAR_M_PER_MIN = 500;   // 약 30km/h, 도심 이동 보수값
+
+ return {
+ walk: formatTravelDuration(distance / WALK_M_PER_MIN),
+ bike: formatTravelDuration(distance / BIKE_M_PER_MIN),
+ car: formatTravelDuration(distance / CAR_M_PER_MIN)
+ };
+ }
+
+ function travelTimesHtml(meters){
+ const estimate = estimateTravelTimes(meters);
+ if(!estimate) return '';
+ return `<div class="location-travel-times" aria-label="예상 이동 시간">
+ <div class="location-travel-chip"><b>🚶 도보</b><span>${escapeHtml(estimate.walk)}</span></div>
+ <div class="location-travel-chip"><b>🚲 자전거</b><span>${escapeHtml(estimate.bike)}</span></div>
+ <div class="location-travel-chip"><b>🚗 자동차</b><span>${escapeHtml(estimate.car)}</span></div>
+ </div>
+ <div class="location-travel-note">예상 시간은 직선거리 기반 참고값입니다. 실제 경로는 네이버 길찾기에서 확인해 주세요.</div>`;
+ }
+
  function shouldUseDistanceFilter(){
  return state.benefitSortMode === 'distance' || state.distanceRadius !== 'all';
  }
@@ -12654,7 +12689,7 @@ async function refreshPushStatus(){
  target.classList.add('muted');
  return;
  }
- target.textContent = `🚶 현재 위치에서 ${formatDistance(distance)} 거리입니다.${cached ? ' (최근 위치 기준)' : ''}`;
+ target.innerHTML = `<div>🚶 현재 위치에서 ${formatDistance(distance)} 거리입니다.${cached ? ' (최근 위치 기준)' : ''}</div>${travelTimesHtml(distance)}`;
  target.classList.remove('muted');
  };
 
