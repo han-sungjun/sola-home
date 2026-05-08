@@ -9742,6 +9742,101 @@ window.syncGnbNavSafe = window.syncGnbNavSafe || function(){ return; };
 }
 </style>
 
+
+<style id="detail-mini-map-overlap-pc-zoom-fix">
+/* 상세/AI 미니지도 중복 렌더링 및 PC 확대/축소 보정 */
+.detail-map-box{
+  position:relative!important;
+  overflow:hidden!important;
+  contain:layout paint!important;
+}
+.detail-map-canvas,
+#detailNaverMap,
+.ai-location-map-canvas{
+  width:100%!important;
+  height:178px!important;
+  min-height:178px!important;
+  max-height:178px!important;
+  display:block!important;
+  overflow:hidden!important;
+}
+.detail-map-box .nmap,
+.detail-map-box .nmap_map,
+.detail-map-box .nmap_container{
+  max-height:178px!important;
+}
+.detail-map-box.is-loading::after{
+  content:"지도를 불러오는 중입니다.";
+  position:absolute;
+  inset:0;
+  display:grid;
+  place-items:center;
+  color:#64748b;
+  font-size:13px;
+  font-weight:800;
+  background:rgba(248,250,252,.72);
+  pointer-events:none;
+  z-index:2;
+}
+.detail-map-box.is-ready::after{content:none!important;}
+</style>
+
+<style id="mini-map-custom-zoom-control-fix">
+/* ===== Detail mini map custom zoom controls: native control clipping fix ===== */
+.detail-map-box{
+  position:relative!important;
+  overflow:hidden!important;
+}
+.detail-mini-zoom-controls{
+  position:absolute;
+  top:10px;
+  right:10px;
+  z-index:30;
+  width:34px;
+  border-radius:12px;
+  overflow:hidden;
+  border:1px solid rgba(15,23,42,.18);
+  background:#fff;
+  box-shadow:0 8px 18px rgba(15,23,42,.16);
+  display:grid;
+}
+.detail-mini-zoom-btn{
+  width:34px;
+  height:34px;
+  border:0;
+  background:#fff;
+  color:#0f172a;
+  font-size:20px;
+  line-height:1;
+  font-weight:900;
+  cursor:pointer;
+  display:grid;
+  place-items:center;
+  -webkit-tap-highlight-color:transparent;
+}
+.detail-mini-zoom-btn + .detail-mini-zoom-btn{
+  border-top:1px solid #e2e8f0;
+}
+.detail-mini-zoom-btn:hover{
+  background:#f8fafc;
+}
+.detail-mini-zoom-btn:active{
+  transform:scale(.96);
+}
+@media(max-width:480px){
+  .detail-mini-zoom-controls{
+    top:8px;
+    right:8px;
+    width:32px;
+    border-radius:11px;
+  }
+  .detail-mini-zoom-btn{
+    width:32px;
+    height:32px;
+    font-size:18px;
+  }
+}
+</style>
 </head>
 <body>
  <div class="global-loading" id="globalLoadingBar" aria-hidden="true">
@@ -12823,7 +12918,120 @@ function getSpreadMapPosition(nm, center, index, count){const fakeItem={lat:cent
  async function renderMapMode({ fitBounds=false } = {}){if(state.view!=='map')return; const countEl=qs('#mapModeCount'), mapEl=qs('#benefitMap'); if(!mapEl)return; const items=getMapModeItems(); if(countEl)countEl.textContent=items.length+'건'; renderMapPlaceList(items); if(!items.length){benefitMapExpandedClusterKey=''; setMapModeStatus('좌표가 등록된 혜택이 없습니다. 관리자 페이지에서 주소→좌표 자동 조회 후 저장해 주세요.','muted');return;} if(!NAVER_MAP_CLIENT_ID){setMapModeStatus('NAVER_MAP_CLIENT_ID를 입력하면 지도 모드를 사용할 수 있습니다.','error');return;} setMapModeStatus('지도를 준비하는 중입니다...','muted'); try{await loadNaverMapsSdk(); const nm=window.naver.maps; const first=getBenefitLatLng(items[0]); const center=state.userLocation?new nm.LatLng(state.userLocation.lat,state.userLocation.lng):new nm.LatLng(first.lat,first.lng); if(!benefitMapInstance){benefitMapInstance=new nm.Map('benefitMap',{center,zoom:15,minZoom:10,zoomControl:true,zoomControlOptions:{position:nm.Position.TOP_RIGHT}}); nm.Event.addListener(benefitMapInstance,'idle',()=>renderMapMarkers(false)); nm.Event.addListener(benefitMapInstance,'click',()=>{if(benefitMapExpandedClusterKey){benefitMapExpandedClusterKey=''; renderMapMarkers(false); setMapModeStatus('지도에 여러 매장을 표시했습니다. 가까운 매장은 숫자 묶음으로 표시됩니다.','muted');}});}else{benefitMapInstance.setCenter(center);} renderMapMarkers(fitBounds); setMapModeStatus('지도에 여러 매장을 표시했습니다. 가까운 매장은 숫자 묶음으로 표시됩니다.','muted');}catch(e){console.error('지도 모드 렌더링 실패',e); setMapModeStatus('지도 로딩에 실패했습니다. Client ID와 네이버 콘솔 Web 서비스 URL을 확인해 주세요.','error');}}
  function renderMapMarkers(fitBounds=false){if(!benefitMapInstance||!window.naver?.maps)return; const nm=window.naver.maps; const items=getMapModeItems(); clearNaverMarkers(); const bounds=new nm.LatLngBounds(); const fitPoints=[]; const zoom=benefitMapInstance.getZoom?Number(benefitMapInstance.getZoom()||15):15; const autoSpreadZoom=zoom>=17; if(state.userLocation){const userPos=new nm.LatLng(state.userLocation.lat,state.userLocation.lng); fitPoints.push(userPos); bounds.extend(userPos); benefitMapUserMarker=new nm.Marker({position:userPos,map:benefitMapInstance,icon:{content:'<div class="map-marker-user" title="현재 위치"></div>',anchor:new nm.Point(9,9)},zIndex:200});} const clusters=clusterMapItems(items,zoom); const hasExpandedCluster=clusters.some(c=>getSamePositionClusterKey(c.items)===benefitMapExpandedClusterKey); if(benefitMapExpandedClusterKey&&!hasExpandedCluster) benefitMapExpandedClusterKey=''; clusters.forEach(c=>{const position=new nm.LatLng(c.lat,c.lng); fitPoints.push(position); bounds.extend(position); const samePositionKey=getSamePositionClusterKey(c.items); if(c.items.length>1 && (autoSpreadZoom || (samePositionKey&&benefitMapExpandedClusterKey===samePositionKey))){renderSpreadClusterMarkers(nm,c); return;} const marker=new nm.Marker({position,map:benefitMapInstance,icon:{content:c.items.length>1?clusterHtml(c.items.length):markerHtmlForItem(c.items[0]),anchor:new nm.Point(c.items.length>1?22:18,c.items.length>1?22:34)},zIndex:c.items.length>1?120:100}); nm.Event.addListener(marker,'click',()=>{if(c.items.length>1){benefitMapExpandedClusterKey=samePositionKey||''; benefitMapInstance.setCenter(position); benefitMapInstance.setZoom(Math.max(17, Math.min(19, Number(benefitMapInstance.getZoom()||15)+1))); renderMapMarkers(false); setMapModeStatus('확대된 지도에서는 모든 클러스터가 실제 거리와 방향을 기준으로 자동으로 펼쳐집니다.','muted');}else openDetail(c.items[0]);}); benefitMapMarkers.push(marker);}); if(fitBounds&&fitPoints.length){if(fitPoints.length===1){benefitMapInstance.setCenter(fitPoints[0]); benefitMapInstance.setZoom(16);}else{try{benefitMapInstance.fitBounds(bounds,{top:50,right:36,bottom:50,left:36});}catch(_){benefitMapInstance.fitBounds(bounds);}}}}
  async function centerMapToMyLocation(){try{setMapModeStatus('현재 위치를 확인하는 중입니다...','muted'); await getReliableCurrentPosition({forceRefresh:false}); recalculateBenefitDistances(); if(benefitMapInstance&&state.userLocation&&window.naver?.maps){benefitMapInstance.setCenter(new window.naver.maps.LatLng(state.userLocation.lat,state.userLocation.lng)); benefitMapInstance.setZoom(15);} renderAll(); setTimeout(()=>renderMapMode({fitBounds:true}),60);}catch(e){console.warn('지도 현재 위치 확인 실패',e); setMapModeStatus('현재 위치 권한을 허용하면 내 주변 혜택을 지도에서 볼 수 있습니다.','error');}}
- async function renderDetailMiniMap(item={}){const mapEl=qs('#detailNaverMap'); const pos=getBenefitLatLng(item); if(!mapEl||!pos)return; if(!NAVER_MAP_CLIENT_ID){mapEl.innerHTML='<div class="detail-map-empty">NAVER_MAP_CLIENT_ID를 입력하면 지도가 표시됩니다.</div>';return;} try{await loadNaverMapsSdk(); if(!qs('#detailNaverMap'))return; const nm=window.naver.maps; const store=new nm.LatLng(pos.lat,pos.lng); detailMapInstance=new nm.Map('detailNaverMap',{center:store,zoom:16,zoomControl:false,scrollWheel:false,draggable:true}); new nm.Marker({position:store,map:detailMapInstance,icon:{content:'<div class="map-marker-store">매장</div>',anchor:new nm.Point(20,34)},zIndex:100}); const bounds=new nm.LatLngBounds(); bounds.extend(store); if(hasFreshUserLocation()){const me=new nm.LatLng(state.userLocation.lat,state.userLocation.lng); bounds.extend(me); new nm.Marker({position:me,map:detailMapInstance,icon:{content:'<div class="map-marker-user" title="현재 위치"></div>',anchor:new nm.Point(9,9)},zIndex:120}); new nm.Polyline({map:detailMapInstance,path:[me,store],strokeColor:'#2563eb',strokeWeight:4,strokeOpacity:.82}); try{detailMapInstance.fitBounds(bounds,{top:34,right:34,bottom:34,left:34});}catch(_){detailMapInstance.fitBounds(bounds);}}else{getReliableCurrentPosition({forceRefresh:false}).then(()=>renderDetailMiniMap(item)).catch(()=>{});}}catch(e){console.warn('상세 미니 지도 렌더링 실패',e); if(qs('#detailNaverMap'))qs('#detailNaverMap').innerHTML='<div class="detail-map-empty">지도 로딩에 실패했습니다.</div>';}}
+ 
+ function ensureDetailMiniMapZoomControls(mapEl, mapInstance){
+  try{
+   const box=mapEl?.closest?.('.detail-map-box');
+   if(!box || !mapInstance) return;
+   box.querySelectorAll('.detail-mini-zoom-controls').forEach((el)=>el.remove());
+   const controls=document.createElement('div');
+   controls.className='detail-mini-zoom-controls';
+   controls.setAttribute('aria-label','미니지도 확대 축소');
+   controls.innerHTML='<button type="button" class="detail-mini-zoom-btn" data-zoom-delta="1" aria-label="지도 확대">+</button><button type="button" class="detail-mini-zoom-btn" data-zoom-delta="-1" aria-label="지도 축소">−</button>';
+   controls.addEventListener('click',(event)=>{
+    const btn=event.target.closest('[data-zoom-delta]');
+    if(!btn) return;
+    event.preventDefault();
+    event.stopPropagation();
+    const delta=Number(btn.dataset.zoomDelta||0);
+    const current=Number(mapInstance.getZoom?.()||16);
+    const min=Number(mapInstance.getMinZoom?.()||6);
+    const max=Number(mapInstance.getMaxZoom?.()||21);
+    const next=Math.max(min, Math.min(max, current + delta));
+    if(typeof mapInstance.setZoom==='function') mapInstance.setZoom(next);
+   });
+   // Naver 지도 위에 올린 버튼이 PC에서 드래그/휠 이벤트를 지도에 넘기지 않도록 차단합니다.
+   ['mousedown','mouseup','click','dblclick','touchstart','touchend','wheel'].forEach((type)=>{
+    controls.addEventListener(type,(event)=>event.stopPropagation(), { passive:false });
+   });
+   box.appendChild(controls);
+  }catch(error){
+   console.warn('미니지도 확대/축소 컨트롤 생성 실패', error);
+  }
+ }
+
+ async function renderDetailMiniMap(item={}){
+ const mapEl=qs('#detailNaverMap');
+ const pos=getBenefitLatLng(item);
+ if(!mapEl||!pos)return;
+ const itemId=String(item.id||item.name||pos.lat+','+pos.lng);
+ renderDetailMiniMap._seq=(renderDetailMiniMap._seq||0)+1;
+ const seq=renderDetailMiniMap._seq;
+
+ if(!NAVER_MAP_CLIENT_ID){
+  mapEl.innerHTML='<div class="detail-map-empty">NAVER_MAP_CLIENT_ID를 입력하면 지도가 표시됩니다.</div>';
+  return;
+ }
+
+ // 같은 상세 모달에서 중복 호출될 때 네이버 지도가 한 번 더 그려져 아래 영역을 밀어내는 현상을 방지합니다.
+ if(mapEl.dataset.rendered==='stable' && mapEl.dataset.benefitId===itemId && detailMapInstance && window.naver?.maps){
+  try{
+   window.naver.maps.Event.trigger(detailMapInstance,'resize');
+   const center=new window.naver.maps.LatLng(pos.lat,pos.lng);
+   if(!hasFreshUserLocation()) detailMapInstance.setCenter(center);
+  }catch(_){ }
+  return;
+ }
+
+ mapEl.dataset.benefitId=itemId;
+ mapEl.dataset.rendered='rendering';
+ mapEl.innerHTML='';
+ const box=mapEl.closest('.detail-map-box');
+ box?.classList.add('is-loading');
+ box?.classList.remove('is-ready');
+
+ try{
+  await loadNaverMapsSdk();
+  if(seq!==renderDetailMiniMap._seq || !qs('#detailNaverMap') || qs('#detailNaverMap')!==mapEl)return;
+  const nm=window.naver.maps;
+  const store=new nm.LatLng(pos.lat,pos.lng);
+  detailMapInstance=new nm.Map(mapEl,{
+   center:store,
+   zoom:16,
+   // 네이버 기본 확대/축소 컨트롤은 미니지도 우측에서 잘리는 경우가 있어
+   // 커스텀 컨트롤을 지도 박스 안쪽에 따로 올립니다.
+   zoomControl:false,
+   scrollWheel:true,
+   draggable:true,
+   pinchZoom:true
+  });
+  ensureDetailMiniMapZoomControls(mapEl, detailMapInstance);
+  new nm.Marker({position:store,map:detailMapInstance,icon:{content:'<div class="map-marker-store">매장</div>',anchor:new nm.Point(20,34)},zIndex:100});
+  let bounds=null;
+  if(hasFreshUserLocation()){
+   const me=new nm.LatLng(state.userLocation.lat,state.userLocation.lng);
+   bounds=new nm.LatLngBounds();
+   bounds.extend(store);
+   bounds.extend(me);
+   new nm.Marker({position:me,map:detailMapInstance,icon:{content:'<div class="map-marker-user" title="현재 위치"></div>',anchor:new nm.Point(9,9)},zIndex:120});
+   new nm.Polyline({map:detailMapInstance,path:[me,store],strokeColor:'#2563eb',strokeWeight:4,strokeOpacity:.82});
+   try{detailMapInstance.fitBounds(bounds,{top:42,right:42,bottom:42,left:42});}catch(_){detailMapInstance.fitBounds(bounds);}
+  }else{
+   // 위치 권한 확인은 뒤에서 조용히 갱신하되, 이미 그린 지도는 다시 중복 생성하지 않습니다.
+   getReliableCurrentPosition({forceRefresh:false})
+    .then(()=>{ mapEl.dataset.rendered=''; renderDetailMiniMap(item); })
+    .catch(()=>{});
+  }
+  const resize=()=>{
+   try{nm.Event.trigger(detailMapInstance,'resize');}catch(_){ }
+   try{ if(bounds) detailMapInstance.fitBounds(bounds,{top:42,right:42,bottom:42,left:42}); else detailMapInstance.setCenter(store); }catch(_){ }
+  };
+  resize();
+  requestAnimationFrame(resize);
+  setTimeout(resize,120);
+  setTimeout(resize,360);
+  mapEl.dataset.rendered='stable';
+  box?.classList.remove('is-loading');
+  box?.classList.add('is-ready');
+ }catch(e){
+  console.warn('상세 미니 지도 렌더링 실패',e);
+  if(qs('#detailNaverMap')===mapEl){
+   mapEl.dataset.rendered='';
+   mapEl.innerHTML='<div class="detail-map-empty">지도 로딩에 실패했습니다.</div>';
+   box?.classList.remove('is-loading');
+  }
+ }
+}
 
  const CATEGORY_ICONS = {
  '전체':'🏷️',
@@ -15407,8 +15615,7 @@ function renderCalendarDayModal(){
  qs('#benefitQrShareBtn')?.addEventListener('click', () => showQrCode('benefit', item));
  bindResidentReactionButtons(item);
  updateDistanceText(item);
- setTimeout(() => renderDetailMiniMap(item, 0), 80);
- setTimeout(() => renderDetailMiniMap(item, 0), 280);
+ setTimeout(() => renderDetailMiniMap(item), 120);
  setTimeout(() => {
    try{
      if(detailMapInstance && window.naver?.maps){
@@ -16986,9 +17193,11 @@ function getAiAttachmentType(item={}){
  const map = new nm.Map(mapEl, {
  center: store,
  zoom: 16,
- zoomControl: false,
- scrollWheel: false,
- draggable: true
+ zoomControl: true,
+ zoomControlOptions: { position: nm.Position.TOP_RIGHT },
+ scrollWheel: true,
+ draggable: true,
+ pinchZoom: true
  });
 
  new nm.Marker({
