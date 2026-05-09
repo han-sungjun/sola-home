@@ -14,23 +14,23 @@
  <meta name="apple-mobile-web-app-capable" content="yes">
  <meta name="mobile-web-app-capable" content="yes">
  <meta name="apple-mobile-web-app-status-bar-style" content="default">
- <meta name="apple-mobile-web-app-title" content="더운정 마이힐스">
+ <meta name="apple-mobile-web-app-title" content="더운정픽">
  <link rel="apple-touch-icon" href="/icons/icon-180.png">
- <meta name="description" content="더운정 마이힐스 입주민 전용 혜택 웹앱">
+ <meta name="description" content="더운정픽 입주민 전용 혜택 웹앱">
  <meta name="robots" content="index,follow">
- <title>더운정 마이힐스 관리자</title>
+ <title>더운정픽 관리자</title>
  <meta property="og:type" content="website">
- <meta property="og:site_name" content="더운정 마이힐스">
- <meta property="og:title" content="더운정 마이힐스">
- <meta property="og:description" content="더운정 마이힐스 관리자">
+ <meta property="og:site_name" content="더운정픽">
+ <meta property="og:title" content="더운정픽">
+ <meta property="og:description" content="더운정픽 관리자">
  <meta property="og:image" content="__BASE_URL__/icons/icon-512.png?v=20260425b">
  <meta property="og:url" content="__BASE_URL__/app">
  <meta name="twitter:card" content="summary_large_image">
- <meta name="twitter:title" content="더운정 마이힐스">
- <meta name="twitter:description" content="더운정 마이힐스 관리자">
+ <meta name="twitter:title" content="더운정픽">
+ <meta name="twitter:description" content="더운정픽 관리자">
  <meta name="twitter:image" content="__BASE_URL__/icons/icon-512.png?v=20260425b">
   
-  <link rel="icon" href="/icons/icon-192.png" />
+  <link rel="icon" href="/icons/favicon.ico?v=20260510">
 
   <!-- iOS Splash Images -->
   <link rel="apple-touch-startup-image" href="/icons/splash-ios-750x1334.png" media="(device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2)" />
@@ -1057,7 +1057,7 @@ body.gnb-open .admin-bottom-nav{
   box-shadow:0 20px 42px rgba(49,46,129,.18);
 }
 .ai-admin-hero::after{
-  content:"🤖";
+  content:"";
   position:absolute;
   right:18px;
   bottom:-10px;
@@ -1699,6 +1699,491 @@ body.gnb-open .admin-bottom-nav{
 .station-add-btn{width:100%;margin-top:4px}
 @media (max-width:520px){.station-row{grid-template-columns:1fr 1fr}.station-row .station-distance{grid-column:auto}.station-remove-btn{grid-column:1 / -1;width:100%;height:40px}}
 
+
+/* 더운정픽 내부 SVG 아이콘 */
+.upick-svg-icon{width:1.35em;height:1.35em;display:inline-block;vertical-align:-.22em;object-fit:contain;flex:0 0 auto}
+.nav-icon .upick-svg-icon,.admin-all-card-icon .upick-svg-icon,.gnb-card-icon .upick-svg-icon,.gnb-hero-emoji .upick-svg-icon,.logo .upick-svg-icon,.gnb-icon-btn .upick-svg-icon{width:24px;height:24px;vertical-align:middle}
+.gnb-icon-btn .upick-svg-icon{width:22px;height:22px}
+
+
+.menu-icon-preview{display:flex;align-items:center;gap:10px;margin-top:8px;padding:10px 12px;border:1px solid rgba(148,163,184,.28);border-radius:14px;background:rgba(248,250,252,.78);font-size:13px;color:#64748b}
+.menu-icon-preview img{width:32px;height:32px;object-fit:contain}
+.menu-card-icon-img{width:28px;height:28px;object-fit:contain;vertical-align:middle}
+
+
+/* 더운정픽 본문 정적 이모지 SVG 교체 */
+.upick-inline-icon{width:1.12em;height:1.12em;display:inline-block;vertical-align:-.18em;object-fit:contain;margin-right:.28em}
+
+
+/* =========================
+   더운정픽 UI Polish v1
+   - 브랜드 톤 정리
+   - SVG 아이콘 정렬
+   - 카드/하단 네비/본문 섹션 안정화
+========================= */
+:root{
+  --upick-navy:#101a33;
+  --upick-navy-2:#172342;
+  --upick-gold:#c8af87;
+  --upick-gold-2:#d7b36f;
+  --upick-red:#8a1d2d;
+  --upick-card:#ffffff;
+  --upick-soft:#f7f9fc;
+  --upick-line:rgba(16,26,51,.08);
+  --upick-shadow:0 18px 42px rgba(16,26,51,.10);
+  --upick-shadow-soft:0 10px 28px rgba(16,26,51,.08);
+}
+
+/* SVG 아이콘 공통 정렬 */
+.upick-svg-icon,
+.upick-menu-icon-img,
+.upick-inline-icon{
+  object-fit:contain;
+  transform:translateZ(0);
+  image-rendering:auto;
+}
+.upick-inline-icon{
+  width:1.12em;
+  height:1.12em;
+  margin-right:.34em;
+  vertical-align:-.18em;
+}
+.nav-icon .upick-svg-icon,
+.nav-icon .upick-menu-icon-img{
+  width:24px !important;
+  height:24px !important;
+  margin:0 !important;
+  vertical-align:middle;
+}
+.icon-btn .upick-svg-icon,
+.gnb-icon-btn .upick-svg-icon{
+  width:22px;
+  height:22px;
+}
+
+/* 본문 상단 패널/섹션 헤더 정리 */
+.panel{
+  border-color:var(--upick-line);
+}
+.section-head h3,
+.panel h3{
+  letter-spacing:-.045em;
+}
+.section-head small{
+  color:#64748b;
+}
+
+/* 전체 기능 카드 */
+.all-menu-grid,
+#allMenuGrid{
+  gap:14px !important;
+}
+.all-menu-card{
+  border:1px solid rgba(16,26,51,.065) !important;
+  box-shadow:var(--upick-shadow-soft) !important;
+  background:linear-gradient(180deg,#ffffff 0%,#fbfcff 100%) !important;
+  transition:transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+}
+.all-menu-card:active{
+  transform:scale(.985);
+}
+.all-menu-card:hover{
+  box-shadow:0 18px 40px rgba(16,26,51,.13) !important;
+  border-color:rgba(200,175,135,.28) !important;
+}
+.all-menu-card-icon,
+.menu-card-icon,
+.gnb-card-icon,
+.admin-all-card-icon{
+  display:inline-flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  width:48px !important;
+  height:48px !important;
+  border-radius:18px !important;
+  background:linear-gradient(145deg,rgba(255,255,255,.95),rgba(245,248,255,.78)) !important;
+  border:1px solid rgba(16,26,51,.06) !important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.9),0 8px 18px rgba(16,26,51,.06) !important;
+}
+.all-menu-card-icon img,
+.menu-card-icon img,
+.gnb-card-icon img,
+.admin-all-card-icon img{
+  width:30px !important;
+  height:30px !important;
+  margin:0 !important;
+}
+
+/* AI 대표 카드 */
+.ai-view-hero,
+.ai-card,
+#view-ai .ai-view-hero{
+  background:
+    radial-gradient(circle at 82% 18%,rgba(200,175,135,.20),transparent 28%),
+    linear-gradient(135deg,#101a33 0%,#173a86 58%,#2455d6 100%) !important;
+  box-shadow:0 22px 48px rgba(23,58,134,.24) !important;
+  border:1px solid rgba(255,255,255,.12) !important;
+}
+.ai-ready-pill{
+  background:rgba(255,255,255,.10) !important;
+  border:1px solid rgba(255,255,255,.18) !important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.16) !important;
+}
+
+/* 혜택/공지/TOP5 첫 패널 브랜드 선 정리 */
+#view-benefits > .panel:first-child,
+#view-notices > .panel:first-child,
+#view-top5 > .panel:first-child,
+#view-calendar > .panel:first-child{
+  border:1px solid rgba(16,26,51,.06);
+  box-shadow:var(--upick-shadow-soft);
+  overflow:hidden;
+}
+#view-benefits > .panel:first-child::before,
+#view-notices > .panel:first-child::before,
+#view-top5 > .panel:first-child::before,
+#view-calendar > .panel:first-child::before{
+  height:4px !important;
+  opacity:1 !important;
+}
+#view-benefits > .panel:first-child::before{
+  background:linear-gradient(90deg,#3b82f6,#60a5fa) !important;
+}
+#view-top5 > .panel:first-child::before{
+  background:linear-gradient(90deg,#f59e0b,#ef4444) !important;
+}
+#view-notices > .panel:first-child::before{
+  background:linear-gradient(90deg,#c8af87,#8a1d2d) !important;
+}
+#view-calendar > .panel:first-child::before{
+  background:linear-gradient(90deg,#8a1d2d,#c8af87) !important;
+}
+
+/* 필터/칩/버튼 질감 통일 */
+.filter-sticky,
+.benefit-filter-bar,
+.ai-memory-toolbar,
+.ai-quick-row{
+  border-color:rgba(16,26,51,.06) !important;
+}
+.btn,
+.filter-chip,
+.radius-chip,
+.view-mode-btn,
+.ai-quick-btn{
+  letter-spacing:-.025em;
+}
+.btn-primary,
+.nav-btn.active{
+  background:linear-gradient(135deg,var(--upick-navy),var(--upick-navy-2)) !important;
+}
+
+/* 하단 네비바 */
+.bottom-nav{
+  background:rgba(16,26,51,.96) !important;
+  border:1px solid rgba(255,255,255,.10) !important;
+  box-shadow:0 -14px 36px rgba(16,26,51,.22) !important;
+  backdrop-filter:blur(18px);
+}
+.bottom-nav .nav-btn{
+  min-width:0;
+}
+.bottom-nav .nav-btn .nav-icon{
+  display:inline-flex !important;
+  align-items:center;
+  justify-content:center;
+  width:32px;
+  height:28px;
+}
+.bottom-nav .nav-btn.active{
+  background:rgba(255,255,255,.12) !important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.08);
+}
+.bottom-nav .nav-btn.active .nav-icon{
+  filter:drop-shadow(0 6px 10px rgba(200,175,135,.26));
+}
+
+/* GNB 시트 */
+.gnb-sheet{
+  background:
+    radial-gradient(circle at 80% 12%,rgba(200,175,135,.13),transparent 28%),
+    linear-gradient(180deg,rgba(22,34,60,.98),rgba(16,26,51,.98)) !important;
+}
+.gnb-menu-item,
+.gnb-menu-subitem{
+  border-color:rgba(255,255,255,.10) !important;
+}
+.gnb-menu-label{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+}
+.gnb-menu-icon{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  width:28px;
+  height:28px;
+  flex:0 0 auto;
+}
+
+/* TOP5 카드 */
+.top5-card,
+.popular-card,
+.hot-card{
+  border-color:rgba(245,158,11,.22) !important;
+  box-shadow:0 12px 28px rgba(245,158,11,.10) !important;
+}
+
+/* 모바일 여백/터치감 */
+@media (max-width: 720px){
+  .panel{
+    border-radius:24px;
+  }
+  .all-menu-card{
+    border-radius:24px !important;
+    padding:20px !important;
+  }
+  .all-menu-card-icon,
+  .menu-card-icon{
+    width:46px !important;
+    height:46px !important;
+    border-radius:17px !important;
+  }
+  .all-menu-card-icon img,
+  .menu-card-icon img{
+    width:29px !important;
+    height:29px !important;
+  }
+  .bottom-nav{
+    border-radius:26px 26px 0 0 !important;
+  }
+}
+
+
+/* =========================
+   더운정픽 UI Polish v1.1
+   - 전체 기능 카드 텍스트 대비 보정
+========================= */
+
+/* 전체 기능 카드 기본 텍스트는 항상 진한 색으로 고정 */
+.all-menu-card,
+.all-menu-card strong,
+.all-menu-card h3,
+.all-menu-card h4,
+.all-menu-card .all-menu-title,
+.all-menu-card .menu-title{
+  color:#0f172a !important;
+}
+.all-menu-card p,
+.all-menu-card small,
+.all-menu-card .all-menu-desc,
+.all-menu-card .menu-desc{
+  color:#64748b !important;
+}
+
+/* 강조 카드도 텍스트가 배경에 묻히지 않도록 보정 */
+.all-menu-card.featured,
+.all-menu-card.ai,
+.all-menu-card[data-view-link="ai"],
+.all-menu-card[data-view="ai"]{
+  background:
+    radial-gradient(circle at 80% 16%,rgba(200,175,135,.18),transparent 32%),
+    linear-gradient(135deg,#101a33 0%,#183d8f 62%,#2455d6 100%) !important;
+  border-color:rgba(255,255,255,.12) !important;
+  box-shadow:0 22px 48px rgba(23,58,134,.22) !important;
+}
+.all-menu-card.featured strong,
+.all-menu-card.featured h3,
+.all-menu-card.featured h4,
+.all-menu-card.featured .all-menu-title,
+.all-menu-card.ai strong,
+.all-menu-card.ai h3,
+.all-menu-card.ai h4,
+.all-menu-card.ai .all-menu-title,
+.all-menu-card[data-view-link="ai"] strong,
+.all-menu-card[data-view-link="ai"] h3,
+.all-menu-card[data-view-link="ai"] h4,
+.all-menu-card[data-view-link="ai"] .all-menu-title,
+.all-menu-card[data-view="ai"] strong,
+.all-menu-card[data-view="ai"] h3,
+.all-menu-card[data-view="ai"] h4,
+.all-menu-card[data-view="ai"] .all-menu-title{
+  color:#ffffff !important;
+}
+.all-menu-card.featured p,
+.all-menu-card.featured small,
+.all-menu-card.featured .all-menu-desc,
+.all-menu-card.ai p,
+.all-menu-card.ai small,
+.all-menu-card.ai .all-menu-desc,
+.all-menu-card[data-view-link="ai"] p,
+.all-menu-card[data-view-link="ai"] small,
+.all-menu-card[data-view-link="ai"] .all-menu-desc,
+.all-menu-card[data-view="ai"] p,
+.all-menu-card[data-view="ai"] small,
+.all-menu-card[data-view="ai"] .all-menu-desc{
+  color:rgba(255,255,255,.78) !important;
+}
+
+/* NEW/인기/최근 배지는 카드 색상과 독립적으로 표시 */
+.all-menu-card .gnb-inline-badge,
+.all-menu-card .gnb-context-badge,
+.all-menu-card .menu-trend-badge,
+.all-menu-card .menu-trend-ribbon{
+  color:#fff !important;
+}
+
+/* 아이콘 카드 배경은 흰 카드/파란 카드 모두에서 자연스럽게 */
+.all-menu-card .all-menu-card-icon,
+.all-menu-card .menu-card-icon{
+  background:rgba(245,248,255,.88) !important;
+}
+.all-menu-card.featured .all-menu-card-icon,
+.all-menu-card.ai .all-menu-card-icon,
+.all-menu-card[data-view-link="ai"] .all-menu-card-icon,
+.all-menu-card[data-view="ai"] .all-menu-card-icon{
+  background:rgba(255,255,255,.16) !important;
+  border-color:rgba(255,255,255,.20) !important;
+}
+
+
+/* =========================
+   더운정픽 AI 아이콘 강조 보정
+========================= */
+
+/* AI 카드 아이콘 배경 강화 */
+.ai-card .all-menu-card-icon,
+.ai-card .menu-card-icon,
+.all-menu-card.ai .all-menu-card-icon,
+.all-menu-card.ai .menu-card-icon,
+.all-menu-card[data-view-link="ai"] .all-menu-card-icon,
+.all-menu-card[data-view-link="ai"] .menu-card-icon,
+.all-menu-card[data-view="ai"] .all-menu-card-icon,
+.all-menu-card[data-view="ai"] .menu-card-icon{
+  position:relative;
+  background:
+    radial-gradient(circle at 30% 30%,rgba(255,255,255,.22),rgba(255,255,255,.08)) !important;
+  border:1px solid rgba(255,255,255,.24) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.20),
+    0 10px 24px rgba(0,0,0,.22),
+    0 0 0 1px rgba(255,255,255,.04) !important;
+  backdrop-filter:blur(8px);
+}
+
+/* 아이콘 자체도 살짝 밝게 */
+.ai-card .all-menu-card-icon img,
+.ai-card .menu-card-icon img,
+.all-menu-card.ai .all-menu-card-icon img,
+.all-menu-card.ai .menu-card-icon img,
+.all-menu-card[data-view-link="ai"] .all-menu-card-icon img,
+.all-menu-card[data-view-link="ai"] .menu-card-icon img,
+.all-menu-card[data-view="ai"] .all-menu-card-icon img,
+.all-menu-card[data-view="ai"] .menu-card-icon img{
+  filter:
+    brightness(1.08)
+    contrast(1.06)
+    drop-shadow(0 3px 8px rgba(255,255,255,.12));
+  transform:translateZ(0);
+}
+
+/* HOT/NEW 뱃지와 아이콘 간 간격 */
+.ai-card .gnb-inline-badges,
+.all-menu-card.ai .gnb-inline-badges,
+.all-menu-card[data-view-link="ai"] .gnb-inline-badges,
+.all-menu-card[data-view="ai"] .gnb-inline-badges{
+  margin-bottom:10px;
+}
+
+/* AI 카드 자체 depth 추가 */
+.ai-card,
+.all-menu-card.ai,
+.all-menu-card[data-view-link="ai"],
+.all-menu-card[data-view="ai"]{
+  overflow:hidden;
+}
+.ai-card::after,
+.all-menu-card.ai::after,
+.all-menu-card[data-view-link="ai"]::after,
+.all-menu-card[data-view="ai"]::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+  background:
+    radial-gradient(circle at 20% 12%,rgba(255,255,255,.10),transparent 26%),
+    radial-gradient(circle at 82% 20%,rgba(200,175,135,.14),transparent 24%);
+  opacity:.9;
+}
+
+
+/* =========================
+   더운정픽 AI pill 아이콘 가독성 보정
+========================= */
+
+/* AI 상단 pill 내부 아이콘 전용 배지 */
+.ai-ready-pill{
+  display:inline-flex !important;
+  align-items:center !important;
+  gap:7px !important;
+  width:max-content;
+  max-width:100%;
+}
+
+.ai-ready-pill .upick-inline-icon,
+.ai-ready-pill .upick-svg-icon{
+  width:22px !important;
+  height:22px !important;
+  margin:0 2px 0 0 !important;
+  padding:4px !important;
+  box-sizing:border-box !important;
+  border-radius:999px !important;
+  background:
+    radial-gradient(circle at 30% 25%,#ffffff 0%,#f7f2ea 54%,#e8d8bf 100%) !important;
+  border:1px solid rgba(255,255,255,.70) !important;
+  box-shadow:
+    0 3px 10px rgba(0,0,0,.22),
+    0 0 0 1px rgba(200,175,135,.38),
+    inset 0 1px 0 rgba(255,255,255,.90) !important;
+  filter:
+    brightness(1.15)
+    contrast(1.12)
+    drop-shadow(0 1px 1px rgba(16,26,51,.18)) !important;
+  flex:0 0 22px !important;
+}
+
+/* pill 텍스트는 아이콘과 분리되어 잘 보이도록 */
+.ai-ready-pill{
+  color:#ffffff !important;
+  text-shadow:0 1px 2px rgba(0,0,0,.20);
+  background:rgba(255,255,255,.12) !important;
+  border:1px solid rgba(255,255,255,.24) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.16),
+    0 6px 16px rgba(0,0,0,.16) !important;
+}
+
+/* AI hero/card 안에서 pill이 배경 효과보다 위에 오도록 */
+.ai-view-hero .ai-ready-pill,
+.all-menu-card.ai .ai-ready-pill,
+.all-menu-card[data-view-link="ai"] .ai-ready-pill,
+.all-menu-card[data-view="ai"] .ai-ready-pill{
+  position:relative;
+  z-index:2;
+}
+
+
+/* icon:xxx 문자열 출력 방지용 inline 아이콘 */
+.upick-link-icon{
+  width:1.05em;
+  height:1.05em;
+  display:inline-block;
+  vertical-align:-.18em;
+  object-fit:contain;
+  margin-right:.28em;
+}
+
 </style>
 
   <!-- Add to Home + First Launch UX -->
@@ -2026,13 +2511,13 @@ body.gnb-open .admin-bottom-nav{
           <div><strong id="adminTopUser">운영자 확인 중</strong><span id="adminTopStatus">로그인 필요</span></div>
         </div>
         <button class="icon-btn" onclick="location.href='/'" title="공개 페이지">⌂</button>
-<button class="icon-btn" id="adminGnbToggleBtn" title="메뉴">☰</button>
+<button class="icon-btn" id="adminGnbToggleBtn" title="메뉴"><img class="upick-svg-icon" src="/icons/internal/all-menu.svg" alt="" loading="lazy"></button>
       </div>
       <div class="admin-topbar-left admin-topbar-left-titleline">
         <div class="brand">
-          <div class="logo">🛠️</div>
+          <div class="logo"><img class="upick-svg-icon" src="/icons/internal/settings.svg" alt="" loading="lazy"></div>
           <div>
-            <h1>더운정 마이힐스<br>운영자</h1>
+            <h1>더운정픽<br>운영자</h1>
             <p>운영자 전용 관리 서비스</p>
           </div>
         </div>
@@ -2139,10 +2624,10 @@ body.gnb-open .admin-bottom-nav{
           <form id="menuForm" class="menu-admin-form" novalidate>
             <input type="hidden" id="menuEditId" value="" />
             <div class="grid-2"><div class="field"><label for="menuId">메뉴 ID</label><input id="menuId" placeholder="예: calendar" required /></div><div class="field"><label for="menuName">메뉴명</label><input id="menuName" placeholder="예: 캘린더 예약" required /></div></div>
-            <div class="grid-2"><div class="field"><label for="menuIcon">아이콘</label><input id="menuIcon" placeholder="예: 📅" /></div><div class="field"><label for="menuView">이동 view</label><input id="menuView" placeholder="예: calendar" required /></div></div>
+            <div class="grid-2"><div class="field"><label for="menuIcon">아이콘 fallback</label><input id="menuIcon" placeholder="예: 📅 또는 icon:calendar" /><div class="admin-field-help">아이콘 URL이 없을 때만 보조로 사용됩니다.</div></div><div class="field"><label for="menuView">이동 view</label><input id="menuView" placeholder="예: calendar" required /></div></div><div class="field"><label for="menuIconUrl">아이콘 URL</label><input id="menuIconUrl" placeholder="/icons/internal/calendar.svg" /><div class="admin-field-help">Firestore에는 상대경로로 저장하는 것을 권장합니다. 예: /icons/internal/ai-assistant.svg</div><div class="menu-icon-preview" id="menuIconPreview"><span>아이콘 미리보기</span></div></div>
             <div class="field"><label for="menuKeywords">검색 키워드</label><input id="menuKeywords" placeholder="예약, 알림, 일정, 달력" /><div class="admin-field-help">쉼표로 구분합니다. GNB 검색과 AI 메뉴 안내에 같이 활용됩니다.</div></div>
             <div class="grid-2"><div class="field"><label for="menuOrder">정렬 순서</label><input id="menuOrder" type="number" value="100" /></div><div class="field"><label for="menuDescription">관리 메모</label><input id="menuDescription" placeholder="사용자에게 노출될 설명 또는 운영 메모" /></div></div>
-            <div class="field"><label>노출 구역</label><div class="menu-section-row"><label><input type="checkbox" name="menuSection" value="main" checked> 더운정 마이힐스</label><label><input type="checkbox" name="menuSection" value="all"> 전체 기능</label><label><input type="checkbox" name="menuSection" value="bottom"> 하단 네비 후보</label><label><input type="checkbox" name="menuSection" value="new"> 새로 나왔어요</label><label><input type="checkbox" name="menuSection" value="gnb"> GNB 기본</label><label><input type="checkbox" name="menuSection" value="admin"> 관리자</label></div></div>
+            <div class="field"><label>노출 구역</label><div class="menu-section-row"><label><input type="checkbox" name="menuSection" value="main" checked> 더운정픽</label><label><input type="checkbox" name="menuSection" value="all"> 전체 기능</label><label><input type="checkbox" name="menuSection" value="bottom"> 하단 네비 후보</label><label><input type="checkbox" name="menuSection" value="new"> 새로 나왔어요</label><label><input type="checkbox" name="menuSection" value="gnb"> GNB 기본</label><label><input type="checkbox" name="menuSection" value="admin"> 관리자</label></div></div>
             <div class="field"><label>노출 권한</label><div class="menu-role-row"><label><input type="checkbox" name="menuRole" value="resident" checked> 입주민</label><label><input type="checkbox" name="menuRole" value="admin" checked> 관리자</label><label><input type="checkbox" name="menuRole" value="root" checked> Root</label></div></div>
             <div class="field"><label>상태</label><div class="check-row"><label><input type="checkbox" id="menuIsActive" checked> 공개앱 노출</label></div></div>
             <div class="grid-2"><button class="btn btn-primary" type="submit">메뉴 저장</button><button class="btn btn-soft" type="button" id="menuResetBtn">새 메뉴 작성</button></div>
@@ -2288,14 +2773,14 @@ body.gnb-open .admin-bottom-nav{
         </div>
         <div class="admin-all-grid">
           <button class="admin-all-card dashboard" type="button" data-admin-view="dashboard"><span class="admin-all-card-icon">📊</span><strong>대시보드</strong><span>운영 현황과 신고 누적 TOP 게시글을 확인합니다.</span></button>
-          <button class="admin-all-card benefits" type="button" data-admin-view="benefits"><span class="admin-all-card-icon">🎁</span><strong>혜택 관리</strong><span>제휴 혜택 등록, 수정, TOP5 가중치를 관리합니다.</span></button>
-          <button class="admin-all-card notices" type="button" data-admin-view="notices"><span class="admin-all-card-icon">📢</span><strong>공지 관리</strong><span>공지 작성과 푸시 작업 생성을 처리합니다.</span></button>
+          <button class="admin-all-card benefits" type="button" data-admin-view="benefits"><span class="admin-all-card-icon"><img class="upick-svg-icon" src="/icons/internal/benefit.svg" alt="" loading="lazy"></span><strong>혜택 관리</strong><span>제휴 혜택 등록, 수정, TOP5 가중치를 관리합니다.</span></button>
+          <button class="admin-all-card notices" type="button" data-admin-view="notices"><span class="admin-all-card-icon"><img class="upick-svg-icon" src="/icons/internal/notice.svg" alt="" loading="lazy"></span><strong>공지 관리</strong><span>공지 작성과 푸시 작업 생성을 처리합니다.</span></button>
           <button class="admin-all-card members" type="button" data-admin-view="members"><span class="admin-all-card-icon">👥</span><strong>회원 관리</strong><span>이용 중인 회원과 탈퇴 상태를 확인합니다.</span></button>
           <button class="admin-all-card community" type="button" data-admin-view="community"><span class="admin-all-card-icon">💬</span><strong>커뮤니티 관리</strong><span>게시글, 댓글, 신고, 숨김 처리를 관리합니다.</span></button>
           <button class="admin-all-card data" type="button" data-admin-view="dashboard-data"><span class="admin-all-card-icon">🗂️</span><strong>데이터 관리</strong><span>JSON 내보내기와 기본 데이터 업로드를 실행합니다.</span></button>
-          <button class="admin-all-card ai" type="button" data-admin-view="ai"><span class="admin-all-card-icon">🤖</span><strong>AI 생활 도우미</strong><span>FAQ, 전자책, 가이드, 질문 로그를 관리합니다.</span></button>
-          <button class="admin-all-card data" type="button" data-admin-view="menus"><span class="admin-all-card-icon">🧭</span><strong>GNB 메뉴 관리</strong><span>공개앱 메뉴, 검색 키워드, 노출 구역과 권한을 관리합니다.</span></button>
-          <button class="admin-all-card resident" type="button" onclick="location.href='/'"><span class="admin-all-card-icon">🏠</span><strong>입주민 앱</strong><span>공개 앱 화면으로 이동합니다.</span></button>
+          <button class="admin-all-card ai" type="button" data-admin-view="ai"><span class="admin-all-card-icon"><img class="upick-svg-icon" src="/icons/internal/ai-assistant.svg" alt="" loading="lazy"></span><strong>AI 생활 도우미</strong><span>FAQ, 전자책, 가이드, 질문 로그를 관리합니다.</span></button>
+          <button class="admin-all-card data" type="button" data-admin-view="menus"><span class="admin-all-card-icon"><img class="upick-svg-icon" src="/icons/internal/map.svg" alt="" loading="lazy"></span><strong>GNB 메뉴 관리</strong><span>공개앱 메뉴, 검색 키워드, 노출 구역과 권한을 관리합니다.</span></button>
+          <button class="admin-all-card resident" type="button" onclick="location.href='/'"><span class="admin-all-card-icon"><img class="upick-svg-icon" src="/icons/internal/home.svg" alt="" loading="lazy"></span><strong>입주민 앱</strong><span>공개 앱 화면으로 이동합니다.</span></button>
         </div>
       </div>
     </div>
@@ -2305,10 +2790,10 @@ body.gnb-open .admin-bottom-nav{
 
   <nav class="admin-bottom-nav">
     <button class="admin-nav-btn active" data-admin-view="dashboard"><span class="nav-icon">📊</span><span class="nav-label">대시보드</span></button>
-    <button class="admin-nav-btn" data-admin-view="benefits"><span class="nav-icon">🎁</span><span class="nav-label">혜택</span></button>
-    <button class="admin-nav-btn" data-admin-view="notices"><span class="nav-icon">📢</span><span class="nav-label">공지</span></button>
+    <button class="admin-nav-btn" data-admin-view="benefits"><span class="nav-icon"><img class="upick-svg-icon" src="/icons/internal/benefit.svg" alt="" loading="lazy"></span><span class="nav-label">혜택</span></button>
+    <button class="admin-nav-btn" data-admin-view="notices"><span class="nav-icon"><img class="upick-svg-icon" src="/icons/internal/notice.svg" alt="" loading="lazy"></span><span class="nav-label">공지</span></button>
     <button class="admin-nav-btn" data-admin-view="members"><span class="nav-icon">👥</span><span class="nav-label">회원</span></button>
-    <button class="admin-nav-btn" data-admin-view="all"><span class="nav-icon">☰</span><span class="nav-label">더보기</span></button>
+    <button class="admin-nav-btn" data-admin-view="all"><span class="nav-icon"><img class="upick-svg-icon" src="/icons/internal/all-menu.svg" alt="" loading="lazy"></span><span class="nav-label">더보기</span></button>
   </nav>
 
   <script type="module">
@@ -5628,19 +6113,64 @@ function fillForm(item){
 
     function getMenuCheckedValues(name){ return [...document.querySelectorAll(`input[name="${name}"]:checked`)].map(el=>el.value); }
     function setMenuCheckedValues(name, values=[]){ document.querySelectorAll(`input[name="${name}"]`).forEach(el=>{ el.checked = values.includes(el.value); }); }
+
+    function isSafeAdminIconUrl(url=''){
+      const value=String(url||'').trim();
+      return !!value && (value.startsWith('/icons/') || value.startsWith('/menu-icons/') || value.startsWith('/assets/') || /^https:\/\/firebasestorage\.googleapis\.com\//.test(value));
+    }
+    function renderAdminMenuIcon(item={}){
+      const iconUrl=String(item.iconUrl||'').trim();
+      if(isSafeAdminIconUrl(iconUrl)) return `<img class="menu-card-icon-img" src="${escapeHtml(iconUrl)}" alt="" loading="lazy">`;
+
+      const keyMap = {
+        home:'/icons/internal/home.svg',
+        benefits:'/icons/internal/benefit.svg',
+        benefit:'/icons/internal/benefit.svg',
+        favorite:'/icons/internal/favorite.svg',
+        top5:'/icons/internal/top5.svg',
+        all:'/icons/internal/all-menu.svg',
+        ai:'/icons/internal/ai-assistant.svg',
+        calendar:'/icons/internal/calendar.svg',
+        map:'/icons/internal/map.svg',
+        notices:'/icons/internal/notice.svg',
+        notice:'/icons/internal/notice.svg',
+        settings:'/icons/internal/settings.svg',
+        notification:'/icons/internal/notification.svg',
+        push:'/icons/internal/notification.svg'
+      };
+      const rawIcon = String(item.icon || '').trim();
+      const key = rawIcon.startsWith('icon:')
+        ? rawIcon.replace(/^icon:/,'')
+        : String(item.iconKey || item.menuId || item.view || item.route || '').trim();
+      const src = keyMap[key];
+      if(src) return `<img class="menu-card-icon-img" src="${src}" alt="" loading="lazy">`;
+
+      return escapeHtml(rawIcon || '•');
+    }
+    function updateMenuIconPreview(){
+      const box=qs('#menuIconPreview'); if(!box) return;
+      const iconUrl=qs('#menuIconUrl')?.value?.trim() || '';
+      const fallback=qs('#menuIcon')?.value?.trim() || '•';
+      if(isSafeAdminIconUrl(iconUrl)){
+        box.innerHTML=`<img src="${escapeHtml(iconUrl)}" alt=""><span>${escapeHtml(iconUrl)}</span>`;
+      }else{
+        box.innerHTML=`<span style="font-size:24px;line-height:1">${escapeHtml(fallback)}</span><span>아이콘 URL이 없거나 허용 경로가 아닙니다.</span>`;
+      }
+    }
+
     function normalizeAdminMenu(raw={}, id=''){
       const menuId=String(raw.menuId||id||raw.view||'').trim();
       const sections=Array.isArray(raw.sections)?raw.sections:[raw.section||raw.type||'main'].filter(Boolean);
       const roles=Array.isArray(raw.roles)?raw.roles:(raw.role?[raw.role]:['resident','admin','root']);
       const keywords=Array.isArray(raw.keywords)?raw.keywords:String(raw.keywords||'').split(',').map(v=>v.trim()).filter(Boolean);
-      return {...raw, id, menuId, name:raw.name||raw.title||menuId, icon:raw.icon||'•', view:raw.view||raw.route||menuId, route:raw.route||raw.view||menuId, keywords, sections, roles, order:Number(raw.order??100), isActive:raw.isActive!==false};
+      return {...raw, id, menuId, name:raw.name||raw.title||menuId, icon:raw.icon||'•', iconUrl:raw.iconUrl||'', iconKey:raw.iconKey||'', view:raw.view||raw.route||menuId, route:raw.route||raw.view||menuId, keywords, sections, roles, order:Number(raw.order??100), isActive:raw.isActive!==false};
     }
     function renderAdminMenus(){
       const list=qs('#menuAdminList'); const count=qs('#menuListCount'); if(!list) return;
       const items=[...adminMenuItems].sort((a,b)=>a.order-b.order);
       if(count) count.textContent=`${items.length}건`;
       if(!items.length){ list.innerHTML='<div class="notice">등록된 메뉴가 없습니다. 기본 메뉴를 먼저 등록해 주세요.</div>'; return; }
-      list.innerHTML=items.map(item=>`<div class="menu-card"><div class="menu-card-head"><div class="menu-card-title"><span>${escapeHtml(item.icon)}</span><div><strong>${escapeHtml(item.name)}</strong><div style="font-size:12px;color:#64748b;margin-top:3px;">${escapeHtml(item.menuId)} · ${escapeHtml(item.view)}</div></div></div><div class="member-actions"><button class="btn btn-soft" type="button" data-menu-edit="${escapeHtml(item.id)}">수정</button><button class="btn btn-danger" type="button" data-menu-delete="${escapeHtml(item.id)}">삭제</button></div></div><div class="menu-card-meta"><span class="tag ${item.isActive?'live-tag':'hidden-tag'}">${item.isActive?'노출':'숨김'}</span><span class="tag">순서 ${item.order}</span>${item.sections.map(s=>`<span class="tag rec">${escapeHtml(s)}</span>`).join('')}${item.roles.map(r=>`<span class="tag">${escapeHtml(r)}</span>`).join('')}</div>${item.keywords?.length?`<div style="font-size:12px;color:#64748b;line-height:1.5;">검색어: ${escapeHtml(item.keywords.join(', '))}</div>`:''}</div>`).join('');
+      list.innerHTML=items.map(item=>`<div class="menu-card"><div class="menu-card-head"><div class="menu-card-title"><span>${renderAdminMenuIcon(item)}</span><div><strong>${escapeHtml(item.name)}</strong><div style="font-size:12px;color:#64748b;margin-top:3px;">${escapeHtml(item.menuId)} · ${escapeHtml(item.view)}${item.iconUrl ? ` · ${escapeHtml(item.iconUrl)}` : ''}</div></div></div><div class="member-actions"><button class="btn btn-soft" type="button" data-menu-edit="${escapeHtml(item.id)}">수정</button><button class="btn btn-danger" type="button" data-menu-delete="${escapeHtml(item.id)}">삭제</button></div></div><div class="menu-card-meta"><span class="tag ${item.isActive?'live-tag':'hidden-tag'}">${item.isActive?'노출':'숨김'}</span><span class="tag">순서 ${item.order}</span>${item.sections.map(s=>`<span class="tag rec">${escapeHtml(s)}</span>`).join('')}${item.roles.map(r=>`<span class="tag">${escapeHtml(r)}</span>`).join('')}</div>${item.keywords?.length?`<div style="font-size:12px;color:#64748b;line-height:1.5;">검색어: ${escapeHtml(item.keywords.join(', '))}</div>`:''}</div>`).join('');
     }
     async function loadAdminMenus(){
       if(!requireAdminDataAccess(false)) return;
@@ -5649,10 +6179,10 @@ function fillForm(item){
       catch(error){ console.error(error); if(list) list.innerHTML='<div class="notice">GNB 메뉴를 불러오지 못했습니다. Firestore Rules를 확인해 주세요.</div>'; }
     }
     function resetMenuForm(){
-      qs('#menuForm')?.reset(); if(qs('#menuEditId')) qs('#menuEditId').value=''; if(qs('#menuOrder')) qs('#menuOrder').value=100; if(qs('#menuIsActive')) qs('#menuIsActive').checked=true; setMenuCheckedValues('menuSection',['main']); setMenuCheckedValues('menuRole',['resident','admin','root']); if(qs('#menuFormModeLabel')) qs('#menuFormModeLabel').textContent='새 메뉴';
+      qs('#menuForm')?.reset(); if(qs('#menuEditId')) qs('#menuEditId').value=''; if(qs('#menuOrder')) qs('#menuOrder').value=100; if(qs('#menuIsActive')) qs('#menuIsActive').checked=true; setMenuCheckedValues('menuSection',['main']); setMenuCheckedValues('menuRole',['resident','admin','root']); if(qs('#menuIconUrl')) qs('#menuIconUrl').value=''; if(qs('#menuFormModeLabel')) qs('#menuFormModeLabel').textContent='새 메뉴'; updateMenuIconPreview?.();
     }
     function fillMenuForm(item){
-      qs('#menuEditId').value=item.id||item.menuId; qs('#menuId').value=item.menuId; qs('#menuName').value=item.name; qs('#menuIcon').value=item.icon||''; qs('#menuView').value=item.view||item.route||item.menuId; qs('#menuKeywords').value=(item.keywords||[]).join(', '); qs('#menuOrder').value=item.order||100; qs('#menuDescription').value=item.description||''; qs('#menuIsActive').checked=item.isActive!==false; setMenuCheckedValues('menuSection', item.sections?.length?item.sections:['main']); setMenuCheckedValues('menuRole', item.roles?.length?item.roles:['resident','admin','root']); qs('#menuFormModeLabel').textContent='수정 중'; window.scrollTo({top:0,behavior:'smooth'});
+      qs('#menuEditId').value=item.id||item.menuId; qs('#menuId').value=item.menuId; qs('#menuName').value=item.name; qs('#menuIcon').value=item.icon||''; if(qs('#menuIconUrl')) qs('#menuIconUrl').value=item.iconUrl||''; qs('#menuView').value=item.view||item.route||item.menuId; qs('#menuKeywords').value=(item.keywords||[]).join(', '); qs('#menuOrder').value=item.order||100; qs('#menuDescription').value=item.description||''; qs('#menuIsActive').checked=item.isActive!==false; setMenuCheckedValues('menuSection', item.sections?.length?item.sections:['main']); setMenuCheckedValues('menuRole', item.roles?.length?item.roles:['resident','admin','root']); qs('#menuFormModeLabel').textContent='수정 중'; updateMenuIconPreview?.(); window.scrollTo({top:0,behavior:'smooth'});
     }
     async function saveMenu(event){
       event?.preventDefault?.(); if(!requireAdminDataAccess()) return;
@@ -5660,7 +6190,7 @@ function fillForm(item){
       if(!menuId || !name || !view){ await openModalAlert('메뉴 ID, 메뉴명, 이동 view를 입력해 주세요.', qs('#menuId')); return; }
       const keywords=qs('#menuKeywords').value.split(',').map(v=>v.trim()).filter(Boolean);
       const sections=getMenuCheckedValues('menuSection'); const roles=getMenuCheckedValues('menuRole');
-      const payload={ menuId, name, icon:qs('#menuIcon').value.trim()||'•', view, route:view, keywords, sections:sections.length?sections:['main'], roles:roles.length?roles:['resident','admin','root'], order:Number(qs('#menuOrder').value||100), description:qs('#menuDescription').value.trim(), isActive:qs('#menuIsActive').checked, updatedAt:serverTimestamp() };
+      const iconUrl=qs('#menuIconUrl')?.value?.trim() || ''; if(iconUrl && !isSafeAdminIconUrl(iconUrl)){ await openModalAlert('아이콘 URL은 /icons/, /menu-icons/, /assets/ 또는 Firebase Storage URL만 사용할 수 있습니다.', qs('#menuIconUrl')); return; } const payload={ menuId, name, icon:qs('#menuIcon').value.trim()||'•', iconUrl, view, route:view, keywords, sections:sections.length?sections:['main'], roles:roles.length?roles:['resident','admin','root'], order:Number(qs('#menuOrder').value||100), description:qs('#menuDescription').value.trim(), isActive:qs('#menuIsActive').checked, updatedAt:serverTimestamp() };
       const editId=qs('#menuEditId').value.trim();
       await setDoc(doc(db, APP_MENUS_COLLECTION, editId || menuId), editId ? payload : {...payload, createdAt:serverTimestamp()}, {merge:true});
       await openModalAlert('GNB 메뉴가 저장되었습니다.', qs('#menuName')); resetMenuForm();
@@ -5711,7 +6241,7 @@ function fillForm(item){
           const active=bottomNavSelectedMenus.includes(item.menuId);
           const disabled=!active && bottomNavSelectedMenus.length>=3;
           return `<button type="button" class="bottom-nav-menu-pick ${active?'active':''} ${disabled?'disabled':''}" data-bottom-nav-pick="${escapeHtml(item.menuId)}">
-            <span>${escapeHtml(item.icon||'•')} ${escapeHtml(item.name||item.menuId)}</span>
+            <span>${renderAdminMenuIcon(item)} ${escapeHtml(item.name||item.menuId)}</span>
             <small>${active?'선택됨':'선택'}</small>
           </button>`;
         }).join('');
@@ -5723,7 +6253,7 @@ function fillForm(item){
 
       selected.innerHTML=selectedItems.length
         ? selectedItems.map((item,idx)=>`<div class="bottom-nav-selected-item">
-            <div><strong>${idx+1}. ${escapeHtml(item.icon||'•')} ${escapeHtml(item.name||item.menuId)}</strong><span>${escapeHtml(item.menuId)}</span></div>
+            <div><strong>${idx+1}. ${renderAdminMenuIcon(item)} ${escapeHtml(item.name||item.menuId)}</strong><span>${escapeHtml(item.menuId)}</span></div>
             <button type="button" class="btn btn-soft" data-bottom-nav-remove="${escapeHtml(item.menuId)}">제거</button>
           </div>`).join('')
         : '<div class="notice">선택된 기본 메뉴가 없습니다. 저장 시 코드 기본값(혜택/즐겨찾기/TOP5)이 사용됩니다.</div>';
@@ -5796,7 +6326,7 @@ function fillForm(item){
     }
     async function deleteMenu(id){ if(!id || !requireAdminDataAccess()) return; const ok=await openModalConfirm('해당 GNB 메뉴를 삭제할까요?\n공개앱 GNB와 검색 결과에서 제외됩니다.'); if(!ok) return; await deleteDoc(doc(db, APP_MENUS_COLLECTION, id)); await loadAdminMenus(); }
     document.addEventListener('click', (event)=>{ const edit=event.target.closest('[data-menu-edit]'); if(edit){ const item=adminMenuItems.find(v=>v.id===edit.dataset.menuEdit); if(item) fillMenuForm(item); return; } const del=event.target.closest('[data-menu-delete]'); if(del){ deleteMenu(del.dataset.menuDelete); } });
-    qs('#menuForm')?.addEventListener('submit', saveMenu); qs('#menuResetBtn')?.addEventListener('click', resetMenuForm);
+    qs('#menuForm')?.addEventListener('submit', saveMenu); qs('#menuIconUrl')?.addEventListener('input', updateMenuIconPreview); qs('#menuIcon')?.addEventListener('input', updateMenuIconPreview); updateMenuIconPreview?.(); qs('#menuResetBtn')?.addEventListener('click', resetMenuForm);
     const __origChangeAdminViewForMenus = changeAdminView;
     changeAdminView = function(view){ __origChangeAdminViewForMenus(view); if(view === 'menus') setTimeout(async()=>{ await loadAdminMenus(); await window.loadBottomNavSettings?.(); }, 80); };
     window.changeAdminView = changeAdminView;
@@ -5814,7 +6344,7 @@ function fillForm(item){
       <div class="gnb-icons">
         <button class="gnb-icon-btn gnb-home-active" type="button" data-admin-view="dashboard" title="대시보드">⌂</button>
         <button class="gnb-icon-btn" type="button" data-admin-view="community" title="커뮤니티 관리">💬</button>
-        <button class="gnb-icon-btn" type="button" data-admin-view="ai" title="AI 생활 도우미">🤖</button>
+        <button class="gnb-icon-btn" type="button" data-admin-view="ai" title="AI 생활 도우미"><img class="upick-svg-icon" src="/icons/internal/ai-assistant.svg" alt="" loading="lazy"></button>
         <button class="gnb-icon-btn" type="button" data-admin-view="menus" title="GNB 메뉴 관리">🧭</button>
         <button class="gnb-icon-btn" type="button" data-admin-view="all" title="전체 기능">▦</button>
         <button class="gnb-close" id="adminGnbCloseBtn" type="button" title="닫기">✕</button>
@@ -5824,7 +6354,7 @@ function fillForm(item){
           <small>운영 메뉴를 더 빠르게 이동해보세요</small>
           <strong>운영자 전용<br>대시보드</strong>
         </div>
-        <div class="gnb-hero-emoji">🛠️</div>
+        <div class="gnb-hero-emoji"><img class="upick-svg-icon" src="/icons/internal/settings.svg" alt="" loading="lazy"></div>
       </div>
     </div>
     <div class="gnb-body">
@@ -5865,7 +6395,7 @@ function fillForm(item){
           <div class="gnb-menu-list">
             <button class="gnb-menu-item gnb-tone-benefits" type="button" data-admin-view="benefits"><span class="gnb-active-badge" hidden>ACTIVE</span>
               <span class="gnb-card">
-                <span class="gnb-card-icon benefits">🎁</span>
+                <span class="gnb-card-icon benefits"><img class="upick-svg-icon" src="/icons/internal/benefit.svg" alt="" loading="lazy"></span>
                 <span class="gnb-card-copy">
                   <strong>혜택 관리</strong>
                   <span>제휴 혜택 등록과 수정</span>
@@ -5877,7 +6407,7 @@ function fillForm(item){
             <button class="gnb-menu-item gnb-tone-ai" type="button" data-admin-view="ai"><span class="gnb-active-badge" hidden>ACTIVE</span><span class="gnb-card"><span class="gnb-card-icon ai">🤖</span><span class="gnb-card-copy"><strong>AI 생활 도우미</strong><span>FAQ·전자책·가이드·질문 로그</span></span><span class="gnb-card-arrow">›</span></span></button>
             <button class="gnb-menu-item gnb-tone-notices" type="button" data-admin-view="notices"><span class="gnb-active-badge" hidden>ACTIVE</span>
               <span class="gnb-card">
-                <span class="gnb-card-icon notices">📢</span>
+                <span class="gnb-card-icon notices"><img class="upick-svg-icon" src="/icons/internal/notice.svg" alt="" loading="lazy"></span>
                 <span class="gnb-card-copy">
                   <strong>공지 관리</strong>
                   <span>공지 작성과 푸시 작업 연결</span>
@@ -5923,7 +6453,7 @@ function fillForm(item){
         <h3 class="gnb-section-title">
           <span class="gnb-section-label">
             <span class="gnb-title-badge manage">🛠️</span>
-            <span class="gnb-section-text"><small>CONTROL CENTER</small><strong>더운정 마이힐스 운영</strong></span>
+            <span class="gnb-section-text"><small>CONTROL CENTER</small><strong>더운정픽 운영</strong></span>
           </span>
         </h3>
         <div class="gnb-menu-sublist">
@@ -5939,7 +6469,7 @@ function fillForm(item){
           </button>
           <button class="gnb-menu-subitem gnb-tone-benefits" type="button" data-admin-view="benefits"><span class="gnb-active-badge" hidden>ACTIVE</span>
             <span class="gnb-card">
-              <span class="gnb-card-icon benefits">🎁</span>
+              <span class="gnb-card-icon benefits"><img class="upick-svg-icon" src="/icons/internal/benefit.svg" alt="" loading="lazy"></span>
               <span class="gnb-card-copy">
                 <strong>혜택</strong>
                 <span>할인과 서비스 혜택 관리</span>
@@ -5951,7 +6481,7 @@ function fillForm(item){
           <button class="gnb-menu-subitem gnb-tone-ai" type="button" data-admin-view="ai"><span class="gnb-active-badge" hidden>ACTIVE</span><span class="gnb-card"><span class="gnb-card-icon ai">🤖</span><span class="gnb-card-copy"><strong>AI</strong><span>생활 도우미 데이터 관리</span></span><span class="gnb-card-arrow">›</span></span></button>
           <button class="gnb-menu-subitem gnb-tone-notices" type="button" data-admin-view="notices"><span class="gnb-active-badge" hidden>ACTIVE</span>
             <span class="gnb-card">
-              <span class="gnb-card-icon notices">📢</span>
+              <span class="gnb-card-icon notices"><img class="upick-svg-icon" src="/icons/internal/notice.svg" alt="" loading="lazy"></span>
               <span class="gnb-card-copy">
                 <strong>공지</strong>
                 <span>중요 공지와 일반 공지 운영</span>
@@ -5991,7 +6521,7 @@ function fillForm(item){
           </button>
           <button class="gnb-menu-subitem gnb-tone-resident" type="button" onclick="location.href='/'"><span class="gnb-active-badge" hidden>ACTIVE</span>
             <span class="gnb-card">
-              <span class="gnb-card-icon resident">🏠</span>
+              <span class="gnb-card-icon resident"><img class="upick-svg-icon" src="/icons/internal/home.svg" alt="" loading="lazy"></span>
               <span class="gnb-card-copy">
                 <strong>입주민 앱</strong>
                 <span>공개 앱으로 바로 이동</span>
@@ -6134,7 +6664,7 @@ function fillForm(item){
   <div id="myhillsFirstLaunch" class="myhills-first-launch" aria-hidden="true">
     <div class="myhills-first-launch-inner">
       <div class="myhills-first-launch-icon" aria-hidden="true"></div>
-      <div class="myhills-first-launch-title">더운정 마이힐스</div>
+      <div class="myhills-first-launch-title">더운정픽</div>
       <div class="myhills-first-launch-sub">입주민 전용 혜택 웹앱</div>
     </div>
   </div>
@@ -6143,7 +6673,7 @@ function fillForm(item){
     <div class="myhills-install-card">
       <div class="myhills-install-icon" aria-hidden="true"></div>
       <div class="myhills-install-copy">
-        <strong>마이힐스를 앱처럼 이용해보세요</strong>
+        <strong>더운정픽를 앱처럼 이용해보세요</strong>
         <span>홈 화면에 추가하면 더 빠르게 열 수 있습니다.</span>
       </div>
       <div class="myhills-install-actions">
