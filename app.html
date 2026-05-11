@@ -1274,7 +1274,7 @@ html[data-font-size="xlarge"] .calendar-summary-grid{grid-template-columns:1fr;}
 .qr-canvas-wrap.qr-theme-mid{background:linear-gradient(180deg,#fffbeb 0%,#ffffff 72%);border-color:#fde68a;}
 .qr-canvas-wrap.qr-theme-normal{background:linear-gradient(180deg,#eff6ff 0%,#ffffff 72%);border-color:#bfdbfe;}
 .qr-canvas-wrap.qr-theme-notice{background:linear-gradient(180deg,#f8fafc 0%,#ffffff 72%);border-color:#cbd5e1;}
-#qrCanvas{width:220px;height:220px;max-width:100%;border-radius:18px;background:#fff;box-shadow:0 12px 24px rgba(15,23,42,.06);}
+#qrCanvas{width:292px;height:292px;max-width:100%;border-radius:18px;background:#fff;box-shadow:0 12px 24px rgba(15,23,42,.06);}
 
 /* ===== TOP 5 가독성 개선 ===== */
 .popular-item{align-items:flex-start;padding:16px;border-radius:22px;}
@@ -13840,6 +13840,22 @@ nav.bottom-nav{
 }
 </style>
 
+
+<style id="qr-symbol-polish-final-v1">
+/* ===== QR 중앙 투명 심볼 최종 보정 ===== */
+#qrCanvas{
+  width:292px!important;
+  height:292px!important;
+  max-width:78vw!important;
+  max-height:78vw!important;
+  border-radius:20px!important;
+}
+.qr-canvas-wrap canvas,
+.qr-canvas-wrap #qrCanvas{
+  border-radius:20px!important;
+}
+</style>
+
 </head>
 <body>
  <div class="global-loading" id="globalLoadingBar" aria-hidden="true">
@@ -17752,7 +17768,7 @@ function getShareTrackingParams(){
 
  const img = new Image();
  img.decoding = 'async';
- img.src = '/icons/icon-180.png?v=20260425b';
+ img.src = '/icons/internal/brand-symbol-real.png?v=20260511';
 
  await new Promise((resolve) => {
  img.onload = resolve;
@@ -17760,7 +17776,7 @@ function getShareTrackingParams(){
  });
 
  if(img.complete && img.naturalWidth > 0){
- const pad = Math.round(box * 0.18);
+ const pad = Math.round(box * 0.10);
  ctx.save();
  drawRoundedRect(ctx, x + pad, y + pad, box - pad * 2, box - pad * 2, 8);
  ctx.clip();
