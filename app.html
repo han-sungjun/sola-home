@@ -15374,6 +15374,18 @@ showForegroundPushToast({
  function showGlobalLoading(){
  if(!globalLoadingBar) return;
  clearTimeout(globalLoadingTimer);
+ const gnbSheet = qs('#gnbSheet');
+ const gnbOverlay = qs('#gnbOverlay');
+ const wasGnbOpen = !!(gnbSheet?.classList.contains('show') || document.body.classList.contains('gnb-open'));
+ document.body.dataset.gnbOpenBeforeLoading = wasGnbOpen ? '1' : '0';
+ document.body.classList.add('ui-loading-lock');
+ document.documentElement.classList.add('ui-loading-lock');
+ if(wasGnbOpen){
+   gnbSheet?.classList.add('show');
+   gnbOverlay?.classList.add('show');
+   gnbSheet?.setAttribute('aria-hidden', 'false');
+   document.body.classList.add('gnb-open');
+ }
  globalLoadingBar.classList.add('show');
  globalLoadingBar.setAttribute('aria-hidden', 'false');
  }
@@ -15382,8 +15394,17 @@ showForegroundPushToast({
  if(!globalLoadingBar) return;
  clearTimeout(globalLoadingTimer);
  globalLoadingTimer = setTimeout(() => {
+ const shouldKeepGnbOpen = document.body.dataset.gnbOpenBeforeLoading === '1';
  globalLoadingBar.classList.remove('show');
  globalLoadingBar.setAttribute('aria-hidden', 'true');
+ document.body.classList.remove('ui-loading-lock');
+ document.documentElement.classList.remove('ui-loading-lock');
+ if(shouldKeepGnbOpen){
+   qs('#gnbSheet')?.classList.add('show');
+   qs('#gnbOverlay')?.classList.add('show');
+   qs('#gnbSheet')?.setAttribute('aria-hidden', 'false');
+   document.body.classList.add('gnb-open');
+ }
  }, delay);
  }
 
@@ -31985,3 +32006,114 @@ section[id^="view-"] > .upick-tab-common-header{
 </style>
 
 <!-- UPICK_V87_SAMSUNG_BACKGROUND_FALLBACK_APPLIED -->
+
+
+<!-- ===== UPICK GNB Loading Lock Patch v1 ===== -->
+<style id="upick-gnb-loading-lock-patch-v1">
+/* 로딩 중에는 GNB/화면 위에 로딩 오버레이가 최상단으로 올라와 모든 입력을 잠급니다. */
+html.ui-loading-lock,
+body.ui-loading-lock{
+  overflow:hidden!important;
+  overscroll-behavior:none!important;
+  touch-action:none!important;
+  user-select:none!important;
+  -webkit-user-select:none!important;
+}
+body.ui-loading-lock #globalLoadingBar,
+body.ui-loading-lock .global-loading,
+body.ui-loading-lock .page-loader{
+  z-index:2147483640!important;
+  pointer-events:auto!important;
+  touch-action:none!important;
+}
+body.ui-loading-lock #globalLoadingBar.show,
+body.ui-loading-lock .global-loading.show,
+body.ui-loading-lock .page-loader.show{
+  display:flex!important;
+}
+body.ui-loading-lock #globalLoadingBar::before,
+body.ui-loading-lock .global-loading::before,
+body.ui-loading-lock .page-loader::before{
+  pointer-events:auto!important;
+}
+/* 로딩 중 GNB가 열려 있었으면 뒤에서 상태만 유지하고, 조작은 로딩 오버레이가 막습니다. */
+body.ui-loading-lock.gnb-open .gnb-overlay{
+  display:block!important;
+}
+body.ui-loading-lock.gnb-open .gnb-sheet{
+  visibility:visible!important;
+}
+</style>
+<script id="upick-gnb-loading-lock-patch-v1">
+(function(){
+  'use strict';
+  var loadingOpenGnb = false;
+  var restoring = false;
+
+  function q(sel){ return document.querySelector(sel); }
+  function isLoading(){
+    var loader = q('#globalLoadingBar') || q('.global-loading') || q('.page-loader');
+    return !!(loader && loader.classList.contains('show'));
+  }
+  function isGnbOpen(){
+    var sheet = q('#gnbSheet') || q('.gnb-sheet');
+    var overlay = q('#gnbOverlay') || q('.gnb-overlay');
+    return !!((sheet && sheet.classList.contains('show')) || (overlay && overlay.classList.contains('show')) || document.body.classList.contains('gnb-open'));
+  }
+  function restoreGnbOpen(){
+    if(restoring) return;
+    restoring = true;
+    requestAnimationFrame(function(){
+      var sheet = q('#gnbSheet') || q('.gnb-sheet');
+      var overlay = q('#gnbOverlay') || q('.gnb-overlay');
+      if(sheet){
+        sheet.classList.add('show');
+        sheet.setAttribute('aria-hidden','false');
+      }
+      if(overlay) overlay.classList.add('show');
+      document.body.classList.add('gnb-open');
+      restoring = false;
+    });
+  }
+  function syncLoadingLock(){
+    var active = isLoading();
+    document.documentElement.classList.toggle('ui-loading-lock', active);
+    document.body.classList.toggle('ui-loading-lock', active);
+    if(active){
+      if(isGnbOpen()) loadingOpenGnb = true;
+      if(loadingOpenGnb) restoreGnbOpen();
+    }else{
+      loadingOpenGnb = false;
+    }
+  }
+  function watch(){
+    var loader = q('#globalLoadingBar') || q('.global-loading') || q('.page-loader');
+    var sheet = q('#gnbSheet') || q('.gnb-sheet');
+    var overlay = q('#gnbOverlay') || q('.gnb-overlay');
+    syncLoadingLock();
+    if(window.MutationObserver){
+      if(loader) new MutationObserver(syncLoadingLock).observe(loader,{attributes:true,attributeFilter:['class','aria-hidden']});
+      if(sheet) new MutationObserver(function(){
+        if(isLoading() && loadingOpenGnb && !sheet.classList.contains('show')) restoreGnbOpen();
+        syncLoadingLock();
+      }).observe(sheet,{attributes:true,attributeFilter:['class','aria-hidden']});
+      if(overlay) new MutationObserver(function(){
+        if(isLoading() && loadingOpenGnb && !overlay.classList.contains('show')) restoreGnbOpen();
+        syncLoadingLock();
+      }).observe(overlay,{attributes:true,attributeFilter:['class']});
+      new MutationObserver(syncLoadingLock).observe(document.body,{attributes:true,attributeFilter:['class']});
+    }
+    document.addEventListener('click', function(event){
+      if(isLoading()){
+        var loader = q('#globalLoadingBar') || q('.global-loading') || q('.page-loader');
+        if(loader && !loader.contains(event.target)){
+          event.preventDefault();
+          event.stopPropagation();
+        }
+      }
+    }, true);
+  }
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', watch, {once:true});
+  else watch();
+})();
+</script>
