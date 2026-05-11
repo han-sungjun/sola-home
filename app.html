@@ -14181,7 +14181,7 @@ nav.bottom-nav{
  if (envBadge && ENV === 'dev') envBadge.classList.add('show');
  import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
  import { getFirestore, collection, onSnapshot, doc, getDoc, getDocs, setDoc, updateDoc, increment, serverTimestamp, addDoc, query, where, orderBy, limit, startAfter, deleteDoc } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
- import { getMessaging, getToken, onMessage, isSupported } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-messaging.js';
+ import { getMessaging, getToken, deleteToken, onMessage, isSupported } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-messaging.js';
  import { getStorage, ref as storageRef, uploadBytes, getDownloadURL, deleteObject } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js';
  const firebaseConfig = FIREBASE_CONFIG[ENV];
  const AI_FUNCTION_REGION = 'asia-northeast3';
@@ -14572,13 +14572,22 @@ nav.bottom-nav{
  return false;
  }
 
- const registration = await navigator.serviceWorker.register(`/firebase-messaging-sw.js?v=${globalThis.__SOLA_DYNAMIC_IMPORT_VERSION__ || Date.now()}`);
+ const uaForPushInit = String(navigator.userAgent || '').toLowerCase();
+ const isSamsungBrowserForPush = uaForPushInit.includes('samsungbrowser');
+ // 삼성 인터넷은 SW scriptURL이 매 배포마다 query string으로 바뀌면 토큰은 생성되어도
+ // 실제 push 라우팅이 불안정한 경우가 있어, 안정적인 고정 URL + scope를 사용합니다.
+ const swUrl = isSamsungBrowserForPush
+ ? '/firebase-messaging-sw.js'
+ : `/firebase-messaging-sw.js?v=${globalThis.__SOLA_DYNAMIC_IMPORT_VERSION__ || Date.now()}`;
+ const registration = await navigator.serviceWorker.register(swUrl, { scope: '/' });
+ await navigator.serviceWorker.ready.catch(() => registration);
  await registration.update().catch(() => {});
  window.pushSwRegistration = registration;
 
  messaging = getMessaging(app);
  window.firebaseMessaging = messaging;
  window.getToken = getToken;
+ window.deleteToken = deleteToken;
 
  function normalizeForegroundPushPayload(payload = {}) {
  const data = payload?.data || {};
@@ -15884,6 +15893,69 @@ function setPushStatusUi(enabled){
  await openModalAlert('계정 정보 저장 중 오류가 발생했습니다.', qs('#openAccountEditBtn'));
  }
  }
+
+ function getPushBrowserInfo(){
+ try{
+ const ua = String(navigator.userAgent || '').toLowerCase();
+ const isSamsung = ua.includes('samsungbrowser');
+ const isAndroid = ua.includes('android');
+ const isChrome = ua.includes('chrome') || ua.includes('crios');
+ const isWhale = ua.includes('whale');
+ const isEdge = ua.includes('edga') || ua.includes('edgios') || ua.includes('edg/') || ua.includes('edg');
+ return {
+ browser: isSamsung ? 'samsung-internet' : (isEdge ? 'edge' : (isWhale ? 'whale' : (isChrome ? 'chrome' : 'other'))),
+ isSamsung,
+ isAndroid,
+ isMobile: isAndroid || ua.includes('iphone') || ua.includes('ipad') || ua.includes('mobile')
+ };
+ }catch(_){
+ return { browser:'unknown', isSamsung:false, isAndroid:false, isMobile:false };
+ }
+ }
+
+ async function getPushSubscriptionDebugInfo(registration){
+ try{
+ if(!registration?.pushManager) return { hasPushManager:false, endpoint:'', endpointHost:'' };
+ const sub = await registration.pushManager.getSubscription();
+ const endpoint = String(sub?.endpoint || '');
+ let endpointHost = '';
+ try{ endpointHost = endpoint ? new URL(endpoint).host : ''; }catch(_){ endpointHost = ''; }
+ return { hasPushManager:true, hasSubscription:!!sub, endpoint, endpointHost };
+ }catch(error){
+ return { hasPushManager:false, endpoint:'', endpointHost:'', error:String(error?.message || error || '') };
+ }
+ }
+
+ async function getFcmTokenWithSamsungRetry(){
+ const options = {
+ vapidKey: window.VAPID_PUBLIC_KEY,
+ serviceWorkerRegistration: window.pushSwRegistration
+ };
+ const info = getPushBrowserInfo();
+ let token = await window.getToken(window.firebaseMessaging, options).catch((error) => {
+ window.pushFlowLog?.('GET_TOKEN_ERROR_1', String(error && (error.stack || error.message) || error));
+ return null;
+ });
+
+ // 삼성 인터넷에서는 기존 캐시 토큰이 실제 push subscription과 어긋난 상태가 되는 경우가 있어
+ // 첫 토큰 생성 후 subscription이 비어 있으면 토큰을 삭제하고 한 번만 재발급합니다.
+ if(info.isSamsung){
+ const subInfo = await getPushSubscriptionDebugInfo(window.pushSwRegistration);
+ window.pushFlowLog?.('SAMSUNG_PUSH_SUBSCRIPTION_AFTER_TOKEN_1', subInfo);
+ if(token && (!subInfo.hasSubscription || !subInfo.endpoint)){
+ try{ await window.deleteToken?.(window.firebaseMessaging); }catch(error){
+ window.pushFlowLog?.('SAMSUNG_DELETE_TOKEN_ERROR', String(error && (error.stack || error.message) || error));
+ }
+ token = await window.getToken(window.firebaseMessaging, options).catch((error) => {
+ window.pushFlowLog?.('GET_TOKEN_ERROR_2_SAMSUNG_RETRY', String(error && (error.stack || error.message) || error));
+ return null;
+ });
+ window.pushFlowLog?.('SAMSUNG_PUSH_SUBSCRIPTION_AFTER_TOKEN_2', await getPushSubscriptionDebugInfo(window.pushSwRegistration));
+ }
+ }
+ return token;
+ }
+
 async function enablePushNotifications(){
  try{
  if(!state.currentUser?.uid){
@@ -15910,10 +15982,7 @@ async function enablePushNotifications(){
  }
 
 
- const token = await window.getToken(window.firebaseMessaging, {
- vapidKey: window.VAPID_PUBLIC_KEY,
- serviceWorkerRegistration: window.pushSwRegistration
- }).catch(() => null);
+ const token = await getFcmTokenWithSamsungRetry();
 
  if(!token){
  state.currentPushToken = null;
@@ -15933,12 +16002,19 @@ async function enablePushNotifications(){
  }
 
  state.currentPushToken = token;
+ const pushBrowserInfo = getPushBrowserInfo();
+ const pushSubscriptionInfo = await getPushSubscriptionDebugInfo(window.pushSwRegistration);
 
  await setDoc(doc(db, 'users', state.currentUser.uid, 'pushTokens', token), {
  token,
  uid: state.currentUser.uid,
  enabled: true,
- platform: 'web',
+ platform: pushBrowserInfo.isSamsung ? 'samsung-web' : 'web',
+ browser: pushBrowserInfo.browser,
+ isSamsungBrowser: !!pushBrowserInfo.isSamsung,
+ isAndroid: !!pushBrowserInfo.isAndroid,
+ pushEndpoint: pushSubscriptionInfo.endpoint || '',
+ pushEndpointHost: pushSubscriptionInfo.endpointHost || '',
  userAgent: navigator.userAgent || '',
  env: ENV,
  projectId: firebaseConfig.projectId || '',
