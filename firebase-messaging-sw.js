@@ -1,4 +1,4 @@
-/* firebase-messaging-sw.js - samsung background fallback compat v87 */
+/* firebase-messaging-sw.js - samsung duplicate notification fix v88 */
 importScripts("https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js");
 importScripts("https://www.gstatic.com/firebasejs/10.12.2/firebase-messaging-compat.js");
 
@@ -115,11 +115,10 @@ function isSamsungInternetBrowser() {
 }
 
 function shouldUseFcmPushFallback() {
-  // 삼성 인터넷 일부 환경에서는 FCM data-only payload의 raw push 이벤트는 들어오지만
-  // firebase.messaging().onBackgroundMessage 콜백이 누락되는 경우가 있습니다.
-  // 이때 FCM payload를 무시하면 백그라운드 알림이 표시되지 않으므로,
-  // 모바일 Edge와 삼성 인터넷에서는 fallback push 경로에서도 직접 표시합니다.
-  return isMobileEdgeBrowser() || isSamsungInternetBrowser();
+  // 삼성브라우저는 권한/구독을 초기화하면 onBackgroundMessage가 정상 동작합니다.
+  // FCM payload를 fallback push에서도 직접 표시하면 삼성브라우저에서 2회 알림이 발생할 수 있으므로
+  // 기존 로직처럼 모바일 Edge 보정만 유지합니다.
+  return isMobileEdgeBrowser();
 }
 
 /* =========================
@@ -342,8 +341,8 @@ self.addEventListener("push", (event) => {
       });
 
       // FCM payload는 기본적으로 Firebase SDK의 onBackgroundMessage가 처리합니다.
-      // 단, 모바일 Edge/삼성 인터넷에서는 onBackgroundMessage가 누락될 수 있어
-      // fallback push 경로에서도 직접 표시합니다. 중복 표시는 makeNotificationKey로 방지합니다.
+      // 삼성브라우저는 onBackgroundMessage와 push fallback이 모두 실행될 수 있어
+      // fallback 직접 표시 대상에서 제외합니다. 모바일 Edge 보정만 유지합니다.
       if (isFcmPayload) {
         const useFallback = shouldUseFcmPushFallback();
         swFlowLog("PUSH_EVENT_FCM_PAYLOAD_SEEN_IN_FALLBACK", {
@@ -355,7 +354,7 @@ self.addEventListener("push", (event) => {
 
         if (useFallback) {
           await showPushNotification(payload);
-          swFlowLog("PUSH_EVENT_MOBILE_COMPAT_FCM_NOTIFICATION_DONE", payload);
+          swFlowLog("PUSH_EVENT_EDGE_COMPAT_FCM_NOTIFICATION_DONE", payload);
         }
 
         return;
@@ -431,4 +430,4 @@ self.addEventListener("activate", (event) => {
   event.waitUntil(self.clients.claim());
 });
 
-/* UPICK_V87_SAMSUNG_BACKGROUND_FALLBACK_APPLIED */
+/* UPICK_V88_SAMSUNG_DUPLICATE_NOTIFICATION_FIX_APPLIED */
