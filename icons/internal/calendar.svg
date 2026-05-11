@@ -1,13 +1,1 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512" fill="none">
-  <path d="M 95 157 L 95 201 L 418 201 L 416 149 L 404 132 L 384 123 L 371 123 L 371 146 L 359 159 L 347 159 L 337 151 L 334 123 L 180 123 L 179 147 L 167 159 L 146 152 L 143 123 L 129 123 L 109 132 Z" fill="#8e1929" fill-rule="evenodd"/>
-  <path d="M 325 326 L 320 333 L 320 378 L 323 384 L 332 388 L 371 388 L 378 386 L 382 382 L 384 376 L 384 335 L 381 328 L 374 324 L 329 324 Z M 375 341 L 375 345 L 347 374 L 343 373 L 328 358 L 329 355 L 334 352 L 342 359 L 347 361 L 367 339 L 372 338 Z" fill="#c5965b" fill-rule="evenodd"/>
-  <path d="M 230 326 L 225 334 L 225 375 L 228 381 L 233 384 L 280 383 L 284 379 L 286 374 L 286 334 L 284 329 L 277 324 L 234 324 Z" fill="#b7aaa0" fill-rule="evenodd"/>
-  <path d="M 134 326 L 130 332 L 131 379 L 137 384 L 182 384 L 186 382 L 190 376 L 190 332 L 187 327 L 181 324 L 139 324 Z" fill="#b7aaa0" fill-rule="evenodd"/>
-  <path d="M 133 238 L 130 243 L 130 287 L 133 292 L 140 295 L 181 295 L 189 289 L 190 243 L 187 238 L 181 235 L 139 235 Z" fill="#b7aaa0" fill-rule="evenodd"/>
-  <path d="M 229 238 L 226 243 L 226 287 L 228 291 L 235 295 L 276 295 L 281 293 L 286 286 L 285 241 L 277 235 L 235 235 Z" fill="#b7aaa0" fill-rule="evenodd"/>
-  <path d="M 325 238 L 322 243 L 322 287 L 324 291 L 332 295 L 372 295 L 377 293 L 382 285 L 382 244 L 380 240 L 372 235 L 332 235 Z" fill="#b7aaa0" fill-rule="evenodd"/>
-  <path d="M 350 91 L 340 96 L 336 103 L 335 143 L 338 151 L 343 156 L 347 158 L 359 158 L 367 152 L 370 146 L 370 104 L 368 99 L 363 94 L 356 91 Z" fill="#25324f" fill-rule="evenodd"/>
-  <path d="M 158 91 L 151 94 L 146 99 L 144 104 L 144 146 L 147 152 L 153 157 L 167 158 L 171 156 L 178 147 L 178 103 L 170 93 Z" fill="#25324f" fill-rule="evenodd"/>
-  <path d="M 375 341 L 375 345 L 347 374 L 343 373 L 328 358 L 329 355 L 334 352 L 342 359 L 347 361 L 367 339 L 372 338 Z" fill="#c5965b" fill-rule="evenodd"/>
-  <path d="M 374 341 L 372 339 L 367 340 L 347 362 L 342 360 L 334 353 L 331 354 L 329 358 L 343 372 L 347 373 L 374 345 Z" fill="#8e1929" fill-rule="evenodd"/>
-</svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="none"><rect x="82" y="114" width="348" height="318" rx="44" fill="#EFF6FF" stroke="#0B1F4D" stroke-width="30"/><path d="M82 204h348M170 80v70M342 80v70" stroke="#0B1F4D" stroke-width="30" stroke-linecap="round"/><path d="M170 282h48M282 282h60M170 354h48M282 354h60" stroke="#2563EB" stroke-width="26" stroke-linecap="round"/></svg>

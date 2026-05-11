@@ -1,6 +1,1 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512" fill="none">
-  <path d="M 131 264 L 123 273 L 120 284 L 120 361 L 124 373 L 136 383 L 150 385 L 225 384 L 234 380 L 244 365 L 244 280 L 237 267 L 224 260 L 140 260 Z" fill="#c39156" fill-rule="evenodd"/>
-  <path d="M 278 266 L 270 281 L 270 364 L 275 375 L 290 384 L 374 384 L 382 381 L 390 373 L 394 362 L 394 282 L 390 271 L 374 260 L 289 260 Z" fill="#b1a59e" fill-rule="evenodd"/>
-  <path d="M 278 116 L 270 131 L 270 213 L 274 223 L 290 234 L 373 234 L 384 229 L 391 221 L 394 212 L 394 131 L 390 121 L 374 110 L 290 110 Z" fill="#25314d" fill-rule="evenodd"/>
-  <path d="M 131 114 L 123 123 L 120 133 L 120 211 L 124 222 L 140 233 L 224 234 L 236 228 L 244 214 L 244 129 L 238 118 L 225 110 L 140 110 Z" fill="#8a1828" fill-rule="evenodd"/>
-</svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="none"><rect x="98" y="98" width="104" height="104" rx="28" fill="#EFF6FF" stroke="#0B1F4D" stroke-width="28"/><rect x="310" y="98" width="104" height="104" rx="28" fill="#EFF6FF" stroke="#2563EB" stroke-width="28"/><rect x="98" y="310" width="104" height="104" rx="28" fill="#EFF6FF" stroke="#2563EB" stroke-width="28"/><rect x="310" y="310" width="104" height="104" rx="28" fill="#EFF6FF" stroke="#0B1F4D" stroke-width="28"/></svg>
