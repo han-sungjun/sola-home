@@ -9,9 +9,11 @@ const swUrl = String(self.location.href || "");
 const swHost = String(self.location.hostname || "");
 
 const isDev =
-  swUrl.includes("sola-home-dev") ||
-  swHost.includes("sola-home-dev") ||
-  swHost.includes("dev");
+  swHost === "localhost" ||
+  swHost === "127.0.0.1" ||
+  swHost === "www.sola-home-dev.kr" ||
+  swHost === "sola-home-dev.kr" ||
+  swUrl.includes("sola-home-dev");
 
 const firebaseConfig = isDev
   ? {
