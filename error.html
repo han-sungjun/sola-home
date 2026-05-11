@@ -18,7 +18,7 @@
  <link rel="apple-touch-icon" href="/icons/icon-180.png">
  <meta name="description" content="입주민 전용 혜택 웹앱">
  <meta name="robots" content="index,follow">
- <title>페이지를 찾을 수 없습니다</title>
+ <title>더운정픽 | 페이지를 찾을 수 없습니다</title>
  <meta property="og:type" content="website">
  <meta property="og:site_name" content="더운정픽">
  <meta property="og:title" content="더운정픽">
@@ -39,40 +39,199 @@
   <link rel="apple-touch-startup-image" href="/icons/splash-ios-1290x2796.png" media="(device-width: 430px) and (device-height: 932px) and (-webkit-device-pixel-ratio: 3)" />
 
   <style>
-    body {
-      margin:0;
-      font-family:-apple-system,BlinkMacSystemFont,sans-serif;
-      background:#0f172a;
-      color:#fff;
+    :root{
+      --upick-navy:#071A3D;
+      --upick-navy-2:#0B2A60;
+      --upick-blue:#2563EB;
+      --upick-sky:#60A5FA;
+      --upick-soft:#EFF6FF;
+      --upick-card:rgba(255,255,255,.92);
+      --upick-line:rgba(191,219,254,.72);
+      --safe-bottom:env(safe-area-inset-bottom,0px);
+      --safe-top:env(safe-area-inset-top,0px);
+    }
+
+    *{box-sizing:border-box}
+    html,body{margin:0;min-height:100%;}
+    body{
+      font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Noto Sans KR","Segoe UI",sans-serif;
+      min-height:100dvh;
+      color:#0f172a;
       display:flex;
-      justify-content:center;
       align-items:center;
-      height:100vh;
+      justify-content:center;
+      padding:calc(22px + var(--safe-top)) 18px calc(24px + var(--safe-bottom));
       text-align:center;
+      background:
+        radial-gradient(circle at 78% 18%,rgba(96,165,250,.32),transparent 30%),
+        radial-gradient(circle at 18% 78%,rgba(200,175,135,.18),transparent 28%),
+        linear-gradient(180deg,#f8fbff 0%,#eef5ff 48%,#f8fafc 100%);
+      overflow:hidden;
     }
 
-    .box {
-      max-width:360px;
+    body::before{
+      content:"";
+      position:fixed;
+      inset:auto -44px -70px auto;
+      width:180px;
+      height:180px;
+      border-radius:46px;
+      transform:rotate(18deg);
+      background:linear-gradient(135deg,rgba(37,99,235,.14),rgba(96,165,250,.08));
+      pointer-events:none;
     }
 
-    h1 {
-      font-size:80px;
-      margin-bottom:10px;
-      color:#60a5fa;
+    body::after{
+      content:"";
+      position:fixed;
+      inset:-78px auto auto -70px;
+      width:210px;
+      height:210px;
+      border-radius:62px;
+      transform:rotate(-18deg);
+      background:linear-gradient(135deg,rgba(7,26,61,.08),rgba(96,165,250,.10));
+      pointer-events:none;
     }
 
-    p {
-      opacity:0.8;
-      margin-bottom:20px;
+    .box{
+      position:relative;
+      z-index:1;
+      width:min(100%,420px);
+      padding:26px 22px 22px;
+      border-radius:34px;
+      background:var(--upick-card);
+      border:1px solid var(--upick-line);
+      box-shadow:0 28px 70px rgba(7,26,61,.16), inset 0 1px 0 rgba(255,255,255,.96);
+      backdrop-filter:blur(18px);
+      -webkit-backdrop-filter:blur(18px);
+      overflow:hidden;
     }
 
-    button {
-      background:#2563eb;
+    .box::before{
+      content:"";
+      position:absolute;
+      left:0;
+      right:0;
+      top:0;
+      height:5px;
+      background:linear-gradient(90deg,var(--upick-sky),var(--upick-blue),var(--upick-navy-2));
+    }
+
+    .brand-mark{
+      width:82px;
+      height:82px;
+      margin:4px auto 16px;
+      border-radius:26px;
+      display:grid;
+      place-items:center;
+      background:linear-gradient(180deg,#ffffff 0%,#eef6ff 100%);
+      border:1px solid rgba(191,219,254,.90);
+      box-shadow:0 18px 38px rgba(37,99,235,.14), inset 0 1px 0 rgba(255,255,255,.96);
+    }
+
+    .brand-mark::before{
+      content:"";
+      width:62px;
+      height:62px;
+      display:block;
+      background:url('/icons/internal/brand-symbol-real.png') center/contain no-repeat;
+      filter:drop-shadow(0 8px 18px rgba(7,26,61,.14));
+    }
+
+    .eyebrow{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      min-height:30px;
+      padding:7px 12px;
+      border-radius:999px;
+      background:#eff6ff;
+      border:1px solid #bfdbfe;
+      color:#1d4ed8;
+      font-size:12px;
+      font-weight:1000;
+      letter-spacing:-.02em;
+      margin-bottom:12px;
+    }
+
+    h1{
+      margin:0;
+      font-size:68px;
+      line-height:1;
+      letter-spacing:-.07em;
+      color:var(--upick-navy);
+      text-shadow:0 10px 26px rgba(37,99,235,.10);
+    }
+
+    h2{
+      margin:12px 0 8px;
+      font-size:23px;
+      line-height:1.3;
+      letter-spacing:-.055em;
+      color:#071A3D;
+    }
+
+    p{
+      margin:0 auto;
+      max-width:310px;
+      color:#64748b;
+      font-size:14px;
+      font-weight:700;
+      line-height:1.7;
+    }
+
+    .actions{
+      margin-top:22px;
+      display:grid;
+      grid-template-columns:1fr 1fr 1fr;
+      gap:9px;
+    }
+
+    button{
+      min-height:48px;
       border:none;
-      padding:12px 20px;
-      border-radius:12px;
+      border-radius:17px;
+      padding:0 12px;
       color:#fff;
       cursor:pointer;
+      font:inherit;
+      font-size:14px;
+      font-weight:1000;
+      letter-spacing:-.02em;
+      background:linear-gradient(135deg,var(--upick-navy) 0%,var(--upick-navy-2) 54%,var(--upick-blue) 100%);
+      box-shadow:0 14px 30px rgba(37,99,235,.22);
+      transition:transform .16s ease, box-shadow .16s ease, opacity .16s ease;
+      -webkit-tap-highlight-color:transparent;
+    }
+
+    button.secondary{
+      background:#fff;
+      color:#1d4ed8;
+      border:1px solid #bfdbfe;
+      box-shadow:0 10px 22px rgba(37,99,235,.08);
+    }
+
+    button:active{transform:scale(.97)}
+    button:hover{transform:translateY(-1px)}
+
+    .hint{
+      margin-top:16px;
+      padding:11px 12px;
+      border-radius:18px;
+      background:#f8fafc;
+      border:1px solid #e2e8f0;
+      color:#64748b;
+      font-size:12px;
+      font-weight:800;
+      line-height:1.55;
+    }
+
+    @media(max-width:380px){
+      .box{padding:24px 18px 20px;border-radius:30px;}
+      h1{font-size:60px;}
+      h2{font-size:21px;}
+      .actions{grid-template-columns:1fr;}
+      button{width:100%;}
     }
   </style>
 
@@ -253,15 +412,19 @@
 </head>
 
 <body>
-  <div class="box">
+  <main class="box" role="main" aria-labelledby="errorTitle">
+    <div class="brand-mark" aria-hidden="true"></div>
+    <div class="eyebrow">더운정픽 안내</div>
     <h1>404</h1>
-    <p>요청하신 페이지를 찾을 수 없습니다.</p>
-    <div style="margin-top:20px; display:flex; gap:10px; justify-content:center;">
-	  <button onclick="location.href='/app'">홈</button>
-	  <button onclick="location.href='/app#benefits'">혜택</button>
-	  <button onclick="location.href='/app#top5'">TOP5</button>
-	</div>
-  </div>
+    <h2 id="errorTitle">페이지를 찾을 수 없습니다</h2>
+    <p>요청하신 주소가 변경되었거나 더 이상 제공되지 않는 페이지입니다. 아래 메뉴에서 필요한 화면으로 다시 이동해주세요.</p>
+    <div class="actions" aria-label="빠른 이동">
+      <button type="button" onclick="goHome()">홈</button>
+      <button type="button" class="secondary" onclick="location.replace('/app#benefits')">혜택</button>
+      <button type="button" class="secondary" onclick="location.replace('/app#top5')">TOP 5</button>
+    </div>
+    <div class="hint">입주민 전용 혜택과 공지는 더운정픽 홈에서 다시 확인하실 수 있습니다.</div>
+  </main>
 
 	<script src="/env-config.js"></script>
 	<script src="/firebase-config.js"></script>
