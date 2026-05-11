@@ -15402,7 +15402,7 @@ function setPushStatusUi(enabled){
  }
  if(subEl){
  subEl.textContent = enabled
- ? '현재 브라우저에서 알림 알림을 받을 수 있습니다.'
+ ? '현재 브라우저에서 알림을 받을 수 있습니다.'
  : '현재 브라우저/기기에서만 다시 알림 허용을 진행해 주세요.';
  }
  if(enableBtn) enableBtn.classList.toggle('hidden', !!enabled);
@@ -15985,12 +15985,12 @@ async function enablePushNotifications(){
  }, { merge:true });
 
  setPushStatusUi(true);
- await openModalAlert('현재 기기에서 알림 알림이 설정되었습니다.');
+ await openModalAlert('현재 기기에서 알림이 설정되었습니다.');
  }catch(error){
  console.error('알림 설정 실패', error);
  state.currentPushToken = null;
  setPushStatusUi(false);
- await openModalAlert('알림 알림 설정 중 오류가 발생했습니다.');
+ await openModalAlert('알림 설정 중 오류가 발생했습니다.');
  }
  }
 
@@ -16009,10 +16009,10 @@ async function disablePushNotifications(){
  await deleteDoc(doc(db, 'users', state.currentUser.uid, 'pushTokens', state.currentPushToken));
  state.currentPushToken = null;
  setPushStatusUi(false);
- await openModalAlert('현재 기기에서 알림 알림이 해제되었습니다.');
+ await openModalAlert('현재 기기에서 알림이 해제되었습니다.');
  }catch(error){
  console.error('알림 해제 실패', error);
- await openModalAlert('알림 알림 해제 중 오류가 발생했습니다.');
+ await openModalAlert('알림 해제 중 오류가 발생했습니다.');
  }
  }
 
