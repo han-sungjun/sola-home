@@ -14247,34 +14247,6 @@ nav.bottom-nav{
  prod: 'BJONnfKeKFN8SCWWlo_quJ9pjahri96uw9WZJq2774hBZ8um6edcRb-NP7uRwjmcwHNTTGMuPJX-MUdeThgu5Kw'
  };
  window.VAPID_PUBLIC_KEY = VAPID_PUBLIC_KEY_BY_ENV[ENV] || VAPID_PUBLIC_KEY_BY_ENV.prod;
-
- function getPushTokenDocRef(token){
-   if(!state.currentUser?.uid || !token) return null;
-   return doc(db, 'users', state.currentUser.uid, 'pushTokens', token);
- }
-
- async function saveCurrentPushToken(token){
-   const ref = getPushTokenDocRef(token);
-   if(!ref) return false;
-   await setDoc(ref, {
-     token,
-     uid: state.currentUser.uid,
-     enabled: true,
-     platform: 'web',
-     userAgent: navigator.userAgent || '',
-     browser: /samsungbrowser/i.test(navigator.userAgent || '') ? 'samsung-internet' : 'web',
-     env: ENV,
-     projectId: firebaseConfig.projectId || '',
-     messagingSenderId: firebaseConfig.messagingSenderId || '',
-     origin: location.origin,
-     swScope: window.pushSwRegistration?.scope || '',
-     swActiveScriptURL: window.pushSwRegistration?.active?.scriptURL || '',
-     vapidKeyTail: String(window.VAPID_PUBLIC_KEY || '').slice(-10),
-     updatedAt: serverTimestamp(),
-     createdAt: serverTimestamp()
-   }, { merge:true });
-   return true;
- }
  // 카카오 Developers > 앱 키 > JavaScript 키를 입력하세요.
  const KAKAO_JS_KEY = 'e52b154b3966372f9700ff0b35e15ccc';
  const DEFAULT_SHARE_IMAGE_URL = `/icons/icon-512.png?v=20260425b`;
@@ -14600,14 +14572,40 @@ nav.bottom-nav{
  return false;
  }
 
+ // v86: 운영계/삼성브라우저 백그라운드 푸시 안정화
+ // Service Worker URL에 매번 바뀌는 query를 붙이면 일부 모바일 브라우저에서
+ // waiting/active 전환 타이밍이 흔들려 백그라운드 push 이벤트를 안정적으로 깨우지 못할 수 있습니다.
+ // 운영/개발 모두 고정 경로 + 루트 scope로 등록하고, active registration을 getToken에 전달합니다.
  const swUrl = '/firebase-messaging-sw.js';
- const registration = await navigator.serviceWorker.register(swUrl, {
- scope: '/',
- updateViaCache: 'none'
- });
+ let registration = await navigator.serviceWorker.getRegistration('/').catch(() => null);
+
+ if(!registration || !registration.active){
+ registration = await navigator.serviceWorker.register(swUrl, { scope: '/' });
+ }else{
  await registration.update().catch(() => {});
- await navigator.serviceWorker.ready.catch(() => registration);
- window.pushSwRegistration = registration;
+ }
+
+ // waiting SW가 있으면 활성화를 요청합니다. SW 쪽에서 SKIP_WAITING 메시지를 처리하지 않아도 안전합니다.
+ if(registration.waiting){
+ try{ registration.waiting.postMessage({ type:'SKIP_WAITING', source:'app-v86' }); }catch(_){ }
+ }
+
+ // 삼성브라우저/운영계에서는 ready가 늦는 경우가 있어 active registration을 다시 확정합니다.
+ const readyRegistration = await Promise.race([
+ navigator.serviceWorker.ready,
+ new Promise((resolve) => setTimeout(() => resolve(registration), 3500))
+ ]).catch(() => registration);
+
+ window.pushSwRegistration = readyRegistration || registration;
+ window.__UPICK_PUSH_SW_INFO__ = {
+ scope: window.pushSwRegistration?.scope || '',
+ scriptURL: window.pushSwRegistration?.active?.scriptURL || '',
+ state: window.pushSwRegistration?.active?.state || '',
+ controlled: !!navigator.serviceWorker.controller,
+ env: ENV || 'prod',
+ updatedAt: new Date().toISOString()
+ };
+ console.info('[UPICK PUSH] Service Worker ready', window.__UPICK_PUSH_SW_INFO__);
 
  messaging = getMessaging(app);
  window.firebaseMessaging = messaging;
@@ -15967,7 +15965,23 @@ async function enablePushNotifications(){
 
  state.currentPushToken = token;
 
- await saveCurrentPushToken(token);
+ await setDoc(doc(db, 'users', state.currentUser.uid, 'pushTokens', token), {
+ token,
+ uid: state.currentUser.uid,
+ enabled: true,
+ platform: 'web',
+ userAgent: navigator.userAgent || '',
+ env: ENV,
+ projectId: firebaseConfig.projectId || '',
+ swScope: window.pushSwRegistration?.scope || '',
+ swScriptURL: window.pushSwRegistration?.active?.scriptURL || '',
+ swState: window.pushSwRegistration?.active?.state || '',
+ swControlled: !!navigator.serviceWorker?.controller,
+ notificationPermission: Notification.permission || '',
+ lastTokenIssuedAt: serverTimestamp(),
+ updatedAt: serverTimestamp(),
+ createdAt: serverTimestamp()
+ }, { merge:true });
 
  setPushStatusUi(true);
  await openModalAlert('현재 기기에서 알림 알림이 설정되었습니다.');
@@ -16027,14 +16041,8 @@ async function refreshPushStatus(){
  return;
  }
 
- const tokenRef = getPushTokenDocRef(token);
- const snap = tokenRef ? await getDoc(tokenRef) : null;
- if(!snap || !snap.exists()){
-   await saveCurrentPushToken(token);
-   setPushStatusUi(true);
-   return;
- }
- setPushStatusUi(true);
+ const snap = await getDoc(doc(db, 'users', state.currentUser.uid, 'pushTokens', token));
+ setPushStatusUi(snap.exists());
  }catch(error){
  console.error('알림 상태 확인 실패', error);
  state.currentPushToken = null;
