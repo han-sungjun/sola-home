@@ -15977,6 +15977,7 @@ async function enablePushNotifications(){
  swScriptURL: window.pushSwRegistration?.active?.scriptURL || '',
  swState: window.pushSwRegistration?.active?.state || '',
  swControlled: !!navigator.serviceWorker?.controller,
+ samsungInternetCompat: /SamsungBrowser/i.test(navigator.userAgent || ''),
  notificationPermission: Notification.permission || '',
  lastTokenIssuedAt: serverTimestamp(),
  updatedAt: serverTimestamp(),
@@ -31965,3 +31966,5 @@ section[id^="view-"] > .upick-tab-common-header{
   #upickGlobalHero.upick-global-hero-shell #globalUserChip .user-avatar{width:26px!important;height:26px!important;min-width:26px!important;max-width:26px!important;}
 }
 </style>
+
+<!-- UPICK_V87_SAMSUNG_BACKGROUND_FALLBACK_APPLIED -->

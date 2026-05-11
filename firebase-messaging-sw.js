@@ -1,4 +1,4 @@
-/* firebase-messaging-sw.js - no duplicate background notification build */
+/* firebase-messaging-sw.js - samsung background fallback compat v87 */
 importScripts("https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js");
 importScripts("https://www.gstatic.com/firebasejs/10.12.2/firebase-messaging-compat.js");
 
@@ -107,6 +107,19 @@ function isMobileEdgeBrowser() {
     ua.includes("edg");
 
   return isMobile && isEdge;
+}
+
+function isSamsungInternetBrowser() {
+  const ua = String(self.navigator?.userAgent || "").toLowerCase();
+  return ua.includes("samsungbrowser");
+}
+
+function shouldUseFcmPushFallback() {
+  // 삼성 인터넷 일부 환경에서는 FCM data-only payload의 raw push 이벤트는 들어오지만
+  // firebase.messaging().onBackgroundMessage 콜백이 누락되는 경우가 있습니다.
+  // 이때 FCM payload를 무시하면 백그라운드 알림이 표시되지 않으므로,
+  // 모바일 Edge와 삼성 인터넷에서는 fallback push 경로에서도 직접 표시합니다.
+  return isMobileEdgeBrowser() || isSamsungInternetBrowser();
 }
 
 /* =========================
@@ -329,17 +342,20 @@ self.addEventListener("push", (event) => {
       });
 
       // FCM payload는 기본적으로 Firebase SDK의 onBackgroundMessage가 처리합니다.
-      // 단, 모바일 Edge에서는 onBackgroundMessage가 누락될 수 있어
-      // 모바일 Edge에서만 push fallback 경로에서 직접 표시합니다.
+      // 단, 모바일 Edge/삼성 인터넷에서는 onBackgroundMessage가 누락될 수 있어
+      // fallback push 경로에서도 직접 표시합니다. 중복 표시는 makeNotificationKey로 방지합니다.
       if (isFcmPayload) {
+        const useFallback = shouldUseFcmPushFallback();
         swFlowLog("PUSH_EVENT_FCM_PAYLOAD_SEEN_IN_FALLBACK", {
           isMobileEdge: isMobileEdgeBrowser(),
+          isSamsungInternet: isSamsungInternetBrowser(),
+          useFallback,
           payload
         });
 
-        if (isMobileEdgeBrowser()) {
+        if (useFallback) {
           await showPushNotification(payload);
-          swFlowLog("PUSH_EVENT_MOBILE_EDGE_FCM_NOTIFICATION_DONE", payload);
+          swFlowLog("PUSH_EVENT_MOBILE_COMPAT_FCM_NOTIFICATION_DONE", payload);
         }
 
         return;
@@ -414,3 +430,5 @@ self.addEventListener("activate", (event) => {
   swFlowLog("SW_ACTIVATE", {});
   event.waitUntil(self.clients.claim());
 });
+
+/* UPICK_V87_SAMSUNG_BACKGROUND_FALLBACK_APPLIED */
