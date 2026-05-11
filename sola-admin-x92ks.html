@@ -1025,7 +1025,8 @@ body.gnb-open .admin-bottom-nav{
 .admin-thumb-preview{min-height:92px;border:1px dashed #cbd5e1;border-radius:18px;background:#f8fafc;color:#94a3b8;font-size:13px;font-weight:800;display:flex;align-items:center;justify-content:center;overflow:hidden;text-align:center}
 .admin-thumb-preview img{width:100%;height:120px;object-fit:cover;display:block}
 .admin-metric-row{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
-.admin-metric-chip{display:inline-flex;align-items:center;gap:4px;padding:6px 9px;border-radius:999px;background:#f8fafc;border:1px solid #e2e8f0;color:#64748b;font-size:11px;font-weight:900}
+.admin-metric-chip{display:inline-flex;align-items:center;gap:5px;padding:6px 9px;border-radius:999px;background:#f8fafc;border:1px solid #e2e8f0;color:#64748b;font-size:11px;font-weight:900}
+.admin-metric-chip svg{width:13px;height:13px;flex:0 0 auto;stroke:currentColor;stroke-width:2;fill:none;stroke-linecap:round;stroke-linejoin:round}
 .admin-metric-chip.share-best{background:#fff7ed;border-color:#fed7aa;color:#c2410c}
 
   
@@ -1635,6 +1636,58 @@ body.gnb-open .admin-bottom-nav{
   .hours-actions .btn{
     font-size:12px !important;
     padding:10px 8px !important;
+  }
+}
+
+
+/* ===== Opening Hours Full Visibility Patch 2026-05-11 ===== */
+#dailyHoursPanel.hours-quick-panel{
+  overflow-x:auto !important;
+  overflow-y:hidden !important;
+  -webkit-overflow-scrolling:touch !important;
+}
+#dailyHoursPanel .hours-quick-fields{
+  min-width:660px !important;
+  grid-template-columns:repeat(5,124px) !important;
+}
+#dailyHoursPanel .hours-quick-fields input[type="time"]{
+  font-size:13px !important;
+  letter-spacing:-.02em !important;
+  padding:0 10px !important;
+}
+#openingHoursGrid.hours-grid-advanced{
+  overflow-x:auto !important;
+  overflow-y:hidden !important;
+  -webkit-overflow-scrolling:touch !important;
+  padding-bottom:4px !important;
+}
+#openingHoursGrid.hours-grid-advanced .hours-row{
+  min-width:920px !important;
+  grid-template-columns:28px 38px repeat(5,118px) minmax(150px,1fr) !important;
+}
+#openingHoursGrid.hours-grid-advanced input[type="time"]{
+  font-size:13px !important;
+  letter-spacing:-.02em !important;
+  padding:0 10px !important;
+}
+#openingHoursGrid.hours-grid-advanced input[id$="Note"]{
+  font-size:12px !important;
+  padding:0 10px !important;
+}
+@media(max-width:420px){
+  #dailyHoursPanel .hours-quick-fields{
+    min-width:660px !important;
+    grid-template-columns:repeat(5,124px) !important;
+  }
+  #dailyHoursPanel .hours-quick-fields input[type="time"],
+  #openingHoursGrid.hours-grid-advanced input[type="time"]{
+    height:36px !important;
+    font-size:12px !important;
+    padding:0 8px !important;
+  }
+  #openingHoursGrid.hours-grid-advanced .hours-row{
+    min-width:900px !important;
+    grid-template-columns:26px 34px repeat(5,116px) minmax(144px,1fr) !important;
   }
 }
 
@@ -5285,7 +5338,19 @@ function fillForm(item){
       const createdText = formatAdminDate(item.createdAt);
       const updatedText = formatAdminDate(item.updatedAt);
       const dateLine = `등록 ${createdText} · 수정 ${updatedText}`;
-      const metrics=`<div class="admin-metric-row"><span class="admin-metric-chip">조회 ${item.viewCount||0}</span><span class="admin-metric-chip">즐겨찾기 ${item.favoriteCount||0}</span><span class="admin-metric-chip">공유 ${item.shareCount||0}</span><span class="admin-metric-chip">좋아요 ${item.likeCount||0}</span><span class="admin-metric-chip">추천 추천 ${item.recommendCount||0}</span><span class="admin-metric-chip">HOT HOT ${item.hotCount||0}</span>${item.rankBoost?`<span class="admin-metric-chip">가중치 가중치 ${item.rankBoost}</span>`:''}${item.shareBest?'<span class="admin-metric-chip share-best">BEST 공유</span>':''}${item.thumbnailUrl?'<span class="admin-metric-chip">🖼 썸네일</span>':''}</div>`;
+      const metricIcon={
+        view:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6Z"/><circle cx="12" cy="12" r="2.8"/></svg>',
+        favorite:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.5l2.6 5.3 5.8.8-4.2 4.1 1 5.8L12 16.8 6.8 19.5l1-5.8-4.2-4.1 5.8-.8L12 3.5Z"/></svg>',
+        share:'<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.7 10.7l6.6-4.4M8.7 13.3l6.6 4.4"/></svg>',
+        like:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10v10H4a2 2 0 0 1-2-2v-6a2 2 0 0 1 2-2h3Zm0 0 4.3-6.2a2 2 0 0 1 3.6 1.4L14 9h4.8a2 2 0 0 1 2 2.3l-1.2 7A2 2 0 0 1 17.7 20H7"/></svg>',
+        recommend:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l1.9 5.8H20l-5 3.7 1.9 5.8L12 14.7l-4.9 3.6L9 12.5 4 8.8h6.1L12 3Z"/><path d="M19 20l2 2M5 20l-2 2"/></svg>',
+        hot:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 22c4 0 7-2.7 7-6.7 0-3.2-2-5.3-4.2-7.5-.9 2.5-2.2 3.7-3.8 4.5.5-3.2-.6-5.9-3-8.3C7.8 7.7 5 10.2 5 15.3 5 19.3 8 22 12 22Z"/></svg>',
+        boost:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 17l6-6 4 4 6-8"/><path d="M14 7h6v6"/></svg>',
+        best:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0V4Z"/><path d="M7 6H4v2a3 3 0 0 0 3 3M17 6h3v2a3 3 0 0 1-3 3"/></svg>',
+        image:'<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="8" cy="10" r="1.5"/><path d="M21 16l-5-5-4 4-2-2-5 5"/></svg>'
+      };
+      const metricChip=(icon,label,value,extraClass='')=>`<span class="admin-metric-chip ${extraClass}">${metricIcon[icon]||''}${label} ${value}</span>`;
+      const metrics=`<div class="admin-metric-row">${metricChip('view','조회',item.viewCount||0)}${metricChip('favorite','즐겨찾기',item.favoriteCount||0)}${metricChip('share','공유',item.shareCount||0)}${metricChip('like','좋아요',item.likeCount||0)}${metricChip('recommend','추천',item.recommendCount||0)}${metricChip('hot','HOT',item.hotCount||0)}${item.rankBoost?metricChip('boost','가중치',item.rankBoost):''}${item.shareBest?`<span class="admin-metric-chip share-best">${metricIcon.best}공유 BEST</span>`:''}${item.thumbnailUrl?`<span class="admin-metric-chip">${metricIcon.image}썸네일</span>`:''}</div>`;
       const storeStatus=normalizeAdminStoreStatus(item);const benefitStatus=normalizeAdminBenefitStatus(item);const storeMeta=STORE_STATUS_META[storeStatus]||STORE_STATUS_META.active;const benefitMeta=BENEFIT_STATUS_META[benefitStatus]||BENEFIT_STATUS_META.active;const storeReason=item.closedReason||item.storeStatusReason||'';const benefitReason=item.benefitStatusReason||item.statusReason||item.discountStatusReason||'';return `<div class="mini-item-head"><div><h5>${item.name}</h5><div style="color:#64748b;font-size:13px;line-height:1.45;">${item.category} · ${item.discountText} · ${item.phone}</div><div class="benefit-date-line">${dateLine}</div><div class="tags">${isRecentlyUpdatedBenefit(item)?'<span class="tag updated-tag">최근 수정</span>':''}${item.recommended?'<span class="tag rec">추천</span>':''}${adminStatusTagHtml(storeMeta)}${adminStatusTagHtml(benefitMeta)}</div>${(storeReason||item.closedAt)?`<div class="benefit-date-line">매장 상태 ${item.closedAt||'-'}${storeReason?' · '+storeReason:''}</div>`:''}${(benefitReason||item.benefitEndedAt)?`<div class="benefit-date-line">혜택 상태 ${item.benefitEndedAt||'-'}${benefitReason?' · '+benefitReason:''}</div>`:''}${metrics}</div><div class="tags" style="margin-top:0;"><button class="btn btn-soft edit-btn" style="padding:8px 10px;">수정</button><button class="btn btn-danger del-btn" style="padding:8px 10px;">삭제</button></div></div>`;
     }
 

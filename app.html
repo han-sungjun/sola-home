@@ -1691,7 +1691,8 @@ html[data-font-size="xlarge"] .calendar-summary-grid{grid-template-columns:1fr;}
 .popular-item.rank-down{animation:popularRankDownFlash .9s ease both;}
 .popular-item.rank-new{animation:popularRankNewFlash .9s ease both;}
 .popular-name-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
-.share-best-badge{display:inline-flex;align-items:center;justify-content:center;gap:4px;min-height:22px;padding:4px 8px;border-radius:999px;background:linear-gradient(135deg,#eff6ff 0%,#dbeafe 100%);border:1px solid #bfdbfe;color:#1d4ed8;font-size:10px;font-weight:1000;line-height:1;box-shadow:0 8px 18px rgba(37,99,235,.10);}
+.share-best-badge{display:inline-flex;align-items:center;justify-content:center;gap:4px;min-height:22px;padding:3px 8px 3px 5px;border-radius:999px;background:linear-gradient(135deg,#eff6ff 0%,#dbeafe 100%);border:1px solid #bfdbfe;color:#1d4ed8;font-size:10px;font-weight:1000;line-height:1;box-shadow:0 8px 18px rgba(37,99,235,.10);}
+.share-best-icon{width:16px;height:16px;display:block;flex:0 0 auto;}
 .hot-now-panel{margin-bottom:14px;background:linear-gradient(180deg,#fff7ed 0%,#ffffff 78%);border-color:#fed7aa;}
 .hot-now-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:12px;}
 .hot-now-title{margin:0;font-size:17px;font-weight:1000;letter-spacing:-.04em;}
@@ -18824,7 +18825,7 @@ ${item.content || ''}`);
  <div class="popular-name-row">
  <div class="popular-name">${escapeHtml(item.name || '이름 없는 매장')}</div>
  ${item.trendText ? `<span class="popular-trend ${item.trendClass || 'same'}">${escapeHtml(item.trendText)}</span>` : ''}
- ${item.isShareBest ? '<span class="share-best-badge">공유 공유 BEST</span>' : ''}
+ ${item.isShareBest ? '<span class="share-best-badge"><img class="share-best-icon" src="/icons/internal/share-best.svg" alt="" loading="lazy" decoding="async"><span>공유 BEST</span></span>' : ''}
  </div>
  ${rank === 1 ? '<div class="top1-urgent">HOT 지금 클릭이 가장 많은 혜택입니다</div><div class="top1-cta"><button type="button" class="top1-btn">혜택 바로보기</button></div>' : ''}
  ${renderPopularDetail(item)}
