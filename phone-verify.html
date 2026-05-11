@@ -16,7 +16,7 @@
  <meta name="apple-mobile-web-app-status-bar-style" content="default">
  <meta name="apple-mobile-web-app-title" content="더운정픽">
  <link rel="apple-touch-icon" href="/icons/icon-180.png">
- <meta name="description" content="더운정픽 입주민 전용 혜택 웹앱">
+ <meta name="description" content="입주민 전용 혜택 웹앱">
  <meta name="robots" content="index,follow">
  <title>더운정픽 · 휴대폰 인증</title>
  <meta property="og:type" content="website">
@@ -544,7 +544,61 @@
     .topbar-userbar{min-width:0}
     .user-chip{min-width:0;max-width:min(260px,calc(100vw - 156px))}
     .user-name{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-  </style>
+  
+
+/* ===== 더운정픽 UI v3: 브랜드 심볼 기반 블루 프리미엄 로딩 ===== */
+.top-loader{background:linear-gradient(90deg,#0b1f4d,#2563eb,#60a5fa)!important;box-shadow:0 0 18px rgba(37,99,235,.34)!important;height:3px!important;}
+.page-loader,.global-loading{background:rgba(7,18,42,.56)!important;backdrop-filter:blur(8px)!important;-webkit-backdrop-filter:blur(8px)!important;}
+.page-loader .loader-mark,.global-loading .loader-mark{width:86px!important;height:86px!important;border-radius:28px!important;background:linear-gradient(180deg,rgba(255,255,255,.96),rgba(239,246,255,.86))!important;border:1px solid rgba(191,219,254,.88)!important;box-shadow:0 24px 56px rgba(7,26,61,.26),inset 0 1px 0 rgba(255,255,255,.94)!important;display:grid!important;place-items:center!important;position:relative!important;animation:upickLoaderFloat 1.15s ease-in-out infinite!important;overflow:visible!important;}
+.page-loader .loader-mark::before,.global-loading .loader-mark::before{content:""!important;width:60px!important;height:60px!important;background:url('/icons/internal/brand-symbol-real.png') center/contain no-repeat!important;display:block!important;filter:drop-shadow(0 8px 16px rgba(7,26,61,.14))!important;}
+.page-loader .loader-mark::after,.global-loading .loader-mark::after{content:""!important;position:absolute!important;left:16px!important;right:16px!important;bottom:-14px!important;height:5px!important;border-radius:999px!important;background:linear-gradient(90deg,rgba(96,165,250,.18),#60a5fa,#2563eb,rgba(96,165,250,.18))!important;background-size:220% 100%!important;animation:upickLoaderLine 1.05s ease-in-out infinite!important;box-shadow:0 0 22px rgba(37,99,235,.34)!important;}
+.page-loader .loader-mark .arm,.global-loading .loader-mark .arm{display:none!important;}
+@keyframes upickLoaderFloat{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-4px) scale(1.025)}}
+@keyframes upickLoaderLine{0%{background-position:0% 50%;opacity:.72}50%{background-position:100% 50%;opacity:1}100%{background-position:0% 50%;opacity:.72}}
+
+</style>
+
+
+
+<!-- ===== 더운정픽 UI v5 핵심 보정: 심볼 크기/로딩/GNB 오버레이 ===== -->
+<style id="upick-blue-premium-v5-fixes">
+:root{--upick-real-symbol:url('/icons/internal/brand-symbol-real.png');}
+/* 실제 심볼 마크가 작은 박스 안에서 잘리지 않도록 공통 보정 */
+.logo,.brand .logo,.topbar-left-titleline .logo,.title-icon,.gnb-hero-emoji,.loader-mark{
+  overflow:visible!important;
+}
+.logo img[src*="brand-symbol"],.brand img[src*="brand-symbol"],.brand-icon[src*="brand-symbol"],
+.gnb-hero-emoji img,.loader-mark img{
+  width:100%!important;height:100%!important;object-fit:contain!important;object-position:center!important;
+  content:url('/icons/internal/brand-symbol-real.png')!important;
+}
+.logo::before,.brand .logo::before,.topbar-left-titleline .brand .logo::before,header.topbar .brand .logo::before,.page>.brand .logo::before{
+  inset:0!important;background:var(--upick-real-symbol) center/86% 86% no-repeat!important;
+}
+.gnb-hero-emoji{display:grid!important;place-items:center!important;background:linear-gradient(180deg,#f8fbff,#eef6ff)!important;border:1px solid rgba(191,219,254,.88)!important;box-shadow:0 18px 40px rgba(7,26,61,.18)!important;}
+.gnb-hero-emoji img{width:86%!important;height:86%!important;}
+/* 로딩은 중앙 심볼 + 블루 링만 사용. 대각선/하단바/핑크 잔상 제거 */
+.top-loader,.top-progress,.loading-bar,#topLoader,#topLoadingBar,.browser-loading-bar,.app-top-loading{display:none!important;height:0!important;opacity:0!important;visibility:hidden!important;pointer-events:none!important;}
+.global-loading,.page-loader{position:fixed!important;inset:0!important;width:100vw!important;height:100dvh!important;display:none!important;align-items:center!important;justify-content:center!important;background:rgba(7,18,42,.46)!important;backdrop-filter:blur(14px)!important;-webkit-backdrop-filter:blur(14px)!important;z-index:2147483000!important;overflow:hidden!important;}
+.global-loading.show,.page-loader.show{display:flex!important;}
+.global-loading::before,.page-loader::before{content:""!important;position:absolute!important;inset:0!important;background:radial-gradient(circle at 50% 45%,rgba(96,165,250,.18),transparent 32%)!important;}
+.global-loading .loader-mark,.page-loader .loader-mark{width:108px!important;height:108px!important;border-radius:34px!important;background:linear-gradient(180deg,rgba(255,255,255,.97),rgba(238,246,255,.88))!important;border:1px solid rgba(191,219,254,.92)!important;box-shadow:0 28px 70px rgba(7,26,61,.32),inset 0 1px 0 rgba(255,255,255,.92)!important;display:grid!important;place-items:center!important;position:relative!important;overflow:visible!important;animation:upickLoaderFloatV5 1.3s ease-in-out infinite!important;}
+.global-loading .loader-mark::before,.page-loader .loader-mark::before{content:""!important;width:76px!important;height:76px!important;background:var(--upick-real-symbol) center/contain no-repeat!important;display:block!important;filter:drop-shadow(0 8px 18px rgba(7,26,61,.16))!important;}
+.global-loading .loader-mark::after,.page-loader .loader-mark::after{content:""!important;position:absolute!important;inset:-10px!important;border-radius:42px!important;border:2px solid rgba(96,165,250,.20)!important;border-top-color:#60a5fa!important;border-right-color:#2563eb!important;background:none!important;height:auto!important;left:-10px!important;right:-10px!important;bottom:-10px!important;transform:none!important;animation:upickLoaderRingV5 1.05s linear infinite!important;box-shadow:0 0 24px rgba(37,99,235,.18)!important;}
+.global-loading .loader-mark .arm,.page-loader .loader-mark .arm,.global-loading .loader-mark span,.page-loader .loader-mark span{display:none!important;opacity:0!important;visibility:hidden!important;}
+@keyframes upickLoaderFloatV5{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
+@keyframes upickLoaderRingV5{to{transform:rotate(360deg)}}
+/* GNB가 어둡게 잠긴 것처럼 보이지 않도록 오버레이/시트 레이어 정리 */
+body.gnb-open{overflow:hidden!important;overscroll-behavior:none!important;touch-action:none!important;}
+.gnb-overlay{position:fixed!important;inset:0!important;width:100vw!important;height:100dvh!important;z-index:2147481900!important;background:rgba(7,18,42,.10)!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important;overscroll-behavior:none!important;}
+.gnb-sheet{z-index:2147482001!important;position:fixed!important;inset:0!important;width:100vw!important;max-width:none!important;height:100dvh!important;max-height:100dvh!important;border-radius:0!important;display:flex!important;flex-direction:column!important;overflow:hidden!important;background:linear-gradient(180deg,#ffffff 0%,#f8fbff 100%)!important;overscroll-behavior:none!important;}
+.gnb-sheet:not(.show){pointer-events:none!important;}
+.gnb-body{flex:1 1 auto!important;min-height:0!important;overflow-y:auto!important;overflow-x:hidden!important;overscroll-behavior:contain!important;-webkit-overflow-scrolling:touch!important;background:linear-gradient(180deg,#ffffff 0%,#f8fbff 100%)!important;padding-bottom:calc(36px + env(safe-area-inset-bottom,0px))!important;}
+body.gnb-open .bottom-nav,body.gnb-open .admin-bottom-nav,body.gnb-open .mobile-bottom-nav,body.gnb-open nav.bottom-nav{opacity:0!important;visibility:hidden!important;pointer-events:none!important;transform:translateY(18px)!important;}
+/* GNB 내부 잔여 이모지 느낌 최소화 */
+.gnb-menu-icon,.gnb-card-icon,.admin-all-card-icon,.nav-icon,.all-icon{font-size:0!important;line-height:0!important;}
+.gnb-menu-icon:not(:has(img))::before,.gnb-card-icon:not(:has(img))::before,.admin-all-card-icon:not(:has(img))::before,.all-icon:not(:has(img))::before{content:"";display:inline-block;width:24px;height:24px;background:url('/icons/internal/all-menu.svg') center/contain no-repeat;}
+</style>
 
 </head>
 <body>
