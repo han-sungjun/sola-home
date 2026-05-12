@@ -3,7 +3,7 @@ const fs = require("fs");
 const BASE_URL =
   process.env.PUBLIC_APP_URL ||
   (process.env.VERCEL_ENV === "production"
-    ? "https://www.sola-home.kr"
+    ? "https://www.theunjeongpick.com"
     : "https://dev.sola-home.kr");
 
 const files = [
