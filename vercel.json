@@ -1,6 +1,30 @@
 {
   "buildCommand": "node replace-env.js",
   "outputDirectory": ".",
+  "redirects": [
+    {
+      "source": "/(.*)",
+      "has": [
+        {
+          "type": "host",
+          "value": "www.sola-home.kr"
+        }
+      ],
+      "destination": "https://www.theunjeongpick.com/$1",
+      "permanent": false
+    },
+    {
+      "source": "/(.*)",
+      "has": [
+        {
+          "type": "host",
+          "value": "sola-home.kr"
+        }
+      ],
+      "destination": "https://www.theunjeongpick.com/$1",
+      "permanent": false
+    }
+  ],
   "routes": [
     {
       "src": "/",
