@@ -14350,8 +14350,19 @@ nav.bottom-nav{
  const { ENV, FIREBASE_CONFIG, TTS_SERVICE_URL } = await import(__solaNoCache('/env-config.js'));
 
  const envBadge = document.getElementById('envBadge');
+ const globalEnvBadge = document.getElementById('globalEnvBadge');
  document.body.classList.add(ENV === 'dev' ? 'env-dev' : 'env-prod');
- if (envBadge && ENV === 'dev') envBadge.classList.add('show');
+ document.body.classList.toggle('env-dev', ENV === 'dev');
+ document.body.classList.toggle('env-prod', ENV !== 'dev');
+ if (ENV === 'dev') {
+   [envBadge, globalEnvBadge].forEach((badge) => {
+     if (badge) badge.classList.add('show');
+   });
+ } else {
+   [envBadge, globalEnvBadge].forEach((badge) => {
+     if (badge) badge.classList.remove('show');
+   });
+ }
  import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
  import { getFirestore, collection, onSnapshot, doc, getDoc, getDocs, setDoc, updateDoc, increment, serverTimestamp, addDoc, query, where, orderBy, limit, startAfter, deleteDoc } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
  import { getMessaging, getToken, onMessage, isSupported } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-messaging.js';
