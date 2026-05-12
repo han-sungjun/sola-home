@@ -11,7 +11,7 @@
         }
       ],
       "destination": "https://www.theunjeongpick.com/$1",
-      "permanent": false
+      "permanent": true
     },
     {
       "source": "/(.*)",
@@ -22,7 +22,7 @@
         }
       ],
       "destination": "https://www.theunjeongpick.com/$1",
-      "permanent": false
+      "permanent": true
     }
   ],
   "routes": [
