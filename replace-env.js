@@ -1,10 +1,20 @@
 const fs = require("fs");
 
-const BASE_URL =
+function normalizeBaseUrl(value) {
+  if (!value) return "";
+  const trimmed = String(value).trim().replace(/\/+$/, "");
+  if (!trimmed) return "";
+  return /^https?:\/\//i.test(trimmed) ? trimmed : `https://${trimmed}`;
+}
+
+const BASE_URL = normalizeBaseUrl(
+  process.env.__BASE_URL__ ||
+  process.env.BASE_URL ||
   process.env.PUBLIC_APP_URL ||
-  (process.env.VERCEL_ENV === "production"
-    ? "https://www.theunjeongpick.com"
-    : "https://dev.sola-home.kr");
+  process.env.NEXT_PUBLIC_BASE_URL
+) || (process.env.VERCEL_ENV === "production"
+  ? "https://www.theunjeongpick.com"
+  : "https://www.sola-home-dev.kr");
 
 const files = [
   "index.html",
