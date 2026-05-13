@@ -14247,6 +14247,99 @@ nav.bottom-nav{
   }
 }
 </style>
+
+<style id="upick-benefit-detail-hero-photo-style-v1">
+/* ===== 혜택 상세 상단 대표 사진: 카카오 공유 썸네일/매장 대표 사진 표시 ===== */
+.benefit-detail-hero{
+  position:relative;
+  min-height:132px;
+  padding-right:142px;
+  margin:0 0 12px;
+}
+.benefit-detail-hero.no-photo{
+  min-height:0;
+  padding-right:0;
+}
+.benefit-detail-main{
+  min-width:0;
+}
+.benefit-detail-photo{
+  position:absolute;
+  top:0;
+  right:0;
+  width:124px;
+  height:124px;
+  border-radius:28px;
+  overflow:hidden;
+  background:linear-gradient(180deg,#f8fbff 0%,#eef6ff 100%);
+  border:1px solid rgba(191,219,254,.88);
+  box-shadow:0 18px 38px rgba(11,31,77,.14), inset 0 1px 0 rgba(255,255,255,.88);
+}
+.benefit-detail-photo img{
+  width:100%;
+  height:100%;
+  display:block;
+  object-fit:cover;
+  transform:scale(1.01);
+}
+.benefit-detail-photo::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  border-radius:inherit;
+  pointer-events:none;
+  background:linear-gradient(180deg,rgba(255,255,255,.10),rgba(15,23,42,.06));
+}
+.benefit-detail-photo-badge{
+  position:absolute;
+  left:10px;
+  bottom:10px;
+  z-index:2;
+  display:inline-flex;
+  align-items:center;
+  gap:4px;
+  min-height:24px;
+  padding:5px 8px;
+  border-radius:999px;
+  background:rgba(15,23,42,.78);
+  color:#fff;
+  font-size:10px;
+  font-weight:1000;
+  line-height:1;
+  backdrop-filter:blur(8px);
+  -webkit-backdrop-filter:blur(8px);
+}
+@media(max-width:420px){
+  .benefit-detail-hero{
+    min-height:118px;
+    padding-right:124px;
+  }
+  .benefit-detail-photo{
+    width:108px;
+    height:108px;
+    border-radius:24px;
+  }
+  .benefit-detail-hero h3{
+    font-size:24px!important;
+  }
+}
+@media(max-width:350px){
+  .benefit-detail-hero{
+    padding-right:0;
+    min-height:0;
+  }
+  .benefit-detail-photo{
+    position:relative;
+    top:auto;
+    right:auto;
+    width:100%;
+    height:150px;
+    margin-top:12px;
+    border-radius:24px;
+  }
+}
+</style>
+
 </head>
 <body>
  <div class="global-loading" id="globalLoadingBar" aria-hidden="true">
@@ -20324,13 +20417,56 @@ function renderCalendarDayModal(){
  if(emergency) rows.push(`<div style="margin-top:6px;color:#dc2626;font-weight:800;"><img class="upick-svg-icon upick-contact-icon" src="/icons/internal/emergency.svg" alt="" loading="lazy" decoding="async">비상연락처: ${escapeHtml(emergency)}</div>`);
  return rows.length ? rows.join('') : '등록된 전화번호가 없습니다.';
  }
+
+
+ function getBenefitRepresentativeImage(item = {}){
+ const candidates = [
+ item.kakaoShareThumbnailUrl,
+ item.kakaoThumbnailUrl,
+ item.shareThumbnailUrl,
+ item.shareImageUrl,
+ item.representativeImageUrl,
+ item.representativePhotoUrl,
+ item.mainImageUrl,
+ item.mainPhotoUrl,
+ item.storeImageUrl,
+ item.storePhotoUrl,
+ item.thumbnailUrl,
+ item.imageUrl,
+ item.thumbnail,
+ item.photoUrl,
+ item.image,
+ Array.isArray(item.images) ? item.images[0] : '',
+ Array.isArray(item.photos) ? item.photos[0] : '',
+ item.media?.thumbnailUrl,
+ item.media?.imageUrl,
+ item.share?.imageUrl,
+ item.share?.thumbnailUrl
+ ];
+ const raw = candidates.find(v => typeof v === 'string' && v.trim());
+ if(!raw) return '';
+ const url = toAbsoluteUrl(String(raw).trim());
+ const defaultUrl = toAbsoluteUrl(DEFAULT_SHARE_IMAGE_URL || '');
+ if(defaultUrl && url === defaultUrl) return '';
+ return url || '';
+ }
+
+ function benefitDetailHeroHtml(item = {}){
+ const imageUrl = getBenefitRepresentativeImage(item);
+ const isFavClass = imageUrl ? '' : ' no-photo';
+ const photoHtml = imageUrl
+ ? `<div class="benefit-detail-photo"><img src="${escapeAttr(imageUrl)}" alt="${escapeAttr(item.name || '매장 대표 사진')}" loading="lazy" decoding="async" onerror="this.closest('.benefit-detail-photo')?.remove(); this.closest('.benefit-detail-hero')?.classList.add('no-photo');"><span class="benefit-detail-photo-badge">대표 사진</span></div>`
+ : '';
+ return `<div class="benefit-detail-hero${isFavClass}"><div class="benefit-detail-main"><div class="${getBadgeClass(item)}" style="display:inline-block;min-width:auto;padding:12px 16px;">${item.discountText}</div><h3 style="margin:12px 0 6px;font-size:26px;letter-spacing:-.04em;">${item.name}</h3><div class="tags" style="margin-top:0;margin-bottom:10px;">${item.recommended?'<span class="tag rec">추천 혜택</span>':''}<span class="tag">${item.category}</span>${benefitOperationBadgesHtml(item)}${benefitDateTag(item)}</div>${benefitStatusChipsHtml(item)}${benefitStatusReasonHtml(item)}</div>${photoHtml}</div>`;
+ }
+
  function openDetail(item, options = {}){
  const { skipUrlUpdate = false } = options;
  if(!skipUrlUpdate && item?.id) updateCleanDeepLinkUrl('benefit', item.id);
  increaseStat(item.id, item.name, 'detailViewCount');
  logBenefitEvent(item.id, 'detail_view');
  const isFav=getFavorites().includes(item.id);
- qs('#modalBody').innerHTML=`<div class="${getBadgeClass(item)}" style="display:inline-block;min-width:auto;padding:12px 16px;">${item.discountText}</div><h3 style="margin:12px 0 6px;font-size:26px;letter-spacing:-.04em;">${item.name}</h3><div class="tags" style="margin-top:0;margin-bottom:10px;">${item.recommended?'<span class="tag rec">추천 혜택</span>':''}<span class="tag">${item.category}</span>${benefitOperationBadgesHtml(item)}${benefitDateTag(item)}</div>${benefitStatusChipsHtml(item)}${benefitStatusReasonHtml(item)}<div style="display:grid;gap:10px;margin:16px 0;"><div class="panel"><strong style="display:block;margin-bottom:6px;font-size:13px;color:var(--muted);">혜택 조건</strong>${item.condition}</div>${benefitPriceDetailsHtml(item)}${locationPanelHtml(item)}${benefitExtraInfoHtml(item)}<div class="panel"><strong style="display:block;margin-bottom:6px;font-size:13px;color:var(--muted);">연락처</strong>${benefitContactHtml(item)}</div>${benefitDetailDateHtml(item)}</div>${residentReactionHtml(item)}<div class="grid-2"><a class="btn btn-primary block" id="callBtn" href="tel:${item.phone}">전화하기</a><button class="btn btn-soft block" id="modalFavBtn"><img class="upick-svg-icon upick-inline-icon" src="/icons/internal/${isFav ? 'star-fill' : 'star-outline'}.svg" alt="" loading="lazy" decoding="async">${isFav?'즐겨찾기 해제':'즐겨찾기 추가'}</button></div><button class="btn btn-soft block" id="openCalendarReservationBtn" style="margin-top:10px;">방문 알림 추가</button>${shareActionsHtml('benefit')}`;
+ qs('#modalBody').innerHTML=`${benefitDetailHeroHtml(item)}<div style="display:grid;gap:10px;margin:16px 0;"><div class="panel"><strong style="display:block;margin-bottom:6px;font-size:13px;color:var(--muted);">혜택 조건</strong>${item.condition}</div>${benefitPriceDetailsHtml(item)}${locationPanelHtml(item)}${benefitExtraInfoHtml(item)}<div class="panel"><strong style="display:block;margin-bottom:6px;font-size:13px;color:var(--muted);">연락처</strong>${benefitContactHtml(item)}</div>${benefitDetailDateHtml(item)}</div>${residentReactionHtml(item)}<div class="grid-2"><a class="btn btn-primary block" id="callBtn" href="tel:${item.phone}">전화하기</a><button class="btn btn-soft block" id="modalFavBtn"><img class="upick-svg-icon upick-inline-icon" src="/icons/internal/${isFav ? 'star-fill' : 'star-outline'}.svg" alt="" loading="lazy" decoding="async">${isFav?'즐겨찾기 해제':'즐겨찾기 추가'}</button></div><button class="btn btn-soft block" id="openCalendarReservationBtn" style="margin-top:10px;">방문 알림 추가</button>${shareActionsHtml('benefit')}`;
  const modal=qs('#detailModal');
  if(modal.open)modal.close();
  modal.showModal();
@@ -32169,6 +32305,271 @@ html body #view-benefits .filter-sticky .chips .chip-all-person-icon-removed{
 .gnb-inline-badge.up{background:rgba(16,185,129,.86);color:#fff;border-color:rgba(167,243,208,.55)}
 .gnb-inline-badge.deprecated{background:rgba(100,116,139,.86);color:#fff;border-color:rgba(203,213,225,.62)}
 </style>
+
+<style id="upick-benefit-detail-photo-final-v5">
+/* ===== 혜택 상세 대표 사진 v5: 돋보기 위치 + 확대 팝업 z-index 보정 ===== */
+#detailModal .benefit-detail-photo{
+  cursor:zoom-in !important;
+  position:absolute !important;
+  overflow:hidden !important;
+  -webkit-tap-highlight-color:transparent !important;
+}
+
+#detailModal .benefit-detail-photo-badge{
+  display:none !important;
+}
+
+/* 기존 pseudo 돋보기 제거 */
+#detailModal .benefit-detail-photo::after{
+  content:none !important;
+  display:none !important;
+}
+
+/* 실제 DOM 돋보기: 우측 하단 고정 */
+#detailModal .benefit-detail-photo .benefit-photo-zoom-icon{
+  position:absolute !important;
+  right:8px !important;
+  bottom:8px !important;
+  left:auto !important;
+  top:auto !important;
+  width:30px !important;
+  height:30px !important;
+  border-radius:999px !important;
+  background:rgba(15,23,42,.88) !important;
+  border:1px solid rgba(255,255,255,.42) !important;
+  box-shadow:0 8px 18px rgba(15,23,42,.24) !important;
+  display:grid !important;
+  place-items:center !important;
+  pointer-events:none !important;
+  z-index:6 !important;
+}
+
+#detailModal .benefit-detail-photo .benefit-photo-zoom-icon::before{
+  content:"" !important;
+  width:15px !important;
+  height:15px !important;
+  display:block !important;
+  background:url('/icons/internal/search.svg') center/contain no-repeat !important;
+  filter:brightness(0) invert(1) !important;
+}
+
+/* 확대 뷰어: detailModal 내부에서 최상단 */
+#detailModal #benefitPhotoZoomViewer{
+  position:fixed !important;
+  inset:0 !important;
+  z-index:2147483647 !important;
+  display:none !important;
+  align-items:center !important;
+  justify-content:center !important;
+  padding:18px !important;
+  background:rgba(7,18,42,.78) !important;
+  backdrop-filter:blur(10px) !important;
+  -webkit-backdrop-filter:blur(10px) !important;
+}
+
+#detailModal #benefitPhotoZoomViewer.show{
+  display:flex !important;
+}
+
+#detailModal #benefitPhotoZoomViewer .photo-viewer-card{
+  width:min(100%,460px) !important;
+  max-height:92dvh !important;
+  border-radius:28px !important;
+  background:#fff !important;
+  overflow:hidden !important;
+  box-shadow:0 30px 80px rgba(7,26,61,.34) !important;
+}
+
+#detailModal #benefitPhotoZoomViewer .photo-viewer-head{
+  height:58px !important;
+  padding:10px 12px !important;
+  display:flex !important;
+  align-items:center !important;
+  justify-content:space-between !important;
+  gap:10px !important;
+  border-bottom:1px solid rgba(226,232,240,.86) !important;
+}
+
+#detailModal #benefitPhotoZoomViewer .photo-viewer-title{
+  min-width:0 !important;
+  flex:1 !important;
+  font-size:14px !important;
+  font-weight:1000 !important;
+  color:#0f172a !important;
+  white-space:nowrap !important;
+  overflow:hidden !important;
+  text-overflow:ellipsis !important;
+}
+
+#detailModal #benefitPhotoZoomViewer .photo-viewer-close{
+  width:40px !important;
+  height:40px !important;
+  border:0 !important;
+  border-radius:15px !important;
+  background:#0f172a !important;
+  color:#fff !important;
+  font-size:22px !important;
+  font-weight:900 !important;
+  display:grid !important;
+  place-items:center !important;
+}
+
+#detailModal #benefitPhotoZoomViewer .photo-viewer-body{
+  max-height:calc(92dvh - 58px) !important;
+  overflow:auto !important;
+  padding:12px !important;
+  background:#f8fafc !important;
+  display:grid !important;
+  place-items:center !important;
+}
+
+#detailModal #benefitPhotoZoomViewer .photo-viewer-body img{
+  width:100% !important;
+  height:auto !important;
+  max-height:calc(92dvh - 90px) !important;
+  object-fit:contain !important;
+  border-radius:20px !important;
+  background:#fff !important;
+}
+</style>
+
+
+<script id="upick-benefit-detail-photo-final-v5-js">
+(function(){
+  function getModal(){
+    return document.getElementById('detailModal');
+  }
+
+  function ensureViewer(){
+    const modal = getModal();
+    if(!modal) return null;
+
+    let viewer = modal.querySelector('#benefitPhotoZoomViewer');
+    if(viewer) return viewer;
+
+    viewer = document.createElement('div');
+    viewer.id = 'benefitPhotoZoomViewer';
+    viewer.innerHTML = [
+      '<div class="photo-viewer-card" role="dialog" aria-modal="true" aria-label="대표 사진 확대 보기">',
+        '<div class="photo-viewer-head">',
+          '<div class="photo-viewer-title">대표 사진</div>',
+          '<button type="button" class="photo-viewer-close" aria-label="닫기">×</button>',
+        '</div>',
+        '<div class="photo-viewer-body">',
+          '<img alt="대표 사진 확대 보기">',
+        '</div>',
+      '</div>'
+    ].join('');
+
+    modal.appendChild(viewer);
+
+    viewer.addEventListener('click', function(e){
+      if(e.target === viewer || e.target.closest('.photo-viewer-close')){
+        closeViewer();
+      }
+    });
+
+    return viewer;
+  }
+
+  function openViewer(src, title){
+    if(!src) return;
+
+    const viewer = ensureViewer();
+    if(!viewer) return;
+
+    const img = viewer.querySelector('.photo-viewer-body img');
+    const titleEl = viewer.querySelector('.photo-viewer-title');
+
+    img.src = src;
+    titleEl.textContent = title ? title + ' 대표 사진' : '대표 사진';
+
+    viewer.classList.add('show');
+    document.documentElement.classList.add('benefit-photo-viewer-open');
+  }
+
+  function closeViewer(){
+    const modal = getModal();
+    const viewer = modal ? modal.querySelector('#benefitPhotoZoomViewer') : null;
+    if(!viewer) return;
+
+    viewer.classList.remove('show');
+    const img = viewer.querySelector('.photo-viewer-body img');
+    if(img) img.removeAttribute('src');
+    document.documentElement.classList.remove('benefit-photo-viewer-open');
+  }
+
+  function markPhoto(){
+    const modal = getModal();
+    if(!modal) return;
+
+    const photo = modal.querySelector('.benefit-detail-photo');
+    if(!photo) return;
+
+    // 기존 라벨 제거
+    photo.querySelectorAll('.benefit-detail-photo-badge').forEach(el => el.remove());
+
+    // 돋보기는 실제 span으로 우측 하단에 배치
+    if(!photo.querySelector('.benefit-photo-zoom-icon')){
+      const icon = document.createElement('span');
+      icon.className = 'benefit-photo-zoom-icon';
+      icon.setAttribute('aria-hidden', 'true');
+      photo.appendChild(icon);
+    }
+
+    photo.setAttribute('role', 'button');
+    photo.setAttribute('tabindex', '0');
+    photo.setAttribute('aria-label', '대표 사진 확대 보기');
+  }
+
+  document.addEventListener('click', function(e){
+    const photo = e.target && e.target.closest ? e.target.closest('#detailModal .benefit-detail-photo') : null;
+    if(!photo) return;
+
+    const img = photo.querySelector('img');
+    if(!img || !img.src) return;
+
+    e.preventDefault();
+    e.stopPropagation();
+
+    const titleEl = document.querySelector('#detailModal h1, #detailModal h2, #detailModal h3, #detailModal .benefit-title');
+    openViewer(img.currentSrc || img.src, titleEl ? titleEl.textContent.trim() : '');
+  }, true);
+
+  document.addEventListener('keydown', function(e){
+    if(e.key === 'Escape'){
+      closeViewer();
+      return;
+    }
+
+    const photo = e.target && e.target.closest ? e.target.closest('#detailModal .benefit-detail-photo') : null;
+    if(!photo) return;
+    if(e.key !== 'Enter' && e.key !== ' ') return;
+
+    const img = photo.querySelector('img');
+    if(!img || !img.src) return;
+
+    e.preventDefault();
+
+    const titleEl = document.querySelector('#detailModal h1, #detailModal h2, #detailModal h3, #detailModal .benefit-title');
+    openViewer(img.currentSrc || img.src, titleEl ? titleEl.textContent.trim() : '');
+  }, true);
+
+  document.addEventListener('click', function(){
+    setTimeout(markPhoto, 80);
+    setTimeout(markPhoto, 250);
+  }, true);
+
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', markPhoto);
+  }else{
+    markPhoto();
+  }
+
+  window.closeBenefitPhotoZoomViewer = closeViewer;
+})();
+</script>
+
 </body></html>
 <style id="upick-v87-profile-filter-fix">
 /* v87: 공통 헤더 아이콘용 white filter가 계정 프사까지 먹는 문제 보정 */
