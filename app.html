@@ -31971,6 +31971,161 @@ html body #view-benefits .filter-sticky [data-dropdown]{
   z-index:9999 !important;
 }
 </style>
+<style id="upick-distance-person-icon-v14">
+/* ===== 거리 태그 사람 아이콘 ===== */
+.distance-tag .distance-person-icon{
+  width:13px !important;
+  height:13px !important;
+  flex:0 0 13px !important;
+  margin-right:4px !important;
+  vertical-align:-2px !important;
+  display:inline-block !important;
+}
+</style>
+
+<script id="upick-distance-person-icon-v14-js">
+(function(){
+  const PERSON_ICON = '/icons/internal/person.svg';
+
+  function applyDistancePersonIcon(){
+    document.querySelectorAll('.distance-tag').forEach((tag) => {
+      if(tag.querySelector('.distance-person-icon')) return;
+
+      const img = document.createElement('img');
+      img.className = 'distance-person-icon';
+      img.src = PERSON_ICON;
+      img.alt = '';
+      img.loading = 'lazy';
+      img.decoding = 'async';
+
+      tag.insertBefore(img, tag.firstChild);
+    });
+  }
+
+  document.addEventListener('click', () => {
+    setTimeout(applyDistancePersonIcon, 0);
+    setTimeout(applyDistancePersonIcon, 120);
+  }, true);
+
+  const observer = new MutationObserver(applyDistancePersonIcon);
+  if(document.body){
+    observer.observe(document.body, {childList:true, subtree:true});
+  }
+
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', applyDistancePersonIcon);
+  }else{
+    applyDistancePersonIcon();
+  }
+})();
+</script>
+
+<style id="upick-distance-filter-walk-v17">
+/* ===== 혜택 필터 radius 완화 + 거리 필터 walk 아이콘 ===== */
+
+/* 스와이프 시 끝부분 잘림 완화 */
+html body #view-benefits .filter-sticky{
+  border-radius:18px !important;
+}
+
+html body #view-benefits .filter-sticky .panel-filter-top-row,
+html body #view-benefits .filter-sticky .panel-searchbox,
+html body #view-benefits .filter-sticky .chips-scroll-bound,
+html body #view-benefits .filter-sticky .chips{
+  border-radius:14px !important;
+}
+
+/* 전체30 카테고리 칩 쪽 아이콘 잔재 숨김 */
+html body #view-benefits .filter-sticky .chips .chip-all-resident-icon,
+html body #view-benefits .filter-sticky .chips .chip-all-person-icon,
+html body #view-benefits .filter-sticky .chips .chip-all-resident-icon-removed,
+html body #view-benefits .filter-sticky .chips .chip-all-person-icon-removed{
+  display:none !important;
+}
+
+/* 거리 필터 버튼/옵션 walk 아이콘 */
+.distance-filter-walk-icon{
+  width:13px !important;
+  height:13px !important;
+  flex:0 0 13px !important;
+  margin-right:4px !important;
+  vertical-align:-2px !important;
+  display:inline-block !important;
+}
+</style>
+
+
+<script id="upick-distance-filter-walk-v17-js">
+(function(){
+  const WALK_ICON = '/icons/internal/walk.svg';
+
+  function removeWrongChipIcons(){
+    document.querySelectorAll(
+      '#view-benefits .filter-sticky .chips .chip-all-resident-icon, ' +
+      '#view-benefits .filter-sticky .chips .chip-all-person-icon, ' +
+      '#view-benefits .filter-sticky .chips .chip-all-resident-icon-removed, ' +
+      '#view-benefits .filter-sticky .chips .chip-all-person-icon-removed'
+    ).forEach(el => el.remove());
+  }
+
+  function isDistanceFilterText(text){
+    const t = String(text || '').replace(/\s+/g, ' ').trim();
+    return t === '전체' ||
+           t === '500m' ||
+           t === '500m 이내' ||
+           t === '1km 이내' ||
+           t === '3km 이내';
+  }
+
+  function applyDistanceFilterWalkIcon(){
+    removeWrongChipIcons();
+
+    const root = document.querySelector('#view-benefits .filter-sticky') || document;
+
+    root.querySelectorAll('button, [role="button"], .chip, .filter-chip, .dropdown-item, [role="option"]').forEach((el) => {
+      const text = (el.textContent || '').replace(/\s+/g, ' ').trim();
+
+      if(!isDistanceFilterText(text)) return;
+
+      // 카테고리 칩의 "전체 30" / "전체 0" 쪽은 제외
+      if(el.closest('.chips') && /^전체\s*\d+/.test(text)) return;
+
+      if(el.querySelector('.distance-filter-walk-icon')) return;
+
+      const img = document.createElement('img');
+      img.className = 'distance-filter-walk-icon';
+      img.src = WALK_ICON;
+      img.alt = '';
+      img.loading = 'lazy';
+      img.decoding = 'async';
+
+      el.insertBefore(img, el.firstChild);
+    });
+  }
+
+  function run(){
+    applyDistanceFilterWalkIcon();
+  }
+
+  document.addEventListener('click', () => {
+    setTimeout(run, 0);
+    setTimeout(run, 80);
+    setTimeout(run, 180);
+    setTimeout(run, 350);
+  }, true);
+
+  const observer = new MutationObserver(run);
+  if(document.body){
+    observer.observe(document.body, {childList:true, subtree:true});
+  }
+
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', run);
+  }else{
+    run();
+  }
+})();
+</script>
 
 </body></html>
 <style id="upick-v87-profile-filter-fix">
