@@ -1907,7 +1907,7 @@ img.brand-icon[src*="home.svg"],
       const approvalStatus = String(profile.approvalStatus || 'pending');
       const accountStatus = String(profile.accountStatus || 'inactive');
       if (approvalStatus === 'approved' && accountStatus === 'active') {
-        replaceWithLoader('/app.html');
+        replaceWithLoader('/app');
       }
     } catch (error) {
       console.warn('회원가입 페이지 로그인 상태 확인 실패:', error);
