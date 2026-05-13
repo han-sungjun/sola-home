@@ -81,7 +81,7 @@ export const APP_ORIGIN = {
   dev: host === "localhost" || host === "127.0.0.1"
     ? origin
     : "https://www.sola-home-dev.kr",
-  prod: "https://www.theunjeongpick.com"
+  prod: "https://theunjeongpick.com"
 };
 
 export const TTS_SERVICE_URL = {

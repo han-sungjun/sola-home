@@ -12,7 +12,7 @@
       ],
       "status": 308,
       "headers": {
-        "Location": "https://www.theunjeongpick.com/$1"
+        "Location": "https://theunjeongpick.com/$1"
       }
     },
     {
@@ -25,7 +25,7 @@
       ],
       "status": 308,
       "headers": {
-        "Location": "https://www.theunjeongpick.com/$1"
+        "Location": "https://theunjeongpick.com/$1"
       }
     },
     {

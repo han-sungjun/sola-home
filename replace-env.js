@@ -13,7 +13,7 @@ const BASE_URL = normalizeBaseUrl(
   process.env.PUBLIC_APP_URL ||
   process.env.NEXT_PUBLIC_BASE_URL
 ) || (process.env.VERCEL_ENV === "production"
-  ? "https://www.theunjeongpick.com"
+  ? "https://theunjeongpick.com"
   : "https://www.sola-home-dev.kr");
 
 const files = [
