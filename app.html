@@ -14390,6 +14390,62 @@ html.kakao-share-active .share-actions .btn.is-share-loading{
 }
 </style>
 
+
+<style id="upick-kakao-share-fast-open-v11">
+/* ===== Kakao share 2-step feedback: 준비 중 → 여는 중 ===== */
+.share-actions .btn.share-loading,
+.share-actions .btn.is-share-loading,
+button.share-loading,
+button.is-share-loading{
+  background:#e5e7eb !important;
+  border-color:#cbd5e1 !important;
+  color:#475569 !important;
+  box-shadow:none !important;
+  cursor:wait !important;
+  opacity:.94 !important;
+}
+
+.share-actions .btn.share-opening,
+button.share-opening{
+  background:#dbe4ee !important;
+  border-color:#bcccdc !important;
+  color:#334155 !important;
+}
+
+.share-actions .btn.share-opening::before,
+button.share-opening::before{
+  border-color:rgba(51,65,85,.24) !important;
+  border-top-color:#334155 !important;
+}
+</style>
+
+
+<style id="upick-kakao-share-restore-clean-v12">
+/* ===== 카카오 공유 버튼 원복 후 잔상 제거 ===== */
+button:not(.share-loading):not(.is-share-loading):not(.share-opening).share-btn,
+.btn:not(.share-loading):not(.is-share-loading):not(.share-opening).share-btn{
+  cursor:pointer;
+}
+
+.share-actions button:not(.share-loading):not(.is-share-loading):not(.share-opening):not(:disabled),
+.share-actions .btn:not(.share-loading):not(.is-share-loading):not(.share-opening):not(:disabled){
+  opacity:1 !important;
+  cursor:pointer !important;
+}
+
+/* 로딩/여는 중 상태에만 회색톤 적용 */
+.share-actions .btn.share-loading,
+.share-actions .btn.is-share-loading,
+.share-actions .btn.share-opening,
+button.share-loading,
+button.is-share-loading,
+button.share-opening{
+  background:#e5e7eb !important;
+  border-color:#cbd5e1 !important;
+  color:#475569 !important;
+}
+</style>
+
 </head>
 <body>
  <div class="global-loading" id="globalLoadingBar" aria-hidden="true">
@@ -18363,7 +18419,24 @@ function getShareTrackingParams(){
 
  button.disabled = originalDisabled;
  button.removeAttribute('aria-busy');
- button.classList.remove('share-loading', 'is-share-loading', 'share-returning');
+ button.classList.remove(
+ 'share-loading',
+ 'is-share-loading',
+ 'share-opening',
+ 'share-returning',
+ 'kakao-share-loading'
+ );
+
+ // 일부 모바일 브라우저에서 disabled/active 스타일이 남는 것을 방지
+ button.style.removeProperty('background');
+ button.style.removeProperty('background-color');
+ button.style.removeProperty('border-color');
+ button.style.removeProperty('color');
+ button.style.removeProperty('opacity');
+ button.style.removeProperty('box-shadow');
+ button.style.removeProperty('cursor');
+ button.style.removeProperty('pointer-events');
+
  delete button.dataset.shareBusy;
  delete button.dataset.shareOriginalHtml;
  delete button.dataset.shareOriginalDisabled;
@@ -18374,6 +18447,11 @@ function getShareTrackingParams(){
  function restoreAllKakaoShareButtons(){
  kakaoShareActiveButtons.forEach(button => restoreShareButtonState(button));
  kakaoShareActiveButtons.clear();
+
+ document.querySelectorAll('.share-loading, .is-share-loading, .share-opening, .share-returning, .kakao-share-loading').forEach(button => {
+ restoreShareButtonState(button);
+ });
+
  clearTimeout(kakaoShareRestoreTimer);
  kakaoShareRestoreTimer = null;
  document.documentElement.classList.remove('kakao-share-active');
@@ -18404,6 +18482,14 @@ function getShareTrackingParams(){
  // 카카오 SDK는 공유창을 띄운 뒤 별도 완료 콜백을 안정적으로 제공하지 않으므로
  // 공유 호출 직후 1차 원복하고, 앱/브라우저 복귀 이벤트에서 2차 원복합니다.
  scheduleKakaoShareReturnRestore(900);
+ }
+
+ function setKakaoShareButtonOpening(){
+ kakaoShareActiveButtons.forEach(button => {
+ if(!button || button.dataset.shareBusy !== '1') return;
+ button.classList.add('share-opening');
+ button.innerHTML = '<span>카카오톡 여는 중</span>';
+ });
  }
 
  async function withShareButtonFeedback(button, type, task){
@@ -18502,14 +18588,20 @@ function getShareTrackingParams(){
  }
 
  try{
- await writeShareActionLog('kakao_share_open', type, item, {
+ writeShareActionLog('kakao_share_open', type, item, {
  shareId,
  channel: 'kakao',
  cardShareUrl,
  webShareUrl,
  appShareUrl,
  note: '제품 링크 관리 등록 완료 기준: 카카오 카드/버튼 URL을 실제 상세 딥링크로 전송'
+ }).catch(error => {
+ console.warn('카카오 공유 로그 저장 실패', error);
  });
+
+ if(typeof setKakaoShareButtonOpening === 'function'){
+ setKakaoShareButtonOpening();
+ }
 
  Kakao.Share.sendDefault({
  objectType: 'feed',
