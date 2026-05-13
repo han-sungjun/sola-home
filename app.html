@@ -14340,6 +14340,56 @@ nav.bottom-nav{
 }
 </style>
 
+
+<style id="upick-kakao-share-return-fix-v10">
+/* ===== Kakao share button return-state UX ===== */
+.share-actions .btn.share-loading,
+.share-actions .btn.is-share-loading,
+button.share-loading,
+button.is-share-loading{
+  background:#e5e7eb !important;
+  border-color:#cbd5e1 !important;
+  color:#475569 !important;
+  box-shadow:none !important;
+  cursor:wait !important;
+  opacity:.92 !important;
+}
+
+.share-actions .btn.share-loading::before,
+.share-actions .btn.is-share-loading::before,
+button.share-loading::before,
+button.is-share-loading::before{
+  content:"" !important;
+  width:14px !important;
+  height:14px !important;
+  border-radius:999px !important;
+  border:2px solid rgba(71,85,105,.28) !important;
+  border-top-color:#475569 !important;
+  display:inline-block !important;
+  margin-right:7px !important;
+  vertical-align:-2px !important;
+  animation:upickShareButtonSpin .75s linear infinite !important;
+}
+
+html.kakao-share-active .share-actions .btn.share-loading,
+html.kakao-share-active .share-actions .btn.is-share-loading{
+  background:#e2e8f0 !important;
+}
+
+@keyframes upickShareButtonSpin{
+  to{transform:rotate(360deg)}
+}
+
+@media (prefers-reduced-motion: reduce){
+  .share-actions .btn.share-loading::before,
+  .share-actions .btn.is-share-loading::before,
+  button.share-loading::before,
+  button.is-share-loading::before{
+    animation:none !important;
+  }
+}
+</style>
+
 </head>
 <body>
  <div class="global-loading" id="globalLoadingBar" aria-hidden="true">
@@ -18299,29 +18349,83 @@ function getShareTrackingParams(){
  return type === 'notice' ? '공유 준비 중' : '공유 준비 중';
  }
 
+ const kakaoShareActiveButtons = new Set();
+ let kakaoShareRestoreTimer = null;
+
+ function restoreShareButtonState(button){
+ if(!button) return;
+ const originalHtml = button.dataset.shareOriginalHtml;
+ const originalDisabled = button.dataset.shareOriginalDisabled === '1';
+
+ if(originalHtml !== undefined){
+ button.innerHTML = originalHtml;
+ }
+
+ button.disabled = originalDisabled;
+ button.removeAttribute('aria-busy');
+ button.classList.remove('share-loading', 'is-share-loading', 'share-returning');
+ delete button.dataset.shareBusy;
+ delete button.dataset.shareOriginalHtml;
+ delete button.dataset.shareOriginalDisabled;
+
+ kakaoShareActiveButtons.delete(button);
+ }
+
+ function restoreAllKakaoShareButtons(){
+ kakaoShareActiveButtons.forEach(button => restoreShareButtonState(button));
+ kakaoShareActiveButtons.clear();
+ clearTimeout(kakaoShareRestoreTimer);
+ kakaoShareRestoreTimer = null;
+ document.documentElement.classList.remove('kakao-share-active');
+ }
+
+ function scheduleKakaoShareReturnRestore(delay = 220){
+ clearTimeout(kakaoShareRestoreTimer);
+ kakaoShareRestoreTimer = setTimeout(restoreAllKakaoShareButtons, Math.max(0, Number(delay || 0)));
+ }
+
+ // 카카오톡 공유창/앱 전환 후 브라우저로 돌아오는 시점에 버튼과 로딩 상태를 즉시 원복합니다.
+ window.addEventListener('pageshow', function(){
+ if(kakaoShareActiveButtons.size) scheduleKakaoShareReturnRestore(120);
+ });
+
+ window.addEventListener('focus', function(){
+ if(kakaoShareActiveButtons.size) scheduleKakaoShareReturnRestore(160);
+ });
+
+ document.addEventListener('visibilitychange', function(){
+ if(!document.hidden && kakaoShareActiveButtons.size){
+ scheduleKakaoShareReturnRestore(160);
+ }
+ });
+
+ function markKakaoShareDispatched(){
+ document.documentElement.classList.add('kakao-share-active');
+ // 카카오 SDK는 공유창을 띄운 뒤 별도 완료 콜백을 안정적으로 제공하지 않으므로
+ // 공유 호출 직후 1차 원복하고, 앱/브라우저 복귀 이벤트에서 2차 원복합니다.
+ scheduleKakaoShareReturnRestore(900);
+ }
+
  async function withShareButtonFeedback(button, type, task){
  if(!button || button.dataset.shareBusy === '1'){
  return;
  }
 
- const originalHtml = button.innerHTML;
- const originalDisabled = button.disabled;
+ button.dataset.shareOriginalHtml = button.innerHTML;
+ button.dataset.shareOriginalDisabled = button.disabled ? '1' : '0';
  button.dataset.shareBusy = '1';
  button.disabled = true;
  button.setAttribute('aria-busy', 'true');
  button.classList.add('share-loading', 'is-share-loading');
  button.innerHTML = getShareButtonText(type);
 
+ kakaoShareActiveButtons.add(button);
+
  try{
  return await task();
  }finally{
- setTimeout(() => {
- button.innerHTML = originalHtml;
- button.disabled = originalDisabled;
- button.removeAttribute('aria-busy');
- button.classList.remove('share-loading', 'is-share-loading');
- delete button.dataset.shareBusy;
- }, 650);
+ // SDK 호출이 실패하거나 공유창이 뜨지 않은 경우에도 너무 오래 잠기지 않도록 안전 원복합니다.
+ scheduleKakaoShareReturnRestore(1300);
  }
  }
 
@@ -18440,6 +18544,10 @@ function getShareTrackingParams(){
  },
  ],
  });
+
+ if(typeof markKakaoShareDispatched === 'function'){
+ markKakaoShareDispatched();
+ }
  }catch(error){
  console.warn('카카오 공유 실패', error);
  await copyShareUrl(type, item);
