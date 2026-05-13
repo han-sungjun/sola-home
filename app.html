@@ -31971,54 +31971,6 @@ html body #view-benefits .filter-sticky [data-dropdown]{
   z-index:9999 !important;
 }
 </style>
-<style id="upick-distance-person-icon-v14">
-/* ===== 거리 태그 사람 아이콘 ===== */
-.distance-tag .distance-person-icon{
-  width:13px !important;
-  height:13px !important;
-  flex:0 0 13px !important;
-  margin-right:4px !important;
-  vertical-align:-2px !important;
-  display:inline-block !important;
-}
-</style>
-
-<script id="upick-distance-person-icon-v14-js">
-(function(){
-  const PERSON_ICON = '/icons/internal/person.svg';
-
-  function applyDistancePersonIcon(){
-    document.querySelectorAll('.distance-tag').forEach((tag) => {
-      if(tag.querySelector('.distance-person-icon')) return;
-
-      const img = document.createElement('img');
-      img.className = 'distance-person-icon';
-      img.src = PERSON_ICON;
-      img.alt = '';
-      img.loading = 'lazy';
-      img.decoding = 'async';
-
-      tag.insertBefore(img, tag.firstChild);
-    });
-  }
-
-  document.addEventListener('click', () => {
-    setTimeout(applyDistancePersonIcon, 0);
-    setTimeout(applyDistancePersonIcon, 120);
-  }, true);
-
-  const observer = new MutationObserver(applyDistancePersonIcon);
-  if(document.body){
-    observer.observe(document.body, {childList:true, subtree:true});
-  }
-
-  if(document.readyState === 'loading'){
-    document.addEventListener('DOMContentLoaded', applyDistancePersonIcon);
-  }else{
-    applyDistancePersonIcon();
-  }
-})();
-</script>
 
 <style id="upick-distance-filter-walk-v17">
 /* ===== 혜택 필터 radius 완화 + 거리 필터 walk 아이콘 ===== */
