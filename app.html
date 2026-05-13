@@ -32306,8 +32306,8 @@ html body #view-benefits .filter-sticky .chips .chip-all-person-icon-removed{
 .gnb-inline-badge.deprecated{background:rgba(100,116,139,.86);color:#fff;border-color:rgba(203,213,225,.62)}
 </style>
 
-<style id="upick-benefit-detail-photo-final-v5">
-/* ===== 혜택 상세 대표 사진 v5: 돋보기 위치 + 확대 팝업 z-index 보정 ===== */
+<style id="upick-benefit-detail-photo-final-v6">
+/* ===== 혜택 상세 대표 사진 v6: 딥링크 진입 대응 ===== */
 #detailModal .benefit-detail-photo{
   cursor:zoom-in !important;
   position:absolute !important;
@@ -32319,13 +32319,11 @@ html body #view-benefits .filter-sticky .chips .chip-all-person-icon-removed{
   display:none !important;
 }
 
-/* 기존 pseudo 돋보기 제거 */
 #detailModal .benefit-detail-photo::after{
   content:none !important;
   display:none !important;
 }
 
-/* 실제 DOM 돋보기: 우측 하단 고정 */
 #detailModal .benefit-detail-photo .benefit-photo-zoom-icon{
   position:absolute !important;
   right:8px !important;
@@ -32353,7 +32351,6 @@ html body #view-benefits .filter-sticky .chips .chip-all-person-icon-removed{
   filter:brightness(0) invert(1) !important;
 }
 
-/* 확대 뷰어: detailModal 내부에서 최상단 */
 #detailModal #benefitPhotoZoomViewer{
   position:fixed !important;
   inset:0 !important;
@@ -32434,8 +32431,11 @@ html body #view-benefits .filter-sticky .chips .chip-all-person-icon-removed{
 </style>
 
 
-<script id="upick-benefit-detail-photo-final-v5-js">
+<script id="upick-benefit-detail-photo-final-v6-js">
 (function(){
+  let modalObserver = null;
+  let markTimer = null;
+
   function getModal(){
     return document.getElementById('detailModal');
   }
@@ -32474,7 +32474,6 @@ html body #view-benefits .filter-sticky .chips .chip-all-person-icon-removed{
 
   function openViewer(src, title){
     if(!src) return;
-
     const viewer = ensureViewer();
     if(!viewer) return;
 
@@ -32497,6 +32496,9 @@ html body #view-benefits .filter-sticky .chips .chip-all-person-icon-removed{
     const img = viewer.querySelector('.photo-viewer-body img');
     if(img) img.removeAttribute('src');
     document.documentElement.classList.remove('benefit-photo-viewer-open');
+
+    // 확대창 닫고 돌아온 뒤에도 혹시 누락되면 즉시 보정
+    scheduleMarkPhoto();
   }
 
   function markPhoto(){
@@ -32506,10 +32508,8 @@ html body #view-benefits .filter-sticky .chips .chip-all-person-icon-removed{
     const photo = modal.querySelector('.benefit-detail-photo');
     if(!photo) return;
 
-    // 기존 라벨 제거
     photo.querySelectorAll('.benefit-detail-photo-badge').forEach(el => el.remove());
 
-    // 돋보기는 실제 span으로 우측 하단에 배치
     if(!photo.querySelector('.benefit-photo-zoom-icon')){
       const icon = document.createElement('span');
       icon.className = 'benefit-photo-zoom-icon';
@@ -32520,6 +32520,40 @@ html body #view-benefits .filter-sticky .chips .chip-all-person-icon-removed{
     photo.setAttribute('role', 'button');
     photo.setAttribute('tabindex', '0');
     photo.setAttribute('aria-label', '대표 사진 확대 보기');
+
+    const img = photo.querySelector('img');
+    if(img && !img.dataset.upickZoomLoadBound){
+      img.dataset.upickZoomLoadBound = '1';
+      img.addEventListener('load', scheduleMarkPhoto, { once:false });
+    }
+  }
+
+  function scheduleMarkPhoto(){
+    clearTimeout(markTimer);
+    markTimer = setTimeout(markPhoto, 30);
+    requestAnimationFrame(markPhoto);
+  }
+
+  function startModalObserver(){
+    const modal = getModal();
+    if(!modal || modalObserver) return;
+
+    modalObserver = new MutationObserver(function(){
+      scheduleMarkPhoto();
+    });
+
+    // 전체 body가 아니라 detailModal 내부만 감시해서 부담 최소화
+    modalObserver.observe(modal, {
+      childList:true,
+      subtree:true,
+      attributes:true,
+      attributeFilter:['open','class','style','src']
+    });
+
+    scheduleMarkPhoto();
+    setTimeout(markPhoto, 100);
+    setTimeout(markPhoto, 300);
+    setTimeout(markPhoto, 700);
   }
 
   document.addEventListener('click', function(e){
@@ -32555,18 +32589,42 @@ html body #view-benefits .filter-sticky .chips .chip-all-person-icon-removed{
     openViewer(img.currentSrc || img.src, titleEl ? titleEl.textContent.trim() : '');
   }, true);
 
+  // 일반 클릭 진입, 딥링크 자동 진입 모두 대응
   document.addEventListener('click', function(){
-    setTimeout(markPhoto, 80);
-    setTimeout(markPhoto, 250);
+    startModalObserver();
+    setTimeout(scheduleMarkPhoto, 80);
+    setTimeout(scheduleMarkPhoto, 250);
   }, true);
 
+  window.addEventListener('pageshow', function(){
+    startModalObserver();
+    scheduleMarkPhoto();
+    setTimeout(scheduleMarkPhoto, 250);
+  });
+
+  document.addEventListener('visibilitychange', function(){
+    if(!document.hidden){
+      startModalObserver();
+      scheduleMarkPhoto();
+    }
+  });
+
   if(document.readyState === 'loading'){
-    document.addEventListener('DOMContentLoaded', markPhoto);
+    document.addEventListener('DOMContentLoaded', function(){
+      startModalObserver();
+      scheduleMarkPhoto();
+      setTimeout(scheduleMarkPhoto, 250);
+      setTimeout(scheduleMarkPhoto, 800);
+    });
   }else{
-    markPhoto();
+    startModalObserver();
+    scheduleMarkPhoto();
+    setTimeout(scheduleMarkPhoto, 250);
+    setTimeout(scheduleMarkPhoto, 800);
   }
 
   window.closeBenefitPhotoZoomViewer = closeViewer;
+  window.upickMarkBenefitPhotoZoomIcon = scheduleMarkPhoto;
 })();
 </script>
 
