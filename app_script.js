@@ -1,0 +1,11248 @@
+// 더운정픽 공개앱 메인 스크립트
+// v7: app.html 내부 메인 module script를 외부 파일로 완전 분리
+// app.html에는 <script type="module" src="/app_script.js">만 남깁니다.
+
+
+ import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
+
+ const __SOLA_DYNAMIC_IMPORT_VERSION__ = globalThis.__SOLA_DYNAMIC_IMPORT_VERSION__ || (() => {
+ const d = new Date();
+ const pad = (n, len = 2) => String(n).padStart(len, '0');
+ return `${d.getFullYear()}${pad(d.getMonth() + 1)}${pad(d.getDate())}${pad(d.getHours())}${pad(d.getMinutes())}${pad(d.getSeconds())}${pad(d.getMilliseconds(), 3)}`;
+ })();
+ globalThis.__SOLA_DYNAMIC_IMPORT_VERSION__ = __SOLA_DYNAMIC_IMPORT_VERSION__;
+ const __solaNoCache = (url) => `${url}${url.includes('?') ? '&' : '?'}v=${__SOLA_DYNAMIC_IMPORT_VERSION__}`;
+ const { ENV, FIREBASE_CONFIG, API_URL, TTS_SERVICE_URL } = await import(__solaNoCache('/env-config.js'));
+ const { checkServerSessionOrLogout, startSessionKeepAlive, logoutServerSession } = await import(__solaNoCache('/session-client.js'));
+
+ const envBadge = document.getElementById('envBadge');
+ const globalEnvBadge = document.getElementById('globalEnvBadge');
+ document.body.classList.add(ENV === 'dev' ? 'env-dev' : 'env-prod');
+ document.body.classList.toggle('env-dev', ENV === 'dev');
+ document.body.classList.toggle('env-prod', ENV !== 'dev');
+ if (ENV === 'dev') {
+   [envBadge, globalEnvBadge].forEach((badge) => {
+     if (badge) badge.classList.add('show');
+   });
+ } else {
+   [envBadge, globalEnvBadge].forEach((badge) => {
+     if (badge) badge.classList.remove('show');
+   });
+ }
+ import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
+ import { getFirestore, collection, onSnapshot, doc, getDoc, getDocs, setDoc, updateDoc, increment, serverTimestamp, addDoc, query, where, orderBy, limit, startAfter, deleteDoc } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
+ import { getMessaging, getToken, onMessage, isSupported } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-messaging.js';
+ import { getStorage, ref as storageRef, uploadBytes, getDownloadURL, deleteObject } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js';
+ const firebaseConfig = FIREBASE_CONFIG[ENV];
+ const AI_FUNCTION_REGION = 'asia-northeast3';
+ const AI_FUNCTION_URL = `https://${AI_FUNCTION_REGION}-${firebaseConfig.projectId}.cloudfunctions.net/askAiAssistant`;
+ // Cloud Run Gemini 스트리밍 서버
+ const AI_STREAM_SERVER_URL_BY_ENV = {
+ dev: 'https://ai-stream-server-dev-292137041544.asia-northeast3.run.app/stream',
+ // 운영계 Cloud Run 배포 후 아래 prod URL을 운영계 /stream 주소로 교체하세요.
+ prod: 'https://ai-stream-server-337132471819.asia-northeast3.run.app/stream'
+ };
+ const AI_STREAM_SERVER_URL = AI_STREAM_SERVER_URL_BY_ENV[ENV] || '';
+ const AI_STREAM_SERVER_BASE_URL = AI_STREAM_SERVER_URL ? AI_STREAM_SERVER_URL.replace(/\/?stream\/?$/, '') : '';
+ const AI_PROACTIVE_URL = AI_STREAM_SERVER_BASE_URL ? `${AI_STREAM_SERVER_BASE_URL}/assistant/proactive` : '';
+ const AI_ASSISTANT_LOG_URL = AI_STREAM_SERVER_BASE_URL ? `${AI_STREAM_SERVER_BASE_URL}/assistant/log` : '';
+ const AI_TTS_SERVICE_URL = String((TTS_SERVICE_URL && TTS_SERVICE_URL[ENV]) || '').replace(/\/+$/, '');
+
+ // AI 첨부파일 다운로드는 Firebase Storage URL을 직접 열지 않고 Cloud Run 다운로드 API를 사용합니다.
+ function extractAiAttachmentStoragePath(url=''){
+ try{
+ const raw = String(url || '');
+ const marker = '/o/';
+ const start = raw.indexOf(marker);
+ if(start < 0) return '';
+ const after = raw.slice(start + marker.length);
+ const encodedPath = after.split('?')[0];
+ return decodeURIComponent(encodedPath);
+ }catch(error){
+ console.warn('AI 첨부파일 Storage 경로 추출 실패:', error);
+ return '';
+ }
+ }
+
+ function getAiAttachmentDownloadUrl(attachment={}){
+ const path = String(attachment.path || '').trim() || extractAiAttachmentStoragePath(attachment.url || '');
+ const name = String(attachment.name || path.split('/').pop() || 'attachment');
+ if(!AI_STREAM_SERVER_BASE_URL || !path) return String(attachment.url || '');
+ const params = new URLSearchParams({ path, name, mime: getAiAttachmentMimeType(attachment), ext: getAiAttachmentExt(name || path) });
+ return `${AI_STREAM_SERVER_BASE_URL}/download-ai-attachment?${params.toString()}`;
+ }
+
+ function downloadAiAttachmentByDataset(button){
+ try{
+ const path = button?.dataset?.aiAttachmentPath || button?.dataset?.attachmentPath || button?.dataset?.path || '';
+ const url = button?.dataset?.aiAttachmentUrl || button?.dataset?.attachmentUrl || '';
+ const name = button?.dataset?.aiAttachmentName || button?.dataset?.attachmentName || button?.dataset?.name || 'attachment';
+ const mimeType = button?.dataset?.aiAttachmentMime || button?.dataset?.attachmentMime || button?.dataset?.mime || '';
+ const downloadUrl = getAiAttachmentDownloadUrl({ path, url, name, mimeType });
+ if(!downloadUrl) return;
+ window.location.href = downloadUrl;
+ }catch(error){
+ console.warn('AI 첨부파일 다운로드 실패:', error);
+ showAppAlert?.('다운로드 안내', '파일 다운로드를 시작하지 못했습니다. 잠시 후 다시 시도해주세요.');
+ }
+}
+
+ const AI_DAILY_NUDGE_CHECK_URL = AI_STREAM_SERVER_BASE_URL ? `${AI_STREAM_SERVER_BASE_URL}/assistant/daily-nudge/check` : '';
+ const AI_DAILY_NUDGE_MARK_URL = AI_STREAM_SERVER_BASE_URL ? `${AI_STREAM_SERVER_BASE_URL}/assistant/daily-nudge/mark` : '';
+ const AI_CONVERSATION_KEY = `myhills_ai_conversation_${ENV || 'prod'}`;
+ let aiConversationId = localStorage.getItem(AI_CONVERSATION_KEY) || '';
+ let aiConversationTitle = '새 대화';
+ const VAPID_PUBLIC_KEY_BY_ENV = {
+ dev: 'BHgdDiJQpnMsX0oR_nO3ixVeJAzDMdAkgdnMfBn09ElocDSmefCeXY1gXTVHoZSgYsDg5fojyTuTqSR2c185VhE',
+ prod: 'BJONnfKeKFN8SCWWlo_quJ9pjahri96uw9WZJq2774hBZ8um6edcRb-NP7uRwjmcwHNTTGMuPJX-MUdeThgu5Kw'
+ };
+ window.VAPID_PUBLIC_KEY = VAPID_PUBLIC_KEY_BY_ENV[ENV] || VAPID_PUBLIC_KEY_BY_ENV.prod;
+ // 카카오 Developers > 앱 키 > JavaScript 키를 입력하세요.
+ const KAKAO_JS_KEY = 'e52b154b3966372f9700ff0b35e15ccc';
+ const DEFAULT_SHARE_IMAGE_URL = `/icons/icon-512.png?v=20260425b`;
+ const LOGIN_PAGE_URL = '/';
+ const BENEFITS_COLLECTION='benefits', NOTICES_COLLECTION='notices', CALENDAR_RESERVATIONS_COLLECTION='calendar_reservations', BENEFIT_STATS_COLLECTION='benefit_stats', BENEFIT_EVENTS_COLLECTION='benefit_events', LAST_CATEGORY_KEY='myhills_last_category', CHIPS_EXPANDED_KEY='myhills_chips_expanded';
+ const app = initializeApp({ ...firebaseConfig });
+ const auth=getAuth(app);
+ const db=getFirestore(app);
+ const storage=getStorage(app);
+
+ const FONT_SIZE_LABELS = { small:'작게', normal:'기본', large:'크게', xlarge:'아주 크게' };
+ function normalizeFontSize(value){
+ const key = String(value || '').trim().toLowerCase();
+ return Object.prototype.hasOwnProperty.call(FONT_SIZE_LABELS, key) ? key : 'normal';
+ }
+ function applyAppFontSize(value){
+ const next = normalizeFontSize(value);
+ state.appFontSize = next;
+ document.documentElement.dataset.fontSize = next;
+ syncFontSizeSettingUi();
+ return next;
+ }
+ function syncFontSizeSettingUi(){
+ const current = normalizeFontSize(state.appFontSize || state.currentUserProfile?.fontSize || 'normal');
+ qsa('.font-size-option').forEach((btn) => {
+ const active = normalizeFontSize(btn.dataset.fontSize) === current;
+ btn.classList.toggle('active', active);
+ btn.setAttribute('aria-checked', active ? 'true' : 'false');
+ });
+ const status = qs('#fontSizeStatus');
+ if(status && !status.classList.contains('saving')){
+ status.classList.remove('error');
+ status.textContent = `현재 글자 크기: ${FONT_SIZE_LABELS[current] || '기본'}`;
+ }
+ }
+ function setFontSizeStatus(message, type=''){
+ const status = qs('#fontSizeStatus');
+ if(!status) return;
+ status.classList.toggle('saving', type === 'saving');
+ status.classList.toggle('error', type === 'error');
+ status.textContent = message || '';
+ }
+ async function changeAppFontSize(value){
+ const next = applyAppFontSize(value);
+ if(!state.currentUser?.uid){
+ setFontSizeStatus('로그인 후 글자 크기를 저장할 수 있습니다.', 'error');
+ return;
+ }
+ setFontSizeStatus('글자 크기를 저장하고 있습니다...', 'saving');
+ try{
+ await setDoc(doc(db, 'users', state.currentUser.uid), {
+ fontSize: next,
+ appFontSize: next,
+ fontSizeUpdatedAt: serverTimestamp()
+ }, { merge:true });
+ state.currentUserProfile = { ...(state.currentUserProfile || {}), fontSize:next, appFontSize:next };
+ setFontSizeStatus(`글자 크기가 '${FONT_SIZE_LABELS[next]}'로 저장되었습니다.`);
+ }catch(error){
+ console.error('글자 크기 저장 실패', error);
+ setFontSizeStatus('글자 크기 저장 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.', 'error');
+ }
+ }
+
+ /* =========================
+ Security Guard / Session Check
+ - Firestore 기반 계정 상태 검증
+ - activeSessionId 기반 중복 로그인 감지
+ - security_logs 기록
+ ========================= */
+ const SECURITY_LOGS_COLLECTION = 'security_logs';
+ const SHARE_CLICK_LOGS_COLLECTION = 'share_click_logs';
+ const SHARE_VISIT_LOGS_COLLECTION = 'share_visit_logs';
+
+ function getStoredLoginUser(){
+ try{
+ return JSON.parse(localStorage.getItem('loginUser') || '{}') || {};
+ }catch(_){
+ return {};
+ }
+ }
+
+ function saveVerifiedLoginUser(user, profile, sessionId){
+ try{
+ localStorage.setItem('loginUser', JSON.stringify({
+ uid: user.uid,
+ loginId: profile.loginId || profile.loginID || '',
+ sessionId: sessionId || '',
+ role: profile.role || profile.userRole || 'resident',
+ approvalStatus: profile.approvalStatus || '',
+ phoneVerified: !!profile.phoneVerified,
+ accountStatus: profile.accountStatus || ''
+ }));
+ }catch(error){
+ console.warn('loginUser 저장 실패', error);
+ }
+ }
+
+ async function writeSecurityLog(type, detail = {}){
+ try{
+ const stored = getStoredLoginUser();
+ await addDoc(collection(db, SECURITY_LOGS_COLLECTION), {
+ uid: state.currentUser?.uid || stored.uid || null,
+ loginId: state.currentUserProfile?.loginId || stored.loginId || null,
+ type,
+ path: location.pathname,
+ href: location.href,
+ userAgent: navigator.userAgent,
+ detail,
+ createdAt: serverTimestamp()
+ });
+ }catch(error){
+ console.warn('보안 로그 저장 실패', error);
+ }
+ }
+
+ function consumePendingDeepLinkSafely(){
+ const pending = sessionStorage.getItem('pendingDeepLink');
+ if(!pending) return null;
+ sessionStorage.removeItem('pendingDeepLink');
+
+ try{
+ const url = new URL(pending, location.origin);
+ if(url.origin !== location.origin) return null;
+ if(url.pathname.includes('admin') || url.pathname.includes('sola-admin')) return null;
+ return url.href;
+ }catch(_){
+ return null;
+ }
+ }
+
+ /* =========================
+ Clean URL Deep Link Router
+ - /app?open=notice&id={id} -> 공지 상세
+ - /app?open=benefit&id={id} -> 혜택 상세
+ - /notice/{id}, /benefit/{id} 기존 클린 URL도 유지
+ - /share/{type}/{id}는 Vercel Function에서 OG 생성 후 /app?...으로 진입
+ ========================= */
+ let lastHandledCleanDeepLinkKey = '';
+
+ function normalizeDeepLinkType(type){
+ const value = String(type || '').trim().toLowerCase();
+ if(value === 'benefit' || value === 'benefits') return 'benefit';
+ if(value === 'notice' || value === 'notices') return 'notice';
+ return '';
+ }
+
+ function parseCleanDeepLink(){
+ // 1) Vercel OG 공유 링크가 리다이렉트하는 쿼리형 딥링크
+ // /app?open=benefit&id=문서ID&from=share
+ // /app?open=notice&id=문서ID&from=share
+ try{
+ const params = new URLSearchParams(location.search || '');
+ const queryType = normalizeDeepLinkType(params.get('open'));
+ const queryId = String(params.get('id') || '').trim();
+ if(queryType && queryId){
+ return {
+ type: queryType,
+ id: decodeURIComponent(queryId),
+ mode: 'query'
+ };
+ }
+
+ // 기존 알림/공유 URL 호환: /app?noticeId=문서ID, /app?benefitId=문서ID
+ const legacyNoticeId = String(params.get('noticeId') || '').trim();
+ if(legacyNoticeId){
+ return {
+ type: 'notice',
+ id: decodeURIComponent(legacyNoticeId),
+ mode: 'legacy-query'
+ };
+ }
+
+ const legacyBenefitId = String(params.get('benefitId') || '').trim();
+ if(legacyBenefitId){
+ return {
+ type: 'benefit',
+ id: decodeURIComponent(legacyBenefitId),
+ mode: 'legacy-query'
+ };
+ }
+ }catch(_){ }
+
+ // 2) 기존 클린 URL 딥링크
+ // /notice/{id}, /benefit/{id}
+ const parts = String(location.pathname || '').split('/').filter(Boolean);
+ const pathType = normalizeDeepLinkType(parts[0]);
+ if(parts.length >= 2 && pathType){
+ return {
+ type: pathType,
+ id: decodeURIComponent(parts[1] || ''),
+ mode: 'path'
+ };
+ }
+ return null;
+ }
+
+ function getCleanAppPath(){
+ return '/app';
+ }
+
+ function setCleanUrl(path, { replace=false } = {}){
+ try{
+ const nextPath = String(path || getCleanAppPath());
+ const current = `${location.pathname}${location.search}${location.hash}`;
+ if(current === nextPath) return;
+ const method = replace ? 'replaceState' : 'pushState';
+ history[method]({}, '', nextPath);
+ }catch(error){
+ console.warn('URL 상태 변경 실패', error);
+ }
+ }
+
+ function updateCleanDeepLinkUrl(type, id, { replace=false } = {}){
+ const cleanId = String(id || '').trim();
+ if(!type || !cleanId) return;
+ // Vercel 정적 배포에서 /notice/{id}, /benefit/{id}를 직접 새로고침하면
+ // 서버 라우팅이 없을 때 Not Found가 발생할 수 있으므로, 운영 URL은 /app 쿼리형으로 고정합니다.
+ setCleanUrl(`/app?open=${encodeURIComponent(type)}&id=${encodeURIComponent(cleanId)}`, { replace });
+ }
+
+ function clearCleanDeepLinkUrl({ replace=true } = {}){
+ const deepLink = parseCleanDeepLink();
+ if(!deepLink) return;
+ // 공유/딥링크 진입 후 모달을 닫으면 /app?open=... 또는 /benefit/...을
+ // 앱 기본 주소로 정리해서 뒤로가기 재오픈을 방지합니다.
+ setCleanUrl(getCleanAppPath(), { replace });
+ }
+
+ function closeContentModals(){
+ try{ if(qs('#detailModal')?.open) qs('#detailModal').close(); }catch(_){}
+ try{ if(qs('#noticeModal')?.open) qs('#noticeModal').close(); }catch(_){}
+ }
+
+ function handleCleanDeepLink({ force=false } = {}){
+ const deepLink = parseCleanDeepLink();
+ if(!deepLink){
+ if(force) closeContentModals();
+ return false;
+ }
+
+ const key = `${deepLink.type}:${deepLink.id}`;
+ if(!force && lastHandledCleanDeepLinkKey === key) return true;
+
+ if(!canOpenNoticeDeepLink()){
+ sessionStorage.setItem('pendingDeepLink', location.href);
+ redirectToLogin();
+ return false;
+ }
+
+ if(deepLink.type === 'notice'){
+ if(!state.notices || !state.notices.length) return false;
+ const item = state.notices.find((notice) => notice.id === deepLink.id);
+ if(!item){
+ lastHandledCleanDeepLinkKey = key;
+ changeView('notices');
+ setTimeout(() => openModalAlert('존재하지 않는 공지입니다.'), 120);
+ return false;
+ }
+ lastHandledCleanDeepLinkKey = key;
+ changeView('notices');
+ setTimeout(() => {
+ scrollToNoticeCard(item.id);
+ openNotice(item, { skipUrlUpdate:true });
+ }, 160);
+ return true;
+ }
+
+ if(deepLink.type === 'benefit'){
+ if(!state.benefits || !state.benefits.length) return false;
+ const item = state.benefits.find((benefit) => benefit.id === deepLink.id);
+ if(!item){
+ lastHandledCleanDeepLinkKey = key;
+ changeView('benefits');
+ setTimeout(() => openModalAlert('존재하지 않는 혜택입니다.'), 120);
+ return false;
+ }
+ lastHandledCleanDeepLinkKey = key;
+ changeView('benefits');
+ setTimeout(() => openDetail(item, { skipUrlUpdate:true }), 160);
+ return true;
+ }
+
+ return false;
+ }
+
+ window.addEventListener('popstate', () => {
+ lastHandledCleanDeepLinkKey = '';
+ if(!parseCleanDeepLink()){
+ closeContentModals();
+ return;
+ }
+
+ handleShareClickLog()
+ .catch(error => console.warn('공유 클릭 로그 처리 실패', error))
+ .finally(() => {
+ handleCleanDeepLink({ force:true });
+ });
+ });
+
+ // 네이버 지도 JavaScript SDK Client ID를 입력하세요. (Dynamic Map / 지도 모드)
+ const NAVER_MAP_CLIENT_ID = 'ouflkgfkts';
+ let naverMapsLoadPromise = null;
+ let benefitMapInstance = null;
+ let benefitMapMarkers = [];
+ let benefitMapExpandedClusterKey = '';
+ let benefitMapUserMarker = null;
+ let detailMapInstance = null;
+ let messaging = null;
+
+ async function initPushSystem(){
+ try{
+ const supported = await isSupported().catch(() => false);
+ if(!supported){
+ window.firebaseMessaging = null;
+ window.getToken = null;
+ window.pushSwRegistration = null;
+ return false;
+ }
+ if(!('serviceWorker' in navigator)){
+ window.firebaseMessaging = null;
+ window.getToken = null;
+ window.pushSwRegistration = null;
+ return false;
+ }
+
+ // v86: 운영계/삼성브라우저 백그라운드 푸시 안정화
+ // Service Worker URL에 매번 바뀌는 query를 붙이면 일부 모바일 브라우저에서
+ // waiting/active 전환 타이밍이 흔들려 백그라운드 push 이벤트를 안정적으로 깨우지 못할 수 있습니다.
+ // 운영/개발 모두 고정 경로 + 루트 scope로 등록하고, active registration을 getToken에 전달합니다.
+ const swUrl = '/firebase-messaging-sw.js';
+ let registration = await navigator.serviceWorker.getRegistration('/').catch(() => null);
+
+ if(!registration || !registration.active){
+ registration = await navigator.serviceWorker.register(swUrl, { scope: '/' });
+ }else{
+ await registration.update().catch(() => {});
+ }
+
+ // waiting SW가 있으면 활성화를 요청합니다. SW 쪽에서 SKIP_WAITING 메시지를 처리하지 않아도 안전합니다.
+ if(registration.waiting){
+ try{ registration.waiting.postMessage({ type:'SKIP_WAITING', source:'app-v86' }); }catch(_){ }
+ }
+
+ // 삼성브라우저/운영계에서는 ready가 늦는 경우가 있어 active registration을 다시 확정합니다.
+ const readyRegistration = await Promise.race([
+ navigator.serviceWorker.ready,
+ new Promise((resolve) => setTimeout(() => resolve(registration), 3500))
+ ]).catch(() => registration);
+
+ window.pushSwRegistration = readyRegistration || registration;
+ window.__UPICK_PUSH_SW_INFO__ = {
+ scope: window.pushSwRegistration?.scope || '',
+ scriptURL: window.pushSwRegistration?.active?.scriptURL || '',
+ state: window.pushSwRegistration?.active?.state || '',
+ controlled: !!navigator.serviceWorker.controller,
+ env: ENV || 'prod',
+ updatedAt: new Date().toISOString()
+ };
+ console.info('[UPICK PUSH] Service Worker ready', window.__UPICK_PUSH_SW_INFO__);
+
+ messaging = getMessaging(app);
+ window.firebaseMessaging = messaging;
+ window.getToken = getToken;
+
+ function normalizeForegroundPushPayload(payload = {}) {
+ const data = payload?.data || {};
+ const benefitId = String(
+ data.benefitId ||
+ data.benefitID ||
+ data.benefitsId ||
+ ((data.type === 'benefit' || data.type === 'proximity') ? data.id : '') ||
+ ''
+ );
+ const noticeId = String(data.noticeId || '');
+ const reservationId = String(data.reservationId || data.calendarReservationId || '');
+ const type = String(data.type || (reservationId ? 'calendar' : (benefitId ? 'benefit' : (noticeId ? 'notice' : ''))) || 'notice');
+ const rawUrl = String(
+ data.url ||
+ data.click_action ||
+ data.clickUrl ||
+ data.link ||
+ payload?.fcmOptions?.link ||
+ payload?.webpush?.fcmOptions?.link ||
+ '/app'
+ );
+
+ return {
+ title: String(data.title || payload?.notification?.title || '새 알림'),
+ body: String(data.body || payload?.notification?.body || ''),
+ url: buildForegroundPushUrl({ url: rawUrl, type, noticeId, benefitId, reservationId }),
+ noticeId,
+ benefitId,
+ reservationId,
+ type,
+ important: String(data.important || '') === 'true'
+ };
+ }
+
+ function buildForegroundPushUrl({ url = '', type = '', noticeId = '', benefitId = '', reservationId = '' } = {}) {
+ const rawUrl = String(url || '').trim();
+ const cleanType = String(type || '').trim().toLowerCase();
+ const cleanNoticeId = String(noticeId || '').trim();
+ const cleanBenefitId = String(benefitId || '').trim();
+ const cleanReservationId = String(reservationId || '').trim();
+
+ if (cleanType === 'ai_nudge' || rawUrl.includes('ai=open')) {
+ return '/app?ai=open';
+ }
+
+ if (cleanType === 'calendar' || cleanReservationId || rawUrl.includes('open=calendar')) {
+ return cleanReservationId
+ ? `/app?view=calendar&calendarId=${encodeURIComponent(cleanReservationId)}&from=push`
+ : (rawUrl || '/app?view=calendar&from=push');
+ }
+
+ if (cleanBenefitId && (!rawUrl || rawUrl === '/' || rawUrl === '/app')) {
+ return `/app?open=benefit&id=${encodeURIComponent(cleanBenefitId)}&from=push`;
+ }
+
+ if (cleanNoticeId && (!rawUrl || rawUrl === '/' || rawUrl === '/app')) {
+ return `/app?open=notice&id=${encodeURIComponent(cleanNoticeId)}&from=push`;
+ }
+
+ if (cleanType === 'benefit' && cleanBenefitId && !rawUrl.includes('open=benefit')) {
+ return `/app?open=benefit&id=${encodeURIComponent(cleanBenefitId)}&from=push`;
+ }
+
+ return rawUrl || '/app';
+ }
+
+ function openForegroundPushUrl(url = '/') {
+ try {
+ const absoluteUrl = new URL(String(url || '/app'), window.location.origin);
+ if (absoluteUrl.origin !== window.location.origin) {
+ window.location.href = '/app';
+ return;
+ }
+ window.location.href = absoluteUrl.href;
+ } catch (_) {
+ window.location.href = '/app';
+ }
+ }
+
+ function isPcBrowserForForegroundNotification() {
+ const ua = String(navigator.userAgent || '').toLowerCase();
+ return !(
+ ua.includes('android') ||
+ ua.includes('iphone') ||
+ ua.includes('ipad') ||
+ ua.includes('mobile') ||
+ ua.includes('samsungbrowser')
+ );
+ }
+
+ function isMobileEdgeBrowser() {
+ const ua = String(navigator.userAgent || '').toLowerCase();
+ const isMobile =
+ ua.includes('android') ||
+ ua.includes('iphone') ||
+ ua.includes('ipad') ||
+ ua.includes('mobile');
+ const isEdge =
+ ua.includes('edga') ||
+ ua.includes('edgios') ||
+ ua.includes('edg/') ||
+ ua.includes('edg');
+ return isMobile && isEdge;
+ }
+
+ async function isMobileEdgePushEndpointBroken() {
+ if (!isMobileEdgeBrowser()) return false;
+ try {
+ if (!('serviceWorker' in navigator) || !('PushManager' in window)) return true;
+ const reg = window.pushSwRegistration || await navigator.serviceWorker.ready;
+ const sub = await reg.pushManager.getSubscription();
+ const endpoint = String(sub?.endpoint || '');
+ window.fcmDebugLog?.('MOBILE_EDGE_ENDPOINT_CHECK', endpoint || 'empty endpoint');
+ return !endpoint || endpoint.includes('permanently-removed.invalid');
+ } catch (error) {
+ window.fcmDebugLog?.('MOBILE_EDGE_ENDPOINT_CHECK_ERROR', String(error && (error.stack || error.message) || error));
+ return true;
+ }
+ }
+
+ function shouldUseMobileEdgeInAppFallback() {
+ return isMobileEdgeBrowser();
+ }
+
+ function getForegroundPushKey(item = {}) {
+ return [
+ String(item.type || ''),
+ String(item.noticeId || ''),
+ String(item.benefitId || ''),
+ String(item.reservationId || ''),
+ String(item.title || ''),
+ String(item.body || ''),
+ String(item.url || '')
+ ].join('|');
+ }
+
+ function shouldSkipForegroundSystemNotification(item = {}) {
+ const key = getForegroundPushKey(item);
+ const now = Date.now();
+ if (!shouldSkipForegroundSystemNotification.cache) {
+ shouldSkipForegroundSystemNotification.cache = new Map();
+ }
+ const cache = shouldSkipForegroundSystemNotification.cache;
+ const last = cache.get(key) || 0;
+ cache.set(key, now);
+
+ for (const [k, t] of cache.entries()) {
+ if (now - t > 10000) cache.delete(k);
+ }
+
+ return !!(last && now - last < 4000);
+ }
+
+ async function showForegroundSystemNotification(item = {}) {
+ try {
+ const isCalendarPush = String(item.type || '').toLowerCase() === 'calendar' || !!item.reservationId;
+
+ // 포그라운드 푸시는 브라우저/기기 구분 없이 시스템 알림을 우선 시도합니다.
+ // 알림 권한/브라우저 정책 때문에 실패하면 호출부에서 내부 토스트로 fallback합니다.
+ if (!('Notification' in window)) return false;
+ if (Notification.permission !== 'granted') return false;
+ if (!('serviceWorker' in navigator)) return false;
+ if (shouldSkipForegroundSystemNotification(item)) return true;
+
+ const foregroundRegistration = window.pushSwRegistration || await navigator.serviceWorker.ready;
+ if (!foregroundRegistration?.showNotification) return false;
+
+ await foregroundRegistration.showNotification(item.title || '새 알림', {
+ body: item.body || '새로운 알림이 도착했습니다.',
+ icon: '/icons/push-icon.png',
+ badge: '/icons/badge-icon.png',
+ vibrate: isCalendarPush ? [200, 100, 200] : (item.important ? [160, 80, 160] : undefined),
+ tag: isCalendarPush
+ ? `calendar-${item.reservationId || getForegroundPushKey(item)}`
+ : `foreground-${getForegroundPushKey(item)}`,
+ renotify: false,
+ data: {
+ url: item.url || '/app',
+ noticeId: item.noticeId || '',
+ benefitId: item.benefitId || '',
+ reservationId: item.reservationId || '',
+ type: item.type || 'notice'
+ }
+ });
+ return true;
+ } catch (error) {
+ console.warn('포그라운드 알림 표시 실패', error);
+ return false;
+ }
+ }
+
+ function ensureForegroundPushToastStyle() {
+ if (document.getElementById('foregroundPushToastStyle')) return;
+ const style = document.createElement('style');
+ style.id = 'foregroundPushToastStyle';
+ style.textContent = [
+ '.foreground-push-toast{',
+ 'position:fixed;left:12px;right:12px;top:calc(10px + env(safe-area-inset-top,0px));z-index:100002;display:flex;justify-content:center;pointer-events:none;opacity:0;transform:translateY(-18px) scale(.985);transition:opacity .24s ease, transform .24s ease;',
+ '}',
+ '.foreground-push-toast.show{opacity:1;transform:translateY(0) scale(1);}',
+ '.foreground-push-card{width:min(100%,448px);display:flex;align-items:flex-start;gap:12px;padding:14px 15px;border-radius:22px;background:rgba(15,23,42,.94);color:#fff;border:1px solid rgba(255,255,255,.12);box-shadow:0 18px 42px rgba(15,23,42,.26);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);pointer-events:auto;cursor:pointer;}',
+ '.foreground-push-icon{width:38px;height:38px;border-radius:14px;display:grid;place-items:center;background:rgba(255,255,255,.12);flex:0 0 auto;font-size:18px;}',
+ '.foreground-push-copy{min-width:0;flex:1;}',
+ '.foreground-push-title{font-size:14px;font-weight:900;line-height:1.35;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}',
+ '.foreground-push-body{margin-top:4px;font-size:12px;line-height:1.55;color:rgba(255,255,255,.78);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}',
+ '.foreground-push-close{border:none;background:rgba(255,255,255,.10);color:#fff;width:32px;height:32px;border-radius:12px;cursor:pointer;flex:0 0 auto;font-size:18px;line-height:1;}'
+ ].join('');
+ document.head.appendChild(style);
+ }
+
+ function showForegroundPushToast({ title = '새 알림', body = '', url = '/' } = {}) {
+ ensureForegroundPushToastStyle();
+ let host = document.getElementById('foregroundPushToast');
+ if (!host) {
+ host = document.createElement('div');
+ host.id = 'foregroundPushToast';
+ host.className = 'foreground-push-toast';
+ host.innerHTML = '<div class="foreground-push-card" id="foregroundPushCard" role="button" tabindex="0"><div class="foreground-push-icon"><img class="upick-svg-icon" src="/icons/internal/notification.svg" alt="" loading="lazy"></div><div class="foreground-push-copy"><div class="foreground-push-title" id="foregroundPushTitle"></div><div class="foreground-push-body" id="foregroundPushBody"></div></div><button type="button" class="foreground-push-close" id="foregroundPushClose" aria-label="알림 닫기">×</button></div>';
+ document.body.appendChild(host);
+ host.querySelector('#foregroundPushCard')?.addEventListener('click', () => {
+ const targetUrl = host.dataset.url || '/';
+ host.classList.remove('show');
+ openForegroundPushUrl(targetUrl);
+ });
+ host.querySelector('#foregroundPushCard')?.addEventListener('keydown', (event) => {
+ if (event.key !== 'Enter' && event.key !== ' ') return;
+ event.preventDefault();
+ const targetUrl = host.dataset.url || '/';
+ host.classList.remove('show');
+ openForegroundPushUrl(targetUrl);
+ });
+ host.querySelector('#foregroundPushClose')?.addEventListener('click', (event) => {
+ event.stopPropagation();
+ host.classList.remove('show');
+ });
+ }
+ host.dataset.url = url || '/';
+ host.querySelector('#foregroundPushTitle').textContent = title || '새 알림';
+ host.querySelector('#foregroundPushBody').textContent = body || '새로운 알림이 도착했습니다.';
+ host.classList.remove('show');
+ requestAnimationFrame(() => host.classList.add('show'));
+ clearTimeout(showForegroundPushToast._timer);
+ showForegroundPushToast._timer = setTimeout(() => host.classList.remove('show'), 4200);
+ }
+
+ // Data-only FCM은 앱이 열려 있을 때 서비스워커 onBackgroundMessage를 타지 않습니다.
+ // 앱 실행 중에도 모든 포그라운드 푸시는 시스템 알림을 우선 시도합니다.
+ // 브라우저 정책/권한 문제로 시스템 알림 표시가 실패하면 내부 토스트로 fallback합니다.
+ 
+function isMobileForegroundNotificationTarget() {
+  const ua = String(navigator.userAgent || "").toLowerCase();
+
+  const isMobile =
+    ua.includes("android") ||
+    ua.includes("iphone") ||
+    ua.includes("ipad") ||
+    ua.includes("mobile");
+
+  const isInAppBrowser =
+    ua.includes("kakaotalk") ||
+    ua.includes("naver(inapp") ||
+    ua.includes("naverapp");
+
+  // 카카오톡 / 네이버 인앱은 시스템 알림 초기화가 제한되는 경우가 많아 내부 토스트 fallback
+  if (isInAppBrowser) return false;
+
+  const isChrome = ua.includes("chrome") || ua.includes("crios");
+  const isSamsung = ua.includes("samsungbrowser");
+  const isWhale = ua.includes("whale");
+  const isFirefox = ua.includes("firefox") || ua.includes("fxios");
+
+  // 모바일 Edge는 일부 기기에서 Push endpoint가 생성되어도 실제 push 이벤트가 오지 않는 경우가 있어
+  // 앱 실행 중에는 시스템 알림 대신 내부 토스트 fallback을 우선 사용합니다.
+  const isEdge =
+    ua.includes("edga") ||
+    ua.includes("edgios") ||
+    ua.includes("edg/") ||
+    ua.includes("edg");
+
+  if (isEdge) return false;
+
+  return isMobile && (isChrome || isSamsung || isWhale || isFirefox);
+}
+
+function isPcForegroundNotificationTarget() {
+  // PC는 FCM/Service Worker/브라우저 자동 알림과 foreground showNotification이 중복될 수 있어 제외합니다.
+  return false;
+}
+
+
+function isDesktopSupportedBrowser() {
+  const ua = String(navigator.userAgent || "").toLowerCase();
+
+  const isDesktop =
+    !ua.includes("android") &&
+    !ua.includes("iphone") &&
+    !ua.includes("ipad") &&
+    !ua.includes("mobile");
+
+  return (
+    isDesktop &&
+    (
+      ua.includes("chrome") ||
+      ua.includes("edg") ||
+      ua.includes("edge") ||
+      ua.includes("whale") ||
+      ua.includes("firefox")
+    )
+  );
+}
+
+function shouldUseForegroundSystemNotification(payload) {
+  return isMobileForegroundNotificationTarget() || isPcForegroundNotificationTarget();
+}
+
+
+const ENABLE_PUSH_DEBUG_LOG = localStorage.getItem('myhillsPushDebug') === '1';
+window.fcmDebugLog = function(step, detail) {
+  if (!ENABLE_PUSH_DEBUG_LOG) return;
+  try {
+    const info = {
+      step,
+      detail,
+      permission: window.Notification ? Notification.permission : "unsupported",
+      serviceWorker: !!navigator.serviceWorker,
+      secureContext: window.isSecureContext,
+      visibility: document.visibilityState,
+      userAgent: String(navigator.userAgent || ""),
+      time: new Date().toISOString()
+    };
+    console.debug("[FCM_DEBUG]", info);
+  } catch (e) {}
+}
+
+
+window.pushFlowLog = window.pushFlowLog || function(step, detail) {
+  if (!ENABLE_PUSH_DEBUG_LOG) return;
+  try {
+    const info = {
+      step,
+      detail,
+      permission: window.Notification ? Notification.permission : "unsupported",
+      serviceWorker: !!navigator.serviceWorker,
+      controller: !!navigator.serviceWorker?.controller,
+      secureContext: window.isSecureContext,
+      visibility: document.visibilityState,
+      focus: document.hasFocus ? document.hasFocus() : null,
+      userAgent: String(navigator.userAgent || ""),
+      time: new Date().toISOString()
+    };
+    console.debug("[PUSH_FLOW]", info);
+  } catch (e) {}
+};
+
+if (navigator.serviceWorker) {
+  navigator.serviceWorker.addEventListener("message", (event) => {
+    const data = event.data || {};
+    if (ENABLE_PUSH_DEBUG_LOG && (data.type === "SW_FLOW" || data.type === "SW_DEBUG" || data.type === "SW_RAW_PUSH")) {
+      window.pushFlowLog?.("SW_MESSAGE_RECEIVED", data);
+      window.fcmDebugLog?.("SW_MESSAGE_RECEIVED", data);
+    }
+  });
+
+  if (ENABLE_PUSH_DEBUG_LOG) {
+    navigator.serviceWorker.ready
+      .then((reg) => {
+        window.pushFlowLog?.("SERVICE_WORKER_READY_RESOLVED", {
+          scope: reg.scope,
+          active: !!reg.active,
+          activeState: reg.active?.state || "",
+          installing: !!reg.installing,
+          waiting: !!reg.waiting
+        });
+      })
+      .catch((e) => {
+        window.pushFlowLog?.("SERVICE_WORKER_READY_ERROR", String(e && (e.stack || e.message) || e));
+      });
+  }
+}
+onMessage(messaging, async (payload) => {
+ try {
+ const item = normalizeForegroundPushPayload(payload);
+ if (!item) return;
+
+ const isCalendarPush = String(item.type || '').toLowerCase() === 'calendar' || !!item.reservationId;
+ const normalizedItem = {
+ ...item,
+ title: item.title || (isCalendarPush ? '예약 알림 시간이 되었습니다' : '새 알림'),
+ body: item.body || (isCalendarPush ? '등록한 혜택 매장 방문 알림입니다.' : '새로운 알림이 도착했습니다.'),
+ url: item.url || (isCalendarPush ? '/app?view=calendar' : '/app'),
+ important: isCalendarPush ? true : item.important
+ };
+
+ try {
+ if (shouldUseForegroundSystemNotification(normalizedItem)) {
+  const shownAsSystemNotification = await showForegroundSystemNotification(normalizedItem);
+
+  if (shownAsSystemNotification) return;
+ }
+} catch (e) {
+}
+
+showForegroundPushToast({
+ title: normalizedItem.title,
+ body: normalizedItem.body,
+ url: normalizedItem.url
+});
+ } catch (error) {
+ console.warn('포그라운드 알림 처리 실패', error);
+ }
+ });
+ return true;
+ }catch(error){
+ console.error('알림 초기화 실패', error);
+ window.firebaseMessaging = null;
+ window.getToken = null;
+ window.pushSwRegistration = null;
+ return false;
+ }
+ }
+
+ const state={category:localStorage.getItem(LAST_CATEGORY_KEY)||'전체',keyword:'',filter:'all',view:'home',benefits:[],notices:[],loading:true,currentUser:null,currentUserProfile:null,popularItems:[],favoriteIds:[],aiKnowledge:[],currentPushToken:null,isPushEnabledForThisDevice:false,appFontSize:'normal',calendarReservations:[],activeDistanceBenefitId:'',distanceRequestSeq:0,benefitSortMode:'default',distanceRadius:'all',userLocation:null,userLocationFetchedAt:0,distanceMap:{},distanceStatus:'idle',scrollMap:{home:0,benefits:0,favorite:0,top5:0,notices:0,calendar:0,shareinsights:0,ai:0},
+ benefitViewMode: localStorage.getItem('benefitViewMode') || 'list'
+ };
+
+ const initialUrlParams = new URLSearchParams(window.location.search || '');
+ const pendingDeepLink = {
+ view: initialUrlParams.get('view') || '',
+ noticeId: initialUrlParams.get('noticeId') || ''
+ };
+ let pendingNoticeOpened = false;
+ 
+ const qs=(s)=>document.querySelector(s), qsa=(s)=>[...document.querySelectorAll(s)];
+
+ function isMobileEdgeBrowserGlobal() {
+ const ua = String(navigator.userAgent || '').toLowerCase();
+ const isMobile =
+ ua.includes('android') ||
+ ua.includes('iphone') ||
+ ua.includes('ipad') ||
+ ua.includes('mobile');
+ const isEdge =
+ ua.includes('edga') ||
+ ua.includes('edgios') ||
+ ua.includes('edg/') ||
+ ua.includes('edg');
+ return isMobile && isEdge;
+ }
+
+ async function isMobileEdgePushEndpointBroken() {
+ if(!isMobileEdgeBrowserGlobal()) return false;
+ try{
+ if(!('serviceWorker' in navigator) || !('PushManager' in window)) return true;
+ const reg = window.pushSwRegistration || await navigator.serviceWorker.ready;
+ const sub = await reg.pushManager.getSubscription();
+ const endpoint = String(sub?.endpoint || '');
+ window.fcmDebugLog?.('MOBILE_EDGE_ENDPOINT_CHECK', endpoint || 'empty endpoint');
+ return !endpoint || endpoint.includes('permanently-removed.invalid');
+ }catch(error){
+ window.fcmDebugLog?.('MOBILE_EDGE_ENDPOINT_CHECK_ERROR', String(error && (error.stack || error.message) || error));
+ return true;
+ }
+ }
+
+ function shouldUseMobileEdgeInAppFallback() {
+ return isMobileEdgeBrowserGlobal();
+ }
+
+ function dateLikeToDate(value){
+ if(!value) return null;
+ if(value instanceof Date && !Number.isNaN(value.getTime())) return value;
+ if(value?.toDate){
+ try{
+ const d = value.toDate();
+ return d instanceof Date && !Number.isNaN(d.getTime()) ? d : null;
+ }catch(_){}
+ }
+ if(typeof value === 'object'){
+ if(typeof value.seconds === 'number'){
+ const d = new Date(value.seconds * 1000);
+ return Number.isNaN(d.getTime()) ? null : d;
+ }
+ if(typeof value._seconds === 'number'){
+ const d = new Date(value._seconds * 1000);
+ return Number.isNaN(d.getTime()) ? null : d;
+ }
+ }
+ if(typeof value === 'number'){
+ const d = new Date(value > 10000000000 ? value : value * 1000);
+ return Number.isNaN(d.getTime()) ? null : d;
+ }
+ if(typeof value === 'string'){
+ const match = value.match(/(\d{4})[.\-\/년\s]+(\d{1,2})[.\-\/월\s]+(\d{1,2})/);
+ if(match){
+ const d = new Date(Number(match[1]), Number(match[2]) - 1, Number(match[3]));
+ return Number.isNaN(d.getTime()) ? null : d;
+ }
+ }
+ return null;
+ }
+
+ function getItemBaseDate(item = {}){
+ return dateLikeToDate(item.createdAt) ||
+ dateLikeToDate(item.registeredAt) ||
+ dateLikeToDate(item.createdDate) ||
+ dateLikeToDate(item.registeredDate) ||
+ dateLikeToDate(item.updatedAt) ||
+ null;
+ }
+
+ function isRecentItem(item = {}, days = 7){
+ const date = getItemBaseDate(item);
+ if(!date) return false;
+ const now = new Date();
+ const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+ const target = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+ const diff = today.getTime() - target.getTime();
+ return diff >= 0 && diff <= days * 24 * 60 * 60 * 1000;
+ }
+
+ function recentNewBadgeHtml(item = {}, hot = false){
+ return isRecentItem(item, 7) ? `<span class="new-badge ${hot ? 'hot' : ''}">NEW</span>` : '';
+ }
+
+ function benefitOperationBadgesHtml(item = {}){
+ const badges = [];
+ if(item.badgeUp) badges.push('<span class="new-badge up" title="혜택이 업그레이드되었어요">UP</span>');
+ if(item.badgeDeprecated) badges.push('<span class="new-badge deprecated" title="운영 종료 또는 삭제 예정이에요">삭제 예정</span>');
+ return badges.length ? `<span class="benefit-operation-badges">${badges.join('')}</span>` : '';
+ }
+
+ function getBenefitCreatedTime(item = {}){
+ const d = getItemBaseDate(item);
+ return d ? d.getTime() : 0;
+ }
+
+ function getTopBenefitRankMap(){
+ const map = new Map();
+ (state.popularItems || []).slice(0, 5).forEach((row, index) => {
+ const benefitId = row?.benefit?.id || row?.benefitId || row?.id || '';
+ if(benefitId) map.set(String(benefitId), index + 1);
+ });
+ return map;
+ }
+
+ function getBenefitTopRank(item = {}){
+ return getTopBenefitRankMap().get(String(item.id || '')) || 0;
+ }
+
+ function benefitTopBadgeHtml(item = {}){
+ const rank = getBenefitTopRank(item);
+ if(!rank || rank > 5) return '';
+ const label = rank === 1 ? 'TOP 1' : `TOP ${rank}`;
+ return `<span class="benefit-top-badge">${label}</span>`;
+ }
+
+ function escapeHtml(value = ''){
+ return String(value ?? '')
+ .replace(/&/g, '&amp;')
+ .replace(/</g, '&lt;')
+ .replace(/>/g, '&gt;')
+ .replace(/"/g, '&quot;')
+ .replace(/'/g, '&#39;');
+ }
+
+ function extractNoticeIdFromUrl(url = ''){
+ try{
+ const parsed = new URL(String(url || ''), window.location.origin);
+ return parsed.searchParams.get('noticeId') || '';
+ }catch(_){
+ return '';
+ }
+ }
+
+ function extractBenefitDeepLinkFromUrl(url = ''){
+ try{
+ const parsed = new URL(String(url || ''), window.location.origin);
+ const openType = normalizeDeepLinkType(parsed.searchParams.get('open'));
+ const queryId = String(parsed.searchParams.get('id') || parsed.searchParams.get('benefitId') || '').trim();
+ if(openType === 'benefit' && queryId) return decodeURIComponent(queryId);
+
+ const parts = String(parsed.pathname || '').split('/').filter(Boolean);
+ if(normalizeDeepLinkType(parts[0]) === 'benefit' && parts[1]) return decodeURIComponent(parts[1]);
+ }catch(_){ }
+ return '';
+ }
+
+ function clearPushDeepLinkUrl(){
+ try{
+ const parsed = new URL(location.href);
+ const openType = normalizeDeepLinkType(parsed.searchParams.get('open'));
+ if(openType || parsed.searchParams.has('noticeId') || parsed.searchParams.has('view')){
+ setCleanUrl(getCleanAppPath(), { replace:true });
+ }
+ }catch(_){ }
+ }
+
+ function clearNoticeDeepLinkUrl(){
+ const hasDeepLink = window.location.search.includes('noticeId=') || window.location.search.includes('view=notices');
+ if(!hasDeepLink) return;
+ const cleanUrl = `${window.location.origin}${window.location.pathname}`;
+ window.history.replaceState({ noticeDeepLinkHandled: true }, '', cleanUrl);
+ }
+
+ function canOpenNoticeDeepLink(){
+ const approvalStatus = String(state.currentUserProfile?.approvalStatus || '');
+ const accountStatus = String(state.currentUserProfile?.accountStatus || '');
+ return !!state.currentUser && approvalStatus === 'approved' && accountStatus === 'active';
+ }
+
+ function requestOpenNoticeFromPush({ noticeId = '', url = '' } = {}){
+ const resolvedNoticeId = String(noticeId || extractNoticeIdFromUrl(url) || '').trim();
+ if(!resolvedNoticeId) return;
+
+ if(!canOpenNoticeDeepLink()){
+ pendingDeepLink.view = '';
+ pendingDeepLink.noticeId = '';
+ pendingNoticeOpened = false;
+ clearNoticeDeepLinkUrl();
+ return;
+ }
+
+ pendingDeepLink.view = 'notices';
+ pendingDeepLink.noticeId = resolvedNoticeId;
+ pendingNoticeOpened = false;
+
+ if(state.notices && state.notices.length){
+ const opened = openNoticeById(resolvedNoticeId);
+ if(opened){
+ pendingNoticeOpened = true;
+ clearNoticeDeepLinkUrl();
+ }
+ return;
+ }
+
+ changeView('notices');
+ }
+
+ function requestOpenBenefitFromPush({ benefitId = '', url = '' } = {}){
+ const resolvedBenefitId = String(benefitId || extractBenefitDeepLinkFromUrl(url) || '').trim();
+ if(!resolvedBenefitId) return false;
+
+ const targetPath = `/app?open=benefit&id=${encodeURIComponent(resolvedBenefitId)}&from=push`;
+
+ if(!canOpenNoticeDeepLink()){
+ sessionStorage.setItem('pendingDeepLink', `${location.origin}${targetPath}`);
+ window.location.href = targetPath;
+ return false;
+ }
+
+ setCleanUrl(targetPath, { replace:true });
+
+ const opened = handleCleanDeepLink({ force:true });
+ if(opened){
+ // 모달이 열린 뒤 뒤로가기/새로고침으로 반복 오픈되지 않도록 정리합니다.
+ setTimeout(() => clearPushDeepLinkUrl(), 500);
+ return true;
+ }
+
+ // 혜택 목록이 아직 로드 전이면 subscribeBenefits/renderAll에서 다시 처리됩니다.
+ changeView('benefits');
+ return false;
+ }
+
+ if('serviceWorker' in navigator){
+ navigator.serviceWorker.addEventListener('message', (event) => {
+ const data = event.data || {};
+ if(data.type !== 'OPEN_NOTICE' && data.type !== 'OPEN_PUSH') return;
+
+ const pushType = String(data.pushType || data.type || '').toLowerCase();
+ const url = data.url || '';
+ const benefitId = data.benefitId || extractBenefitDeepLinkFromUrl(url);
+
+ if(benefitId || pushType === 'benefit' || pushType === 'proximity'){
+ requestOpenBenefitFromPush({
+ benefitId,
+ url
+ });
+ return;
+ }
+
+ requestOpenNoticeFromPush({
+ noticeId: data.noticeId || '',
+ url
+ });
+ });
+ }
+
+ function enableHorizontalDragScroll(selector){
+ const el = typeof selector === 'string' ? document.querySelector(selector) : selector;
+ if(!el || el.dataset.dragScrollBound === 'true') return;
+ el.dataset.dragScrollBound = 'true';
+
+ let isPointerDown = false;
+ let startX = 0;
+ let startScrollLeft = 0;
+ let didDrag = false;
+ let suppressNextClick = false;
+ const DRAG_THRESHOLD = 6;
+
+ const stopDragging = () => {
+ if(didDrag) suppressNextClick = true;
+ isPointerDown = false;
+ didDrag = false;
+ el.classList.remove('dragging');
+ };
+
+ el.addEventListener('mousedown', (event) => {
+ if(event.button !== 0) return;
+ isPointerDown = true;
+ didDrag = false;
+ suppressNextClick = false;
+ startX = event.pageX;
+ startScrollLeft = el.scrollLeft;
+ });
+
+ el.addEventListener('mousemove', (event) => {
+ if(!isPointerDown) return;
+ const distance = event.pageX - startX;
+
+ if(Math.abs(distance) > DRAG_THRESHOLD){
+ didDrag = true;
+ el.classList.add('dragging');
+ event.preventDefault();
+ el.scrollLeft = startScrollLeft - distance;
+ }
+ });
+
+ el.addEventListener('mouseup', stopDragging);
+ el.addEventListener('mouseleave', stopDragging);
+ window.addEventListener('mouseup', stopDragging);
+
+ el.addEventListener('dragstart', (event) => event.preventDefault());
+
+ el.addEventListener('click', (event) => {
+ if(!suppressNextClick) return;
+ event.preventDefault();
+ event.stopPropagation();
+ suppressNextClick = false;
+ }, true);
+ }
+
+ const globalLoadingBar = qs('#globalLoadingBar');
+ let globalLoadingTimer = null;
+ const initialLoadState = {
+ benefits: false,
+ notices: false,
+ popular: false
+ };
+
+ function showGlobalLoading(){
+ if(!globalLoadingBar) return;
+ clearTimeout(globalLoadingTimer);
+ const gnbSheet = qs('#gnbSheet');
+ const gnbOverlay = qs('#gnbOverlay');
+ const wasGnbOpen = !!(gnbSheet?.classList.contains('show') || document.body.classList.contains('gnb-open'));
+ document.body.dataset.gnbOpenBeforeLoading = wasGnbOpen ? '1' : '0';
+ document.body.classList.add('ui-loading-lock');
+ document.documentElement.classList.add('ui-loading-lock');
+ if(wasGnbOpen){
+   gnbSheet?.classList.add('show');
+   gnbOverlay?.classList.add('show');
+   gnbSheet?.setAttribute('aria-hidden', 'false');
+   document.body.classList.add('gnb-open');
+ }
+ globalLoadingBar.classList.add('show');
+ globalLoadingBar.setAttribute('aria-hidden', 'false');
+ }
+
+ function hideGlobalLoading(delay=160){
+ if(!globalLoadingBar) return;
+ clearTimeout(globalLoadingTimer);
+ globalLoadingTimer = setTimeout(() => {
+ const shouldKeepGnbOpen = document.body.dataset.gnbOpenBeforeLoading === '1';
+ globalLoadingBar.classList.remove('show');
+ globalLoadingBar.setAttribute('aria-hidden', 'true');
+ document.body.classList.remove('ui-loading-lock');
+ document.documentElement.classList.remove('ui-loading-lock');
+ if(shouldKeepGnbOpen){
+   qs('#gnbSheet')?.classList.add('show');
+   qs('#gnbOverlay')?.classList.add('show');
+   qs('#gnbSheet')?.setAttribute('aria-hidden', 'false');
+   document.body.classList.add('gnb-open');
+ }
+ }, delay);
+ }
+
+ function markInitialDataLoaded(key){
+ if(!(key in initialLoadState)) return;
+ initialLoadState[key] = true;
+
+ const allLoaded = Object.values(initialLoadState).every(Boolean);
+ if(allLoaded){
+ hideGlobalLoading(120);
+ }
+ }
+
+ function bindGlobalLoadingTriggers(){
+ // 공개앱은 버튼/메뉴 클릭마다 로더를 띄우지 않습니다.
+ // 실제 정보 조회가 시작될 때만 showGlobalLoading()을 사용합니다.
+ }
+
+function setPushStatusUi(enabled){
+ const statusEl = qs('#pushStatusText');
+ const subEl = qs('#pushStatusSub');
+ const enableBtn = qs('#enablePushBtn');
+ const disableBtn = qs('#disablePushBtn');
+ const gnbStatusPill = qs('#gnbPushStatusPill');
+ const gnbStatusText = qs('#gnbPushStatusText');
+ const gnbEnableBtn = qs('#gnbEnablePushBtn');
+ const gnbDisableBtn = qs('#gnbDisablePushBtn');
+
+ state.isPushEnabledForThisDevice = !!enabled;
+
+ if(statusEl){
+ statusEl.textContent = enabled ? '푸시 알림 켜짐' : '이 기기는 아직 푸시 알림 꺼짐입니다';
+ }
+ if(subEl){
+ subEl.textContent = enabled
+ ? '현재 브라우저에서 알림을 받을 수 있습니다.'
+ : '현재 브라우저/기기에서만 다시 알림 허용을 진행해 주세요.';
+ }
+ if(enableBtn) enableBtn.classList.toggle('hidden', !!enabled);
+ if(disableBtn) disableBtn.classList.toggle('hidden', !enabled);
+
+ if(gnbStatusPill){
+ gnbStatusPill.textContent = enabled ? '푸시 알림 켜짐' : '푸시 알림 꺼짐';
+ gnbStatusPill.style.background = enabled ? '#eff6ff' : '#f8fafc';
+ gnbStatusPill.style.color = enabled ? '#1d4ed8' : '#475569';
+ gnbStatusPill.style.borderColor = enabled ? '#bfdbfe' : '#e2e8f0';
+ }
+ if(gnbStatusText){
+ gnbStatusText.textContent = enabled
+ ? '현재 브라우저에서 공지와 주요 안내를 바로 받을 수 있습니다.'
+ : '아직 이 기기는 등록되지 않았습니다. 알림 받기를 눌러 등록해 주세요.';
+ }
+ if(gnbEnableBtn) gnbEnableBtn.classList.toggle('hidden', !!enabled);
+ if(gnbDisableBtn) gnbDisableBtn.classList.toggle('hidden', !enabled);
+ }
+
+ function saveCurrentViewScroll(){
+ state.scrollMap[state.view] = window.scrollY || window.pageYOffset || 0;
+ }
+
+ function restoreViewScroll(view){
+ const nextY = Number(state.scrollMap[view] || 0);
+ requestAnimationFrame(() => {
+ window.scrollTo({ top: nextY, behavior: 'auto' });
+ });
+ }
+
+ function getCurrentRoleMeta(){
+ return getAccountRoleMeta(state.currentUserProfile || {});
+ }
+
+ function isAdminRole(){
+ const role = getCurrentRoleMeta().role;
+ return role === 'root' || role === 'admin';
+ }
+
+ function isRootRole(){
+ return getCurrentRoleMeta().role === 'root';
+ }
+
+ function applyBodyRoleClass(roleMeta = getCurrentRoleMeta()){
+ document.body.classList.remove('app-role-root','app-role-admin','app-role-resident');
+ document.body.classList.add(`app-role-${roleMeta.role || 'resident'}`);
+ }
+
+ function enforceShareInsightAccess(){
+ if(state.view === 'shareinsights' && !isAdminRole()){
+ state.view = 'home';
+ return false;
+ }
+ return true;
+ }
+
+
+ function makeViewTitleTrendBadges(menu){
+  if(!menu) return '';
+  const flags = getMenuTrendFlags(menu);
+  const pieces = [];
+  if(flags.isPopular || flags.isHot) pieces.push('<span class="view-title-trend-badge hot">HOT</span>');
+  if(flags.isNew) pieces.push('<span class="view-title-trend-badge new">NEW</span>');
+  return pieces.length ? `<span class="view-title-trend-badges">${pieces.join('')}</span>` : '';
+ }
+ function refreshCurrentViewTitleTrendBadges(){
+  // HOT/NEW 제목 배지는 legacy(.view-title-*)와 final(.view-final-*) 로직이 함께 실행될 수 있어
+  // 두 계열을 모두 제거한 뒤 1회만 다시 렌더링합니다.
+  qsa('.view-title-trend-badges,.view-final-trend-badges').forEach(el => el.remove());
+  const view = state?.view || 'home';
+  const menu = findMenuByView(view);
+  const html = makeViewTitleTrendBadges(menu);
+  if(!html) return;
+  const viewEl = qs(`#view-${view}`);
+  if(!viewEl) return;
+  const title = viewEl.querySelector('.hero h2, .calendar-hero h3, .ai-view-hero h3, .section-head h3, h3, h2');
+  if(title && !title.querySelector('.view-title-trend-badges,.view-final-trend-badges')){
+    title.insertAdjacentHTML('afterbegin', html);
+  }
+ }
+
+ function changeView(nextView){
+ if(!nextView) return;
+ if(nextView === 'shareinsights' && !isAdminRole()){
+ openModalAlert('공유 인사이트는 관리자 계정에서만 확인할 수 있습니다.');
+ return;
+ }
+ saveCurrentViewScroll();
+ state.view = nextView;
+ if(nextView === 'favorite' || nextView === 'top5' || nextView === 'map' || nextView === 'calendar' || nextView === 'shareinsights') state.filter = 'all';
+ renderAll();
+ bindPremiumSectionTitles();
+ if(nextView === 'map') setTimeout(() => renderMapMode({ fitBounds: true }), 80);
+ restoreViewScroll(nextView);
+ }
+
+ function updateGnbActive(){
+ qsa('.gnb-icon-btn[data-view-link]').forEach(btn => {
+ btn.classList.toggle('gnb-home-active', btn.dataset.viewLink === state.view);
+ });
+ }
+
+ const alertEl = qs('#appAlert');
+ const alertMsgEl = qs('#appAlertMessage');
+ const alertTitleEl = qs('#appAlertTitle');
+ const alertIconEl = qs('#appAlertIcon');
+ const alertConfirmEl = qs('#appAlertConfirm');
+ const alertCancelEl = qs('#appAlertCancel');
+ let alertFocusTarget = null;
+ let alertResolver = null;
+
+ function openModalBase({
+ title='안내',
+ message='',
+ focusTarget=null,
+ mode='alert',
+ confirmText='확인',
+ cancelText='취소',
+ icon=''
+ } = {}){
+ alertFocusTarget = focusTarget;
+ const resolvedIcon = icon || (mode === 'confirm' ? '' : '');
+ alertTitleEl.textContent = title;
+ alertMsgEl.textContent = message;
+ alertIconEl.textContent = resolvedIcon;
+ alertConfirmEl.textContent = confirmText;
+ alertCancelEl.textContent = cancelText;
+ alertCancelEl.classList.toggle('hidden', mode !== 'confirm');
+ try{
+ if(typeof alertEl.showModal === 'function' && !alertEl.open){
+ alertEl.showModal();
+ }
+ }catch(error){
+ console.warn('앱 알림 dialog 표시 실패, fallback 처리', error);
+ }
+ alertEl.classList.add('show');
+ alertEl.setAttribute('aria-hidden', 'false');
+ requestAnimationFrame(() => {
+ (mode === 'confirm' ? alertCancelEl : alertConfirmEl).focus();
+ });
+ return new Promise((resolve) => {
+ alertResolver = resolve;
+ });
+ }
+
+ function openModalAlert(message, focusTarget=null, title='안내'){
+ return openModalBase({ title, message, focusTarget, mode:'alert', confirmText:'확인', icon:'' });
+ }
+
+ function openModalConfirm(message, focusTarget=null, title='확인', confirmText='확인', cancelText='취소'){
+ return openModalBase({ title, message, focusTarget, mode:'confirm', confirmText, cancelText, icon:'' });
+ }
+
+ // tracking.js 등 외부 모듈에서도 앱 내부 모달을 사용할 수 있도록 전역 연결
+ window.openModalAlert = openModalAlert;
+ window.openModalConfirm = openModalConfirm;
+
+ function closeModal(result=false){
+ alertEl.classList.remove('show');
+ alertEl.setAttribute('aria-hidden', 'true');
+ try{
+ if(typeof alertEl.close === 'function' && alertEl.open){
+ alertEl.close();
+ }
+ }catch(error){
+ console.warn('앱 알림 dialog 닫기 실패', error);
+ }
+ if(result === false && alertFocusTarget){ alertFocusTarget.focus(); }
+ const resolver = alertResolver;
+ alertResolver = null;
+ if(resolver) resolver(result);
+ }
+
+ alertConfirmEl.addEventListener('click', () => closeModal(true));
+ alertCancelEl.addEventListener('click', () => closeModal(false));
+ alertEl.addEventListener('click', (event) => {
+ if(event.target === alertEl) closeModal(false);
+ });
+ window.addEventListener('keydown', (event) => {
+ if(!alertEl.classList.contains('show')) return;
+ if(event.key === 'Escape') closeModal(false);
+ });
+
+ const redirectToLogin=()=>{
+ if(location.pathname.startsWith('/notice/') || location.pathname.startsWith('/benefit/')){
+ sessionStorage.setItem('pendingDeepLink', location.href);
+ }
+ window.location.replace(LOGIN_PAGE_URL);
+ };
+ function getDisplayNickname(){
+ return state.currentUserProfile?.nickname || state.currentUser?.displayName || state.currentUser?.email || '입주민';
+ }
+ function escapeAttr(value=''){
+ return String(value ?? '')
+ .replaceAll('&','&amp;')
+ .replaceAll('"','&quot;')
+ .replaceAll("'",'&#39;')
+ .replaceAll('<','&lt;')
+ .replaceAll('>','&gt;');
+ }
+
+ function getAccountRoleMeta(profile = {}){
+ const role = String(profile.role || profile.userRole || '').toLowerCase();
+
+ if(role === 'root'){
+ return {
+ role,
+ label: '최고 관리자',
+ chip: '최고 관리자 계정',
+ className: 'role-root',
+ avatar: ''
+ };
+ }
+
+ if(role === 'admin'){
+ return {
+ role,
+ label: '일반 관리자',
+ chip: '일반 관리자 계정',
+ className: 'role-admin',
+ avatar: ''
+ };
+ }
+
+ return {
+ role: 'resident',
+ label: '입주민 계정',
+ chip: '입주민 계정',
+ className: 'role-resident',
+ avatar: ''
+ };
+ }
+
+ function getDisplayUnitInfo(){
+ const roleMeta = getAccountRoleMeta(state.currentUserProfile || {});
+ if(roleMeta.role === 'root' || roleMeta.role === 'admin') return roleMeta.label;
+
+ const building = state.currentUserProfile?.building;
+ const unit = state.currentUserProfile?.unit;
+ if(building && unit) return `${building}동 ${unit}호`;
+ return roleMeta.label;
+ }
+
+ function getProfileImageUrl(){
+ const profile = state.currentUserProfile || {};
+ const rawUrl = String(profile.profileImageUrl || profile.photoUrl || profile.avatarUrl || '').trim();
+ if(!rawUrl) return '';
+ const cacheKey = profile.profileImageCacheKey
+ || profile.profileImageUpdatedAt?.seconds
+ || profile.updatedAt?.seconds
+ || '';
+ if(!cacheKey) return rawUrl;
+ const separator = rawUrl.includes('?') ? '&' : '?';
+ return rawUrl.includes('profileCache=') ? rawUrl : `${rawUrl}${separator}profileCache=${encodeURIComponent(cacheKey)}`;
+ }
+
+ function renderProfileAvatar(target, roleMeta, profileImageUrl){
+ if(!target) return;
+ target.classList.remove('has-photo');
+
+ if(profileImageUrl){
+ target.classList.add('has-photo');
+ target.innerHTML = `<img src="${escapeAttr(profileImageUrl)}" alt="프로필 이미지" loading="eager" decoding="async">`;
+ return;
+ }
+
+ // v85: 기본값도 빈 텍스트가 아니라 실제 SVG 아이콘으로 유지합니다.
+ // 빈 원형 버튼으로 보이거나 헤더 동기화가 실패하는 문제를 막기 위한 안정화 처리입니다.
+ target.innerHTML = `<img class="upick-svg-icon" src="/icons/internal/user.svg" alt="계정" loading="eager" decoding="async">`;
+ }
+
+ function syncHeaderProfileAvatars(profileImageUrl = getProfileImageUrl()){
+ // 모바일 공통 헤더/글로벌 히어로는 동적으로 재생성되는 DOM이라
+ // 로그인 직후 또는 화면 전환 직후 한 번 더 직접 동기화합니다.
+ try{
+ const roleMeta = getAccountRoleMeta(state.currentUserProfile || {});
+ const selectors = [
+ '.upick-header-profile-avatar',
+ '#globalUserChip .user-avatar',
+ '.global-user-chip .user-avatar'
+ ];
+ selectors.forEach((selector) => {
+ qsa(selector).forEach((target) => renderProfileAvatar(target, roleMeta, profileImageUrl));
+ });
+ qsa('[data-upick-profile] img, .upick-header-profile-btn img').forEach((img) => {
+ if(!profileImageUrl) return;
+ if(img.getAttribute('src') !== profileImageUrl) img.setAttribute('src', profileImageUrl);
+ img.closest('.upick-header-profile-avatar')?.classList.add('has-photo');
+ });
+ }catch(error){
+ console.warn('헤더 프로필 이미지 동기화 실패:', error);
+ }
+ }
+
+ function applyRoleClass(target, className){
+ if(!target) return;
+ target.classList.remove('role-root','role-admin','role-resident');
+ target.classList.add(className || 'role-resident');
+ }
+
+ function updateUserChip(){
+ const nickname = getDisplayNickname();
+ const unitInfo = getDisplayUnitInfo();
+ const profileImageUrl = getProfileImageUrl();
+ const roleMeta = getAccountRoleMeta(state.currentUserProfile || {});
+
+ const nicknameEl = qs('#userNickname');
+ const unitInfoEl = qs('#userUnitInfo');
+ const gnbAccountNameEl = qs('#gnbAccountName');
+ const gnbAccountUnitEl = qs('#gnbAccountUnit');
+ const userChipEl = qs('#userChip');
+ const gnbAccountCardEl = qs('#gnbSettingsAccountSummary .gnb-account-card');
+ const userAvatarEl = qs('#userChip .user-avatar');
+ const gnbAvatarEl = qs('#gnbSettingsAccountSummary .gnb-account-avatar');
+
+ if(nicknameEl) nicknameEl.textContent = nickname;
+ if(unitInfoEl) unitInfoEl.innerHTML = roleMeta.role === 'root' || roleMeta.role === 'admin'
+ ? `<span class="role-badge-chip ${roleMeta.role}">${escapeHtml(roleMeta.label)}</span>`
+ : unitInfo;
+ if(gnbAccountNameEl) gnbAccountNameEl.textContent = nickname;
+ if(gnbAccountUnitEl) gnbAccountUnitEl.innerHTML = roleMeta.role === 'root' || roleMeta.role === 'admin'
+ ? `<span class="role-badge-chip ${roleMeta.role}">${escapeHtml(roleMeta.chip)}</span>`
+ : unitInfo;
+
+ applyRoleClass(userChipEl, roleMeta.className);
+ applyRoleClass(gnbAccountCardEl, roleMeta.className);
+ applyBodyRoleClass(roleMeta);
+ renderProfileAvatar(userAvatarEl, roleMeta, profileImageUrl);
+ renderProfileAvatar(gnbAvatarEl, roleMeta, profileImageUrl);
+ syncHeaderProfileAvatars(profileImageUrl);
+ syncFontSizeSettingUi();
+ }
+
+ function forcePublicAppInitialRender(){
+  // 로그인 직후 세션 보안 체크가 먼저 끝나는 경우에도
+  // 프로필 이미지와 홈 네비 활성 상태가 반드시 한 번은 반영되도록 보정합니다.
+  try{
+    if(!state.view) state.view = 'home';
+    updateUserChip();
+    updateView?.();
+    updateBottomNavActiveState?.();
+    if(typeof renderDynamicBottomNav === 'function'){
+      Promise.resolve(renderDynamicBottomNav(true)).then(() => {
+        updateBottomNavActiveState?.();
+        try{ window.__upickStableBottomBadge?.(); }catch(_){ }
+        try{ window.__upickGlobalHeroRefresh?.(); }catch(_){ }
+      }).catch(() => {});
+    }
+    setTimeout(() => {
+      updateUserChip();
+      syncHeaderProfileAvatars?.();
+      updateBottomNavActiveState?.();
+      try{ window.__upickStableBottomBadge?.(); }catch(_){ }
+      try{ window.__upickGlobalHeroRefresh?.(); }catch(_){ }
+    }, 120);
+  }catch(error){
+    console.warn('초기 프로필/네비 렌더링 보정 실패:', error);
+  }
+ }
+
+ function normalizeProfileInput(value=''){
+ return String(value || '').trim();
+ }
+
+ function fillAccountEditForm(){
+ const profile = state.currentUserProfile || {};
+ const nicknameInput = qs('#accountNicknameInput');
+ const buildingInput = qs('#accountBuildingInput');
+ const unitInput = qs('#accountUnitInput');
+ if(nicknameInput) nicknameInput.value = normalizeProfileInput(profile.nickname || state.currentUser?.displayName || '');
+ if(buildingInput) buildingInput.value = normalizeProfileInput(profile.building || '');
+ if(unitInput) unitInput.value = normalizeProfileInput(profile.unit || '');
+ updateProfileImagePreview();
+ setProfileUploadStatus('이미지 파일은 3MB 이하를 권장합니다.');
+ }
+
+ function updateProfileImagePreview(){
+ const preview = qs('#accountProfilePreview');
+ if(!preview) return;
+ const url = getProfileImageUrl();
+ const roleMeta = getAccountRoleMeta(state.currentUserProfile || {});
+ const plusBtn = `<button class="profile-upload-plus" id="accountProfileUploadBtn" type="button" title="프로필 이미지 업로드" aria-label="프로필 이미지 업로드">+</button>`;
+ preview.classList.toggle('has-photo', !!url);
+ preview.innerHTML = url
+ ? `<img src="${escapeAttr(url)}" alt="프로필 미리보기">${plusBtn}`
+ : `${escapeHtml(roleMeta.avatar || '')}${plusBtn}`;
+ bindProfileUploadButton();
+ }
+
+ function animateProfileImageApplied(){
+ ['#accountProfilePreview', '#userChip .user-avatar', '#gnbSettingsAccountSummary .gnb-account-avatar'].forEach((selector) => {
+ const el = qs(selector);
+ if(!el) return;
+ el.classList.remove('profile-saved');
+ void el.offsetWidth;
+ el.classList.add('profile-saved');
+ setTimeout(() => el.classList.remove('profile-saved'), 650);
+ });
+ }
+
+ async function deletePreviousProfileImageIfNeeded(previousPath='', nextPath=''){
+ const oldPath = normalizeProfileInput(previousPath);
+ const newPath = normalizeProfileInput(nextPath);
+ if(!oldPath || oldPath === newPath) return;
+ if(!oldPath.startsWith(`profile-images/${state.currentUser.uid}/`)) return;
+ try{
+ await deleteObject(storageRef(storage, oldPath));
+ }catch(error){
+ console.warn('이전 프로필 이미지 삭제 실패 또는 이미 삭제됨', error);
+ }
+ }
+
+ function setProfileUploadStatus(message, type=''){
+ const statusEl = qs('#accountProfileUploadStatus');
+ if(!statusEl) return;
+ statusEl.textContent = message || '';
+ statusEl.classList.remove('success','error');
+ if(type) statusEl.classList.add(type);
+ }
+
+ function bindProfileUploadButton(){
+ const uploadBtn = qs('#accountProfileUploadBtn');
+ const fileInput = qs('#accountProfileFileInput');
+ if(!uploadBtn || !fileInput || uploadBtn.dataset.bound === '1') return;
+ uploadBtn.dataset.bound = '1';
+ uploadBtn.addEventListener('click', () => fileInput.click());
+ }
+
+ function sanitizeProfileFileName(name='profile'){
+ return String(name || 'profile').replace(/[^a-zA-Z0-9._-]/g, '_').slice(-80) || 'profile.png';
+ }
+
+ function getProfileFileExtension(file){
+ const byType = String(file?.type || '').split('/')[1] || '';
+ const normalized = byType.replace('jpeg','jpg').replace(/[^a-z0-9]/gi,'').toLowerCase();
+ if(normalized) return normalized;
+ const fromName = String(file?.name || '').split('.').pop() || 'png';
+ return fromName.replace(/[^a-z0-9]/gi,'').toLowerCase() || 'png';
+ }
+
+ async function handleProfileImageFileChange(event){
+ const file = event?.target?.files?.[0];
+ if(!file) return;
+ try{
+ if(!state.currentUser?.uid){
+ await openModalAlert('로그인 후 이용해 주세요.');
+ return;
+ }
+ if(!file.type || !file.type.startsWith('image/')){
+ await openModalAlert('이미지 파일만 업로드할 수 있습니다.', qs('#accountProfileUploadBtn'));
+ return;
+ }
+ if(file.size > 3 * 1024 * 1024){
+ await openModalAlert('프로필 이미지는 3MB 이하 파일로 올려 주세요.', qs('#accountProfileUploadBtn'));
+ return;
+ }
+
+ const preview = qs('#accountProfilePreview');
+ const uploadBtn = qs('#accountProfileUploadBtn');
+ const previousPath = state.currentUserProfile?.profileImagePath || '';
+ preview?.classList.add('profile-uploading');
+ if(uploadBtn) uploadBtn.disabled = true;
+ setProfileUploadStatus('프로필 이미지를 업로드하는 중입니다...', '');
+
+ const ext = getProfileFileExtension(file);
+ const cacheKey = Date.now();
+ const path = `profile-images/${state.currentUser.uid}/profile_${cacheKey}.${ext}`;
+ const fileRef = storageRef(storage, path);
+ await uploadBytes(fileRef, file, {
+ contentType:file.type,
+ customMetadata:{ ownerUid:state.currentUser.uid, purpose:'profile-image' }
+ });
+ const downloadUrl = await getDownloadURL(fileRef);
+
+ await setDoc(doc(db, 'users', state.currentUser.uid), {
+ profileImageUrl:downloadUrl,
+ profileImagePath:path,
+ profileImageCacheKey:String(cacheKey),
+ profileImageUpdatedAt:serverTimestamp(),
+ updatedAt:serverTimestamp()
+ }, { merge:true });
+
+ state.currentUserProfile = {
+ ...(state.currentUserProfile || {}),
+ profileImageUrl:downloadUrl,
+ profileImagePath:path,
+ profileImageCacheKey:String(cacheKey)
+ };
+
+ updateUserChip();
+ updateProfileImagePreview();
+ animateProfileImageApplied();
+ setProfileUploadStatus('프로필 이미지가 바로 반영되었습니다.', 'success');
+ deletePreviousProfileImageIfNeeded(previousPath, path);
+ }catch(error){
+ console.error('프로필 이미지 업로드 실패', error);
+ setProfileUploadStatus('업로드 중 오류가 발생했습니다. Storage/Firestore 규칙을 확인해 주세요.', 'error');
+ await openModalAlert('프로필 이미지 업로드 중 오류가 발생했습니다.', qs('#accountProfileUploadBtn'));
+ }finally{
+ const preview = qs('#accountProfilePreview');
+ const uploadBtn = qs('#accountProfileUploadBtn');
+ preview?.classList.remove('profile-uploading');
+ if(uploadBtn) uploadBtn.disabled = false;
+ if(event?.target) event.target.value = '';
+ }
+ }
+
+ function openAccountEditModal(){
+ fillAccountEditForm();
+ const modal = qs('#accountEditModal');
+ if(!modal) return;
+ if(modal.open) modal.close();
+ modal.showModal();
+ requestAnimationFrame(() => qs('#accountNicknameInput')?.focus());
+ }
+
+ function closeAccountEditModal(){
+ const modal = qs('#accountEditModal');
+ if(modal?.open) modal.close();
+ }
+
+ async function saveAccountProfile(event){
+ event?.preventDefault?.();
+ try{
+ if(!state.currentUser?.uid){
+ await openModalAlert('로그인 후 이용해 주세요.');
+ return;
+ }
+
+ const nickname = normalizeProfileInput(qs('#accountNicknameInput')?.value || '');
+ const building = normalizeProfileInput(qs('#accountBuildingInput')?.value || '');
+ const unit = normalizeProfileInput(qs('#accountUnitInput')?.value || '');
+
+ if(!nickname){
+ await openModalAlert('닉네임을 입력해 주세요.', qs('#accountNicknameInput'));
+ return;
+ }
+
+ showGlobalLoading();
+ await setDoc(doc(db, 'users', state.currentUser.uid), {
+ nickname,
+ building,
+ unit,
+ updatedAt: serverTimestamp()
+ }, { merge:true });
+
+ state.currentUserProfile = {
+ ...(state.currentUserProfile || {}),
+ nickname,
+ building,
+ unit
+ };
+ updateUserChip();
+ closeAccountEditModal();
+ hideGlobalLoading(80);
+ await openModalAlert('계정 정보가 저장되었습니다.', qs('#openAccountEditBtn'));
+ }catch(error){
+ console.error('계정 정보 저장 실패', error);
+ hideGlobalLoading(80);
+ await openModalAlert('계정 정보 저장 중 오류가 발생했습니다.', qs('#openAccountEditBtn'));
+ }
+ }
+async function enablePushNotifications(){
+ try{
+ if(!state.currentUser?.uid){
+ await openModalAlert('로그인 후 이용해 주세요.');
+ return;
+ }
+ if(!window.VAPID_PUBLIC_KEY || String(window.VAPID_PUBLIC_KEY).includes('여기에_Firebase_콘솔_VAPID_Public_Key_입력')){
+ await openModalAlert('VAPID 공개 키가 아직 설정되지 않았습니다. HTML 파일의 window.VAPID_PUBLIC_KEY 값을 실제 키로 바꿔 주세요.');
+ return;
+ }
+ if(!window.firebaseMessaging || !window.getToken || !window.pushSwRegistration){
+ const initialized = await initPushSystem();
+ if(!initialized || !window.firebaseMessaging || !window.getToken || !window.pushSwRegistration){
+ await openModalAlert('알림 초기화가 완료되지 않았습니다. 페이지를 새로고침 후 다시 시도해 주세요.');
+ return;
+ }
+ }
+ const permission = await Notification.requestPermission();
+ if(permission !== 'granted'){
+ state.currentPushToken = null;
+ setPushStatusUi(false);
+ await openModalAlert('브라우저 알림 권한이 허용되지 않았습니다.');
+ return;
+ }
+
+
+ const token = await window.getToken(window.firebaseMessaging, {
+ vapidKey: window.VAPID_PUBLIC_KEY,
+ serviceWorkerRegistration: window.pushSwRegistration
+ }).catch(() => null);
+
+ if(!token){
+ state.currentPushToken = null;
+ setPushStatusUi(false);
+ await openModalAlert('알림 토큰을 생성하지 못했습니다.');
+ return;
+ }
+
+ if(await isMobileEdgePushEndpointBroken()){
+ state.currentPushToken = null;
+ setPushStatusUi(false);
+ try{ localStorage.setItem(`myhills_mobile_edge_fallback_${ENV || 'prod'}`, '1'); }catch(_){}
+ await openModalAlert(
+ '현재 모바일 Edge에서는 휴대폰 시스템 알림 수신이 안정적이지 않습니다.\n\n대신 웹앱을 열어두신 동안에는 새 공지, 예약 알림, 근처 혜택을 화면 안의 알림으로 안내해드릴게요.\n\n앱이 꺼져 있어도 알림을 받고 싶으시면 Chrome 또는 삼성 인터넷 이용을 권장드립니다.'
+ );
+ return;
+ }
+
+ state.currentPushToken = token;
+
+ await setDoc(doc(db, 'users', state.currentUser.uid, 'pushTokens', token), {
+ token,
+ uid: state.currentUser.uid,
+ enabled: true,
+ platform: 'web',
+ userAgent: navigator.userAgent || '',
+ env: ENV,
+ projectId: firebaseConfig.projectId || '',
+ swScope: window.pushSwRegistration?.scope || '',
+ swScriptURL: window.pushSwRegistration?.active?.scriptURL || '',
+ swState: window.pushSwRegistration?.active?.state || '',
+ swControlled: !!navigator.serviceWorker?.controller,
+ samsungInternetCompat: /SamsungBrowser/i.test(navigator.userAgent || ''),
+ notificationPermission: Notification.permission || '',
+ lastTokenIssuedAt: serverTimestamp(),
+ updatedAt: serverTimestamp(),
+ createdAt: serverTimestamp()
+ }, { merge:true });
+
+ setPushStatusUi(true);
+ await openModalAlert('현재 기기에서 알림이 설정되었습니다.');
+ }catch(error){
+ console.error('알림 설정 실패', error);
+ state.currentPushToken = null;
+ setPushStatusUi(false);
+ await openModalAlert('알림 설정 중 오류가 발생했습니다.');
+ }
+ }
+
+async function disablePushNotifications(){
+ try{
+ if(!state.currentUser?.uid){
+ await openModalAlert('로그인 후 이용해 주세요.');
+ return;
+ }
+ if(!state.currentPushToken){
+ setPushStatusUi(false);
+ await openModalAlert('현재 기기에 등록된 알림 토큰이 없습니다.');
+ return;
+ }
+
+ await deleteDoc(doc(db, 'users', state.currentUser.uid, 'pushTokens', state.currentPushToken));
+ state.currentPushToken = null;
+ setPushStatusUi(false);
+ await openModalAlert('현재 기기에서 알림이 해제되었습니다.');
+ }catch(error){
+ console.error('알림 해제 실패', error);
+ await openModalAlert('알림 해제 중 오류가 발생했습니다.');
+ }
+ }
+
+async function refreshPushStatus(){
+ try{
+ if(!state.currentUser?.uid || !window.firebaseMessaging || !window.getToken || !window.pushSwRegistration){
+ state.currentPushToken = null;
+ setPushStatusUi(false);
+ return;
+ }
+
+ if(Notification.permission !== 'granted'){
+ state.currentPushToken = null;
+ setPushStatusUi(false);
+ return;
+ }
+
+ const token = await window.getToken(window.firebaseMessaging, {
+ vapidKey: window.VAPID_PUBLIC_KEY,
+ serviceWorkerRegistration: window.pushSwRegistration
+ }).catch(() => null);
+
+ state.currentPushToken = token || null;
+
+ if(!token){
+ setPushStatusUi(false);
+ return;
+ }
+
+ const snap = await getDoc(doc(db, 'users', state.currentUser.uid, 'pushTokens', token));
+ setPushStatusUi(snap.exists());
+ }catch(error){
+ console.error('알림 상태 확인 실패', error);
+ state.currentPushToken = null;
+ setPushStatusUi(false);
+ }
+ }
+
+ async function deleteUserSubcollection(uid, subcollectionName){
+ try{
+ const snap = await getDocs(collection(db, 'users', uid, subcollectionName));
+ if(snap.empty) return;
+
+ const tasks = snap.docs.map((item) => deleteDoc(item.ref));
+ await Promise.all(tasks);
+ }catch(error){
+ console.error(`${subcollectionName} 삭제 실패`, error);
+ throw error;
+ }
+ }
+
+ async function withdrawCurrentUser(){
+ try{
+ if(!state.currentUser){
+ await openModalAlert('로그인 상태를 확인할 수 없습니다.', qs('#withdrawBtn'));
+ return;
+ }
+
+ const confirmed = await openModalConfirm(
+ `회원 탈퇴를 진행하면
+계정 정보, 즐겨찾기, 현재 기기 알림 설정이 삭제됩니다.
+이 작업은 되돌릴 수 없습니다.
+
+정말 탈퇴하시겠습니까?`,
+ qs('#withdrawBtn'),
+ '회원 탈퇴',
+ '탈퇴하기',
+ '취소'
+ );
+ if(!confirmed) return;
+
+ showGlobalLoading();
+
+ const uid = state.currentUser.uid;
+
+ await deleteUserSubcollection(uid, 'favorites');
+ await deleteUserSubcollection(uid, 'pushTokens');
+ await setDoc(doc(db, 'users', uid), {
+ accountStatus: 'withdrawn',
+ withdrawReason: '사용자 본인 요청',
+ withdrawnAt: serverTimestamp(),
+ updatedAt: serverTimestamp()
+ }, { merge:true });
+
+ await signOut(auth).catch(() => {});
+ hideGlobalLoading(80);
+ await openModalAlert('회원 탈퇴가 완료되었습니다.');
+ redirectToLogin();
+ }catch(error){
+ console.error('회원 탈퇴 실패', error);
+ hideGlobalLoading(80);
+ await openModalAlert('회원 탈퇴 중 오류가 발생했습니다.', qs('#withdrawBtn'));
+ }
+ }
+
+ async function loadCurrentUserProfile(user){
+ try{
+ const snap = await getDoc(doc(db, 'users', user.uid));
+ if(!snap.exists()) return null;
+ return snap.data() || null;
+ }catch(error){
+ console.error('사용자 정보 로드 실패', error);
+ return null;
+ }
+ }
+ async function ensureAuthenticatedUser(){
+ return new Promise((resolve) => {
+ onAuthStateChanged(auth, async (user) => {
+ if(!user){
+ sessionStorage.setItem('pendingDeepLink', location.href);
+ redirectToLogin();
+ resolve(false);
+ return;
+ }
+
+ state.currentUser = user;
+ state.currentUserProfile = await loadCurrentUserProfile(user);
+ applyAppFontSize(state.currentUserProfile?.fontSize || state.currentUserProfile?.appFontSize || 'normal');
+
+ if(!state.currentUserProfile){
+ await writeSecurityLog('USER_DOC_NOT_FOUND', { uid:user.uid });
+ localStorage.removeItem('loginUser');
+ await signOut(auth).catch(() => {});
+ redirectToLogin();
+ resolve(false);
+ return;
+ }
+
+ const sessionResult = await checkServerSessionOrLogout({
+ auth,
+ api: API_URL[ENV],
+ signOutFn: async (authInstance) => signOut(authInstance),
+ redirectTo: '/',
+ alertFn: (message) => openModalAlert(message)
+ });
+ if(!sessionResult?.valid){
+ resolve(false);
+ return;
+ }
+
+ const stored = getStoredLoginUser();
+ const localSessionId = stored.sessionId || '';
+ const serverSessionId = sessionResult?.sessionId || state.currentUserProfile.activeSessionId || '';
+
+ const approvalStatus = String(state.currentUserProfile.approvalStatus || 'pending');
+ const accountStatus = String(state.currentUserProfile.accountStatus || 'inactive');
+ // 2026-04-26: 공개앱에서는 휴대폰 인증 단계를 생략합니다.
+ // 기존 필드는 보존하되, 앱 접근 차단 조건으로 사용하지 않습니다.
+ const phoneVerificationRequired = false;
+ const phoneVerified = true;
+
+ if(accountStatus === 'withdrawn'){
+ await writeSecurityLog('WITHDRAWN_ACCOUNT_ACCESS', { accountStatus });
+ await openModalAlert('탈퇴된 계정입니다.');
+ localStorage.removeItem('loginUser');
+ await signOut(auth).catch(() => {});
+ redirectToLogin();
+ resolve(false);
+ return;
+ }
+
+ if(accountStatus === 'blocked'){
+ await writeSecurityLog('BLOCKED_ACCOUNT_ACCESS', {
+ accountStatus,
+ blockedReason: state.currentUserProfile.blockedReason || ''
+ });
+ await openModalAlert('보안 정책에 따라 차단된 계정입니다.');
+ localStorage.removeItem('loginUser');
+ await signOut(auth).catch(() => {});
+ redirectToLogin();
+ resolve(false);
+ return;
+ }
+
+ if(approvalStatus !== 'approved' || accountStatus !== 'active'){
+ await writeSecurityLog('UNAPPROVED_ACCESS', { approvalStatus, accountStatus });
+ localStorage.removeItem('loginUser');
+ await signOut(auth).catch(() => {});
+ redirectToLogin();
+ resolve(false);
+ return;
+ }
+
+ if(phoneVerificationRequired && !phoneVerified){
+ window.location.replace('/phone-verify');
+ resolve(false);
+ return;
+ }
+
+ saveVerifiedLoginUser(user, state.currentUserProfile, localSessionId || serverSessionId);
+
+ if(!window.__THEUNJEONGPICK_SESSION_KEEPALIVE__){
+ window.__THEUNJEONGPICK_SESSION_KEEPALIVE__ = startSessionKeepAlive({
+ auth,
+ api: API_URL[ENV],
+ signOutFn: async (authInstance) => signOut(authInstance),
+ redirectTo: '/',
+ alertFn: (message) => openModalAlert(message),
+ intervalMs: 5 * 60 * 1000,
+ requireActivity: true,
+ db,
+ docFn: doc,
+ onSnapshotFn: onSnapshot
+ });
+ }
+
+ updateUserChip();
+ forcePublicAppInitialRender();
+ await refreshPushStatus();
+ if(shouldUseMobileEdgeInAppFallback()){
+ }
+ if(hasAiOpenDeepLink()){
+ setTimeout(() => handleAiOpenDeepLink().catch(error => console.warn('AI 알림 딥링크 처리 실패:', error)), 500);
+ }else{
+ setTimeout(() => handleDailyAiNudge().catch(error => console.warn('일 1회 AI 유도 처리 실패:', error)), 900);
+ }
+
+ const pendingDeepLink = consumePendingDeepLinkSafely();
+ if(pendingDeepLink && pendingDeepLink !== location.href){
+ window.location.replace(pendingDeepLink);
+ resolve(false);
+ return;
+ }
+
+ resolve(true);
+ }, () => {
+ redirectToLogin();
+ resolve(false);
+ });
+ });
+ }
+ function getPopularScoreWeight(field){
+ const key = String(field || '');
+ if(key === 'detailViewCount') return 1;
+ if(key === 'cardClickCount') return 1;
+ if(key === 'favoriteCount') return 3;
+ if(key === 'shareClickCount') return 5;
+ if(key === 'smartstoreClickCount') return 4;
+ if(key === 'bandClickCount') return 3;
+ if(['homepageClickCount','blogClickCount','instagramClickCount','youtubeClickCount','facebookClickCount','snsClickCount'].includes(key)) return 2;
+ return 0;
+ }
+
+ async function increaseStat(benefitId, benefitName, field){
+ if(!benefitId || !field) return;
+ try{
+ const statRef = doc(db, BENEFIT_STATS_COLLECTION, benefitId);
+ const popularWeight = getPopularScoreWeight(field);
+ await setDoc(statRef, {
+ benefitId,
+ name: benefitName || '',
+ updatedAt: serverTimestamp()
+ }, { merge:true });
+
+ const updatePayload = {
+ [field]: increment(1),
+ updatedAt: serverTimestamp()
+ };
+
+ if(popularWeight > 0){
+ updatePayload.popularScore = increment(popularWeight);
+ }
+
+ await updateDoc(statRef, updatePayload);
+ }catch(error){
+ console.error('통계 증가 실패', field, benefitId, error);
+ }
+ }
+
+ async function logBenefitEvent(benefitId, type){
+ if(!benefitId || !type || !state.currentUser?.uid) return;
+ try{
+ await addDoc(collection(db, BENEFIT_EVENTS_COLLECTION), {
+ benefitId,
+ uid: state.currentUser.uid,
+ type,
+ createdAt: serverTimestamp()
+ });
+ recordResidentActivity(type, residentActivityPoints(type), benefitId).catch(() => {});
+ }catch(error){
+ console.error('이벤트 기록 실패', type, benefitId, error);
+ }
+ }
+
+ function residentActivityPoints(type = ''){
+ const key = String(type || '');
+ if(key.includes('share')) return 5;
+ if(key === 'smartstore_click') return 4;
+ if(key === 'band_click') return 3;
+ if(key === 'favorite') return 3;
+ if(key === 'recommend') return 4;
+ if(key === 'hot') return 6;
+ if(key === 'like') return 2;
+ if(key.includes('click')) return 2;
+ if(key.includes('view')) return 1;
+ return 1;
+ }
+ async function recordResidentActivity(type = 'activity', points = 1, benefitId = ''){
+ const uid = state.currentUser?.uid; if(!uid) return;
+ const profile = state.currentUserProfile || {}; const safePoints = Math.max(1, Number(points || 1));
+ try{
+ await addDoc(collection(db, 'activity_logs'), {uid, loginId: profile.loginId || '', nickname: profile.nickname || profile.displayName || profile.name || '', type, benefitId: benefitId || null, points: safePoints, createdAt: serverTimestamp()});
+ await setDoc(doc(db, 'user_stats', uid), {uid, loginId: profile.loginId || '', nickname: profile.nickname || profile.displayName || profile.name || '입주민', role: profile.role || profile.userRole || '', score: increment(safePoints), activityCount: increment(1), lastActivityType: type, lastBenefitId: benefitId || null, updatedAt: serverTimestamp()}, { merge:true });
+ }catch(error){console.warn('입주민 활동 로그 저장 실패', error);}
+ }
+ async function handleResidentReaction(benefitId = '', reactionType = 'like'){
+ if(!benefitId || !state.currentUser?.uid){ await openModalAlert('로그인 후 반응을 남길 수 있습니다.'); return { active:false, changed:false }; }
+
+ const uid = state.currentUser.uid;
+ const reactionId = `${benefitId}_${uid}_${reactionType}`;
+ const reactionRef = doc(db, 'benefit_reactions', reactionId);
+
+ const fieldMap = { like:'likeCount', recommend:'recommendCount', hot:'hotCount' };
+ const labelMap = { like:'좋아요', recommend:'추천', hot:'HOT' };
+ const statField = fieldMap[reactionType] || 'likeCount';
+ const points = residentActivityPoints(reactionType);
+ const statRef = doc(db, BENEFIT_STATS_COLLECTION, benefitId);
+
+ try{
+   const existing = await getDoc(reactionRef).catch(() => null);
+
+   // 이미 반응한 상태면 취소: count -1, popularScore -points
+   if(existing?.exists?.()){
+     await deleteDoc(reactionRef);
+     await setDoc(statRef, {
+       benefitId,
+       [statField]: increment(-1),
+       popularScore: increment(-points),
+       updatedAt: serverTimestamp()
+     }, { merge:true });
+
+     return {
+       active:false,
+       changed:true,
+       label:labelMap[reactionType] || '반응',
+       message:`${labelMap[reactionType] || '반응'}이 취소되었습니다.`
+     };
+   }
+
+   // 아직 반응하지 않은 상태면 등록: count +1, popularScore +points
+   await setDoc(reactionRef, {
+     benefitId,
+     uid,
+     type: reactionType,
+     createdAt: serverTimestamp()
+   }, { merge:true });
+
+   await setDoc(statRef, {
+     benefitId,
+     [statField]: increment(1),
+     popularScore: increment(points),
+     updatedAt: serverTimestamp()
+   }, { merge:true });
+
+   await recordResidentActivity(reactionType, points, benefitId);
+
+   return {
+     active:true,
+     changed:true,
+     label:labelMap[reactionType] || '반응',
+     message:`${labelMap[reactionType] || '반응'}이 반영되었습니다.`
+   };
+ }catch(error){
+   console.warn('입주민 반응 토글 실패', error);
+   await openModalAlert('반응 처리 중 오류가 발생했습니다.');
+   return { active:false, changed:false, error };
+ }
+ }
+ function residentReactionHtml(item = {}){ if(!item?.id) return ''; return `<div class="reaction-help">HOT 반응을 남기면 이 혜택의 인기 랭킹이 올라갑니다.</div><div class="reaction-box" data-benefit-id="${escapeHtml(item.id)}"><button type="button" class="reaction-btn" data-reaction="like"><img class="upick-svg-icon" src="/icons/internal/favorite.svg" alt="" loading="lazy"> 좋아요</button><button type="button" class="reaction-btn" data-reaction="recommend"><img class="upick-svg-icon" src="/icons/internal/benefit.svg" alt="" loading="lazy"> 추천</button><button type="button" class="reaction-btn" data-reaction="hot"><img class="upick-svg-icon" src="/icons/internal/top5.svg" alt="" loading="lazy"> HOT</button></div>`; }
+ function getReactionActiveClass(reactionType = 'like'){
+ const map = { like:'active-like', recommend:'active-recommend', hot:'active-hot' };
+ return map[reactionType] || 'active-like';
+ }
+
+ async function refreshResidentReactionButtons(benefitId = ''){
+ const uid = state.currentUser?.uid;
+ if(!benefitId || !uid) return;
+
+ const buttons = qsa('.reaction-btn');
+ await Promise.all(buttons.map(async (btn) => {
+   const reactionType = btn.dataset.reaction || 'like';
+   const reactionId = `${benefitId}_${uid}_${reactionType}`;
+   const activeClass = getReactionActiveClass(reactionType);
+   const snap = await getDoc(doc(db, 'benefit_reactions', reactionId)).catch(() => null);
+
+   btn.classList.toggle(activeClass, !!snap?.exists?.());
+   btn.dataset.active = snap?.exists?.() ? '1' : '0';
+   btn.setAttribute('aria-pressed', snap?.exists?.() ? 'true' : 'false');
+ }));
+ }
+
+ function bindResidentReactionButtons(item = {}){
+ const benefitId = item?.id || qs('.reaction-box')?.dataset?.benefitId || '';
+ refreshResidentReactionButtons(benefitId).catch(() => {});
+
+ qsa('.reaction-btn').forEach((btn) => {
+   btn.onclick = async (event) => {
+     event.preventDefault();
+     event.stopPropagation();
+
+     if(btn.dataset.processing === '1') return;
+     btn.dataset.processing = '1';
+
+     const reactionType = btn.dataset.reaction || 'like';
+     const activeClass = getReactionActiveClass(reactionType);
+
+     try{
+       const result = await handleResidentReaction(benefitId, reactionType);
+
+       if(result?.changed){
+         btn.classList.toggle(activeClass, !!result.active);
+         btn.dataset.active = result.active ? '1' : '0';
+         btn.setAttribute('aria-pressed', result.active ? 'true' : 'false');
+
+         // 기존 알럿 대신 버튼 상태만 바꾸되, 아주 짧은 토스트성 피드백이 필요하면 alert가 아닌 상태 표시만 남김
+         const help = btn.closest('.reaction-box')?.previousElementSibling;
+         if(help && help.classList?.contains('reaction-help')){
+           const original = help.dataset.originalText || help.textContent;
+           help.dataset.originalText = original;
+           help.textContent = result.active ? `${result.label} 반응이 반영되었습니다.` : `${result.label} 반응이 취소되었습니다.`;
+           setTimeout(() => {
+             if(help.dataset.originalText) help.textContent = help.dataset.originalText;
+           }, 1200);
+         }
+       }
+     }finally{
+       btn.dataset.processing = '0';
+     }
+   };
+ });
+ }
+ 
+ 
+ function toDateFromFirestore(value){
+   if(!value) return null;
+   if(value instanceof Date) return value;
+   if(typeof value.toDate === 'function') return value.toDate();
+
+   if(typeof value === 'number'){
+     const date = new Date(value);
+     return Number.isNaN(date.getTime()) ? null : date;
+   }
+
+   if(typeof value === 'string'){
+     const raw = value.trim();
+     if(!raw) return null;
+
+     // "2026. 5. 5.", "2026-05-05", "2026/05/05" 모두 대응
+     const normalized = raw
+       .replace(/\.$/, '')
+       .replace(/\s+/g, '')
+       .replace(/[./]/g, '-');
+
+     const date = new Date(normalized);
+     return Number.isNaN(date.getTime()) ? null : date;
+   }
+
+   if(typeof value === 'object'){
+     if(typeof value.seconds === 'number'){
+       const date = new Date(value.seconds * 1000);
+       return Number.isNaN(date.getTime()) ? null : date;
+     }
+     if(typeof value._seconds === 'number'){
+       const date = new Date(value._seconds * 1000);
+       return Number.isNaN(date.getTime()) ? null : date;
+     }
+   }
+
+   return null;
+ }
+
+function formatKoreanDate(value){
+ const date = toDateFromFirestore(value);
+ if(!date) return '';
+ return new Intl.DateTimeFormat('ko-KR', {
+ year:'numeric',
+ month:'numeric',
+ day:'numeric'
+ }).format(date);
+ }
+
+ function benefitDateTag(item = {}){
+ const createdText = formatKoreanDate(item.createdAt);
+ const newBadge = recentNewBadgeHtml(item);
+ const dateTag = createdText ? `` : '';
+ return `${newBadge}${dateTag}`;
+ }
+
+ function benefitDateText(item = {}){
+ const createdText = formatKoreanDate(item.createdAt);
+ return createdText ? `등록일 ${createdText}` : '';
+ }
+
+ function benefitDetailDateHtml(item = {}){
+ const createdText = formatKoreanDate(item.createdAt);
+ const updatedText = formatKoreanDate(item.updatedAt);
+ if(!createdText && !updatedText) return '';
+ return `<div class="panel"><strong style="display:block;margin-bottom:6px;font-size:13px;color:var(--muted);">등록 정보</strong>${createdText ? `등록일 ${createdText}` : ''}${createdText && updatedText ? '<br>' : ''}${updatedText ? `수정일 ${updatedText}` : ''}</div>`;
+ }
+
+ function normalizeKoreaLatLng(rawLat, rawLng){
+ let lat = Number(rawLat);
+ let lng = Number(rawLng);
+
+ // 좌표가 비어 있거나 Firestore 기본값처럼 0 / 0으로 들어간 경우 거리 계산 제외
+ if(!Number.isFinite(lat) || !Number.isFinite(lng)) return null;
+ if(lat === 0 || lng === 0) return null;
+
+ // Firestore 입력 과정에서 lat/lng가 서로 바뀐 경우 자동 보정
+ // 한국 좌표 대략: 위도 33~39, 경도 124~132
+ const looksLikeKoreaLat = (value) => value >= 32 && value <= 40;
+ const looksLikeKoreaLng = (value) => value >= 123 && value <= 133;
+
+ if(looksLikeKoreaLng(lat) && looksLikeKoreaLat(lng)){
+ const temp = lat;
+ lat = lng;
+ lng = temp;
+ }
+
+ // 0/0, 해외 좌표, 오입력 좌표는 거리 표시하지 않음
+ if(!looksLikeKoreaLat(lat) || !looksLikeKoreaLng(lng)) return null;
+ return { lat, lng };
+ }
+
+ function getBenefitLatLng(item = {}){
+ return normalizeKoreaLatLng(item.lat, item.lng);
+ }
+
+
+ function getBenefitAddressParts(item = {}){
+ const nested = item.addressParts || (item.address && typeof item.address === 'object' ? item.address : {});
+ const road = String(item.roadAddress || nested.road || nested.roadAddress || '').trim();
+ const jibun = String(item.jibunAddress || nested.jibun || nested.jibunAddress || '').trim();
+ const detail = String(item.detailAddress || nested.detail || nested.detailAddress || '').trim();
+ const legacy = String(typeof item.address === 'string' ? item.address : (item.displayAddress || nested.display || '')).trim();
+ const main = road || jibun || legacy;
+ const display = String(item.displayAddress || [main, detail].filter(Boolean).join(' ') || legacy).trim();
+ return { road, jibun, detail, main, display };
+ }
+
+ function getBenefitDisplayAddress(item = {}){
+ return getBenefitAddressParts(item).display;
+ }
+
+ function getBenefitSearchAddress(item = {}){
+ const parts = getBenefitAddressParts(item);
+ return parts.road || parts.jibun || parts.main || parts.display;
+ }
+
+ function hasBenefitLocation(item = {}){
+ return !!getBenefitLatLng(item);
+ }
+
+ function buildMapSearchLink(item = {}){
+ const keyword = String(getBenefitSearchAddress(item) || item.name || '').trim();
+ if(item.url) return item.url;
+ if(keyword) return `https://map.naver.com/v5/search/${encodeURIComponent(keyword)}`;
+ return 'https://map.naver.com/';
+ }
+
+ function buildDirectionLink(item = {}){
+ const pos = getBenefitLatLng(item);
+ const name = encodeURIComponent(String(item.name || '목적지').trim() || '목적지');
+ if(pos){
+ return `https://map.naver.com/v5/directions/-/-/${pos.lng},${pos.lat},${name},PLACE_POI/-/transit`;
+ }
+ const keyword = encodeURIComponent(String(getBenefitSearchAddress(item) || item.name || '').trim());
+ return keyword ? `https://map.naver.com/v5/search/${keyword}` : 'https://map.naver.com/';
+ }
+
+ function getDistanceMeters(lat1, lng1, lat2, lng2){
+ const toRad = (value) => Number(value) * Math.PI / 180;
+ const R = 6371000;
+ const dLat = toRad(lat2 - lat1);
+ const dLng = toRad(lng2 - lng1);
+ const a = Math.sin(dLat / 2) ** 2 + Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLng / 2) ** 2;
+ return Math.round(R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a)));
+ }
+
+ function formatDistance(meters){
+ const n = Number(meters);
+ if(!Number.isFinite(n)) return '';
+ if(n < 1000) return `약 ${Math.max(1, Math.round(n))}m`;
+ return `약 ${(n / 1000).toFixed(n < 10000 ? 1 : 0)}km`;
+ }
+
+function formatTravelDuration(minutes){
+ const n = Math.max(1, Math.round(Number(minutes) || 0));
+ if(n < 60) return `약 ${n}분`;
+ const h = Math.floor(n / 60);
+ const m = n % 60;
+ return m ? `약 ${h}시간 ${m}분` : `약 ${h}시간`;
+ }
+
+ function estimateTravelTimes(meters){
+ const distance = Number(meters);
+ if(!Number.isFinite(distance) || distance <= 0) return null;
+
+ // 단순 예상 시간입니다. 실제 네이버 길찾기 결과와는 교통상황/경로에 따라 달라질 수 있습니다.
+ const WALK_M_PER_MIN = 67;   // 약 4km/h
+ const BIKE_M_PER_MIN = 250;  // 약 15km/h
+ const CAR_M_PER_MIN = 500;   // 약 30km/h, 도심 이동 보수값
+
+ return {
+ walk: formatTravelDuration(distance / WALK_M_PER_MIN),
+ bike: formatTravelDuration(distance / BIKE_M_PER_MIN),
+ car: formatTravelDuration(distance / CAR_M_PER_MIN)
+ };
+ }
+
+ function travelTimesHtml(meters){
+ const estimate = estimateTravelTimes(meters);
+ if(!estimate) return '';
+ return `<div class="location-travel-times" aria-label="예상 이동 시간">
+ <div class="location-travel-chip"><b><img class="upick-svg-icon upick-inline-icon" src="/icons/internal/walk.svg" alt="" loading="lazy">도보</b><span>${escapeHtml(estimate.walk)}</span></div>
+ <div class="location-travel-chip"><b><img class="upick-svg-icon upick-inline-icon" src="/icons/internal/bike.svg" alt="" loading="lazy">자전거</b><span>${escapeHtml(estimate.bike)}</span></div>
+ <div class="location-travel-chip"><b><img class="upick-svg-icon upick-inline-icon" src="/icons/internal/car.svg" alt="" loading="lazy">자동차</b><span>${escapeHtml(estimate.car)}</span></div>
+ </div>
+ <div class="location-travel-note">예상 시간은 직선거리 기반 참고값입니다. 실제 경로는 네이버 길찾기에서 확인해 주세요.</div>`;
+ }
+
+ function shouldUseDistanceFilter(){
+ return state.benefitSortMode === 'distance' || state.distanceRadius !== 'all';
+ }
+
+ function getItemDistance(item = {}){
+ const value = state.distanceMap?.[item.id];
+ return Number.isFinite(value) ? value : null;
+ }
+
+ function updateDistanceFilterHelp(){
+ const help = qs('#distanceFilterHelp');
+ if(!help) return;
+ help.classList.remove('active','error');
+ if(!shouldUseDistanceFilter()){
+ help.textContent = '가까운순·반경은 현재 위치 기준입니다.';
+ return;
+ }
+ if(state.distanceStatus === 'ready'){
+ help.classList.add('active');
+ help.textContent = '현재 위치 기준으로 거리 표시와 반경 필터가 적용 중입니다.';
+ return;
+ }
+ if(state.distanceStatus === 'error'){
+ help.classList.add('error');
+ help.textContent = '현재 위치 권한을 허용해야 가까운 순/반경 필터를 사용할 수 있습니다.';
+ return;
+ }
+ help.classList.add('active');
+ help.textContent = '현재 위치를 확인하는 중입니다...';
+ }
+
+ function recalculateBenefitDistances(){
+ const current = state.userLocation;
+ const nextMap = {};
+ if(!current) return nextMap;
+ getVisibleBenefits().forEach((item) => {
+ const pos = getBenefitLatLng(item);
+ if(!pos) return;
+ const distance = getDistanceMeters(current.lat, current.lng, pos.lat, pos.lng);
+ if(Number.isFinite(distance) && distance <= 200000){
+ nextMap[item.id] = distance;
+ }
+ });
+ state.distanceMap = nextMap;
+ return nextMap;
+ }
+
+ const GEO_CACHE_MS = 60000;
+ const GEO_OPTIONS = { enableHighAccuracy: true, timeout: 15000, maximumAge: GEO_CACHE_MS };
+ const PROXIMITY_ALERT_KEY = 'myhills_proximity_alert_history_v2';
+ const PROXIMITY_ALERT_COOLDOWN_MS = 24 * 60 * 60 * 1000;
+ const PROXIMITY_ALERT_STAGES = [
+ { key: '100', radius: 100, title: '거의 도착권 혜택', label: '100m 이내', vibrate: [220, 80, 220, 80, 220] },
+ { key: '300', radius: 300, title: '바로 근처 혜택', label: '300m 이내', vibrate: [180, 80, 180] }
+ ];
+
+ function getLocalDayKey(time = Date.now()){
+ const date = new Date(time);
+ const yyyy = date.getFullYear();
+ const mm = String(date.getMonth() + 1).padStart(2, '0');
+ const dd = String(date.getDate()).padStart(2, '0');
+ return `${yyyy}${mm}${dd}`;
+ }
+
+ function readProximityAlertHistory(){
+ try{return JSON.parse(localStorage.getItem(PROXIMITY_ALERT_KEY) || '{}') || {};}catch(_){return {};}
+ }
+
+ function writeProximityAlertHistory(history = {}){
+ try{localStorage.setItem(PROXIMITY_ALERT_KEY, JSON.stringify(history || {}));}catch(_){ }
+ }
+
+ function getProximityStage(distance){
+ const meters = Number(distance);
+ if(!Number.isFinite(meters)) return null;
+ return PROXIMITY_ALERT_STAGES.find((stage) => meters <= stage.radius) || null;
+ }
+
+ function showProximityToast({ title = '근처 혜택 발견', message = '' } = {}){
+ let host = qs('#proximityToast');
+ if(!host){
+ host = document.createElement('div');
+ host.id = 'proximityToast';
+ host.className = 'proximity-toast';
+ host.innerHTML = '<div class="proximity-toast-card"><div class="proximity-toast-icon"><img class="upick-svg-icon" src="/icons/internal/pin.svg" alt="" loading="lazy"></div><div class="proximity-toast-copy"><div class="proximity-toast-title" id="proximityToastTitle"></div><div class="proximity-toast-message" id="proximityToastMessage"></div></div><button type="button" class="proximity-toast-close" id="proximityToastClose" aria-label="닫기">×</button></div>';
+ document.body.appendChild(host);
+ qs('#proximityToastClose')?.addEventListener('click', () => host.classList.remove('show'));
+ }
+ qs('#proximityToastTitle').textContent = title;
+ qs('#proximityToastMessage').textContent = message;
+ host.classList.add('show');
+ clearTimeout(showProximityToast._timer);
+ showProximityToast._timer = setTimeout(() => host.classList.remove('show'), 6200);
+ }
+
+ async function showProximityBrowserNotification({ title = '근처 혜택 발견', message = '', item = null, stage = null } = {}){
+ try{
+ if(navigator.vibrate && stage?.vibrate) navigator.vibrate(stage.vibrate);
+ if(Notification?.permission !== 'granted') return;
+ const benefitId = item?.id || '';
+ const url = benefitId ? `/app?open=benefit&id=${encodeURIComponent(benefitId)}&from=proximity` : '/app';
+ const options = {body:message,icon:'/icons/icon-192.png',badge:'/icons/icon-192.png',tag:'proximity-' + (benefitId || 'nearby') + '-' + (stage?.key || 'all'),renotify:false,data:{url,benefitId,type:'proximity'}};
+ if(window.pushSwRegistration?.showNotification) await window.pushSwRegistration.showNotification(title, options);
+ else new Notification(title, options);
+ }catch(error){console.warn('근접 알림 표시 실패', error);}
+ }
+
+ function checkProximityAlerts({ silent = false } = {}){
+ if(!state.userLocation || !Array.isArray(state.benefits) || !state.benefits.length) return;
+ const now = Date.now();
+ const history = readProximityAlertHistory();
+ const candidates = [];
+ getVisibleBenefits().filter(isRecommendableBenefit).forEach((item) => {
+ if(item.visible === false) return;
+ const pos = getBenefitLatLng(item);
+ if(!pos) return;
+ const distance = getDistanceMeters(state.userLocation.lat, state.userLocation.lng, pos.lat, pos.lng);
+ const stage = getProximityStage(distance);
+ if(!stage) return;
+ const dayKey = getLocalDayKey(now);
+ const storeKey = item.id + '_' + dayKey;
+ const stageKey = item.id + '_' + stage.key + '_' + dayKey;
+ const legacyKey = item.id + '_' + stage.key;
+ const lastAt = Number(history[legacyKey] || 0);
+
+ // 같은 매장은 하루 1회만 근처 알림를 보냅니다.
+ if(history[storeKey]) return;
+
+ // 100m 알림도 같은 매장 기준 하루 1회만 허용합니다.
+ if(stage.key === '100' && history[stageKey]) return;
+
+ // 구버전 기록이 남아 있는 경우에도 하루 안에는 중복을 막습니다.
+ if(lastAt && now - lastAt < PROXIMITY_ALERT_COOLDOWN_MS) return;
+
+ candidates.push({ item, distance, stage, key: storeKey, stageKey, legacyKey });
+ });
+ candidates.sort((a, b) => a.distance - b.distance);
+ const first = candidates[0];
+ if(!first) return;
+ history[first.key] = now;
+ if(first.stageKey) history[first.stageKey] = now;
+ if(first.legacyKey) history[first.legacyKey] = now;
+ writeProximityAlertHistory(history);
+ const message = first.item.name + ' · 현재 위치에서 ' + formatDistance(first.distance) + ' (' + first.stage.label + ')';
+ if(!silent) showProximityToast({ title:first.stage.title, message });
+ showProximityBrowserNotification({ title:first.stage.title, message, item:first.item, stage:first.stage });
+ }
+
+ function hasFreshUserLocation(){
+ return !!state.userLocation && (Date.now() - Number(state.userLocationFetchedAt || 0)) < GEO_CACHE_MS;
+ }
+
+ function setUserLocationFromPosition(position){
+ state.userLocation = {
+ lat: Number(position.coords.latitude),
+ lng: Number(position.coords.longitude)
+ };
+ state.userLocationFetchedAt = Date.now();
+ recalculateBenefitDistances();
+ setTimeout(() => checkProximityAlerts(), 80);
+ return state.userLocation;
+ }
+
+ function getReliableCurrentPosition({ forceRefresh = false } = {}){
+ if(!navigator.geolocation){
+ return Promise.reject(new Error('geolocation_not_supported'));
+ }
+
+ if(!forceRefresh && hasFreshUserLocation()){
+ return Promise.resolve(state.userLocation);
+ }
+
+ return new Promise((resolve, reject) => {
+ navigator.geolocation.getCurrentPosition((position) => {
+ resolve(setUserLocationFromPosition(position));
+ }, reject, GEO_OPTIONS);
+ });
+ }
+
+ function ensureBenefitDistances(){
+ if(!shouldUseDistanceFilter()){
+ updateDistanceFilterHelp();
+ return Promise.resolve(false);
+ }
+ if(!navigator.geolocation){
+ state.distanceStatus = 'error';
+ updateDistanceFilterHelp();
+ return Promise.resolve(false);
+ }
+
+ if(hasFreshUserLocation()){
+ recalculateBenefitDistances();
+ state.distanceStatus = 'ready';
+ updateDistanceFilterHelp();
+ return Promise.resolve(true);
+ }
+
+ state.distanceStatus = 'loading';
+ updateDistanceFilterHelp();
+ return getReliableCurrentPosition()
+ .then(() => {
+ state.distanceStatus = 'ready';
+ updateDistanceFilterHelp();
+ return true;
+ })
+ .catch((error) => {
+ console.warn('거리순 정렬 위치 확인 실패', error);
+ state.distanceStatus = 'error';
+ if(!hasFreshUserLocation()){
+ state.userLocation = null;
+ state.userLocationFetchedAt = 0;
+ state.distanceMap = {};
+ }
+ updateDistanceFilterHelp();
+ return false;
+ });
+ }
+
+ function updateDistanceText(item = {}){
+ const target = qs('#distanceText');
+ if(!target) return;
+
+ const itemId = String(item.id || '');
+ const requestSeq = ++state.distanceRequestSeq;
+ state.activeDistanceBenefitId = itemId;
+
+ const isStillCurrent = () => {
+ const modal = qs('#detailModal');
+ return modal?.open && state.activeDistanceBenefitId === itemId && state.distanceRequestSeq === requestSeq;
+ };
+
+ const applyDistanceText = (currentLocation, { cached = false } = {}) => {
+ if(!isStillCurrent() || !currentLocation) return;
+ const distance = getDistanceMeters(currentLocation.lat, currentLocation.lng, pos.lat, pos.lng);
+ if(distance > 200000){
+ target.textContent = '매장 좌표가 실제 위치와 맞지 않는 것 같습니다. 주소 기준으로 지도를 확인해 주세요.';
+ target.classList.add('muted');
+ return;
+ }
+ target.innerHTML = `<div><img class="upick-svg-icon upick-inline-icon" src="/icons/internal/walk.svg" alt="" loading="lazy">현재 위치에서 ${formatDistance(distance)} 거리입니다.${cached ? ' (최근 위치 기준)' : ''}</div>${travelTimesHtml(distance)}`;
+ target.classList.remove('muted');
+ };
+
+ const pos = getBenefitLatLng(item);
+ target.dataset.benefitId = itemId;
+ target.classList.add('muted');
+
+ // lat/lng가 0, null, 빈값, 한국 좌표 범위 밖이면 현재 위치 계산 자체를 시작하지 않습니다.
+ if(!pos){
+ target.dataset.invalidCoordinate = 'true';
+ target.textContent = '매장 좌표가 아직 등록되지 않아 거리 표시를 생략합니다.';
+ return;
+ }
+
+ target.dataset.invalidCoordinate = 'false';
+ target.textContent = '현재 위치 기준 거리를 준비 중입니다.';
+ if(!navigator.geolocation){
+ target.textContent = '이 브라우저에서는 현재 위치 확인을 지원하지 않습니다.';
+ return;
+ }
+
+ // 모바일 안정화: 최근 1분 이내 위치가 있으면 즉시 표시하고, 뒤에서 새 위치로 한 번 더 갱신합니다.
+ if(hasFreshUserLocation()){
+ applyDistanceText(state.userLocation, { cached: true });
+ getReliableCurrentPosition({ forceRefresh: true })
+ .then((currentLocation) => applyDistanceText(currentLocation, { cached: false }))
+ .catch((error) => console.warn('상세 거리 백그라운드 갱신 실패', error));
+ return;
+ }
+
+ target.textContent = '현재 위치를 확인하는 중입니다...';
+ target.classList.remove('muted');
+ getReliableCurrentPosition()
+ .then((currentLocation) => applyDistanceText(currentLocation, { cached: false }))
+ .catch((error) => {
+ if(!isStillCurrent()) return;
+ console.warn('현재 위치 확인 실패', error);
+ target.textContent = '현재 위치 권한을 허용하면 매장까지의 거리를 표시합니다.';
+ target.classList.add('muted');
+ });
+ }
+
+ const SOCIAL_LINK_DEFS = [
+ { key:'homepage', field:'homepageUrl', label:'홈페이지', icon:'icon:homepage', statField:'homepageClickCount' },
+ { key:'blog', field:'blogUrl', label:'블로그', icon:'icon:blog', statField:'blogClickCount' },
+ { key:'instagram', field:'instagramUrl', label:'인스타그램', icon:'icon:instagram', statField:'instagramClickCount' },
+ { key:'youtube', field:'youtubeUrl', label:'유튜브', icon:'icon:youtube', statField:'youtubeClickCount' },
+ { key:'facebook', field:'facebookUrl', label:'페이스북', icon:'icon:facebook', statField:'facebookClickCount' },
+ { key:'smartstore', field:'smartstoreUrl', label:'스마트스토어', icon:'icon:smartstore', statField:'smartstoreClickCount' },
+ { key:'band', field:'bandUrl', label:'밴드', icon:'icon:band', statField:'bandClickCount' }
+ ];
+
+ function getBenefitSocialLinks(item = {}){
+ const external = item.externalLinks || {};
+ return SOCIAL_LINK_DEFS.map((def) => {
+ const url = String(item[def.field] || external[def.key] || (def.key === 'smartstore' ? external.smartStore : '') || '').trim();
+ return url ? { ...def, url } : null;
+ }).filter(Boolean);
+ }
+
+ function benefitSocialLinksHtml(item = {}, { ai = false } = {}){
+ const links = getBenefitSocialLinks(item);
+ if(!links.length) return '';
+ const cls = ai ? 'ai-social-links' : 'benefit-extra-links';
+ return `<div class="${cls}">${links.map((link) => `<a href="${escapeAttr(link.url)}" target="_blank" rel="noopener" data-social-link="${escapeAttr(link.key)}" data-social-stat="${escapeAttr(link.statField)}" data-benefit-id="${escapeAttr(item.id || '')}">${renderIconToken(link.icon)} ${escapeHtml(link.label)}</a>`).join('')}</div>`;
+ }
+
+ function buildAiSocialHintHtml(item = {}){
+ const links = getBenefitSocialLinks(item);
+ if(!links.length) return '';
+ const labels = links.map(v => v.label);
+ const lead = labels.length === 1
+ ? `${labels[0]} 링크가 등록되어 있습니다.`
+ : `${labels.slice(0, -1).join(', ')}${labels.length > 1 ? ', ' : ''}${labels.at(-1)} 링크가 등록되어 있습니다.`;
+ const bandNote = links.some(v => v.key === 'band') ? ' 밴드에서 공지나 이벤트 소식을 확인하기 좋습니다.' : '';
+ const storeNote = links.some(v => v.key === 'smartstore') ? ' 스마트스토어가 있어 상품 구매 연결도 가능합니다.' : '';
+ const instagramNote = links.some(v => v.key === 'instagram') ? ' 인스타그램에서 사진, 메뉴, 이벤트를 확인할 수 있습니다.' : '';
+ return `<div class="ai-social-hint">${escapeHtml(lead + instagramNote + storeNote + bandNote)}${benefitSocialLinksHtml(item, { ai:true })}</div>`;
+ }
+
+ function bindBenefitSocialLinks(item = {}){
+ qsa('#detailModal [data-social-link]').forEach((link) => {
+ link.addEventListener('click', () => {
+ const key = link.dataset.socialLink || 'sns';
+ const statField = link.dataset.socialStat || 'snsClickCount';
+ increaseStat(item.id, item.name, statField);
+ if(!['smartstoreClickCount','bandClickCount'].includes(statField)) increaseStat(item.id, item.name, 'snsClickCount');
+ logBenefitEvent(item.id, `${key}_click`);
+ });
+ });
+ }
+
+ function benefitExtraInfoHtml(item = {}){
+ const links = getBenefitSocialLinks(item);
+ const services = [];
+ if(item.deliveryAvailable || item.serviceTags?.delivery) services.push('배달');
+ if(item.takeoutAvailable || item.serviceTags?.takeout) services.push('포장');
+ const memo = String(item.serviceMemo || item.serviceTags?.memo || '').trim();
+ if(!links.length && !services.length && !memo) return '';
+ const linkHtml = links.length ? benefitSocialLinksHtml(item) : '';
+ const serviceHtml = services.length ? `<div class="benefit-extra-services">${services.map(v => `<span>${escapeHtml(v)}</span>`).join('')}</div>` : '';
+ const memoHtml = memo ? `<div class="benefit-extra-memo">${escapeHtml(memo)}</div>` : '';
+ return `<div class="panel benefit-extra-panel"><strong style="display:block;margin-bottom:2px;font-size:13px;color:var(--muted);">매장 링크 / 이용 옵션</strong>${serviceHtml}${linkHtml}${memoHtml}</div>`;
+ }
+
+function formatStationAccessText(station={}){
+ const line=String(station.line||station.stationLine||'').trim();
+ const name=String(station.name||station.stationName||'').trim();
+ const exit=String(station.exit||station.stationExit||'').trim();
+ const distance=Number(String(station.distance??station.distanceM??station.meters??'').replace(/[^0-9.]/g,''))||0;
+ if(!name && !line && !exit && !distance) return '';
+ if(name && !exit && !distance && !line) return name;
+ return `${line?line+' ':''}${name}${exit?' '+exit+'에서':''}${distance?' '+Math.round(distance)+'m':''}`.trim();
+}
+function getBenefitStations(item={}){
+ const raw=Array.isArray(item.stations)?item.stations:(Array.isArray(item.stationAccessList)?item.stationAccessList:[]);
+ const rows=raw.map(s=>({line:String(s.line||s.stationLine||'').trim(),name:String(s.name||s.stationName||'').trim(),exit:String(s.exit||s.stationExit||'').trim(),distance:Number(String(s.distance??s.distanceM??s.meters??'').replace(/[^0-9.]/g,''))||0})).filter(s=>s.line||s.name||s.exit||s.distance).sort((a,b)=>(a.distance||999999)-(b.distance||999999));
+ const legacy=String(item.stationAccessText||item.transitText||item.stationGuide||item.nearStationText||'').trim();
+ if(!rows.length && legacy) rows.push({line:'',name:legacy,exit:'',distance:0});
+ return rows;
+}
+function renderStationAccessBadges(item={}){
+ const stations=getBenefitStations(item);
+ if(!stations.length) return '';
+ return `<div class="location-transit-wrap">${stations.map(st=>`<div class="location-transit"><img class="upick-svg-icon upick-inline-icon" src="/icons/internal/location-pin.svg" alt="" loading="lazy" decoding="async">${escapeHtml(formatStationAccessText(st))}</div>`).join('')}</div>`;
+}
+
+ function locationPanelHtml(item = {}){
+ const address = String(getBenefitDisplayAddress(item) || '').trim();
+ const directionText = String(item.directionText || item.directionGuide || item.locationGuide || item.guideText || '').trim();
+const stationAccessText = String(item.stationAccessText || item.transitText || item.stationGuide || item.nearStationText || '').trim();
+ const mapLink = buildMapSearchLink(item);
+ const directionLink = buildDirectionLink(item);
+ const pos = getBenefitLatLng(item);
+ const distanceText = pos
+ ? '현재 위치 기준 거리를 준비 중입니다.'
+ : '매장 좌표가 아직 등록되지 않아 거리 표시를 생략합니다.';
+ const distanceAttr = pos ? '' : ' data-invalid-coordinate="true"';
+ return `<div class="panel location-panel">
+ <div class="location-title"><strong>위치 안내</strong></div>
+ <div class="location-address">${address || '등록된 주소가 없습니다.'}</div>
+ ${renderStationAccessBadges(item)}
+ ${directionText ? `<div class="location-guide">${escapeHtml(directionText)}</div>` : ''}
+ <div class="detail-map-box">${pos ? '<div id="detailNaverMap" class="detail-map-canvas"></div>' : '<div class="detail-map-empty">좌표가 등록되면 작은 지도가 표시됩니다.</div>'}</div>
+ <div class="location-distance muted" id="distanceText"${distanceAttr}>${distanceText}</div>
+ <div class="location-actions">
+ <a class="btn btn-soft block" id="mapBtn" href="${mapLink}" target="_blank" rel="noopener">지도 보기</a>
+ <a class="btn btn-primary block" id="directionBtn" href="${directionLink}" target="_blank" rel="noopener">네이버 길찾기</a>
+ </div>
+ <div class="location-note">현재 위치 권한은 거리 표시를 위해서만 사용됩니다. 좌표가 없는 매장은 주소 기준으로 지도/길찾기만 제공합니다.</div>
+ </div>`;
+ }
+
+ function loadNaverMapsSdk(){
+ const isReady = () => !!(window.naver && window.naver.maps && window.naver.maps.Map && window.naver.maps.LatLng);
+
+ const waitForReady = (timeout = 8000) => new Promise((resolve, reject) => {
+ if(isReady()) return resolve(window.naver.maps);
+
+ const startedAt = Date.now();
+ const timer = setInterval(() => {
+ if(isReady()){
+ clearInterval(timer);
+ resolve(window.naver.maps);
+ return;
+ }
+
+ if(Date.now() - startedAt > timeout){
+ clearInterval(timer);
+ reject(new Error('naver_maps_not_loaded'));
+ }
+ }, 50);
+ });
+
+ if(isReady()) return Promise.resolve(window.naver.maps);
+ if(!NAVER_MAP_CLIENT_ID) return Promise.reject(new Error('naver_map_client_id_missing'));
+ if(naverMapsLoadPromise) return naverMapsLoadPromise;
+
+ naverMapsLoadPromise = new Promise((resolve, reject) => {
+ const callbackName = 'initNaverMapSdk_' + Date.now();
+
+ window[callbackName] = () => {
+ delete window[callbackName];
+ waitForReady().then(resolve).catch(reject);
+ };
+
+ const script = document.createElement('script');
+ script.type = 'text/javascript';
+ script.async = true;
+ script.src = 'https://oapi.map.naver.com/openapi/v3/maps.js?ncpKeyId=' + encodeURIComponent(NAVER_MAP_CLIENT_ID) + '&callback=' + callbackName;
+
+ script.onload = () => {
+ waitForReady().then(resolve).catch(() => {});
+ };
+
+ script.onerror = () => {
+ delete window[callbackName];
+ reject(new Error('naver_maps_script_load_failed'));
+ };
+
+ document.head.appendChild(script);
+ }).catch((error) => {
+ naverMapsLoadPromise = null;
+ throw error;
+ });
+
+ return naverMapsLoadPromise;
+ }
+ function setMapModeStatus(message, type = 'muted'){const el=qs('#mapModeStatus'); if(!el)return; el.classList.remove('muted','error'); if(type)el.classList.add(type); el.textContent=message;}
+ function clearNaverMarkers(){benefitMapMarkers.forEach(m=>{try{m.setMap(null)}catch(_){}}); benefitMapMarkers=[]; if(benefitMapUserMarker){try{benefitMapUserMarker.setMap(null)}catch(_){} benefitMapUserMarker=null;}}
+ function getMapModeItems(){
+  try{
+   return getFilteredBenefits('normal').filter(item=>!!getBenefitLatLng(item));
+  }catch(error){
+   console.warn('지도 표시 항목 계산 실패', error);
+   return (state.benefits||[]).filter(item=>isPubliclyVisibleBenefit(item)&&!!getBenefitLatLng(item));
+  }
+ }
+ // 기존 배포 캐시에 getMapModelItems 오타 호출이 남아도 지도 렌더링이 중단되지 않도록 호환 처리
+ window.getMapModeItems = getMapModeItems;
+ window.getMapModelItems = getMapModeItems;
+ function clusterMapItems(items=[], zoom=15){const z=Number(zoom||15); const threshold=z>=19?3:z>=18?8:z>=17?18:z>=16?80:z>=15?150:z>=14?280:z>=13?520:z>=12?950:1800; const clusters=[]; items.forEach(item=>{const pos=getBenefitLatLng(item); if(!pos)return; let selected=null; for(const c of clusters){if(getDistanceMeters(pos.lat,pos.lng,c.lat,c.lng)<=threshold){selected=c;break;}} if(selected){selected.items.push(item); selected.lat=selected.items.reduce((sum,it)=>sum+getBenefitLatLng(it).lat,0)/selected.items.length; selected.lng=selected.items.reduce((sum,it)=>sum+getBenefitLatLng(it).lng,0)/selected.items.length;}else{clusters.push({lat:pos.lat,lng:pos.lng,items:[item]});}}); return clusters;}
+ function markerHtmlForItem(item){const d=getItemDistance(item); const label=Number.isFinite(d)?formatDistance(d).replace('약 ',''):'혜택'; return '<div class="map-marker-store"><img class="upick-svg-icon" src="/icons/internal/pin.svg" alt="" loading="lazy"> '+label+'</div>';}
+ function clusterHtml(count){return '<div class="map-marker-cluster">'+count+'</div>';}
+ function normalizeMapCoord(value){const n=Number(value); return Number.isFinite(n)?n.toFixed(6):'';}
+ function getSamePositionClusterKey(items=[]){if(!Array.isArray(items)||items.length<=1)return ''; const first=getBenefitLatLng(items[0]); if(!first)return ''; const key=normalizeMapCoord(first.lat)+','+normalizeMapCoord(first.lng); const allSame=items.every(item=>{const pos=getBenefitLatLng(item); return pos&&(normalizeMapCoord(pos.lat)+','+normalizeMapCoord(pos.lng))===key;}); return allSame?key:'';}
+ function offsetLatLngByMeters(nm, center, eastMeters, northMeters){const latOffset=northMeters/111320; const lngOffset=eastMeters/(111320*Math.max(.25,Math.cos(center.lat*Math.PI/180))); return new nm.LatLng(center.lat+latOffset, center.lng+lngOffset);}
+function getDistanceSpreadMapPosition(nm, center, item, index, count, clusterItems=[]){
+ const zoom=benefitMapInstance?.getZoom?Number(benefitMapInstance.getZoom()||15):15;
+ const pos=getBenefitLatLng(item)||center;
+ const cos=Math.max(.25,Math.cos(center.lat*Math.PI/180));
+ const east=(Number(pos.lng)-center.lng)*111320*cos;
+ const north=(Number(pos.lat)-center.lat)*111320;
+ const actualDistance=Math.sqrt(east*east+north*north);
+ const vectors=(clusterItems||[]).map((it)=>{const p=getBenefitLatLng(it)||center; const e=(Number(p.lng)-center.lng)*111320*cos; const n=(Number(p.lat)-center.lat)*111320; return {e,n,d:Math.sqrt(e*e+n*n)};});
+ const maxActual=Math.max(...vectors.map(v=>v.d),0);
+ const samePosition=maxActual<0.8;
+ const minRadius=zoom>=19?10:zoom>=18?12:zoom>=17?16:22;
+ const maxRadius=Math.min(96,(zoom>=19?44:zoom>=18?54:zoom>=17?68:82)+Math.max(0,count-6)*3);
+ let angle;
+ let radius;
+ if(samePosition || actualDistance<0.8){
+   angle=(-Math.PI/2)+(Math.PI*2*index/Math.max(1,count));
+   radius=Math.min(maxRadius, minRadius+Math.max(0,count-4)*2.2);
+ }else{
+   angle=Math.atan2(north,east);
+   radius=minRadius+(actualDistance/Math.max(1,maxActual))*(maxRadius-minRadius);
+   // 실제 좌표 방향이 거의 같은 매장끼리는 살짝 벌려서 겹침을 줄입니다.
+   const sameDirectionCount=vectors.filter(v=>v.d>=0.8&&Math.abs(Math.atan2(v.n,v.e)-angle)<0.18).length;
+   if(sameDirectionCount>1){
+     const directionRank=vectors.slice(0,index+1).filter(v=>v.d>=0.8&&Math.abs(Math.atan2(v.n,v.e)-angle)<0.18).length-1;
+     angle += (directionRank-(sameDirectionCount-1)/2)*0.22;
+   }
+ }
+ return offsetLatLngByMeters(nm, center, Math.cos(angle)*radius, Math.sin(angle)*radius);
+}
+function getSpreadMapPosition(nm, center, index, count){const fakeItem={lat:center.lat,lng:center.lng}; return getDistanceSpreadMapPosition(nm, center, fakeItem, index, count, []);}
+ function renderSpreadClusterMarkers(nm, cluster){const center={lat:Number(cluster.lat),lng:Number(cluster.lng)}; const count=cluster.items.length; const sortedItems=[...(cluster.items||[])].sort((a,b)=>{const pa=getBenefitLatLng(a)||center; const pb=getBenefitLatLng(b)||center; const da=getDistanceMeters(center.lat,center.lng,pa.lat,pa.lng); const db=getDistanceMeters(center.lat,center.lng,pb.lat,pb.lng); return da-db;}); sortedItems.forEach((item,index)=>{const spreadPosition=getDistanceSpreadMapPosition(nm, center, item, index, count, sortedItems); const marker=new nm.Marker({position:spreadPosition,map:benefitMapInstance,icon:{content:markerHtmlForItem(item),anchor:new nm.Point(18,34)},zIndex:180+index}); nm.Event.addListener(marker,'click',()=>openDetail(item)); benefitMapMarkers.push(marker);});}
+ function renderSpreadSamePositionMarkers(nm, cluster){renderSpreadClusterMarkers(nm, cluster);}
+ function renderMapPlaceList(items=[]){const el=qs('#mapPlaceList'); if(!el)return; if(!items.length){el.innerHTML='<div class="panel empty">지도에 표시할 혜택이 없습니다.</div>';return;} const sorted=[...items].sort((a,b)=>{const da=getItemDistance(a),db=getItemDistance(b); if(Number.isFinite(da)&&Number.isFinite(db))return da-db; if(Number.isFinite(da))return -1; if(Number.isFinite(db))return 1; return String(a.name||'').localeCompare(String(b.name||''),'ko');}).slice(0,20); el.innerHTML=sorted.map(item=>{const d=getItemDistance(item); return '<div class="map-place-card" data-map-benefit-id="'+escapeHtml(item.id)+'"><div><strong>'+escapeHtml(item.name||'매장')+'</strong><span>'+escapeHtml(item.category||'기타')+(Number.isFinite(d)?' · '+formatDistance(d):'')+'</span></div><span>보기</span></div>';}).join(''); qsa('[data-map-benefit-id]').forEach(card=>{card.addEventListener('click',()=>{const item=state.benefits.find(b=>b.id===card.dataset.mapBenefitId); if(item)openDetail(item);});});}
+ async function renderMapMode({ fitBounds=false } = {}){if(state.view!=='map')return; const countEl=qs('#mapModeCount'), mapEl=qs('#benefitMap'); if(!mapEl)return; const items=getMapModeItems(); if(countEl)countEl.textContent=items.length+'건'; renderMapPlaceList(items); if(!items.length){benefitMapExpandedClusterKey=''; setMapModeStatus('좌표가 등록된 혜택이 없습니다. 관리자 페이지에서 주소→좌표 자동 조회 후 저장해 주세요.','muted');return;} if(!NAVER_MAP_CLIENT_ID){setMapModeStatus('NAVER_MAP_CLIENT_ID를 입력하면 지도 모드를 사용할 수 있습니다.','error');return;} setMapModeStatus('지도를 준비하는 중입니다...','muted'); try{await loadNaverMapsSdk(); const nm=window.naver.maps; const first=getBenefitLatLng(items[0]); const center=state.userLocation?new nm.LatLng(state.userLocation.lat,state.userLocation.lng):new nm.LatLng(first.lat,first.lng); if(!benefitMapInstance){benefitMapInstance=new nm.Map('benefitMap',{center,zoom:15,minZoom:10,zoomControl:true,zoomControlOptions:{position:nm.Position.TOP_RIGHT}}); nm.Event.addListener(benefitMapInstance,'idle',()=>renderMapMarkers(false)); nm.Event.addListener(benefitMapInstance,'click',()=>{if(benefitMapExpandedClusterKey){benefitMapExpandedClusterKey=''; renderMapMarkers(false); setMapModeStatus('지도에 여러 매장을 표시했습니다. 가까운 매장은 숫자 묶음으로 표시됩니다.','muted');}});}else{benefitMapInstance.setCenter(center);} renderMapMarkers(fitBounds); setMapModeStatus('지도에 여러 매장을 표시했습니다. 가까운 매장은 숫자 묶음으로 표시됩니다.','muted');}catch(e){console.error('지도 모드 렌더링 실패',e); setMapModeStatus('지도 로딩에 실패했습니다. Client ID와 네이버 콘솔 Web 서비스 URL을 확인해 주세요.','error');}}
+ function renderMapMarkers(fitBounds=false){if(!benefitMapInstance||!window.naver?.maps)return; const nm=window.naver.maps; const items=getMapModeItems(); clearNaverMarkers(); const bounds=new nm.LatLngBounds(); const fitPoints=[]; const zoom=benefitMapInstance.getZoom?Number(benefitMapInstance.getZoom()||15):15; const autoSpreadZoom=zoom>=17; if(state.userLocation){const userPos=new nm.LatLng(state.userLocation.lat,state.userLocation.lng); fitPoints.push(userPos); bounds.extend(userPos); benefitMapUserMarker=new nm.Marker({position:userPos,map:benefitMapInstance,icon:{content:'<div class="map-marker-user" title="현재 위치"></div>',anchor:new nm.Point(9,9)},zIndex:200});} const clusters=clusterMapItems(items,zoom); const hasExpandedCluster=clusters.some(c=>getSamePositionClusterKey(c.items)===benefitMapExpandedClusterKey); if(benefitMapExpandedClusterKey&&!hasExpandedCluster) benefitMapExpandedClusterKey=''; clusters.forEach(c=>{const position=new nm.LatLng(c.lat,c.lng); fitPoints.push(position); bounds.extend(position); const samePositionKey=getSamePositionClusterKey(c.items); if(c.items.length>1 && (autoSpreadZoom || (samePositionKey&&benefitMapExpandedClusterKey===samePositionKey))){renderSpreadClusterMarkers(nm,c); return;} const marker=new nm.Marker({position,map:benefitMapInstance,icon:{content:c.items.length>1?clusterHtml(c.items.length):markerHtmlForItem(c.items[0]),anchor:new nm.Point(c.items.length>1?22:18,c.items.length>1?22:34)},zIndex:c.items.length>1?120:100}); nm.Event.addListener(marker,'click',()=>{if(c.items.length>1){benefitMapExpandedClusterKey=samePositionKey||''; benefitMapInstance.setCenter(position); benefitMapInstance.setZoom(Math.max(17, Math.min(19, Number(benefitMapInstance.getZoom()||15)+1))); renderMapMarkers(false); setMapModeStatus('확대된 지도에서는 모든 클러스터가 실제 거리와 방향을 기준으로 자동으로 펼쳐집니다.','muted');}else openDetail(c.items[0]);}); benefitMapMarkers.push(marker);}); if(fitBounds&&fitPoints.length){if(fitPoints.length===1){benefitMapInstance.setCenter(fitPoints[0]); benefitMapInstance.setZoom(16);}else{try{benefitMapInstance.fitBounds(bounds,{top:50,right:36,bottom:50,left:36});}catch(_){benefitMapInstance.fitBounds(bounds);}}}}
+ async function centerMapToMyLocation(){try{setMapModeStatus('현재 위치를 확인하는 중입니다...','muted'); await getReliableCurrentPosition({forceRefresh:false}); recalculateBenefitDistances(); if(benefitMapInstance&&state.userLocation&&window.naver?.maps){benefitMapInstance.setCenter(new window.naver.maps.LatLng(state.userLocation.lat,state.userLocation.lng)); benefitMapInstance.setZoom(15);} renderAll(); setTimeout(()=>renderMapMode({fitBounds:true}),60);}catch(e){console.warn('지도 현재 위치 확인 실패',e); setMapModeStatus('현재 위치 권한을 허용하면 내 주변 혜택을 지도에서 볼 수 있습니다.','error');}}
+ 
+ function ensureDetailMiniMapZoomControls(mapEl, mapInstance){
+  try{
+   const box=mapEl?.closest?.('.detail-map-box');
+   if(!box || !mapInstance) return;
+   box.querySelectorAll('.detail-mini-zoom-controls').forEach((el)=>el.remove());
+   const controls=document.createElement('div');
+   controls.className='detail-mini-zoom-controls';
+   controls.setAttribute('aria-label','미니지도 확대 축소');
+   controls.innerHTML='<button type="button" class="detail-mini-zoom-btn" data-zoom-delta="1" aria-label="지도 확대">+</button><button type="button" class="detail-mini-zoom-btn" data-zoom-delta="-1" aria-label="지도 축소">−</button>';
+   controls.addEventListener('click',(event)=>{
+    const btn=event.target.closest('[data-zoom-delta]');
+    if(!btn) return;
+    event.preventDefault();
+    event.stopPropagation();
+    const delta=Number(btn.dataset.zoomDelta||0);
+    const current=Number(mapInstance.getZoom?.()||16);
+    const min=Number(mapInstance.getMinZoom?.()||6);
+    const max=Number(mapInstance.getMaxZoom?.()||21);
+    const next=Math.max(min, Math.min(max, current + delta));
+    if(typeof mapInstance.setZoom==='function') mapInstance.setZoom(next);
+   });
+   // Naver 지도 위에 올린 버튼이 PC에서 드래그/휠 이벤트를 지도에 넘기지 않도록 차단합니다.
+   ['mousedown','mouseup','click','dblclick','touchstart','touchend','wheel'].forEach((type)=>{
+    controls.addEventListener(type,(event)=>event.stopPropagation(), { passive:false });
+   });
+   box.appendChild(controls);
+  }catch(error){
+   console.warn('미니지도 확대/축소 컨트롤 생성 실패', error);
+  }
+ }
+
+ async function renderDetailMiniMap(item={}){
+ const mapEl=qs('#detailNaverMap');
+ const pos=getBenefitLatLng(item);
+ if(!mapEl||!pos)return;
+ const itemId=String(item.id||item.name||pos.lat+','+pos.lng);
+ renderDetailMiniMap._seq=(renderDetailMiniMap._seq||0)+1;
+ const seq=renderDetailMiniMap._seq;
+
+ if(!NAVER_MAP_CLIENT_ID){
+  mapEl.innerHTML='<div class="detail-map-empty">NAVER_MAP_CLIENT_ID를 입력하면 지도가 표시됩니다.</div>';
+  return;
+ }
+
+ // 같은 상세 모달에서 중복 호출될 때 네이버 지도가 한 번 더 그려져 아래 영역을 밀어내는 현상을 방지합니다.
+ if(mapEl.dataset.rendered==='stable' && mapEl.dataset.benefitId===itemId && detailMapInstance && window.naver?.maps){
+  try{
+   window.naver.maps.Event.trigger(detailMapInstance,'resize');
+   const center=new window.naver.maps.LatLng(pos.lat,pos.lng);
+   if(!hasFreshUserLocation()) detailMapInstance.setCenter(center);
+  }catch(_){ }
+  return;
+ }
+
+ mapEl.dataset.benefitId=itemId;
+ mapEl.dataset.rendered='rendering';
+ mapEl.innerHTML='';
+ const box=mapEl.closest('.detail-map-box');
+ box?.classList.add('is-loading');
+ box?.classList.remove('is-ready');
+
+ try{
+  await loadNaverMapsSdk();
+  if(seq!==renderDetailMiniMap._seq || !qs('#detailNaverMap') || qs('#detailNaverMap')!==mapEl)return;
+  const nm=window.naver.maps;
+  const store=new nm.LatLng(pos.lat,pos.lng);
+  detailMapInstance=new nm.Map(mapEl,{
+   center:store,
+   zoom:16,
+   // 네이버 기본 확대/축소 컨트롤은 미니지도 우측에서 잘리는 경우가 있어
+   // 커스텀 컨트롤을 지도 박스 안쪽에 따로 올립니다.
+   zoomControl:false,
+   scrollWheel:true,
+   draggable:true,
+   pinchZoom:true
+  });
+  ensureDetailMiniMapZoomControls(mapEl, detailMapInstance);
+  new nm.Marker({position:store,map:detailMapInstance,icon:{content:'<div class="map-marker-store">매장</div>',anchor:new nm.Point(20,34)},zIndex:100});
+  let bounds=null;
+  if(hasFreshUserLocation()){
+   const me=new nm.LatLng(state.userLocation.lat,state.userLocation.lng);
+   bounds=new nm.LatLngBounds();
+   bounds.extend(store);
+   bounds.extend(me);
+   new nm.Marker({position:me,map:detailMapInstance,icon:{content:'<div class="map-marker-user" title="현재 위치"></div>',anchor:new nm.Point(9,9)},zIndex:120});
+   new nm.Polyline({map:detailMapInstance,path:[me,store],strokeColor:'#2563eb',strokeWeight:4,strokeOpacity:.82});
+   try{detailMapInstance.fitBounds(bounds,{top:42,right:42,bottom:42,left:42});}catch(_){detailMapInstance.fitBounds(bounds);}
+  }else{
+   // 위치 권한 확인은 뒤에서 조용히 갱신하되, 이미 그린 지도는 다시 중복 생성하지 않습니다.
+   getReliableCurrentPosition({forceRefresh:false})
+    .then(()=>{ mapEl.dataset.rendered=''; renderDetailMiniMap(item); })
+    .catch(()=>{});
+  }
+  const resize=()=>{
+   try{nm.Event.trigger(detailMapInstance,'resize');}catch(_){ }
+   try{ if(bounds) detailMapInstance.fitBounds(bounds,{top:42,right:42,bottom:42,left:42}); else detailMapInstance.setCenter(store); }catch(_){ }
+  };
+  resize();
+  requestAnimationFrame(resize);
+  setTimeout(resize,120);
+  setTimeout(resize,360);
+  mapEl.dataset.rendered='stable';
+  box?.classList.remove('is-loading');
+  box?.classList.add('is-ready');
+ }catch(e){
+  console.warn('상세 미니 지도 렌더링 실패',e);
+  if(qs('#detailNaverMap')===mapEl){
+   mapEl.dataset.rendered='';
+   mapEl.innerHTML='<div class="detail-map-empty">지도 로딩에 실패했습니다.</div>';
+   box?.classList.remove('is-loading');
+  }
+ }
+}
+
+ const CATEGORY_ICONS = {
+ '전체':'/icons/internal/all-menu.svg',
+ '음식':'/icons/internal/benefit.svg',
+ '카페':'/icons/internal/benefit.svg',
+ '주점':'/icons/internal/benefit.svg',
+ '치킨':'/icons/internal/benefit.svg',
+ '피부관리':'/icons/internal/benefit.svg',
+ '미용':'/icons/internal/benefit.svg',
+ '베이커리':'/icons/internal/benefit.svg',
+ '디저트':'/icons/internal/benefit.svg',
+ '중식당':'/icons/internal/benefit.svg',
+ '중식주점':'/icons/internal/benefit.svg',
+ '운동':'/icons/internal/walk.svg',
+ '기타':'/icons/internal/pin.svg'
+ };
+  const normalizeCategory = (value) => String(value || '').trim().replace(/\s+/g, '').replace(/[ㆍ·]/g, '').toLowerCase();
+
+ const getCategoryIcon = (category) => { const src = CATEGORY_ICONS[normalizeCategory(category)] || '/icons/internal/pin.svg'; return `<img class="upick-svg-icon category-svg-icon" src="${src}" alt="" loading="lazy">`; };
+
+ const STORE_STATUS_META={preparing:{label:'영업 준비 중',cls:'status-store-preparing'},active:{label:'정상 영업',cls:'status-store-active'},paused:{label:'휴업',cls:'status-store-paused'},closed:{label:'영업 종료',cls:'status-store-closed'},shutdown:{label:'폐점',cls:'status-store-shutdown'},reopened:{label:'재영업',cls:'status-store-reopened'},hidden:{label:'숨김',cls:'status-store-closed'}};
+ const BENEFIT_STATUS_META={preparing:{label:'혜택 준비 중',cls:'status-benefit-preparing'},active:{label:'혜택 진행 중',cls:'status-benefit-active'},ended:{label:'혜택 종료',cls:'status-benefit-ended'},none:{label:'혜택 없음',cls:'status-benefit-none'},resumed:{label:'혜택 재개',cls:'status-benefit-resumed'}};
+ function normalizeBenefitStoreStatus(item={}){const raw=String(item.storeStatus||item.operationStatus||item.status||'').toLowerCase();if(item.visible===false||raw==='hidden')return 'hidden';if(item.closed===true||raw==='shutdown')return 'shutdown';if(['preparing','active','paused','closed','shutdown','reopened','hidden'].includes(raw))return raw;return 'active';}
+ function normalizeResidentBenefitStatus(item={}){const raw=String(item.benefitStatus||item.residentBenefitStatus||item.discountStatus||'').toLowerCase();if(['preparing','active','ended','none','resumed'].includes(raw))return raw;return 'active';}
+ function isPubliclyVisibleBenefit(item={}){return item.visible!==false && normalizeBenefitStoreStatus(item)!=='hidden';}
+ function isRecommendableBenefit(item={}){const store=normalizeBenefitStoreStatus(item);const benefit=normalizeResidentBenefitStatus(item);return isPubliclyVisibleBenefit(item) && ['active','reopened'].includes(store) && ['active','resumed'].includes(benefit);}
+ function benefitStatusChipsHtml(item={}, options={}){const compact=!!options.compact;const storeKey=normalizeBenefitStoreStatus(item);const benefitKey=normalizeResidentBenefitStatus(item);const store=STORE_STATUS_META[storeKey]||STORE_STATUS_META.active;const benefit=BENEFIT_STATUS_META[benefitKey]||BENEFIT_STATUS_META.active;const storeText=compact?'':store.label;const benefitText=compact?'':benefit.label;const storeTitle=escapeHtml(store.label);const benefitTitle=escapeHtml(benefit.label);return `<div class="benefit-status-row"><span class="status-chip ${store.cls}${compact?` compact-status compact-store-${storeKey}`:''}" title="${storeTitle}" aria-label="${storeTitle}">${storeText}</span><span class="status-chip ${benefit.cls}${compact?` compact-status compact-benefit-${benefitKey}`:''}" title="${benefitTitle}" aria-label="${benefitTitle}">${benefitText}</span></div>`;}
+ function benefitStatusReasonHtml(item={}){const lines=[];const store=normalizeBenefitStoreStatus(item);const benefit=normalizeResidentBenefitStatus(item);if(item.storeStatusReason)lines.push(item.storeStatusReason);if(benefit==='ended'&&item.benefitEndedAt)lines.push(`${item.benefitEndedAt} 혜택 종료`);if(item.benefitStatusReason)lines.push(item.benefitStatusReason);return lines.length?`<div class="status-reason-line">${escapeHtml(lines.join(' · '))}</div>`:'';}
+ function benefitCardStatusClass(item={}){const store=normalizeBenefitStoreStatus(item);const benefit=normalizeResidentBenefitStatus(item);if(store==='shutdown')return 'status-shutdown status-muted';if(['paused','closed'].includes(store)||['ended','none'].includes(benefit))return 'status-muted';return '';}
+
+ function sanitizeBenefit(item={},id=''){
+ const latRaw = item.lat ?? item.latitude ?? item.storeLat ?? item.location?.lat ?? item.location?.latitude ?? '';
+ const lngRaw = item.lng ?? item.lon ?? item.longitude ?? item.storeLng ?? item.location?.lng ?? item.location?.lon ?? item.location?.longitude ?? '';
+ const lat = Number(latRaw);
+ const lng = Number(lngRaw);
+ return {
+ id,
+ name:item.name||'',
+ category:normalizeCategory(item.category||'기타'),
+ discountValue:Number(item.discountValue||0),
+ discountText:item.discountText||`${Number(item.discountValue||0)}%`,
+ condition:item.condition||'',
+ priceDetails:item.priceDetails||item.priceInfo||item.servicePriceText||item.servicePriceDetails||'',
+ address:getBenefitDisplayAddress(item)||'',
+ zipcode:item.zipcode||item.addressParts?.zipcode||'',
+ roadAddress:item.roadAddress||item.addressParts?.road||'',
+ jibunAddress:item.jibunAddress||item.addressParts?.jibun||'',
+ detailAddress:item.detailAddress||item.addressParts?.detail||'',
+ displayAddress:item.displayAddress||item.addressParts?.display||'',
+ stations:getBenefitStations(item),
+stationAccessText:item.stationAccessText||item.transitText||item.stationGuide||item.nearStationText||'',
+ phone:item.phone||item.contact?.phone||'',
+ emergencyPhone:item.emergencyPhone||item.contact?.emergency||'',
+ contact:item.contact||{},
+ url:item.url||'',
+ imageUrl:item.imageUrl||item.thumbnailUrl||item.thumbnail||item.photoUrl||item.image||'',
+ thumbnailUrl:item.thumbnailUrl||item.imageUrl||item.thumbnail||item.photoUrl||item.image||'',
+ homepageUrl:item.homepageUrl||item.externalLinks?.homepage||'',
+ blogUrl:item.blogUrl||item.externalLinks?.blog||'',
+ instagramUrl:item.instagramUrl||item.externalLinks?.instagram||'',
+ youtubeUrl:item.youtubeUrl||item.externalLinks?.youtube||'',
+ facebookUrl:item.facebookUrl||item.externalLinks?.facebook||'',
+ smartstoreUrl:item.smartstoreUrl||item.externalLinks?.smartstore||item.externalLinks?.smartStore||'',
+ bandUrl:item.bandUrl||item.externalLinks?.band||'',
+ deliveryAvailable:!!(item.deliveryAvailable||item.serviceTags?.delivery),
+ takeoutAvailable:!!(item.takeoutAvailable||item.serviceTags?.takeout),
+ serviceMemo:item.serviceMemo||item.serviceTags?.memo||'',
+ directionText:item.directionText||item.directionGuide||item.locationGuide||item.guideText||'',
+ externalLinks:item.externalLinks||{},
+ serviceTags:item.serviceTags||{},
+ lat:Number.isFinite(lat)?lat:null,
+ lng:Number.isFinite(lng)?lng:null,
+ service:!!item.service||String(item.discountText).trim()==='서비스',
+ visible:item.visible!==false,
+ storeStatus:normalizeBenefitStoreStatus(item),
+ benefitStatus:normalizeResidentBenefitStatus(item),
+ storeStatusReason:item.storeStatusReason||item.closedReason||item.closedMemo||item.closeReason||item.closeMemo||'',
+ benefitStatusReason:item.benefitStatusReason||item.statusReason||item.discountStatusReason||'',
+ benefitEndedAt:item.benefitEndedAt||item.discountEndedAt||item.benefitEndDate||'',
+ closedAt:item.closedAt||item.closedDate||item.closedConfirmedAt||'',
+ closed:!!item.closed,
+ recommended:!!item.recommended,
+ badgeUp:!!item.badgeUp,
+ badgeDeprecated:!!item.badgeDeprecated,
+ createdAt:item.createdAt||null,
+ updatedAt:item.updatedAt||null
+ };
+ }
+ const getFavorites=()=>state.favoriteIds || [];
+
+ function getFavoritesCollectionRef(){
+ if(!state.currentUser?.uid) return null;
+ return collection(db, 'users', state.currentUser.uid, 'favorites');
+ }
+
+ function subscribeFavorites(){
+ const favoritesRef = getFavoritesCollectionRef();
+ if(!favoritesRef) return;
+ onSnapshot(favoritesRef, (snapshot) => {
+ state.favoriteIds = snapshot.docs.map((d) => d.id);
+ renderAll();
+ }, (error) => {
+ console.error('즐겨찾기 로드 실패', error);
+ });
+ }
+
+ async function toggleFavorite(id, name){
+ if(!state.currentUser?.uid || !id) return false;
+ const favoriteRef = doc(db, 'users', state.currentUser.uid, 'favorites', id);
+ const set = new Set(getFavorites());
+ const isAdding = !set.has(id);
+
+ try{
+ if(isAdding){
+ await setDoc(favoriteRef, {
+ benefitId: id,
+ name: name || '',
+ createdAt: serverTimestamp()
+ }, { merge:true });
+ set.add(id);
+ increaseStat(id, name, 'favoriteCount');
+ logBenefitEvent(id, 'favorite');
+ }else{
+ await deleteDoc(favoriteRef);
+ set.delete(id);
+ }
+
+ state.favoriteIds = Array.from(set);
+ renderAll();
+ return isAdding;
+ }catch(error){
+ console.error('즐겨찾기 저장 실패', id, error);
+ await openModalAlert('즐겨찾기 처리 중 오류가 발생했습니다.');
+ return set.has(id);
+ }
+ }
+ const hasFirebaseConfig=()=>firebaseConfig.apiKey&&firebaseConfig.projectId&&firebaseConfig.appId;
+ function subscribeBenefits(){
+ const benefitsQuery = query(collection(db, BENEFITS_COLLECTION), where('visible', '==', true));
+ onSnapshot(benefitsQuery, (snapshot) => {
+ state.benefits = snapshot.docs.map(d => sanitizeBenefit(d.data(), d.id));
+ if(state.userLocation) recalculateBenefitDistances();
+ state.loading = false;
+ renderAll();
+ handleCleanDeepLink();
+ markInitialDataLoaded('benefits');
+ }, () => {
+ state.loading = false;
+ qs('#homeLoading').textContent = '정보를 불러오지 못했습니다. Firestore 규칙과 설정을 확인해 주세요.';
+ renderAll();
+ markInitialDataLoaded('benefits');
+ });
+ }
+ function formatDateTime(value){
+ try{
+ if(value?.toDate) return value.toDate().toLocaleDateString('ko-KR');
+ }catch(error){}
+ return '';
+ }
+
+ function sanitizeNotice(item={}, id=''){
+ return {
+ id,
+ title: String(item.title || '').trim(),
+ content: String(item.content || '').trim(),
+ category: String(item.category || '일반').trim(),
+ pinned: !!item.pinned,
+ visible: item.visible !== false,
+ createdAt: item.createdAt || null,
+ updatedAt: item.updatedAt || null,
+ imageUrl: item.imageUrl || item.thumbnailUrl || item.thumbnail || item.photoUrl || item.image || ''
+ };
+ }
+
+ let mobileEdgeNoticeToastReady = false;
+ let mobileEdgeNoticeToastStartedAt = Date.now();
+ const MOBILE_EDGE_NOTICE_TOAST_SESSION_PREFIX = `myhills_mobile_edge_notice_toast_${ENV || 'prod'}_`;
+
+ function getNoticeTimeMillisForToast(data = {}) {
+ const value = data.updatedAt || data.createdAt || null;
+ if(!value) return 0;
+ if(value?.toMillis) return value.toMillis();
+ if(value?.seconds) return Number(value.seconds) * 1000;
+ if(value instanceof Date) return value.getTime();
+ const parsed = Date.parse(String(value));
+ return Number.isFinite(parsed) ? parsed : 0;
+ }
+
+ function isNoticePushLike(data = {}) {
+ return data.pushEnabled === true || data.autoPush === true || data.sendPush === true;
+ }
+
+ function getMobileEdgeNoticeToastSeenKey(noticeId = '') {
+ const uid = state.currentUser?.uid || 'guest';
+ return `${MOBILE_EDGE_NOTICE_TOAST_SESSION_PREFIX}${uid}_${noticeId}`;
+ }
+
+ function handleMobileEdgeNoticeToastFallback(snapshot) {
+ if(!shouldUseMobileEdgeInAppFallback()) return;
+ if(!snapshot) return;
+
+ if(!mobileEdgeNoticeToastReady){
+ mobileEdgeNoticeToastReady = true;
+ mobileEdgeNoticeToastStartedAt = Date.now();
+ return;
+ }
+
+ snapshot.docChanges().forEach((change) => {
+ if(change.type !== 'added') return;
+ const raw = change.doc.data() || {};
+ const noticeId = change.doc.id;
+ if(raw.visible === false) return;
+ if(!isNoticePushLike(raw)) return;
+
+ const createdAtMillis = getNoticeTimeMillisForToast(raw);
+ if(createdAtMillis && createdAtMillis < mobileEdgeNoticeToastStartedAt - 5000) return;
+
+ const seenKey = getMobileEdgeNoticeToastSeenKey(noticeId);
+ try{
+ if(sessionStorage.getItem(seenKey) === '1') return;
+ sessionStorage.setItem(seenKey, '1');
+ }catch(_){}
+
+ const title = String(raw.pushTitle || raw.title || '새 공지가 등록되었습니다').trim() || '새 공지가 등록되었습니다';
+ const bodySource = String(raw.pushBody || raw.summary || raw.content || raw.title || '공지사항을 확인해 주세요.').trim();
+ const body = bodySource.length > 90 ? `${bodySource.slice(0, 90)}…` : bodySource;
+ const url = `/app?open=notice&id=${encodeURIComponent(noticeId)}&from=edge-toast`;
+
+ showForegroundPushToast({ title, body, url });
+ });
+ }
+
+ function subscribeNotices(){
+ onSnapshot(collection(db, NOTICES_COLLECTION), (snapshot) => {
+ handleMobileEdgeNoticeToastFallback(snapshot);
+ state.notices = snapshot.docs
+ .map((d) => sanitizeNotice(d.data(), d.id))
+ .filter((item) => item.visible !== false)
+ .sort((a, b) => {
+ if (Number(b.pinned) !== Number(a.pinned)) return Number(b.pinned) - Number(a.pinned);
+ const aTime = a.updatedAt?.seconds || a.createdAt?.seconds || 0;
+ const bTime = b.updatedAt?.seconds || b.createdAt?.seconds || 0;
+ return bTime - aTime;
+ });
+ renderNotices();
+ handlePendingNoticeDeepLink();
+ handleCleanDeepLink();
+ markInitialDataLoaded('notices');
+ }, (error) => {
+ console.error('공지 로드 실패', error);
+ markInitialDataLoaded('notices');
+ });
+ }
+
+ function noticeCardTemplate(item){
+ const dateText = formatDateTime(item.updatedAt || item.createdAt);
+ return `
+ <div class="notice-meta">
+ ${item.pinned ? '<span class="notice-badge pin">중요</span><span class="notice-badge fixed">상단 고정</span>' : ''}
+ <span class="notice-badge">${item.category}</span>
+ ${recentNewBadgeHtml(item)}
+ ${dateText ? `<span class="notice-date">${dateText}</span>` : ''}
+ </div>
+ <h4>${item.title}</h4>
+ <p>${item.content}</p>
+ `;
+ }
+
+ function toAbsoluteUrl(url = ''){
+ const value = String(url || '').trim();
+ if(!value) return '';
+ try{ return new URL(value, location.origin).href; }catch(_){ return ''; }
+ }
+function getShareBaseOrigin(){
+ const host = String(location.hostname || '').toLowerCase();
+
+ // 카카오 Developers 도메인 등록값과 공유 링크 origin을 일치시키기 위해
+ // 운영/개발 모두 www 기준으로 고정합니다.
+ if(host.includes('sola-home-dev.kr')) return 'https://www.sola-home-dev.kr';
+ if(host.includes('theunjeongpick.com')) return 'https://theunjeongpick.com';
+ if(host.includes('sola-home.kr')) return 'https://www.sola-home.kr';
+
+ return location.origin;
+ }
+
+ function getKakaoPcSafeAppUrl(){
+ // PC 카카오톡에서 버튼이 '모바일에서 확인해주세요'로 비활성 처리되는 것을 피하기 위해
+ // 카카오 버튼/카드 링크는 등록된 사이트 도메인의 가장 단순한 앱 진입 URL로 고정합니다.
+ return `${getShareBaseOrigin()}/app`;
+ }
+
+ function createShareId(){
+ try{
+ if(window.crypto && typeof window.crypto.randomUUID === 'function'){
+ return window.crypto.randomUUID();
+ }
+ }catch(_){ }
+
+ return `share_${Date.now()}_${Math.random().toString(36).slice(2, 10)}`;
+ }
+
+ function getShareUrl(type, id, params = {}){
+ const shareType = normalizeDeepLinkType(type) || String(type || '').trim();
+ // /share/{type}/{id} Function이 없거나 배포되지 않은 경우 카카오/공지 딥링크가 Not Found가 됩니다.
+ // 안정성을 위해 실제 앱 진입 URL은 /app?open=...&id=... 쿼리형으로 고정합니다.
+ const url = new URL(`${getShareBaseOrigin()}/app`);
+ url.searchParams.set('open', shareType);
+ url.searchParams.set('id', String(id || ''));
+ url.searchParams.set('from', 'share');
+
+ Object.entries(params || {}).forEach(([key, value]) => {
+ if(value !== undefined && value !== null && String(value) !== ''){
+ url.searchParams.set(key, String(value));
+ }
+ });
+
+ return url.toString();
+ }
+
+ function getShareButtonUrl(type, id, button = 'card', shareId = ''){
+ return getShareUrl(type, id, {
+ from: 'kakao',
+ btn: button,
+ target: type,
+ shareId
+ });
+ }
+function getShareTrackingParams(){
+ try{
+ const params = new URLSearchParams(location.search || '');
+ const from = params.get('from') || '';
+ const button = params.get('btn') || '';
+ const target = params.get('target') || '';
+ const shareId = params.get('shareId') || '';
+
+ if(from !== 'kakao') return null;
+
+ const deepLink = parseCleanDeepLink();
+ if(!deepLink || !deepLink.id || !deepLink.type) return null;
+
+ return {
+ from,
+ button: button || 'card',
+ target: target || deepLink.type,
+ shareId,
+ type: deepLink.type,
+ targetId: deepLink.id
+ };
+ }catch(_){
+ return null;
+ }
+ }
+
+ function getShareClickLogKey(data){
+ if(!data) return '';
+ return `shareVisitLogged:${data.from}:${data.button}:${data.type}:${data.targetId}:${data.shareId || 'no-share-id'}`;
+ }
+
+ async function handleShareClickLog(){
+ const data = getShareTrackingParams();
+ if(!data) return;
+
+ const logKey = getShareClickLogKey(data);
+ if(logKey && sessionStorage.getItem(logKey) === '1') return;
+
+ try{
+ const stored = getStoredLoginUser();
+ const profile = state.currentUserProfile || {};
+
+ await addDoc(collection(db, SHARE_VISIT_LOGS_COLLECTION), {
+ event: 'share_link_visit',
+ shareId: data.shareId || null,
+ type: data.type,
+ targetId: data.targetId,
+ from: data.from,
+ button: data.button,
+ target: data.target,
+ visitorUid: state.currentUser?.uid || stored.uid || null,
+ visitorLoginId: profile.loginId || stored.loginId || null,
+ visitorNickname: profile.nickname || profile.displayName || profile.name || null,
+ visitorRole: profile.role || profile.userRole || null,
+ path: location.pathname,
+ href: location.href,
+ referrer: document.referrer || '',
+ userAgent: navigator.userAgent,
+ createdAt: serverTimestamp()
+ });
+
+ if(logKey) sessionStorage.setItem(logKey, '1');
+ }catch(error){
+ console.warn('공유 유입 로그 저장 실패', error);
+ }
+ }
+
+ async function writeShareActionLog(event, type, item = {}, detail = {}){
+ try{
+ const stored = getStoredLoginUser();
+ await addDoc(collection(db, SHARE_CLICK_LOGS_COLLECTION), {
+ event,
+ type,
+ targetId: item?.id || null,
+ targetTitle: type === 'notice' ? (item?.title || '') : (item?.name || item?.title || ''),
+ sharedByUid: state.currentUser?.uid || stored.uid || null,
+ sharedByLoginId: state.currentUserProfile?.loginId || stored.loginId || null,
+ sharedByNickname: state.currentUserProfile?.nickname || state.currentUserProfile?.displayName || state.currentUserProfile?.name || null,
+ sharedByRole: state.currentUserProfile?.role || state.currentUserProfile?.userRole || null,
+ shareId: detail?.shareId || null,
+ channel: detail?.channel || null,
+ path: location.pathname,
+ href: location.href,
+ userAgent: navigator.userAgent,
+ detail,
+ createdAt: serverTimestamp()
+ });
+
+ if(event === 'kakao_share_open' && type === 'benefit' && item?.id){
+ const statRef = doc(db, BENEFIT_STATS_COLLECTION, item.id);
+ await setDoc(statRef, {
+ benefitId: item.id,
+ name: item.name || item.title || '',
+ shareClickCount: increment(1),
+ popularScore: increment(5),
+ lastSharedAt: serverTimestamp(),
+ updatedAt: serverTimestamp()
+ }, { merge:true });
+ await recordResidentActivity('share', 5, item.id);
+ }
+ }catch(error){
+ console.warn('공유 액션 로그 저장 실패', error);
+ }
+ }
+
+ function getItemShareImage(item = {}){
+ const raw = item.imageUrl || item.thumbnailUrl || item.thumbnail || item.photoUrl || item.image || DEFAULT_SHARE_IMAGE_URL;
+ const url = toAbsoluteUrl(raw);
+
+ if(url && url.startsWith(location.origin)){
+ return url.replace(location.origin, getShareBaseOrigin());
+ }
+
+ if(url && url.startsWith('/')){
+ return `${getShareBaseOrigin()}${url}`;
+ }
+
+ return url || `${getShareBaseOrigin()}/icons/icon-512.png?v=20260425b`;
+ }
+
+ function getShareDescription(type, item = {}){
+ const raw = type === 'notice'
+ ? (item.content || '입주민 전용 공지 바로가기')
+ : (item.condition || getBenefitDisplayAddress(item) || '입주민 전용 혜택 바로가기');
+ return String(raw || '').replace(/\s+/g, ' ').trim().slice(0, 90) || '더운정픽 바로가기';
+ }
+
+ async function copyShareUrl(type, item = {}){
+ const shareId = createShareId();
+ const url = getShareButtonUrl(type, item.id, 'copy', shareId);
+ try{
+ await writeShareActionLog('copy_share_url', type, item, { url, shareId, channel:'copy' });
+ await navigator.clipboard.writeText(url);
+ await openModalAlert('공유 링크가 복사되었습니다.');
+ }catch(error){
+ console.warn('공유 URL 복사 실패', error);
+ window.prompt('아래 링크를 복사해 주세요.', url);
+ }
+ }
+
+ function ensureKakaoReady(){
+ try{
+ if(!window.Kakao){
+ console.warn('카카오 SDK가 로드되지 않았습니다.');
+ return false;
+ }
+
+ if(!KAKAO_JS_KEY){
+ console.warn('KAKAO_JS_KEY가 비어 있습니다.');
+ return false;
+ }
+
+ if(!window.Kakao.isInitialized()){
+ window.Kakao.init(KAKAO_JS_KEY);
+ window.__upickKakaoReady = true;
+ document.documentElement.classList.add('kakao-sdk-ready');
+ }
+
+ return window.Kakao.isInitialized();
+ }catch(error){
+ console.warn('카카오 SDK 초기화 실패', error);
+ return false;
+ }
+ }
+
+ function prewarmKakaoShareSdk(){
+ try{
+ if(window.__upickKakaoReady) return true;
+ const ready = ensureKakaoReady();
+ window.__upickKakaoReady = !!ready;
+ return ready;
+ }catch(error){
+ console.warn('카카오 SDK 사전 초기화 실패', error);
+ return false;
+ }
+ }
+
+ const kakaoPrewarmSchedule = () => {
+ const run = () => prewarmKakaoShareSdk();
+ if('requestIdleCallback' in window){
+ window.requestIdleCallback(run, { timeout: 1800 });
+ }else{
+ setTimeout(run, 500);
+ }
+ };
+ if(document.readyState === 'loading'){
+ document.addEventListener('DOMContentLoaded', kakaoPrewarmSchedule, { once:true });
+ }else{
+ kakaoPrewarmSchedule();
+ }
+
+ function getShareButtonText(type){
+ return type === 'notice' ? '공유 준비 중' : '공유 준비 중';
+ }
+
+ const kakaoShareActiveButtons = new Set();
+ let kakaoShareRestoreTimer = null;
+
+ function restoreShareButtonState(button){
+ if(!button) return;
+ const originalHtml = button.dataset.shareOriginalHtml;
+ const originalDisabled = button.dataset.shareOriginalDisabled === '1';
+
+ if(originalHtml !== undefined){
+ button.innerHTML = originalHtml;
+ }
+
+ button.disabled = originalDisabled;
+ button.removeAttribute('aria-busy');
+ button.classList.remove(
+ 'share-loading',
+ 'is-share-loading',
+ 'share-opening',
+ 'share-returning',
+ 'kakao-share-loading'
+ );
+
+ // 일부 모바일 브라우저에서 disabled/active 스타일이 남는 것을 방지
+ button.style.removeProperty('background');
+ button.style.removeProperty('background-color');
+ button.style.removeProperty('border-color');
+ button.style.removeProperty('color');
+ button.style.removeProperty('opacity');
+ button.style.removeProperty('box-shadow');
+ button.style.removeProperty('cursor');
+ button.style.removeProperty('pointer-events');
+
+ delete button.dataset.shareBusy;
+ delete button.dataset.shareOriginalHtml;
+ delete button.dataset.shareOriginalDisabled;
+
+ kakaoShareActiveButtons.delete(button);
+ }
+
+ function restoreAllKakaoShareButtons(){
+ kakaoShareActiveButtons.forEach(button => restoreShareButtonState(button));
+ kakaoShareActiveButtons.clear();
+
+ document.querySelectorAll('.share-loading, .is-share-loading, .share-opening, .share-returning, .kakao-share-loading').forEach(button => {
+ restoreShareButtonState(button);
+ });
+
+ clearTimeout(kakaoShareRestoreTimer);
+ kakaoShareRestoreTimer = null;
+ document.documentElement.classList.remove('kakao-share-active');
+ }
+
+ function scheduleKakaoShareReturnRestore(delay = 220){
+ clearTimeout(kakaoShareRestoreTimer);
+ kakaoShareRestoreTimer = setTimeout(restoreAllKakaoShareButtons, Math.max(0, Number(delay || 0)));
+ }
+
+ // 카카오톡 공유창/앱 전환 후 브라우저로 돌아오는 시점에 버튼과 로딩 상태를 즉시 원복합니다.
+ window.addEventListener('pageshow', function(){
+ if(kakaoShareActiveButtons.size) scheduleKakaoShareReturnRestore(120);
+ });
+
+ window.addEventListener('focus', function(){
+ if(kakaoShareActiveButtons.size) scheduleKakaoShareReturnRestore(160);
+ });
+
+ document.addEventListener('visibilitychange', function(){
+ if(!document.hidden && kakaoShareActiveButtons.size){
+ scheduleKakaoShareReturnRestore(160);
+ }
+ });
+
+ function markKakaoShareDispatched(){
+ document.documentElement.classList.add('kakao-share-active');
+ // 카카오 SDK는 공유창을 띄운 뒤 별도 완료 콜백을 안정적으로 제공하지 않으므로
+ // 공유 호출 직후 1차 원복하고, 앱/브라우저 복귀 이벤트에서 2차 원복합니다.
+ scheduleKakaoShareReturnRestore(900);
+ }
+
+ function setKakaoShareButtonOpening(){
+ kakaoShareActiveButtons.forEach(button => {
+ if(!button || button.dataset.shareBusy !== '1') return;
+ button.classList.add('share-opening');
+ button.innerHTML = '<span>카카오톡 여는 중</span>';
+ });
+ }
+
+ async function withShareButtonFeedback(button, type, task){
+ if(!button || button.dataset.shareBusy === '1'){
+ return;
+ }
+
+ button.dataset.shareOriginalHtml = button.innerHTML;
+ button.dataset.shareOriginalDisabled = button.disabled ? '1' : '0';
+ button.dataset.shareBusy = '1';
+ button.disabled = true;
+ button.setAttribute('aria-busy', 'true');
+ button.classList.add('share-loading', 'is-share-loading');
+ button.innerHTML = getShareButtonText(type);
+
+ kakaoShareActiveButtons.add(button);
+
+ try{
+ return await task();
+ }finally{
+ // SDK 호출이 실패하거나 공유창이 뜨지 않은 경우에도 너무 오래 잠기지 않도록 안전 원복합니다.
+ scheduleKakaoShareReturnRestore(1300);
+ }
+ }
+
+ function compactShareText(value = '', max = 80){
+ const text = String(value || '')
+ .replace(/<[^>]*>/g, ' ')
+ .replace(/\s+/g, ' ')
+ .trim();
+
+ if(!text) return '';
+ return text.length > max ? `${text.slice(0, max).trim()}…` : text;
+ }
+
+ function buildKakaoShareTitle(type, item = {}){
+ if(type === 'notice'){
+ return `[공지 안내] ${compactShareText(item.title || '더운정픽 공지', 34)}`;
+ }
+
+ return `[입주민 혜택] ${compactShareText(item.name || item.title || '더운정픽 혜택', 34)}`;
+ }
+
+ function buildKakaoShareDescription(type, item = {}){
+ if(type === 'notice'){
+ const body =
+ compactShareText(item.summary || item.content || item.description || item.body || '', 76) ||
+ '입주민 전용 공지사항을 확인해 주세요.';
+
+ return [
+ body,
+ '더운정픽에서 자세히 보기'
+ ].join('\n');
+ }
+
+ const benefitLine =
+ compactShareText(
+ item.benefit ||
+ item.discount ||
+ item.condition ||
+ item.description ||
+ item.summary ||
+ item.content ||
+ '',
+ 54
+ );
+
+ const categoryLine = compactShareText(item.category || item.type || '', 20);
+ const locationLine = compactShareText(getBenefitDisplayAddress(item) || item.location || item.place || '', 36);
+
+ const lines = [];
+
+ if(benefitLine) lines.push(`추천 ${benefitLine}`);
+ if(categoryLine) lines.push(`🏷️ ${categoryLine}`);
+ if(locationLine) lines.push(`📍 ${locationLine}`);
+
+ lines.push('더운정픽 입주민 전용 혜택');
+
+ return lines.join('\n');
+ }
+
+ async function shareKakaoItem(type, item = {}){
+ const shareId = createShareId();
+ const cardShareUrl = getShareButtonUrl(type, item.id, 'card', shareId);
+ const webShareUrl = getShareButtonUrl(type, item.id, 'web', shareId);
+ const appShareUrl = getShareButtonUrl(type, item.id, 'app', shareId);
+
+ const title = buildKakaoShareTitle(type, item);
+ const description = buildKakaoShareDescription(type, item);
+ const imageUrl = getItemShareImage(item);
+ const sharedCount = Number(item.shareClickCount || item.shareCount || item.sharedCount || item.clickCount || item.viewCount || 0) || 0;
+
+ if(!ensureKakaoReady()){
+ await copyShareUrl(type, item);
+ return;
+ }
+
+ try{
+ writeShareActionLog('kakao_share_open', type, item, {
+ shareId,
+ channel: 'kakao',
+ cardShareUrl,
+ webShareUrl,
+ appShareUrl,
+ note: '제품 링크 관리 등록 완료 기준: 카카오 카드/버튼 URL을 실제 상세 딥링크로 전송'
+ }).catch(error => {
+ console.warn('카카오 공유 로그 저장 실패', error);
+ });
+
+ if(typeof setKakaoShareButtonOpening === 'function'){
+ setKakaoShareButtonOpening();
+ }
+
+ Kakao.Share.sendDefault({
+ objectType: 'feed',
+ content: {
+ title: title,
+ description: description,
+ imageUrl: imageUrl,
+ link: {
+ mobileWebUrl: cardShareUrl,
+ webUrl: cardShareUrl
+ },
+ },
+ social: {
+ likeCount: sharedCount,
+ commentCount: sharedCount,
+ sharedCount: sharedCount,
+ },
+ buttons: [
+ {
+ title: '웹으로 보기',
+ link: {
+ mobileWebUrl: webShareUrl,
+ webUrl: webShareUrl,
+ },
+ },
+ {
+ title: '앱으로 보기',
+ link: {
+ mobileWebUrl: appShareUrl,
+ webUrl: appShareUrl,
+ },
+ },
+ ],
+ });
+
+ if(typeof markKakaoShareDispatched === 'function'){
+ markKakaoShareDispatched();
+ }
+ }catch(error){
+ console.warn('카카오 공유 실패', error);
+ await copyShareUrl(type, item);
+ }
+ }
+
+ function ensureQrCodeLibrary(){
+ if(window.QRCode && typeof window.QRCode.toCanvas === 'function') return Promise.resolve(window.QRCode);
+ return Promise.reject(new Error('qrcode_library_not_loaded'));
+ }
+
+ function drawRoundedRect(ctx, x, y, w, h, r){
+ const radius = Math.min(r, w / 2, h / 2);
+ ctx.beginPath();
+ ctx.moveTo(x + radius, y);
+ ctx.arcTo(x + w, y, x + w, y + h, radius);
+ ctx.arcTo(x + w, y + h, x, y + h, radius);
+ ctx.arcTo(x, y + h, x, y, radius);
+ ctx.arcTo(x, y, x + radius, y, radius);
+ ctx.closePath();
+ }
+
+ async function drawQrCenterLogo(canvas){
+ if(!canvas) return;
+ const ctx = canvas.getContext('2d');
+ if(!ctx) return;
+
+ const size = canvas.width || 220;
+ const box = Math.round(size * 0.22);
+ const x = Math.round((size - box) / 2);
+ const y = Math.round((size - box) / 2);
+
+ ctx.save();
+ ctx.shadowColor = 'rgba(15,23,42,.16)';
+ ctx.shadowBlur = 10;
+ ctx.shadowOffsetY = 4;
+ drawRoundedRect(ctx, x, y, box, box, 12);
+ ctx.fillStyle = '#ffffff';
+ ctx.fill();
+ ctx.restore();
+
+ ctx.save();
+ drawRoundedRect(ctx, x + 1, y + 1, box - 2, box - 2, 11);
+ ctx.strokeStyle = '#e5e7eb';
+ ctx.lineWidth = 2;
+ ctx.stroke();
+ ctx.restore();
+
+ const img = new Image();
+ img.decoding = 'async';
+ img.src = '/icons/internal/brand-symbol-real.png?v=20260511';
+
+ await new Promise((resolve) => {
+ img.onload = resolve;
+ img.onerror = resolve;
+ });
+
+ if(img.complete && img.naturalWidth > 0){
+ const pad = Math.round(box * 0.10);
+ ctx.save();
+ drawRoundedRect(ctx, x + pad, y + pad, box - pad * 2, box - pad * 2, 8);
+ ctx.clip();
+ ctx.drawImage(img, x + pad, y + pad, box - pad * 2, box - pad * 2);
+ ctx.restore();
+ }else{
+ ctx.save();
+ ctx.fillStyle = '#b91c1c';
+ ctx.font = `900 ${Math.round(box * 0.34)}px -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif`;
+ ctx.textAlign = 'center';
+ ctx.textBaseline = 'middle';
+ ctx.fillText('H', x + box / 2, y + box / 2);
+ ctx.restore();
+ }
+ }
+
+ function getQrThemeClass(type, item = {}){
+ if(type === 'notice') return 'qr-theme-notice';
+ const raw = String(item.discount || item.rate || item.benefit || item.condition || '');
+ const match = raw.match(/(\d+)\s*%/);
+ const pct = match ? Number(match[1]) : 0;
+ if(pct >= 50) return 'qr-theme-hot';
+ if(pct >= 30) return 'qr-theme-mid';
+ return 'qr-theme-normal';
+ }
+
+ function getQrBrandText(type, item = {}){
+ const title = type === 'notice'
+ ? (item.title || '공지사항')
+ : (item.name || item.title || '입주민 혜택');
+ const sub = type === 'notice'
+ ? '더운정픽 공지 QR'
+ : '더운정픽 혜택 QR';
+ return { title, sub };
+ }
+
+ async function showQrCode(type, item = {}){
+ const shareId = createShareId();
+ const url = getShareButtonUrl(type, item.id, 'qr', shareId);
+ await writeShareActionLog('show_qr_share', type, item, { url, shareId, channel:'qr' });
+
+ const modal = qs('#qrModal');
+ const qrWrap = qs('#qrModal .qr-canvas-wrap');
+ const urlBox = qs('#qrShareUrl');
+ const brand = getQrBrandText(type, item);
+ const themeClass = getQrThemeClass(type, item);
+
+ if(qrWrap){
+ qrWrap.className = `qr-canvas-wrap ${themeClass}`;
+ qrWrap.innerHTML = `
+ <div class="qr-brand-title">${escapeHtml(brand.title)}</div>
+ <div class="qr-brand-sub">${escapeHtml(brand.sub)}</div>
+ <canvas id="qrCanvas" width="220" height="220"></canvas>
+ `;
+ }
+
+ const canvas = qs('#qrCanvas');
+ if(urlBox) urlBox.textContent = url;
+
+ try{
+ if(!canvas) throw new Error('qr_canvas_missing');
+ const QR = await ensureQrCodeLibrary();
+ await QR.toCanvas(canvas, url, {
+ width: 220,
+ margin: 2,
+ errorCorrectionLevel: 'H',
+ color: {
+ dark: '#0f172a',
+ light: '#ffffff'
+ }
+ });
+ await drawQrCenterLogo(canvas);
+ }catch(error){
+ console.warn('QR 생성 실패', error);
+ if(qrWrap){
+ qrWrap.className = 'qr-canvas-wrap';
+ qrWrap.innerHTML = '<div style="padding:18px;color:#64748b;font-size:13px;line-height:1.6;word-break:keep-all;">QR 생성 모듈을 불러오지 못했습니다.<br>아래 URL 복사를 사용해 주세요.</div>';
+ }
+ }
+
+ const copyBtn = qs('#qrCopyBtn');
+ if(copyBtn) copyBtn.onclick = () => copyShareUrl(type, item);
+
+ if(modal){
+ if(modal.open) modal.close();
+ modal.showModal();
+ }
+ }
+
+ function shareActionsHtml(prefix){
+ return `
+ <div class="share-actions">
+ <button class="btn btn-soft block" id="${prefix}CopyShareBtn" type="button"><img class="upick-svg-icon upick-inline-icon" src="/icons/internal/link.svg" alt="" loading="lazy">URL 복사</button>
+ <button class="btn btn-soft block" id="${prefix}KakaoShareBtn" type="button"><img class="upick-svg-icon upick-inline-icon" src="/icons/internal/community.svg" alt="" loading="lazy">카카오톡</button>
+ <button class="btn btn-soft block" id="${prefix}QrShareBtn" type="button"><img class="upick-svg-icon upick-inline-icon" src="/icons/internal/qr.svg" alt="" loading="lazy">QR 보기</button>
+ </div>
+ `;
+ }
+
+ function openNotice(item, options = {}){
+ if(!item) return;
+ const { skipUrlUpdate = false } = options;
+ if(!skipUrlUpdate && item?.id) updateCleanDeepLinkUrl('notice', item.id);
+
+ const modal = qs('#noticeModal');
+ const body = qs('#noticeModalBody');
+ const dateText = formatDateTime(item.updatedAt || item.createdAt);
+ const noticeHtml = `
+ <div class="notice-detail-wrap">
+ <div>
+ <div class="notice-detail-meta">
+ ${item.pinned ? '<span class="notice-badge pin">중요</span><span class="notice-badge fixed">상단 고정</span>' : ''}
+ <span class="notice-badge">${escapeHtml(item.category || '일반')}</span>
+ ${dateText ? `<span class="notice-date">${dateText}</span>` : ''}
+ </div>
+ <h3 class="notice-detail-title">${escapeHtml(item.title || '공지사항')}</h3>
+ </div>
+ <div class="notice-detail-panel">
+ <strong>공지 내용</strong>
+ <div class="notice-detail-content">${escapeHtml(item.content || '')}</div>
+ </div>
+ <div class="notice-detail-actions">${shareActionsHtml('notice')}</div>
+ </div>
+ `;
+
+ // 공지 모달 DOM이 아직 없거나 렌더링에서 누락된 경우에도 앱이 멈추지 않도록 방어
+ if(!modal || !body){
+ console.warn('[notice] noticeModal 또는 noticeModalBody를 찾을 수 없습니다.', { modal: !!modal, body: !!body, item });
+ if(typeof showAppAlert === 'function'){
+ showAppAlert({
+ title: item.title || '공지사항',
+ message: item.content || '공지 내용을 불러왔습니다.',
+ confirmText: '확인'
+ });
+ }else{
+ alert(`${item.title || '공지사항'}
+
+${item.content || ''}`);
+ }
+ return;
+ }
+
+ body.innerHTML = noticeHtml;
+ try{
+ if(modal.open) modal.close();
+ if(typeof modal.showModal === 'function') modal.showModal();
+ else modal.setAttribute('open', '');
+ }catch(error){
+ console.warn('[notice] 공지 모달 열기 실패', error);
+ modal.setAttribute('open', '');
+ }
+
+ qs('#noticeCopyShareBtn')?.addEventListener('click', () => copyShareUrl('notice', item));
+ qs('#noticeKakaoShareBtn')?.addEventListener('click', (event) => withShareButtonFeedback(event.currentTarget, 'notice', () => shareKakaoItem('notice', item)));
+ qs('#noticeQrShareBtn')?.addEventListener('click', () => showQrCode('notice', item));
+ }
+
+ function scrollToNoticeCard(noticeId){
+ const id = String(noticeId || '').trim();
+ if(!id) return false;
+ const targetEl = document.querySelector(`#noticeList [data-notice-id="${CSS.escape(id)}"]`);
+ if(!targetEl) return false;
+
+ targetEl.scrollIntoView({ behavior:'smooth', block:'center' });
+ targetEl.classList.remove('notice-highlight');
+ void targetEl.offsetWidth;
+ targetEl.classList.add('notice-highlight');
+ setTimeout(() => targetEl.classList.remove('notice-highlight'), 1400);
+ return true;
+ }
+
+ function openNoticeFromList(item, options = {}){
+ if(!item) return;
+ const { moveToNoticeView = false } = options;
+
+ if(moveToNoticeView && state.view !== 'notices'){
+ changeView('notices');
+ setTimeout(() => {
+ scrollToNoticeCard(item.id);
+ openNotice(item);
+ }, 120);
+ return;
+ }
+
+ scrollToNoticeCard(item.id);
+ openNotice(item);
+ }
+
+ function openNoticeById(noticeId){
+ const id = String(noticeId || '').trim();
+ if(!id) return false;
+
+ if(!canOpenNoticeDeepLink()){
+ pendingDeepLink.view = '';
+ pendingDeepLink.noticeId = '';
+ pendingNoticeOpened = false;
+ clearNoticeDeepLinkUrl();
+ return false;
+ }
+
+ const item = (state.notices || []).find((notice) => notice.id === id);
+ if(!item) return false;
+ changeView('notices');
+ setTimeout(() => {
+ scrollToNoticeCard(id);
+ openNotice(item);
+ clearNoticeDeepLinkUrl();
+ }, 140);
+ return true;
+ }
+
+ function handlePendingNoticeDeepLink(){
+ if(pendingNoticeOpened) return;
+ if(pendingDeepLink.view !== 'notices' || !pendingDeepLink.noticeId) return;
+
+ if(!canOpenNoticeDeepLink()){
+ pendingDeepLink.view = '';
+ pendingDeepLink.noticeId = '';
+ pendingNoticeOpened = false;
+ clearNoticeDeepLinkUrl();
+ return;
+ }
+
+ if(!state.notices || !state.notices.length) return;
+ pendingNoticeOpened = openNoticeById(pendingDeepLink.noticeId);
+ if(pendingNoticeOpened){
+ clearNoticeDeepLinkUrl();
+ }
+ }
+
+ function renderNotices(){
+ const listEl = qs('#noticeList');
+ const homeListEl = qs('#homeNoticeList');
+ const items = state.notices || [];
+
+ if(listEl){
+ listEl.innerHTML = '';
+ if(!items.length){
+ listEl.innerHTML = '<div class="notice-empty">등록된 공지가 없습니다.</div>';
+ }else{
+ items.forEach((item) => {
+ const el = document.createElement('article');
+ el.className = `notice-item${item.pinned ? ' pinned' : ''}`;
+ el.dataset.noticeId = item.id;
+ el.innerHTML = noticeCardTemplate(item);
+ el.onclick = () => openNoticeFromList(item);
+ listEl.appendChild(el);
+ });
+ }
+ }
+
+ if(homeListEl){
+ homeListEl.innerHTML = '';
+ const homeItems = items.slice(0, 3);
+ if(!homeItems.length){
+ homeListEl.innerHTML = '<div class="notice-empty">등록된 공지가 없습니다.</div>';
+ }else{
+ homeItems.forEach((item) => {
+ const el = document.createElement('article');
+ el.className = `notice-item${item.pinned ? ' pinned' : ''}`;
+ el.dataset.noticeId = item.id;
+ el.innerHTML = noticeCardTemplate(item);
+ el.onclick = () => openNoticeFromList(item, { moveToNoticeView:true });
+ homeListEl.appendChild(el);
+ });
+ }
+ }
+ }
+	
+	function getPopularTrendClass(currentRank, previousRank) {
+ if (!previousRank) return 'same';
+ if (currentRank < previousRank) return 'up';
+ if (currentRank > previousRank) return 'down';
+ return 'same';
+ }
+
+ function getPopularTrendText(currentRank, previousRank) {
+ if (!previousRank) return 'NEW';
+ if (currentRank < previousRank) return `▲ ${previousRank - currentRank}`;
+ if (currentRank > previousRank) return `▼ ${currentRank - previousRank}`;
+ return '―';
+ }
+
+ function getPopularRowMotionClass(item = {}) {
+ if (!item.previousRank) return 'rank-new';
+ if (item.rank < item.previousRank) return 'rank-up';
+ if (item.rank > item.previousRank) return 'rank-down';
+ return '';
+ }
+
+ function calcPopularScoreFromStats(data = {}) {
+ const detailViewCount = Number(data.detailViewCount || 0);
+ const clickCount = Number(data.clickCount || 0);
+ const cardClickCount = Number(data.cardClickCount || 0);
+ const favoriteCount = Number(data.favoriteCount || 0);
+ const shareClickCount = Number(data.shareClickCount || 0);
+ const likeCount = Number(data.likeCount || 0);
+ const recommendCount = Number(data.recommendCount || 0);
+ const hotCount = Number(data.hotCount || 0);
+ return detailViewCount + clickCount + cardClickCount + favoriteCount * 3 + shareClickCount * 5 + likeCount * 2 + recommendCount * 4 + hotCount * 6;
+ }
+
+ function getShareBestItemId(items = []) {
+ const candidates = items
+ .filter((item) => Number(item.shareClickCount || 0) > 0)
+ .sort((a, b) => {
+ const shareDiff = Number(b.shareClickCount || 0) - Number(a.shareClickCount || 0);
+ if (shareDiff) return shareDiff;
+ return Number(b.popularScore || b.score || 0) - Number(a.popularScore || a.score || 0);
+ });
+ return candidates[0]?.id || '';
+ }
+
+ let popularStatsUnsubscribe = null;
+ function subscribePopularStats() {
+ if(popularStatsUnsubscribe) return;
+ const popularQuery = query(
+ collection(db, BENEFIT_STATS_COLLECTION),
+ orderBy('popularScore', 'desc'),
+ limit(80)
+ );
+
+ popularStatsUnsubscribe = onSnapshot(popularQuery, (snapshot) => {
+ const runtimePreviousRanks = new Map(
+ (state.popularItems || []).map((item, index) => [item.id, index + 1])
+ );
+ const storedPreviousRankMap = typeof getPopularPreviousRankMap === 'function'
+ ? getPopularPreviousRankMap()
+ : {};
+
+ const rankedItems = snapshot.docs.map((d) => {
+ const data = d.data() || {};
+ const benefit = state.benefits.find((item) => item.id === d.id);
+ const detailViewCount = Number(data.detailViewCount || 0);
+ const clickCount = Number(data.clickCount || 0);
+ const favoriteCount = Number(data.favoriteCount || 0);
+ const shareClickCount = Number(data.shareClickCount || 0);
+ const calculatedPopularScore = calcPopularScoreFromStats(data);
+ const popularScore = Math.max(Number(data.popularScore || 0), calculatedPopularScore);
+
+ return {
+ id: d.id,
+ name: data.name || benefit?.name || '이름 없는 매장',
+ category: benefit?.category || data.category || '기타',
+ condition: benefit?.condition || data.condition || '',
+ createdAt: benefit?.createdAt || data.createdAt || null,
+ updatedAt: benefit?.updatedAt || data.updatedAt || null,
+ detailViewCount,
+ clickCount,
+ favoriteCount,
+ shareClickCount,
+ likeCount: Number(data.likeCount || 0),
+ recommendCount: Number(data.recommendCount || 0),
+ hotCount: Number(data.hotCount || 0),
+ score: popularScore,
+ popularScore,
+ benefit: benefit || null
+ };
+ })
+ .filter((item) => item.popularScore > 0 && isRecommendableBenefit(item.benefit || item))
+ .sort((a, b) => {
+ const scoreDiff = Number(b.popularScore || 0) - Number(a.popularScore || 0);
+ if (scoreDiff) return scoreDiff;
+ const shareDiff = Number(b.shareClickCount || 0) - Number(a.shareClickCount || 0);
+ if (shareDiff) return shareDiff;
+ return Number(b.detailViewCount || 0) - Number(a.detailViewCount || 0);
+ })
+ .slice(0, 5)
+ .map((item, index) => {
+ const currentRank = index + 1;
+ const previousRank = runtimePreviousRanks.get(item.id) || Number(storedPreviousRankMap[getPopularItemKey(item)] || 0);
+ return {
+ ...item,
+ rank: currentRank,
+ previousRank,
+ trendClass: getPopularTrendClass(currentRank, previousRank),
+ trendText: getPopularTrendText(currentRank, previousRank)
+ };
+ });
+
+ const shareBestItemId = getShareBestItemId(rankedItems);
+ state.popularItems = rankedItems.map((item) => ({
+ ...item,
+ isShareBest: !!shareBestItemId && item.id === shareBestItemId
+ }));
+
+ renderPopularTop5();
+ renderHotNowStores();
+ if (typeof savePopularRankSnapshot === 'function') savePopularRankSnapshot(state.popularItems);
+ const updatedText = qs('#popularUpdatedText');
+ if (updatedText) updatedText.textContent = `실시간 집계 · ${new Date().toLocaleTimeString('ko-KR', { hour:'2-digit', minute:'2-digit' })}`;
+ markInitialDataLoaded('popular');
+ }, () => {
+ const wrap = qs('#popularList');
+ if (wrap) {
+ wrap.innerHTML = '<div class="panel empty">인기 통계를 불러오지 못했습니다.</div>';
+ }
+ markInitialDataLoaded('popular');
+ });
+ }
+
+
+ function getRankMedalSvg(rank){
+ const safeRank = Number(rank);
+ if(safeRank < 1 || safeRank > 3) return String(rank);
+ return `<img class="rank-medal-svg" src="/icons/internal/top5-medal-${safeRank}.svg" alt="${safeRank}위 메달" loading="lazy" decoding="async">`;
+ }
+
+ function getRankMedalClass(rank){
+  return rank === 1 ? 'gold' : rank === 2 ? 'silver' : rank === 3 ? 'bronze' : '';
+ }
+
+ function getRankBadge(rank){
+ if(rank >= 1 && rank <= 3) return `<div class="popular-rank medal ${getRankMedalClass(rank)}" aria-label="${rank}위">${getRankMedalSvg(rank)}</div>`;
+ return `<div class="popular-rank" aria-label="${rank}위">${rank}</div>`;
+ }
+
+ function animatePopularCount(el, target){
+ if(!el) return;
+ const finalValue = Math.max(0, Number(target || 0));
+ clearInterval(el._popularCountTimer);
+
+ if(!Number.isFinite(finalValue) || finalValue <= 0){
+   el.textContent = '0';
+   return;
+ }
+
+ let currentValue = 0;
+ const stepsCount = 18;
+ const stepValue = Math.max(1, Math.ceil(finalValue / stepsCount));
+
+ el._popularCountTimer = setInterval(() => {
+   currentValue += stepValue;
+   if(currentValue >= finalValue){
+     currentValue = finalValue;
+     clearInterval(el._popularCountTimer);
+   }
+   el.textContent = currentValue.toLocaleString('ko-KR');
+ }, 18);
+}
+
+ function isShareInsightAdmin(){
+ const profile = state.currentUserProfile || {};
+ const role = String(profile.role || profile.userRole || '').toLowerCase();
+ return ['root','super','superadmin','admin','manager'].includes(role) || profile.isAdmin === true || profile.admin === true;
+ }
+
+ function getLogShareId(log = {}){
+ return log.shareId || log.detail?.shareId || '';
+ }
+
+ function getLogChannel(log = {}){
+ return log.channel || log.detail?.channel || '';
+ }
+
+ function getLogTargetTitle(log = {}){
+ return log.targetTitle || log.detail?.targetTitle || '';
+ }
+
+ function insightSafeText(value = '', fallback = '알 수 없음'){
+ const text = String(value || '').replace(/\s+/g, ' ').trim();
+ return text || fallback;
+ }
+
+ function sortTopEntries(map, limitCount = 5){
+ return [...map.values()]
+ .sort((a,b) => (b.count || 0) - (a.count || 0))
+ .slice(0, limitCount);
+ }
+
+ function buildShareInsightRows(items, unitLabel = '건'){
+ if(!items || !items.length){
+ return '<div class="insight-empty">아직 집계할 정보가 없습니다.</div>';
+ }
+
+ return items.map((item, index) => `
+ <div class="insight-rank-row">
+ <div class="insight-rank-left">
+ <div class="insight-rank-badge">${index + 1}</div>
+ <div class="insight-rank-copy">
+ <b>${escapeHtml(item.title || item.name || '알 수 없음')}</b>
+ <small>${escapeHtml(item.sub || '')}</small>
+ </div>
+ </div>
+ <div class="insight-rank-score">
+ <strong>${Number(item.count || 0).toLocaleString('ko-KR')}</strong>
+ <span>${unitLabel}</span>
+ </div>
+ </div>
+ `).join('');
+ }
+
+ function buildViralFlowRows(flows){
+ if(!flows || !flows.length){
+ return '<div class="insight-empty">아직 공유 → 방문 흐름이 없습니다.</div>';
+ }
+
+ return flows.map((flow) => `
+ <div class="insight-flow">
+ <div class="insight-flow-line">
+ <b>${escapeHtml(flow.sharer || '공유자 미확인')}</b>
+ <span class="insight-flow-arrow">→</span>
+ <b>${Number(flow.visitCount || 0).toLocaleString('ko-KR')}명 유입</b>
+ </div>
+ <div class="insight-flow-line" style="color:var(--muted);font-size:12px;">
+ ${escapeHtml(flow.targetTitle || flow.targetId || '공유 대상 미확인')}
+ </div>
+ <div class="insight-flow-line" style="color:var(--muted);font-size:11px;">
+ shareId: ${escapeHtml(flow.shareId || '-')}
+ </div>
+ </div>
+ `).join('');
+ }
+
+ async function loadShareInsightLogs(){
+ const [clickSnap, visitSnap] = await Promise.all([
+ getDocs(query(collection(db, SHARE_CLICK_LOGS_COLLECTION), orderBy('createdAt','desc'), limit(500))),
+ getDocs(query(collection(db, SHARE_VISIT_LOGS_COLLECTION), orderBy('createdAt','desc'), limit(500)))
+ ]);
+
+ return {
+ clickLogs: clickSnap.docs.map(doc => ({ id: doc.id, ...doc.data() })),
+ visitLogs: visitSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }))
+ };
+ }
+
+ function aggregateShareInsights(clickLogs = [], visitLogs = []){
+ const shareOpens = clickLogs.filter(log => {
+ const event = String(log.event || '');
+ const channel = getLogChannel(log);
+ return event === 'kakao_share_open' || channel === 'kakao';
+ });
+
+ const topSharersMap = new Map();
+ shareOpens.forEach(log => {
+ const key = log.sharedByUid || log.sharedByLoginId || log.sharedByNickname || 'unknown';
+ const row = topSharersMap.get(key) || {
+ title: insightSafeText(log.sharedByNickname || log.sharedByLoginId || '공유자 미확인'),
+ sub: insightSafeText(log.sharedByRole || log.sharedByLoginId || '계정 정보 없음', ''),
+ count: 0
+ };
+ row.count += 1;
+ topSharersMap.set(key, row);
+ });
+
+ const visitTargetMap = new Map();
+ visitLogs.forEach(log => {
+ const type = log.type || log.target || '';
+ const key = `${type}:${log.targetId || ''}`;
+ if(!log.targetId) return;
+ const noticeTitle = type === 'notice'
+ ? (state.notices || []).find(item => item.id === log.targetId)?.title
+ : (state.benefits || []).find(item => item.id === log.targetId)?.name;
+ const row = visitTargetMap.get(key) || {
+ title: insightSafeText(noticeTitle || log.targetTitle || log.targetId),
+ sub: type === 'notice' ? '공지 유입' : '혜택 유입',
+ count: 0
+ };
+ row.count += 1;
+ visitTargetMap.set(key, row);
+ });
+
+ const shareTargetMap = new Map();
+ shareOpens.forEach(log => {
+ const type = log.type || '';
+ const key = `${type}:${log.targetId || ''}`;
+ if(!log.targetId) return;
+ const row = shareTargetMap.get(key) || {
+ title: insightSafeText(getLogTargetTitle(log) || log.targetId),
+ sub: type === 'notice' ? '공지 공유' : '혜택 공유',
+ count: 0
+ };
+ row.count += 1;
+ shareTargetMap.set(key, row);
+ });
+
+ const flowMap = new Map();
+ shareOpens.forEach(log => {
+ const shareId = getLogShareId(log);
+ if(!shareId) return;
+ flowMap.set(shareId, {
+ shareId,
+ sharer: insightSafeText(log.sharedByNickname || log.sharedByLoginId || '공유자 미확인'),
+ targetId: log.targetId || '',
+ targetTitle: insightSafeText(getLogTargetTitle(log) || log.targetId || '공유 대상 미확인'),
+ visitCount: 0,
+ visitors: new Set()
+ });
+ });
+
+ visitLogs.forEach(log => {
+ const shareId = getLogShareId(log);
+ if(!shareId) return;
+ const row = flowMap.get(shareId) || {
+ shareId,
+ sharer: '공유자 미확인',
+ targetId: log.targetId || '',
+ targetTitle: log.targetId || '공유 대상 미확인',
+ visitCount: 0,
+ visitors: new Set()
+ };
+ const visitorKey = log.visitorUid || log.visitorLoginId || log.visitorNickname || log.id || `${log.userAgent || ''}:${log.createdAt?.seconds || ''}`;
+ row.visitors.add(visitorKey);
+ row.visitCount = row.visitors.size;
+ if(!row.targetId && log.targetId) row.targetId = log.targetId;
+ flowMap.set(shareId, row);
+ });
+
+ const flows = [...flowMap.values()]
+ .map(row => ({ ...row, visitors: undefined }))
+ .filter(row => row.visitCount > 0)
+ .sort((a,b) => (b.visitCount || 0) - (a.visitCount || 0))
+ .slice(0, 5);
+
+ const totalShares = shareOpens.length;
+ const totalVisits = visitLogs.length;
+ const uniqueShareIds = new Set(shareOpens.map(getLogShareId).filter(Boolean)).size;
+ const conversionRate = totalShares ? Math.round((totalVisits / totalShares) * 100) : 0;
+
+ return {
+ totalShares,
+ totalVisits,
+ uniqueShareIds,
+ conversionRate,
+ topSharers: sortTopEntries(topSharersMap, 5),
+ topVisitTargets: sortTopEntries(visitTargetMap, 5),
+ topShareTargets: sortTopEntries(shareTargetMap, 5),
+ flows
+ };
+ }
+
+ async function renderShareInsights(){
+ const wrap = qs('#shareInsightsContent');
+ if(!wrap) return;
+
+ if(!isShareInsightAdmin()){
+ wrap.innerHTML = `
+ <div class="panel empty">
+ 공유 인사이트는 운영자 전용 메뉴입니다.<br>
+ 공유자/방문자 정보가 포함될 수 있어 관리자 권한에서만 확인할 수 있습니다.
+ </div>
+ `;
+ qs('#shareInsightUpdatedText') && (qs('#shareInsightUpdatedText').textContent = '운영자 전용');
+ return;
+ }
+
+ wrap.innerHTML = '<div class="panel loading">공유 정보를 집계하는 중입니다...</div>';
+
+ try{
+ const { clickLogs, visitLogs } = await loadShareInsightLogs();
+ const data = aggregateShareInsights(clickLogs, visitLogs);
+
+ wrap.innerHTML = `
+ <div class="insight-grid">
+ <div class="insight-card"><strong>${data.totalShares.toLocaleString('ko-KR')}</strong><span>카카오 공유 실행</span></div>
+ <div class="insight-card"><strong>${data.totalVisits.toLocaleString('ko-KR')}</strong><span>공유 링크 실제 유입</span></div>
+ <div class="insight-card"><strong>${data.uniqueShareIds.toLocaleString('ko-KR')}</strong><span>고유 공유 링크</span></div>
+ <div class="insight-card"><strong>${data.conversionRate}%</strong><span>공유 대비 유입 전환율</span></div>
+ </div>
+
+ <div class="panel" style="margin-top:14px;">
+ <div class="section-head" style="margin-bottom:8px;"><h3>TOP 공유자 랭킹</h3><small>공유 실행 기준</small></div>
+ <div class="insight-list">${buildShareInsightRows(data.topSharers, '회')}</div>
+ </div>
+
+ <div class="panel" style="margin-top:14px;">
+ <div class="section-head" style="margin-bottom:8px;"><h3>가장 많이 퍼진 공지/혜택</h3><small>실제 유입 기준</small></div>
+ <div class="insight-list">${buildShareInsightRows(data.topVisitTargets, '유입')}</div>
+ </div>
+
+ <div class="panel" style="margin-top:14px;">
+ <div class="section-head" style="margin-bottom:8px;"><h3>가장 많이 공유된 항목</h3><small>공유 실행 기준</small></div>
+ <div class="insight-list">${buildShareInsightRows(data.topShareTargets, '공유')}</div>
+ </div>
+
+ <div class="panel" style="margin-top:14px;">
+ <div class="section-head" style="margin-bottom:8px;"><h3>입주민 바이럴 흐름</h3><small>공유 → 방문</small></div>
+ <div class="insight-list">${buildViralFlowRows(data.flows)}</div>
+ </div>
+ `;
+
+ const now = new Date();
+ qs('#shareInsightUpdatedText') && (qs('#shareInsightUpdatedText').textContent = `최근 집계: ${now.toLocaleTimeString('ko-KR', { hour:'2-digit', minute:'2-digit' })}`);
+ }catch(error){
+ console.warn('공유 인사이트 집계 실패', error);
+ wrap.innerHTML = `
+ <div class="panel empty">
+ 공유 인사이트를 불러오지 못했습니다.<br>
+ Firestore 규칙에서 운영자에게 share_click_logs / share_visit_logs 읽기 권한이 있는지 확인해 주세요.
+ </div>
+ `;
+ qs('#shareInsightUpdatedText') && (qs('#shareInsightUpdatedText').textContent = '집계 실패');
+ }
+ }
+
+ function splitBenefitAndDateText(text = ''){
+ const raw = String(text || '').trim();
+ if(!raw) return { benefit: '', date: '' };
+
+ const dateMatch = raw.match(/(?:등록일\s*)?(\d{4}\.\s*\d{1,2}\.\s*\d{1,2}\.?)/);
+ const date = dateMatch ? dateMatch[1].trim() : '';
+
+ let benefit = raw;
+ if(dateMatch){
+ benefit = raw.slice(0, dateMatch.index).trim();
+ }
+
+ benefit = benefit
+ .replace(/[·ㆍ]\s*등록일\s*$/g, '')
+ .replace(/\s*등록일\s*$/g, '')
+ .replace(/[·ㆍ]\s*$/g, '')
+ .trim();
+
+ return { benefit, date };
+ }
+
+ function getPopularCategory(item = {}){
+ return item.category || item.type || item.group || item.kind || '기타';
+ }
+
+ function getPopularBenefit(item = {}){
+ const direct = item.condition || item.benefit || item.description || item.desc || item.subtitle || '';
+ const parsed = splitBenefitAndDateText(direct);
+ return parsed.benefit || direct || '혜택 조건은 상세보기에서 확인해 주세요.';
+ }
+
+ function getPopularDate(item = {}){
+ const raw = getPopularDateRaw(item);
+ return raw ? formatDateYmdDot(raw) : '등록일 정보 없음';
+ }
+
+ function parseKoreanDateToDate(value = ''){
+ const raw = String(value || '').trim();
+ const match = raw.match(/(\d{4})[.\-\/년\s]+(\d{1,2})[.\-\/월\s]+(\d{1,2})/);
+ if(!match) return null;
+
+ const y = Number(match[1]);
+ const m = Number(match[2]);
+ const d = Number(match[3]);
+
+ if(!y || !m || !d) return null;
+ const date = new Date(y, m - 1, d);
+ if(Number.isNaN(date.getTime())) return null;
+ return date;
+ }
+
+ function formatDateYmdDot(value = ''){
+ const date = value instanceof Date ? value : parseKoreanDateToDate(value);
+ if(!date) return String(value || '').replace(/^등록일\s*/,'').trim() || '등록일 정보 없음';
+
+ const y = date.getFullYear();
+ const m = String(date.getMonth() + 1).padStart(2, '0');
+ const d = String(date.getDate()).padStart(2, '0');
+ return `${y}.${m}.${d}`;
+ }
+
+ function isWithinRecentDays(value = '', days = 7){
+ const date = value instanceof Date ? value : parseKoreanDateToDate(value);
+ if(!date) return false;
+
+ const now = new Date();
+ const start = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+ const target = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+ const diff = start.getTime() - target.getTime();
+
+ return diff >= 0 && diff <= days * 24 * 60 * 60 * 1000;
+ }
+
+ function normalizeDateLikeToDate(value){
+ if(!value) return null;
+
+ if(value instanceof Date && !Number.isNaN(value.getTime())){
+ return value;
+ }
+
+ if(typeof value === 'object'){
+ if(typeof value.toDate === 'function'){
+ const d = value.toDate();
+ return d instanceof Date && !Number.isNaN(d.getTime()) ? d : null;
+ }
+
+ if(typeof value.seconds === 'number'){
+ const d = new Date(value.seconds * 1000);
+ return Number.isNaN(d.getTime()) ? null : d;
+ }
+
+ if(typeof value._seconds === 'number'){
+ const d = new Date(value._seconds * 1000);
+ return Number.isNaN(d.getTime()) ? null : d;
+ }
+ }
+
+ if(typeof value === 'number'){
+ const d = new Date(value > 10000000000 ? value : value * 1000);
+ return Number.isNaN(d.getTime()) ? null : d;
+ }
+
+ return null;
+ }
+
+ function getPopularDateCandidate(item = {}){
+ const candidates = [
+ item.createdAtText,
+ item.createdDate,
+ item.registeredAtText,
+ item.dateText,
+ item.registeredDate,
+ item.regDate,
+ item.createdAt,
+ item.registeredAt,
+ item.updatedAt,
+ item.date
+ ];
+
+ for(const value of candidates){
+ if(!value) continue;
+
+ const d = normalizeDateLikeToDate(value);
+ if(d) return d;
+
+ const str = String(value).replace(/^등록일\s*/, '').trim();
+ if(str) return str;
+ }
+
+ return '';
+ }
+
+ function getPopularDateRaw(item = {}){
+ const candidate = getPopularDateCandidate(item);
+
+ if(candidate instanceof Date){
+ return candidate;
+ }
+
+ if(candidate){
+ const str = String(candidate).replace(/^등록일\s*/, '').trim();
+ const match = str.match(/(\d{4}[.\-\/년\s]+\d{1,2}[.\-\/월\s]+\d{1,2}\.?)/);
+ return match ? match[1].trim() : str;
+ }
+
+ const raw =
+ item.condition ||
+ item.benefit ||
+ item.description ||
+ item.desc ||
+ item.subtitle ||
+ item.meta ||
+ '';
+
+ const match = String(raw).match(/(?:등록일\s*)?(\d{4}\.\s*\d{1,2}\.\s*\d{1,2}\.?)/);
+ return match ? match[1].trim() : '';
+ }
+
+ const POPULAR_RANK_SNAPSHOT_KEY = 'myhills_popular_rank_snapshot_v1';
+
+ function getPopularItemKey(item = {}){
+ return String(item.id || item.docId || item.name || item.title || '').trim();
+ }
+
+ function getPopularPreviousRankMap(){
+ try{
+ const raw = localStorage.getItem(POPULAR_RANK_SNAPSHOT_KEY);
+ const list = raw ? JSON.parse(raw) : [];
+ const map = {};
+ if(Array.isArray(list)){
+ list.forEach((entry) => {
+ if(entry && entry.key) map[entry.key] = Number(entry.rank || 0);
+ });
+ }
+ return map;
+ }catch(_){
+ return {};
+ }
+ }
+
+ function savePopularRankSnapshot(items = []){
+ try{
+ const snapshot = items.slice(0, 5).map((item, index) => ({
+ key: getPopularItemKey(item),
+ rank: index + 1
+ })).filter(v => v.key);
+ localStorage.setItem(POPULAR_RANK_SNAPSHOT_KEY, JSON.stringify(snapshot));
+ }catch(error){
+ console.warn('인기 순위 스냅샷 저장 실패', error);
+ }
+ }
+
+ function getPopularTrendHtml(item = {}, rank = 0, previousRankMap = {}){
+ const key = getPopularItemKey(item);
+ const prev = key ? Number(previousRankMap[key] || 0) : 0;
+
+ if(!prev) return '<span class="popular-trend same">NEW</span>';
+ if(prev > rank) return `<span class="popular-trend up">▲ ${prev - rank}</span>`;
+ if(prev < rank) return `<span class="popular-trend down">▼ ${rank - prev}</span>`;
+ return '<span class="popular-trend same">━</span>';
+ }
+
+ function animatePopularCounts(){
+ const els = document.querySelectorAll('.popular-count[data-count]');
+ els.forEach((el) => {
+ const target = Math.max(0, Number(el.dataset.count || 0));
+ const duration = 720;
+ const startTime = performance.now();
+ const parent = el.closest('.popular-score');
+ if(parent) parent.classList.add('bump');
+
+ function tick(now){
+ const progress = Math.min(1, (now - startTime) / duration);
+ const eased = 1 - Math.pow(1 - progress, 3);
+ el.textContent = String(Math.round(target * eased));
+ if(progress < 1){
+ requestAnimationFrame(tick);
+ }else{
+ el.textContent = String(target);
+ if(parent) setTimeout(() => parent.classList.remove('bump'), 280);
+ }
+ }
+
+ requestAnimationFrame(tick);
+ });
+ }
+
+ function renderPopularDateHtml(item = {}){
+ const raw = getPopularDateRaw(item);
+ const formatted = formatDateYmdDot(raw);
+ const isNew = raw && isWithinRecentDays(raw, 7);
+
+ return `
+ <span class="popular-date-value ${isNew ? 'is-new' : ''}">
+ <span>${escapeHtml(formatted)}</span>
+ ${isNew ? '<span class="popular-new-badge">NEW</span>' : ''}
+ </span>
+ `;
+ }
+
+ function splitBenefitParts(text = ''){
+ const raw = String(text || '').trim();
+ if(!raw) return [];
+
+ return raw
+ .split(/\s*[\/·ㆍ]\s*/g)
+ .map(v => v.trim())
+ .filter(Boolean);
+ }
+
+ function isHotBenefitText(text = ''){
+ const matches = String(text || '').match(/(\d+)\s*%/g) || [];
+ return matches.some(v => Number(String(v).replace(/[^\d]/g, '')) >= 50);
+ }
+
+ function renderBenefitPartsHtml(benefitText = ''){
+ const parts = splitBenefitParts(benefitText);
+ const list = parts.length ? parts : [benefitText || '혜택 조건은 상세보기에서 확인해 주세요.'];
+
+ return `
+ <div class="popular-benefit-list">
+ ${list.map(part => `
+ <div class="popular-benefit-part ${isHotBenefitText(part) ? 'hot' : ''}">
+ <span>${escapeHtml(part)}</span>
+ </div>
+ `).join('')}
+ </div>
+ `;
+ }
+
+ function renderPopularDetail(item = {}){
+ const benefit = getPopularBenefit(item);
+ const hotClass = isHotBenefitText(benefit) ? ' hot-value' : '';
+ const rawDate = getPopularDateRaw(item);
+ const isNew = rawDate && isWithinRecentDays(rawDate, 7);
+
+ return `
+ <div class="popular-detail">
+ <div class="popular-row">
+ <div class="label">품목</div>
+ <div class="value">${escapeHtml(getPopularCategory(item))}</div>
+ </div>
+ <div class="popular-row">
+ <div class="label">혜택</div>
+ <div class="value${hotClass}">${renderBenefitPartsHtml(benefit)}</div>
+ </div>
+ <div class="popular-row">
+ <div class="label">인기 지표</div>
+ <div class="value">조회 ${Number(item.detailViewCount || 0).toLocaleString('ko-KR')} · 즐겨찾기 ${Number(item.favoriteCount || 0).toLocaleString('ko-KR')} · 공유 ${Number(item.shareClickCount || 0).toLocaleString('ko-KR')} · 추천 ${Number(item.recommendCount || 0).toLocaleString('ko-KR')} · HOT ${Number(item.hotCount || 0).toLocaleString('ko-KR')}</div>
+ </div>
+ <div class="popular-row popular-date-row ${isNew ? 'is-new' : ''}">
+ <div class="label">등록일</div>
+ <div class="value">${renderPopularDateHtml(item)}</div>
+ </div>
+ </div>
+ `;
+ }
+
+ function renderHotNowStores(){
+ const panel = qs('#hotNowPanel');
+ const list = qs('#hotNowList');
+ if(!panel || !list) return;
+
+ const items = (state.popularItems || [])
+ .filter((item) => Number(item.popularScore || item.score || 0) > 0)
+ .slice()
+ .sort((a, b) => {
+ const hotA = Number(a.shareClickCount || 0) * 5 + Number(a.favoriteCount || 0) * 3 + Number(a.clickCount || 0);
+ const hotB = Number(b.shareClickCount || 0) * 5 + Number(b.favoriteCount || 0) * 3 + Number(b.clickCount || 0);
+ if(hotB !== hotA) return hotB - hotA;
+ return Number(b.popularScore || b.score || 0) - Number(a.popularScore || a.score || 0);
+ })
+ .slice(0, 3);
+
+ if(!items.length){
+ panel.classList.add('hidden');
+ list.innerHTML = '';
+ return;
+ }
+
+ panel.classList.remove('hidden');
+ list.innerHTML = items.map((item, index) => `
+ <article class="hot-now-item" data-benefit-id="${escapeHtml(item.id)}">
+ <div class="hot-now-left">
+ <div class="hot-now-rank">${index + 1}</div>
+ <div class="hot-now-copy">
+ <b>${escapeHtml(item.name || '이름 없는 매장')}</b>
+ <small>공유 ${Number(item.shareClickCount || 0).toLocaleString('ko-KR')} · 즐겨찾기 ${Number(item.favoriteCount || 0).toLocaleString('ko-KR')} · 조회 ${Number(item.detailViewCount || 0).toLocaleString('ko-KR')}</small>
+ </div>
+ </div>
+ <div class="hot-now-score">
+ <strong>${Number(item.popularScore || item.score || 0).toLocaleString('ko-KR')}</strong>
+ <span>인기점수</span>
+ </div>
+ </article>
+ `).join('');
+
+ list.querySelectorAll('.hot-now-item').forEach((el) => {
+ const id = el.dataset.benefitId;
+ const item = items.find((v) => v.id === id);
+ el.onclick = () => {
+ if(item?.benefit) openDetail(item.benefit);
+ };
+ });
+ }
+
+ function renderPopularTop5(){
+ const wrap = qs('#popularList');
+ if(!wrap) return;
+ wrap.innerHTML = '';
+ if(!state.popularItems.length){
+ wrap.innerHTML = '<div class="panel empty">아직 집계된 인기 매장이 없습니다.</div>';
+ renderHotNowStores();
+ return;
+ }
+ state.popularItems.forEach((item, index) => {
+ const rank = index + 1;
+ const row = document.createElement('article');
+ const motionClass = getPopularRowMotionClass(item);
+ row.className = `popular-item rank-${rank} ${motionClass}`.trim();
+ row.innerHTML = `
+ <div class="popular-rank-wrap">
+ ${getRankBadge(rank)}
+ ${rank === 1 ? '<span class="best-badge"> BEST</span>' : ''}
+ </div>
+ <div class="popular-meta">
+ <div class="popular-name-row">
+ <div class="popular-name">${escapeHtml(item.name || '이름 없는 매장')}</div>
+ ${item.trendText ? `<span class="popular-trend ${item.trendClass || 'same'}">${escapeHtml(item.trendText)}</span>` : ''}
+ ${item.isShareBest ? '<span class="share-best-badge"><img class="share-best-icon" src="/icons/internal/share-best.svg" alt="" loading="lazy" decoding="async"><span>공유 BEST</span></span>' : ''}
+ </div>
+ ${rank === 1 ? '<div class="top1-urgent">HOT 지금 클릭이 가장 많은 혜택입니다</div><div class="top1-cta"><button type="button" class="top1-btn">혜택 바로보기</button></div>' : ''}
+ ${renderPopularDetail(item)}
+ </div>
+ <div class="popular-score">
+ <strong class="popular-count">0</strong>
+ <span>인기점수</span>
+ </div>
+ `;
+ row.onclick = () => {
+ if(item.benefit){
+ openDetail(item.benefit);
+ }
+ };
+ wrap.appendChild(row);
+ const scoreTarget = Number(item.popularScore ?? item.score ?? 0);
+ const countEl = row.querySelector('.popular-count');
+ if(countEl){
+   // 인기점수는 0으로 남지 않도록 먼저 확정값을 표시합니다.
+   countEl.textContent = scoreTarget.toLocaleString('ko-KR');
+   // 애니메이션은 보조 효과로만 실행합니다.
+   requestAnimationFrame(() => animatePopularCount(countEl, scoreTarget));
+ }
+ });
+ renderHotNowStores();
+ }
+ const getVisibleBenefits=()=>state.benefits.filter(isPubliclyVisibleBenefit);
+ const getCategoryCounts=()=> {
+ const counts = {};
+ getVisibleBenefits().forEach(v => {
+ const key = normalizeCategory(v.category);
+ counts[key] = (counts[key] || 0) + 1;
+ });
+ return counts;
+ };
+ const getCategories=()=>['전체',...Object.keys(getCategoryCounts()).sort((a,b)=>a.localeCompare(b,'ko'))];
+ function createChips(){
+ const el=qs('#chips');
+ const counts = getCategoryCounts();
+ const total = getVisibleBenefits().length;
+ const categories = getCategories();
+ if(!categories.includes(state.category)){
+ state.category='전체';
+ localStorage.setItem(LAST_CATEGORY_KEY,'전체');
+ }
+ el.innerHTML='';
+ categories.forEach(cat=>{
+ const b=document.createElement('button');
+ b.className=`chip ${state.category===cat?'active':''}`;
+ const count = cat === '전체' ? total : (counts[cat] || 0);
+ b.innerHTML=`<span class="chip-icon">${getCategoryIcon(cat)}</span><span>${cat} ${count}</span>`;
+ b.onclick=()=>{
+ state.category=cat;
+ localStorage.setItem(LAST_CATEGORY_KEY, cat);
+ changeView('benefits');
+ };
+ el.appendChild(b);
+ });
+ updateToggle();
+ applyChipsState();
+ }
+ function getFilteredBenefits(mode='normal'){
+ const favorites = new Set(getFavorites());
+ const radius = state.distanceRadius === 'all' ? null : Number(state.distanceRadius);
+ const useRadius = Number.isFinite(radius) && radius > 0;
+
+ const items = getVisibleBenefits().filter(item => {
+ const matchCategory = state.category === '전체' || normalizeCategory(item.category) === normalizeCategory(state.category);
+ const q = state.keyword.trim().toLowerCase();
+ const blob = [item.name,item.category,item.condition,item.priceDetails,item.priceInfo,item.servicePriceText,item.servicePriceDetails,getBenefitDisplayAddress(item),item.zipcode,item.roadAddress,item.jibunAddress,item.detailAddress,item.phone,item.emergencyPhone,item.contact?.emergency,item.stationAccessText,item.transitText,item.stationGuide,item.nearStationText,(item.stations||[]).map(formatStationAccessText).join(' ')].join(' ').toLowerCase();
+ const matchKeyword = !q || blob.includes(q);
+ const matchFilter = state.filter === 'all' ? true : (item.discountValue >= 15 || item.recommended);
+ const matchMode = mode === 'favorite' ? favorites.has(item.id) : true;
+ const distance = getItemDistance(item);
+ const matchRadius = !useRadius || (Number.isFinite(distance) && distance <= radius);
+ return matchCategory && matchKeyword && matchFilter && matchMode && matchRadius;
+ });
+
+ if(state.benefitSortMode === 'distance'){
+ return items.sort((a,b) => {
+ const da = getItemDistance(a);
+ const db = getItemDistance(b);
+ const va = Number.isFinite(da) ? da : Number.POSITIVE_INFINITY;
+ const vb = Number.isFinite(db) ? db : Number.POSITIVE_INFINITY;
+ return (va - vb) || a.name.localeCompare(b.name,'ko');
+ });
+ }
+
+ if(state.benefitSortMode === 'latest'){
+ return items.sort((a,b) => (getBenefitCreatedTime(b) - getBenefitCreatedTime(a)) || a.name.localeCompare(b.name,'ko'));
+ }
+
+ if(state.benefitSortMode === 'top'){
+ return items.sort((a,b) => {
+ const ra = getBenefitTopRank(a) || 999;
+ const rb = getBenefitTopRank(b) || 999;
+ return (ra - rb) || ((b.recommended?1:0)-(a.recommended?1:0)) || (b.discountValue-a.discountValue) || a.name.localeCompare(b.name,'ko');
+ });
+ }
+
+ return items.sort((a,b)=>((b.recommended?1:0)-(a.recommended?1:0))||(b.discountValue-a.discountValue)||a.name.localeCompare(b.name,'ko'));
+ }
+ const getBadgeClass=(item)=>{
+ if(item.service) return 'badge service';
+ const value = Number(item.discountValue || 0);
+ if(value >= 50) return 'badge hot';
+ if(value >= 30) return 'badge mid';
+ if(value >= 15) return 'badge normal';
+ return value <= 5 ? 'badge low' : 'badge';
+ };
+ function cardTemplate(item,isFavorite){
+ const distance = getItemDistance(item);
+ const distanceTag = Number.isFinite(distance) ? `<span class="tag distance-tag"><img class="upick-svg-icon" src="/icons/internal/walk.svg" alt="" loading="lazy"> ${formatDistance(distance)}</span>` : '';
+ const categoryIcon = getCategoryIcon(item.category);
+ const favIcon = `<img class="upick-fav-icon-img" src="/icons/internal/${isFavorite ? 'star-fill' : 'star-outline'}.svg" alt="" loading="lazy" decoding="async">`;
+ const fullAddress = getBenefitDisplayAddress(item);
+ const addressText = fullAddress.length > 20 ? fullAddress.slice(0,20) + '…' : fullAddress;
+ return `${benefitTopBadgeHtml(item)}
+ <div class="card-top">
+ <div class="${getBadgeClass(item)}">${item.discountText}</div>
+ <div class="card-info">
+ <h4>${item.name}</h4>
+ <div class="meta">${item.condition}</div>
+ ${benefitStatusChipsHtml(item,{compact:true})}
+ </div>
+ <div class="list-meta">
+ <span class="category-icon-tag" title="${escapeHtml(item.category)}">${categoryIcon}</span>
+ ${distanceTag}
+ </div>
+ </div>
+ <div class="card-tags">
+ <span class="tag category-text-tag">${item.category}</span>
+ ${benefitOperationBadgesHtml(item)}
+ ${distanceTag}
+
+ </div>
+ <button class="fav-icon-btn fav-btn ${isFavorite ? 'is-favorite' : ''}" type="button" aria-label="${isFavorite ? '즐겨찾기 해제' : '즐겨찾기 추가'}">${favIcon}</button>
+ <div class="actions"><button class="btn btn-soft fav-btn">${favIcon}</button></div>`;
+ }
+ function updateBenefitViewModeButtons(){
+ const isList = state.benefitViewMode !== 'card';
+ qs('#benefitListModeBtn')?.classList.toggle('active', isList);
+ qs('#benefitCardModeBtn')?.classList.toggle('active', !isList);
+ }
+ function setBenefitViewMode(mode){
+ state.benefitViewMode = mode === 'card' ? 'card' : 'list';
+ try{localStorage.setItem('benefitViewMode', state.benefitViewMode);}catch(_){}
+ renderHome();
+ }
+ function renderList(target,items){
+ const wrap=qs(target),favorites=new Set(getFavorites());
+ if(!wrap) return;
+ wrap.innerHTML='';
+ const isBenefitMain = target === '#cardList';
+ if(isBenefitMain){
+ wrap.classList.toggle('view-list', state.benefitViewMode !== 'card');
+ wrap.classList.toggle('view-card', state.benefitViewMode === 'card');
+ updateBenefitViewModeButtons();
+ }
+ if(target === '#favoriteList'){
+ wrap.classList.add('view-list');
+ wrap.classList.remove('view-card');
+ }
+ if(!items.length){wrap.innerHTML='<div class="panel empty">조건에 맞는 항목이 없습니다.</div>';return;}
+ items.forEach(item=>{
+ const card=document.createElement('article');
+ const topRank=getBenefitTopRank(item);
+ card.className=`card ${benefitCardStatusClass(item)} ${topRank ? `top-rank-${topRank}` : ''}`;
+ card.innerHTML=cardTemplate(item,favorites.has(item.id));
+ card.onclick=()=>{increaseStat(item.id, item.name, 'cardClickCount');logBenefitEvent(item.id, 'card_click');openDetail(item);};
+ card.querySelector('.detail-btn')?.addEventListener('click',(e)=>{e.stopPropagation();openDetail(item);});
+ card.querySelectorAll('.fav-btn').forEach((btn)=>{
+ btn.addEventListener('click',(e)=>{e.stopPropagation();toggleFavorite(item.id, item.name);});
+ });
+ wrap.appendChild(card);
+ });
+ }
+
+ function closeFilterPopovers(){
+ qsa('.filter-popover').forEach(pop => {
+ pop.classList.add('hidden');
+ pop.classList.remove('show');
+ });
+ qs('#sortPopoverBtn')?.setAttribute('aria-expanded','false');
+ qs('#radiusPopoverBtn')?.setAttribute('aria-expanded','false');
+ }
+ function toggleFilterPopover(type){
+ const target = type === 'radius' ? qs('#radiusPopover') : qs('#sortPopover');
+ const other = type === 'radius' ? qs('#sortPopover') : qs('#radiusPopover');
+ const btn = type === 'radius' ? qs('#radiusPopoverBtn') : qs('#sortPopoverBtn');
+ const otherBtn = type === 'radius' ? qs('#sortPopoverBtn') : qs('#radiusPopoverBtn');
+ if(!target || !btn) return;
+ const willOpen = target.classList.contains('hidden');
+ other?.classList.add('hidden');
+ other?.classList.remove('show');
+ otherBtn?.setAttribute('aria-expanded','false');
+ target.classList.toggle('hidden', !willOpen);
+ target.classList.toggle('show', willOpen);
+ btn.setAttribute('aria-expanded', willOpen ? 'true' : 'false');
+ }
+ function updateFilterIconLabels(){
+ const sortMap = { default:'↕ 추천', latest:'↕ 최신', top:'↕ TOP', distance:'↕ 가까운순' };
+ const radiusMap = { all:'전체', 500:'500m', 1000:'1km', 3000:'3km' };
+ const sortValue = state.benefitSortMode || 'default';
+ const radiusValue = state.distanceRadius || 'all';
+ const sortBtn = qs('#sortPopoverBtn');
+ const radiusBtn = qs('#radiusPopoverBtn');
+ if(sortBtn){
+ sortBtn.textContent = sortMap[sortValue] || '↕ 정렬';
+ sortBtn.classList.toggle('active', sortValue !== 'default');
+ }
+ if(radiusBtn){
+ radiusBtn.textContent = radiusMap[radiusValue] || '반경';
+ radiusBtn.classList.toggle('active', radiusValue !== 'all');
+ }
+ qsa('[data-sort-value]').forEach(btn => btn.classList.toggle('active', btn.dataset.sortValue === sortValue));
+ qsa('[data-radius-value]').forEach(btn => btn.classList.toggle('active', btn.dataset.radiusValue === radiusValue));
+ }
+ async function applySortPopoverValue(value){
+ state.benefitSortMode = value || 'default';
+ if(qs('#benefitSortSelect')) qs('#benefitSortSelect').value = state.benefitSortMode;
+ updateFilterIconLabels();
+ closeFilterPopovers();
+ renderAll();
+ setTimeout(setupBenefitFilterFixed, 80);
+ await ensureBenefitDistances();
+ updateFilterIconLabels();
+ renderAll();
+ setTimeout(setupBenefitFilterFixed, 80);
+ }
+ async function applyRadiusPopoverValue(value){
+ state.distanceRadius = value || 'all';
+ if(qs('#distanceRadiusSelect')) qs('#distanceRadiusSelect').value = state.distanceRadius;
+ updateFilterIconLabels();
+ closeFilterPopovers();
+ renderAll();
+ setTimeout(setupBenefitFilterFixed, 80);
+ await ensureBenefitDistances();
+ updateFilterIconLabels();
+ renderAll();
+ setTimeout(setupBenefitFilterFixed, 80);
+ }
+ function bindFilterIconPopovers(){
+ if(bindFilterIconPopovers._bound){
+ updateFilterIconLabels();
+ return;
+ }
+ bindFilterIconPopovers._bound = true;
+ document.addEventListener('click', closeFilterPopovers);
+ qs('#sortPopoverBtn')?.addEventListener('click', (e)=>{ e.preventDefault(); e.stopPropagation(); toggleFilterPopover('sort'); });
+ qs('#radiusPopoverBtn')?.addEventListener('click', (e)=>{ e.preventDefault(); e.stopPropagation(); toggleFilterPopover('radius'); });
+ qsa('[data-sort-value]').forEach(btn => btn.addEventListener('click', (e)=>{ e.preventDefault(); e.stopPropagation(); applySortPopoverValue(btn.dataset.sortValue); }));
+ qsa('[data-radius-value]').forEach(btn => btn.addEventListener('click', (e)=>{ e.preventDefault(); e.stopPropagation(); applyRadiusPopoverValue(btn.dataset.radiusValue); }));
+ updateFilterIconLabels();
+ }
+
+ let benefitStickyBaseTop = 0;
+ function setupBenefitFilterFixed(){
+ const filter = qs('#view-benefits .filter-sticky');
+ if(!filter) return;
+ let placeholder = qs('#benefitFilterStickyPlaceholder');
+ if(!placeholder){
+ placeholder = document.createElement('div');
+ placeholder.id = 'benefitFilterStickyPlaceholder';
+ placeholder.className = 'filter-sticky-placeholder';
+ filter.parentNode.insertBefore(placeholder, filter);
+ }
+
+ const measure = () => {
+ filter.classList.remove('is-fixed');
+ placeholder.classList.remove('active');
+ placeholder.style.height = '0px';
+ const rect = filter.getBoundingClientRect();
+ benefitStickyBaseTop = rect.top + window.scrollY;
+ };
+
+ const update = () => {
+ if(state.view !== 'benefits'){
+ filter.classList.remove('is-fixed');
+ placeholder.classList.remove('active');
+ return;
+ }
+ const shouldFix = window.scrollY > benefitStickyBaseTop;
+ if(shouldFix){
+ placeholder.style.height = filter.offsetHeight + 'px';
+ placeholder.classList.add('active');
+ filter.classList.add('is-fixed');
+ }else{
+ filter.classList.remove('is-fixed');
+ placeholder.classList.remove('active');
+ placeholder.style.height = '0px';
+ }
+ };
+
+ setTimeout(() => { measure(); update(); }, 80);
+ window.removeEventListener('scroll', setupBenefitFilterFixed._scrollHandler || (()=>{}));
+ window.removeEventListener('resize', setupBenefitFilterFixed._resizeHandler || (()=>{}));
+ setupBenefitFilterFixed._scrollHandler = update;
+ setupBenefitFilterFixed._resizeHandler = () => { measure(); update(); };
+ window.addEventListener('scroll', setupBenefitFilterFixed._scrollHandler, { passive:true });
+ window.addEventListener('resize', setupBenefitFilterFixed._resizeHandler);
+ }
+
+ function toDateFromTimestamp(value){
+ try{
+ if(value?.toDate) return value.toDate();
+ if(value instanceof Date) return value;
+ if(typeof value === 'string' && value) return new Date(value);
+ }catch(error){}
+ return null;
+ }
+ function pad2(value){ return String(value).padStart(2,'0'); }
+ function todayInputValue(){
+ const d = new Date();
+ return `${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())}`;
+ }
+ function defaultVisitTimeValue(){
+ const d = new Date(Date.now() + 60 * 60 * 1000);
+ return `${pad2(d.getHours())}:${pad2(Math.ceil(d.getMinutes()/10)*10 % 60)}`;
+ }
+ function formatDateTimeKo(date){
+ if(!date) return '-';
+ try{
+ return date.toLocaleString('ko-KR', { month:'2-digit', day:'2-digit', hour:'2-digit', minute:'2-digit' });
+ }catch(error){ return '-'; }
+ }
+ function formatDateKo(date){
+ if(!date) return '-';
+ try{return date.toLocaleDateString('ko-KR', { year:'numeric', month:'2-digit', day:'2-digit' });}catch(error){return '-';}
+ }
+ function normalizeReservation(data={}, id=''){
+ return {
+ id,
+ uid:String(data.uid || ''),
+ benefitId:String(data.benefitId || ''),
+ storeName:String(data.storeName || '혜택 매장').trim(),
+ category:String(data.category || '').trim(),
+ phone:String(data.phone || '').trim(),
+ address:String(data.address || '').trim(),
+ discountText:String(data.discountText || '').trim(),
+ visitAt:data.visitAt || null,
+ notifyAt:data.notifyAt || null,
+ notifyBeforeMinutes:Number(data.notifyBeforeMinutes || 30),
+ memo:String(data.memo || '').trim(),
+ status:String(data.status || 'scheduled'),
+ createdAt:data.createdAt || null,
+ updatedAt:data.updatedAt || null,
+ notifiedAt:data.notifiedAt || null,
+ localNotifiedAt:data.localNotifiedAt || null
+ };
+ }
+ function reservationStatusMeta(item={}){
+ if(item.status === 'cancelled') return { text:'취소됨', cls:'cancelled' };
+ if(item.status === 'sent' || item.notifiedAt) return { text:'알림 완료', cls:'sent' };
+ const notifyAt = toDateFromTimestamp(item.notifyAt);
+ if(notifyAt && notifyAt.getTime() <= Date.now()) return { text:'알림 대기', cls:'' };
+ return { text:'예약됨', cls:'' };
+ }
+ function getReservationCounts(){
+ const active = state.calendarReservations.filter(v => v.status !== 'cancelled');
+ const now = new Date();
+ const todayKey = `${now.getFullYear()}-${pad2(now.getMonth()+1)}-${pad2(now.getDate())}`;
+ const today = active.filter(v => {
+ const d = toDateFromTimestamp(v.visitAt);
+ return d && `${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())}` === todayKey;
+ }).length;
+ const upcoming = active.filter(v => {
+ const n = toDateFromTimestamp(v.notifyAt);
+ return n && n.getTime() >= Date.now();
+ }).length;
+ return { total:active.length, today, upcoming };
+ }
+ const calendarUiState = {
+ mode: 'month',
+ cursorDate: new Date(),
+ selectedDateKey: '',
+ dayModalDateKey: '',
+ focusAfterModalDateKey: ''
+ };
+ function cloneDateOnly(date){
+ const d = date instanceof Date ? date : new Date();
+ return new Date(d.getFullYear(), d.getMonth(), d.getDate());
+ }
+ function dateKeyFromDate(date){
+ if(!(date instanceof Date) || Number.isNaN(date.getTime())) return '';
+ return `${date.getFullYear()}-${pad2(date.getMonth()+1)}-${pad2(date.getDate())}`;
+ }
+ function dateFromKey(dateKey){
+ const parts = String(dateKey || '').split('-').map(Number);
+ if(parts.length !== 3 || parts.some(v => !Number.isFinite(v))) return cloneDateOnly(new Date());
+ return new Date(parts[0], parts[1]-1, parts[2]);
+ }
+ function addDays(date, offset){
+ const d = cloneDateOnly(date);
+ d.setDate(d.getDate() + Number(offset || 0));
+ return d;
+ }
+ function startOfWeek(date){
+ const d = cloneDateOnly(date);
+ d.setDate(d.getDate() - d.getDay());
+ return d;
+ }
+ function formatCalendarTitle(date, mode){
+ const d = cloneDateOnly(date);
+ if(mode === 'month') return `${d.getFullYear()}년 ${d.getMonth()+1}월`;
+ if(mode === 'week'){
+ const start = startOfWeek(d);
+ const end = addDays(start, 6);
+ return `${start.getFullYear()}. ${pad2(start.getMonth()+1)}. ${pad2(start.getDate())} ~ ${end.getFullYear()}. ${pad2(end.getMonth()+1)}. ${pad2(end.getDate())}`;
+ }
+ return formatCalendarDayTitle(dateKeyFromDate(d));
+ }
+ function formatCalendarDayTitle(dateKey){
+ const d = dateFromKey(dateKey);
+ const dayNames = ['일','월','화','수','목','금','토'];
+ return `${d.getFullYear()}. ${pad2(d.getMonth()+1)}. ${pad2(d.getDate())}. (${dayNames[d.getDay()]})`;
+ }
+ function getReservationVisitDateKey(item={}){
+ const visitAt = toDateFromTimestamp(item.visitAt);
+ return visitAt ? dateKeyFromDate(visitAt) : '';
+ }
+ function getReservationsByDateKey(dateKey){
+ return state.calendarReservations
+ .filter(item => item.status !== 'cancelled' && getReservationVisitDateKey(item) === dateKey)
+ .sort((a,b) => (toDateFromTimestamp(a.visitAt)?.getTime() || 0) - (toDateFromTimestamp(b.visitAt)?.getTime() || 0));
+ }
+ function ensureCalendarSelectedDate(){
+ if(!calendarUiState.selectedDateKey) calendarUiState.selectedDateKey = dateKeyFromDate(new Date());
+ if(!(calendarUiState.cursorDate instanceof Date) || Number.isNaN(calendarUiState.cursorDate.getTime())){
+ calendarUiState.cursorDate = dateFromKey(calendarUiState.selectedDateKey);
+ }
+ }
+ function calendarItemHtml(item, options={}){
+ const status = reservationStatusMeta(item);
+ const visitAt = toDateFromTimestamp(item.visitAt);
+ const notifyAt = toDateFromTimestamp(item.notifyAt);
+ const clickable = options.clickable ? ` data-calendar-date-card="${escapeAttr(getReservationVisitDateKey(item))}"` : '';
+ return `
+ <article class="calendar-item ${escapeAttr(status.cls)}" data-calendar-id="${escapeAttr(item.id)}"${clickable}>
+ <div class="calendar-item-head">
+ <div class="calendar-item-title">
+ <strong>${escapeHtml(item.storeName)}</strong>
+ <span>${escapeHtml(item.category || '혜택 매장')} ${item.discountText ? '· ' + escapeHtml(item.discountText) : ''}</span>
+ </div>
+ <span class="calendar-status ${escapeAttr(status.cls)}">${escapeHtml(status.text)}</span>
+ </div>
+ <div class="calendar-info-grid">
+ <div class="calendar-info"><small>방문 예정</small><b>${escapeHtml(formatDateTimeKo(visitAt))}</b></div>
+ <div class="calendar-info"><small>알림 시간</small><b>${escapeHtml(formatDateTimeKo(notifyAt))}</b></div>
+ <div class="calendar-info"><small>전화번호</small><b>${escapeHtml(item.phone || '미등록')}</b></div>
+ <div class="calendar-info"><small>주소</small><b>${escapeHtml(getBenefitDisplayAddress(item) || '미등록')}</b></div>
+ </div>
+ ${item.memo ? `<div class="calendar-info"><small>메모</small><b>${escapeHtml(item.memo)}</b></div>` : ''}
+ <div class="calendar-item-actions">
+ ${item.phone ? `<a class="btn btn-primary" href="tel:${escapeAttr(item.phone)}">전화하기</a>` : ''}
+ ${item.benefitId ? `<button class="btn btn-soft" type="button" data-calendar-open-benefit="${escapeAttr(item.benefitId)}">혜택 상세</button>` : ''}
+ ${item.status !== 'cancelled' ? `<button class="btn btn-soft" type="button" data-calendar-cancel="${escapeAttr(item.id)}">알림 취소</button>` : ''}
+ </div>
+ </article>
+ `;
+ }
+ function bindCalendarReservationActions(scope=document){
+ scope.querySelectorAll?.('[data-calendar-open-benefit]')?.forEach(btn => {
+ if(btn.dataset.boundCalendarOpen === '1') return;
+ btn.dataset.boundCalendarOpen = '1';
+ btn.addEventListener('click', (event) => {
+ event.stopPropagation();
+ const item = state.benefits.find(v => v.id === btn.dataset.calendarOpenBenefit);
+ if(item) openDetail(item);
+ else openModalAlert('현재 혜택 목록에서 해당 매장을 찾지 못했습니다.');
+ });
+ });
+ scope.querySelectorAll?.('[data-calendar-cancel]')?.forEach(btn => {
+ if(btn.dataset.boundCalendarCancel === '1') return;
+ btn.dataset.boundCalendarCancel = '1';
+ btn.addEventListener('click', (event) => {
+ event.stopPropagation();
+ cancelCalendarReservation(btn.dataset.calendarCancel);
+ });
+ });
+ }
+ function renderCalendarMonthBoard(board){
+ const cursor = cloneDateOnly(calendarUiState.cursorDate);
+ const first = new Date(cursor.getFullYear(), cursor.getMonth(), 1);
+ const start = addDays(first, -first.getDay());
+ const todayKey = dateKeyFromDate(new Date());
+ const selected = calendarUiState.selectedDateKey;
+ const rows = [];
+ for(let i=0;i<42;i++){
+ const d = addDays(start, i);
+ const key = dateKeyFromDate(d);
+ const items = getReservationsByDateKey(key);
+ const dots = items.slice(0,3).map(() => '<span class="calendar-dot"></span>').join('');
+ const more = items.length > 3 ? `<span class="calendar-more">+${items.length - 3}</span>` : (items.length ? `<span class="calendar-more">${items.length}건</span>` : '');
+ const classes = [
+ 'calendar-date-cell',
+ d.getMonth() !== cursor.getMonth() ? 'other-month' : '',
+ key === todayKey ? 'today' : '',
+ key === selected ? 'selected' : ''
+ ].filter(Boolean).join(' ');
+ rows.push(`<button class="${classes}" type="button" data-calendar-date="${escapeAttr(key)}"><span class="calendar-date-num">${d.getDate()}</span><span class="calendar-dots">${dots}</span>${more}</button>`);
+ }
+ board.innerHTML = `<div class="calendar-weekdays"><span>일</span><span>월</span><span>화</span><span>수</span><span>목</span><span>금</span><span>토</span></div><div class="calendar-month-grid">${rows.join('')}</div>`;
+ }
+ function renderCalendarWeekBoard(board){
+ const start = startOfWeek(calendarUiState.cursorDate);
+ const todayKey = dateKeyFromDate(new Date());
+ const selected = calendarUiState.selectedDateKey;
+ const cards = [];
+ for(let i=0;i<7;i++){
+ const d = addDays(start, i);
+ const key = dateKeyFromDate(d);
+ const items = getReservationsByDateKey(key);
+ const first = items[0];
+ const classes = ['calendar-week-card', key === todayKey ? 'today' : '', key === selected ? 'selected' : ''].filter(Boolean).join(' ');
+ cards.push(`<button class="${classes}" type="button" data-calendar-date="${escapeAttr(key)}"><span class="calendar-week-date"><strong>${formatCalendarDayTitle(key)}</strong></span><span class="calendar-week-summary">${items.length ? `${items.length}건 · ${escapeHtml(first.storeName)}` : '예약 없음'}</span></button>`);
+ }
+ board.innerHTML = `<div class="calendar-week-grid">${cards.join('')}</div>`;
+ }
+ function renderCalendarDayBoard(board){
+ const key = calendarUiState.selectedDateKey || dateKeyFromDate(calendarUiState.cursorDate);
+ const items = getReservationsByDateKey(key);
+ board.innerHTML = `<div class="calendar-day-compact" data-calendar-date="${escapeAttr(key)}"><div><strong>${formatCalendarDayTitle(key)} 일정</strong><p>${items.length ? `${items.length}건의 방문 일정이 있습니다. 날짜를 눌러 자세히 확인해 보세요.` : '선택한 날짜에 등록된 예약이 없습니다.'}</p></div><button class="calendar-open-day-btn" type="button" data-calendar-date="${escapeAttr(key)}">방문 일정 보기</button></div>`;
+ }
+ function renderCalendarVisualBoard(){
+ const board = qs('#calendarVisualBoard');
+ if(!board) return;
+ ensureCalendarSelectedDate();
+ if(qs('#calendarTitleBtn')) qs('#calendarTitleBtn').textContent = formatCalendarTitle(calendarUiState.cursorDate, calendarUiState.mode);
+ qsa('[data-calendar-mode]').forEach(btn => btn.classList.toggle('active', btn.dataset.calendarMode === calendarUiState.mode));
+ if(calendarUiState.mode === 'week') renderCalendarWeekBoard(board);
+ else if(calendarUiState.mode === 'day') renderCalendarDayBoard(board);
+ else renderCalendarMonthBoard(board);
+ qsa('[data-calendar-date]').forEach(btn => btn.addEventListener('click', () => openCalendarDayModal(btn.dataset.calendarDate)));
+ qsa('[data-calendar-date-card]').forEach(card => card.addEventListener('click', (event) => {
+ if(event.target.closest('button,a')) return;
+ openCalendarDayModal(card.dataset.calendarDateCard);
+ }));
+ bindCalendarReservationActions(board);
+ }
+ function renderSelectedCalendarList(){
+ const wrap = qs('#calendarReservationList');
+ const head = qs('#calendarSelectedHead');
+ if(head) head.innerHTML = '';
+ if(wrap) wrap.innerHTML = '';
+ }
+ function renderCalendarReservations(){
+ const counts = getReservationCounts();
+ if(qs('#calendarTotalCount')) qs('#calendarTotalCount').textContent = counts.total;
+ if(qs('#calendarTodayCount')) qs('#calendarTodayCount').textContent = counts.today;
+ if(qs('#calendarUpcomingCount')) qs('#calendarUpcomingCount').textContent = counts.upcoming;
+ ensureCalendarSelectedDate();
+ renderCalendarVisualBoard();
+ renderSelectedCalendarList();
+ }
+ function changeCalendarMode(mode){
+ if(!['month','week','day'].includes(mode)) return;
+ calendarUiState.mode = mode;
+ calendarUiState.cursorDate = dateFromKey(calendarUiState.selectedDateKey || dateKeyFromDate(new Date()));
+ renderCalendarReservations();
+ }
+ function blurCalendarActiveElement(){
+ try{
+ const active = document.activeElement;
+ if(active && typeof active.blur === 'function') active.blur();
+ }catch(error){}
+ }
+ function preserveCalendarScroll(callback){
+ const x = window.scrollX || 0;
+ const y = window.scrollY || 0;
+ blurCalendarActiveElement();
+ callback?.();
+ requestAnimationFrame(() => window.scrollTo(x, y));
+ setTimeout(() => window.scrollTo(x, y), 40);
+ }
+ function moveCalendarView(offset){
+ preserveCalendarScroll(() => {
+ ensureCalendarSelectedDate();
+ const d = cloneDateOnly(calendarUiState.cursorDate);
+ if(calendarUiState.mode === 'month') d.setMonth(d.getMonth() + offset);
+ else if(calendarUiState.mode === 'week') d.setDate(d.getDate() + offset * 7);
+ else d.setDate(d.getDate() + offset);
+ calendarUiState.cursorDate = d;
+ calendarUiState.selectedDateKey = dateKeyFromDate(d);
+ renderCalendarReservations();
+ focusCalendarDate(calendarUiState.selectedDateKey, { scroll:false });
+ });
+ }
+ function goCalendarToday(){
+ preserveCalendarScroll(() => {
+ const today = cloneDateOnly(new Date());
+ calendarUiState.cursorDate = today;
+ calendarUiState.selectedDateKey = dateKeyFromDate(today);
+ renderCalendarReservations();
+ focusCalendarDate(calendarUiState.selectedDateKey, { scroll:false });
+ });
+ }
+ function openCalendarMainDatePicker(){
+ const picker = qs('#calendarMainDatePicker');
+ if(!picker) return;
+ blurCalendarActiveElement();
+ picker.value = calendarUiState.selectedDateKey || dateKeyFromDate(calendarUiState.cursorDate || new Date());
+ if(typeof picker.showPicker === 'function') picker.showPicker();
+ else picker.click();
+ }
+ function moveCalendarToDate(dateKey){
+ if(!dateKey) return;
+ preserveCalendarScroll(() => {
+ const d = dateFromKey(dateKey);
+ calendarUiState.cursorDate = d;
+ calendarUiState.selectedDateKey = dateKeyFromDate(d);
+ renderCalendarReservations();
+ focusCalendarDate(calendarUiState.selectedDateKey, { scroll:false });
+ });
+ }
+ function focusCalendarDate(dateKey, options={}){
+ setTimeout(() => {
+ const el = document.querySelector(`[data-calendar-date="${CSS.escape(dateKey)}"]`) || document.querySelector(`[data-calendar-date-card="${CSS.escape(dateKey)}"]`);
+ if(!el) return;
+ if(options.scroll !== false) el.scrollIntoView({ behavior:'smooth', block:'center' });
+ el.classList.add('focus-highlight');
+ setTimeout(() => el.classList.remove('focus-highlight'), 1100);
+ }, 80);
+ }
+ function openCalendarDayModal(dateKey){
+ if(!dateKey) return;
+ calendarUiState.dayModalDateKey = dateKey;
+ calendarUiState.focusAfterModalDateKey = dateKey;
+ renderCalendarDayModal();
+ const modal = qs('#calendarDayModal');
+ if(!modal) return;
+ if(modal.open) modal.close();
+ modal.showModal();
+ }
+ function moveCalendarDayModal(offset){
+ const d = addDays(dateFromKey(calendarUiState.dayModalDateKey || calendarUiState.selectedDateKey), offset);
+ calendarUiState.dayModalDateKey = dateKeyFromDate(d);
+ calendarUiState.focusAfterModalDateKey = calendarUiState.dayModalDateKey;
+ renderCalendarDayModal();
+ }
+ 
+/* ===== 캘린더 공통 팝업 날짜 제목: 연도 포함 ===== */
+function formatCalendarDayModalTitle(dateKey){
+ const d = (typeof parseDateKey === "function") ? parseDateKey(dateKey) : new Date(String(dateKey || "") + "T00:00:00");
+ if (!d || Number.isNaN(d.getTime())) return String(dateKey || "");
+ const days = ["일","월","화","수","목","금","토"];
+ const yyyy = d.getFullYear();
+ const mm = String(d.getMonth() + 1).padStart(2, "0");
+ const dd = String(d.getDate()).padStart(2, "0");
+ return `${yyyy}. ${mm}. ${dd}. (${days[d.getDay()]})`;
+}
+
+function enforceCalendarDayModalTitleYear(){
+ const titleEl =
+ document.getElementById("calendarDayModalTitle") ||
+ document.querySelector("#calendarDayModal .calendar-day-modal-title") ||
+ document.querySelector("#calendarDayModal [data-calendar-day-modal-title]");
+ const dateKey =
+ window.calendarDayModalDateKey ||
+ (typeof calendarDayModalDateKey !== "undefined" ? calendarDayModalDateKey : "") ||
+ (typeof selectedCalendarDateKey !== "undefined" ? selectedCalendarDateKey : "");
+ if (titleEl && dateKey) titleEl.textContent = formatCalendarDayModalTitle(dateKey);
+}
+
+function renderCalendarDayModal(){
+ const key = calendarUiState.dayModalDateKey || dateKeyFromDate(new Date());
+ const items = getReservationsByDateKey(key);
+ const title = qs('#calendarDayDateBtn');
+ const list = qs('#calendarDayModalList');
+ const picker = qs('#calendarDayDatePicker');
+ if(title) title.textContent = formatCalendarDayTitle(key);
+ if(picker) picker.value = key;
+ if(!list) return;
+ list.innerHTML = items.length ? items.map(item => calendarItemHtml(item)).join('') : '<div class="calendar-empty">해당 날짜에 등록된 예약이 없습니다.</div>';
+ list.scrollTop = 0;
+ bindCalendarReservationActions(list);
+ 
+ enforceCalendarDayModalTitleYear();
+}
+ function closeCalendarDayModal(){
+ const modal = qs('#calendarDayModal');
+ if(modal?.open) modal.close();
+ }
+ function syncCalendarFocusFromDayModal(){
+ const key = calendarUiState.focusAfterModalDateKey || calendarUiState.dayModalDateKey;
+ if(!key) return;
+ const d = dateFromKey(key);
+ calendarUiState.selectedDateKey = key;
+ calendarUiState.cursorDate = d;
+ renderCalendarReservations();
+ focusCalendarDate(key);
+ }
+ function openCalendarReservationModal(item={}){
+ if(!state.currentUser){ openModalAlert('로그인이 필요합니다.'); return; }
+ const modal = qs('#calendarReservationModal');
+ if(!modal) return;
+ qs('#calendarBenefitId').value = item.id || '';
+ qs('#calendarSelectedStore').textContent = `${item.name || '혜택 매장'}${item.discountText ? ' · ' + item.discountText : ''}`;
+ qs('#calendarVisitDate').value = todayInputValue();
+ qs('#calendarVisitTime').value = defaultVisitTimeValue();
+ qs('#calendarNotifyBefore').value = '30';
+ qs('#calendarReservationMemo').value = '';
+ modal.dataset.benefitId = item.id || '';
+ if(modal.open) modal.close();
+ modal.showModal();
+ }
+ function closeCalendarReservationModal(){
+ const modal = qs('#calendarReservationModal');
+ if(modal?.open) modal.close();
+ }
+ async function saveCalendarReservation(event){
+ event?.preventDefault?.();
+ try{
+ if(!state.currentUser){ await openModalAlert('로그인이 필요합니다.'); return; }
+ const benefitId = qs('#calendarBenefitId')?.value || qs('#calendarReservationModal')?.dataset.benefitId || '';
+ const item = state.benefits.find(v => v.id === benefitId);
+ if(!item){ await openModalAlert('혜택 매장 정보를 찾지 못했습니다.'); return; }
+ const dateValue = qs('#calendarVisitDate')?.value || '';
+ const timeValue = qs('#calendarVisitTime')?.value || '';
+ const before = Number(qs('#calendarNotifyBefore')?.value || 30);
+ if(!dateValue || !timeValue){ await openModalAlert('방문 예정일과 시간을 선택해 주세요.'); return; }
+ const visitAtDate = new Date(`${dateValue}T${timeValue}:00`);
+ if(Number.isNaN(visitAtDate.getTime())){ await openModalAlert('방문 예정 시간이 올바르지 않습니다.'); return; }
+ const notifyAtDate = new Date(visitAtDate.getTime() - before * 60 * 1000);
+ if(visitAtDate.getTime() <= Date.now() - 60000){ await openModalAlert('방문 예정 시간은 현재 이후로 선택해 주세요.'); return; }
+ const memo = String(qs('#calendarReservationMemo')?.value || '').trim();
+ await addDoc(collection(db, CALENDAR_RESERVATIONS_COLLECTION), {
+ uid: state.currentUser.uid,
+ benefitId: item.id,
+ storeName: item.name || '',
+ category: item.category || '',
+ phone: item.phone || '',
+ address: getBenefitDisplayAddress(item) || item.roadAddress || '',
+ stations:getBenefitStations(item),
+ stationAccessText: item.stationAccessText || item.transitText || '',
+ discountText: item.discountText || '',
+ visitAt: visitAtDate,
+ notifyAt: notifyAtDate,
+ notifyBeforeMinutes: before,
+ memo,
+ status: 'scheduled',
+ channel: 'web_push',
+ createdAt: serverTimestamp(),
+ updatedAt: serverTimestamp()
+ });
+ closeCalendarReservationModal();
+ await openModalAlert('방문 알림이 등록되었습니다.\n캘린더 메뉴에서 확인할 수 있습니다.');
+ changeView('calendar');
+ }catch(error){
+ console.error('캘린더 예약 저장 실패', error);
+ await openModalAlert('예약 알림 저장 중 오류가 발생했습니다. Firestore 규칙을 확인해 주세요.');
+ }
+ }
+ async function cancelCalendarReservation(id){
+ try{
+ if(!id || !state.currentUser) return;
+ const ok = await openModalConfirm('이 예약 알림을 취소하시겠습니까?', null, '예약 알림 취소', '취소하기', '닫기');
+ if(!ok) return;
+ await setDoc(doc(db, CALENDAR_RESERVATIONS_COLLECTION, id), {
+ status:'cancelled',
+ cancelledAt:serverTimestamp(),
+ updatedAt:serverTimestamp()
+ }, { merge:true });
+ }catch(error){
+ console.error('캘린더 예약 취소 실패', error);
+ await openModalAlert('예약 알림 취소 중 오류가 발생했습니다.');
+ }
+ }
+ function subscribeCalendarReservations(){
+ if(!state.currentUser?.uid) return;
+ const q = query(collection(db, CALENDAR_RESERVATIONS_COLLECTION), where('uid', '==', state.currentUser.uid));
+ onSnapshot(q, (snapshot) => {
+ state.calendarReservations = snapshot.docs.map(d => normalizeReservation(d.data(), d.id));
+ renderCalendarReservations();
+ scheduleLocalCalendarChecks();
+ }, (error) => {
+ console.error('캘린더 예약 로드 실패', error);
+ state.calendarReservations = [];
+ renderCalendarReservations();
+ });
+ }
+ let calendarCheckTimer = null;
+ const calendarNotificationInFlight = new Set();
+ function scheduleLocalCalendarChecks(){
+ if(calendarCheckTimer) clearInterval(calendarCheckTimer);
+ checkDueCalendarReservations();
+ calendarCheckTimer = setInterval(checkDueCalendarReservations, 30000);
+ }
+ const CALENDAR_LOCAL_TOAST_KEY_PREFIX = 'myhills_calendar_toast_shown_';
+ function isCalendarLocalToastShown(id){
+ if(!id) return false;
+ try{return sessionStorage.getItem(CALENDAR_LOCAL_TOAST_KEY_PREFIX + id) === '1';}catch(e){return false;}
+ }
+ function markCalendarReservationLocalToastShown(item){
+ if(!item?.id) return;
+ try{sessionStorage.setItem(CALENDAR_LOCAL_TOAST_KEY_PREFIX + item.id, '1');}catch(e){}
+ const target = state.calendarReservations.find(v => v.id === item.id);
+ if(target){
+ target.localToastShownAt = new Date();
+ }
+ renderCalendarReservations();
+ }
+ async function showCalendarReservationNotification(item){
+ const title = '혜택 방문 알림';
+ const body = `${item.storeName} 방문 예정 시간: ${formatDateTimeKo(toDateFromTimestamp(item.visitAt))}`;
+
+ // 알림 운영 이후 프론트 로컬 알림은 사용하지 않습니다.
+ // + Functions + FCM + Service Worker 경로만 알림을 담당합니다.
+ // 앱이 열려 있을 때는 중복 방지를 위해 내부 토스트만 보여줍니다.
+ showProximityToast({ title, message: body });
+ return true;
+ }
+ async function checkDueCalendarReservations(){
+ const now = Date.now();
+ const due = state.calendarReservations.filter(item => {
+ if(!item?.id) return false;
+ if(calendarNotificationInFlight.has(item.id)) return false;
+ if(item.status !== 'scheduled' || item.localNotifiedAt || item.localToastShownAt || isCalendarLocalToastShown(item.id)) return false;
+ const notifyAt = toDateFromTimestamp(item.notifyAt);
+ return notifyAt && notifyAt.getTime() <= now;
+ });
+ for(const item of due){
+ calendarNotificationInFlight.add(item.id);
+ try{
+ await showCalendarReservationNotification(item);
+ // 프론트는 로컬 토스트 표시 여부만 기록합니다.
+ // status=sent / sentAt 처리는 서버 Functions가 담당하여 시스템 알림 중복을 방지합니다.
+ await markCalendarReservationLocalToastShown(item);
+ }catch(error){
+ console.warn('앱 실행 중 캘린더 토스트 처리 실패', error);
+ }finally{
+ setTimeout(() => calendarNotificationInFlight.delete(item.id), 120000);
+ }
+ }
+ }
+
+ function renderHome(){const items=getFilteredBenefits();qs('#sectionTitle').textContent=state.filter==='high'?'고할인 / 추천 혜택':(state.category==='전체'?'전체 혜택':`${state.category} 혜택`);qs('#resultCount').textContent=`${items.length}건`;qs('#homeLoading').classList.toggle('hidden',!state.loading);renderList('#cardList',items);updateFilterIconLabels();} 
+ const renderFavorites=()=>renderList('#favoriteList',getFilteredBenefits('favorite'));
+ function renderStats(){const items=getVisibleBenefits();qs('#statCount').textContent=items.length;qs('#statMax').textContent=`${Math.max(0,...items.map(v=>v.discountValue))}%`;qs('#statCat').textContent=new Set(items.map(v=>v.category)).size;}
+ 
+ function benefitPriceDetailsHtml(item={}){
+ const text = String(item.priceDetails || item.priceInfo || item.servicePriceText || item.servicePriceDetails || '').trim();
+ if(!text) return '';
+ return `<div class="panel price-details-panel"><strong style="display:block;margin-bottom:6px;font-size:13px;color:var(--muted);">세부 내용 및 비용</strong><div class="price-details-body">${escapeHtml(text)}</div></div>`;
+}
+ function benefitContactHtml(item={}){
+ const phone = String(item.phone || item.contact?.phone || '').trim();
+ const emergency = String(item.emergencyPhone || item.contact?.emergency || '').trim();
+ const rows = [];
+ if(phone) rows.push(`<div><img class="upick-svg-icon upick-contact-icon" src="/icons/internal/phone.svg" alt="" loading="lazy" decoding="async">${escapeHtml(phone)}</div>`);
+ if(emergency) rows.push(`<div style="margin-top:6px;color:#dc2626;font-weight:800;"><img class="upick-svg-icon upick-contact-icon" src="/icons/internal/emergency.svg" alt="" loading="lazy" decoding="async">비상연락처: ${escapeHtml(emergency)}</div>`);
+ return rows.length ? rows.join('') : '등록된 전화번호가 없습니다.';
+ }
+
+
+ function getBenefitRepresentativeImage(item = {}){
+ const candidates = [
+ item.kakaoShareThumbnailUrl,
+ item.kakaoThumbnailUrl,
+ item.shareThumbnailUrl,
+ item.shareImageUrl,
+ item.representativeImageUrl,
+ item.representativePhotoUrl,
+ item.mainImageUrl,
+ item.mainPhotoUrl,
+ item.storeImageUrl,
+ item.storePhotoUrl,
+ item.thumbnailUrl,
+ item.imageUrl,
+ item.thumbnail,
+ item.photoUrl,
+ item.image,
+ Array.isArray(item.images) ? item.images[0] : '',
+ Array.isArray(item.photos) ? item.photos[0] : '',
+ item.media?.thumbnailUrl,
+ item.media?.imageUrl,
+ item.share?.imageUrl,
+ item.share?.thumbnailUrl
+ ];
+ const raw = candidates.find(v => typeof v === 'string' && v.trim());
+ if(!raw) return '';
+ const url = toAbsoluteUrl(String(raw).trim());
+ const defaultUrl = toAbsoluteUrl(DEFAULT_SHARE_IMAGE_URL || '');
+ if(defaultUrl && url === defaultUrl) return '';
+ return url || '';
+ }
+
+ function benefitDetailHeroHtml(item = {}){
+ const imageUrl = getBenefitRepresentativeImage(item);
+ const isFavClass = imageUrl ? '' : ' no-photo';
+ const photoHtml = imageUrl
+ ? `<div class="benefit-detail-photo"><img src="${escapeAttr(imageUrl)}" alt="${escapeAttr(item.name || '매장 대표 사진')}" loading="lazy" decoding="async" onerror="this.closest('.benefit-detail-photo')?.remove(); this.closest('.benefit-detail-hero')?.classList.add('no-photo');"><span class="benefit-detail-photo-badge">대표 사진</span></div>`
+ : '';
+ return `<div class="benefit-detail-hero${isFavClass}"><div class="benefit-detail-main"><div class="${getBadgeClass(item)}" style="display:inline-block;min-width:auto;padding:12px 16px;">${item.discountText}</div><h3 style="margin:12px 0 6px;font-size:26px;letter-spacing:-.04em;">${item.name}</h3><div class="tags" style="margin-top:0;margin-bottom:10px;">${item.recommended?'<span class="tag rec">추천 혜택</span>':''}<span class="tag">${item.category}</span>${benefitOperationBadgesHtml(item)}${benefitDateTag(item)}</div>${benefitStatusChipsHtml(item)}${benefitStatusReasonHtml(item)}</div>${photoHtml}</div>`;
+ }
+
+ function openDetail(item, options = {}){
+ const { skipUrlUpdate = false } = options;
+ if(!skipUrlUpdate && item?.id) updateCleanDeepLinkUrl('benefit', item.id);
+ increaseStat(item.id, item.name, 'detailViewCount');
+ logBenefitEvent(item.id, 'detail_view');
+ const isFav=getFavorites().includes(item.id);
+ qs('#modalBody').innerHTML=`${benefitDetailHeroHtml(item)}<div style="display:grid;gap:10px;margin:16px 0;"><div class="panel"><strong style="display:block;margin-bottom:6px;font-size:13px;color:var(--muted);">혜택 조건</strong>${item.condition}</div>${benefitPriceDetailsHtml(item)}${locationPanelHtml(item)}${benefitExtraInfoHtml(item)}<div class="panel"><strong style="display:block;margin-bottom:6px;font-size:13px;color:var(--muted);">연락처</strong>${benefitContactHtml(item)}</div>${benefitDetailDateHtml(item)}</div>${residentReactionHtml(item)}<div class="grid-2"><a class="btn btn-primary block" id="callBtn" href="tel:${item.phone}">전화하기</a><button class="btn btn-soft block" id="modalFavBtn"><img class="upick-svg-icon upick-inline-icon" src="/icons/internal/${isFav ? 'star-fill' : 'star-outline'}.svg" alt="" loading="lazy" decoding="async">${isFav?'즐겨찾기 해제':'즐겨찾기 추가'}</button></div><button class="btn btn-soft block" id="openCalendarReservationBtn" style="margin-top:10px;">방문 알림 추가</button>${shareActionsHtml('benefit')}`;
+ const modal=qs('#detailModal');
+ if(modal.open)modal.close();
+ modal.showModal();
+ qs('#openCalendarReservationBtn')?.addEventListener('click', () => openCalendarReservationModal(item));
+ qs('#benefitCopyShareBtn')?.addEventListener('click', () => copyShareUrl('benefit', item));
+ qs('#benefitKakaoShareBtn')?.addEventListener('click', (event) => withShareButtonFeedback(event.currentTarget, 'benefit', () => shareKakaoItem('benefit', item)));
+ qs('#benefitQrShareBtn')?.addEventListener('click', () => showQrCode('benefit', item));
+ bindResidentReactionButtons(item);
+ updateDistanceText(item);
+ setTimeout(() => renderDetailMiniMap(item), 120);
+ setTimeout(() => {
+   try{
+     if(detailMapInstance && window.naver?.maps){
+       window.naver.maps.Event.trigger(detailMapInstance, 'resize');
+     }
+   }catch(_){}
+ }, 700);
+ qs('#modalFavBtn').onclick=async ()=>{
+ const isFavorite = await toggleFavorite(item.id, item.name);
+ const btn = qs('#modalFavBtn');
+ if (btn) btn.innerHTML = `<img class="upick-svg-icon upick-inline-icon" src="/icons/internal/${isFavorite ? 'star-fill' : 'star-outline'}.svg" alt="" loading="lazy" decoding="async">${isFavorite ? '즐겨찾기 해제' : '즐겨찾기 추가'}`;
+ };
+ qs('#callBtn').onclick=()=>{increaseStat(item.id, item.name, 'callClickCount');logBenefitEvent(item.id, 'call_click');};
+ qs('#mapBtn').onclick=()=>{increaseStat(item.id, item.name, 'mapClickCount');logBenefitEvent(item.id, 'map_click');};
+ qs('#directionBtn').onclick=()=>{increaseStat(item.id, item.name, 'mapClickCount');logBenefitEvent(item.id, 'direction_click');};
+ bindBenefitSocialLinks(item);
+ }
+
+ let residentProximityWatchId = null;
+
+ function setNearbyProximityStatus(message, isError = false){
+ const el = qs('#nearbyProximityStatus');
+ if(!el) return;
+ el.textContent = message;
+ el.classList.toggle('error', !!isError);
+ }
+
+ async function enableNearbyAutoPush(){
+ try{
+ if(!navigator.geolocation){ setNearbyProximityStatus('이 브라우저에서는 위치 기반 알림을 사용할 수 없습니다.', true); return; }
+ await getReliableCurrentPosition({ forceRefresh:true });
+ checkProximityAlerts({ silent:false });
+ if(residentProximityWatchId === null){
+ residentProximityWatchId = navigator.geolocation.watchPosition((position) => {
+ setUserLocationFromPosition(position);
+ checkProximityAlerts({ silent:false });
+ renderNearbyHotStores();
+ }, (error) => {
+ console.warn('근처 자동 알림 위치 감시 실패', error);
+ setNearbyProximityStatus('위치 권한을 허용해야 근처 자동 알림을 사용할 수 있습니다.', true);
+ }, GEO_OPTIONS);
+ }
+ setNearbyProximityStatus('근처 자동 알림이 켜졌습니다. 100m / 300m 진입 시 알려드립니다.');
+ renderNearbyHotStores();
+ }catch(error){ console.warn('근처 자동 알림 시작 실패', error); setNearbyProximityStatus('위치 권한을 허용해야 근처 자동 알림을 사용할 수 있습니다.', true); }
+ }
+
+ async function checkNearbyNow(){
+ try{ await getReliableCurrentPosition({ forceRefresh:true }); recalculateBenefitDistances(); checkProximityAlerts({ silent:false }); renderNearbyHotStores(); setNearbyProximityStatus('현재 위치 기준으로 주변 혜택을 확인했습니다.'); }
+ catch(error){ console.warn('주변 혜택 확인 실패', error); setNearbyProximityStatus('현재 위치를 확인할 수 없습니다. 위치 권한을 확인해 주세요.', true); }
+ }
+
+ function renderNearbyHotStores(){
+ if(!qs('#nearbyProximityPanel') || !state.userLocation) return;
+ const candidates = (state.popularItems || []).map((item) => {
+ const benefit = item.benefit || state.benefits.find((v) => v.id === item.id) || item;
+ if(!isRecommendableBenefit(benefit)) return null;
+ const pos = getBenefitLatLng(benefit); if(!pos) return null;
+ const distance = getDistanceMeters(state.userLocation.lat, state.userLocation.lng, pos.lat, pos.lng);
+ let distanceBonus = 0; if(distance <= 100) distanceBonus = 30; else if(distance <= 300) distanceBonus = 20; else if(distance <= 500) distanceBonus = 10;
+ return { ...item, benefit, distance, nearbyScore: Number(item.popularScore || item.score || 0) + distanceBonus };
+ }).filter(Boolean).filter((item) => Number.isFinite(item.distance) && item.distance <= 500).sort((a,b) => b.nearbyScore - a.nearbyScore).slice(0,3);
+ if(!candidates.length) return;
+ setNearbyProximityStatus('HOT 근처 HOT: ' + candidates.map((item, index) => `${index + 1}. ${item.name} · ${formatDistance(item.distance)}`).join(' / '));
+ }
+
+ function renderResidentRankings(items = []){
+ const list = qs('#residentRankList'); if(!list) return;
+ if(!items.length){ list.innerHTML = '<div class="notice-empty">아직 활동 랭킹 정보가 없습니다.</div>'; return; }
+ list.innerHTML = items.map((item, index) => {
+ const rank = index + 1; const medal = rank <= 3 ? getRankMedalSvg(rank) : rank; const medalClass = rank <= 3 ? `has-svg ${getRankMedalClass(rank)}` : '';
+ return `<div class="resident-rank-row"><div class="resident-rank-left"><div class="resident-rank-medal ${medalClass}" aria-label="${rank}위">${medal}</div><div class="resident-rank-copy"><div class="resident-rank-name">${escapeHtml(item.nickname || item.loginId || '입주민')}</div><div class="resident-rank-sub">활동 ${Number(item.activityCount || 0).toLocaleString('ko-KR')}회 · 최근 ${escapeHtml(item.lastActivityType || 'activity')}</div></div></div><div class="resident-rank-score"><strong>${Number(item.score || 0).toLocaleString('ko-KR')}</strong><span>점수</span></div></div>`;
+ }).join('');
+ }
+
+ function subscribeResidentActivityRanking(){
+ try{
+ const rankQuery = query(collection(db, 'user_stats'), orderBy('score','desc'), limit(5));
+ onSnapshot(rankQuery, (snapshot) => {
+ renderResidentRankings(snapshot.docs.map((d) => ({ id:d.id, ...d.data() })));
+ const text = qs('#residentRankUpdatedText'); if(text) text.textContent = `실시간 · ${new Date().toLocaleTimeString('ko-KR', { hour:'2-digit', minute:'2-digit' })}`;
+ }, (error) => { console.warn('입주민 활동 랭킹 로드 실패', error); renderResidentRankings([]); });
+ }catch(error){ console.warn('입주민 활동 랭킹 초기화 실패', error); }
+ }
+
+ /* =========================
+ Community v1: posts / comments / reports
+ ========================= */
+ const COMMUNITY_POSTS_COLLECTION = 'community_posts';
+ const COMMUNITY_REPORTS_COLLECTION = 'community_reports';
+ const COMMUNITY_CATEGORIES = ['전체','자유','질문','나눔','생활정보','건의'];
+ const communityState = { category:'전체', lastDoc:null, loading:false, currentPostId:null, pageSize:10, reportTarget:null, reportReason:'욕설/비방', editingPostId:null, currentPostAuthorUid:null };
+
+ function formatCommunityDate(value){ try{ const d = value?.toDate ? value.toDate() : (value ? new Date(value) : null); if(!d) return ''; const yyyy = d.getFullYear(); const mm = String(d.getMonth()+1).padStart(2,'0'); const dd = String(d.getDate()).padStart(2,'0'); return `${yyyy}.${mm}.${dd}`; }catch(_){ return ''; } }
+ function getCommunityPostScore(post={}){ return (Number(post.likeCount||0)*6) + (Number(post.commentCount||0)*4) + Number(post.viewCount||0) + Number(post.reportCount||0); }
+ function communityTopBadgeHtml(post={}){ const score = getCommunityPostScore(post); if(score < 10) return ''; const label = score >= 40 ? 'HOT 인기글 TOP' : 'HOT 인기글'; return `<span class="community-top-badge">${label}</span>`; }
+ function communityTodayKey(){ const d=new Date(); return d.getFullYear()+String(d.getMonth()+1).padStart(2,'0')+String(d.getDate()).padStart(2,'0'); }
+ async function recordCommunityView(kind, postId, commentId=''){ const user=auth.currentUser; if(!user || !postId) return; const day=communityTodayKey(); const id = kind === 'comment' ? 'comment_'+postId+'_'+commentId+'_'+user.uid+'_'+day : 'post_'+postId+'_'+user.uid+'_'+day; try{ await setDoc(doc(db,'community_view_events',id), { kind, postId, commentId:commentId||null, uid:user.uid, day, createdAt:serverTimestamp() }, { merge:false }); }catch(_){ } }
+ function commentLikeDocId(postId, commentId, uid){ return uid; }
+ async function isCommentLiked(postId, commentId){ const user = auth.currentUser; if(!user) return false; try{ const likeId = commentLikeDocId(postId, commentId, user.uid); const likeSnap = await getDoc(doc(db, COMMUNITY_POSTS_COLLECTION, postId, 'comments', commentId, 'likes', likeId)); return likeSnap.exists(); }catch(_){ return false; } }
+ function commentMetaHtml(c={}, liked=false){
+ const rawLikeCount = Number(c.likeCount || 0);
+ // Cloud Function이 likeCount를 갱신하기 전이어도, 내가 이미 누른 좋아요는 즉시 1 이상으로 표시합니다.
+ const likeCount = liked && rawLikeCount < 1 ? 1 : rawLikeCount;
+ const viewCount = Number(c.viewCount || 0);
+ return `<div class="comment-meta-line"><button class="comment-like-btn ${liked?'liked':''}" type="button" data-community-action="like-comment" data-post-id="${escapeHtml(communityState.currentPostId || '')}" data-comment-id="${escapeHtml(c.id || '')}" data-liked="${liked ? 'true' : 'false'}" data-like-count="${likeCount}" aria-label="댓글 좋아요">♥ ${likeCount}</button><span>조회 ${viewCount}</span><span>${formatCommunityDate(c.createdAt)}</span></div>`;
+ }
+ function applyCommentLikeOptimistic(postId, commentId, liked){
+ const btn = document.querySelector(`.comment-like-btn[data-post-id="${CSS.escape(postId)}"][data-comment-id="${CSS.escape(commentId)}"]`);
+ if(!btn) return null;
+ const before = { liked: btn.dataset.liked === 'true', count: Number(btn.dataset.likeCount || 0) };
+ const nextCount = Math.max(0, before.count + (liked ? 1 : -1));
+ btn.dataset.liked = liked ? 'true' : 'false';
+ btn.dataset.likeCount = String(nextCount);
+ btn.classList.toggle('liked', liked);
+ btn.textContent = `♥ ${nextCount}`;
+ btn.disabled = true;
+ btn.style.opacity = '.78';
+ return { btn, before };
+ }
+ function rollbackCommentLikeOptimistic(target){
+ if(!target?.btn || !target.before) return;
+ const { btn, before } = target;
+ btn.dataset.liked = before.liked ? 'true' : 'false';
+ btn.dataset.likeCount = String(before.count);
+ btn.classList.toggle('liked', before.liked);
+ btn.textContent = `♥ ${before.count}`;
+ btn.disabled = false;
+ btn.style.opacity = '';
+ }
+ function releaseCommentLikeButton(target){
+ if(!target?.btn) return;
+ target.btn.disabled = false;
+ target.btn.style.opacity = '';
+ }
+ async function toggleCommunityCommentLike(postId, commentId){
+ const user = auth.currentUser;
+ if(!user) return openModalAlert('로그인이 필요합니다.');
+ if(!postId || !commentId) return;
+ const likeId = commentLikeDocId(postId, commentId, user.uid);
+ const likeRef = doc(db, COMMUNITY_POSTS_COLLECTION, postId, 'comments', commentId, 'likes', likeId);
+ let optimisticTarget = null;
+ try{
+ const snap = await getDoc(likeRef);
+ const willLike = !snap.exists();
+ optimisticTarget = applyCommentLikeOptimistic(postId, commentId, willLike);
+ if(snap.exists()){
+ await deleteDoc(likeRef);
+ }else{
+ await setDoc(likeRef, { uid:user.uid, postId, commentId, createdAt:serverTimestamp() });
+ }
+ releaseCommentLikeButton(optimisticTarget);
+ // likeCount는 Cloud Function에서 안전하게 확정되므로 약간 뒤에 조용히 동기화합니다.
+ window.clearTimeout(communityState.commentLikeSyncTimer);
+ communityState.commentLikeSyncTimer = window.setTimeout(() => {
+ if(communityState.currentPostId === postId) loadCommunityComments(postId);
+ }, 1200);
+ }catch(error){
+ console.error(error);
+ rollbackCommentLikeOptimistic(optimisticTarget);
+ openModalAlert('댓글 좋아요 처리 중 오류가 발생했습니다.');
+ }
+ }
+ function getCurrentNickname(){ return state.currentUserProfile?.nickname || state.userProfile?.nickname || state.profile?.nickname || getStoredLoginUser()?.loginId || '입주민'; }
+ function openDialogSafe(el){ if(!el) return; if(typeof el.showModal === 'function' && !el.open) el.showModal(); else el.setAttribute('open',''); }
+ function closeDialogSafe(el){ if(!el) return; if(typeof el.close === 'function' && el.open) el.close(); else el.removeAttribute('open'); }
+ function communityReportIconHtml(label='신고'){ return `<button class="report-icon-btn" type="button" data-community-action="report" title="${label}" aria-label="${label}"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4"></path><path d="M12 17h.01"></path><path d="M10.29 3.86 3.19 16.14A2 2 0 0 0 4.9 19h14.2a2 2 0 0 0 1.71-2.86L13.71 3.86a2 2 0 0 0-3.42 0Z"></path></svg></button>`; }
+ function isCommunityAdmin(){ try{ if(typeof isAdminRole === 'function' && isAdminRole()) return true; }catch(_){} const role = state.currentUserProfile?.role || state.userProfile?.role || state.profile?.role || ''; return role === 'admin' || role === 'root'; }
+ function isCommunityOwner(data){ const user = auth.currentUser; return !!(user && data && data.authorUid === user.uid); }
+ function getCurrentCommunityAuthorProfile(){
+ const profile = state.currentUserProfile || state.userProfile || state.profile || {};
+ const role = String(profile.role || profile.userRole || 'resident').toLowerCase();
+ return { authorNickname:getCurrentNickname(), authorProfileImageUrl:(typeof getProfileImageUrl === 'function' ? getProfileImageUrl() : (profile.profileImageUrl || profile.photoUrl || profile.avatarUrl || '')), authorRole:role || 'resident' };
+ }
+ function getCommunityAuthorRole(data={}){ return String(data.authorRole || data.role || data.userRole || '').toLowerCase(); }
+ function getCommunityAuthorImage(data={}){ return String(data.authorProfileImageUrl || data.authorPhotoUrl || data.profileImageUrl || data.photoUrl || data.avatarUrl || '').trim(); }
+ function getCommunityAuthorInitial(name='입주민'){ const value = String(name || '입주민').trim(); return escapeHtml(value.slice(0,1) || '입'); }
+ function communityAuthorHtml(data={}, options={}){
+ const name = data.authorNickname || data.nickname || '입주민';
+ const role = getCommunityAuthorRole(data);
+ const isRoot = role === 'root';
+ const isAdmin = role === 'admin' || isRoot;
+ const isWriter = !!(options.postAuthorUid && data.authorUid && options.postAuthorUid === data.authorUid) || !!options.forceWriter;
+ const imageUrl = getCommunityAuthorImage(data);
+ const roleClass = isRoot ? 'is-root' : (isAdmin ? 'is-admin' : '');
+ const avatar = imageUrl ? `<span class="community-author-avatar"><img src="${escapeAttr(imageUrl)}" alt="프로필 이미지" loading="lazy"></span>` : `<span class="community-author-avatar">${getCommunityAuthorInitial(name)}</span>`;
+ const adminBadge = isRoot ? '<span class="community-author-badge root"> 관리자</span>' : (isAdmin ? '<span class="community-author-badge admin">🛡 관리자</span>' : '');
+ const writerBadge = isWriter ? '<span class="community-author-badge writer">작성자</span>' : '';
+ return `<span class="community-author-line ${roleClass}">${avatar}<span class="community-author-name">${escapeHtml(name)}</span>${adminBadge}${writerBadge}</span>`;
+ }
+ function communityActionsHtml(type, data, options={}){ const id = options.id || data?.id || ''; const postId = options.postId || id; const status = data?.status || 'active'; const owner = isCommunityOwner(data); const admin = isCommunityAdmin(); const bits = []; if(status === 'active') bits.push(communityReportIconHtml(type === 'comment' ? '댓글 신고' : '게시글 신고')); if(type === 'post' && status === 'active' && owner) bits.push(`<button class="community-icon-btn edit" type="button" data-community-action="edit-post" data-post-id="${escapeHtml(id)}" title="수정" aria-label="수정">✎</button>`); if(type === 'comment' && status === 'active' && owner) bits.push(`<button class="community-icon-btn edit" type="button" data-community-action="edit-comment" data-post-id="${escapeHtml(postId)}" data-comment-id="${escapeHtml(options.commentId || '')}" title="수정" aria-label="수정">✎</button>`); if(status === 'active' && (owner || admin)) bits.push(`<button class="community-icon-btn delete" type="button" data-community-action="delete-${type}" data-post-id="${escapeHtml(postId)}" data-comment-id="${escapeHtml(options.commentId || '')}" title="삭제" aria-label="삭제">🗑</button>`); if(status === 'active' && admin) bits.push(`<button class="community-icon-btn blind" type="button" data-community-action="blind-${type}" data-post-id="${escapeHtml(postId)}" data-comment-id="${escapeHtml(options.commentId || '')}" title="블라인드" aria-label="블라인드">◌</button>`); if((status === 'deleted' || status === 'hidden') && (owner || admin)) bits.push(`<button class="community-icon-btn restore" type="button" data-community-action="restore-${type}" data-post-id="${escapeHtml(postId)}" data-comment-id="${escapeHtml(options.commentId || '')}" title="복구" aria-label="복구">↩</button>`); return bits.length ? `<div class="${type === 'comment' ? 'comment-action-row' : 'community-action-row'}">${bits.join('')}</div>` : ''; }
+ function bindCommunityActionButtons(root, data, options={}){ root?.querySelectorAll('[data-community-action]').forEach(btn => btn.addEventListener('click', (event) => { event.stopPropagation(); const action = btn.dataset.communityAction; const postId = btn.dataset.postId || options.postId || data?.id; const commentId = btn.dataset.commentId || options.commentId; if(action === 'report') return openCommunityReportModal(options.type || 'post', postId, commentId || null, data?.title || data?.content || '커뮤니티'); if(action === 'like-comment') return toggleCommunityCommentLike(postId, commentId); if(action === 'edit-post') return openCommunityPostEdit(postId); if(action === 'edit-comment') return editCommunityCommentInline(postId, commentId); if(action === 'delete-post') return deleteCommunityPost(postId); if(action === 'blind-post') return blindCommunityPost(postId); if(action === 'restore-post') return restoreCommunityPost(postId); if(action === 'delete-comment') return deleteCommunityComment(postId, commentId); if(action === 'blind-comment') return blindCommunityComment(postId, commentId); if(action === 'restore-comment') return restoreCommunityComment(postId, commentId); })); }
+
+ function renderCommunityCategoryFilter(){
+ const box = qs('#communityCategoryFilter');
+ if(!box) return;
+ box.innerHTML = COMMUNITY_CATEGORIES.map(cat => `<button type="button" class="${communityState.category===cat?'active':''}" data-community-category="${cat}">${cat}</button>`).join('');
+ enableHorizontalDragScroll(box);
+ box.querySelectorAll('[data-community-category]').forEach(btn => {
+ btn.addEventListener('click', (event) => {
+ event.preventDefault();
+ const nextCategory = btn.dataset.communityCategory || '전체';
+ loadCommunityPosts(nextCategory, true);
+ });
+ });
+ }
+ async function loadCommunityPosts(category='전체', reset=true){ if(communityState.loading) return; communityState.loading = true; communityState.category = category || '전체'; renderCommunityCategoryFilter(); const list = qs('#communityPostList'); const moreBtn = qs('#communityMoreBtn'); try{ if(reset){ communityState.lastDoc = null; if(list) list.innerHTML = '<div class="panel loading">게시글을 불러오는 중입니다.</div>'; } let constraints = [where('status','==','active')]; if(communityState.category !== '전체') constraints.push(where('category','==',communityState.category)); constraints.push(orderBy('createdAt','desc')); if(communityState.lastDoc) constraints.push(startAfter(communityState.lastDoc)); constraints.push(limit(communityState.pageSize)); const snap = await getDocs(query(collection(db, COMMUNITY_POSTS_COLLECTION), ...constraints)); const posts = snap.docs.map(d => ({ id:d.id, ...d.data() })); if(reset && list) list.innerHTML = ''; renderCommunityPosts(posts, !reset); communityState.lastDoc = snap.docs.length ? snap.docs[snap.docs.length - 1] : communityState.lastDoc; if(moreBtn) moreBtn.classList.toggle('hidden', snap.docs.length < communityState.pageSize); const countText = qs('#communityCountText'); if(countText) countText.textContent = posts.length ? `${communityState.category} 게시글` : '게시글'; }catch(error){ console.error('커뮤니티 게시글 로드 실패', error); if(list) list.innerHTML = '<div class="panel empty">게시글을 불러오지 못했습니다. Firestore 규칙과 인덱스를 확인해주세요.</div>'; }finally{ communityState.loading = false; } }
+ function renderCommunityPosts(posts=[], append=false){ const list = qs('#communityPostList'); if(!list) return; if(!append) list.innerHTML = ''; if(!posts.length && !append){ list.innerHTML = '<div class="panel empty">아직 등록된 게시글이 없습니다.</div>'; return; } posts.forEach(post => { const card = document.createElement('div'); const topClass = getCommunityPostScore(post) >= 10 ? ' community-top-post' : ''; card.className = `community-card${topClass}`; card.innerHTML = `${communityActionsHtml('post', post, { id:post.id, type:'post' })}${communityTopBadgeHtml(post)}<span class="community-category">${escapeHtml(post.category || '자유')}</span><h4>${escapeHtml(post.title || '제목 없음')}</h4><p>${escapeHtml(String(post.content || '').slice(0,90))}${String(post.content || '').length>90?'...':''}</p><div class="community-post-bottom"><div class="community-author-wrap">${communityAuthorHtml(post, { forceWriter:isCommunityOwner(post) })}</div><div class="community-meta-line"><span>댓글 ${Number(post.commentCount||0)}</span><span>조회 ${Number(post.viewCount||0)}</span><span>${formatCommunityDate(post.createdAt)}</span></div></div>`; card.addEventListener('click', () => openCommunityDetail(post.id)); bindCommunityActionButtons(card, post, { id:post.id, postId:post.id, type:'post' }); list.appendChild(card); }); }
+ function openCommunityEditor(){ communityState.editingPostId = null; qs('#communityEditorTitle').textContent = '커뮤니티 글쓰기'; qs('#submitCommunityPostBtn').textContent = '게시글 등록'; qs('#communityPostTitle').value = ''; qs('#communityPostContent').value = ''; qs('#communityPostCategory').value = communityState.category !== '전체' ? communityState.category : '자유'; openDialogSafe(qs('#communityEditorModal')); }
+ async function openCommunityPostEdit(postId){ const user = auth.currentUser; if(!user) return openModalAlert('로그인이 필요합니다.'); try{ const snap = await getDoc(doc(db, COMMUNITY_POSTS_COLLECTION, postId)); if(!snap.exists()) return openModalAlert('게시글을 찾을 수 없습니다.'); const p = { id:postId, ...snap.data() }; if(!isCommunityOwner(p)) return openModalAlert('게시글 작성자만 수정할 수 있습니다.'); communityState.editingPostId = postId; qs('#communityEditorTitle').textContent = '게시글 수정'; qs('#submitCommunityPostBtn').textContent = '수정 완료'; qs('#communityPostTitle').value = p.title || ''; qs('#communityPostContent').value = p.content || ''; qs('#communityPostCategory').value = p.category || '자유'; openDialogSafe(qs('#communityEditorModal')); }catch(error){ console.error(error); openModalAlert('게시글 수정 화면을 열지 못했습니다.'); } }
+ async function submitCommunityPost(){ const user = auth.currentUser; if(!user) return openModalAlert('로그인이 필요합니다.'); const title = qs('#communityPostTitle')?.value?.trim(); const content = qs('#communityPostContent')?.value?.trim(); const category = qs('#communityPostCategory')?.value || '자유'; if(!title || !content) return openModalAlert('제목과 내용을 입력해주세요.'); try{ if(communityState.editingPostId){ const editId = communityState.editingPostId; await updateDoc(doc(db, COMMUNITY_POSTS_COLLECTION, editId), { title, content, category, editedAt:serverTimestamp(), updatedAt:serverTimestamp() }); communityState.editingPostId = null; closeDialogSafe(qs('#communityEditorModal')); await openCommunityDetail(editId); await loadCommunityPosts(communityState.category || '전체', true); return openModalAlert('게시글이 수정되었습니다.'); } await addDoc(collection(db, COMMUNITY_POSTS_COLLECTION), { title, content, category, authorUid:user.uid, ...getCurrentCommunityAuthorProfile(), status:'active', reportCount:0, commentCount:0, viewCount:0, createdAt:serverTimestamp(), updatedAt:serverTimestamp() }); closeDialogSafe(qs('#communityEditorModal')); await loadCommunityPosts('전체', true); openModalAlert('게시글이 등록되었습니다.'); }catch(error){ console.error(error); openModalAlert(communityState.editingPostId ? '게시글 수정 중 오류가 발생했습니다.' : '게시글 등록 중 오류가 발생했습니다.'); } }
+ async function openCommunityDetail(postId){ communityState.currentPostId = postId; try{ const refDoc = doc(db, COMMUNITY_POSTS_COLLECTION, postId); await recordCommunityView('post', postId); const snap = await getDoc(refDoc); if(!snap.exists()) return openModalAlert('존재하지 않는 게시글입니다.'); const p = { id:postId, ...snap.data() }; if(p.status === 'deleted') return openModalAlert('삭제된 게시글입니다.'); if(p.status === 'hidden') return openModalAlert('관리자에 의해 가려진 게시글입니다.'); communityState.currentPostAuthorUid = p.authorUid || null; qs('#communityDetailBody').innerHTML = `<div class="community-detail-shell">${communityActionsHtml('post', p, { id:postId, postId, type:'post' })}<h2 class="community-detail-title">${escapeHtml(p.title || '')}</h2><span class="community-category">${escapeHtml(p.category || '자유')}</span><div class="community-detail-content">${escapeHtml(p.content || '')}</div><div class="community-detail-bottom"><div class="community-author-wrap">${communityAuthorHtml(p, { forceWriter:true })}</div><div class="community-meta-line"><span>댓글 ${Number(p.commentCount||0)}</span><span>조회 ${Number(p.viewCount||0)}</span><span>${formatCommunityDate(p.createdAt)}</span></div></div></div>`; bindCommunityActionButtons(qs('#communityDetailBody'), p, { id:postId, postId, type:'post' }); openDialogSafe(qs('#communityDetailModal')); await loadCommunityComments(postId); }catch(error){ console.error(error); openModalAlert('게시글을 불러오지 못했습니다.'); } }
+ async function loadCommunityComments(postId){ const list = qs('#communityCommentList'); if(!list) return; list.innerHTML = '<div class="loading">댓글을 불러오는 중입니다.</div>'; try{ const snap = await getDocs(query(collection(db, COMMUNITY_POSTS_COLLECTION, postId, 'comments'), orderBy('createdAt','asc'), limit(100))); if(snap.empty){ list.innerHTML = '<div class="notice-empty">아직 댓글이 없습니다.</div>'; return; } list.innerHTML = ''; for(const d of snap.docs){ const c={ id:d.id, ...d.data() }; const status = c.status || 'active'; const el=document.createElement('div'); el.className='comment-card'; el.dataset.commentId = d.id; if(status === 'deleted' || status === 'hidden'){ const message = status === 'hidden' ? '관리자에 의해 가려진 댓글입니다.' : '삭제된 댓글입니다.'; el.innerHTML = `${communityActionsHtml('comment', c, { postId, commentId:d.id, type:'comment' })}<div class="community-deleted-placeholder"><span class="reason">🫥 ${message}</span></div>`; }else{ await recordCommunityView('comment', postId, d.id); const liked = await isCommentLiked(postId, d.id); el.innerHTML=`${communityActionsHtml('comment', c, { postId, commentId:d.id, type:'comment' })}${communityAuthorHtml(c, { postAuthorUid:communityState.currentPostAuthorUid })}<p class="comment-content">${escapeHtml(c.content || '')}</p><div class="comment-bottom">${commentMetaHtml(c, liked)}</div>`; } bindCommunityActionButtons(el, c, { postId, commentId:d.id, type:'comment' }); list.appendChild(el); } }catch(error){ console.error(error); list.innerHTML = '<div class="notice-empty">댓글을 불러오지 못했습니다.</div>'; } }
+ async function submitCommunityComment(){ const user = auth.currentUser; if(!user || !communityState.currentPostId) return openModalAlert('로그인이 필요합니다.'); const content = qs('#communityCommentContent')?.value?.trim(); if(!content) return openModalAlert('댓글을 입력해주세요.'); const postId = communityState.currentPostId; try{ await addDoc(collection(db, COMMUNITY_POSTS_COLLECTION, postId, 'comments'), { content, authorUid:user.uid, ...getCurrentCommunityAuthorProfile(), status:'active', likeCount:0, viewCount:0, createdAt:serverTimestamp(), updatedAt:serverTimestamp() }); await updateDoc(doc(db, COMMUNITY_POSTS_COLLECTION, postId), { commentCount: increment(1), updatedAt: serverTimestamp() }); qs('#communityCommentContent').value = ''; await loadCommunityComments(postId); }catch(error){ console.error(error); openModalAlert('댓글 등록 중 오류가 발생했습니다.'); } }
+ function editCommunityCommentInline(postId, commentId){ const card = qs(`.comment-card[data-comment-id="${CSS.escape(commentId)}"]`); if(!card) return; const p = card.querySelector('.comment-content'); if(!p) return; const current = p.textContent || ''; p.outerHTML = `<div class="comment-edit-box"><textarea maxlength="1000">${escapeHtml(current)}</textarea><div class="comment-edit-actions"><button class="btn btn-soft" type="button" data-comment-edit-cancel>취소</button><button class="btn btn-primary" type="button" data-comment-edit-save>저장</button></div></div>`; const box = card.querySelector('.comment-edit-box'); const textarea = box.querySelector('textarea'); textarea.focus(); textarea.setSelectionRange(textarea.value.length, textarea.value.length); box.querySelector('[data-comment-edit-cancel]')?.addEventListener('click', () => loadCommunityComments(postId)); box.querySelector('[data-comment-edit-save]')?.addEventListener('click', async () => { const value = textarea.value.trim(); if(!value) return openModalAlert('댓글 내용을 입력해주세요.'); try{ await updateDoc(doc(db, COMMUNITY_POSTS_COLLECTION, postId, 'comments', commentId), { content:value, editedAt:serverTimestamp(), updatedAt:serverTimestamp() }); await loadCommunityComments(postId); openModalAlert('댓글이 수정되었습니다.'); }catch(error){ console.error(error); openModalAlert('댓글 수정 중 오류가 발생했습니다.'); } }); }
+ async function deleteCommunityPost(postId){ const ok = await openModalConfirm('게시글을 삭제하시겠습니까?\n삭제된 게시글은 휴지통 상태로 보관되며 복구할 수 있습니다.', null, '게시글 삭제', '삭제', '취소'); if(!ok) return; try{ await updateDoc(doc(db, COMMUNITY_POSTS_COLLECTION, postId), { status:'deleted', deletedAt:serverTimestamp(), deletedBy:auth.currentUser?.uid || null, deletedByRole:isCommunityAdmin()?'admin':'author', updatedAt:serverTimestamp() }); closeDialogSafe(qs('#communityDetailModal')); await loadCommunityPosts(communityState.category || '전체', true); openModalAlert('게시글이 삭제되었습니다.'); }catch(error){ console.error(error); openModalAlert('게시글 삭제 권한이 없거나 처리 중 오류가 발생했습니다.'); } }
+ async function blindCommunityPost(postId){ if(!isCommunityAdmin()) return openModalAlert('관리자만 블라인드 처리할 수 있습니다.'); const ok = await openModalConfirm('게시글을 블라인드 처리하시겠습니까?', null, '게시글 블라인드', '블라인드', '취소'); if(!ok) return; try{ await updateDoc(doc(db, COMMUNITY_POSTS_COLLECTION, postId), { status:'hidden', hiddenAt:serverTimestamp(), hiddenBy:auth.currentUser?.uid || null, updatedAt:serverTimestamp() }); closeDialogSafe(qs('#communityDetailModal')); await loadCommunityPosts(communityState.category || '전체', true); openModalAlert('게시글이 블라인드 처리되었습니다.'); }catch(error){ console.error(error); openModalAlert('블라인드 처리 중 오류가 발생했습니다.'); } }
+ async function restoreCommunityPost(postId){ const ok = await openModalConfirm('게시글을 복구하시겠습니까?', null, '게시글 복구', '복구', '취소'); if(!ok) return; try{ await updateDoc(doc(db, COMMUNITY_POSTS_COLLECTION, postId), { status:'active', restoredAt:serverTimestamp(), restoredBy:auth.currentUser?.uid || null, updatedAt:serverTimestamp() }); await loadCommunityPosts(communityState.category || '전체', true); openModalAlert('게시글이 복구되었습니다.'); }catch(error){ console.error(error); openModalAlert('게시글 복구 중 오류가 발생했습니다.'); } }
+ async function deleteCommunityComment(postId, commentId){ const ok = await openModalConfirm('댓글을 삭제하시겠습니까?\n댓글 자리에는 “삭제된 댓글입니다.”가 표시됩니다.', null, '댓글 삭제', '삭제', '취소'); if(!ok) return; try{ const ref = doc(db, COMMUNITY_POSTS_COLLECTION, postId, 'comments', commentId); const snap = await getDoc(ref); const wasActive = snap.exists() && (snap.data().status || 'active') === 'active'; await updateDoc(ref, { status:'deleted', deletedAt:serverTimestamp(), deletedBy:auth.currentUser?.uid || null, deletedByRole:isCommunityAdmin()?'admin':'author', updatedAt:serverTimestamp() }); if(wasActive) await updateDoc(doc(db, COMMUNITY_POSTS_COLLECTION, postId), { commentCount: increment(-1), updatedAt:serverTimestamp() }).catch(()=>{}); await loadCommunityComments(postId); openModalAlert('댓글이 삭제되었습니다.'); }catch(error){ console.error(error); openModalAlert('댓글 삭제 권한이 없거나 처리 중 오류가 발생했습니다.'); } }
+ async function blindCommunityComment(postId, commentId){ if(!isCommunityAdmin()) return openModalAlert('관리자만 블라인드 처리할 수 있습니다.'); const ok = await openModalConfirm('댓글을 블라인드 처리하시겠습니까?', null, '댓글 블라인드', '블라인드', '취소'); if(!ok) return; try{ const ref = doc(db, COMMUNITY_POSTS_COLLECTION, postId, 'comments', commentId); const snap = await getDoc(ref); const wasActive = snap.exists() && (snap.data().status || 'active') === 'active'; await updateDoc(ref, { status:'hidden', hiddenAt:serverTimestamp(), hiddenBy:auth.currentUser?.uid || null, updatedAt:serverTimestamp() }); if(wasActive) await updateDoc(doc(db, COMMUNITY_POSTS_COLLECTION, postId), { commentCount: increment(-1), updatedAt:serverTimestamp() }).catch(()=>{}); await loadCommunityComments(postId); openModalAlert('댓글이 블라인드 처리되었습니다.'); }catch(error){ console.error(error); openModalAlert('댓글 블라인드 처리 중 오류가 발생했습니다.'); } }
+ async function restoreCommunityComment(postId, commentId){ const ok = await openModalConfirm('댓글을 복구하시겠습니까?', null, '댓글 복구', '복구', '취소'); if(!ok) return; try{ const ref = doc(db, COMMUNITY_POSTS_COLLECTION, postId, 'comments', commentId); const snap = await getDoc(ref); const wasInactive = snap.exists() && (snap.data().status || 'active') !== 'active'; await updateDoc(ref, { status:'active', restoredAt:serverTimestamp(), restoredBy:auth.currentUser?.uid || null, updatedAt:serverTimestamp() }); if(wasInactive) await updateDoc(doc(db, COMMUNITY_POSTS_COLLECTION, postId), { commentCount: increment(1), updatedAt:serverTimestamp() }).catch(()=>{}); await loadCommunityComments(postId); openModalAlert('댓글이 복구되었습니다.'); }catch(error){ console.error(error); openModalAlert('댓글 복구 중 오류가 발생했습니다.'); } }
+ function openCommunityReportModal(targetType, postId, commentId=null, targetPreview=''){ const user = auth.currentUser; if(!user) return openModalAlert('로그인이 필요합니다.'); communityState.reportTarget = { targetType, postId, commentId, targetPreview:String(targetPreview||'').slice(0,80) }; communityState.reportReason = '욕설/비방'; qsa('#communityReportReasons .community-report-reason').forEach(btn => btn.classList.toggle('selected', btn.dataset.reportReason === communityState.reportReason)); openDialogSafe(qs('#communityReportModal')); }
+ async function submitCommunityReport(){ const user = auth.currentUser; const target = communityState.reportTarget; if(!user || !target?.postId) return openModalAlert('신고 대상 정보가 없습니다.'); const reason = communityState.reportReason || '기타'; const commentKey = target.commentId || 'post'; const reportId = `${target.targetType}_${target.postId}_${commentKey}_${user.uid}`; try{ await setDoc(doc(db, COMMUNITY_REPORTS_COLLECTION, reportId), { targetType:target.targetType, postId:target.postId, commentId:target.commentId || null, reason, reasonCode:reason, targetPreview:target.targetPreview || '', reporterUid:user.uid, reporterNickname:getCurrentNickname(), status:'pending', createdAt:serverTimestamp(), updatedAt:serverTimestamp() }); closeDialogSafe(qs('#communityReportModal')); openModalAlert('신고가 접수되었습니다.\n관리자가 확인 후 조치합니다.'); }catch(error){ console.error(error); if(String(error?.code||'').includes('permission-denied')) openModalAlert('이미 신고했거나 신고 권한이 없습니다.'); else openModalAlert('신고 접수 중 오류가 발생했습니다.'); } }
+ async function reportCommunityPost(postId){ openCommunityReportModal('post', postId, null, '게시글'); }
+ async function reportCommunityComment(postId, commentId){ openCommunityReportModal('comment', postId, commentId, '댓글'); }
+ qsa('#communityReportReasons .community-report-reason').forEach(btn => btn.addEventListener('click', () => { communityState.reportReason = btn.dataset.reportReason || '기타'; qsa('#communityReportReasons .community-report-reason').forEach(item => item.classList.toggle('selected', item === btn)); }));
+ qs('#closeCommunityReportModal')?.addEventListener('click', () => closeDialogSafe(qs('#communityReportModal')));
+ qs('#cancelCommunityReportBtn')?.addEventListener('click', () => closeDialogSafe(qs('#communityReportModal')));
+ qs('#submitCommunityReportBtn')?.addEventListener('click', submitCommunityReport);
+ qs('#communityWriteBtn')?.addEventListener('click', openCommunityEditor); qs('#closeCommunityEditor')?.addEventListener('click', () => { communityState.editingPostId = null; closeDialogSafe(qs('#communityEditorModal')); }); qs('#submitCommunityPostBtn')?.addEventListener('click', submitCommunityPost); qs('#closeCommunityDetail')?.addEventListener('click', () => closeDialogSafe(qs('#communityDetailModal'))); qs('#submitCommunityCommentBtn')?.addEventListener('click', submitCommunityComment); qs('#communityMoreBtn')?.addEventListener('click', () => loadCommunityPosts(communityState.category, false)); renderCommunityCategoryFilter();
+
+ function aiValueToText(value){
+ if(value == null) return '';
+ if(typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean') return String(value);
+ if(Array.isArray(value)) return value.map(aiValueToText).filter(Boolean).join(' ');
+ if(value && typeof value.toDate === 'function') return formatDateTime(value);
+ if(typeof value === 'object'){
+ const preferredKeys = [
+ 'text','title','name','label','value','answer','content','description','desc',
+ 'benefit','condition','summary','address','phone','category','storeName'
+ ];
+ const parts = [];
+ preferredKeys.forEach((key) => {
+ if(Object.prototype.hasOwnProperty.call(value, key)){
+ const text = aiValueToText(value[key]);
+ if(text) parts.push(text);
+ }
+ });
+ if(parts.length) return parts.join(' ');
+ return Object.entries(value)
+ .filter(([key]) => !/^_/.test(key))
+ .map(([key, val]) => aiValueToText(val))
+ .filter(Boolean)
+ .join(' ');
+ }
+ return String(value || '');
+ }
+
+ function normalizeAiText(value=''){
+ return aiValueToText(value)
+ .toLowerCase()
+ .replace(/<[^>]*>/g, ' ')
+ .replace(/[^가-힣a-z0-9\s]/gi,' ')
+ .replace(/\s+/g,' ')
+ .trim();
+ }
+
+ function tokenizeAiQuestion(question=''){
+ const compact = normalizeAiText(question);
+ const tokens = compact.split(' ').map(v => v.trim()).filter(v => v.length >= 2);
+ const synonymMap = {
+ '공지':['공지','공지사항','안내','알림','소식','최근'],
+ '최근':['최근','최신','새로운','신규','공지'],
+ '혜택':['혜택','할인','제휴','매장','가게','상가','쿠폰','이벤트'],
+ '매장':['매장','가게','상가','업체','혜택'],
+ '인기':['인기','top','top5','순위','랭킹','추천','베스트'],
+ '지도':['지도','위치','거리','근처','주변','네이버','길찾기'],
+ '전화':['전화','연락처','번호','문의'],
+ '관리사무소':['관리사무소','관리실','사무소','전화','문의'],
+ '쓰레기':['쓰레기','분리수거','음식물','재활용','배출'],
+ '음식물':['음식물','쓰레기','배출','분리수거'],
+ '주차':['주차','방문차량','차량','등록']
+ };
+ const expanded = new Set(tokens);
+ tokens.forEach(token => {
+ Object.entries(synonymMap).forEach(([key, values]) => {
+ if(token.includes(key) || values.some(v => token.includes(v) || v.includes(token))){
+ values.forEach(v => expanded.add(v));
+ }
+ });
+ });
+ return [...expanded].slice(0, 24);
+ }
+
+ function scoreAiItem(question, item){
+ const tokens = tokenizeAiQuestion(question);
+ const hay = normalizeAiText([
+ item.title,
+ item.name,
+ item.category,
+ item.content,
+ item.desc,
+ item.description,
+ getBenefitDisplayAddress(item), item.roadAddress, item.jibunAddress, item.detailAddress,
+ item.benefit,
+ item.condition,
+ item.answer,
+ item.question,
+ item.summary,
+ item.storeName,
+ ...(Array.isArray(item.keywords) ? item.keywords : [])
+ ]);
+ if(!tokens.length || !hay) return 0;
+ let score = 0;
+ tokens.forEach(token => {
+ if(!token) return;
+ if(hay.includes(token)) score += token.length >= 3 ? 3 : 1;
+ if(normalizeAiText(item.title || item.name || '').includes(token)) score += 2;
+ if(Array.isArray(item.keywords) && item.keywords.some(k => normalizeAiText(k).includes(token))) score += 3;
+ });
+ return score;
+ }
+
+ function appendAiMessage(role='bot', html='', options={}){
+ const win = qs('#aiChatWindow');
+ if(!win) return null;
+ const row = document.createElement('div');
+ row.className = `ai-message ${role === 'user' ? 'user' : 'bot'}`;
+ if(options.pending) row.dataset.pending = 'true';
+ row.innerHTML = `<div class="ai-bubble">${html}</div>`;
+ win.appendChild(row);
+ bindAiAnswerActions(row);
+ win.scrollTop = win.scrollHeight;
+ return row;
+ }
+
+ function getAiWaitingMessage(question=''){
+ const q = String(question || '').replace(/\s+/g, ' ').trim();
+ if(/영업시간|영업\s*중|열었|닫았|오픈|마감/.test(q)) return '매장 영업시간을 확인하고 있어요.';
+ if(/혜택|추천|매장|카페|식당|맛집|지도|거리|근처|가까운|TOP\s*5|탑\s*5|인기/.test(q)) return '혜택 정보를 확인하고 있어요.';
+ if(/공지|공지사항|안내|메뉴|어디|위치/.test(q)) return '안내 정보를 확인하고 있어요.';
+ return '답변을 준비하고 있어요.';
+ }
+
+ function buildAiThinkingHtml(message='답변을 준비하고 있어요.', subText='잠시만 기다려주세요.'){
+ return `<div class="ai-thinking" role="status" aria-live="polite"><span class="ai-typing-indicator" aria-label="AI가 답변을 준비 중입니다"><span></span><span></span><span></span></span><span class="ai-thinking-text">${escapeHtml(message)}${subText ? `<small>${escapeHtml(subText)}</small>` : ''}</span></div>`;
+ }
+
+ function setAiThinkingMessage(pendingBubble, message='답변을 준비하고 있어요.', subText='잠시만 기다려주세요.'){
+ if(!pendingBubble) return;
+ pendingBubble.innerHTML = buildAiThinkingHtml(message, subText);
+ }
+
+ function createAiTypingBubble(question=''){
+ return appendAiMessage('bot', buildAiThinkingHtml(getAiWaitingMessage(question), '조금만 기다려주세요. 곧 답변드릴게요.'), { pending:true });
+ }
+
+ function normalizeAiAnswerHtml(html=''){
+ const wrap = document.createElement('div');
+ wrap.innerHTML = String(html || '');
+ wrap.querySelectorAll('script,style,iframe,object,embed').forEach(el => el.remove());
+ return wrap.innerHTML || '답변을 생성하지 못했습니다.';
+ }
+
+ function typeAiHtml(targetBubble, html='', speed=12){
+ return new Promise((resolve) => {
+ if(!targetBubble){ resolve(); return; }
+ const safeHtml = normalizeAiAnswerHtml(html);
+ const tmp = document.createElement('div');
+ tmp.innerHTML = safeHtml;
+ const text = tmp.textContent || tmp.innerText || '';
+ const win = qs('#aiChatWindow');
+ targetBubble.innerHTML = '';
+ let i = 0;
+ const tick = () => {
+ i += Math.max(1, Math.ceil(text.length / 160));
+ targetBubble.textContent = text.slice(0, i);
+ if(win) win.scrollTop = win.scrollHeight;
+ if(i < text.length){ setTimeout(tick, speed); }
+ else { targetBubble.innerHTML = safeHtml; bindAiAnswerActions(targetBubble); if(win) win.scrollTop = win.scrollHeight; resolve(); }
+ };
+ tick();
+ });
+ }
+
+ function getAiTimePromptLabel(){
+ const hour = new Date().getHours();
+ if(hour >= 5 && hour < 11) return { title:'아침 시간', question:'아침에 가기 좋은 혜택 매장 추천해줘', label:'아침 추천' };
+ if(hour >= 11 && hour < 15) return { title:'점심 시간', question:'점심에 가기 좋은 혜택 매장 TOP3 추천해줘', label:'점심 추천' };
+ if(hour >= 15 && hour < 18) return { title:'오후 시간', question:'오후에 가기 좋은 카페나 혜택 매장 추천해줘', label:'오후 카페' };
+ if(hour >= 18 && hour < 22) return { title:'저녁 시간', question:'저녁에 가기 좋은 맛집 혜택 매장 TOP3 추천해줘', label:'저녁 맛집' };
+ return { title:'야간 시간', question:'지금 확인하면 좋은 공지와 내일 이용 가능한 혜택 알려줘', label:'내일 준비' };
+ }
+
+ async function getAiIdTokenSafe(){
+ try{
+ return state.currentUser?.getIdToken ? await state.currentUser.getIdToken() : '';
+ }catch(error){
+ console.warn('AI ID 토큰 생성 실패:', error);
+ return '';
+ }
+ }
+
+ function buildProactiveAiHtml(data={}){
+ const message = String(data.message || '').trim() || getAiWelcomeHtml();
+ const buttons = Array.isArray(data.buttons) ? data.buttons : [];
+ const recs = Array.isArray(data.recommendations) ? data.recommendations : [];
+ const insight = data.insight || {};
+ const buttonHtml = buttons.length ? `<div class="ai-dialog-action-row" aria-label="개인형 AI 추천 버튼">${buttons.map(btn => {
+ const label = typeof btn === 'string' ? btn : (btn.label || btn.text || '추천');
+ const question = typeof btn === 'string' ? btn : (btn.question || btn.value || label);
+ const benefitId = typeof btn === 'object' && btn.benefitId ? ` data-ai-log-benefit-id="${escapeAttr(btn.benefitId)}"` : '';
+ return `<button class="ai-dialog-action-btn" type="button" data-ai-dialog-question="${escapeAttr(question)}" data-ai-log-source="proactive-ai" data-ai-log-category="${escapeAttr(label)}"${benefitId}>${escapeHtml(label)}</button>`;
+ }).join('')}</div>` : '';
+ const recHtml = recs.length ? `<div class="ai-answer-section"><div class="ai-answer-section-title"><span>지금 잘 맞는 추천</span><small>${recs.length}개</small></div>${recs.map(item => `<div class="ai-benefit-card-auto enhanced"><div class="ai-card-top"><b>${escapeHtml(item.name || '추천 매장')}</b><span class="ai-match-score">맞춤 ${Math.min(99, Number(item.score || 0))}%</span></div><span>${escapeHtml(item.benefit || item.category || '등록된 혜택 정보를 확인해보세요.')}</span>${item.id ? `<div class="ai-card-actions"><button class="primary" type="button" data-ai-open-benefit-id="${escapeAttr(item.id)}">혜택 상세 보기</button></div>` : ''}</div>`).join('')}</div>` : '';
+ const insightText = [insight.preference ? `관심 ${insight.preference}` : '', insight.timeLabel || '', insight.isRain ? '비오는날' : '', Number.isFinite(Number(insight.logCount)) ? `로그 ${Number(insight.logCount)}건` : ''].filter(Boolean).join(' · ');
+ return `<div class="ai-answer ai-answer-upgrade"><div class="ai-answer-summary">${escapeHtml(message).replace(/\n/g,'<br>')}</div>${buttonHtml}${recHtml}<span class="ai-mode-pill upgraded">지금 상황에 맞는 정보를 준비했어요.</span></div>`;
+ }
+
+ async function logPersonalAssistantEvent(payload={}){
+ if(!AI_ASSISTANT_LOG_URL) return;
+ try{
+ const idToken = await getAiIdTokenSafe();
+ await fetch(AI_ASSISTANT_LOG_URL, {
+ method:'POST',
+ headers:{ 'Content-Type':'application/json', ...(idToken ? { 'Authorization':`Bearer ${idToken}` } : {}) },
+ body: JSON.stringify({ env: ENV, ...payload })
+ });
+ }catch(error){
+ console.warn('개인형 AI 로그 저장 실패:', error);
+ }
+ }
+
+ async function loadServerProactiveWelcome(){
+ const win = qs('#aiChatWindow');
+ if(!win || !AI_PROACTIVE_URL) return false;
+ try{
+ const idToken = await getAiIdTokenSafe();
+ const pageContext = typeof buildAiPageContext === 'function' ? buildAiPageContext('개인형 비서 선제 추천') : {};
+ const response = await fetch(AI_PROACTIVE_URL, {
+ method:'POST',
+ headers:{ 'Accept':'application/json', 'Content-Type':'application/json', ...(idToken ? { 'Authorization':`Bearer ${idToken}` } : {}) },
+ body: JSON.stringify({ env: ENV, pageContext, context: pageContext })
+ });
+ const data = await response.json().catch(()=>({}));
+ if(!response.ok || data.ok === false) throw new Error(data.message || '선제 추천 호출 실패');
+ win.innerHTML = `<div class="ai-message bot"><div class="ai-bubble">${buildProactiveAiHtml(data)}</div></div>`;
+ bindAiAnswerActions(win);
+ win.scrollTop = win.scrollHeight;
+ return true;
+ }catch(error){
+ console.warn('개인형 AI 안내 로드 실패:', error);
+ return false;
+ }
+ }
+
+ function getKstDateKey(){
+ const now = new Date();
+ const kst = new Date(now.getTime() + 9 * 60 * 60 * 1000);
+ return kst.toISOString().slice(0, 10);
+ }
+
+ function getDailyAiNudgeStorageKey(dateKey=getKstDateKey()){
+ const uid = state.currentUser?.uid || 'guest';
+ return `myhills_ai_daily_nudge_${ENV || 'prod'}_${uid}_${dateKey}`;
+ }
+
+ function hideDailyAiNudgeToast(markLocal=true){
+ const toast = qs('#aiDailyNudgeToast');
+ if(!toast) return;
+ toast.classList.remove('show');
+ toast.setAttribute('aria-hidden','true');
+ if(markLocal){
+ localStorage.setItem(getDailyAiNudgeStorageKey(), 'closed');
+ }
+ }
+
+ async function markDailyAiNudgeShown(action='shown'){
+ localStorage.setItem(getDailyAiNudgeStorageKey(), action || 'shown');
+ if(!AI_DAILY_NUDGE_MARK_URL) return;
+ try{
+ const idToken = await getAiIdTokenSafe();
+ await fetch(AI_DAILY_NUDGE_MARK_URL, {
+ method:'POST',
+ headers:{ 'Content-Type':'application/json', ...(idToken ? { 'Authorization':`Bearer ${idToken}` } : {}) },
+ body: JSON.stringify({ env: ENV, dateKey: getKstDateKey(), action })
+ });
+ }catch(error){
+ console.warn('일 1회 AI 유도 기록 실패:', error);
+ }
+ }
+
+ function showDailyAiNudgeToast(payload={}){
+ const toast = qs('#aiDailyNudgeToast');
+ if(!toast) return;
+ const titleEl = qs('#aiDailyNudgeTitle');
+ const msgEl = qs('#aiDailyNudgeMessage');
+ if(titleEl) titleEl.textContent = payload.title || 'AI 생활도우미가 오늘 추천을 준비했어요';
+ if(msgEl) msgEl.textContent = payload.message || '날씨·시간·인기 혜택 기준으로 먼저 확인해볼까요?';
+ toast.classList.add('show');
+ toast.setAttribute('aria-hidden','false');
+ window.clearTimeout(window.__aiDailyNudgeTimer);
+ window.__aiDailyNudgeTimer = window.setTimeout(() => hideDailyAiNudgeToast(false), 11000);
+ }
+
+ function hasAiOpenDeepLink(){
+ try{
+ const params = new URLSearchParams(location.search || '');
+ return params.get('ai') === 'open' || params.get('open') === 'ai' || params.get('view') === 'ai';
+ }catch(_){
+ return false;
+ }
+ }
+
+ function clearAiOpenDeepLink(){
+ try{
+ const url = new URL(location.href);
+ let changed = false;
+ ['ai','open','view'].forEach((key) => {
+ const value = url.searchParams.get(key);
+ if((key === 'ai' && value === 'open') || (key === 'open' && value === 'ai') || (key === 'view' && value === 'ai')){
+ url.searchParams.delete(key);
+ changed = true;
+ }
+ });
+ if(changed){
+ history.replaceState({}, '', `${url.pathname}${url.search}${url.hash}`);
+ }
+ }catch(_){ }
+ }
+
+ async function openAiAssistantFromNudge(source='daily_nudge'){
+ hideDailyAiNudgeToast(false);
+ changeView('ai');
+ setTimeout(() => {
+ resetAiChatWindow({ loadProactive:true });
+ qs('#aiQuestionInput')?.focus?.();
+ }, 80);
+ logPersonalAssistantEvent({ action:'open_ai_assistant', source }).catch(()=>{});
+ clearAiOpenDeepLink();
+ return true;
+ }
+
+ async function handleAiOpenDeepLink(){
+ if(!hasAiOpenDeepLink()) return false;
+ await markDailyAiNudgeShown('push-opened');
+ return openAiAssistantFromNudge('push_deeplink');
+ }
+
+ async function handleDailyAiNudge(){
+ if(!state.currentUser?.uid) return;
+ const localKey = getDailyAiNudgeStorageKey();
+ if(localStorage.getItem(localKey)) return;
+ let payload = { shouldShow:true };
+ if(AI_DAILY_NUDGE_CHECK_URL){
+ try{
+ const idToken = await getAiIdTokenSafe();
+ const response = await fetch(AI_DAILY_NUDGE_CHECK_URL, {
+ method:'POST',
+ headers:{ 'Accept':'application/json', 'Content-Type':'application/json', ...(idToken ? { 'Authorization':`Bearer ${idToken}` } : {}) },
+ body: JSON.stringify({ env: ENV, dateKey: getKstDateKey() })
+ });
+ const data = await response.json().catch(()=>({}));
+ if(response.ok && data.ok !== false) payload = data;
+ }catch(error){
+ console.warn('일 1회 AI 유도 서버 체크 실패, local 기준으로 표시:', error);
+ }
+ }
+ if(payload.shouldShow === false){
+ localStorage.setItem(localKey, 'server-already-shown');
+ return;
+ }
+ showDailyAiNudgeToast(payload);
+ markDailyAiNudgeShown('shown').catch(()=>{});
+ }
+
+ function getAiWelcomeHtml(){
+ const timePrompt = getAiTimePromptLabel();
+ const topNames = (state.benefits || [])
+ .slice()
+ .sort((a,b) => Number(b.popularScore || b.score || b.detailViewCount || 0) - Number(a.popularScore || a.score || a.detailViewCount || 0))
+ .slice(0, 3)
+ .map(v => v.name)
+ .filter(Boolean);
+ const topHint = topNames.length ? `\n오늘 많이 보는 혜택은 ${topNames.map(escapeHtml).join(' · ')} 쪽이에요.` : '';
+ return `안녕하세요 
+현재는 ${escapeHtml(timePrompt.title)}이에요.${topHint}
+
+먼저 필요한 걸 골라보세요. 제가 바로 이어서 추천해드릴게요.
+
+<div class="ai-dialog-action-row" aria-label="AI 선제 추천 버튼"><button class="ai-dialog-action-btn" type="button" data-ai-dialog-question="${escapeAttr(timePrompt.question)}">${escapeHtml(timePrompt.label)}</button><button class="ai-dialog-action-btn" type="button" data-ai-dialog-question="지금 상황에 맞는 혜택 매장 TOP3 추천해줘">상황별 TOP3</button><button class="ai-dialog-action-btn" type="button" data-ai-dialog-question="아이와 함께 가기 좋은 곳 추천해줘">아이와 함께</button><button class="ai-dialog-action-btn" type="button" data-ai-dialog-question="가까운 혜택 매장 알려줘">가까운 곳</button><button class="ai-dialog-action-btn" type="button" data-ai-dialog-question="최근 공지 알려줘">최근 공지</button></div><small>개인형 비서형 AI 모드: 사용자가 묻기 전에 시간·인기·상황 기준으로 먼저 제안합니다.</small>`;
+ }
+
+ function resetAiChatWindow(options={}){
+ const loadProactive = options.loadProactive !== false;
+ const win = qs('#aiChatWindow');
+ if(!win) return;
+ win.innerHTML = `<div class="ai-message bot"><div class="ai-bubble">${getAiWelcomeHtml()}</div></div>`;
+ bindAiAnswerActions(win);
+ win.scrollTop = win.scrollHeight;
+ if(loadProactive) loadServerProactiveWelcome();
+ }
+
+ function updateAiConversationStatus(title){
+ const el = qs('#aiConversationStatus');
+ if(!el) return;
+ const name = title || aiConversationTitle || (aiConversationId ? '이전 대화' : '새 대화');
+ el.innerHTML = `<span>현재 대화: <strong>${escapeHtml(name)}</strong></span><span>${aiConversationId ? '대화 기억 사용중' : '첫 질문 후 저장'}</span>`;
+ }
+
+ async function callAiFunction(payload = {}){
+ const idToken = await auth.currentUser?.getIdToken?.();
+ if(!idToken) throw new Error('로그인 정보가 없습니다.');
+ const response = await fetch(AI_FUNCTION_URL, {
+ method: 'POST',
+ headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${idToken}` },
+ body: JSON.stringify({ env: ENV, ...payload })
+ });
+ const data = await response.json().catch(() => ({}));
+ if(!response.ok || data.ok === false) throw new Error(data.message || 'AI 함수 호출에 실패했습니다.');
+ return data;
+ }
+
+ function extractAiDialogActions(text=''){
+ const raw = String(text || '');
+ const match = raw.match(/\n*\[\[AI_DIALOG_ACTIONS:([\s\S]*?)\]\]\s*$/);
+ if(!match) return { text: raw, actions: null };
+ try{
+ const actions = JSON.parse(match[1]);
+ return { text: raw.slice(0, match.index).trim(), actions };
+ }catch(error){
+ console.warn('AI 대화 버튼 파싱 실패:', error);
+ return { text: raw.replace(match[0], '').trim(), actions: null };
+ }
+ }
+
+ function buildAiDialogActionButtons(actions=null){
+ if(!actions || !Array.isArray(actions.buttons) || !actions.buttons.length) return '';
+ const buttons = actions.buttons.slice(0, 6).map((btn) => {
+ const label = String(btn.label || btn.question || '선택').trim();
+ const question = String(btn.question || btn.label || '').trim();
+ if(!question) return '';
+ return `<button class="ai-dialog-action-btn" type="button" data-ai-dialog-question="${escapeAttr(question)}">${escapeHtml(label)}</button>`;
+ }).filter(Boolean).join('');
+ if(!buttons) return '';
+ return `<div class="ai-dialog-action-row" aria-label="AI 추천 선택 버튼">${buttons}</div>`;
+ }
+
+ function cleanAiChunkText(text=''){
+ const parsed = extractAiDialogActions(text);
+ return String(parsed.text || '')
+ .replace(/\*\*/g, '')
+ .replace(/#{1,6}\s?/g, '')
+ .replace(/```[\s\S]*?```/g, (m) => m.replace(/```/g, '').trim())
+ .replace(/\n{3,}/g, '\n\n');
+ }
+
+ function formatAiStreamingText(text=''){
+ const raw = cleanAiChunkText(text);
+ const lines = raw.split('\n').map(line => {
+ let v = line.trim();
+ if(!v) return '';
+ v = v.replace(/^[-•]\s*/g, '• ');
+ v = v.replace(/^(\d+)\.\s*/g, '$1. ');
+ return v;
+ });
+ return lines.join('\n').replace(/\n{3,}/g, '\n\n').trimStart();
+ }
+
+ function createAiStreamRenderer(targetBubble, question=''){
+ let rawText = '';
+ let lastRendered = '';
+ let lastCardSignature = '';
+ const render = (force=false) => {
+ if(!targetBubble) return;
+ const formatted = formatAiStreamingText(rawText);
+ const isApartmentPhone = isApartmentLifePhoneQuestion(question, formatted);
+ const cards = isApartmentPhone ? [] : mapAiBenefitsForQuestion(question, formatted, 3);
+ const cardSignature = cards.map(v => `${v.item?.id || ''}:${v.score || 0}`).join('|');
+ if(!force && formatted === lastRendered && cardSignature === lastCardSignature) return;
+ lastRendered = formatted;
+ lastCardSignature = cardSignature;
+
+ const liveCards = cards.length ? `
+ <div class="ai-live-card-dock">
+ <div class="ai-live-card-head"><span>실시간 매칭 혜택</span><span>${cards.length}개 감지</span></div>
+ <div class="ai-live-card-grid">
+ ${cards.map(({item, reason}) => `
+ <div class="ai-live-card">
+ <b>${escapeHtml(item.name || item.storeName || item.title || '혜택')}</b>
+ <span>${escapeHtml(item.benefit || item.description || item.content || '등록된 혜택 정보를 확인해보세요.')}</span>
+ <div class="ai-live-meta">
+ ${item.category ? `<em>${escapeHtml(item.category)}</em>` : ''}
+ ${reason ? `<em>${escapeHtml(reason)}</em>` : ''}
+ ${shouldAttachWeatherTagToItem(item, question, formatted) ? `<em class="weather">${escapeHtml(shouldAttachWeatherTagToItem(item, question, formatted))}</em>` : ''}
+ ${pickAiPhone(item) ? `<em>전화 가능</em>` : ''}
+ </div>
+ </div>`).join('')}
+ </div>
+ </div>` : '';
+
+ targetBubble.innerHTML = `
+ <div class="ai-stream-shell">
+ <div class="ai-stream-status">
+ <span class="ai-stream-status-left"><span class="ai-stream-dot"></span>${isApartmentPhone ? '아파트 생활 연락처를 확인하고 있습니다' : 'AI가 답변을 작성하면서 혜택을 매칭 중입니다'}</span>
+ <span>${isApartmentPhone ? '생활정보 확인 중' : (cards.length ? '추천 카드 준비 완료' : '답변 준비 중')}</span>
+ </div>
+ <div class="ai-stream-text">${escapeHtml(formatted || '답변을 작성 중입니다...').replace(/\n/g,'<br>')}<span class="ai-stream-cursor"></span></div>
+ ${liveCards}
+ </div>`;
+ const win = qs('#aiChatWindow');
+ if(win) win.scrollTop = win.scrollHeight;
+ };
+ return {
+ push(chunk=''){
+ rawText += String(chunk || '');
+ render(false);
+ },
+ full(){ return formatAiStreamingText(rawText).trim(); },
+ flush(){ render(true); return this.full(); }
+ };
+ }
+
+ function normalizeAiSearchText(value=''){
+ return String(value || '')
+ .toLowerCase()
+ .replace(/\s+/g, '')
+ .replace(/[\[\]{}()<>"'`~!@#$%^&*_+=|\:;,.?/\-]/g, '');
+ }
+
+ function getAiSearchTokens(question=''){
+ const q = String(question || '').trim();
+ const base = q
+ .replace(/[\[\]{}()<>"'`~!@#$%^&*_+=|\:;,.?/\-]/g, ' ')
+ .split(/\s+/)
+ .map(v => v.trim())
+ .filter(v => v.length >= 2);
+ const joined = normalizeAiSearchText(q);
+ const synonyms = [];
+ if(joined.includes('관리사무소') || joined.includes('관리실') || joined.includes('전화') || joined.includes('연락처')){
+ synonyms.push('관리사무소','관리실','생활지원센터','전화번호','연락처','대표번호','민원','사무소');
+ }
+ if(joined.includes('혜택') || joined.includes('할인')) synonyms.push('혜택','할인','제휴','매장');
+ return [...new Set([...base, ...synonyms])];
+ }
+
+
+ function splitAiKeywords(value=''){
+ if(Array.isArray(value)) return value.map(v => String(v || '').trim()).filter(Boolean);
+ return String(value || '').split(/[\n,，#]+/).map(v => v.trim()).filter(Boolean);
+ }
+
+ 
+function getAiAttachmentExt(fileName=''){
+ const clean = String(fileName || '').split('?')[0].split('#')[0];
+ const last = clean.split('/').pop() || '';
+ const idx = last.lastIndexOf('.');
+ return idx >= 0 ? last.slice(idx + 1).toLowerCase() : '';
+}
+
+function getAiAttachmentMimeType(attachment={}){
+ const explicit = String(attachment.mimeType || attachment.contentType || '').trim();
+ if(explicit && explicit.includes('/')) return explicit;
+ const fileName = attachment.name || attachment.fileName || attachment.path || attachment.url || '';
+ const ext = getAiAttachmentExt(fileName);
+ const map = {
+  jpg:'image/jpeg', jpeg:'image/jpeg', png:'image/png', gif:'image/gif', webp:'image/webp', svg:'image/svg+xml',
+  pdf:'application/pdf',
+  xls:'application/vnd.ms-excel',
+  xlsx:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+  csv:'text/csv',
+  doc:'application/msword',
+  docx:'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+  ppt:'application/vnd.ms-powerpoint',
+  pptx:'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+  hwp:'application/x-hwp',
+  hwpx:'application/vnd.hancom.hwpx',
+  txt:'text/plain',
+  zip:'application/zip'
+ };
+ return map[ext] || 'application/octet-stream';
+}
+
+function getAiAttachmentIcon(attachment={}){
+ const mime = getAiAttachmentMimeType(attachment).toLowerCase();
+ const name = attachment.name || attachment.fileName || attachment.path || attachment.url || '';
+ const ext = getAiAttachmentExt(name);
+ if(mime.startsWith('image/') || ['jpg','jpeg','png','gif','webp','svg'].includes(ext)) return '🖼️';
+ if(mime.includes('pdf') || ext === 'pdf') return '📕';
+ if(['xls','xlsx','csv'].includes(ext)) return '';
+ if(['doc','docx','hwp','hwpx'].includes(ext)) return '📄';
+ if(['ppt','pptx'].includes(ext)) return '📽️';
+ if(['zip','7z','rar'].includes(ext)) return '🗂️';
+ if(['txt','md'].includes(ext)) return '📝';
+ return '첨부';
+}
+
+function getAiAttachmentGuideText(attachments=[]){
+ const list = Array.isArray(attachments) ? attachments : [];
+ const hasImage = list.some(a => getAiAttachmentType(a) === 'image');
+ const hasFile = list.some(a => getAiAttachmentType(a) !== 'image');
+ if(hasImage && hasFile) return '이미지와 파일이 있으니 참고하여 주시기 바랍니다. 이미지는 클릭하면 확대 가능하며 이미지와 파일 모두 다운로드 받을 수 있습니다.';
+ if(hasImage) return '이미지를 클릭하면 확대해서 확인이 가능하며, 필요 시 다운로드도 가능합니다.';
+ if(hasFile) return '파일을 다운받아서 확인이 가능합니다.';
+ return '';
+}
+
+function getAiAttachmentType(item={}){
+ const mime = String(item.mimeType || item.type || '').toLowerCase();
+ const name = String(item.name || '').toLowerCase();
+ if(mime.startsWith('image/') || /\.(png|jpe?g|gif|webp|bmp|svg)$/.test(name)) return 'image';
+ return 'file';
+ }
+
+ function sanitizeAiKnowledgeDoc(raw={}, id='', source=''){
+ const attachments = Array.isArray(raw.attachments) ? raw.attachments.filter(a => a && a.url).map(a => ({
+ type: getAiAttachmentType(a),
+ name: String(a.name || '첨부파일'),
+ url: String(a.url || ''),
+ path: String(a.path || ''),
+ mimeType: String(a.mimeType || ''),
+ size: Number(a.size || a.sizeBytes || 0)
+ })) : [];
+ return {
+ type: source,
+ id,
+ title: raw.title || raw.question || raw.name || '',
+ name: raw.title || raw.question || raw.name || '',
+ question: raw.question || raw.title || '',
+ answer: raw.answer || raw.content || '',
+ content: raw.content || raw.answer || '',
+ section: raw.section || '',
+ keywords: splitAiKeywords(raw.keywords || ''),
+ isActive: raw.isActive !== false,
+ attachments,
+ attachmentCount: attachments.length
+ };
+ }
+
+ function scoreAiKnowledgeMatch(item={}, question='', answerText=''){
+ const raw = stringifyAiCandidateText(item, item.type || 'ai');
+ const norm = normalizeAiSearchText(raw);
+ const source = `${question || ''} ${answerText || ''}`;
+ const qNorm = normalizeAiSearchText(source);
+ const titleNorm = normalizeAiSearchText(item.title || item.question || item.name || '');
+ const tokens = getAiSearchTokens(source).map(normalizeAiSearchText).filter(Boolean);
+ let score = 0;
+ if(titleNorm && qNorm.includes(titleNorm)) score += 15;
+ tokens.forEach(t => { if(t && norm.includes(t)) score += t.length >= 4 ? 4 : 2; });
+ if(Array.isArray(item.keywords)) item.keywords.forEach(k => { const nk = normalizeAiSearchText(k); if(nk && qNorm.includes(nk)) score += 5; });
+ if(item.attachments?.length && score > 0) score += 2;
+ return score;
+ }
+
+ function getMatchedAiKnowledgeAttachments(question='', answerText='', maxDocs=2){
+ try{
+ return (state.aiKnowledge || [])
+ .filter(item => item && item.isActive !== false && Array.isArray(item.attachments) && item.attachments.length)
+ .map(item => ({ item, score: scoreAiKnowledgeMatch(item, question, answerText) }))
+ .filter(v => v.score >= 4)
+ .sort((a,b) => b.score - a.score)
+ .slice(0, maxDocs);
+ }catch(error){
+ console.warn('AI 첨부 매칭 실패', error);
+ return [];
+ }
+ }
+
+ function buildAiAttachmentsHtml(matches=[]){
+ const attachments = [];
+ const sourceList = Array.isArray(matches) ? matches : [];
+ sourceList.forEach(entry => {
+   // 1) 기존 매칭 객체 형태: { item, score }
+   if(entry && entry.item){
+     const item = entry.item || {};
+     (Array.isArray(item.attachments) ? item.attachments : []).forEach(a => {
+       if(a) attachments.push({ ...a, sourceTitle: item.title || item.question || item.section || 'AI 안내' });
+     });
+     return;
+   }
+   // 2) 엄격 매칭 함수가 바로 첨부파일 배열을 반환하는 형태도 허용
+   if(entry && (entry.url || entry.path || entry.name || entry.fileName)){
+     attachments.push({ ...entry, name: entry.name || entry.fileName || '첨부파일', sourceTitle: entry.sourceTitle || 'AI 안내' });
+   }
+ });
+ const unique = [];
+ const seen = new Set();
+ attachments.forEach(a => {
+ const key = a.url || a.path || a.name;
+ if(!key || seen.has(key)) return;
+ seen.add(key);
+ unique.push(a);
+ });
+ if(!unique.length) return '';
+ const images = unique.filter(a => getAiAttachmentType(a) === 'image').slice(0, 3);
+ const files = unique.filter(a => getAiAttachmentType(a) !== 'image').slice(0, 5);
+ const imageHtml = images.length ? `<div class="ai-attachment-grid">${images.map(a => `<div class="ai-attachment-image-card"><button class="ai-attachment-image-preview" type="button" data-ai-image-zoom="1" data-ai-image-src="${escapeAttr(a.url || '')}" data-ai-image-title="${escapeAttr(a.name || a.sourceTitle || '안내 이미지')}" onclick="return window.openAiImageZoomFromElement ? window.openAiImageZoomFromElement(this) : false;"><img src="${escapeAttr(a.url)}" alt="${escapeAttr(a.name || '안내 이미지')}" loading="eager" decoding="async" fetchpriority="high" data-ai-attachment-image="true" onclick="return window.openAiImageZoomFromElement ? window.openAiImageZoomFromElement(this.closest('[data-ai-image-zoom]') || this) : false;"><span class="ai-attachment-zoom-badge" aria-hidden="true"></span></button><div class="ai-attachment-caption">${escapeHtml(a.name || a.sourceTitle || '안내 이미지')}</div><div class="ai-attachment-image-actions"><button class="ai-attachment-download-link" type="button" data-ai-attachment-download="1" data-ai-attachment-path="${escapeAttr(a.path || '')}" data-ai-attachment-url="${escapeAttr(a.url || '')}" data-ai-attachment-name="${escapeAttr(a.name || 'image')}" data-ai-attachment-mime="${escapeAttr(a.mimeType || a.contentType || getAiAttachmentMimeType(a))}"><span>이미지 저장</span><em>다운로드</em></button></div></div>`).join('')}</div>` : '';
+ const fileHtml = files.length ? `<div class="ai-attachment-grid">${files.map(a => `<button class="ai-attachment-file-link" type="button" data-ai-attachment-download="1" data-ai-attachment-path="${escapeAttr(a.path || '')}" data-ai-attachment-url="${escapeAttr(a.url || '')}" data-ai-attachment-name="${escapeAttr(a.name || 'attachment')}" data-ai-attachment-mime="${escapeAttr(a.mimeType || a.contentType || getAiAttachmentMimeType(a))}"><span><span class="ai-attachment-file-icon">${getAiAttachmentIcon(a)}</span>${escapeHtml(a.name || '첨부파일')}</span><em>다운로드</em></button>`).join('')}</div>` : '';
+ const guideText = getAiAttachmentGuideText(unique);
+ const guideHtml = guideText ? `<div class="ai-attachment-guide">${escapeHtml(guideText)}</div>` : '';
+ return `<div class="ai-attachment-section"><div class="ai-answer-section-title"><span>관련 이미지/첨부파일</span><small>${unique.length}개</small></div>${guideHtml}${imageHtml}${fileHtml}</div>`;
+ }
+
+ function subscribeAiKnowledge(){
+ const targets = [
+ { collectionName:'ai_faq', type:'faq' },
+ { collectionName:'ai_booklet_pages', type:'booklet' },
+ { collectionName:'ai_guide_pages', type:'guide' }
+ ];
+ const buckets = {};
+ targets.forEach(({collectionName, type}) => {
+ onSnapshot(query(collection(db, collectionName), limit(120)), (snapshot) => {
+ buckets[type] = snapshot.docs.map(d => sanitizeAiKnowledgeDoc(d.data(), d.id, type));
+ state.aiKnowledge = Object.values(buckets).flat();
+ }, (error) => console.warn(`${collectionName} AI 지식 데이터 로드 실패`, error));
+ });
+ }
+
+ function stringifyAiCandidateText(item={}, type=''){
+ const fields = [
+ type, item.id, item.name, item.storeName, item.title, item.category,
+ item.benefit, item.description, item.content, item.body,
+ getBenefitDisplayAddress(item), item.roadAddress, item.jibunAddress, item.detailAddress, item.phone, item.tel, item.contact, item.officePhone,
+ item.emergencyPhone, item.contact?.emergency, item.contactNumber, item.phoneNumber, item.department,
+ Array.isArray(item.keywords) ? item.keywords.join(' ') : item.keywords,
+ item.memo, item.note,
+ Array.isArray(item.attachments) ? item.attachments.map(a => [a.name, a.mimeType].filter(Boolean).join(' ')).join(' ') : ''
+ ];
+ return fields.map(v => String(v || '')).join(' ');
+ }
+
+ function pickAiPhone(item={}){
+ return item.phone || item.tel || item.contact?.phone || item.contact || item.officePhone || item.contactNumber || item.phoneNumber || item.emergencyPhone || item.contact?.emergency || '';
+ }
+
+ function getAiUserPersonalSignals(){
+ const favoriteSet = new Set((state.favoriteIds || []).map(String));
+ const activeCategory = state.category && state.category !== '전체' ? String(state.category) : '';
+ const keyword = String(state.keyword || qs('#searchInput')?.value || '').trim();
+ const recentCategory = localStorage.getItem(LAST_CATEGORY_KEY) || '';
+ const timeBand = buildAiSituationContext?.().timeBand || '';
+ const profile = state.currentUserProfile || {};
+ return {
+ favoriteSet,
+ activeCategory,
+ keyword,
+ recentCategory,
+ timeBand,
+ dong: profile.dong || profile.building || '',
+ ho: profile.ho || profile.unit || ''
+ };
+ }
+
+ function getAiBenefitText(item={}){
+ return stringifyAiCandidateText(item, 'benefit');
+ }
+
+ function inferAiWeatherTag(question='', answerText=''){
+ const source = `${question || ''} ${answerText || ''}`;
+ if(/비|우천|장마|소나기|빗방울|강수/.test(source)) return '☔ 비오는날 추천';
+ if(/눈|폭설|눈날림/.test(source)) return '❄️ 눈오는날 추천';
+ if(/더운|폭염|무더위|기온|여름|실내/.test(source)) return 'HOT 더운날 실내 추천';
+ if(/맑|날씨 좋|산책|야외/.test(source)) return '☀️ 날씨 기반 추천';
+ return '';
+ }
+
+ function shouldAttachWeatherTagToItem(item={}, question='', answerText=''){
+ const tag = inferAiWeatherTag(question, answerText);
+ if(!tag) return '';
+ const raw = stringifyAiCandidateText(item, 'benefit');
+ if(tag.includes('비') && /카페|디저트|커피|떡|베이커리|미용|실내|음식|식당|분식/i.test(raw)) return tag;
+ if(tag.includes('눈') && /카페|디저트|커피|음식|식당|실내/i.test(raw)) return tag;
+ if(tag.includes('더운') && /카페|커피|음료|디저트|빙수|실내/i.test(raw)) return tag;
+ if(tag.includes('날씨')) return tag;
+ return '';
+ }
+
+
+ function inferAiAudienceSituationIntent(question=''){
+ const q = normalizeAiSearchText(question || '');
+ const compact = String(question || '').replace(/\s+/g, '');
+ const hasAny = (patterns) => patterns.some(re => re.test(q) || re.test(compact));
+ const audience = [];
+ if(hasAny([/키즈|아이|아이와|아이랑|아이하고|아이들과|자녀|어린이|유아|아기|아가|초등/])) audience.push('키즈');
+ if(hasAny([/가족|부모님|부모|어르신|어른|시니어|노인|할머니|할아버지|엄마|아빠/])) audience.push('가족');
+ if(hasAny([/10대|십대|청소년|학생|중학생|고등학생/])) audience.push('10대');
+ if(hasAny([/20대|이십대|대학생|청년|젊은|친구|데이트|소개팅/])) audience.push('20대');
+ if(hasAny([/30대|삼십대|직장인|신혼|부부|육아/])) audience.push('30대');
+ if(hasAny([/40대|사십대|중년|가장/])) audience.push('40대');
+ if(hasAny([/50대|오십대|중장년/])) audience.push('50대');
+ if(hasAny([/60대|육십대|시니어|어르신/])) audience.push('60대');
+ if(hasAny([/70대|칠십대|고령|어르신/])) audience.push('70대');
+ if(hasAny([/80대|팔십대|고령|어르신/])) audience.push('80대');
+ const situation = [];
+ if(hasAny([/데이트|소개팅|연인|커플|분위기|예쁜|감성/])) situation.push('데이트');
+ if(hasAny([/혼밥|혼자|1인|혼자먹|혼자갈|혼자서/])) situation.push('혼밥');
+ if(hasAny([/비오는날|비올때|비와|우천|장마|실내/])) situation.push('비오는날');
+ if(hasAny([/운동|헬스|필라테스|요가|체육|스포츠|야구|골프|짐|pt/])) situation.push('운동');
+ if(hasAny([/미용|헤어|네일|피부|뷰티|왁싱|마사지|관리|염색|커트|펌/])) situation.push('미용');
+ return { audience:[...new Set(audience)], situation:[...new Set(situation)], raw:q };
+ }
+
+ function scoreAiAudienceSituationItem(item={}, question=''){
+ const intent = inferAiAudienceSituationIntent(question);
+ if(!intent.audience.length && !intent.situation.length) return { score:0, reasons:[] };
+ const raw = stringifyAiCandidateText(item, 'benefit');
+ const hay = normalizeAiSearchText(raw);
+ const has = (words) => words.some(word => hay.includes(normalizeAiSearchText(word)));
+ let score = 0;
+ const reasons = [];
+ const add = (value, reason) => { score += value; if(reason) reasons.push(reason); };
+
+ intent.audience.forEach(tag => {
+   if(tag === '키즈') {
+     if(has(['키즈','아이','어린이','유아','아동','초등','체험','놀이','야구','스포츠','분식','피자','치킨','디저트','베이커리','카페','가족'])) add(9, '키즈 추천');
+   } else if(tag === '가족') {
+     if(has(['가족','부모','어르신','시니어','식당','음식','카페','베이커리','미용','병원','약국','건강','주차','편한'])) add(9, '가족 추천');
+   } else if(tag === '10대') {
+     if(has(['10대','학생','청소년','학원','문구','분식','치킨','피자','카페','디저트','야구','스포츠','체험'])) add(8, '10대 추천');
+   } else if(tag === '20대') {
+     if(has(['20대','청년','대학생','데이트','카페','디저트','미용','뷰티','네일','피부','헬스','운동','맛집','베이커리','사진'])) add(8, '20대 추천');
+   } else if(tag === '30대') {
+     if(has(['30대','직장인','신혼','부부','육아','카페','맛집','식당','미용','운동','헬스','피부','베이커리','가족'])) add(7, '30대 추천');
+   } else if(tag === '40대') {
+     if(has(['40대','중년','가족','식당','카페','미용','운동','헬스','병원','약국','건강','베이커리'])) add(7, '40대 추천');
+   } else if(tag === '50대') {
+     if(has(['50대','중장년','식당','카페','미용','병원','약국','건강','한의원','운동','편한','주차'])) add(7, '50대 추천');
+   } else if(['60대','70대','80대'].includes(tag)) {
+     if(has([tag,'시니어','어르신','노인','고령','건강','병원','약국','한의원','식당','카페','미용','편한','주차','가까운'])) add(9, `${tag} 추천`);
+   }
+ });
+
+ intent.situation.forEach(tag => {
+   if(tag === '데이트' && has(['데이트','분위기','카페','디저트','브런치','베이커리','맛집','식당','미용','뷰티','사진','감성'])) add(9, '데이트 추천');
+   if(tag === '혼밥' && has(['혼밥','1인','분식','김밥','식당','맛집','피자','치킨','카페','브런치','간편','포장'])) add(9, '혼밥 추천');
+   if(tag === '비오는날' && has(['실내','카페','커피','디저트','베이커리','음식','식당','미용','따뜻','브런치'])) add(8, '비오는날 추천');
+   if(tag === '운동' && has(['운동','헬스','필라테스','요가','스포츠','야구','골프','체육','pt','짐','건강'])) add(10, '운동 추천');
+   if(tag === '미용' && has(['미용','헤어','네일','피부','뷰티','왁싱','마사지','관리','염색','커트','펌'])) add(10, '미용 추천');
+ });
+
+ return { score, reasons:[...new Set(reasons)].slice(0,4) };
+ }
+
+ function scoreAiBenefitMatch(item={}, question='', answerText=''){
+ const signals = getAiUserPersonalSignals();
+ const raw = getAiBenefitText(item);
+ const norm = normalizeAiSearchText(raw);
+ const qNorm = normalizeAiSearchText(question);
+ const aNorm = normalizeAiSearchText(answerText);
+ const nameNorm = normalizeAiSearchText(item.name || item.storeName || item.title || '');
+ const categoryNorm = normalizeAiSearchText(item.category || '');
+ const benefitNorm = normalizeAiSearchText(item.benefit || item.description || item.content || '');
+ const tokens = getAiSearchTokens(`${question} ${answerText}`).map(normalizeAiSearchText).filter(Boolean);
+ let score = 0;
+ const reasons = [];
+
+ if(nameNorm && (aNorm.includes(nameNorm) || qNorm.includes(nameNorm))){
+ score += 18; reasons.push('매장명 일치');
+ }
+ if(categoryNorm && (qNorm.includes(categoryNorm) || aNorm.includes(categoryNorm))){
+ score += 8; reasons.push('카테고리 일치');
+ }
+ tokens.forEach(t => {
+ if(t && norm.includes(t)) score += t.length >= 4 ? 3 : 1.5;
+ });
+ if(benefitNorm && benefitNorm.length >= 4 && aNorm.includes(benefitNorm.slice(0, Math.min(10, benefitNorm.length)))){
+ score += 6; reasons.push('혜택 문구 일치');
+ }
+ if(signals.favoriteSet.has(String(item.id))){
+ score += 7; reasons.push('즐겨찾기 기반');
+ }
+ if(signals.activeCategory && normalizeAiSearchText(signals.activeCategory) === categoryNorm){
+ score += 4; reasons.push('현재 카테고리');
+ }
+ if(signals.recentCategory && signals.recentCategory !== '전체' && normalizeAiSearchText(signals.recentCategory) === categoryNorm){
+ score += 3; reasons.push('최근 관심 카테고리');
+ }
+ if(/가까|근처|주변|거리|위치/.test(question) && getBenefitDisplayAddress(item)){
+ score += 4; reasons.push('위치 정보 있음');
+ }
+ if(/전화|연락|예약|문의/.test(question) && pickAiPhone(item)){
+ score += 4; reasons.push('전화 가능');
+ }
+ if(/점심|식사|밥|저녁|아침/.test(question) && /식당|음식|카페|디저트|베이커리|분식|치킨|피자|한식|중식|일식|양식/i.test(raw)){
+ score += 3; reasons.push('생활 상황');
+ }
+ if(/아이|아이랑|아이하고|아이들과|가족|키즈|자녀|어린이/.test(question) && /키즈|가족|아이|어린이|디저트|카페|학원|문구|놀이|체험|야구|스포츠|베이커리/i.test(raw)){
+ score += 5; reasons.push('아이/가족 상황');
+ }
+ if(/부모님|부모|어르신|어른|시니어|노인/.test(question) && /부모|어르신|시니어|건강|병원|약국|한의원|식당|카페|베이커리|미용|편한|주차/i.test(raw)){
+ score += 5; reasons.push('부모님/어르신 상황');
+ }
+ if(/10대|십대|청소년|학생|중학생|고등학생/.test(question) && /학생|청소년|학원|문구|카페|디저트|분식|치킨|피자|야구|스포츠|체험/i.test(raw)){
+ score += 5; reasons.push('10대 상황');
+ }
+ if(/20대|이십대|청년|젊은|친구|데이트/.test(question) && /카페|디저트|미용|뷰티|네일|피부|헬스|운동|데이트|식당|맛집|베이커리|사진|술|펍/i.test(raw)){
+ score += 5; reasons.push('20대 상황');
+ }
+ if(/30대|삼십대|직장인|신혼|부부|육아/.test(question) && /카페|맛집|식당|미용|운동|헬스|피부|베이커리|가족|육아/i.test(raw)){
+ score += 5; reasons.push('30대 상황');
+ }
+ if(/40대|사십대|중년|가장/.test(question) && /가족|식당|카페|미용|운동|헬스|병원|약국|건강|베이커리/i.test(raw)){
+ score += 5; reasons.push('40대 상황');
+ }
+ if(/50대|오십대|중장년/.test(question) && /식당|카페|미용|병원|약국|건강|한의원|운동|편한|주차/i.test(raw)){
+ score += 5; reasons.push('50대 상황');
+ }
+ if(/60대|육십대|70대|칠십대|80대|팔십대|시니어|고령/.test(question) && /시니어|어르신|노인|건강|병원|약국|한의원|식당|카페|미용|편한|주차|가까운/i.test(raw)){
+ score += 6; reasons.push('시니어 상황');
+ }
+ if(/데이트|소개팅|연인|커플|분위기|감성/.test(question) && /데이트|분위기|카페|디저트|브런치|베이커리|맛집|식당|미용|뷰티|사진|감성/i.test(raw)){
+ score += 5; reasons.push('데이트 상황');
+ }
+ if(/혼밥|혼자|1인|혼자먹|혼자갈/.test(question) && /혼밥|1인|분식|김밥|식당|맛집|피자|치킨|카페|브런치|간편|포장/i.test(raw)){
+ score += 5; reasons.push('혼밥 상황');
+ }
+ if(/운동|헬스|필라테스|요가|체육|스포츠|야구|골프|짐|pt/i.test(question) && /운동|헬스|필라테스|요가|스포츠|야구|골프|체육|pt|짐|건강/i.test(raw)){
+ score += 6; reasons.push('운동 상황');
+ }
+ if(/미용|헤어|네일|피부|뷰티|왁싱|마사지|관리|염색|커트|펌/.test(question) && /미용|헤어|네일|피부|뷰티|왁싱|마사지|관리|염색|커트|펌/i.test(raw)){
+ score += 6; reasons.push('미용 상황');
+ }
+ const audienceSituationScore = scoreAiAudienceSituationItem(item, question);
+ if(audienceSituationScore.score){
+ score += audienceSituationScore.score;
+ reasons.push(...audienceSituationScore.reasons);
+ }
+ const weatherTag = shouldAttachWeatherTagToItem(item, question, answerText);
+ if(weatherTag){
+ score += 3; reasons.push(weatherTag);
+ }
+
+ return { item, score, reason: reasons[0] || '질문 내용 매칭', reasons: [...new Set(reasons)].slice(0,4), weatherTag };
+ }
+
+ function mapAiBenefitsForQuestion(question='', answerText='', maxCount=4){
+ try{
+ return (state.benefits || [])
+ .filter(item => item && item.visible !== false && item.id)
+ .map(item => scoreAiBenefitMatch(item, question, answerText))
+ .filter(v => v.score >= 3)
+ .sort((a,b) => b.score - a.score)
+ .slice(0, maxCount);
+ }catch(error){
+ console.warn('AI 혜택 매핑 실패:', error);
+ return [];
+ }
+ }
+
+ function getAiPersonalSummary(){
+ const signals = getAiUserPersonalSignals();
+ const bits = [];
+ if(signals.favoriteSet.size) bits.push(`즐겨찾기 ${signals.favoriteSet.size}개`);
+ if(signals.activeCategory) bits.push(`현재 ${signals.activeCategory} 탭`);
+ else if(signals.recentCategory && signals.recentCategory !== '전체') bits.push(`최근 ${signals.recentCategory} 관심`);
+ if(signals.timeBand) bits.push(signals.timeBand);
+ return bits.join(' · ') || '질문 내용 기반';
+ }
+
+ function collectAiLocalCandidates(question='', maxCount=12){
+ try{
+ const tokens = getAiSearchTokens(question);
+ const qNorm = normalizeAiSearchText(question);
+ const pool = [];
+ (state.benefits || []).forEach(item => pool.push({ type:'benefit', item }));
+ (state.notices || []).forEach(item => pool.push({ type:'notice', item }));
+ (state.aiKnowledge || []).forEach(item => pool.push({ type:item.type || 'ai', item }));
+
+ const scored = pool.map(({type,item}) => {
+ const raw = stringifyAiCandidateText(item, type);
+ const norm = normalizeAiSearchText(raw);
+ let score = 0;
+ tokens.forEach(t => {
+ const nt = normalizeAiSearchText(t);
+ if(nt && norm.includes(nt)) score += nt.length >= 4 ? 4 : 2;
+ });
+ if(qNorm && norm.includes(qNorm)) score += 10;
+ const phone = pickAiPhone(item);
+ if(phone && /(전화|연락|번호|관리사무소|관리실)/.test(question)) score += 4;
+ if(type === 'benefit' && /(혜택|할인|매장|가게)/.test(question)) score += 2;
+ if(type === 'notice' && /(공지|안내|알림)/.test(question)) score += 2;
+ return { type, item, score };
+ }).filter(v => v.score > 0)
+ .sort((a,b) => b.score - a.score)
+ .slice(0, maxCount);
+
+ return scored.map(({type,item,score}) => {
+ const pos = getBenefitLatLng(item) || {};
+ return {
+ type,
+ id: item.id || '',
+ title: item.name || item.storeName || item.title || item.department || '',
+ name: item.name || item.storeName || item.title || item.department || '',
+ category: item.category || '',
+ benefit: item.benefit || item.description || '',
+ description: item.description || item.benefit || item.content || '',
+ content: item.content || item.body || item.memo || item.note || '',
+ address: getBenefitDisplayAddress(item) || item.roadAddress || '',
+ roadAddress: item.roadAddress || '',
+ phone: pickAiPhone(item),
+ link: item.link || item.url || item.naverUrl || '',
+ lat: pos.lat ?? item.lat ?? item.latitude ?? null,
+ lng: pos.lng ?? item.lng ?? item.lon ?? item.longitude ?? null,
+ isOpenNow: item.isOpenNow,
+ businessHoursManual: item.businessHoursManual || item.manualBusinessHours || item.adminBusinessHours || item.adminHoursText || '',
+ openingHoursManual: item.openingHoursManual || null,
+ todayOpenText: item.businessHoursManual || item.manualBusinessHours || item.adminBusinessHours || item.adminHoursText || item.todayOpenText || item.hoursText || item.openHoursText || '',
+ openStatusText: item.openStatusText || '',
+ openingHours: item.openingHoursManual || item.openingHours || null,
+ openingHoursSource: (item.businessHoursManual || item.manualBusinessHours || item.adminBusinessHours || item.adminHoursText || item.openingHoursManual) ? 'admin' : (item.openingHoursSource || ''),
+ naverHome: item.naverHome || null,
+ keywords: item.keywords || [],
+ attachments: Array.isArray(item.attachments) ? item.attachments : [],
+ attachmentCount: Array.isArray(item.attachments) ? item.attachments.length : Number(item.attachmentCount || 0),
+ score
+ };
+ });
+ }catch(e){
+ console.warn('collectAiLocalCandidates 실패:', e);
+ return [];
+ }
+ }
+
+ function buildAiPageContext(question=''){
+ try{
+ const now = new Date();
+ return {
+ appName: '더운정픽',
+ env: ENV,
+ currentView: state.view || document.querySelector('.nav-btn.active')?.dataset?.view || 'home',
+ activeCategory: state.category || document.querySelector('.chip.active')?.textContent?.trim() || '',
+ keyword: state.keyword || document.querySelector('#searchInput')?.value || '',
+ benefitSortMode: state.benefitSortMode || 'default',
+ distanceRadius: state.distanceRadius || 'all',
+ benefitCount: Array.isArray(state.benefits) ? state.benefits.length : 0,
+ noticeCount: Array.isArray(state.notices) ? state.notices.length : 0,
+ localCandidates: collectAiLocalCandidates(question, 12),
+ userLocation: state.userLocation ? { lat: state.userLocation.lat, lng: state.userLocation.lng, fetchedAt: state.userLocationFetchedAt || 0 } : null,
+ location: state.userLocation ? { lat: state.userLocation.lat, lng: state.userLocation.lng } : null,
+ url: location.href,
+ clientTimeText: now.toLocaleString('ko-KR'),
+ timestamp: now.toISOString()
+ };
+ }catch(e){
+ console.warn('buildAiPageContext 실패:', e);
+ return { appName:'더운정픽', localCandidates:[] };
+ }
+ }
+
+ function extractAiBenefitCards(finalText='', maxCount=3, question=''){
+ const mapped = mapAiBenefitsForQuestion(question, finalText, maxCount);
+ if(mapped.length) return mapped;
+ const qNorm = normalizeAiSearchText(question || '');
+ const explicitRecommendation = /(혜택|할인|매장|가게|상가|추천|데이트|아이와|아이랑|아이하고|아이들과|자녀|키즈|부모님|부모|어르신|어른|시니어|노인|10대|십대|청소년|학생|20대|이십대|청년|젊은|30대|삼십대|40대|사십대|50대|오십대|60대|육십대|70대|칠십대|80대|팔십대|고령|데이트|혼밥|혼자|운동|헬스|필라테스|요가|스포츠|미용|헤어|네일|피부|뷰티|갈만한|갈만한곳|가기좋은|가기 좋은|점심|저녁|밥|카페|맛집|디저트|비오는날|비올때|눈|눈올때|눈이|비|맑음|흐림|추울때|더울때|날씨|가까운|근처|TOP5|TOP\s*5|탑5)/.test(qNorm);
+ if(explicitRecommendation){
+   const fallback = (state.benefits || [])
+     .filter(item => item && item.visible !== false && item.id)
+     .map(item => {
+       const score = Number(item.popularScore || item.score || item.recommendScore || 0)
+         + Number(item.favoriteCount || 0) * 2
+         + Number(item.detailViewCount || 0) * 0.2
+         + Number(item.shareClickCount || 0) * 1.5
+         + (item.recommended ? 8 : 0)
+         + (item.isHot || item.hot ? 5 : 0);
+       const reasons = [];
+       if(item.recommended) reasons.push('추천 혜택');
+       if(item.category) reasons.push(item.category);
+       if(getBenefitDisplayAddress(item)) reasons.push('위치 정보 있음');
+       return { item, score: Math.max(4, score || 4), reason: reasons[0] || '혜택 추천', reasons: reasons.slice(0,4) };
+     })
+     .sort((a,b) => b.score - a.score)
+     .slice(0, maxCount);
+   if(fallback.length) return fallback;
+ }
+ const text = normalizeAiSearchText(finalText);
+ if(!text) return [];
+ return (state.benefits || [])
+ .filter(item => item && item.visible !== false && item.id)
+ .map(item => {
+ const name = item.name || item.storeName || item.title || '';
+ const n = normalizeAiSearchText(name);
+ const category = normalizeAiSearchText(item.category || '');
+ let score = 0;
+ const reasons = [];
+ if(n && text.includes(n)){ score += 10; reasons.push('매장명 일치'); }
+ if(category && text.includes(category)){ score += 2; reasons.push('카테고리 일치'); }
+ const benefit = normalizeAiSearchText(item.benefit || item.description || '');
+ if(benefit && benefit.length >= 4 && text.includes(benefit.slice(0, Math.min(8, benefit.length)))){ score += 2; reasons.push('혜택 문구 일치'); }
+ return { item, score, reason: reasons[0] || '답변 내용 매칭', reasons };
+ })
+ .filter(v => v.score > 0)
+ .sort((a,b) => b.score - a.score)
+ .slice(0, maxCount);
+ }
+
+ function extractAiPhoneCards(finalText=''){
+ const source = String(finalText || '');
+ const phonePattern = /(?:0507[-.\s]?\d{3,4}[-.\s]?\d{4}|0\d{1,2}[-.\s]?\d{3,4}[-.\s]?\d{4}|15\d{2}[-.\s]?\d{4}|16\d{2}[-.\s]?\d{4}|18\d{2}[-.\s]?\d{4})/g;
+ const found = [...source.matchAll(phonePattern)].map(m => String(m[0] || '').trim()).filter(Boolean);
+ const unique = [...new Set(found)].slice(0, 4);
+ return unique.map(phone => {
+ const clean = phone.replace(/[^\d]/g, '');
+ let label = '전화번호';
+ if(/관리사무소|관리실|생활지원센터|사무소|민원/.test(source)) label = '관리사무소';
+ else if(/업체|매장|가게|상가|혜택/.test(source)) label = '매장 전화번호';
+ return { label, phone, tel: clean };
+ });
+ }
+
+ function inferApartmentLifeContactLabel(question='', answer=''){
+ const q = normalizeAiSearchText(`${question || ''} ${answer || ''}`);
+ const groups = [
+ { label:'분양사무소', keys:['분양사무소','분양'] },
+ { label:'승강기 고장 신고', keys:['승강기고장신고','승강기','엘리베이터','고장신고','고장'] },
+ { label:'운정1동 행정복지센터', keys:['운정1동행정복지센터','행정복지센터','주민센터','전입신고','전입'] },
+ { label:'파주교육지원청', keys:['파주교육지원청','교육지원청','교육청','고등학교','중학교','입학'] },
+ { label:'인터넷 가입', keys:['전화인터넷','인터넷가입','인터넷','통신','kt','sk','lg','가입'] },
+ { label:'서울도시가스', keys:['서울도시가스','도시가스','가스'] },
+ { label:'키불출센터', keys:['키불출센터','키불출','키불출센타'] },
+ { label:'입주증센터', keys:['입주증센터','입주증','입주센터'] },
+ { label:'입주지원센터', keys:['입주지원센터','입주민센터','입주센터'] },
+ { label:'A/S센터', keys:['a/s센터','as센터','as','a/s','에이에스','하자','수리'] },
+ { label:'파주시청', keys:['파주시청','시청'] },
+ { label:'관리사무소', keys:['관리사무소','관리실','생활지원센터','아파트관리','아파트사무소','관리'] }
+ ];
+ const found = groups.find(group => group.keys.some(key => q.includes(normalizeAiSearchText(key))));
+ return found?.label || '전화번호';
+ }
+
+ const APARTMENT_LIFE_CONTACT_FALLBACKS = [
+ { label:'서울도시가스', keys:['서울도시가스','도시가스','가스'], phones:['1588-5788','031-946-7229'] },
+ { label:'파주시청', keys:['파주시청','시청'], phones:['031-940-4114'] },
+ { label:'입주증센터', keys:['입주증센터','입주증'], phones:['031-937-8671'] },
+ { label:'승강기 고장 신고', keys:['승강기고장신고','승강기','엘리베이터','고장신고','고장'], phones:['1577-0603'] },
+ { label:'A/S센터', keys:['a/s센터','as센터','as','a/s','에이에스','하자','수리'], phones:['031-937-8681'] },
+ { label:'H리셉션(입주지원센터 [아파트])', keys:['h리셉션','리셉션','버리셀션','비리셀션','입주지원센터','입주민센터'], phones:['031-538-7851'] },
+ { label:'관리사무소', keys:['관리사무소','관리실','생활지원센터','아파트관리','아파트사무소'], phones:['031-949-1212'] },
+ { label:'파주교육지원청', keys:['파주교육지원청','교육지원청','교육청','고등학교','중학교','입학'], phones:['031-940-7114'] },
+ { label:'인터넷 가입', keys:['전화인터넷','인터넷가입','인터넷','통신','kt','sk','lg','가입'], phones:['100','106','101'] },
+ { label:'키불출센터', keys:['키불출센터','키불출','키불출센타'], phones:['031-937-8670'] },
+ { label:'분양사무소', keys:['분양사무소','분양'], phones:['031-941-0331'] },
+ { label:'운정1동 행정복지센터', keys:['운정1동행정복지센터','운정1동','행정복지센터','주민센터','전입신고','전입'], phones:['031-820-7703'] }
+ ];
+
+ function getApartmentLifeFallbackContact(question='', answer=''){
+ const q = normalizeAiSearchText(`${question || ''} ${answer || ''}`);
+ return APARTMENT_LIFE_CONTACT_FALLBACKS.find(row => row.keys.some(key => q.includes(normalizeAiSearchText(key)))) || null;
+ }
+
+ function extractTrustedApartmentLifePhones(question='', answer=''){
+ const source = String(answer || '');
+ const q = normalizeAiSearchText(question);
+ const fullPhonePattern = /(?:0507[-.\s]?\d{3,4}[-.\s]?\d{4}|0\d{1,2}[-.\s]?\d{3,4}[-.\s]?\d{4}|15\d{2}[-.\s]?\d{4}|16\d{2}[-.\s]?\d{4}|18\d{2}[-.\s]?\d{4})/g;
+ let phones = [...source.matchAll(fullPhonePattern)].map(m => String(m[0] || '').replace(/[.\s]+/g, '-').trim()).filter(Boolean);
+
+ // 통신사 대표번호처럼 관리자 연락처 필드에 3자리로 등록되는 값만 질문 문맥이 명확할 때 허용합니다.
+ if(/인터넷|통신|kt|sk|lg|가입/.test(q)){
+ phones.push(...([...source.matchAll(/\b(?:100|101|106)\b/g)].map(m => m[0])));
+ }
+ if(/키불출|입주증/.test(q)){
+ phones.push(...([...source.matchAll(/\b109\b/g)].map(m => m[0])));
+ }
+
+ // 주소/동/지번에서 섞일 수 있는 숫자와 불완전 대표번호는 제거합니다.
+ const blockedByQuestion = new Set();
+ if(/관리사무소|관리실|생활지원센터|분양사무소|분양/.test(q)) ['102','109'].forEach(v => blockedByQuestion.add(v));
+ if(/행정복지센터|주민센터|전입/.test(q)) ['1358'].forEach(v => blockedByQuestion.add(v));
+ if(/승강기|엘리베이터|고장/.test(q)) ['128','1577'].forEach(v => blockedByQuestion.add(v));
+
+ phones = phones
+ .map(v => String(v || '').trim())
+ .filter(Boolean)
+ .filter(v => !blockedByQuestion.has(v.replace(/[^\d]/g, '')))
+ .filter(v => {
+ const digits = v.replace(/[^\d]/g, '');
+ if(/^(100|101|106|109)$/.test(digits)) return /인터넷|통신|kt|sk|lg|가입|키불출|입주증/.test(q);
+ return digits.length >= 8;
+ });
+
+ return [...new Set(phones)].slice(0, 4).map(phone => ({
+ label: inferApartmentLifeContactLabel(question, answer),
+ phone,
+ tel: phone.replace(/[^\d]/g, '')
+ }));
+ }
+
+ function buildAiApartmentLifePhoneCardHtml(question='', answer=''){
+ if(!isApartmentLifePhoneQuestion(question, answer)) return '';
+ let cards = extractTrustedApartmentLifePhones(question, answer);
+ const fallback = getApartmentLifeFallbackContact(question, answer);
+ // 답변 본문에서 전화번호를 못 잡았거나, 질문 명칭과 카드 라벨이 어긋나면 관리자 기준 fallback을 우선합니다.
+ if(fallback && (!cards.length || !cards.some(card => normalizeAiSearchText(card.label).includes(normalizeAiSearchText(fallback.label))))){
+ cards = fallback.phones.map(phone => ({ label: fallback.label, phone, tel: String(phone).replace(/[^\d]/g,'') }));
+ }
+ if(!cards.length) return '';
+ return buildAiPhoneCardHtml(cards.map(card => ({ ...card, label: `${card.label} 전화번호` })));
+ }
+
+ function buildAiPhoneCardHtml(cards=[]){
+ if(!Array.isArray(cards) || !cards.length) return '';
+ return cards.map(card => `
+ <div class="ai-phone-card-auto">
+ <div class="ai-phone-icon">☎️</div>
+ <div class="ai-phone-info">
+ <b>${escapeHtml(card.label || '전화번호')}</b>
+ <span>${escapeHtml(card.phone || '')}</span>
+ </div>
+ <a class="ai-phone-call" href="tel:${escapeAttr(card.tel || '')}">전화</a>
+ </div>`).join('');
+ }
+
+ function isAiLocationQuestion(question='', answer=''){
+ const qRaw = String(question || '').trim();
+ const aRaw = String(answer || '').trim();
+ const q = normalizeAiSearchText(qRaw);
+ const combined = normalizeAiSearchText(`${qRaw} ${aRaw}`);
+
+ // 지도 카드는 사용자가 명시적으로 지도/길찾기/미니지도 표시를 요청한 경우에만 표시합니다.
+ // 예: "아레볼 미니지도로 보여줘", "아레볼 지도 보여줘", "아레볼 길찾기 알려줘"
+ const explicitMapAsk =
+ /(미니지도|지도보여|지도로보여|지도띄워|지도표시|지도혜택|지도에서|길찾기|가는길|찾아가는길|네이버지도|위치지도)/.test(q);
+
+ if(explicitMapAsk) return true;
+
+ // 단순 주소 질문은 텍스트 주소만 답하고 지도 카드는 표시하지 않습니다.
+ // 예: "아레볼 주소가 뭐야?", "아레볼 위치가 어디야?"
+ if(/(주소|위치|어디|어딘)/.test(q) && !/(지도|길찾기|미니지도|보여|띄워|표시)/.test(q)){
+ return false;
+ }
+
+ return false;
+ }
+
+ function getAiMapUrl(item={}){
+ const name = item.name || item.storeName || item.title || '';
+ const address = getBenefitSearchAddress(item) || item.roadAddress || '';
+ const url = item.url || item.link || item.naverUrl || '';
+ if(url) return url;
+ return `https://map.naver.com/p/search/${encodeURIComponent(`${name} ${address}`.trim())}`;
+ }
+
+ function getAiDirectionsUrl(item={}){
+ const name = item.name || item.storeName || item.title || '';
+ const address = getBenefitSearchAddress(item) || item.roadAddress || '';
+ const lat = Number(item.lat ?? item.latitude);
+ const lng = Number(item.lng ?? item.lon ?? item.longitude);
+ if(Number.isFinite(lat) && Number.isFinite(lng)){
+ return `https://map.naver.com/p/directions/-/${lng},${lat},${encodeURIComponent(name || '목적지')}`;
+ }
+ return `https://map.naver.com/p/search/${encodeURIComponent(`${name} ${address}`.trim())}`;
+ }
+
+ function buildAiLocationMapCardHtml(mappedCards=[], question='', answer=''){
+ if(!Array.isArray(mappedCards) || !mappedCards.length) return '';
+ if(!isAiLocationQuestion(question, answer)) return '';
+ const found = mappedCards.find(({item}) => item && (getBenefitDisplayAddress(item) || item.roadAddress || item.lat || item.lng));
+ if(!found) return '';
+ const item = found.item || {};
+ const name = item.name || item.storeName || item.title || '매장';
+ const address = getBenefitDisplayAddress(item) || item.roadAddress || '등록된 주소 정보가 없습니다.';
+ const directionText = String(item.directionText || item.directionGuide || item.locationGuide || item.guideText || '').trim();
+ const stationAccessText = String(item.stationAccessText || item.transitText || item.stationGuide || item.nearStationText || '').trim();
+ const mapUrl = getAiMapUrl(item);
+ const dirUrl = getAiDirectionsUrl(item);
+ const pos = typeof getBenefitLatLng === 'function' ? getBenefitLatLng(item) : null;
+ const distanceText = pos
+ ? '현재 위치 기준 거리를 준비 중입니다.'
+ : '매장 좌표가 아직 등록되지 않아 주소 기준으로 안내합니다.';
+ return `
+ <div class="ai-location-detail-card" data-ai-location-benefit-id="${escapeAttr(item.id || '')}">
+ <div class="location-title"><strong>위치 안내</strong></div>
+ <div class="location-address">${escapeHtml(address)}</div>
+ ${renderStationAccessBadges(item)}
+ ${directionText ? `<div class="location-guide">${escapeHtml(directionText)}</div>` : ''}
+ ${buildAiSocialHintHtml(item)}
+ <div class="detail-map-box">
+ ${pos ? `<div class="detail-map-canvas ai-location-map-canvas" data-ai-map-benefit-id="${escapeAttr(item.id || '')}"></div>` : '<div class="detail-map-empty">좌표가 등록되면 작은 지도가 표시됩니다.</div>'}
+ </div>
+ <div class="location-distance muted" data-ai-distance-benefit-id="${escapeAttr(item.id || '')}">${escapeHtml(distanceText)}</div>
+ <div class="location-actions">
+ <button class="btn btn-soft block" type="button" data-ai-open-benefit-id="${escapeAttr(item.id || '')}">혜택 상세</button>
+ <a class="btn btn-soft block" href="${escapeAttr(mapUrl)}" target="_blank" rel="noopener">지도 보기</a>
+ <a class="btn btn-primary block" href="${escapeAttr(dirUrl)}" target="_blank" rel="noopener">네이버 길찾기</a>
+ </div>
+ <div class="location-note">현재 위치 권한은 거리 표시를 위해서만 사용됩니다. 좌표가 없는 매장은 주소 기준으로 지도/길찾기만 제공합니다.</div>
+ </div>`;
+ }
+
+ function waitFrames(count = 2){
+ return new Promise((resolve) => {
+ const step = () => {
+ count -= 1;
+ if(count <= 0){ resolve(); return; }
+ requestAnimationFrame(step);
+ };
+ requestAnimationFrame(step);
+ });
+ }
+
+ function waitForVisibleMapElement(el, timeout = 2500){
+ return new Promise((resolve) => {
+ const started = Date.now();
+ const tick = () => {
+ if(!el || !document.body.contains(el)){ resolve(false); return; }
+ const rect = el.getBoundingClientRect();
+ const style = window.getComputedStyle(el);
+ const visible = rect.width >= 120 && rect.height >= 120 && style.display !== 'none' && style.visibility !== 'hidden';
+ if(visible){ resolve(true); return; }
+ if(Date.now() - started > timeout){ resolve(false); return; }
+ requestAnimationFrame(tick);
+ };
+ tick();
+ });
+ }
+
+ function forceNaverMapResize(map, center, bounds){
+ const nm = window.naver?.maps;
+ if(!map || !nm) return;
+ const apply = () => {
+ try{ nm.Event.trigger(map, 'resize'); }catch(_){}
+ try{
+ if(bounds) map.fitBounds(bounds, { top:36, right:36, bottom:36, left:36 });
+ else if(center) map.setCenter(center);
+ }catch(_){
+ try{ if(center) map.setCenter(center); }catch(__){}
+ }
+ };
+ apply();
+ requestAnimationFrame(apply);
+ setTimeout(apply, 80);
+ setTimeout(apply, 220);
+ setTimeout(apply, 520);
+ setTimeout(apply, 950);
+ }
+
+ function clearMapElementForFreshRender(el){
+ if(!el) return;
+ el.innerHTML = '';
+ el.removeAttribute('style');
+ el.style.width = '100%';
+ el.style.height = '178px';
+ el.dataset.rendered = '';
+ }
+
+ async function renderAiLocationMiniMaps(scope){
+ const root = scope || qs('#aiChatWindow') || document;
+ const mapEls = root.querySelectorAll?.('.ai-location-map-canvas[data-ai-map-benefit-id]') || [];
+ if(!mapEls.length) return;
+
+ await waitFrames(2);
+
+ for(const mapEl of mapEls){
+ const benefitId = mapEl.dataset.aiMapBenefitId || '';
+ const item = (state.benefits || []).find(v => String(v.id) === String(benefitId));
+ const pos = item && typeof getBenefitLatLng === 'function' ? getBenefitLatLng(item) : null;
+ if(!item || !pos) continue;
+
+ const visible = await waitForVisibleMapElement(mapEl);
+ if(!visible){
+ mapEl.dataset.rendered = '';
+ continue;
+ }
+
+ // 첫 렌더링 깨짐 방지를 위해 첫 시도에서는 항상 새로 초기화합니다.
+ // 이미 안정적으로 렌더링된 지도는 반복 생성하지 않습니다.
+ if(mapEl.dataset.rendered === 'stable') continue;
+ clearMapElementForFreshRender(mapEl);
+
+ try{
+ await loadNaverMapsSdk();
+ await waitFrames(2);
+
+ const nm = window.naver.maps;
+ const store = new nm.LatLng(pos.lat, pos.lng);
+ const map = new nm.Map(mapEl, {
+ center: store,
+ zoom: 16,
+ zoomControl: true,
+ zoomControlOptions: { position: nm.Position.TOP_RIGHT },
+ scrollWheel: true,
+ draggable: true,
+ pinchZoom: true
+ });
+
+ new nm.Marker({
+ position: store,
+ map,
+ icon: { content: '<div class="map-marker-store">매장</div>', anchor: new nm.Point(20,34) },
+ zIndex: 100
+ });
+
+ const distanceEl = root.querySelector?.(`[data-ai-distance-benefit-id="${CSS.escape(String(benefitId))}"]`);
+ const updateDistance = (currentLocation, cached=false) => {
+ if(!distanceEl || !currentLocation) return;
+ const distance = getDistanceMeters(currentLocation.lat, currentLocation.lng, pos.lat, pos.lng);
+ if(distance > 200000){
+ distanceEl.textContent = '매장 좌표가 실제 위치와 맞지 않는 것 같습니다. 주소 기준으로 지도를 확인해 주세요.';
+ distanceEl.classList.add('muted');
+ return;
+ }
+ distanceEl.textContent = `현재 위치에서 ${formatDistance(distance)} 거리입니다.${cached ? ' (최근 위치 기준)' : ''}`;
+ distanceEl.classList.remove('muted');
+ };
+
+ let bounds = null;
+ if(hasFreshUserLocation()){
+ const me = new nm.LatLng(state.userLocation.lat, state.userLocation.lng);
+ new nm.Marker({
+ position: me,
+ map,
+ icon: { content: '<div class="map-marker-user" title="현재 위치"></div>', anchor: new nm.Point(9,9) },
+ zIndex: 120
+ });
+ new nm.Polyline({
+ map,
+ path: [me, store],
+ strokeColor: '#2563eb',
+ strokeWeight: 4,
+ strokeOpacity: .82
+ });
+ bounds = new nm.LatLngBounds();
+ bounds.extend(me);
+ bounds.extend(store);
+ updateDistance(state.userLocation, true);
+ }else if(navigator.geolocation){
+ getReliableCurrentPosition({ forceRefresh:false })
+ .then((currentLocation) => {
+ updateDistance(currentLocation, false);
+ mapEl.dataset.rendered = '';
+ renderAiLocationMiniMaps(root);
+ })
+ .catch(() => {
+ if(distanceEl){
+ distanceEl.textContent = '현재 위치 권한을 허용하면 매장까지의 거리를 표시합니다.';
+ distanceEl.classList.add('muted');
+ }
+ });
+ }
+
+ forceNaverMapResize(map, store, bounds);
+ mapEl.dataset.rendered = 'stable';
+
+ // 일부 모바일 WebView에서 첫 타일 계산이 틀어지는 경우가 있어 한 번 더 새로고침합니다.
+ setTimeout(() => {
+ try{
+ const rect = mapEl.getBoundingClientRect();
+ if(rect.width >= 120 && rect.height >= 120){
+ forceNaverMapResize(map, store, bounds);
+ }
+ }catch(_){}
+ }, 1200);
+ }catch(error){
+ console.warn('AI 위치 미니지도 렌더링 실패', error);
+ mapEl.dataset.rendered = '';
+ mapEl.innerHTML = '<div class="detail-map-empty">지도 로딩에 실패했습니다.</div>';
+ }
+ }
+ }
+
+ function isApartmentLifePhoneQuestion(question='', answer=''){
+ const q = normalizeAiSearchText(question);
+ const a = normalizeAiSearchText(answer);
+ const lifeEntity = /(서울도시가스|도시가스|가스|파주시청|시청|입주증센터|입주증|입주지원센터|입주민센터|h리셉션|리셉션|버리셀션|비리셀션|승강기고장신고|승강기|엘리베이터|고장신고|as센터|as|에이에스|하자|h리셉션|리셉션|관리사무소|관리실|생활지원센터|파주교육지원청|교육지원청|교육청|고등학교|입학|전화인터넷|인터넷가입|인터넷|통신|kt|sk|lg|키불출센터|키불출|분양사무소|분양|운정1동행정복지센터|운정1동|행정복지센터|주민센터|전입신고|전입|경비실|경비|주차|방문차량|택배|민원|분리수거|쓰레기|재활용|음식물)/.test(q);
+ const contactAsk = /(전화번호|전화|연락처|번호|문의|신고|고장|콜|통화)/.test(q);
+ const answerHasContact = /(연락처|전화번호|전화번호는|대표번호|지역번호|문의번호|신고번호)/.test(a);
+ // 아파트 생활정보 명칭만 입력해도 서버가 연락처 답변을 내려주면 생활정보 전용 카드/차단 모드로 처리합니다.
+ return lifeEntity && (contactAsk || answerHasContact || q.length <= 24);
+ }
+
+function buildAiMatchedBenefitPhoneCardHtml(mappedCards=[], question=''){
+ if(isApartmentLifePhoneQuestion(question)) return '';
+ if(!Array.isArray(mappedCards) || !mappedCards.length) return '';
+ const found = mappedCards.find(({item}) => item && pickAiPhone(item));
+ if(!found) return '';
+ const item = found.item || {};
+ const phone = String(pickAiPhone(item) || '').trim();
+ const tel = phone.replace(/[^\d]/g, '');
+ if(!tel) return '';
+ return `
+ <div class="ai-phone-card-auto">
+ <div class="ai-phone-icon">☎️</div>
+ <div class="ai-phone-info">
+ <b>${escapeHtml(item.name || item.storeName || item.title || '매장')} 전화번호</b>
+ <span>${escapeHtml(phone)}</span>
+ </div>
+ <a class="ai-phone-call" href="tel:${escapeAttr(tel)}">전화</a>
+ </div>`;
+ }
+
+ function isAiPhoneQuestion(question=''){
+ const q = normalizeAiSearchText(question);
+ return /(전화번호|전화|연락처|번호|콜|통화)/.test(q);
+ }
+
+
+function isExplicitAiBenefitQuestion(question='', answer=''){
+ const q = normalizeAiSearchText(`${question || ''} ${answer || ''}`);
+ return /(혜택|할인|매장|가게|상가|추천|TOP5|TOP\s*5|탑5|지도|거리|영업|전화|예약|즐겨찾기|쿠폰|정액권|방문|식당|카페|피자|치킨|디저트|미용|학원|병원|약국|베이커리|떡카페|데이트|아이와|아이랑|아이하고|자녀|키즈|부모님|부모|어르신|어른|시니어|10대|십대|청소년|학생|20대|이십대|청년|갈만한|갈만한곳|점심|저녁|밥|가족|비오는날|비올때|눈|눈올때|눈이|비|맑음|흐림|추울때|더울때|날씨|가기좋은|가기 좋은)/.test(q);
+}
+
+function isApartmentLifeKnowledgeQuestion(question='', answer=''){
+ const q = normalizeAiSearchText(`${question || ''} ${answer || ''}`);
+ return /(대형폐기물|폐기물|쓰레기|분리수거|재활용|음식물|배출|수거|관리사무소|관리실|생활지원|입주|전입|키불출|하자|승강기|엘리베이터|주차|택배|민원|가스|인터넷|교육지원청|행정복지센터|수수료|스티커)/.test(q);
+}
+
+
+function isAiDialogCandidateConfirmAnswer(finalText='', question=''){
+ const text = normalizeAiSearchText(`${finalText || ''}`);
+ return /찾으시려는건가요/.test(text) && /맞다고말씀해주시면/.test(text);
+}
+
+
+// ===== AI 오타/영문키 확인 응답 이어가기 =====
+// 예: 사용자가 dkfpqh 입력 → AI가 “아레볼 맞나요?” 확인 → 사용자가 “맞습니다” 입력 시
+// 다음 질문을 “아레볼”로 치환해서 카드/검색 흐름이 끊기지 않도록 합니다.
+let aiPendingConfirmCandidate = '';
+
+function normalizeAiFollowupAnswerText(text=''){
+ return String(text || '')
+   .trim()
+   .split(' ').join('')
+   .split('\n').join('')
+   .split('\t').join('')
+   .split('.').join('')
+   .split('!').join('')
+   .split('?').join('')
+   .split('。').join('')
+   .split('．').join('')
+   .split(',').join('')
+   .split('，').join('')
+   .split('~').join('')
+   .split('…').join('')
+   .split(';').join('')
+   .split(':').join('')
+   .split('、').join('')
+   .toLowerCase();
+}
+
+function isAiAffirmativeFollowupAnswer(text=''){
+ const compact = normalizeAiFollowupAnswerText(text);
+ if(!compact) return false;
+ const exactConfirms = [
+   '네','네네','넵','넵넵','예','예예','옙','옙옙','응','응응','어','어어','ㅇㅇ','ㅇㅋ','오케이',
+   '맞아','맞아요','맞습니다','맞습니다요','맞다','맞음','맞네','맞네요','맞습니다네',
+   '그렇습니다','그렇네요','그렇죠','그럼요','그래','그래요','그거','그겁니다',
+   '그게맞아','그게맞아요','그게맞습니다','맞는것같아요','맞는것같습니다',
+   'yes','y','ok','okay'
+ ];
+ if(exactConfirms.includes(compact)) return true;
+ // 사용자가 문장형으로 답해도 이어서 검색되도록 보강합니다. 예: "네 맞습니다", "그렇습니다", "맞습니다 찾아주세요"
+ const partialConfirms = [
+   '맞습니다','맞아요','맞아','맞음','맞네요','맞는것같',
+   '그렇습니다','그렇네요','그렇죠','그럼요','그게맞',
+   '네맞','예맞','응맞','넵맞','맞습니다찾아','확인해줘','찾아주세요',
+   'yes','okay','ok','오케이'
+ ];
+ return partialConfirms.some(keyword => compact.includes(keyword));
+}
+
+const AI_DUBEOL_INITIALS = ['ㄱ','ㄲ','ㄴ','ㄷ','ㄸ','ㄹ','ㅁ','ㅂ','ㅃ','ㅅ','ㅆ','ㅇ','ㅈ','ㅉ','ㅊ','ㅋ','ㅌ','ㅍ','ㅎ'];
+const AI_DUBEOL_MEDIALS = ['ㅏ','ㅐ','ㅑ','ㅒ','ㅓ','ㅔ','ㅕ','ㅖ','ㅗ','ㅘ','ㅙ','ㅚ','ㅛ','ㅜ','ㅝ','ㅞ','ㅟ','ㅠ','ㅡ','ㅢ','ㅣ'];
+const AI_DUBEOL_FINALS = ['', 'ㄱ','ㄲ','ㄳ','ㄴ','ㄵ','ㄶ','ㄷ','ㄹ','ㄺ','ㄻ','ㄼ','ㄽ','ㄾ','ㄿ','ㅀ','ㅁ','ㅂ','ㅄ','ㅅ','ㅆ','ㅇ','ㅈ','ㅊ','ㅋ','ㅌ','ㅍ','ㅎ'];
+const AI_DUBEOL_FINAL_TO_INITIAL = {'ㄱ':'ㄱ','ㄲ':'ㄲ','ㄴ':'ㄴ','ㄷ':'ㄷ','ㄹ':'ㄹ','ㅁ':'ㅁ','ㅂ':'ㅂ','ㅅ':'ㅅ','ㅆ':'ㅆ','ㅇ':'ㅇ','ㅈ':'ㅈ','ㅊ':'ㅊ','ㅋ':'ㅋ','ㅌ':'ㅌ','ㅍ':'ㅍ','ㅎ':'ㅎ'};
+const AI_DUBEOL_KEY_TO_JAMO = {
+ r:'ㄱ', R:'ㄲ', s:'ㄴ', e:'ㄷ', E:'ㄸ', f:'ㄹ', a:'ㅁ', q:'ㅂ', Q:'ㅃ', t:'ㅅ', T:'ㅆ', d:'ㅇ', w:'ㅈ', W:'ㅉ', c:'ㅊ', z:'ㅋ', x:'ㅌ', v:'ㅍ', g:'ㅎ',
+ k:'ㅏ', o:'ㅐ', i:'ㅑ', O:'ㅒ', j:'ㅓ', p:'ㅔ', u:'ㅕ', P:'ㅖ', h:'ㅗ', y:'ㅛ', n:'ㅜ', b:'ㅠ', m:'ㅡ', l:'ㅣ'
+};
+const AI_DUBEOL_VOWEL_COMBINE = {'ㅗㅏ':'ㅘ','ㅗㅐ':'ㅙ','ㅗㅣ':'ㅚ','ㅜㅓ':'ㅝ','ㅜㅔ':'ㅞ','ㅜㅣ':'ㅟ','ㅡㅣ':'ㅢ'};
+const AI_DUBEOL_FINAL_COMBINE = {'ㄱㅅ':'ㄳ','ㄴㅈ':'ㄵ','ㄴㅎ':'ㄶ','ㄹㄱ':'ㄺ','ㄹㅁ':'ㄻ','ㄹㅂ':'ㄼ','ㄹㅅ':'ㄽ','ㄹㅌ':'ㄾ','ㄹㅍ':'ㄿ','ㄹㅎ':'ㅀ','ㅂㅅ':'ㅄ'};
+const AI_DUBEOL_FINAL_SPLIT = {'ㄳ':['ㄱ','ㅅ'],'ㄵ':['ㄴ','ㅈ'],'ㄶ':['ㄴ','ㅎ'],'ㄺ':['ㄹ','ㄱ'],'ㄻ':['ㄹ','ㅁ'],'ㄼ':['ㄹ','ㅂ'],'ㄽ':['ㄹ','ㅅ'],'ㄾ':['ㄹ','ㅌ'],'ㄿ':['ㄹ','ㅍ'],'ㅀ':['ㄹ','ㅎ'],'ㅄ':['ㅂ','ㅅ']};
+
+function composeAiHangulSyllable(initial, medial, final=''){
+ const i = AI_DUBEOL_INITIALS.indexOf(initial);
+ const m = AI_DUBEOL_MEDIALS.indexOf(medial);
+ const f = AI_DUBEOL_FINALS.indexOf(final || '');
+ if(i < 0 || m < 0 || f < 0) return `${initial || ''}${medial || ''}${final || ''}`;
+ return String.fromCharCode(0xAC00 + ((i * 21 + m) * 28) + f);
+}
+
+function isAiJamoVowel(jamo){ return AI_DUBEOL_MEDIALS.includes(jamo); }
+function isAiJamoConsonant(jamo){ return AI_DUBEOL_INITIALS.includes(jamo); }
+
+function convertAiDubeolSegmentToHangul(segment=''){
+ const jamos = Array.from(String(segment || '')).map(ch => AI_DUBEOL_KEY_TO_JAMO[ch] || ch);
+ let out = '';
+ let initial = '';
+ let medial = '';
+ let final = '';
+ const flush = () => {
+   if(initial && medial) out += composeAiHangulSyllable(initial, medial, final);
+   else out += `${initial || ''}${medial || ''}${final || ''}`;
+   initial = ''; medial = ''; final = '';
+ };
+
+ for(const jamo of jamos){
+   if(isAiJamoVowel(jamo)){
+     if(!initial){
+       initial = 'ㅇ';
+       medial = jamo;
+       continue;
+     }
+     if(initial && !medial){
+       medial = jamo;
+       continue;
+     }
+     if(initial && medial && !final){
+       const combined = AI_DUBEOL_VOWEL_COMBINE[medial + jamo];
+       if(combined){
+         medial = combined;
+       }else{
+         flush();
+         initial = 'ㅇ';
+         medial = jamo;
+       }
+       continue;
+     }
+     if(initial && medial && final){
+       const split = AI_DUBEOL_FINAL_SPLIT[final];
+       if(split){
+         final = split[0];
+         flush();
+         initial = AI_DUBEOL_FINAL_TO_INITIAL[split[1]] || split[1];
+         medial = jamo;
+       }else{
+         const carry = AI_DUBEOL_FINAL_TO_INITIAL[final] || final;
+         final = '';
+         flush();
+         initial = carry;
+         medial = jamo;
+       }
+       continue;
+     }
+   }
+
+   if(isAiJamoConsonant(jamo)){
+     if(!initial){
+       initial = jamo;
+       continue;
+     }
+     if(initial && !medial){
+       out += initial;
+       initial = jamo;
+       continue;
+     }
+     if(initial && medial && !final){
+       final = jamo;
+       continue;
+     }
+     if(initial && medial && final){
+       const combined = AI_DUBEOL_FINAL_COMBINE[final + jamo];
+       if(combined){
+         final = combined;
+       }else{
+         flush();
+         initial = jamo;
+       }
+       continue;
+     }
+   }
+
+   flush();
+   out += jamo;
+ }
+ flush();
+ return out;
+}
+
+function normalizeAiTypoQueryForSearch(text=''){
+ const original = String(text || '').trim();
+ if(!original) return '';
+ let cleaned = original
+   .replace(/[\u200B-\u200D\uFEFF]/g, '')
+   .replace(/^[\s.!?。．,，~…;:;、]+|[\s.!?。．,，~…;:;、]+$/g, '')
+   .trim();
+
+ // 한글 매장명 뒤에 잘못 붙은 영문/특수문자 노이즈 보정: "아레볼;f" → "아레볼"
+ cleaned = cleaned.replace(/^([가-힣][가-힣\s]{1,30}?)[\s;:,.!?~`'"“”‘’()\[\]{}<>\\/|_-]*[a-zA-Z]{1,4}$/g, '$1').trim();
+
+ // 영문 자판 + 한글 혼합 오타 보정: "dkfp볼" → "아레볼"
+ if(/[a-zA-Z]/.test(cleaned) && /[가-힣]/.test(cleaned)){
+   cleaned = cleaned.replace(/[a-zA-Z]+/g, segment => convertAiDubeolSegmentToHangul(segment));
+ }
+
+ // 순수 영문 오타는 너무 넓게 변환하면 일반 영어 질문까지 망가질 수 있어,
+ // 변환 결과가 실제 등록 혜택명과 강하게 맞을 때만 보정합니다.
+ if(/^[a-zA-Z]{2,16}$/.test(cleaned)){
+   const converted = convertAiDubeolSegmentToHangul(cleaned);
+   if(/[가-힣]/.test(converted) && isLikelyKnownBenefitKeyword(converted)){
+     cleaned = converted;
+   }
+ }
+ return cleaned || original;
+}
+
+function isLikelyKnownBenefitKeyword(keyword=''){
+ const key = normalizeAiSearchText(keyword || '');
+ if(!key || key.length < 2) return false;
+ const list = Array.isArray(state?.benefits) ? state.benefits : [];
+ return list.some(item => {
+   const name = normalizeAiSearchText(item?.name || item?.title || '');
+   return name && (name.includes(key) || key.includes(name));
+ });
+}
+
+function extractAiConfirmCandidateFromText(finalText=''){
+  const text = String(finalText || '').trim();
+  if(!text) return '';
+
+  const cleanCandidate = (value='') => {
+    let out = String(value || '').trim();
+    ['“','”','"',"'",'`'].forEach(ch => { out = out.split(ch).join(''); });
+    ['혹시','그러면','그럼','네','예'].forEach(prefix => {
+      if(out.startsWith(prefix)) out = out.slice(prefix.length).trim();
+    });
+    const suffixes = ['맞나요','맞으신가요','맞을까요','찾으시려는 건가요','찾으시려는건가요','입력하신 건가요','입력하신건가요'];
+    suffixes.forEach(suffix => {
+      const idx = out.indexOf(suffix);
+      if(idx >= 0) out = out.slice(0, idx).trim();
+    });
+    ['을','를','이','가'].forEach(p => {
+      if(out.endsWith(p) && out.length > 2) out = out.slice(0, -1).trim();
+    });
+    return normalizeAiTypoQueryForSearch(out);
+  };
+
+  const quotePairs = [['“','”'], ['"','"']];
+  for(const [open, close] of quotePairs){
+    const a = text.indexOf(open);
+    if(a >= 0){
+      const b = text.indexOf(close, a + 1);
+      if(b > a){
+        const candidate = cleanCandidate(text.slice(a + 1, b));
+        if(candidate && candidate.length >= 2 && candidate.length <= 40) return candidate;
+      }
+    }
+  }
+
+  const markers = ['찾으시려는 건가요','찾으시려는건가요','맞나요','맞으신가요','맞을까요','입력하신 건가요','입력하신건가요'];
+  for(const marker of markers){
+    const idx = text.indexOf(marker);
+    if(idx > 0){
+      let before = text.slice(0, idx).trim();
+      const maybeIdx = before.lastIndexOf('혹시');
+      if(maybeIdx >= 0) before = before.slice(maybeIdx + 2).trim();
+      const chunks = before.split(' ');
+      let candidate = cleanCandidate(chunks.slice(-3).join(' '));
+      if(candidate && candidate.length >= 2 && candidate.length <= 40) return candidate;
+    }
+  }
+  return '';
+}
+
+function rememberAiConfirmCandidate(finalText=''){
+ const candidate = extractAiConfirmCandidateFromText(finalText);
+ if(candidate){
+   aiPendingConfirmCandidate = candidate;
+   try{ sessionStorage.setItem('aiPendingConfirmCandidate', candidate); }catch(_error){}
+ }
+ return candidate;
+}
+
+function resolveAiFollowupQuestion(rawQuestion=''){
+ const original = String(rawQuestion || '').trim();
+ const stored = aiPendingConfirmCandidate || (() => { try{ return sessionStorage.getItem('aiPendingConfirmCandidate') || ''; }catch(_error){ return ''; } })();
+ if(stored && isAiAffirmativeFollowupAnswer(original)){
+   aiPendingConfirmCandidate = '';
+   try{ sessionStorage.removeItem('aiPendingConfirmCandidate'); }catch(_error){}
+   return { originalQuestion: original, effectiveQuestion: normalizeAiTypoQueryForSearch(stored) || stored, usedConfirmCandidate: true };
+ }
+ if(original && !isAiAffirmativeFollowupAnswer(original)){
+   aiPendingConfirmCandidate = '';
+   try{ sessionStorage.removeItem('aiPendingConfirmCandidate'); }catch(_error){}
+ }
+ const normalizedQuestion = normalizeAiTypoQueryForSearch(original);
+ return { originalQuestion: original, effectiveQuestion: normalizedQuestion || original, usedConfirmCandidate: false, normalizedTypo: normalizedQuestion && normalizedQuestion !== original };
+}
+
+
+function normalizeAiAttachmentTitleText(value=''){
+ return normalizeAiSearchText(value || '')
+   .replace(/처리안내|이용안내|안내문|안내|방법|정보|관련|자료|수수료|리스트|목록/g,'')
+   .trim();
+}
+
+function isAiKnowledgeAttachmentQuestion(question=''){
+ const q = normalizeAiSearchText(question || '');
+ if(!q) return false;
+ if(/(최근공지|공지알려|공지사항|혜택매장추천|혜택추천|매장추천|지도혜택|인기|TOP5|TOP\s*5|탑5|가까운|근처|할인매장|혜택매장|데이트|아이와|점심|저녁|밥|카페추천|맛집추천)/.test(q)) return false;
+ return /(대형폐기물|폐기물|쓰레기|분리수거|재활용|음식물|배출|수거|관리사무소|관리실|생활지원|입주|전입|키불출|하자|승강기|엘리베이터|주차|택배|민원|가스|인터넷|교육지원청|행정복지센터|수수료|스티커|전자책|가이드|FAQ|faq|안내)/.test(q);
+}
+
+function getMatchedAiKnowledgeAttachmentsStrict(question='', answer=''){
+ if(!isAiKnowledgeAttachmentQuestion(question)) return [];
+ const qNorm = normalizeAiAttachmentTitleText(question);
+ if(!qNorm) return [];
+
+ const list = Array.isArray(state.aiKnowledge) ? state.aiKnowledge : [];
+ const scored = [];
+
+ list.forEach(item => {
+   const attachments = Array.isArray(item.attachments) ? item.attachments.filter(a => a && (a.url || a.path || a.name)) : [];
+   if(!attachments.length) return;
+
+   const typeText = normalizeAiSearchText(item.type || item.category || '');
+   const isKnowledgeType = /(faq|전자책|가이드|생활|안내|booklet|guide)/.test(typeText);
+   if(!isKnowledgeType) return;
+
+   const title = item.question || item.title || item.name || item.keywords || '';
+   const titleNorm = normalizeAiAttachmentTitleText(Array.isArray(title) ? title.join(' ') : title);
+   const keywordNorm = normalizeAiAttachmentTitleText(Array.isArray(item.keywords) ? item.keywords.join(' ') : (item.keywords || ''));
+   const contentNorm = normalizeAiAttachmentTitleText(`${item.answer || ''} ${item.content || ''}`);
+
+   let score = 0;
+   if(titleNorm && titleNorm === qNorm) score += 100;
+   if(titleNorm && (titleNorm.includes(qNorm) || qNorm.includes(titleNorm))) score += 70;
+   if(keywordNorm && (keywordNorm.includes(qNorm) || qNorm.includes(keywordNorm))) score += 45;
+
+   // 핵심어 교집합 기준: 대형폐기물 -> 대형폐기물 처리 안내 허용
+   const qTokens = (qNorm.match(/[가-힣a-z0-9]{2,}/g) || []).filter(t => t.length >= 2);
+   qTokens.forEach(t => {
+     if(titleNorm.includes(t)) score += 18;
+     else if(keywordNorm.includes(t)) score += 12;
+     else if(contentNorm.includes(t)) score += 4;
+   });
+
+   if(score >= 35) scored.push({ item, attachments, score });
+ });
+
+ scored.sort((a,b)=>b.score-a.score);
+ return scored.slice(0, 2).flatMap(v => v.attachments).slice(0, 6);
+}
+
+function shouldShowAiKnowledgeAttachments(question='', answer=''){
+ return getMatchedAiKnowledgeAttachmentsStrict(question, answer).length > 0;
+}
+
+
+const AI_TTS_DEFAULT_VOICE = ''; // 서버의 관리자 기본 voice 설정을 사용합니다.
+let currentAiTtsAudio = null;
+let currentAiTtsObjectUrl = '';
+let currentAiTtsButton = null;
+
+function buildAiTtsControlsHtml(type='default'){
+ return `<div class="ai-tts-actions" data-ai-tts-actions><button class="ai-tts-btn" type="button" data-ai-tts-play data-ai-tts-type="${escapeAttr(type || 'default')}">🔊 안내 음성으로 듣기</button><button class="ai-tts-btn stop" type="button" data-ai-tts-stop style="display:none">⏹ 정지</button><span class="ai-tts-error" data-ai-tts-error style="display:none"></span></div>`;
+}
+
+function resetAiTtsButtons(){
+ document.querySelectorAll('[data-ai-tts-play]').forEach(btn => {
+   if(btn.dataset.aiTtsLoading === 'true') delete btn.dataset.aiTtsLoading;
+   btn.disabled = false;
+   btn.textContent = '🔊 안내 음성으로 듣기';
+   btn.classList.remove('playing');
+ });
+ document.querySelectorAll('[data-ai-tts-stop]').forEach(btn => { btn.style.display = 'none'; });
+}
+
+function stopAiTts(){
+ try{
+   if(currentAiTtsAudio){
+     currentAiTtsAudio.pause();
+     currentAiTtsAudio.currentTime = 0;
+   }
+ }catch(_error){}
+ try{
+   if(currentAiTtsObjectUrl) URL.revokeObjectURL(currentAiTtsObjectUrl);
+ }catch(_error){}
+ currentAiTtsAudio = null;
+ currentAiTtsObjectUrl = '';
+ currentAiTtsButton = null;
+ resetAiTtsButtons();
+}
+
+function getAiTtsReadableText(button){
+ const answer = button?.closest?.('.ai-answer') || button?.closest?.('.ai-bubble');
+ if(!answer) return '';
+ const summary = answer.querySelector('.ai-answer-summary') || answer.querySelector('.ai-stream-text') || answer;
+ const clone = summary.cloneNode(true);
+ clone.querySelectorAll('button, .ai-tts-actions, .ai-stream-cursor, script, style').forEach(el => el.remove());
+ return String(clone.innerText || clone.textContent || '')
+   .replace(/https?:\/\/\S+/g, '링크')
+   .replace(/\s+/g, ' ')
+   .trim();
+}
+
+function setAiTtsError(button, message){
+ const box = button?.closest?.('[data-ai-tts-actions]');
+ const errorEl = box?.querySelector?.('[data-ai-tts-error]');
+ if(errorEl){
+   errorEl.textContent = message || '';
+   errorEl.style.display = message ? '' : 'none';
+ }else if(message){
+   alert(message);
+ }
+}
+
+async function playAiTtsFromButton(button){
+ if(!button || button.dataset.aiTtsLoading === 'true') return;
+ const text = getAiTtsReadableText(button);
+ if(!text){ setAiTtsError(button, '읽어줄 답변 내용이 없습니다.'); return; }
+ if(!AI_TTS_SERVICE_URL){ setAiTtsError(button, '음성 안내 서버 주소가 설정되지 않았습니다.'); return; }
+
+ stopAiTts();
+ currentAiTtsButton = button;
+ button.dataset.aiTtsLoading = 'true';
+ button.disabled = true;
+ button.textContent = '음성 준비 중...';
+ setAiTtsError(button, '');
+
+ try{
+   let idToken = '';
+   try{ idToken = state.currentUser?.getIdToken ? await state.currentUser.getIdToken() : ''; }catch(_error){}
+   const response = await fetch(`${AI_TTS_SERVICE_URL}/tts`, {
+     method: 'POST',
+     headers: {
+       'Accept': 'audio/mpeg',
+       'Content-Type': 'application/json',
+       ...(idToken ? { 'Authorization': `Bearer ${idToken}` } : {})
+     },
+     body: JSON.stringify({
+       text,
+       ...(AI_TTS_DEFAULT_VOICE ? { voice: AI_TTS_DEFAULT_VOICE } : {}),
+       type: button.dataset.aiTtsType || 'default',
+       env: ENV
+     })
+   });
+   if(!response.ok){
+     let message = '음성을 준비하지 못했습니다. 잠시 후 다시 시도해주세요.';
+     try{ const data = await response.json(); if(data?.message) message = data.message; }catch(_error){}
+     throw new Error(message);
+   }
+   const blob = await response.blob();
+   currentAiTtsObjectUrl = URL.createObjectURL(blob);
+   currentAiTtsAudio = new Audio(currentAiTtsObjectUrl);
+   currentAiTtsAudio.onended = () => stopAiTts();
+   currentAiTtsAudio.onerror = () => {
+     setAiTtsError(button, '음성 재생 중 오류가 발생했습니다.');
+     stopAiTts();
+   };
+   await currentAiTtsAudio.play();
+   delete button.dataset.aiTtsLoading;
+   button.disabled = false;
+   button.textContent = '재생 중';
+   button.classList.add('playing');
+   const stopBtn = button.closest('[data-ai-tts-actions]')?.querySelector?.('[data-ai-tts-stop]');
+   if(stopBtn) stopBtn.style.display = '';
+ }catch(error){
+   console.error('[AI TTS] failed', error);
+   delete button.dataset.aiTtsLoading;
+   button.disabled = false;
+   button.textContent = '🔊 안내 음성으로 듣기';
+   button.classList.remove('playing');
+   setAiTtsError(button, error?.message || '음성을 준비하지 못했습니다. 잠시 후 다시 시도해주세요.');
+ }
+}
+
+function buildAiEnhancedAnswerHtml(finalText='', question=''){
+ const parsedDialog = extractAiDialogActions(finalText);
+ const downloadPayload = extractAiDownloadPayload(String(parsedDialog.text || '답변을 생성하지 못했습니다.'));
+ const text = String(downloadPayload.text || '답변을 생성하지 못했습니다.');
+ const cleaned = cleanAiChunkText(text).trim() || '답변을 생성하지 못했습니다.';
+ const aiDownloadButtonsHtml = buildAiDownloadButtonsHtml(downloadPayload.downloads);
+ const safe = escapeHtml(cleaned).replace(/\n/g, '<br>');
+ if(isAiDialogCandidateConfirmAnswer(cleaned, question)){
+ return `
+ <div class="ai-answer ai-answer-upgrade">
+ <div class="ai-answer-summary">${safe}</div>
+ ${buildAiTtsControlsHtml('default')}
+ ${aiDownloadButtonsHtml}
+ ${buildAiDialogActionButtons(parsedDialog.actions)}
+ <span class="ai-mode-pill upgraded">확인 후 바로 찾아볼게요.</span>
+ </div>`;
+ }
+ const isApartmentPhone = isApartmentLifePhoneQuestion(question, cleaned);
+ const apartmentOnlyPhoneCard = isApartmentPhone ? buildAiApartmentLifePhoneCardHtml(question, cleaned) : '';
+ if(isApartmentPhone){
+ return `
+ <div class="ai-answer ai-answer-upgrade apartment-life-answer">
+ <div class="ai-answer-summary">${safe}</div>
+ ${buildAiTtsControlsHtml('notice')}
+ ${aiDownloadButtonsHtml}
+ ${apartmentOnlyPhoneCard}
+ <span class="ai-mode-pill upgraded">관리자 생활정보 기준으로 안내했어요.</span>
+ </div>`;
+ }
+ const dialogButtons = buildAiDialogActionButtons(parsedDialog.actions);
+ const mappedCards = extractAiBenefitCards(cleaned, 4, question);
+ const apartmentPhoneCard = buildAiApartmentLifePhoneCardHtml(question, cleaned);
+ const matchedPhoneCard = (!apartmentPhoneCard && isAiPhoneQuestion(question)) ? buildAiMatchedBenefitPhoneCardHtml(mappedCards, question) : '';
+ const phoneCards = apartmentPhoneCard || matchedPhoneCard || (isApartmentLifePhoneQuestion(question) ? '' : buildAiPhoneCardHtml(extractAiPhoneCards(cleaned)));
+ const personalSummary = getAiPersonalSummary();
+ const locationMapCard = buildAiLocationMapCardHtml(mappedCards, question, cleaned);
+ const aiAttachmentHtml = shouldShowAiKnowledgeAttachments(question, cleaned) ? buildAiAttachmentsHtml(getMatchedAiKnowledgeAttachmentsStrict(question, cleaned)) : '';
+ const benefitCards = mappedCards.map(({item, score, reason, reasons}) => `
+ <div class="ai-benefit-card-auto enhanced">
+ <div class="ai-card-top">
+ <b>${escapeHtml(item.name || item.storeName || item.title || '혜택')}</b>
+ <span class="ai-match-score">매칭 ${Math.min(99, Math.round(Number(score || 0) * 7))}%</span>
+ </div>
+ <span>${escapeHtml(item.benefit || item.description || item.content || '등록된 혜택 정보를 확인해보세요.')}</span>
+ <div class="ai-benefit-meta">
+ ${item.category ? `<em>${escapeHtml(item.category)}</em>` : ''}
+ ${getBenefitDisplayAddress(item) ? `<em>위치 등록</em>` : ''}
+ ${pickAiPhone(item) ? `<em>전화 가능</em>` : ''}
+ ${getBenefitSocialLinks(item).length ? `<em>SNS/링크 있음</em>` : ''}
+ ${reason ? `<em>${escapeHtml(reason)}</em>` : ''}
+ ${shouldAttachWeatherTagToItem(item, question, cleaned) ? `<em class="weather">${escapeHtml(shouldAttachWeatherTagToItem(item, question, cleaned))}</em>` : ''}
+ </div>
+ <div class="ai-personal-reason">추천 기준: ${escapeHtml((reasons || []).join(' · ') || personalSummary)}</div>
+ ${buildAiSocialHintHtml(item)}
+ <div class="ai-card-actions">
+ <button class="primary" type="button" data-ai-open-benefit-id="${escapeAttr(item.id)}">혜택 상세 보기</button>
+ <button class="soft" type="button" data-view-link="map">지도에서 보기</button>
+ </div>
+ </div>`).join('');
+ const hasAiKnowledgeAttachments = /class="ai-attachment-section"/.test(aiAttachmentHtml || '');
+ // 혜택/매장/날씨 기반 추천 질문은 답변 문장에 공지/생활 안내 표현이 섞여도 카드가 보여야 합니다.
+ // 단, 대형폐기물/생활안내처럼 실제 첨부파일을 보여주는 질문은 혜택 카드를 숨깁니다.
+ const isExplicitBenefitCardIntent = isExplicitAiBenefitQuestion(question, '');
+ const isMultimodalAnalysisAnswer = /\[첨부파일 분석 결과\]|\[보정 자막\]|\[화자 분리 보정 자막\]|\[핵심 요약\]|자막\/텍스트 다운로드/i.test(cleaned) || !!aiDownloadButtonsHtml;
+ const shouldHideBenefitCardsForKnowledge = isApartmentLifeKnowledgeQuestion(question, cleaned) && !isExplicitBenefitCardIntent;
+ const shouldShowBenefitCards =
+   !isApartmentLifePhoneQuestion(question, cleaned) &&
+   !isMultimodalAnalysisAnswer &&
+   !shouldHideBenefitCardsForKnowledge &&
+   !hasAiKnowledgeAttachments &&
+   !!benefitCards;
+ return `
+ <div class="ai-answer ai-answer-upgrade">
+ <div class="ai-answer-summary">${safe}</div>
+ ${buildAiTtsControlsHtml(isMultimodalAnalysisAnswer ? 'file' : (isExplicitBenefitCardIntent ? 'benefit' : 'default'))}
+ ${!isApartmentLifePhoneQuestion(question, cleaned) && inferAiWeatherTag(question, cleaned) ? `<div class="ai-weather-chip">${escapeHtml(inferAiWeatherTag(question, cleaned))}</div>` : ''}
+ ${phoneCards}
+ ${dialogButtons}
+ ${locationMapCard}
+ ${aiAttachmentHtml}
+ ${shouldShowBenefitCards ? `<div class="ai-answer-section"><div class="ai-answer-section-title"><span>자동 매칭된 혜택 카드</span><small>${mappedCards.length}개 추천</small></div>${benefitCards}</div>` : ''}
+ ${aiDownloadButtonsHtml}
+ <span class="ai-mode-pill upgraded">상황에 맞는 정보를 준비했어요.</span>
+ </div>`;
+ }
+
+ async function callAiStreamServer(question='', { onChunk } = {}){
+ const q = String(question || '').trim();
+ if(!q) throw new Error('질문이 비어 있습니다.');
+ if(!AI_STREAM_SERVER_URL) throw new Error('AI 스트리밍 서버 URL이 설정되지 않았습니다.');
+
+ let idToken = '';
+ try{
+ idToken = state.currentUser?.getIdToken ? await state.currentUser.getIdToken() : '';
+ }catch(error){
+ console.warn('AI 스트리밍 ID 토큰 생성 실패:', error);
+ }
+
+ const pageContext = typeof buildAiPageContext === 'function' ? buildAiPageContext(q) : {};
+ const localCandidates = collectAiLocalCandidates(q, 12);
+ const makeStreamBody = () => JSON.stringify({
+ question: q,
+ message: q,
+ env: ENV,
+ conversationId: aiConversationId || '',
+ pageContext,
+ context: pageContext,
+ localCandidates
+ });
+ const response = await fetchWithAiVisibilityRetry(() => fetch(AI_STREAM_SERVER_URL, {
+ method: 'POST',
+ headers: {
+ 'Accept': 'text/plain;charset=utf-8',
+ 'Content-Type': 'application/json',
+ ...(idToken ? { 'Authorization': `Bearer ${idToken}` } : {})
+ },
+ body: makeStreamBody()
+ }), { maxAttempts: 2, waitMs: 120000 });
+ if(!response.ok){
+ const errorText = await response.text().catch(() => '');
+ throw new Error(errorText || `AI 스트리밍 서버 호출 실패 (${response.status})`);
+ }
+
+ if(!response.body){
+ const text = await response.text();
+ if(onChunk) onChunk(text || '', text || '');
+ return text || '';
+ }
+
+ const reader = response.body.getReader();
+ const decoder = new TextDecoder('utf-8');
+ let result = '';
+ while(true){
+ const { done, value } = await reader.read();
+ if(done) break;
+ const chunk = decoder.decode(value, { stream:true });
+ if(!chunk) continue;
+ result += chunk;
+ if(onChunk) onChunk(chunk, result);
+ }
+ const tail = decoder.decode();
+ if(tail){
+ result += tail;
+ if(onChunk) onChunk(tail, result);
+ }
+ return result;
+ }
+
+ function bindAiAnswerActions(scope){
+ const root = scope || qs('#aiChatWindow');
+ if(!root) return;
+ bindAiDownloadButtons(root);
+ root.querySelectorAll('[data-ai-dialog-question]').forEach(btn => {
+ if(btn.dataset.aiDialogBound === 'true') return;
+ btn.dataset.aiDialogBound = 'true';
+ btn.addEventListener('click', (event) => {
+ event.preventDefault();
+ event.stopPropagation();
+ const question = btn.dataset.aiDialogQuestion || btn.textContent || '';
+ if(question){
+ logPersonalAssistantEvent({
+ action:'proactive_button_click',
+ question,
+ buttonLabel: btn.textContent || '',
+ category: btn.dataset.aiLogCategory || btn.textContent || '',
+ benefitId: btn.dataset.aiLogBenefitId || '',
+ source: btn.dataset.aiLogSource || 'dialog_button'
+ });
+ if(!guardAiAssistantBusy()) askAiAssistant(question);
+ }
+ });
+ });
+ requestAnimationFrame(()=>renderAiLocationMiniMaps(root)); setTimeout(()=>renderAiLocationMiniMaps(root), 300); setTimeout(()=>renderAiLocationMiniMaps(root), 900);
+ root.querySelectorAll('[data-ai-open-benefit-id]').forEach(btn => {
+ if(btn.dataset.bound === 'true') return;
+ btn.dataset.bound = 'true';
+ btn.addEventListener('click', async (event) => {
+ event.preventDefault();
+ event.stopPropagation();
+ const benefitId = btn.dataset.aiOpenBenefitId || '';
+ const item = (state.benefits || []).find(v => String(v.id) === String(benefitId));
+ if(item){
+ openDetail(item);
+ return;
+ }
+ try{
+ const snap = await getDoc(doc(db, BENEFITS_COLLECTION, benefitId));
+ if(snap.exists()) openDetail(sanitizeBenefit(snap.data(), snap.id));
+ else openModalAlert('해당 혜택 정보를 찾지 못했습니다.');
+ }catch(error){
+ console.error('AI 혜택 딥링크 열기 실패', error);
+ openModalAlert('혜택을 여는 중 오류가 발생했습니다.');
+ }
+ });
+ });
+ root.querySelectorAll('[data-social-link][data-benefit-id]').forEach(link => {
+ if(link.dataset.aiSocialBound === 'true') return;
+ link.dataset.aiSocialBound = 'true';
+ link.addEventListener('click', () => {
+ const benefitId = link.dataset.benefitId || '';
+ const item = (state.benefits || []).find(v => String(v.id) === String(benefitId)) || { id: benefitId, name: '' };
+ const key = link.dataset.socialLink || 'sns';
+ const statField = link.dataset.socialStat || 'snsClickCount';
+ increaseStat(item.id, item.name, statField);
+ if(!['smartstoreClickCount','bandClickCount'].includes(statField)) increaseStat(item.id, item.name, 'snsClickCount');
+ logBenefitEvent(item.id, `${key}_click`);
+ });
+ });
+ root.querySelectorAll('[data-view-link]').forEach(btn => {
+ if(btn.dataset.aiViewBound === 'true') return;
+ btn.dataset.aiViewBound = 'true';
+ btn.addEventListener('click', (event) => {
+ event.preventDefault();
+ event.stopPropagation();
+ const view = btn.dataset.viewLink;
+ if(view) changeView(view);
+ });
+ });
+ root.querySelectorAll('[data-ai-tts-play]').forEach(btn => {
+ if(btn.dataset.aiTtsBound === 'true') return;
+ btn.dataset.aiTtsBound = 'true';
+ btn.addEventListener('click', (event) => {
+ event.preventDefault();
+ event.stopPropagation();
+ playAiTtsFromButton(btn);
+ });
+ });
+ root.querySelectorAll('[data-ai-tts-stop]').forEach(btn => {
+ if(btn.dataset.aiTtsStopBound === 'true') return;
+ btn.dataset.aiTtsStopBound = 'true';
+ btn.addEventListener('click', (event) => {
+ event.preventDefault();
+ event.stopPropagation();
+ stopAiTts();
+ });
+ });
+ }
+
+ function renderAiConversationMessages(messages = []){
+ resetAiChatWindow({ loadProactive:false });
+ const win = qs('#aiChatWindow');
+ if(!win) return;
+ messages.forEach((msg) => {
+ if(!msg || !msg.content) return;
+ if(msg.role === 'user') appendAiMessage('user', escapeHtml(msg.content));
+ else appendAiMessage('bot', normalizeAiAnswerHtml(msg.answerHtml || escapeHtml(msg.content)));
+ });
+ win.scrollTop = win.scrollHeight;
+ }
+
+ function renderAiConversationList(conversations = []){
+ const list = qs('#aiConversationList');
+ if(!list) return;
+ if(!conversations.length){ list.innerHTML = '<div class="ai-conversation-empty">저장된 이전 대화가 없습니다.</div>'; return; }
+ list.innerHTML = conversations.map((c) => {
+ const active = c.id && c.id === aiConversationId ? ' active' : '';
+ return `<button class="ai-conversation-item${active}" type="button" data-conversation-id="${escapeHtml(c.id)}"><span class="ai-conversation-title">${escapeHtml(c.title || '제목 없는 대화')}</span><span class="ai-conversation-meta">${escapeHtml(c.updatedText || c.createdText || '')} · 메시지 ${Number(c.messageCount || 0)}개</span></button>`;
+ }).join('');
+ list.querySelectorAll('[data-conversation-id]').forEach(btn => btn.addEventListener('click', () => loadAiConversation(btn.dataset.conversationId)));
+ }
+
+ async function loadAiConversationList(){
+ if(ENV !== 'dev') return;
+ qs('#aiConversationPanel')?.classList.add('show');
+ const list = qs('#aiConversationList');
+ if(list) list.innerHTML = '<div class="ai-conversation-empty">이전 대화를 불러오는 중입니다.</div>';
+ try{ const data = await callAiFunction({ action: 'listConversations' }); renderAiConversationList(data.conversations || []); }
+ catch(error){ console.error('AI conversation list failed', error); if(list) list.innerHTML = '<div class="ai-conversation-empty">이전 대화를 불러오지 못했습니다.</div>'; }
+ }
+
+ async function loadAiConversation(conversationId){
+ if(!conversationId) return;
+ const win = qs('#aiChatWindow');
+ win?.classList.add('memory-loading');
+ try{
+ const data = await callAiFunction({ action: 'loadConversation', conversationId });
+ aiConversationId = data.conversationId || conversationId;
+ aiConversationTitle = data.title || '이전 대화';
+ localStorage.setItem(AI_CONVERSATION_KEY, aiConversationId);
+ renderAiConversationMessages(data.messages || []);
+ 
+ qs('#aiBottomReco')?.addEventListener('click', () => {
+   const view = qs('#aiBottomReco')?.dataset?.viewLink || 'ai';
+   trackGnbMenuVisitByView(view);
+   qs('#aiBottomReco')?.classList.remove('show');
+   changeView(view);
+ });
+ qs('#aiBottomReco')?.addEventListener('keydown', (event) => {
+   if(event.key === 'Enter' || event.key === ' '){
+     event.preventDefault();
+     qs('#aiBottomReco')?.click();
+   }
+ });
+
+ updateAiConversationStatus(aiConversationTitle);
+ qs('#aiConversationPanel')?.classList.remove('show');
+ }catch(error){
+ console.error('AI conversation load failed', error);
+ await openModalAlert('이전 대화를 불러오지 못했습니다.');
+ }finally{
+ win?.classList.remove('memory-loading');
+ }
+ }
+
+ /* ===== AI 음성 질문 UX ===== */
+ let aiRecognition = null;
+ let aiVoiceListening = false;
+ let aiVoiceInitialized = false;
+
+ function getSpeechRecognition(){
+ return window.SpeechRecognition || window.webkitSpeechRecognition || null;
+ }
+
+ function setAiVoiceStatus(message, active=false){
+ const status = qs('#aiVoiceStatus');
+ const btn = qs('#aiVoiceBtn');
+ if(status) status.textContent = message || '';
+ btn?.classList.toggle('listening', !!active);
+ if(btn) btn.textContent = active ? '■' : '🎙️';
+ }
+
+ function stopAiMicTracks(stream){
+ try{ (stream?.getTracks?.() || []).forEach(track => track.stop()); }catch(_error){}
+ }
+
+ async function requestAiMicPermission(){
+ if(!window.isSecureContext){
+ throw new Error('insecure-context');
+ }
+ if(!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia){
+ throw new Error('media-devices-unsupported');
+ }
+ const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+ stopAiMicTracks(stream);
+ return true;
+ }
+
+ function createAiRecognition(){
+ const VoiceAPI = getSpeechRecognition();
+ if(!VoiceAPI) return null;
+ const recognition = new VoiceAPI();
+ recognition.lang = 'ko-KR';
+ recognition.continuous = false;
+ recognition.interimResults = true;
+ recognition.maxAlternatives = 1;
+ recognition.onstart = () => {
+ aiVoiceListening = true;
+ setAiVoiceStatus('듣고 있습니다. 질문을 말씀해 주세요.', true);
+ };
+ recognition.onresult = (event) => {
+ let transcript = '';
+ for(let i = event.resultIndex; i < event.results.length; i += 1){
+ transcript += event.results[i][0]?.transcript || '';
+ }
+ transcript = transcript.trim();
+ if(!transcript) return;
+ const input = qs('#aiQuestionInput');
+ if(input){ input.value = transcript; adjustAiQuestionTextareaHeight(input); }
+ setAiVoiceStatus('인식 중: ' + transcript, true);
+ const last = event.results[event.results.length - 1];
+ if(last?.isFinal){
+ window.__AI_LAST_INPUT_MODE = 'voice';
+ aiVoiceListening = false;
+ setAiVoiceStatus('음성 인식 완료. 질문을 전송합니다.', false);
+ setTimeout(() => askAiAssistant(transcript), 180);
+ }
+ };
+ recognition.onerror = (event) => {
+ aiVoiceListening = false;
+ const errorCode = event?.error || '';
+ let msg = '음성 인식 중 오류가 발생했습니다.';
+ if(errorCode === 'not-allowed' || errorCode === 'permission-denied') msg = '마이크 권한이 차단되었습니다. 브라우저 주소창의 권한 설정에서 마이크를 허용해 주세요.';
+ else if(errorCode === 'no-speech') msg = '음성이 인식되지 않았습니다. 다시 눌러 말씀해 주세요.';
+ else if(errorCode === 'audio-capture') msg = '마이크를 찾지 못했습니다. 기기의 마이크 연결을 확인해 주세요.';
+ else if(errorCode === 'network') msg = '음성 인식 네트워크 오류가 발생했습니다.';
+ setAiVoiceStatus(msg, false);
+ };
+ recognition.onend = () => {
+ if(aiVoiceListening){
+ aiVoiceListening = false;
+ setAiVoiceStatus('음성 인식이 종료되었습니다.', false);
+ }
+ };
+ return recognition;
+ }
+
+ async function startAiVoiceRecognition(){
+ if(guardAiAssistantBusy()) return;
+ const VoiceAPI = getSpeechRecognition();
+ if(!VoiceAPI){
+ setAiVoiceStatus('이 브라우저에서는 음성 질문을 지원하지 않습니다.', false);
+ return;
+ }
+ if(aiVoiceListening && aiRecognition){
+ try{ aiRecognition.stop(); }catch(_error){}
+ aiVoiceListening = false;
+ setAiVoiceStatus('음성 인식을 중지했습니다.', false);
+ return;
+ }
+ try{
+ setAiVoiceStatus('마이크 권한을 확인하는 중입니다...', false);
+ await requestAiMicPermission();
+ aiRecognition = createAiRecognition();
+ if(!aiRecognition) throw new Error('speech-unsupported');
+ window.__AI_LAST_INPUT_MODE = 'voice';
+ aiRecognition.start();
+ }catch(error){
+ console.warn('Voice recognition start failed', error);
+ const message = String(error?.message || error?.name || '');
+ if(message.includes('insecure-context')) setAiVoiceStatus('HTTPS 환경에서만 마이크 권한 요청이 가능합니다.', false);
+ else if(message.includes('media-devices-unsupported')) setAiVoiceStatus('이 브라우저에서는 마이크 권한 요청을 지원하지 않습니다.', false);
+ else if(error?.name === 'NotAllowedError' || error?.name === 'PermissionDeniedError') setAiVoiceStatus('마이크 권한이 거부되었습니다. 브라우저 권한 설정에서 마이크를 허용해 주세요.', false);
+ else if(error?.name === 'NotFoundError') setAiVoiceStatus('사용 가능한 마이크를 찾지 못했습니다.', false);
+ else setAiVoiceStatus('음성 인식을 시작하지 못했습니다. 브라우저 마이크 권한을 확인해 주세요.', false);
+ }
+ }
+
+ function initAiVoiceInput(){
+ const btn = qs('#aiVoiceBtn');
+ if(!btn || aiVoiceInitialized) return;
+ aiVoiceInitialized = true;
+ const VoiceAPI = getSpeechRecognition();
+ if(!VoiceAPI){
+ btn.disabled = true;
+ btn.style.opacity = '.55';
+ setAiVoiceStatus('이 브라우저에서는 음성 질문을 지원하지 않습니다. Chrome 계열 브라우저에서 이용해 주세요.');
+ return;
+ }
+ if(!window.isSecureContext){
+ btn.disabled = true;
+ btn.style.opacity = '.55';
+ setAiVoiceStatus('음성 질문은 HTTPS 환경에서만 사용할 수 있습니다.');
+ return;
+ }
+ setAiVoiceStatus('버튼을 누르면 브라우저 마이크 권한 요청이 표시됩니다.');
+ btn.addEventListener('click', () => { if(!guardAiAssistantBusy()) startAiVoiceRecognition(); });
+ }
+
+ initAiVoiceInput();
+
+ function startNewAiConversation(){
+ aiConversationId = '';
+ aiConversationTitle = '새 대화';
+ localStorage.removeItem(AI_CONVERSATION_KEY);
+ resetAiChatWindow();
+ updateAiConversationStatus(aiConversationTitle);
+ qs('#aiConversationPanel')?.classList.remove('show');
+ }
+
+ async function clearCurrentAiConversation(){
+ if(aiConversationId){
+ try{ await callAiFunction({ action: 'deleteConversation', conversationId: aiConversationId }); }catch(error){ console.warn('AI conversation delete failed', error); }
+ }
+ startNewAiConversation();
+ }
+
+ function buildAiSituationContext(){
+ const now = new Date();
+ const hour = now.getHours();
+ let timeBand = '일반 시간대';
+ if(hour >= 5 && hour < 11) timeBand = '아침';
+ else if(hour >= 11 && hour < 15) timeBand = '점심';
+ else if(hour >= 15 && hour < 18) timeBand = '오후';
+ else if(hour >= 18 && hour < 22) timeBand = '저녁';
+ else timeBand = '야간';
+ return {
+ currentView: state.view || '',
+ activeCategory: state.category || '',
+ benefitSortMode: state.benefitSortMode || '',
+ distanceRadius: state.distanceRadius || '',
+ platform: navigator.userAgentData?.platform || navigator.platform || '',
+ userAgent: navigator.userAgent || '',
+ clientTimeText: now.toLocaleString('ko-KR'),
+ hour,
+ timeBand,
+ locationFetchedAt: state.userLocationFetchedAt || 0,
+ location: state.userLocation ? { lat: state.userLocation.lat, lng: state.userLocation.lng } : null
+ };
+ }
+
+ function normalizeAiCardItem(item){
+ const distanceKm = Number(item.distanceKm);
+ const distanceText = item.distanceText || (
+ Number.isFinite(distanceKm)
+ ? (distanceKm < 1 ? `약 ${Math.round(distanceKm * 1000)}m` : `약 ${distanceKm.toFixed(distanceKm < 10 ? 1 : 0)}km`)
+ : ''
+ );
+
+ return {
+ id: item.id || item.docId || '',
+ name: item.name || item.title || '이름 없음',
+ category: item.category || '기타',
+ description: item.benefitText || item.description || item.summary || item.answer || '등록된 정보를 확인해보세요.',
+ address: getBenefitDisplayAddress(item) || item.roadAddress || '',
+ phone: item.phone || item.telephone || '',
+ link: item.link || item.url || '',
+ sourceType: item.sourceType || '',
+ source: item.source || '',
+ type: item.type || '',
+ tags: item.aiTags || item.tags || [],
+ matchRate: item.matchRate || 80,
+ distanceKm: Number.isFinite(distanceKm) ? distanceKm : null,
+ distanceText,
+ walkMinutes: item.walkMinutes || null,
+ bikeMinutes: item.bikeMinutes || null,
+ carMinutes: item.carMinutes || null,
+ lat: item.lat ?? null,
+ lng: item.lng ?? null,
+ isOpenNow: item.isOpenNow,
+ todayOpenText: item.todayOpenText || item.openingStatus?.todayOpenText || '',
+ openStatusText: item.openStatusText || item.openingStatus?.openStatusText || '',
+ lifeAssistantSummary: item.lifeAssistantSummary || ''
+ };
+ }
+
+ function buildAiMiniMap(item){
+ const lat = Number(item.lat);
+ const lng = Number(item.lng);
+ if(!Number.isFinite(lat) || !Number.isFinite(lng)){
+ return '<div class="ai-mini-map"><div class="ai-mini-map-fallback">좌표 정보가 없어 미니지도를 표시할 수 없습니다.</div></div>';
+ }
+ const q = encodeURIComponent(item.name || item.address || item.roadAddress || `${lat},${lng}`);
+ const src = `https://maps.google.com/maps?q=${lat},${lng}(${q})&z=16&output=embed`;
+ return `<div class="ai-mini-map"><iframe title="${escapeHtml(item.name)} 미니지도" loading="lazy" src="${src}"></iframe></div>`;
+ }
+
+ function buildNaverMapLink(item){
+ const lat = Number(item.lat);
+ const lng = Number(item.lng);
+ if(Number.isFinite(lat) && Number.isFinite(lng)){
+ return `https://map.naver.com/v5/search/${encodeURIComponent(item.name)}?c=${lng},${lat},16,0,0,0,dh`;
+ }
+ if(item.address || item.roadAddress || item.name){
+ return `https://map.naver.com/v5/search/${encodeURIComponent(`${item.name || ''} ${item.address || item.roadAddress || ''}`.trim())}`;
+ }
+ return item.link || '#';
+ }
+
+ function renderAiAutoCard(rawItem){
+ const item = normalizeAiCardItem(rawItem);
+ const isExternal = item.source === 'naver_local' || item.sourceType === 'external_place' || item.type === '외부매장';
+ const badges = [isExternal ? '외부 추천' : '입주민 혜택', ...item.tags].filter(Boolean).slice(0, 5);
+ const openKnown = typeof item.isOpenNow === 'boolean' || item.openStatusText || item.todayOpenText;
+ const openClass = item.isOpenNow === true ? 'open' : (item.isOpenNow === false ? 'closed' : '');
+ const openText = item.openStatusText || (item.isOpenNow === true ? '영업 중' : (item.isOpenNow === false ? '영업 전/종료' : '영업시간 확인'));
+
+ const summary = item.lifeAssistantSummary || [
+ item.distanceText ? `현재 위치에서 ${item.distanceText} 거리입니다.` : '',
+ item.walkMinutes ? `도보 약 ${item.walkMinutes}분, 자전거 약 ${item.bikeMinutes || '-'}분, 자동차 약 ${item.carMinutes || '-'}분 정도 소요됩니다.` : '',
+ item.todayOpenText ? `오늘 영업시간은 ${item.todayOpenText}입니다.` : ''
+ ].filter(Boolean).join('\n');
+
+ const mapLink = buildNaverMapLink(item);
+
+ return `
+ <div class="ai-auto-card ${isExternal ? 'external' : 'internal'}" data-id="${escapeHtml(item.id)}">
+ <div class="ai-auto-card-head">
+ <div>
+ <div class="ai-auto-card-title">${escapeHtml(item.name)}</div>
+ <div class="ai-auto-card-sub">${escapeHtml(item.category)}</div>
+ </div>
+ <div class="ai-match-pill">매칭 ${Number(item.matchRate || 80)}%</div>
+ </div>
+
+ <p class="ai-auto-card-desc">${escapeHtml(item.description)}</p>
+
+ <div class="ai-auto-card-status-row">
+ ${openKnown ? `<span class="ai-status-pill ${openClass}">${item.isOpenNow === true ? '🟢' : (item.isOpenNow === false ? '🔴' : '')} ${escapeHtml(openText)}</span>` : ''}
+ ${item.todayOpenText ? `<span class="ai-status-pill">🕒 ${escapeHtml(item.todayOpenText)}</span>` : ''}
+ ${item.distanceText ? `<span class="ai-status-pill">📍 ${escapeHtml(item.distanceText)}</span>` : ''}
+ </div>
+
+ ${summary ? `<div class="ai-card-summary">${escapeHtml(summary)}</div>` : ''}
+
+ ${item.walkMinutes ? `<div class="ai-travel-row">
+ <div class="ai-travel-chip">자동차<strong>${Number(item.carMinutes || 1)}분</strong></div>
+ <div class="ai-travel-chip">자전거<strong>${Number(item.bikeMinutes || 1)}분</strong></div>
+ <div class="ai-travel-chip">도보<strong>${Number(item.walkMinutes || 1)}분</strong></div>
+ </div>` : ''}
+
+ ${item.address ? `<div class="ai-auto-card-address">📍 ${escapeHtml(item.address)}</div>` : ''}
+
+ ${buildAiMiniMap(item)}
+
+ <div class="ai-auto-tag-row">${badges.map(tag => `<span class="ai-auto-tag">${escapeHtml(tag)}</span>`).join('')}</div>
+
+ <div class="ai-auto-card-actions">
+ ${item.phone ? `<a class="ai-card-btn soft" href="tel:${escapeHtml(item.phone)}">전화</a>` : ''}
+ <a class="ai-card-btn soft" href="${escapeHtml(mapLink)}" target="_blank" rel="noopener">지도 열기</a>
+ ${item.link ? `<a class="ai-card-btn primary" href="${escapeHtml(item.link)}" target="_blank" rel="noopener">정보 보기</a>` : ''}
+ </div>
+ </div>`;
+ }
+
+ function appendAiRecommendationCardsSafe(data, question=''){
+ const mode = String(data?.retrievalMode || '');
+ if(isApartmentLifePhoneQuestion(question) || mode.includes('direct-apartment-life-phone')) return;
+ if(data?.suppressRelatedItems || data?.suppressFollowupButtons || data?.analysisStatus === 'no_analyzable_files') return;
+ if(data && Array.isArray(data.recommendations) && data.recommendations.length) appendAiRecommendationCards(data.recommendations);
+ }
+
+ function appendAiRecommendationCards(recommendations = []){
+ const win = qs('#aiChatWindow');
+ if(!win || !Array.isArray(recommendations) || !recommendations.length) return;
+ const row = document.createElement('div');
+ row.className = 'ai-message bot';
+ const count = recommendations.length;
+ row.innerHTML = `<div class="ai-bubble"><div class="ai-auto-card-list-title"><span>자동 매칭 추천 카드</span><small>${count}개 추천</small></div><div class="ai-auto-card-list">${recommendations.slice(0, 6).map(renderAiAutoCard).join('')}</div></div>`;
+ win.appendChild(row);
+ win.scrollTop = win.scrollHeight;
+ }
+
+ /* ===== AI 응답 중 전체 입력 경로 잠금 ===== */
+ let aiAssistantBusy = false;
+ const AI_QUESTION_PLACEHOLDER = '예: 최근 공지 알려줘, 혜택 매장 추천해줘';
+
+ function setAiControlDisabled(selector, disabled){
+ qsa(selector).forEach((el) => {
+ if(!el) return;
+ el.disabled = !!disabled;
+ el.setAttribute('aria-disabled', disabled ? 'true' : 'false');
+ el.classList.toggle('ai-locked-control', !!disabled);
+ });
+ }
+
+ function setAiAssistantBusy(isBusy){
+ aiAssistantBusy = !!isBusy;
+ const aiView = qs('#view-ai');
+ aiView?.classList.toggle('ai-busy', aiAssistantBusy);
+
+ setAiControlDisabled('#aiQuickRow .ai-quick-btn, [data-ai-dialog-question]', aiAssistantBusy);
+ setAiControlDisabled('#aiAskBtn', aiAssistantBusy);
+ setAiControlDisabled('#aiVoiceBtn', aiAssistantBusy);
+
+ const input = qs('#aiQuestionInput');
+ if(input){
+ input.disabled = aiAssistantBusy;
+ input.setAttribute('aria-disabled', aiAssistantBusy ? 'true' : 'false');
+ input.classList.toggle('ai-locked-control', aiAssistantBusy);
+ input.placeholder = aiAssistantBusy ? 'AI가 답변을 준비 중입니다...' : AI_QUESTION_PLACEHOLDER;
+ }
+
+ const askBtn = qs('#aiAskBtn');
+ if(askBtn) askBtn.textContent = aiAssistantBusy ? '작성중' : '질문';
+
+ const busyNote = qs('#aiBusyNote');
+ if(busyNote) busyNote.textContent = aiAssistantBusy ? '답변을 준비하는 동안 새 질문은 잠시 멈춰둘게요.' : '';
+ }
+
+ function isAiAssistantBusy(){
+ return !!aiAssistantBusy;
+ }
+
+ function guardAiAssistantBusy(){
+ if(!isAiAssistantBusy()) return false;
+ try{ openModalAlert('AI가 답변을 준비 중입니다. 잠시만 기다려주세요.'); }catch(_error){}
+ return true;
+ }
+
+ /* ===== AI 입력 방어: 무의미 문자열 / 특수문자 / 비속어 차단 ===== */
+ const AI_INPUT_GUARD_STORAGE_KEY = `myhills_ai_invalid_input_guard_${ENV || 'prod'}`;
+ const AI_BAD_WORD_PATTERNS = [
+ /시\s*발|씨\s*발|ㅅ\s*ㅂ|ㅆ\s*ㅂ/i,
+ /병\s*신|ㅂ\s*ㅅ/i,
+ /미친|존나|졸라|좆|ㅈ\s*같/i,
+ /개\s*새|개\s*색|꺼져|죽어/i
+ ];
+
+ function getAiInvalidInputGuard(){
+ try{
+ const raw = localStorage.getItem(AI_INPUT_GUARD_STORAGE_KEY);
+ const data = raw ? JSON.parse(raw) : {};
+ const now = Date.now();
+ if(data.lockUntil && Number(data.lockUntil) > now) return data;
+ if(data.lockUntil && Number(data.lockUntil) <= now){
+ localStorage.removeItem(AI_INPUT_GUARD_STORAGE_KEY);
+ return { count:0, lockUntil:0 };
+ }
+ return { count:Number(data.count || 0), lockUntil:0 };
+ }catch(_error){
+ return { count:0, lockUntil:0 };
+ }
+ }
+
+ function saveAiInvalidInputGuard(data={}){
+ try{ localStorage.setItem(AI_INPUT_GUARD_STORAGE_KEY, JSON.stringify(data)); }catch(_error){}
+ }
+
+ function resetAiInvalidInputGuard(){
+ try{ localStorage.removeItem(AI_INPUT_GUARD_STORAGE_KEY); }catch(_error){}
+ }
+
+ function registerAiInvalidInput(){
+ const guard = getAiInvalidInputGuard();
+ const count = Number(guard.count || 0) + 1;
+ const next = { count, lockUntil:0, updatedAt:Date.now() };
+ if(count >= 10){
+ next.lockUntil = Date.now() + (30 * 60 * 1000);
+ }
+ saveAiInvalidInputGuard(next);
+ return next;
+ }
+
+ function validateAiUserInput(text=''){
+ const value = String(text || '').trim();
+ if(!value) return { ok:false, message:'질문을 입력해주세요.' };
+
+ const guard = getAiInvalidInputGuard();
+ if(guard.lockUntil && Number(guard.lockUntil) > Date.now()){
+ const remainMin = Math.max(1, Math.ceil((Number(guard.lockUntil) - Date.now()) / 60000));
+ return { ok:false, locked:true, message:`부적절하거나 의미 없는 입력이 반복되어 AI 질문이 잠시 제한되었습니다. 약 ${remainMin}분 후 다시 이용해주세요.` };
+ }
+
+ if(value.length < 2) return { ok:false, message:'질문을 조금 더 자세히 입력해주세요 🙂' };
+
+ const compact = value.replace(/\s+/g, '');
+ const normalized = compact.toLowerCase()
+ .replace(/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>/?`~·•]/g, '')
+ .replace(/[0-9]/g, '');
+
+ if(/^[ㄱ-ㅎㅏ-ㅣ]+$/.test(compact)){
+ return { ok:false, message:'자음/모음만 입력된 것 같아요. 정확한 질문으로 입력해주세요 🙂' };
+ }
+
+ if(/^[^가-힣a-zA-Z0-9]+$/.test(compact)){
+ return { ok:false, message:'의미 있는 질문을 입력해주세요 🙂' };
+ }
+
+ if(/(.)\1{4,}/.test(compact)){
+ return { ok:false, message:'반복 문자를 줄이고 질문 형태로 입력해주세요 🙂' };
+ }
+
+ const chars = Array.from(compact);
+ const specialCount = chars.filter(ch => /[^가-힣a-zA-Z0-9ㄱ-ㅎㅏ-ㅣ]/.test(ch)).length;
+ if(chars.length >= 4 && specialCount / chars.length > 0.4){
+ return { ok:false, message:'특수문자가 너무 많습니다. 질문 형태로 입력해주세요 🙂' };
+ }
+
+ const meaningfulCount = chars.filter(ch => /[가-힣a-zA-Z0-9]/.test(ch)).length;
+ const jamoCount = chars.filter(ch => /[ㄱ-ㅎㅏ-ㅣ]/.test(ch)).length;
+ if(chars.length >= 5 && meaningfulCount / chars.length < 0.45 && jamoCount / chars.length > 0.3){
+ return { ok:false, message:'의미를 파악하기 어려운 입력입니다. 다시 질문해주세요 🙂' };
+ }
+
+ if(AI_BAD_WORD_PATTERNS.some(pattern => pattern.test(value) || pattern.test(normalized))){
+ return { ok:false, message:'부적절한 표현은 사용할 수 없습니다 🙏' };
+ }
+
+ return { ok:true, message:'' };
+ }
+
+ async function guardAiUserInputOrAlert(question=''){
+ const result = validateAiUserInput(question);
+ if(result.ok){
+ resetAiInvalidInputGuard();
+ return true;
+ }
+ const guard = result.locked ? getAiInvalidInputGuard() : registerAiInvalidInput();
+ let message = result.message || '정확한 질문을 입력해주세요 🙂';
+ if(!result.locked && guard.count >= 3 && guard.count < 10){
+ message += '\n\n의미 없는 입력이 반복되면 AI 이용이 일시 제한될 수 있습니다.';
+ }
+ if(!result.locked && guard.lockUntil){
+ message = '부적절하거나 의미 없는 입력이 반복되어 AI 질문이 30분 동안 제한되었습니다.';
+ }
+ try{ await openModalAlert(message); }catch(_error){ alert(message); }
+ return false;
+ }
+
+
+
+const AI_MAX_ATTACH_FILES = 5;
+const AI_MAX_ATTACH_TOTAL_BYTES = 50 * 1024 * 1024;
+let aiSelectedFiles = [];
+
+function getAiAnalyzeFilesUrl(){
+ if(!AI_STREAM_SERVER_BASE_URL) return '';
+ return `${AI_STREAM_SERVER_BASE_URL}/api/ai/analyze-files`;
+}
+
+function getAiAnalyzeFilesStartUrl(){
+ if(!AI_STREAM_SERVER_BASE_URL) return '';
+ return `${AI_STREAM_SERVER_BASE_URL}/api/ai/analyze-files/start`;
+}
+
+function getAiAnalyzeJobStatusUrl(jobId=''){
+ if(!AI_STREAM_SERVER_BASE_URL || !jobId) return '';
+ return `${AI_STREAM_SERVER_BASE_URL}/api/ai/analyze-files/jobs/${encodeURIComponent(jobId)}`;
+}
+
+function sleepAi(ms=1000){
+ return new Promise(resolve => setTimeout(resolve, Math.max(0, Number(ms || 0))));
+}
+
+
+let aiPageHiddenAt = 0;
+let aiPageWasHiddenDuringRequest = false;
+try{
+ document.addEventListener('visibilitychange', () => {
+   if(document.hidden){
+     aiPageHiddenAt = Date.now();
+     aiPageWasHiddenDuringRequest = true;
+   }
+ });
+ window.addEventListener('pagehide', () => {
+   aiPageHiddenAt = Date.now();
+   aiPageWasHiddenDuringRequest = true;
+ });
+ window.addEventListener('pageshow', () => {
+   // 복귀 직후 네트워크가 바로 살아나지 않는 모바일 브라우저가 있어 잠깐 여유를 둡니다.
+   setTimeout(() => { aiPageWasHiddenDuringRequest = false; }, 3500);
+ });
+}catch(_error){}
+
+function isAiLikelyBackgroundInterruption(error){
+ const msg = String(error?.message || error || '').toLowerCase();
+ const recentlyHidden = aiPageHiddenAt && (Date.now() - aiPageHiddenAt < 180000);
+ return !!(document.hidden || aiPageWasHiddenDuringRequest || recentlyHidden || /abort|network|failed to fetch|load failed|cancelled|canceled|interrupted/.test(msg));
+}
+
+function waitForAiPageVisible(timeoutMs = 120000){
+ return new Promise((resolve, reject) => {
+   if(!document.hidden) return resolve();
+   const started = Date.now();
+   const timer = setInterval(() => {
+     if(!document.hidden){
+       clearInterval(timer);
+       setTimeout(resolve, 450);
+     }else if(Date.now() - started > timeoutMs){
+       clearInterval(timer);
+       reject(new Error('페이지 복귀 대기 시간이 초과되었습니다.'));
+     }
+   }, 500);
+ });
+}
+
+async function fetchWithAiVisibilityRetry(makeFetch, options = {}){
+ const maxAttempts = Math.max(1, Number(options.maxAttempts || 2));
+ let lastError = null;
+ for(let attempt = 1; attempt <= maxAttempts; attempt += 1){
+   try{
+     if(document.hidden) await waitForAiPageVisible(options.waitMs || 120000);
+     return await makeFetch(attempt);
+   }catch(error){
+     lastError = error;
+     if(attempt >= maxAttempts || !isAiLikelyBackgroundInterruption(error)) throw error;
+     try{ await waitForAiPageVisible(options.waitMs || 120000); }catch(_waitError){ throw error; }
+   }
+ }
+ throw lastError || new Error('AI 요청에 실패했습니다.');
+}
+
+function formatAiFileSize(bytes=0){
+ const n = Number(bytes || 0);
+ if(n >= 1024 * 1024) return `${(n / (1024 * 1024)).toFixed(n >= 10 * 1024 * 1024 ? 0 : 1)}MB`;
+ if(n >= 1024) return `${Math.round(n / 1024)}KB`;
+ return `${n}B`;
+}
+
+function getAiFileIcon(file={}){
+ const type = String(file.type || '').toLowerCase();
+ const name = String(file.name || '').toLowerCase();
+ let icon = 'file-attach.svg';
+ if(type.startsWith('image/')) icon = 'file-image.svg';
+ else if(type.startsWith('video/')) icon = 'file-video.svg';
+ else if(type.startsWith('audio/') || /\.(m4a|mp3|wav|aac|ogg|flac)$/i.test(name)) icon = 'file-audio.svg';
+ else if(type.includes('pdf') || name.endsWith('.pdf')) icon = 'file-pdf.svg';
+ else if(name.endsWith('.doc') || name.endsWith('.docx')) icon = 'file-doc.svg';
+ else if(name.endsWith('.xls') || name.endsWith('.xlsx')) icon = 'file-sheet.svg';
+ else if(name.endsWith('.ppt') || name.endsWith('.pptx')) icon = 'file-ppt.svg';
+ else if(name.endsWith('.txt')) icon = 'file-text.svg';
+ return `<img class="ai-attach-icon-img" src="/icons/internal/${icon}" alt="" loading="lazy" decoding="async">`;
+}
+
+function setAiAttachStatus(message='', type='info'){
+ const el = qs('#aiAttachStatus');
+ if(!el) return;
+ el.textContent = message || '';
+ el.classList.toggle('show', !!message);
+ el.style.background = type === 'error' ? '#fff1f2' : '#eff6ff';
+ el.style.borderColor = type === 'error' ? '#fecdd3' : '#bfdbfe';
+ el.style.color = type === 'error' ? '#b91c1c' : '#1d4ed8';
+}
+
+function getAiAttachSourceLabel(source=''){
+ const value = String(source || '').toLowerCase();
+ if(value === 'dragdrop') return '드래그 앤 드롭';
+ if(value === 'picker') return '첨부 파일 버튼';
+ if(value === 'clipboard') return '클립보드 이미지';
+ return '첨부';
+}
+
+function markAiAttachSource(file, source='picker'){
+ try{
+   Object.defineProperty(file, '__aiAttachSource', {
+     value: source || 'picker',
+     writable: true,
+     configurable: true
+   });
+ }catch(_error){
+   try{ file.__aiAttachSource = source || 'picker'; }catch(_e){}
+ }
+ return file;
+}
+
+function buildAiAttachStatusMessage(){
+ if(!aiSelectedFiles.length) return '';
+ const counts = aiSelectedFiles.reduce((acc, file) => {
+   const source = String(file?.__aiAttachSource || 'picker').toLowerCase();
+   acc[source] = (acc[source] || 0) + 1;
+   return acc;
+ }, {});
+ const parts = [];
+ if(counts.dragdrop) parts.push(`드래그 앤 드롭으로 ${counts.dragdrop}개 파일을`);
+ if(counts.picker) parts.push(`첨부 파일 버튼으로 ${counts.picker}개 파일을`);
+ if(counts.clipboard) parts.push(`클립보드 이미지 ${counts.clipboard}개를`);
+ Object.keys(counts).forEach((key) => {
+   if(['dragdrop','picker','clipboard'].includes(key)) return;
+   if(counts[key]) parts.push(`${getAiAttachSourceLabel(key)}로 ${counts[key]}개 파일을`);
+ });
+ return parts.length ? `${parts.join(', ')} 첨부했습니다.` : `첨부 ${aiSelectedFiles.length}개 파일을 첨부했습니다.`;
+}
+
+function updateAiAttachButtonState(){
+ const btn = qs('#aiAttachBtn');
+ const row = qs('#aiComposerRow');
+ const count = aiSelectedFiles.length;
+ if(row) row.classList.toggle('has-ai-files', count > 0);
+ if(!btn) return;
+ btn.classList.toggle('has-ai-files', count > 0);
+ if(count > 0){
+   btn.dataset.originalLabel = btn.dataset.originalLabel || btn.getAttribute('aria-label') || '사진, 파일, 영상 첨부';
+   btn.innerHTML = `<span class="ai-attach-count-label">첨부 ${count}</span>`;
+   btn.setAttribute('aria-label', `첨부파일 ${count}개`);
+   btn.setAttribute('title', `첨부파일 ${count}개`);
+ }else{
+   btn.innerHTML = `<img class="upick-svg-icon" src="/icons/internal/attach.svg" alt="" loading="lazy">`;
+   btn.setAttribute('aria-label', btn.dataset.originalLabel || '사진, 파일, 영상 첨부');
+   btn.setAttribute('title', '사진/파일/영상 첨부');
+ }
+}
+
+function renderAiSelectedFiles(){
+ const panel = qs('#aiAttachPanel');
+ const list = qs('#aiAttachList');
+ if(panel) panel.classList.toggle('has-files', aiSelectedFiles.length > 0);
+ updateAiAttachButtonState();
+ if(!list) return;
+ if(!aiSelectedFiles.length){
+ list.innerHTML = '';
+ setAiAttachStatus('', 'info');
+ return;
+ }
+ setAiAttachStatus(buildAiAttachStatusMessage(), 'info');
+ list.innerHTML = aiSelectedFiles.map((file, index) => `
+ <div class="ai-attach-item">
+ <span class="ai-attach-icon">${getAiFileIcon(file)}</span>
+ <div style="min-width:0">
+ <div class="ai-attach-name">${escapeHtml(file.name || `file-${index + 1}`)}</div>
+ <div class="ai-attach-meta">${escapeHtml(file.type || '파일')} · ${formatAiFileSize(file.size)} · ${escapeHtml(getAiAttachSourceLabel(file.__aiAttachSource || 'picker'))}</div>
+ </div>
+ <button class="ai-attach-remove" type="button" data-ai-remove-file-index="${index}" aria-label="첨부 삭제">×</button>
+ </div>`).join('');
+ list.querySelectorAll('[data-ai-remove-file-index]').forEach(btn => {
+ btn.addEventListener('click', () => {
+ const idx = Number(btn.dataset.aiRemoveFileIndex || -1);
+ if(idx >= 0) aiSelectedFiles.splice(idx, 1);
+ renderAiSelectedFiles();
+ });
+ });
+}
+
+function addAiSelectedFiles(fileList, source='picker'){
+ const incoming = Array.from(fileList || []);
+ if(!incoming.length) return;
+ const merged = [...aiSelectedFiles];
+ for(const file of incoming){
+ if(merged.length >= AI_MAX_ATTACH_FILES){
+ setAiAttachStatus(`첨부파일은 최대 ${AI_MAX_ATTACH_FILES}개까지 가능합니다.`, 'error');
+ break;
+ }
+ const duplicate = merged.some(v => v.name === file.name && v.size === file.size && v.lastModified === file.lastModified);
+ if(!duplicate) merged.push(markAiAttachSource(file, source));
+ }
+ const total = merged.reduce((sum, file) => sum + Number(file.size || 0), 0);
+ if(total > AI_MAX_ATTACH_TOTAL_BYTES){
+ setAiAttachStatus(`전체 첨부 용량은 ${formatAiFileSize(AI_MAX_ATTACH_TOTAL_BYTES)} 이하로 올려주세요.`, 'error');
+ return;
+ }
+ aiSelectedFiles = merged.slice(0, AI_MAX_ATTACH_FILES);
+ renderAiSelectedFiles();
+}
+
+function clearAiSelectedFiles(){
+ aiSelectedFiles = [];
+ const input = qs('#aiFileInput');
+ if(input) input.value = '';
+ renderAiSelectedFiles();
+}
+
+function buildAiDownloadMarkerFromFiles(results=[]){
+ const downloads = [];
+ (Array.isArray(results) ? results : []).forEach((item, index) => {
+   const captionFiles = item?.captionFiles || item?.captions || null;
+   if(!captionFiles) return;
+   const baseName = String(item.filename || item.fileName || item.name || `audio-${index + 1}`).replace(/\.[^.]+$/, '').slice(0, 80) || `audio-${index + 1}`;
+   ['txt','srt','vtt'].forEach((ext) => {
+     const content = captionFiles[ext];
+     if(!content) return;
+     downloads.push({
+       label: ext.toUpperCase(),
+       filename: `${baseName}.${ext}`,
+       mime: ext === 'txt' ? 'text/plain;charset=utf-8' : (ext === 'srt' ? 'application/x-subrip;charset=utf-8' : 'text/vtt;charset=utf-8'),
+       content: String(content || '')
+     });
+   });
+ });
+ if(!downloads.length) return '';
+ try{
+   return `\n\n[[AI_DOWNLOADS:${btoa(unescape(encodeURIComponent(JSON.stringify(downloads))))}]]`;
+ }catch(_error){
+   return '';
+ }
+}
+
+function extractAiDownloadPayload(text=''){
+ const src = String(text || '');
+ const match = src.match(/\[\[AI_DOWNLOADS:([A-Za-z0-9+/=]+)\]\]/);
+ if(!match) return { text: src, downloads: [] };
+ let downloads = [];
+ try{
+   downloads = JSON.parse(decodeURIComponent(escape(atob(match[1]))));
+ }catch(_error){ downloads = []; }
+ return { text: src.replace(match[0], '').trim(), downloads: Array.isArray(downloads) ? downloads : [] };
+}
+
+function buildAiDownloadButtonsHtml(downloads=[]){
+ if(!Array.isArray(downloads) || !downloads.length) return '';
+ return `<div class="ai-answer-section ai-download-section"><div class="ai-answer-section-title"><span>자막/텍스트 다운로드</span><small>${downloads.length}개 파일</small></div><div class="ai-download-row">${downloads.map((item, index) => `<button class="ai-card-btn soft ai-download-btn" type="button" data-ai-download-index="${index}" data-ai-download-name="${escapeAttr(item.filename || `caption-${index + 1}.txt`)}" data-ai-download-mime="${escapeAttr(item.mime || 'text/plain;charset=utf-8')}" data-ai-download-content="${escapeAttr(item.content || '')}">${escapeHtml(item.label || '다운로드')}</button>`).join('')}</div></div>`;
+}
+
+function bindAiDownloadButtons(scope){
+ const root = scope || document;
+ root.querySelectorAll('[data-ai-download-index]').forEach((btn) => {
+   if(btn.dataset.aiDownloadBound === 'true') return;
+   btn.dataset.aiDownloadBound = 'true';
+   btn.addEventListener('click', () => {
+     try{
+       const content = btn.dataset.aiDownloadContent || '';
+       const filename = btn.dataset.aiDownloadName || 'caption.txt';
+       const mime = btn.dataset.aiDownloadMime || 'text/plain;charset=utf-8';
+       const blob = new Blob([content], { type: mime });
+       const url = URL.createObjectURL(blob);
+       const a = document.createElement('a');
+       a.href = url;
+       a.download = filename;
+       document.body.appendChild(a);
+       a.click();
+       a.remove();
+       setTimeout(() => URL.revokeObjectURL(url), 1000);
+     }catch(error){
+       console.warn('AI 자막 다운로드 실패', error);
+       try{ openModalAlert('다운로드를 준비하는 중 문제가 발생했습니다.'); }catch(_e){}
+     }
+   });
+ });
+}
+
+function normalizeAiAnalyzeFilesResponse(rawText=''){
+ const raw = String(rawText || '').trim();
+ if(!raw) return '첨부파일 분석 결과가 비어 있습니다.';
+ try{
+ const data = JSON.parse(raw);
+ if(typeof data === 'string') return data;
+ const answer = data.answerText || data.answer || data.finalAnswer || data.message || data.summary || data.text || '';
+ const results = Array.isArray(data.results) ? data.results : (Array.isArray(data.files) ? data.files : []);
+ const lines = [];
+ if(answer) lines.push(String(answer));
+ if(results.length){
+ lines.push('');
+ lines.push('[첨부파일 분석 결과]');
+ results.forEach((item, index) => {
+ const fileName = item.fileName || item.filename || item.name || `첨부파일 ${index + 1}`;
+ const summary = item.summary || item.text || item.transcript || item.description || item.content || '';
+ const subtitle = item.subtitleText || item.captionText || '';
+ lines.push(`${index + 1}. ${fileName}`);
+ if(summary) lines.push(`- ${summary}`);
+ if(subtitle && subtitle !== summary) lines.push(`- 자막/텍스트: ${String(subtitle).slice(0, 1200)}`);
+ });
+ }
+ const downloadMarker = buildAiDownloadMarkerFromFiles(results);
+ return (lines.filter(Boolean).join('\n') || raw) + downloadMarker;
+ }catch(_error){
+ return raw;
+ }
+}
+
+async function pollAiAnalyzeJob(jobId='', idToken='', options = {}){
+ const statusUrl = getAiAnalyzeJobStatusUrl(jobId);
+ if(!statusUrl) throw new Error('AI 분석 작업 조회 URL이 설정되지 않았습니다.');
+ const timeoutMs = Math.max(60000, Number(options.timeoutMs || 12 * 60 * 1000));
+ const startedAt = Date.now();
+ let delayMs = 1200;
+ while(Date.now() - startedAt < timeoutMs){
+   if(document.hidden) await waitForAiPageVisible(timeoutMs);
+   const response = await fetchWithAiVisibilityRetry(() => fetch(statusUrl, {
+     method:'GET',
+     headers:{
+       'Accept':'application/json, text/plain;charset=utf-8',
+       ...(idToken ? { 'Authorization': `Bearer ${idToken}` } : {})
+     },
+     cache:'no-store'
+   }), { maxAttempts: 2, waitMs: timeoutMs });
+   const rawText = await response.text().catch(() => '');
+   let data = null;
+   try{ data = rawText ? JSON.parse(rawText) : null; }catch(_error){ data = null; }
+   if(!response.ok){
+     const message = data?.message || rawText || `AI 분석 작업 조회 실패 (${response.status})`;
+     throw new Error(message);
+   }
+   const status = String(data?.status || '').toLowerCase();
+   if(status === 'done'){
+     return normalizeAiAnalyzeFilesResponse(JSON.stringify(data.result || data));
+   }
+   if(status === 'error' || status === 'failed'){
+     throw new Error(data?.error?.message || data?.message || '첨부파일 분석 중 오류가 발생했습니다.');
+   }
+   if(status === 'not_found'){
+     throw new Error(data?.message || '분석 작업을 찾을 수 없습니다.');
+   }
+   await sleepAi(delayMs);
+   delayMs = Math.min(3500, Math.round(delayMs * 1.15));
+ }
+ throw new Error('첨부파일 분석 시간이 초과되었습니다. 잠시 후 다시 확인해 주세요.');
+}
+
+async function callAiAnalyzeFilesDirect(question='', files=[], idToken='', pageContext={}, localCandidates=[]){
+ const q = String(question || '').trim() || '첨부파일 내용을 분석해줘';
+ const targetUrl = getAiAnalyzeFilesUrl();
+ if(!targetUrl) throw new Error('AI 첨부파일 분석 서버 URL이 설정되지 않았습니다.');
+ const makeFormData = () => {
+   const formData = new FormData();
+   formData.append('message', q);
+   formData.append('question', q);
+   formData.append('env', ENV || 'prod');
+   formData.append('conversationId', aiConversationId || '');
+   formData.append('pageContext', JSON.stringify(pageContext || {}));
+   formData.append('context', JSON.stringify(pageContext || {}));
+   formData.append('localCandidates', JSON.stringify(localCandidates || []));
+   files.forEach(file => formData.append('files', file, file.name || 'file'));
+   return formData;
+ };
+ const response = await fetchWithAiVisibilityRetry(() => fetch(targetUrl, {
+   method:'POST',
+   headers:{
+     'Accept':'application/json, text/plain;charset=utf-8',
+     ...(idToken ? { 'Authorization': `Bearer ${idToken}` } : {})
+   },
+   body: makeFormData()
+ }), { maxAttempts: 2, waitMs: 180000 });
+ const rawText = await response.text().catch(() => '');
+ if(!response.ok) throw new Error(rawText || `AI 첨부파일 분석 실패 (${response.status})`);
+ return normalizeAiAnalyzeFilesResponse(rawText);
+}
+
+async function callAiAnalyzeFiles(question='', files=[]){
+ const q = String(question || '').trim() || '첨부파일 내용을 분석해줘';
+ const startUrl = getAiAnalyzeFilesStartUrl();
+ if(!startUrl) throw new Error('AI 첨부파일 분석 서버 URL이 설정되지 않았습니다.');
+ if(!files.length) throw new Error('첨부파일이 없습니다.');
+ let idToken = '';
+ try{ idToken = state.currentUser?.getIdToken ? await state.currentUser.getIdToken() : ''; }catch(error){ console.warn('AI 첨부 분석 ID 토큰 생성 실패:', error); }
+ const pageContext = typeof buildAiPageContext === 'function' ? buildAiPageContext(q) : {};
+ const localCandidates = collectAiLocalCandidates(q, 12);
+ const makeFormData = () => {
+   const formData = new FormData();
+   formData.append('message', q);
+   formData.append('question', q);
+   formData.append('env', ENV || 'prod');
+   formData.append('conversationId', aiConversationId || '');
+   formData.append('pageContext', JSON.stringify(pageContext));
+   formData.append('context', JSON.stringify(pageContext));
+   formData.append('localCandidates', JSON.stringify(localCandidates));
+   files.forEach(file => formData.append('files', file, file.name || 'file'));
+   return formData;
+ };
+ try{
+   const startResponse = await fetchWithAiVisibilityRetry(() => fetch(startUrl, {
+     method:'POST',
+     headers:{
+       'Accept':'application/json, text/plain;charset=utf-8',
+       ...(idToken ? { 'Authorization': `Bearer ${idToken}` } : {})
+     },
+     body: makeFormData()
+   }), { maxAttempts: 2, waitMs: 180000 });
+   const rawStartText = await startResponse.text().catch(() => '');
+   let startData = null;
+   try{ startData = rawStartText ? JSON.parse(rawStartText) : null; }catch(_error){ startData = null; }
+   if(!startResponse.ok) throw new Error(startData?.message || rawStartText || `AI 첨부파일 분석 작업 시작 실패 (${startResponse.status})`);
+   const jobId = startData?.jobId || '';
+   if(!jobId){
+     // 서버가 아직 Job ID 방식을 지원하지 않는 경우 기존 직접 분석 방식으로 후퇴합니다.
+     return normalizeAiAnalyzeFilesResponse(rawStartText);
+   }
+   return await pollAiAnalyzeJob(jobId, idToken, { timeoutMs: 12 * 60 * 1000 });
+ }catch(error){
+   // /start 배포 전 환경과 혼재될 수 있어 404/405만 기존 직접 방식으로 후퇴합니다.
+   const msg = String(error?.message || error || '');
+   if(/404|405|지원하지 않는 경로|not found/i.test(msg)){
+     return await callAiAnalyzeFilesDirect(q, files, idToken, pageContext, localCandidates);
+   }
+   throw error;
+ }
+}
+
+
+
+
+function adjustAiQuestionTextareaHeight(inputEl, options = {}){
+ const el = inputEl || qs('#aiQuestionInput');
+ if(!el || String(el.tagName || '').toLowerCase() !== 'textarea') return;
+ try{
+   const isCompact = window.matchMedia && window.matchMedia('(max-width: 420px)').matches;
+   const baseHeight = isCompact ? 36 : 40;
+   const maxHeight = isCompact ? 96 : 112;
+   const hasValue = String(el.value || '').length > 0;
+
+   // 전송 직후/빈 입력창은 반드시 한 줄 높이로 복귀시킵니다.
+   if(!hasValue || options.reset){
+     el.rows = 1;
+     el.style.setProperty('height', `${baseHeight}px`, 'important');
+     el.style.setProperty('min-height', `${baseHeight}px`, 'important');
+     el.style.setProperty('overflow-y', 'hidden', 'important');
+     return;
+   }
+
+   el.style.setProperty('height', `${baseHeight}px`, 'important');
+   const nextHeight = Math.min(maxHeight, Math.max(baseHeight, el.scrollHeight || baseHeight));
+   el.style.setProperty('height', `${nextHeight}px`, 'important');
+   el.style.setProperty('min-height', `${baseHeight}px`, 'important');
+   el.style.setProperty('overflow-y', (el.scrollHeight || 0) > maxHeight ? 'auto' : 'hidden', 'important');
+ }catch(_error){}
+}
+
+function extractClipboardImageFiles(event){
+ const items = Array.from(event?.clipboardData?.items || []);
+ const files = [];
+ items.forEach((item, index) => {
+   if(!item || !String(item.type || '').startsWith('image/')) return;
+   const blob = item.getAsFile?.();
+   if(!blob) return;
+   const ext = String(blob.type || 'image/png').split('/')[1] || 'png';
+   const safeExt = ext === 'jpeg' ? 'jpg' : ext;
+   const name = `clipboard-image-${Date.now()}-${index + 1}.${safeExt}`;
+   try{ files.push(new File([blob], name, { type: blob.type || 'image/png', lastModified: Date.now() })); }
+   catch(_error){ blob.name = name; files.push(blob); }
+ });
+ return files;
+}
+
+function bindAiQuestionComposer(){
+ const input = qs('#aiQuestionInput');
+ if(!input || input.dataset.composerBound === 'true') return;
+ input.dataset.composerBound = 'true';
+ adjustAiQuestionTextareaHeight(input);
+ input.addEventListener('input', () => adjustAiQuestionTextareaHeight(input));
+ input.addEventListener('paste', (event) => {
+   const files = extractClipboardImageFiles(event);
+   if(!files.length) return;
+   event.preventDefault();
+   addAiSelectedFiles(files, 'clipboard');
+   requestAnimationFrame(() => input.focus?.());
+ });
+ input.addEventListener('keydown', (event) => {
+   if(event.key !== 'Enter') return;
+   if(event.isComposing) return;
+   if(event.ctrlKey || event.metaKey){
+     event.preventDefault();
+     if(!guardAiAssistantBusy()) askAiAssistant();
+   }
+ });
+}
+
+function getAiDroppedFiles(event){
+ const dt = event?.dataTransfer;
+ if(!dt) return [];
+ return Array.from(dt.files || []).filter(Boolean);
+}
+
+function isAiFileDragEvent(event){
+ const types = Array.from(event?.dataTransfer?.types || []);
+ return types.includes('Files');
+}
+
+function setAiDragOverState(active){
+ qsa('#aiComposerRow, #aiAttachPanel').forEach(el => el?.classList?.toggle('ai-drag-over', !!active));
+}
+
+function bindAiDragAndDropUpload(){
+ const targets = [qs('#aiComposerRow'), qs('#aiAttachPanel'), qs('#aiChatWindow')].filter(Boolean);
+ if(!targets.length || window.__aiDragDropBound === true) return;
+ window.__aiDragDropBound = true;
+ let dragDepth = 0;
+ targets.forEach(target => {
+   ['dragenter','dragover'].forEach(type => {
+     target.addEventListener(type, (event) => {
+       if(!isAiFileDragEvent(event)) return;
+       event.preventDefault();
+       event.stopPropagation();
+       if(type === 'dragenter') dragDepth += 1;
+       setAiDragOverState(true);
+       try{ event.dataTransfer.dropEffect = 'copy'; }catch(_error){}
+     });
+   });
+   target.addEventListener('dragleave', (event) => {
+     if(!isAiFileDragEvent(event)) return;
+     event.preventDefault();
+     event.stopPropagation();
+     dragDepth = Math.max(0, dragDepth - 1);
+     if(dragDepth === 0) setAiDragOverState(false);
+   });
+   target.addEventListener('drop', (event) => {
+     if(!isAiFileDragEvent(event)) return;
+     event.preventDefault();
+     event.stopPropagation();
+     dragDepth = 0;
+     setAiDragOverState(false);
+     const files = getAiDroppedFiles(event);
+     if(!files.length) return;
+     addAiSelectedFiles(files, 'dragdrop');
+     qs('#aiQuestionInput')?.focus?.();
+   });
+ });
+ window.addEventListener('dragend', () => { dragDepth = 0; setAiDragOverState(false); });
+ window.addEventListener('drop', () => { dragDepth = 0; setAiDragOverState(false); });
+}
+
+function bindAiAttachmentPicker(){
+ const btn = qs('#aiAttachBtn');
+ const input = qs('#aiFileInput');
+ const clearBtn = qs('#aiAttachClearBtn');
+ if(btn && input && btn.dataset.bound !== 'true'){
+ btn.dataset.bound = 'true';
+ btn.addEventListener('click', () => input.click());
+ input.addEventListener('change', () => addAiSelectedFiles(input.files, 'picker'));
+ }
+ if(clearBtn && clearBtn.dataset.bound !== 'true'){
+ clearBtn.dataset.bound = 'true';
+ clearBtn.addEventListener('click', clearAiSelectedFiles);
+ }
+ renderAiSelectedFiles();
+}
+
+function buildDirectApartmentLifeLocalAnswer(question=''){
+ const fallback = getApartmentLifeFallbackContact(question, '');
+ if(!fallback) return '';
+ const label = fallback.label || '생활정보';
+ const phones = Array.isArray(fallback.phones) ? fallback.phones : [];
+ if(!phones.length) return '';
+ const mainPhone = phones.join(', ');
+ const text = `${label} 연락처는 ${mainPhone}입니다.`;
+ const cardHtml = buildAiPhoneCardHtml(phones.map(phone => ({
+ label: `${label} 전화번호`,
+ phone,
+ tel: String(phone || '').replace(/[^\d]/g, '')
+ })));
+ return `
+ <div class="ai-answer ai-answer-upgrade apartment-life-answer">
+ <div class="ai-answer-summary">${escapeHtml(text).replace(/\n/g, '<br>')}</div>
+ ${buildAiTtsControlsHtml('notice')}
+ ${cardHtml}
+ <span class="ai-mode-pill upgraded">관리자 생활정보 기준으로 안내했어요.</span>
+ </div>`;
+ }
+
+
+function scrollAiAnswerIntoView(rowOrBubble, options = {}){
+ const target = rowOrBubble?.closest?.('.ai-message') || rowOrBubble;
+ const win = qs('#aiChatWindow');
+ const behavior = options.instant ? 'auto' : 'smooth';
+ try{
+   const scrollToQuestionTop = () => {
+     if(win && target && win.contains(target)){
+       const top = Math.max(0, Number(target.offsetTop || 0) - 10);
+       win.scrollTo({ top, behavior });
+     }
+     const aiView = qs('#view-ai');
+     if(target && typeof target.scrollIntoView === 'function'){
+       target.scrollIntoView({ behavior, block: 'start', inline: 'nearest' });
+     }else if(aiView && typeof aiView.scrollIntoView === 'function'){
+       aiView.scrollIntoView({ behavior, block: 'nearest' });
+     }
+   };
+   requestAnimationFrame(scrollToQuestionTop);
+   setTimeout(scrollToQuestionTop, options.delay || 80);
+   if(options.secondDelay !== false){
+     setTimeout(scrollToQuestionTop, options.secondDelay || 360);
+   }
+ }catch(_error){
+   try{
+     if(win && target && win.contains(target)) win.scrollTop = Math.max(0, Number(target.offsetTop || 0) - 10);
+   }catch(_e){}
+ }
+}
+
+async function askAiAssistant(rawQuestion=''){
+ if(guardAiAssistantBusy()) return;
+ stopAiTts();
+ if(!window.__AI_LAST_INPUT_MODE) window.__AI_LAST_INPUT_MODE = rawQuestion ? 'quick' : 'text';
+ if(!AI_STREAM_SERVER_URL) return openModalAlert('AI 생활도우미 서버 URL이 아직 설정되지 않았습니다.');
+ const input = qs('#aiQuestionInput');
+ const btn = qs('#aiAskBtn');
+ const hasAttachFiles = aiSelectedFiles.length > 0;
+ const rawInputQuestion = String(rawQuestion || input?.value || '').trim();
+ const defaultAttachQuestion = hasAttachFiles ? '첨부파일 내용을 분석해줘' : '';
+ const followup = resolveAiFollowupQuestion(rawInputQuestion || defaultAttachQuestion);
+ const question = followup.effectiveQuestion || defaultAttachQuestion;
+ const displayQuestion = followup.originalQuestion || question;
+ if(!displayQuestion) return openModalAlert('질문을 입력해주세요.');
+ if(!hasAttachFiles && !(await guardAiUserInputOrAlert(displayQuestion))) return;
+ if(hasAttachFiles && rawInputQuestion && !(await guardAiUserInputOrAlert(displayQuestion))) return;
+ logPersonalAssistantEvent({
+ action:'ask',
+ question,
+ originalQuestion: displayQuestion,
+ category: question,
+ source: followup.usedConfirmCandidate ? 'confirm_followup' : (window.__AI_LAST_INPUT_MODE || 'text')
+ });
+
+ if(input){ input.value = ''; input.rows = 1; adjustAiQuestionTextareaHeight(input, { reset:true }); }
+ setAiAssistantBusy(true);
+ appendAiMessage('user', escapeHtml(displayQuestion) + (hasAttachFiles ? `<small>첨부 ${aiSelectedFiles.length}개: ${escapeHtml(aiSelectedFiles.map(file => file.name).join(', '))}</small>` : ''));
+ const pendingRow = createAiTypingBubble(question);
+ const pendingBubble = pendingRow?.querySelector('.ai-bubble');
+ const filesForThisQuestion = hasAttachFiles ? [...aiSelectedFiles] : [];
+ if(hasAttachFiles) clearAiSelectedFiles();
+
+ const directApartmentLifeHtml = hasAttachFiles ? '' : buildDirectApartmentLifeLocalAnswer(question);
+ if(directApartmentLifeHtml){
+ if(pendingBubble){
+ pendingBubble.innerHTML = directApartmentLifeHtml;
+ bindAiAnswerActions(pendingBubble);
+ }
+ if(pendingRow) delete pendingRow.dataset.pending;
+ window.__AI_LAST_INPUT_MODE = 'text';
+ aiConversationTitle = question.slice(0,24) || '새 대화';
+ updateAiConversationStatus('AI 답변 완료');
+ setAiAssistantBusy(false);
+ return;
+ }
+
+ let aiWaitTimer1 = null;
+ let aiWaitTimer2 = null;
+ try{
+ aiWaitTimer1 = setTimeout(() => setAiThinkingMessage(pendingBubble, '조금만 더 확인하고 있어요.', '필요한 정보를 정리하는 중입니다.'), 4500);
+ aiWaitTimer2 = setTimeout(() => setAiThinkingMessage(pendingBubble, '답변이 평소보다 조금 더 걸리고 있어요.', '정확한 안내를 위해 한 번 더 확인하고 있습니다.'), 10000);
+ let finalText = '';
+ let streamRenderer = null;
+ if(filesForThisQuestion.length){
+ setAiThinkingMessage(pendingBubble, '첨부파일을 분석하고 있어요.', '여러 파일이나 영상은 조금 더 걸릴 수 있습니다.');
+ scrollAiAnswerIntoView(pendingRow || pendingBubble, { delay: 40 });
+ finalText = await callAiAnalyzeFiles(question, filesForThisQuestion);
+ }else{
+ streamRenderer = createAiStreamRenderer(pendingBubble, question);
+ await callAiStreamServer(question, {
+ onChunk: (chunk) => {
+ streamRenderer.push(chunk);
+ }
+ });
+ }
+
+ if(aiWaitTimer1) clearTimeout(aiWaitTimer1);
+ if(aiWaitTimer2) clearTimeout(aiWaitTimer2);
+ finalText = finalText || (streamRenderer ? streamRenderer.flush() : '') || '답변을 생성하지 못했습니다.';
+ rememberAiConfirmCandidate(finalText);
+ if(pendingBubble){
+ pendingBubble.innerHTML = buildAiEnhancedAnswerHtml(finalText, question);
+ bindAiAnswerActions(pendingBubble);
+ scrollAiAnswerIntoView(pendingRow || pendingBubble, { delay: filesForThisQuestion.length ? 120 : 80, secondDelay: filesForThisQuestion.length ? 700 : 420 });
+ }
+ if(pendingRow) delete pendingRow.dataset.pending;
+ window.__AI_LAST_INPUT_MODE = 'text';
+ aiConversationTitle = question.slice(0,24) || '새 대화';
+ updateAiConversationStatus('AI 답변 완료');
+ }catch(error){
+ if(aiWaitTimer1) clearTimeout(aiWaitTimer1);
+ if(aiWaitTimer2) clearTimeout(aiWaitTimer2);
+ console.error('AI Cloud Run 스트리밍 실패', error);
+ const backgroundInterrupted = isAiLikelyBackgroundInterruption(error);
+ const errorMessageHtml = backgroundInterrupted
+ ? '앱이 백그라운드로 이동하면서 답변 연결이 잠시 끊겼습니다.<br><small>다시 질문해 주시면 이어서 확인해드릴게요.</small>'
+ : '답변을 준비하는 중 문제가 발생했습니다.<br><small>잠시 후 다시 질문해 주세요.</small>';
+ if(pendingBubble) pendingBubble.innerHTML = errorMessageHtml;
+ else appendAiMessage('bot', backgroundInterrupted ? '앱 전환 중 답변 연결이 끊겼습니다. 다시 질문해 주세요.' : '답변 생성 중 오류가 발생했습니다.');
+ }finally{
+ setAiAssistantBusy(false);
+ }
+ }
+
+ function updateView(){
+ const normalizedView = String(state.view || 'home').replace(/^#|^\//,'').trim() || 'home';
+ if(state.view !== normalizedView) state.view = normalizedView;
+ enforceShareInsightAccess();
+ if(state.view==='community') setTimeout(()=>loadCommunityPosts(communityState.category||'전체', true), 40);
+ qsa('[id^="view-"]').forEach(v=>v.classList.add('hidden'));
+ (qs(`#view-${state.view}`)||qs('#view-home'))?.classList.remove('hidden');
+ qsa('.bottom-nav .nav-btn').forEach(btn=>btn.classList.remove('active'));
+ const active=qsa('.bottom-nav .nav-btn').find(btn=>{
+   const view = String(btn.dataset.view || btn.dataset.viewLink || '').replace(/^#|^\//,'').trim();
+   return view === state.view;
+ });
+ if(active) active.classList.add('active');
+ if(typeof updateBottomNavActiveState === 'function') updateBottomNavActiveState();
+ qs('#gnbSheet')?.classList.remove('show');
+ qs('#gnbOverlay')?.classList.remove('show');
+}
+ const renderAll=()=>{createChips();enableHorizontalDragScroll('#chips');enableHorizontalDragScroll('#aiQuickRow');enableHorizontalDragScroll('#communityCategoryFilter');renderStats();bindFilterIconPopovers();renderHome();setupBenefitFilterFixed();renderFavorites();renderPopularTop5();renderNotices();renderCalendarReservations();updateView();setTimeout(setupBenefitFilterFixed, 80);updateGnbActive();updateDistanceFilterHelp();if(state.view==='map') setTimeout(() => renderMapMode(), 60);if(state.view==='community') setTimeout(()=>loadCommunityPosts(communityState.category||'전체', true), 60);if(state.view==='shareinsights' && isAdminRole()) setTimeout(() => renderShareInsights(), 60);setTimeout(() => handleCleanDeepLink(), 80);};
+ qs('#searchInput').addEventListener('input',(e)=>{state.keyword=e.target.value;renderAll();});
+ qs('#resetBtn').onclick=()=>{state.category='전체';localStorage.setItem(LAST_CATEGORY_KEY,'전체');state.keyword='';state.filter='all';state.benefitSortMode='default';state.distanceRadius='all';qs('#searchInput').value='';if(qs('#benefitSortSelect'))qs('#benefitSortSelect').value='default';if(qs('#distanceRadiusSelect'))qs('#distanceRadiusSelect').value='all';updateFilterIconLabels();changeView('benefits');};
+ qs('#benefitCardModeBtn')?.addEventListener('click', () => setBenefitViewMode('card'));
+ qs('#benefitListModeBtn')?.addEventListener('click', () => setBenefitViewMode('list'));
+ qs('#benefitSortSelect')?.addEventListener('change', async (e)=>{state.benefitSortMode=e.target.value||'default';await ensureBenefitDistances();renderAll();});
+ qs('#distanceRadiusSelect')?.addEventListener('change', async (e)=>{state.distanceRadius=e.target.value||'all';await ensureBenefitDistances();renderAll();});
+ qs('#mapUseMyLocationBtn')?.addEventListener('click', centerMapToMyLocation);
+ qs('#mapRefreshBtn')?.addEventListener('click', () => renderMapMode({ fitBounds: true }));
+ qs('#shareInsightRefreshBtn')?.addEventListener('click', renderShareInsights);
+ qs('#enableNearbyAutoPushBtn')?.addEventListener('click', enableNearbyAutoPush);
+ qs('#checkNearbyNowBtn')?.addEventListener('click', checkNearbyNow);
+ qsa('.bottom-nav .nav-btn').forEach(btn=>{btn.onclick=()=>{if(btn.dataset.view){changeView(btn.dataset.view);}};});
+ const gnbToggleBtn = qs('#gnbToggleBtn');
+ const gnbSheet = qs('#gnbSheet');
+ const gnbOverlay = qs('#gnbOverlay');
+ const gnbCloseBtn = qs('#gnbCloseBtn');
+
+ function openGnb(){
+ gnbSheet?.classList.add('show');
+ gnbOverlay?.classList.add('show');
+ gnbSheet?.setAttribute('aria-hidden', 'false');
+ gnbSheet?.classList.remove('gnb-enter');
+ requestAnimationFrame(() => gnbSheet?.classList.add('gnb-enter'));
+ document.body.style.overflow = 'hidden';
+ document.body.classList.add('gnb-open');
+ const homeBtn = gnbSheet?.querySelector('.gnb-home-active');
+ if(homeBtn){
+ homeBtn.animate(
+ [{ transform:'translateY(0)', opacity:1 }, { transform:'translateY(-1px)', opacity:1 }],
+ { duration:180, easing:'ease-out' }
+ );
+  setTimeout(()=>{ loadUserBottomNavSettings?.(); renderUserBottomNavSettings?.(); }, 120);
+ }
+ }
+
+ function closeGnb(){
+ const closeBtn = gnbCloseBtn;
+ closeBtn?.animate(
+ [{ transform:'scale(1) rotate(0deg)' }, { transform:'scale(.94) rotate(-8deg)' }, { transform:'scale(1) rotate(0deg)' }],
+ { duration:180, easing:'ease-out' }
+ );
+ gnbSheet?.classList.remove('show');
+ gnbOverlay?.classList.remove('show');
+ gnbSheet?.setAttribute('aria-hidden', 'true');
+ document.body.style.overflow = '';
+ document.body.classList.remove('gnb-open');
+ gnbSheet?.style.removeProperty('transform');
+ }
+
+ gnbToggleBtn?.addEventListener('click', (event) => {
+ event.stopPropagation();
+ openGnb();
+ });
+
+ function openGnbToSettings(){
+ openGnb();
+ requestAnimationFrame(() => {
+ const settingsSection = qs('#gnbSettingsAccountSummary');
+ settingsSection?.scrollIntoView({ behavior:'smooth', block:'start' });
+ });
+ }
+
+ qs('#userChip')?.addEventListener('click', (event) => {
+ event.preventDefault();
+ event.stopPropagation();
+ openGnbToSettings();
+ });
+
+ qs('#userChip')?.addEventListener('keydown', (event) => {
+ if(event.key === 'Enter' || event.key === ' '){
+ event.preventDefault();
+ openGnbToSettings();
+ }
+ });
+
+ async function handleLogout(){
+ const ok = await openModalConfirm(
+ '로그아웃하시겠습니까?',
+ qs('#gnbLogoutQuickBtn') || qs('#logoutBtnGnb'),
+ '로그아웃',
+ '로그아웃',
+ '취소'
+ );
+ if(!ok) return;
+
+ try{
+ await signOut(auth);
+ redirectToLogin();
+ }catch(error){
+ console.error('로그아웃 실패', error);
+ await openModalAlert('로그아웃 중 오류가 발생했습니다.');
+ }
+ }
+
+ qs('#gnbLogoutQuickBtn')?.addEventListener('click', (event) => {
+ event.preventDefault();
+ event.stopPropagation();
+ handleLogout();
+ });
+
+ qs('#logoutBtnGnb')?.addEventListener('click', (event) => {
+ event.preventDefault();
+ handleLogout();
+ });
+
+ function bindPremiumSectionTitles(){
+ const targets = qsa('.section-animate');
+ if(!targets.length) return;
+ const observer = new IntersectionObserver((entries) => {
+ entries.forEach((entry) => {
+ if(entry.isIntersecting){
+ entry.target.classList.add('is-visible');
+ observer.unobserve(entry.target);
+ }
+ });
+ }, { threshold: 0.35 });
+ targets.forEach((el) => observer.observe(el));
+ }
+
+ function openAdminConsole(){
+ if(!isAdminRole()){
+ openModalAlert('관리자 페이지는 관리자 계정에서만 열 수 있습니다.');
+ return;
+ }
+ window.location.href = '/admin';
+ }
+
+ qs('#openAdminPageFromGnbBtn')?.addEventListener('click', openAdminConsole);
+ qs('#rootOpenAdminBtn')?.addEventListener('click', openAdminConsole);
+ qs('#rootRefreshStateBtn')?.addEventListener('click', () => {
+ if(!isRootRole()){
+ openModalAlert('Root 전용 기능입니다.');
+ return;
+ }
+ renderAll();
+ openModalAlert('Root 화면 상태를 새로고침했습니다.');
+ });
+
+ gnbCloseBtn?.addEventListener('click', closeGnb);
+ gnbOverlay?.addEventListener('click', closeGnb);
+
+ let gnbTouchStartX = 0;
+ let gnbTouchCurrentX = 0;
+ let isDraggingGnb = false;
+
+ gnbSheet?.addEventListener('touchstart', (event) => {
+ if(!gnbSheet.classList.contains('show')) return;
+ gnbTouchStartX = event.touches[0].clientX;
+ gnbTouchCurrentX = gnbTouchStartX;
+ isDraggingGnb = true;
+ }, { passive:true });
+
+ gnbSheet?.addEventListener('touchmove', (event) => {
+ if(!isDraggingGnb) return;
+ gnbTouchCurrentX = event.touches[0].clientX;
+ const deltaX = Math.max(0, gnbTouchCurrentX - gnbTouchStartX);
+ gnbSheet.style.transform = `translateX(${deltaX}px)`;
+ }, { passive:true });
+
+ gnbSheet?.addEventListener('touchend', () => {
+ if(!isDraggingGnb) return;
+ const deltaX = Math.max(0, gnbTouchCurrentX - gnbTouchStartX);
+ isDraggingGnb = false;
+ if(deltaX > 90){
+ closeGnb();
+ }else{
+ gnbSheet.style.transform = '';
+ }
+ });
+
+ document.addEventListener('touchstart', (event) => {
+ if(gnbSheet?.classList.contains('show')) return;
+ const startX = event.touches[0].clientX;
+ if(startX > window.innerWidth - 24){
+ gnbTouchStartX = startX;
+ }else{
+ gnbTouchStartX = 0;
+ }
+ }, { passive:true });
+
+ document.addEventListener('touchend', (event) => {
+ if(gnbSheet?.classList.contains('show')) return;
+ if(!gnbTouchStartX) return;
+ const endX = event.changedTouches[0].clientX;
+ const moved = gnbTouchStartX - endX;
+ if(moved > 40){
+ openGnb();
+ }
+ gnbTouchStartX = 0;
+ }, { passive:true });
+
+ window.addEventListener('keydown', (event) => {
+ if(event.key === 'Escape' && gnbSheet?.classList.contains('show')){
+ closeGnb();
+ }
+ });
+
+ const gnbHomeBtn = gnbSheet?.querySelector('.gnb-home-active');
+ gnbHomeBtn?.addEventListener('click', () => {
+ gnbHomeBtn.animate(
+ [
+ { transform:'scale(1)' },
+ { transform:'scale(.94)' },
+ { transform:'scale(1.02)' },
+ { transform:'scale(1)' }
+ ],
+ { duration:220, easing:'ease-out' }
+ );
+ });
+
+
+
+ // ===== Dynamic GNB menu DB personalization v1 =====
+ const APP_MENUS_COLLECTION = 'app_menus';
+ const USER_MENU_HISTORY_COLLECTION = 'user_menu_history';
+ const MENU_STATS_COLLECTION = 'menu_stats';
+ const BOTTOM_NAV_SETTINGS_COLLECTION = 'app_settings';
+ const BOTTOM_NAV_SETTINGS_DOC = 'bottom_nav';
+
+ const UPICK_ICON_PATHS = {
+  home:'/icons/internal/home.svg',
+  benefits:'/icons/internal/benefit.svg',
+  benefit:'/icons/internal/benefit.svg',
+  favorite:'/icons/internal/favorite.svg',
+  top5:'/icons/internal/top5.svg',
+  all:'/icons/internal/all-menu.svg',
+  ai:'/icons/internal/ai-assistant.svg',
+  calendar:'/icons/internal/calendar.svg',
+  map:'/icons/internal/map.svg',
+  notices:'/icons/internal/notice.svg',
+  notice:'/icons/internal/notice.svg',
+  settings:'/icons/internal/settings.svg',
+  notification:'/icons/internal/notification.svg',
+  push:'/icons/internal/notification.svg',
+  homepage:'/icons/internal/homepage.svg',
+  blog:'/icons/internal/blog.svg',
+  instagram:'/icons/internal/instagram.svg',
+  youtube:'/icons/internal/youtube.svg',
+  facebook:'/icons/internal/facebook.svg',
+  smartstore:'/icons/internal/store.svg',
+  band:'/icons/internal/notice.svg',
+  phone:'/icons/internal/phone.svg',
+  location:'/icons/internal/location-pin.svg',
+  starFill:'/icons/internal/star-fill.svg',
+  starOutline:'/icons/internal/star-outline.svg'
+ };
+ function isSafeIconUrl(url=''){
+  const value = String(url || '').trim();
+  if(!value) return false;
+  if(value.startsWith('/icons/') || value.startsWith('/menu-icons/') || value.startsWith('/assets/')) return true;
+  if(/^https:\/\/firebasestorage\.googleapis\.com\//.test(value)) return true;
+  return false;
+ }
+ function upickIconHtml(key, alt=''){
+  const src = UPICK_ICON_PATHS[key] || UPICK_ICON_PATHS[String(key || '').replace(/^icon:/,'')];
+  if(!src) return escapeHtml(alt || '•');
+  return `<img class="upick-svg-icon" src="${src}" alt="${escapeHtml(alt || '')}" loading="lazy" decoding="async">`;
+ }
+ function upickIconUrlHtml(url='', alt=''){
+  const src = String(url || '').trim();
+  if(!isSafeIconUrl(src)) return '';
+  return `<img class="upick-svg-icon" src="${escapeAttr(src)}" alt="${escapeHtml(alt || '')}" loading="lazy" decoding="async">`;
+ }
+ function normalizeMenuIconKey(menu = {}){
+  const rawIcon = String(menu.icon || menu.iconKey || '').trim();
+  if(rawIcon.startsWith('icon:')) return rawIcon.replace(/^icon:/,'');
+  if(menu.iconKey) return String(menu.iconKey).trim();
+  const id = String(menu.menuId || menu.view || menu.route || '').toLowerCase();
+  if(id === 'benefits') return 'benefits';
+  if(id === 'notices') return 'notices';
+  if(id === 'favorite') return 'favorite';
+  if(id === 'top5') return 'top5';
+  if(id === 'calendar') return 'calendar';
+  if(id === 'map') return 'map';
+  if(id === 'ai') return 'ai';
+  if(id === 'all') return 'all';
+  if(id === 'home') return 'home';
+  return id;
+ }
+ function renderMenuIcon(menu = {}, fallback = '•'){
+  const alt = menu.bottomLabel || menu.name || fallback;
+
+  // 1) Firestore iconUrl 직접 지정 우선
+  if(menu.iconUrl){
+    const byUrl = upickIconUrlHtml(menu.iconUrl, alt);
+    if(byUrl) return byUrl;
+  }
+
+  // 2) iconKey 또는 icon:xxx 구조
+  const rawIcon = String(menu.icon || '').trim();
+  if(rawIcon.startsWith('icon:') || menu.iconKey){
+    return upickIconHtml(normalizeMenuIconKey(menu), alt);
+  }
+
+  // 3) Firestore에 아직 이모지가 남아 있어도 menuId/view/route 기준으로 SVG 자동 매핑
+  const key = normalizeMenuIconKey(menu);
+  if(UPICK_ICON_PATHS[key]){
+    return upickIconHtml(key, alt);
+  }
+
+  // 4) 매핑이 없는 메뉴도 이모지 대신 기본 SVG 심볼 사용
+  return upickIconHtml('all', alt || fallback || '메뉴');
+ }
+
+ function menuIconKeyFromAny(menu = {}){
+  const rawIcon = String(menu.icon || '').trim();
+  if(rawIcon.startsWith('icon:')) return rawIcon.replace(/^icon:/,'');
+  const rawId = String(menu.iconKey || menu.menuId || menu.id || menu.view || menu.route || menu.key || '').trim().toLowerCase();
+  const aliases = {
+    benefit:'benefits',
+    benefits:'benefits',
+    favorite:'favorite',
+    favorites:'favorite',
+    notice:'notices',
+    notices:'notices',
+    announcement:'notices',
+    top:'top5',
+    top5:'top5',
+    ranking:'top5',
+    calendar:'calendar',
+    map:'map',
+    ai:'ai',
+    assistant:'ai',
+    home:'home',
+    all:'all',
+    allmenu:'all',
+    settings:'settings',
+    setting:'settings',
+    notification:'notification',
+    push:'notification'
+  };
+  return aliases[rawId] || rawId;
+ }
+
+ function renderAnyMenuIcon(menu = {}, fallback = '•'){
+  const alt = menu.bottomLabel || menu.name || menu.title || fallback;
+  if(menu.iconUrl){
+    const byUrl = upickIconUrlHtml(menu.iconUrl, alt);
+    if(byUrl) return byUrl.replace('upick-svg-icon', 'upick-svg-icon upick-menu-icon-img');
+  }
+  const key = menuIconKeyFromAny(menu);
+  if(UPICK_ICON_PATHS[key]){
+    return `<img class="upick-svg-icon upick-menu-icon-img" src="${UPICK_ICON_PATHS[key]}" alt="${escapeHtml(alt || '')}" loading="lazy" decoding="async">`;
+  }
+  return `<img class="upick-svg-icon upick-menu-icon-img" src="/icons/internal/all-menu.svg" alt="${escapeHtml(alt || fallback || '메뉴')}" loading="lazy" decoding="async">`;
+ }
+
+
+function renderIconToken(icon='', fallback=''){
+  const raw = String(icon || '').trim();
+  if(!raw) return escapeHtml(fallback || '');
+  if(raw.startsWith('icon:')){
+    const key = raw.replace(/^icon:/,'');
+    const src = (typeof UPICK_ICON_PATHS !== 'undefined') ? UPICK_ICON_PATHS[key] : '';
+    if(src) return `<img class="upick-link-icon" src="${src}" alt="" loading="lazy" decoding="async">`;
+    return '';
+  }
+  // 이모지/문자 아이콘은 UI v3에서 사용하지 않고 기본 메뉴 SVG로 대체
+  return `<img class="upick-link-icon" src="/icons/internal/all-menu.svg" alt="" loading="lazy" decoding="async">`;
+}
+
+
+ function renderIconByMenuId(menuId='', fallback='•'){
+  return renderAnyMenuIcon({menuId, view:menuId, route:menuId, icon:fallback}, fallback);
+ }
+
+
+ const DEFAULT_GNB_MENUS = [
+  {menuId:'home', name:'홈', bottomLabel:'홈', icon:'icon:home', view:'home', sections:['main'], order:10, keywords:['홈','메인','처음']},
+  {menuId:'ai', name:'AI 생활 도우미', bottomLabel:'AI', icon:'icon:ai', view:'ai', sections:['new','main'], order:20, keywords:['ai','도우미','질문','생활','챗봇']},
+  {menuId:'benefits', name:'혜택 전체보기', bottomLabel:'혜택', icon:'icon:benefits', view:'benefits', sections:['new','main'], order:30, keywords:['혜택','할인','매장','제휴','전체']},
+  {menuId:'favorite', name:'즐겨찾기 확인', bottomLabel:'즐겨찾기', icon:'icon:favorite', view:'favorite', sections:['new','main'], order:40, keywords:['즐겨찾기','찜','저장']},
+  {menuId:'notices', name:'공지사항 보기', bottomLabel:'공지', icon:'icon:notices', view:'notices', sections:['new','main'], order:50, keywords:['공지','안내','소식']},
+  {menuId:'calendar', name:'캘린더 예약', bottomLabel:'캘린더', icon:'icon:calendar', view:'calendar', sections:['new','main'], order:60, keywords:['캘린더','예약','일정','알림','방문']},
+  {menuId:'map', name:'지도', bottomLabel:'지도', icon:'icon:map', view:'map', sections:['main'], order:70, keywords:['지도','위치','근처','거리']},
+  {menuId:'top5', name:'인기 매장 TOP 5', bottomLabel:'TOP5', icon:'icon:top5', view:'top5', sections:['new','main'], order:80, keywords:['top','top5','인기','랭킹','순위']},
+  {menuId:'shareinsights', name:'공유 인사이트', bottomLabel:'공유', icon:'📈', view:'shareinsights', sections:['admin'], order:200, roles:['admin','root'], keywords:['공유','통계','인사이트','관리자']}
+ ];
+ let gnbMenuCache = [];
+ let recentGnbMenuIdSet = new Set();
+ let popularGnbMenuIdSet = new Set();
+ let popularGnbStatsMap = new Map();
+
+ function getCurrentUserRole(){ return state.currentUserProfile?.role || 'resident'; }
+ function canUseGnbMenu(menu){
+  if(menu?.isActive === false || menu?.visible === false) return false;
+  const role = getCurrentUserRole();
+  const roles = Array.isArray(menu?.roles) ? menu.roles : (menu?.role ? [menu.role] : []);
+  return !roles.length || roles.includes(role) || (role === 'root');
+ }
+ function normalizeGnbMenu(raw={}, fallbackId=''){
+  const menuId = String(raw.menuId || raw.id || fallbackId || raw.view || raw.route || '').trim();
+  const view = String(raw.view || raw.viewLink || raw.route || menuId || 'home').replace(/^#|^\//,'').trim();
+  const sections = Array.isArray(raw.sections)
+    ? raw.sections.map(v => String(v).trim()).filter(Boolean)
+    : String(raw.sections || raw.section || raw.type || 'main').split(',').map(v => v.trim()).filter(Boolean);
+  const keywords = Array.isArray(raw.keywords) ? raw.keywords : String(raw.keywords || '').split(',').map(v=>v.trim()).filter(Boolean);
+  const badgeTokens=[];
+  const collectBadge=(v)=>{ if(!v) return; if(Array.isArray(v)){ v.forEach(collectBadge); return; } if(typeof v === 'object'){ Object.keys(v).forEach(k=>{ if(v[k]) badgeTokens.push(String(k).toLowerCase()); }); return; } String(v).split(/[\s,|/]+/).forEach(x=>{ x=String(x||'').trim().toLowerCase(); if(x) badgeTokens.push(x); }); };
+  collectBadge(raw.menuBadges || raw.badges || raw.menuBadge || raw.statusBadge || raw.featureBadge || raw.trendBadge || raw.displayBadge);
+  if(raw.badgeHot || raw.menuBadgeHot) badgeTokens.push('hot');
+  if(raw.badgeNew || raw.menuBadgeNew) badgeTokens.push('new');
+  if(raw.badgeUp || raw.menuBadgeUp) badgeTokens.push('up');
+  if(raw.badgeDeprecated || raw.menuBadgeDeprecated || raw.deprecated || raw.willRemove) badgeTokens.push('deprecated');
+  const menuBadges=[...new Set(badgeTokens.map(v=>['delete','remove','removed','ending','end','close','closing'].includes(v)?'deprecated':v).filter(v=>['hot','new','up','deprecated'].includes(v)))];
+  return { ...raw, menuId, view, route:view, name:raw.name || raw.title || menuId, bottomLabel:raw.bottomLabel || raw.navLabel || raw.shortName || raw.bottomName || '', icon:raw.icon || '•', iconKey:raw.iconKey || '', iconUrl:raw.iconUrl || '', sections, keywords, menuBadges, badgeHot:menuBadges.includes('hot'), badgeNew:menuBadges.includes('new'), badgeUp:menuBadges.includes('up'), badgeDeprecated:menuBadges.includes('deprecated'), order:Number(raw.order ?? 999), isActive: raw.isActive !== false, roles:Array.isArray(raw.roles)?raw.roles:(raw.role?[raw.role]:[]) };
+ }
+ 
+ 
+/* Safe noop for legacy calls */
+const syncGnbNavSafe = window.syncGnbNavSafe || function(){ return; };
+
+
+/* ===== Bottom nav persistent settings cache ===== */
+let bottomNavUserMenusCache = null;
+let bottomNavAdminMenusCache = null;
+let bottomNavAdminMenusConfiguredCache = false;
+let bottomNavUseAdminDefaultFillCache = true;
+let bottomNavSettingsLoadedOnce = false;
+
+const FALLBACK_BOTTOM_MENUS = ['benefits','favorite','top5'];
+
+ function uniqBottomMenuIds(list=[]){
+  const result = [];
+  for(const raw of list || []){
+    const rawId = (raw && typeof raw === 'object') ? (raw.menuId || raw.view || raw.route || raw.id || raw.key || '') : raw;
+    const id = String(rawId || '').replace(/^#|^\//,'').trim();
+    if(!id || id === 'home' || id === 'all') continue;
+    if(!result.includes(id)) result.push(id);
+    if(result.length >= 3) break;
+  }
+  return result;
+ }
+
+ async function loadBottomNavSettings(force=false){
+  const uid = auth?.currentUser?.uid || '';
+  let userMenus = [];
+  let adminMenus = [];
+  let adminMenusConfigured = false;
+  let useAdminDefaultFill = true;
+
+  // 이미 한 번 읽었고 같은 세션에서 강제 갱신이 아니면 캐시를 우선 사용합니다.
+  if(!force && bottomNavSettingsLoadedOnce){
+    return {
+      userMenus: bottomNavUserMenusCache || [],
+      adminMenus: bottomNavAdminMenusCache || [],
+      adminMenusConfigured: bottomNavAdminMenusConfiguredCache === true,
+      useAdminDefaultFill: bottomNavUseAdminDefaultFillCache !== false
+    };
+  }
+
+  try{
+    if(uid && db){
+      const userSnap = await getDoc(doc(db, 'users', uid));
+      if(userSnap.exists()){
+        userMenus = uniqBottomMenuIds(userSnap.data().bottomNavMenus || []);
+      }
+    }
+  }catch(error){
+    console.warn('사용자 하단 네비 설정 로딩 실패', error);
+  }
+
+  try{
+    if(db){
+      const adminSnap = await getDoc(doc(db, BOTTOM_NAV_SETTINGS_COLLECTION, BOTTOM_NAV_SETTINGS_DOC));
+      if(adminSnap.exists()){
+        const data = adminSnap.data() || {};
+        adminMenusConfigured = true;
+        adminMenus = uniqBottomMenuIds(data.defaultMenus || data.menus || []);
+        useAdminDefaultFill = data.useAdminDefaultFill !== false;
+      }
+    }
+  }catch(error){
+    console.warn('관리자 하단 네비 기본값 로딩 실패', error);
+  }
+
+  bottomNavUserMenusCache = userMenus;
+  bottomNavAdminMenusCache = adminMenus;
+  bottomNavAdminMenusConfiguredCache = adminMenusConfigured;
+  bottomNavUseAdminDefaultFillCache = useAdminDefaultFill;
+  bottomNavSettingsLoadedOnce = true;
+
+  return { userMenus, adminMenus, adminMenusConfigured, useAdminDefaultFill };
+ }
+
+ function resolveBottomMenuIds(userMenus=[], adminMenus=[], useAdminDefaultFill=true, adminMenusConfigured=false){
+  const result = [];
+
+  for(const id of uniqBottomMenuIds(userMenus)){
+    if(!result.includes(id)) result.push(id);
+    if(result.length >= 3) return result;
+  }
+
+  // 관리자 설정 문서가 있으면 빈 배열도 의도된 설정으로 봅니다.
+  // 즉 defaultMenus: [] 이면 fallback으로 자동 채우지 않습니다.
+  if(useAdminDefaultFill && adminMenusConfigured){
+    for(const id of uniqBottomMenuIds(adminMenus)){
+      if(!result.includes(id)) result.push(id);
+      if(result.length >= 3) return result;
+    }
+    return result;
+  }
+
+  // 관리자 설정 문서가 아직 없는 최초 상태에서만 코드 기본값 사용
+  if(useAdminDefaultFill && !adminMenusConfigured){
+    for(const id of FALLBACK_BOTTOM_MENUS){
+      if(!result.includes(id)) result.push(id);
+      if(result.length >= 3) return result;
+    }
+  }
+
+  return result;
+ }
+
+ function getMenuByIdOrFallback(id){
+  const key = String(id || '').replace(/^#|^\//,'').trim();
+  if(!key) return null;
+  const found = (gnbMenuCache || []).find(m =>
+    String(m.menuId || '') === key ||
+    String(m.view || '').replace(/^#|^\//,'').trim() === key ||
+    String(m.route || '').replace(/^#|^\//,'').trim() === key
+  );
+  if(found) return found;
+
+  const fallbackMap = {
+    home:{menuId:'home',name:'홈',bottomLabel:'홈',icon:'icon:home',view:'home',route:'home',sections:['bottom'],order:0},
+    all:{menuId:'all',name:'전체',bottomLabel:'전체',icon:'icon:all',view:'all',route:'all',sections:['bottom'],order:9999},
+    benefits:{menuId:'benefits',name:'혜택 전체보기',bottomLabel:'혜택',icon:'icon:benefits',view:'benefits',route:'benefits',sections:['bottom'],order:10},
+    favorite:{menuId:'favorite',name:'즐겨찾기 확인',bottomLabel:'즐겨찾기',icon:'icon:favorite',view:'favorite',route:'favorite',sections:['bottom'],order:20},
+    top5:{menuId:'top5',name:'인기 매장 TOP 5',bottomLabel:'TOP5',icon:'icon:top5',view:'top5',route:'top5',sections:['bottom'],order:30},
+    ai:{menuId:'ai',name:'AI 생활 도우미',bottomLabel:'AI',icon:'icon:ai',view:'ai',route:'ai',sections:['bottom'],order:40},
+    calendar:{menuId:'calendar',name:'캘린더 예약',bottomLabel:'캘린더',icon:'icon:calendar',view:'calendar',route:'calendar',sections:['bottom'],order:50},
+    map:{menuId:'map',name:'지도',bottomLabel:'지도',icon:'icon:map',view:'map',route:'map',sections:['bottom'],order:60},
+    notices:{menuId:'notices',name:'공지사항 보기',bottomLabel:'공지',icon:'icon:notices',view:'notices',route:'notices',sections:['bottom'],order:70},
+    shareinsights:{menuId:'shareinsights',name:'공유 인사이트',bottomLabel:'공유',icon:'📈',view:'shareinsights',route:'shareinsights',sections:['bottom'],order:200,roles:['admin','root']}
+  };
+  return fallbackMap[key] || {menuId:key,name:key,bottomLabel:key,icon:'•',view:key,route:key,sections:['bottom'],order:999};
+ }
+
+ function getBottomNavSafeLabel(menu = {}){
+  const key = String(menu.view || menu.route || menu.menuId || '').replace(/^#|^\//,'').trim();
+  const shortLabelMap = {
+    home:'홈', all:'전체', benefits:'혜택', favorite:'즐겨찾기', top5:'TOP5',
+    ai:'AI', calendar:'캘린더', map:'지도', notices:'공지', shareinsights:'공유'
+  };
+  return menu.bottomLabel || menu.navLabel || menu.shortName || shortLabelMap[key] || menu.name || menu.menuId || key;
+ }
+
+ function makeBottomNavButton(menu, fixed=false){
+  const view = String(menu.view || menu.route || menu.menuId || '').replace(/^#|^\//,'').trim();
+  const label = getBottomNavSafeLabel(menu);
+  return `<button class="nav-btn${fixed && view === state.view ? ' active' : ''}" data-view-link="${escapeHtml(view)}" type="button">
+    <span class="nav-icon">${renderMenuIcon(menu)}</span>
+    <span class="nav-label">${escapeHtml(label)}</span>
+  </button>`;
+ }
+
+ async function renderDynamicBottomNav(forceReload=false){
+  const nav = document.querySelector('.bottom-nav');
+  if(!nav) return;
+
+  const { userMenus, adminMenus, adminMenusConfigured, useAdminDefaultFill } = await loadBottomNavSettings(forceReload);
+  const middleIds = resolveBottomMenuIds(userMenus, adminMenus, useAdminDefaultFill, adminMenusConfigured);
+  const middleMenus = middleIds.map(getMenuByIdOrFallback).filter(Boolean);
+  const menus = [getMenuByIdOrFallback('home'), ...middleMenus, getMenuByIdOrFallback('all')].filter(Boolean);
+
+  nav.innerHTML = menus.map(menu => makeBottomNavButton(menu, true)).join('');
+  nav.dataset.count = String(menus.length);
+  nav.style.setProperty('--bottom-nav-count', String(menus.length));
+
+  updateBottomNavActiveState?.();
+  syncBottomNavTrendBadgesFinal?.();
+  syncBottomNavDotBadgesFinal?.();
+  syncBottomNavSafeOffset?.();
+  scheduleTrendFinalDisplay?.();
+ }
+
+ function updateBottomNavActiveState(){
+  const current = String(state?.view || 'home').replace(/^#|^\//,'').trim() || 'home';
+  qsa('.bottom-nav .nav-btn').forEach(btn => {
+    const view = String(btn.dataset.viewLink || btn.dataset.view || '').replace(/^#|^\//,'').trim();
+    btn.classList.toggle('active', view === current);
+  });
+ }
+
+async function loadGnbMenusFromDb(){
+  try{
+   const snap = await getDocs(collection(db, APP_MENUS_COLLECTION));
+   const rows = snap.docs.map(d => normalizeGnbMenu({ id:d.id, ...d.data() }, d.id)).filter(canUseGnbMenu).sort((a,b)=>a.order-b.order);
+   gnbMenuCache = rows.length ? rows : DEFAULT_GNB_MENUS.filter(canUseGnbMenu);
+  }catch(error){
+   console.warn('GNB 메뉴 DB 로딩 실패, 기본 메뉴 사용', error);
+   gnbMenuCache = DEFAULT_GNB_MENUS.filter(canUseGnbMenu);
+  }
+  renderDynamicGnbMenus();
+  renderDynamicAllMenus();
+  renderDynamicBottomNav?.(true);
+  refreshBottomNavMiniTrendBadges(); syncBottomNavTrendBadgesFinal?.();
+  syncBottomNavDotBadgesFinal?.();
+  await Promise.allSettled([loadRecentGnbMenus(), loadPopularGnbMenus()]);
+  renderDynamicAllMenus();
+  refreshBottomTrendUi();
+ }
+
+ function makeGnbInlineTrendBadges(menu){
+  const pieces = [];
+  const source = getNewRibbonSource(menu);
+  if(source === 'trending') pieces.push('<span class="gnb-inline-badge hot">HOT</span>');
+  else if(source) pieces.push('<span class="gnb-inline-badge new">NEW</span>');
+
+  const id = String(menu?.menuId || '');
+  if(hasMenuManualBadge(menu, 'up')) pieces.push('<span class="gnb-inline-badge up">UP</span>');
+  if(hasMenuManualBadge(menu, 'deprecated')) pieces.push('<span class="gnb-inline-badge deprecated">종료 예정</span>');
+  if(popularGnbMenuIdSet.has(id)) pieces.push('<span class="gnb-inline-badge popular">인기</span>');
+  if(recentGnbMenuIdSet.has(id)) pieces.push('<span class="gnb-inline-badge recent">최근</span>');
+
+  return pieces.length ? `<span class="gnb-inline-badges">${pieces.join('')}</span>` : '';
+ }
+
+
+ function makeGnbContextBadges(menu, mode=''){
+  const pieces = [];
+  if(mode === 'popular' && isTrendingMenu(menu)){
+    pieces.push('<span class="gnb-context-badge hot">HOT</span>');
+  }
+  if(mode === 'new' && isMenuNew(menu)){
+    pieces.push('<span class="gnb-context-badge new">NEW</span>');
+  }
+  return pieces.length ? `<span class="gnb-context-badges">${pieces.join('')}</span>` : '';
+ }
+ function getMenuTrendFlags(menu){
+  return {
+    isNew: isMenuNew(menu),
+    isHot: isTrendingMenu(menu),
+    isPopular: popularGnbMenuIdSet.has(String(menu?.menuId || '')),
+    isRecent: recentGnbMenuIdSet.has(String(menu?.menuId || ''))
+  };
+ }
+
+ function makeGnbMenuButton(menu, className='gnb-menu-subitem', countText='', mode=''){
+  const label = `<span class="gnb-menu-label"><span class="gnb-menu-icon">${renderMenuIcon(menu)}</span> ${escapeHtml(menu.name || '')}${countText ? `<span class="gnb-menu-count">${escapeHtml(countText)}</span>` : ''}</span>`;
+  return `<button class="${className}" type="button" data-gnb-dynamic-menu="${escapeHtml(menu.menuId)}" data-view-link="${escapeHtml(menu.view || menu.route || menu.menuId)}">${label}</button>`;
+ }
+ function renderDynamicGnbMenus(){
+  const newMenus = gnbMenuCache.filter(m => m.sections.includes('new'));
+  const mainMenus = gnbMenuCache.filter(m => m.sections.includes('main') || m.sections.includes('gnb'));
+  const newEl = qs('#gnbNewMenus');
+  const mainEl = qs('#gnbMainMenus');
+  if(newEl) newEl.innerHTML = newMenus.length ? newMenus.map(m=>makeGnbMenuButton(m,'gnb-menu-item','', 'new')).join('') : '<div class="gnb-empty">새로운 혜택과 기능이 여기에 표시됩니다.</div>';
+  if(mainEl) mainEl.innerHTML = mainMenus.length ? mainMenus.map(m=>makeGnbMenuButton(m,'gnb-menu-subitem')).join('') : '<div class="gnb-empty">표시할 메뉴가 없습니다.</div>';
+ }
+
+
+ function toMenuDate(value){
+  if(!value) return null;
+  try{
+    if(typeof value.toDate === 'function') return value.toDate();
+    if(typeof value.seconds === 'number') return new Date(value.seconds * 1000);
+    const d = new Date(value);
+    return Number.isNaN(d.getTime()) ? null : d;
+  }catch(_){ return null; }
+ }
+ function isWithinDays(dateValue, days){
+  const d = toMenuDate(dateValue);
+  if(!d) return false;
+  const diff = Date.now() - d.getTime();
+  return diff >= 0 && diff < days * 24 * 60 * 60 * 1000;
+ }
+ function hasMenuManualBadge(menu, badge){
+  const key = String(badge || '').toLowerCase();
+  const list = Array.isArray(menu?.menuBadges) ? menu.menuBadges : [];
+  if(list.map(v=>String(v).toLowerCase()).includes(key)) return true;
+  if(key === 'hot' && (menu?.badgeHot || menu?.menuBadgeHot)) return true;
+  if(key === 'new' && (menu?.badgeNew || menu?.menuBadgeNew)) return true;
+  if(key === 'up' && (menu?.badgeUp || menu?.menuBadgeUp)) return true;
+  if(key === 'deprecated' && (menu?.badgeDeprecated || menu?.menuBadgeDeprecated || menu?.deprecated || menu?.willRemove)) return true;
+  return false;
+ }
+ function isMenuNew(menu){
+  if(hasMenuManualBadge(menu, 'new')) return true;
+  const sections = Array.isArray(menu?.sections) ? menu.sections : [];
+  if(!sections.includes('new')) return false;
+  // 관리자에서 createdAt이 없던 기존 메뉴는 updatedAt을 보조 기준으로 사용합니다.
+  return isWithinDays(menu.createdAt || menu.created || menu.createdAtText || menu.updatedAt, 7);
+ }
+ function isTrendingMenu(menu){
+  if(hasMenuManualBadge(menu, 'hot')) return true;
+  const id = String(menu?.menuId || '');
+  const stat = popularGnbStatsMap.get(id);
+  if(!stat) return false;
+  const total = Number(stat.totalClickCount || stat.clickCount || 0);
+  const recent = isWithinDays(stat.lastClickedAt || stat.updatedAt, 1);
+  // 최근 24시간 내 클릭되고, 누적 3회 이상이면 급상승 NEW로 봅니다.
+  return recent && total >= 3;
+ }
+ function shouldShowNewRibbon(menu){
+  return isMenuNew(menu) || isTrendingMenu(menu);
+ }
+
+ function getNewRibbonSource(menu){
+  const manual = isMenuNew(menu);
+  const trending = isTrendingMenu(menu);
+  if(manual && trending) return 'both';
+  if(trending) return 'trending';
+  if(manual) return 'manual';
+  return '';
+ }
+ function makeNewRibbonHtml(baseClass='all-menu-ribbon', menu){
+  const source = getNewRibbonSource(menu);
+  if(!source) return '';
+  const label = source === 'trending' ? 'HOT' : 'NEW';
+  return `<span class="${baseClass} new-source-${source}">${label}</span>`;
+ }
+
+
+ function getAllMenuDescription(menu){
+  return menu.description || menu.desc || menu.memo || menu.adminMemo || menu.subtitle || menu.summary || '필요한 기능을 바로 이용할 수 있습니다.';
+ }
+ function getAllMenuBadge(menu){
+  const id = String(menu?.menuId || '');
+  if(isFixedNavigationMenuId(id)) return [];
+  const badges = [];
+  if(hasMenuManualBadge(menu, 'up')) badges.push({ label:'UP', className:'up' });
+  if(hasMenuManualBadge(menu, 'deprecated')) badges.push({ label:'종료 예정', className:'deprecated' });
+  // 인기와 최근이 같은 메뉴면 [인기][최근] 모두 표시
+  if(popularGnbMenuIdSet.has(id)) badges.push({ label:'인기', className:'popular' });
+  if(recentGnbMenuIdSet.has(id)) badges.push({ label:'최근', className:'recent' });
+  return badges;
+ }
+
+ function makeMenuTrendDecor(menu){
+  const ribbonHtml = makeNewRibbonHtml('menu-trend-ribbon', menu);
+  const badges = getAllMenuBadge(menu);
+  const badgeHtml = badges.length
+    ? `<span class="menu-trend-badge-wrap">${badges.map(b => `<span class="menu-trend-badge ${b.className}">${b.label}</span>`).join('')}</span>`
+    : '';
+  return ribbonHtml + badgeHtml;
+ }
+ function findMenuByView(view){
+  const key = String(view || '').replace(/^#|^\//,'').trim();
+  return gnbMenuCache.find(m =>
+    String(m.view || '').replace(/^#|^\//,'').trim() === key ||
+    String(m.route || '').replace(/^#|^\//,'').trim() === key ||
+    String(m.menuId || '').trim() === key
+  ) || null;
+ }
+
+ function getPopularTopMenu(){
+  const id = [...popularGnbMenuIdSet].find(v=>!isFixedNavigationMenuId(v));
+  return id ? findMenuByView(id) || gnbMenuCache.find(m => String(m.menuId) === String(id)) : null;
+ }
+ function getRecentTopMenu(){
+  const id = [...recentGnbMenuIdSet].find(v=>!isFixedNavigationMenuId(v));
+  return id ? findMenuByView(id) || gnbMenuCache.find(m => String(m.menuId) === String(id)) : null;
+ }
+ function pickAiRecommendedMenu(){
+  const popular = getPopularTopMenu();
+  const recent = getRecentTopMenu();
+  const hour = new Date().getHours();
+
+  // 우선순위: 인기 TOP1 → 최근 메뉴 → 시간대 기반 추천 → AI 메뉴
+  if(popular) return { menu: popular, reason: '요즘 가장 많이 쓰는 메뉴예요.' };
+  if(recent) return { menu: recent, reason: '방금 보셨던 메뉴를 이어서 볼 수 있어요.' };
+
+  const timeKeywords = hour < 11 ? ['공지','혜택','AI'] : hour < 15 ? ['혜택','지도','AI'] : hour < 20 ? ['캘린더','혜택','지도'] : ['AI','공지','캘린더'];
+  for(const key of timeKeywords){
+    const found = gnbMenuCache.find(m => canUseGnbMenu(m) && String(m.menuId) !== 'home' && [m.name,m.menuId,m.view,...(m.keywords||[])].join(' ').includes(key));
+    if(found) return { menu: found, reason: '지금 시간대에 보기 좋은 메뉴예요.' };
+  }
+  const fallback = gnbMenuCache.find(m => String(m.view || m.menuId) === 'ai') || gnbMenuCache.find(m => String(m.menuId) !== 'home');
+  return fallback ? { menu: fallback, reason: '필요한 정보를 빠르게 찾을 수 있어요.' } : null;
+ }
+ function refreshBottomNavTopHighlight(){
+  const topMenu = getPopularTopMenu();
+  qsa('.bottom-nav [data-view-link]').forEach(btn => {
+    btn.classList.remove('nav-top1');
+    if(!topMenu) return;
+    const view = String(btn.dataset.viewLink || '');
+    if(view === String(topMenu.view) || view === String(topMenu.route) || view === String(topMenu.menuId)){
+      btn.classList.add('nav-top1');
+    }
+  });
+ }
+
+function getAiRecoDailyKey(){
+  const uid = auth?.currentUser?.uid || 'guest';
+  const d = new Date();
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `aiBottomRecoShown:${uid}:${y}-${m}-${day}`;
+ setTimeout(()=>{ loadUserBottomNavSettings?.(); renderUserBottomNavSettings?.(); }, 120);
+}
+function hasShownAiRecoToday(){
+  try{ return localStorage.getItem(getAiRecoDailyKey()) === '1'; }catch(_){ return false; }
+}
+function markAiRecoShownToday(){
+  try{ localStorage.setItem(getAiRecoDailyKey(), '1'); }catch(_){}
+}
+
+ function refreshAiBottomRecommendation(){
+  const box = qs('#aiBottomReco');
+  if(!box) return;
+
+  // AI 추천 토스트는 사용자별 하루 1회만 노출합니다.
+  if(hasShownAiRecoToday()){
+    box.classList.remove('show');
+    return;
+  }
+
+  const picked = pickAiRecommendedMenu();
+  if(!picked || !picked.menu){
+    box.classList.remove('show');
+    return;
+  }
+
+  const menu = picked.menu;
+  box.dataset.viewLink = menu.view || menu.route || menu.menuId;
+  box.setAttribute('role','button');
+  box.setAttribute('tabindex','0');
+  qs('#aiBottomRecoTitle') && (qs('#aiBottomRecoTitle').textContent = `AI 추천 · ${menu.name || menu.menuId}`);
+  qs('#aiBottomRecoText') && (qs('#aiBottomRecoText').textContent = picked.reason);
+  box.classList.add('show');
+  markAiRecoShownToday();
+ }
+
+ function forceBottomNavTopPopularBadge(){
+  const topMenu = getPopularTopMenu?.();
+  if(!topMenu) return;
+  const topKeys = [topMenu.view, topMenu.route, topMenu.menuId].map(v => String(v || '').replace(/^#|^\//,'').trim()).filter(Boolean);
+  qsa('.bottom-nav [data-view-link]').forEach(btn => {
+    const view = String(btn.dataset.viewLink || '').replace(/^#|^\//,'').trim();
+    if(!topKeys.includes(view)) return;
+    btn.classList.add('nav-top1');
+    if(!btn.querySelector('.menu-trend-badge.popular')){
+      let wrap = btn.querySelector('.menu-trend-badge-wrap');
+      if(!wrap){
+        wrap = document.createElement('span');
+        wrap.className = 'menu-trend-badge-wrap';
+        btn.insertAdjacentElement('afterbegin', wrap);
+      }
+      const b = document.createElement('span');
+      b.className = 'menu-trend-badge popular';
+      b.textContent = '인기';
+      wrap.appendChild(b);
+    }
+  });
+ }
+
+
+ function refreshBottomNavMiniTrendBadges(){ window.__upickStableBottomBadge?.(); }
+
+ function refreshBottomTrendUi(){
+  refreshStaticNavTrendBadges?.();
+  refreshBottomNavTopHighlight();
+  refreshAiBottomRecommendation();
+  forceBottomNavTopPopularBadge();
+  refreshBottomNavMiniTrendBadges(); syncBottomNavTrendBadgesFinal?.();
+  syncBottomNavDotBadgesFinal?.();
+  refreshCurrentViewTitleTrendBadges();
+ }
+
+ function refreshStaticNavTrendBadges(){
+  qsa('.bottom-nav [data-view-link]').forEach(btn => {
+    btn.querySelectorAll('.menu-trend-ribbon,.menu-trend-badge-wrap').forEach(el => el.remove());
+    const menu = findMenuByView(btn.dataset.viewLink);
+    if(!menu) return;
+    const decor = makeMenuTrendDecor(menu);
+    if(decor) btn.insertAdjacentHTML('afterbegin', decor);
+  });
+ }
+
+ function makeAllMenuCard(menu){
+  const badges = getAllMenuBadge(menu);
+  const ribbonHtml = makeNewRibbonHtml('all-menu-ribbon', menu);
+  const badgeHtml = badges.length
+    ? `<span class="all-menu-badge-wrap">${badges.map(b => `<span class="all-menu-badge ${b.className}">${b.label}</span>`).join('')}</span>`
+    : '';
+  const isAi = String(menu.view || menu.route || menu.menuId) === 'ai' ? ' ai-entry-card' : '';
+  return `<button class="all-menu-card${isAi}" type="button" data-gnb-dynamic-menu="${escapeHtml(menu.menuId)}" data-view-link="${escapeHtml(menu.view || menu.route || menu.menuId)}">${ribbonHtml}${badgeHtml}<span class="all-icon">${renderAnyMenuIcon(menu)}</span><strong>${escapeHtml(menu.name || menu.menuId)}</strong><span>${escapeHtml(getAllMenuDescription(menu))}</span></button>`;
+ }
+ function renderDynamicAllMenus(){
+  const el = qs('#allMenuGrid');
+  if(!el) return;
+  const rows = gnbMenuCache
+    .filter(canUseGnbMenu)
+    .filter(m => String(m.menuId) !== 'home')
+    // 전체 기능은 관리자에서 노출 구역에 "all"을 체크한 메뉴만 표시합니다.
+    // 주의: sections에 admin이 함께 있어도 all이 있으면 표시해야 합니다.
+    .filter(m => Array.isArray(m.sections) && m.sections.includes('all'))
+    .sort((a,b)=>a.order-b.order);
+  el.innerHTML = rows.length ? rows.map(makeAllMenuCard).join('') : '<div class="panel empty" style="grid-column:1/-1;">관리자 메뉴에서 전체 기능에 표시할 메뉴를 등록해 주세요.</div>';
+ }
+ 
+/* ===== Fixed menu exclusion: home/all are navigation anchors, not trend menus ===== */
+function isFixedNavigationMenuId(value){
+  const id = String(value || '').replace(/^#|^\//,'').trim();
+  return id === 'home' || id === 'all';
+}
+
+const gnbVisitLastTrackedAt = new Map();
+let gnbMenuRefreshTimer = null;
+function scheduleGnbMenuLightRefresh(delay = 900){
+  // v109: 메뉴 클릭 직후 통계 재조회가 전체 기능 DOM을 다시 그리며 깜빡임을 만들 수 있어
+  // 즉시 재렌더링하지 않고 충분히 지연된 1회 동기화만 수행합니다.
+  if(gnbMenuRefreshTimer) return;
+  const safeDelay = Math.max(Number(delay || 0), 8000);
+  gnbMenuRefreshTimer = setTimeout(() => {
+   gnbMenuRefreshTimer = null;
+   Promise.allSettled([loadRecentGnbMenus?.(), loadPopularGnbMenus?.()]).finally(() => {
+     window.upickFinalBadgeSync?.();
+     syncBottomNavDotBadgesFinal?.();
+   });
+  }, safeDelay);
+}
+async function trackGnbMenuVisitByView(view){
+  if(isFixedNavigationMenuId(view)) return;
+
+  const user = auth?.currentUser; if(!user || !view || !db) return;
+  const menu = gnbMenuCache.find(m => String(m.view) === String(view) || String(m.route) === String(view) || String(m.menuId) === String(view)) || normalizeGnbMenu({menuId:view,name:view,view,sections:['main']});
+  const now = Date.now();
+  const visitKey = `${user.uid}_${menu.menuId}`;
+  const lastAt = Number(gnbVisitLastTrackedAt.get(visitKey) || 0);
+  if(now - lastAt < 3000){
+   scheduleTrendFinalDisplay?.();
+   return;
+  }
+  gnbVisitLastTrackedAt.set(visitKey, now);
+  const historyId = `${user.uid}_${menu.menuId}`;
+  const payload = { uid:user.uid, userId:user.uid, menuId:menu.menuId, menuName:menu.name, name:menu.name, icon:menu.icon || '', route:menu.route || menu.view, view:menu.view || menu.route, sections:menu.sections || [], keywords:menu.keywords || [], clickCount:increment(1), lastVisitedAt:serverTimestamp(), updatedAt:serverTimestamp() };
+  try{
+   const hRef = doc(db, USER_MENU_HISTORY_COLLECTION, historyId);
+   // 입주민 권한에서는 아직 없는 history 문서를 getDoc()으로 먼저 읽으면 Rules에서 차단될 수 있습니다.
+   // 그래서 읽기 없이 merge 저장만 수행합니다.
+   await setDoc(hRef, payload, { merge:true });
+   await setDoc(doc(db, MENU_STATS_COLLECTION, menu.menuId), { menuId:menu.menuId, menuName:menu.name, name:menu.name, icon:menu.icon || '', route:menu.route || menu.view, view:menu.view || menu.route, sections:menu.sections || [], keywords:menu.keywords || [], totalClickCount:increment(1), lastClickedAt:serverTimestamp(), updatedAt:serverTimestamp() }, { merge:true });
+   scheduleGnbMenuLightRefresh(900);
+  }catch(error){ console.warn('GNB 메뉴 방문 기록 실패', error); }
+ }
+ async function loadRecentGnbMenus(){
+  const el = qs('#gnbRecentMenus'); const user = auth?.currentUser; if(!el || !user || !db) return;
+  try{
+   const snap = await getDocs(query(collection(db, USER_MENU_HISTORY_COLLECTION), where('uid','==',user.uid), orderBy('lastVisitedAt','desc'), limit(1)));
+   const rows = snap.docs.map(d=>normalizeGnbMenu({ id:d.id, ...d.data() }, d.data().menuId)).filter(canUseGnbMenu).filter(m=>!isFixedNavigationMenuId(m.menuId));
+   recentGnbMenuIdSet = new Set(rows.filter(m=>!isFixedNavigationMenuId(m.menuId)).slice(0,1).map(m => String(m.menuId)));
+   el.innerHTML = rows.length ? rows.map(m=>makeGnbMenuButton(m,'gnb-chip')).join('') : '<div class="gnb-empty">메뉴를 방문하면 가장 최근 메뉴가 표시됩니다.</div>';
+   renderDynamicAllMenus();
+  }catch(error){ el.innerHTML = '<div class="gnb-empty">최근 메뉴를 불러오려면 Firestore 인덱스를 확인해 주세요.</div>'; renderDynamicAllMenus(); refreshBottomTrendUi(); }
+ }
+ async function loadPopularGnbMenus(){
+  const el = qs('#gnbPopularMenus'); if(!el || !db) return;
+  try{
+   const snap = await getDocs(query(collection(db, MENU_STATS_COLLECTION), orderBy('totalClickCount','desc'), limit(5)));
+   const rows = snap.docs.map(d=>normalizeGnbMenu({ id:d.id, ...d.data() }, d.data().menuId)).filter(canUseGnbMenu).filter(m=>!isFixedNavigationMenuId(m.menuId)).slice(0,1);
+      popularGnbMenuIdSet = new Set(rows.filter(m=>!isFixedNavigationMenuId(m.menuId)).slice(0,1).map(m => String(m.menuId)));
+   popularGnbStatsMap = new Map(rows.map(m => [String(m.menuId), m]));
+popularGnbMenuIdSet = new Set(rows.filter(m=>!isFixedNavigationMenuId(m.menuId)).slice(0,1).map(m => String(m.menuId)));
+   el.innerHTML = rows.length ? rows.map(m=>makeGnbMenuButton(m,'gnb-chip', `${Number(m.totalClickCount||m.clickCount||0)}회`, 'popular')).join('') : '<div class="gnb-empty">방문이 쌓이면 가장 인기 있는 메뉴가 표시됩니다.</div>';
+   renderDynamicAllMenus();
+  }catch(error){ el.innerHTML = '<div class="gnb-empty">인기 메뉴를 불러오지 못했습니다.</div>'; renderDynamicAllMenus(); refreshBottomTrendUi(); }
+ }
+ function renderGnbMenuSearch(keyword=''){
+  const box = qs('#gnbMenuSearchResults'); if(!box) return;
+  const q = String(keyword || '').trim().toLowerCase();
+  if(!q){ box.classList.add('hidden'); box.innerHTML=''; return; }
+  const rows = gnbMenuCache.filter(m => [m.name, m.menuId, m.view, ...(m.keywords||[])].join(' ').toLowerCase().includes(q)).slice(0,8);
+  box.classList.remove('hidden');
+  box.innerHTML = `<div class="gnb-search-result-title">통합검색 결과</div>` + (rows.length ? rows.map(m=>makeGnbMenuButton(m,'gnb-menu-subitem')).join('') : '<div class="gnb-empty">검색 결과가 없습니다.</div>');
+ }
+ qs('#gnbMenuSearchInput')?.addEventListener('input', (event)=>renderGnbMenuSearch(event.target.value));
+ document.addEventListener('click', (event) => {
+  const btn = event.target.closest('[data-view-link]');
+  if(!btn) return;
+
+  const view = btn.dataset.viewLink;
+  const isInGnbSheet = !!btn.closest('#gnbSheet');
+  const isInAllMenuGrid = !!btn.closest('#allMenuGrid');
+  const isDynamicMenu = btn.hasAttribute('data-gnb-dynamic-menu');
+
+  // DB에서 렌더링된 GNB/전체기능 메뉴는 초기 qsa 바인딩 이후 생성되므로
+  // 이벤트 위임 방식으로 직접 화면 이동 + 방문 기록을 처리합니다.
+  if(view && (isDynamicMenu || isInGnbSheet || isInAllMenuGrid)){
+    event.preventDefault();
+    event.stopPropagation();
+    trackGnbMenuVisitByView(view);
+    changeView(view);
+    if(isInGnbSheet) closeGnb();
+  }else if(isInGnbSheet || btn.closest('.bottom-nav') || btn.id === 'aiQuickBtn'){
+    trackGnbMenuVisitByView(view);
+  }
+ }, true);
+ 
+/* bottom nav refresh after auth */
+try{
+  onAuthStateChanged(auth, async (user) => {
+    bottomNavSettingsLoadedOnce = false;
+    bottomNavUserMenusCache = null;
+    if(user){
+      setTimeout(()=>renderDynamicBottomNav?.(true), 250);
+      setTimeout(()=>loadUserBottomNavSettings?.(), 500);
+    }
+  });
+}catch(_){}
+
+
+/* 상세 모달 지도: 열림/리사이즈 시 추가 보정 */
+try{
+ const __detailModalForMap = document.querySelector('#detailModal');
+ if(__detailModalForMap && !__detailModalForMap.__mapResizeFixBound){
+   __detailModalForMap.addEventListener('toggle', () => {
+     setTimeout(() => {
+       try{
+         if(detailMapInstance && window.naver?.maps){
+           window.naver.maps.Event.trigger(detailMapInstance, 'resize');
+         }
+       }catch(_){}
+     }, 180);
+   });
+   __detailModalForMap.__mapResizeFixBound = true;
+ }
+ window.addEventListener('resize', () => {
+   try{
+     if(detailMapInstance && window.naver?.maps){
+       window.naver.maps.Event.trigger(detailMapInstance, 'resize');
+     }
+   }catch(_){}
+ });
+}catch(_){}
+
+setTimeout(loadGnbMenusFromDb, 900);
+
+/* ===== Bottom nav dot-only cleanup sync ===== */
+function cleanupBottomNavOldBadges(){
+  document.querySelectorAll('.bottom-nav [data-view-link]').forEach(btn => {
+    btn.classList.remove('nav-top1');
+    btn.querySelectorAll(
+      '.nav-final-trend-badge,.nav-mini-trend,.nav-robot-trend-badge,.menu-trend-ribbon,.menu-trend-badge-wrap,.menu-trend-badge'
+    ).forEach(el => el.remove());
+  });
+}
+function syncBottomNavDotBadgesOnlyFinal(){
+  cleanupBottomNavOldBadges();
+
+  let popularId = '';
+  try{
+    popularId = String(Array.from(popularGnbMenuIdSet || [])[0] || '');
+  }catch(_){}
+
+  let popularMenu = popularId ? getMenuByIdOrFallback?.(popularId) : null;
+  const popularKeys = popularMenu
+    ? [popularMenu.menuId, popularMenu.view, popularMenu.route].map(v => String(v || '').replace(/^#|^\//,'').trim()).filter(Boolean)
+    : [];
+
+  document.querySelectorAll('.bottom-nav [data-view-link]').forEach(btn => {
+    btn.querySelectorAll('.nav-badge-dot').forEach(el => el.remove());
+
+    const viewKey = String(btn.dataset.viewLink || '').replace(/^#|^\//,'').trim();
+    const menu = getMenuByIdOrFallback?.(viewKey) || findTrendMenuByView?.(viewKey) || null;
+
+    let type = '';
+    if(popularKeys.includes(viewKey)){
+      type = 'hot';
+    }else{
+      try{
+        if(menu && isMenuNew(menu)) type = 'new';
+      }catch(_){
+        if(menu && Array.isArray(menu.sections) && menu.sections.includes('new')) type = 'new';
+      }
+    }
+
+    if(type){
+      const dot = document.createElement('span');
+      dot.className = `nav-badge-dot ${type === 'hot' ? 'hot' : 'new'}`;
+      dot.setAttribute('aria-hidden','true');
+      btn.insertAdjacentElement('afterbegin', dot);
+    }
+  });
+}
+window.syncBottomNavDotBadgesOnlyFinal = syncBottomNavDotBadgesOnlyFinal;
+setTimeout(syncBottomNavDotBadgesOnlyFinal, 300);
+setTimeout(syncBottomNavDotBadgesOnlyFinal, 1200);
+document.addEventListener('click', () => scheduleTrendFinalDisplay?.(), true);
+
+
+/* ===== Bottom nav tiny-dot badge final sync ===== */
+function getNavBadgeTodayKey(){
+  const uid = auth?.currentUser?.uid || 'guest';
+  const d = new Date();
+  const y = d.getFullYear();
+  const m = String(d.getMonth()+1).padStart(2,'0');
+  const day = String(d.getDate()).padStart(2,'0');
+  return `bottomNavBadgeBlinked:${uid}:${y}-${m}-${day}`;
+}
+
+function shouldBlinkBottomNavBadgeToday(){
+  try{
+    const key = getNavBadgeTodayKey();
+    if(localStorage.getItem(key) === '1') return false;
+    localStorage.setItem(key, '1');
+    return true;
+  }catch(_){
+    return false;
+  }
+}
+
+let bottomNavBadgeBlinkAllowed = shouldBlinkBottomNavBadgeToday();
+
+function syncBottomNavDotBadgesFinal(){
+  let popularId = '';
+  try{
+    popularId = String(Array.from(popularGnbMenuIdSet || [])[0] || '');
+  }catch(_){}
+
+  let popularMenu = popularId ? getMenuByIdOrFallback?.(popularId) : null;
+  const popularKeys = popularMenu
+    ? [popularMenu.menuId, popularMenu.view, popularMenu.route].map(v => String(v || '').replace(/^#|^\//,'').trim()).filter(Boolean)
+    : [];
+
+  document.querySelectorAll('.bottom-nav [data-view-link]').forEach(btn => {
+    btn.querySelectorAll('.nav-badge-dot,.nav-final-trend-badge,.nav-mini-trend,.nav-robot-trend-badge,.menu-trend-ribbon,.menu-trend-badge-wrap').forEach(el => el.remove());
+
+    const viewKey = String(btn.dataset.viewLink || '').replace(/^#|^\//,'').trim();
+    const menu = getMenuByIdOrFallback?.(viewKey) || findTrendMenuByView?.(viewKey) || null;
+
+    let type = '';
+    if(popularKeys.includes(viewKey)){
+      type = 'hot';
+    }else{
+      try{
+        if(menu && isMenuNew(menu)) type = 'new';
+      }catch(_){
+        if(menu && Array.isArray(menu.sections) && menu.sections.includes('new')) type = 'new';
+      }
+    }
+
+    if(type){
+      const dot = document.createElement('span');
+      dot.className = `nav-badge-dot ${type === 'hot' ? 'hot' : 'new'}${bottomNavBadgeBlinkAllowed ? ' blink' : ''}`;
+      dot.setAttribute('aria-hidden','true');
+      btn.insertAdjacentElement('afterbegin', dot);
+    }
+  });
+
+  // 첫 렌더에만 blink 적용, 이후 재동기화에서는 조용한 점만 유지
+  bottomNavBadgeBlinkAllowed = false;
+}
+
+window.syncBottomNavDotBadgesFinal = syncBottomNavDotBadgesFinal;
+
+setTimeout(syncBottomNavDotBadgesFinal, 1100);
+// 반복 실행 제거: 동적 네비 재렌더/클릭 시점에만 갱신합니다.
+
+
+/* ===== Public user bottom nav settings ===== */
+let userBottomNavSelectedMenus = [];
+
+function getBottomNavCandidateMenusForUser(){
+  const preferred=['benefits','favorite','top5','ai','calendar','map','notices'];
+  const rows = [...(gnbMenuCache || [])]
+    .filter(canUseGnbMenu)
+    .filter(m => m.isActive !== false)
+    .filter(m => !['home','all'].includes(String(m.menuId)))
+    // 사용자가 선택하는 후보는 resident 권한 기준으로 열어둡니다.
+    .filter(m => !Array.isArray(m.roles) || m.roles.includes('resident') || m.roles.includes('admin') || m.roles.includes('root'))
+    .sort((a,b)=>{
+      const ai=preferred.indexOf(a.menuId), bi=preferred.indexOf(b.menuId);
+      if(ai!==-1 || bi!==-1) return (ai===-1?999:ai)-(bi===-1?999:bi);
+      return a.order-b.order;
+    });
+
+  if(rows.length) return rows;
+
+  // DB 메뉴 로딩 전/후보 필터가 비어도 기본 핵심 메뉴는 선택 가능하게 표시합니다.
+  return preferred.map(getMenuByIdOrFallback).filter(Boolean).filter(m => !['home','all'].includes(String(m.menuId)));
+}
+
+function renderUserBottomNavSettings(){
+  const picker = qs('#userBottomNavPicker');
+  const current = qs('#userBottomNavCurrent');
+  const status = qs('#userBottomNavStatus');
+  if(!picker || !current) return;
+
+  const candidates = getBottomNavCandidateMenusForUser();
+  picker.innerHTML = candidates.length ? candidates.map(menu => {
+    const active = userBottomNavSelectedMenus.includes(menu.menuId);
+    const disabled = !active && userBottomNavSelectedMenus.length >= 3;
+    return `<button type="button" class="user-bottom-nav-pick ${active?'active':''} ${disabled?'disabled':''}" data-user-bottom-pick="${escapeHtml(menu.menuId)}">
+      <span>${renderAnyMenuIcon(menu)} ${escapeHtml(menu.name || menu.menuId)}</span>
+      <small>${active?'선택됨':'선택'}</small>
+    </button>`;
+  }).join('') : '<div class="notice">선택 가능한 메뉴가 없습니다.</div>';
+
+  const selectedMenus = userBottomNavSelectedMenus.map(getMenuByIdOrFallback).filter(Boolean);
+  current.innerHTML = [
+    '<span class="user-bottom-nav-chip fixed"><img class="upick-svg-icon upick-menu-icon-img" src="/icons/internal/home.svg" alt="" loading="lazy"> 홈</span>',
+    ...selectedMenus.map(m => `<span class="user-bottom-nav-chip selected">${renderAnyMenuIcon(m)} ${escapeHtml(m.name || m.menuId)}</span>`),
+    '<span class="user-bottom-nav-chip fixed"><img class="upick-svg-icon upick-menu-icon-img" src="/icons/internal/all-menu.svg" alt="" loading="lazy"> 전체</span>'
+  ].join('');
+
+  if(status){
+    status.textContent = userBottomNavSelectedMenus.length
+      ? `개인화 메뉴 ${userBottomNavSelectedMenus.length}개가 선택되어 있습니다.`
+      : '개인화 메뉴가 없습니다. 관리자 기본 메뉴를 사용합니다.';
+  }
+}
+
+async function loadUserBottomNavSettings(){
+  const user = auth?.currentUser;
+  if(!user || !db) return;
+  try{
+    const snap = await getDoc(doc(db, 'users', user.uid));
+    userBottomNavSelectedMenus = snap.exists() ? uniqBottomMenuIds(snap.data().bottomNavMenus || []) : [];
+  }catch(error){
+    console.warn('사용자 하단 네비 설정 로딩 실패', error);
+    userBottomNavSelectedMenus = [];
+  }
+  bottomNavUserMenusCache = userBottomNavSelectedMenus;
+  renderUserBottomNavSettings();
+}
+
+async function saveUserBottomNavSettings(){
+  const user = auth?.currentUser;
+  if(!user || !db) return;
+  try{
+    await setDoc(doc(db, 'users', user.uid), {
+      bottomNavMenus: uniqBottomMenuIds(userBottomNavSelectedMenus),
+      bottomNavUpdatedAt: serverTimestamp()
+    }, { merge:true });
+    await renderDynamicBottomNav?.(true);
+  await loadUserBottomNavSettings?.();
+    renderUserBottomNavSettings();
+    await openModalAlert('하단 네비바 설정이 저장되었습니다.');
+  }catch(error){
+    console.error(error);
+    await openModalAlert('하단 네비바 설정 저장 중 오류가 발생했습니다.');
+  }
+}
+
+async function resetUserBottomNavSettings(){
+  const user = auth?.currentUser;
+  if(!user || !db) return;
+  const ok = await openModalConfirm('내 하단 네비바 개인화 설정을 해제하고 관리자 기본값을 사용할까요?');
+  if(!ok) return;
+  try{
+    userBottomNavSelectedMenus = [];
+    await setDoc(doc(db, 'users', user.uid), {
+      bottomNavMenus: [],
+      bottomNavUpdatedAt: serverTimestamp()
+    }, { merge:true });
+    bottomNavUserMenusCache = uniqBottomMenuIds(userBottomNavSelectedMenus);
+    bottomNavSettingsLoadedOnce = true;
+    await renderDynamicBottomNav?.(true);
+    renderUserBottomNavSettings();
+    await openModalAlert('개인화 설정이 해제되었습니다.');
+  }catch(error){
+    console.error(error);
+    await openModalAlert('설정 초기화 중 오류가 발생했습니다.');
+  }
+}
+
+document.addEventListener('click', (event) => {
+  const pick = event.target.closest?.('[data-user-bottom-pick]');
+  if(pick){
+    const id = pick.dataset.userBottomPick;
+    if(userBottomNavSelectedMenus.includes(id)){
+      userBottomNavSelectedMenus = userBottomNavSelectedMenus.filter(v => v !== id);
+    }else{
+      if(userBottomNavSelectedMenus.length >= 3){
+        openModalAlert('하단 네비바는 최대 3개까지 선택할 수 있습니다.');
+        return;
+      }
+      userBottomNavSelectedMenus = [...userBottomNavSelectedMenus, id];
+    }
+    renderUserBottomNavSettings();
+  }
+}, true);
+
+qs('#saveUserBottomNavBtn')?.addEventListener('click', saveUserBottomNavSettings);
+qs('#resetUserBottomNavBtn')?.addEventListener('click', resetUserBottomNavSettings);
+
+setTimeout(loadUserBottomNavSettings, 1200);
+
+/* Dynamic bottom nav delegated click */
+document.addEventListener('click', (event) => {
+  const btn = event.target.closest?.('.bottom-nav [data-view-link]');
+  if(!btn) return;
+  event.preventDefault();
+  event.stopPropagation();
+  const view = btn.dataset.viewLink || 'home';
+  try{ trackGnbMenuVisitByView(view); }catch(_){}
+  changeView(view);
+  updateBottomNavActiveState?.();
+  setTimeout(() => {
+    syncBottomNavTrendBadgesFinal?.();
+    syncBottomNavDotBadgesFinal?.();
+    syncBottomNavSafeOffset?.();
+  }, 80);
+}, true);
+
+
+/* ===== Bottom Nav HOT/NEW Final Force Sync ===== */
+function getBottomNavTrendMenuByKey(key){
+  key = String(key || '').replace(/^#|^\//,'').trim();
+  if(!key) return null;
+  return (gnbMenuCache || []).find(m => {
+    const keys = [m.menuId, m.view, m.route].map(v => String(v || '').replace(/^#|^\//,'').trim());
+    return keys.includes(key);
+  }) || null;
+}
+function getBottomNavPopularTopId(){
+  try{
+    const ids = Array.from(popularGnbMenuIdSet || []);
+    if(ids.length) return String(ids[0]);
+  }catch(_){}
+  try{
+    let best = null;
+    (gnbMenuCache || []).forEach(m => {
+      if(isFixedNavigationMenuId(m.menuId)) return;
+      const count = Number(m.totalClickCount || m.clickCount || 0);
+      const last = m.lastClickedAt?.toDate?.() || (m.lastClickedAt ? new Date(m.lastClickedAt) : null);
+      if(!best || count > best.count || (count === best.count && last && best.last && last > best.last)){
+        best = { id:String(m.menuId || ''), count, last };
+      }
+    });
+    return best?.count > 0 ? best.id : '';
+  }catch(_){ return ''; }
+}
+function bottomNavMenuIsNew(menu){
+  try{ return isMenuNew(menu); }catch(_){ return Array.isArray(menu?.sections) && menu.sections.includes('new'); }
+}
+function syncBottomNavTrendBadgesFinal(){ window.__upickStableBottomBadge?.(); }
+window.syncBottomNavTrendBadgesFinal = syncBottomNavTrendBadgesFinal;
+document.addEventListener('click', () => setTimeout(syncBottomNavTrendBadgesFinal, 80), true);
+window.addEventListener('load', () => {
+  setTimeout(syncBottomNavTrendBadgesFinal, 200);
+  setTimeout(syncBottomNavTrendBadgesFinal, 900);
+  setTimeout(syncBottomNavTrendBadgesFinal, 1800);
+});
+// 반복 실행 제거: TOP5 진입 후 DOM/뱃지 갱신 루프를 방지합니다.
+
+setTimeout(syncBottomNavTrendBadgesFinal, 1000);
+
+/* ===== Trend Final Force Sync ===== */
+function normalizeTrendViewKey(value){
+  return String(value || '').replace(/^#|^\//,'').trim();
+}
+function findTrendMenuByView(value){
+  const key = normalizeTrendViewKey(value);
+  if(!key) return null;
+  return (gnbMenuCache || []).find(m => {
+    return normalizeTrendViewKey(m.view) === key ||
+      normalizeTrendViewKey(m.route) === key ||
+      normalizeTrendViewKey(m.menuId) === key;
+  }) || null;
+}
+function getTrendMenuFlagsSafe(menu){
+  if(!menu) return { hot:false, new:false };
+  const id = String(menu.menuId || '');
+  let hot = false;
+  let isNewFlag = false;
+  try{
+    hot = (popularGnbMenuIdSet && popularGnbMenuIdSet.has(id)) || isTrendingMenu(menu);
+  }catch(_){
+    hot = popularGnbMenuIdSet && popularGnbMenuIdSet.has(id);
+  }
+  try{
+    isNewFlag = isMenuNew(menu);
+  }catch(_){
+    isNewFlag = Array.isArray(menu.sections) && menu.sections.includes('new');
+  }
+  return { hot, new:isNewFlag };
+}
+function makeTrendBadgeHtmlForView(menu, mode='nav'){
+  const flags = getTrendMenuFlagsSafe(menu);
+  if(flags.hot) return `<span class="${mode === 'nav' ? 'nav-final-trend-badge' : 'view-final-trend-badge'} hot">HOT</span>`;
+  if(flags.new) return `<span class="${mode === 'nav' ? 'nav-final-trend-badge' : 'view-final-trend-badge'} new">NEW</span>`;
+  return '';
+}
+function refreshBottomNavFinalTrendBadges(){ window.__upickStableBottomBadge?.(); }
+function getCurrentVisibleViewKey(){
+  const activeNav = document.querySelector('.bottom-nav .nav-btn.active[data-view-link]');
+  if(activeNav?.dataset?.viewLink) return normalizeTrendViewKey(activeNav.dataset.viewLink);
+
+  const visible = Array.from(document.querySelectorAll('section[id^="view-"]')).find(sec => !sec.classList.contains('hidden'));
+  if(visible?.id) return visible.id.replace(/^view-/, '');
+
+  return normalizeTrendViewKey(state?.view || 'home');
+}
+function refreshCurrentViewFinalTrendBadge(){
+  // legacy 제목 배지와 final 제목 배지가 동시에 붙으면서 HOT이 2번 보이는 현상 방지
+  document.querySelectorAll('.view-title-trend-badges,.view-final-trend-badges').forEach(el => el.remove());
+  const view = getCurrentVisibleViewKey();
+  const menu = findTrendMenuByView(view);
+  const hotNew = [];
+  const flags = getTrendMenuFlagsSafe(menu);
+  if(flags.hot) hotNew.push('<span class="view-final-trend-badge hot">HOT</span>');
+  if(flags.new) hotNew.push('<span class="view-final-trend-badge new">NEW</span>');
+  if(!hotNew.length) return;
+
+  const viewEl = document.querySelector(`#view-${CSS.escape(view)}`) || document.querySelector('section[id^="view-"]:not(.hidden)');
+  if(!viewEl) return;
+
+  const title = viewEl.querySelector('.hero h2, .calendar-hero h3, .ai-view-hero h3, .section-head h3, h3, h2');
+  if(!title || title.querySelector('.view-title-trend-badges,.view-final-trend-badges')) return;
+  title.insertAdjacentHTML('afterbegin', `<span class="view-final-trend-badges">${hotNew.join('')}</span>`);
+}
+function refreshTrendFinalDisplay(){
+  refreshBottomNavFinalTrendBadges(); syncBottomNavTrendBadgesFinal?.();
+  syncBottomNavDotBadgesFinal?.();
+  refreshCurrentViewFinalTrendBadge();
+}
+let trendFinalDisplayTimer = null;
+function scheduleTrendFinalDisplay(){
+  if(trendFinalDisplayTimer) return;
+  trendFinalDisplayTimer = setTimeout(() => {
+    trendFinalDisplayTimer = null;
+    refreshTrendFinalDisplay();
+  }, 120);
+}
+document.addEventListener('click', (event) => {
+  if(event.target.closest?.('[data-view-link], .bottom-nav, #gnbSheet, #allMenuGrid')){
+    scheduleTrendFinalDisplay();
+  }
+}, true);
+window.addEventListener('load', scheduleTrendFinalDisplay);
+// v109: MutationObserver 기반 배지 재동기화는 탭 이동 시 깜빡임/반복 렌더를 만들 수 있어 제거합니다.
+scheduleTrendFinalDisplay();
+
+// AI 추천 토스트: 동적 생성/재렌더 후에도 항상 이동되도록 전역 위임
+document.addEventListener('click', (event) => {
+  const box = event.target.closest?.('#aiBottomReco');
+  if(!box) return;
+  event.preventDefault();
+  event.stopPropagation();
+  const view = box.dataset.viewLink || 'ai';
+  try{ trackGnbMenuVisitByView(view); }catch(_){}
+  markAiRecoShownToday?.();
+  box.classList.remove('show');
+  changeView(view);
+}, true);
+
+document.addEventListener('keydown', (event) => {
+  const box = event.target.closest?.('#aiBottomReco');
+  if(!box) return;
+  if(event.key === 'Enter' || event.key === ' '){
+    event.preventDefault();
+    const view = box.dataset.viewLink || 'ai';
+    try{ trackGnbMenuVisitByView(view); }catch(_){}
+    box.classList.remove('show');
+    changeView(view);
+  }
+}, true);
+
+
+
+ qsa('[data-view-link]').forEach(btn => {
+ btn.addEventListener('click', () => {
+ const view = btn.dataset.viewLink;
+ if(view){
+ changeView(view);
+ }
+ closeGnb();
+ });
+ });
+
+ // AI 생활도우미 공개 전환: 상단 로봇 버튼은 입주민 계정에서도 즉시 AI 화면으로 이동합니다.
+ qs('#aiQuickBtn')?.addEventListener('click', (event) => {
+ event.preventDefault();
+ event.stopPropagation();
+ changeView('ai');
+ setTimeout(() => {
+ resetAiChatWindow({ loadProactive:true });
+ qs('#aiQuestionInput')?.focus?.();
+ }, 80);
+ });
+
+ updateAiConversationStatus(aiConversationTitle);
+ resetAiChatWindow();
+ bindAiAttachmentPicker();
+ bindAiQuestionComposer();
+ bindAiDragAndDropUpload();
+ qs('#aiAskBtn')?.addEventListener('click', () => { if(!guardAiAssistantBusy()) askAiAssistant(); });
+ qs('#aiNewConversationBtn')?.addEventListener('click', startNewAiConversation);
+ qs('#aiOpenConversationListBtn')?.addEventListener('click', loadAiConversationList);
+ qs('#aiCloseConversationListBtn')?.addEventListener('click', () => qs('#aiConversationPanel')?.classList.remove('show'));
+ qs('#aiClearConversationBtn')?.addEventListener('click', clearCurrentAiConversation);
+ qs('#aiQuestionInput')?.addEventListener('keydown', (event) => {
+ if(event.key === 'Enter' && (event.ctrlKey || event.metaKey)){
+ event.preventDefault();
+ if(!guardAiAssistantBusy()) askAiAssistant();
+ }
+ });
+ qsa('[data-ai-question]').forEach(btn => {
+ btn.addEventListener('click', () => { if(!guardAiAssistantBusy()) askAiAssistant(btn.dataset.aiQuestion || btn.textContent || ''); });
+ });
+
+ qs('#aiDailyNudgeOpenBtn')?.addEventListener('click', async () => {
+ await markDailyAiNudgeShown('opened');
+ await openAiAssistantFromNudge('toast');
+ });
+ qs('#aiDailyNudgeCloseBtn')?.addEventListener('click', async () => {
+ hideDailyAiNudgeToast(true);
+ await markDailyAiNudgeShown('closed');
+ });
+
+ qs('#closeModal').onclick=()=>{qs('#detailModal').close(); clearCleanDeepLinkUrl({ replace:true });};
+ qs('#closeNoticeModal').onclick=()=>{qs('#noticeModal')?.close(); clearCleanDeepLinkUrl({ replace:true });};
+ qs('#closeCalendarReservationModal')?.addEventListener('click', closeCalendarReservationModal);
+ qs('#cancelCalendarReservationBtn')?.addEventListener('click', closeCalendarReservationModal);
+ qs('#calendarReservationForm')?.addEventListener('submit', saveCalendarReservation);
+ qs('#calendarRefreshBtn')?.addEventListener('click', renderCalendarReservations);
+ qs('#calendarPrevBtn')?.addEventListener('click', () => moveCalendarView(-1));
+ qs('#calendarNextBtn')?.addEventListener('click', () => moveCalendarView(1));
+ qs('#calendarTitleBtn')?.addEventListener('click', openCalendarMainDatePicker);
+ qs('#calendarTodayBtn')?.addEventListener('click', goCalendarToday);
+ qs('#calendarMainDatePicker')?.addEventListener('change', (event) => moveCalendarToDate(event.target.value));
+ qsa('[data-calendar-mode]').forEach(btn => btn.addEventListener('click', () => changeCalendarMode(btn.dataset.calendarMode)));
+ qs('#calendarDayPrevBtn')?.addEventListener('click', () => moveCalendarDayModal(-1));
+ qs('#calendarDayNextBtn')?.addEventListener('click', () => moveCalendarDayModal(1));
+ qs('#calendarDayCloseBtn')?.addEventListener('click', closeCalendarDayModal);
+ qs('#calendarDayCloseBottomBtn')?.addEventListener('click', closeCalendarDayModal);
+ qs('#calendarDayTodayBtn')?.addEventListener('click', () => { calendarUiState.dayModalDateKey = dateKeyFromDate(new Date()); calendarUiState.focusAfterModalDateKey = calendarUiState.dayModalDateKey; renderCalendarDayModal(); });
+ qs('#calendarDayDateBtn')?.addEventListener('click', () => { const picker = qs('#calendarDayDatePicker'); if(!picker) return; picker.value = calendarUiState.dayModalDateKey || dateKeyFromDate(new Date()); if(typeof picker.showPicker === 'function') picker.showPicker(); else picker.click(); });
+ qs('#calendarDayDatePicker')?.addEventListener('change', (event) => { if(!event.target.value) return; calendarUiState.dayModalDateKey = event.target.value; calendarUiState.focusAfterModalDateKey = event.target.value; renderCalendarDayModal(); });
+ qs('#calendarDayModal')?.addEventListener('close', syncCalendarFocusFromDayModal);
+ qs('#closeQrModal')?.addEventListener('click', () => qs('#qrModal')?.close());
+ qs('#detailModal')?.addEventListener('close', () => {
+ if(parseCleanDeepLink()?.type === 'benefit') clearCleanDeepLinkUrl({ replace:true });
+ });
+ qs('#noticeModal')?.addEventListener('close', () => {
+ if(parseCleanDeepLink()?.type === 'notice') clearCleanDeepLinkUrl({ replace:true });
+ });
+ let deferredPrompt=null;window.addEventListener('beforeinstallprompt',(e)=>{e.preventDefault();deferredPrompt=e;});
+ qs('#installTopBtn').onclick=async()=>{if(!deferredPrompt){await openModalAlert('브라우저 메뉴에서 “홈 화면에 추가”를 선택하면 앱처럼 설치할 수 있습니다.', qs('#installTopBtn'));return;}deferredPrompt.prompt();await deferredPrompt.userChoice;deferredPrompt=null;};
+ const chipsEl = qs('#chips');
+ const chipsToggleBtn = qs('#chipsToggle');
+
+ function applyChipsState(){
+ chipsEl.classList.remove('expanded');
+ chipsToggleBtn.classList.add('hidden');
+ }
+
+ function updateToggle(){
+ requestAnimationFrame(()=>{
+ chipsEl.classList.remove('expanded');
+ chipsToggleBtn.classList.add('hidden');
+ });
+ }
+
+ chipsToggleBtn.onclick = ()=>{};
+
+ qs('#enablePushBtn')?.addEventListener('click', enablePushNotifications);
+ qs('#disablePushBtn')?.addEventListener('click', disablePushNotifications);
+ qs('#gnbEnablePushBtn')?.addEventListener('click', enablePushNotifications);
+ qs('#gnbDisablePushBtn')?.addEventListener('click', disablePushNotifications);
+ qs('#openAccountEditBtn')?.addEventListener('click', openAccountEditModal);
+ qs('#closeAccountEditModal')?.addEventListener('click', closeAccountEditModal);
+ qs('#cancelAccountEditBtn')?.addEventListener('click', closeAccountEditModal);
+ qs('#accountProfileFileInput')?.addEventListener('change', handleProfileImageFileChange);
+ bindProfileUploadButton();
+ qs('#accountEditForm')?.addEventListener('submit', saveAccountProfile);
+ qsa('.font-size-option').forEach((btn) => {
+ btn.addEventListener('click', () => changeAppFontSize(btn.dataset.fontSize));
+ });
+ syncFontSizeSettingUi();
+
+ qs('#accountEditModal')?.addEventListener('click', (event) => {
+ const modal = qs('#accountEditModal');
+ if(event.target === modal) closeAccountEditModal();
+ });
+ qs('#withdrawBtn')?.addEventListener('click', withdrawCurrentUser);
+
+ qs('#logoutBtn').onclick=async()=>{const confirmed=await openModalConfirm('로그아웃 하시겠습니까?', qs('#logoutBtn'), '로그아웃', '로그아웃', '취소'); if(!confirmed) return; try{await logoutServerSession(auth, API_URL[ENV]); await signOut(auth);redirectToLogin();}catch(error){await openModalAlert('로그아웃 중 오류가 발생했습니다.', qs('#logoutBtn'));}};
+
+ bindGlobalLoadingTriggers();
+
+ (async()=>{
+ await initPushSystem();
+ const ok = await ensureAuthenticatedUser();
+ if(!ok) return;
+ await handleShareClickLog();
+ await refreshPushStatus();
+ renderAll();
+ if(hasFirebaseConfig()){
+ qs('#firebaseNotice').classList.add('hidden');
+ showGlobalLoading();
+ subscribeBenefits();
+ subscribeNotices();
+ subscribeAiKnowledge();
+ subscribePopularStats();
+ subscribeResidentActivityRanking();
+ subscribeFavorites();
+ subscribeCalendarReservations();
+ }else{
+ qs('#firebaseNotice').classList.remove('hidden');
+ state.loading=false;
+ renderAll();
+ }
+ })();
+ 

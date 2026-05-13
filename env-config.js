@@ -44,6 +44,9 @@ export const FIREBASE_CONFIG = {
 export const API_URL = {
   dev: {
     login: "https://loginwithid-292137041544.asia-northeast3.run.app",
+    checkSession: "https://checksession-292137041544.asia-northeast3.run.app",
+    pingSession: "https://pingsession-292137041544.asia-northeast3.run.app",
+    logoutSession: "https://logoutsession-292137041544.asia-northeast3.run.app",
     signup: "https://signupwithid-292137041544.asia-northeast3.run.app",
     checkLoginId: "https://checkloginid-292137041544.asia-northeast3.run.app",
     checkNickname: "https://checknickname-292137041544.asia-northeast3.run.app",
@@ -53,6 +56,9 @@ export const API_URL = {
   },
   prod: {
     login: "https://loginwithid-ljm6q3t55q-du.a.run.app",
+    checkSession: "https://checksession-ljm6q3t55q-du.a.run.app",
+    pingSession: "https://pingsession-ljm6q3t55q-du.a.run.app",
+    logoutSession: "https://logoutsession-ljm6q3t55q-du.a.run.app",
     signup: "https://signupwithid-ljm6q3t55q-du.a.run.app",
     checkLoginId: "https://checkloginid-ljm6q3t55q-du.a.run.app",
     checkNickname: "https://checknickname-ljm6q3t55q-du.a.run.app",

@@ -2410,6 +2410,7 @@ body{
     const __solaNoCache = (url) => `${url}${url.includes('?') ? '&' : '?'}v=${__SOLA_DYNAMIC_IMPORT_VERSION__}`;
     await import(__solaNoCache('./firebase-config.js'));
     const { ENV, API_URL } = await import(__solaNoCache('./env-config.js'));
+    const { saveLoginSession, checkServerSessionOrLogout } = await import(__solaNoCache('./session-client.js'));
 
     const envBadge = document.getElementById('envBadge');
     if (envBadge && ENV === 'dev') envBadge.classList.add('show');
@@ -2590,6 +2591,7 @@ body{
     let alertResolver = null;
 
     let loadingCount = 0;
+    let isManualLoginInProgress = false;
 
     function startLoading(){
       const pageLoader = document.getElementById('pageLoader');
@@ -2645,10 +2647,7 @@ body{
       forceHideLoading();
       if (event.persisted && auth.currentUser) {
         startLoading();
-        enforceAccessPolicy(auth.currentUser, {
-          shouldRedirectOnApproved: true,
-          showBlockedMessage: true
-        }).catch(() => {
+        handleAuthenticatedLoginState(auth.currentUser).catch(() => {
           forceHideLoading();
         });
       }
@@ -2915,6 +2914,53 @@ body{
       }
 
       return { allowed: false, reason, userData };
+    }
+
+    async function handleAuthenticatedLoginState(user){
+      if (!user) {
+        finishLoading();
+        return { allowed:false, reason:'no_user' };
+      }
+
+      // 중요: 승인/계정 상태를 먼저 확인합니다.
+      // pending/rejected/suspended 계정은 세션 체크를 타지 않아야
+      // "세션 만료" 안내와 "승인 대기" 안내가 연달아 뜨지 않습니다.
+      const accessResult = await enforceAccessPolicy(user, {
+        shouldRedirectOnApproved: false,
+        showBlockedMessage: true
+      });
+
+      if (!accessResult?.allowed) {
+        finishLoading();
+        return accessResult;
+      }
+
+      const sessionResult = await checkServerSessionOrLogout({
+        auth,
+        api: API_URL[ENV],
+        signOutFn: async (authInstance) => signOut(authInstance),
+        redirectTo: '/',
+        alertFn: (message) => openModalAlert(message, loginIdEl)
+      });
+
+      if (!sessionResult?.valid) {
+        finishLoading();
+        return { allowed:false, reason: sessionResult?.reason || 'invalid_session', userData: accessResult.userData };
+      }
+
+      const userData = accessResult.userData || {};
+      const phoneVerificationRequired = userData.phoneVerificationRequired !== false;
+      const phoneVerified = !!userData.phoneVerified;
+
+      finishLoading(() => {
+        if (phoneVerificationRequired && !phoneVerified) {
+          replaceWithLoader('/phone-verify');
+          return;
+        }
+        replaceWithLoader(getPostLoginRedirectUrl());
+      });
+
+      return { allowed:true, reason:'approved_active', userData };
     }
 
     function openModalBase({
@@ -3224,7 +3270,9 @@ body{
           throw error;
         }
 
+        isManualLoginInProgress = true;
         const credential = await signInWithCustomToken(auth, result.token);
+        saveLoginSession({ ...(result.user || {}), uid: credential.user?.uid || result.user?.uid || '' }, result.sessionId || result.user?.sessionId || '');
 
         const accessResult = await enforceAccessPolicy(credential.user, {
           shouldRedirectOnApproved: false,
@@ -3304,6 +3352,7 @@ body{
         showNotice(message, 'error');
         await openModalAlert(message, focusTarget);
       } finally {
+        isManualLoginInProgress = false;
         setLoginLoading(false);
       }
     });
@@ -3314,11 +3363,9 @@ body{
       document.body.style.opacity = '1';
 
       if (user) {
+        if (isManualLoginInProgress) return;
         startLoading();
-        await enforceAccessPolicy(user, {
-          shouldRedirectOnApproved: true,
-          showBlockedMessage: true
-        });
+        await handleAuthenticatedLoginState(user);
         return;
       }
 

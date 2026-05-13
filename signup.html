@@ -1889,9 +1889,32 @@ img.brand-icon[src*="home.svg"],
   const signupEnvBadge = document.getElementById('signupEnvBadge');
   if (signupEnvBadge) signupEnvBadge.classList.toggle('show', ENV === 'dev');
   import { getApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
+  import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
+  import { getFirestore, doc, getDoc } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
   import { getMessaging, onMessage } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-messaging.js';
 
   const app = getApp();
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+  let signupAuthRedirectHandled = false;
+
+  onAuthStateChanged(auth, async (user) => {
+    if (signupAuthRedirectHandled || !user) return;
+    signupAuthRedirectHandled = true;
+    try {
+      const snap = await getDoc(doc(db, 'users', user.uid));
+      const profile = snap.exists() ? (snap.data() || {}) : {};
+      const approvalStatus = String(profile.approvalStatus || 'pending');
+      const accountStatus = String(profile.accountStatus || 'inactive');
+      if (approvalStatus === 'approved' && accountStatus === 'active') {
+        replaceWithLoader('/app.html');
+      }
+    } catch (error) {
+      console.warn('회원가입 페이지 로그인 상태 확인 실패:', error);
+      // 확인 실패 시에는 회원가입 화면을 그대로 유지합니다.
+    }
+  });
+
   let messaging = null;
   try { messaging = getMessaging(app); } catch (_) { messaging = null; }
 

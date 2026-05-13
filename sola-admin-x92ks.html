@@ -4603,7 +4603,7 @@ img.brand-icon[src*="home.svg"],
   <script type="module">
     import { initializeApp, getApps, getApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
     import { getAuth, onAuthStateChanged, signInWithCustomToken, signOut, setPersistence, browserLocalPersistence } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
-    import { getFirestore, collection, addDoc, updateDoc, deleteDoc, doc, getDoc, getDocs, setDoc, serverTimestamp, writeBatch, query, where, orderBy, limit, startAfter, startAt, endAt, terminate, clearIndexedDbPersistence } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
+    import { getFirestore, collection, addDoc, updateDoc, deleteDoc, doc, getDoc, getDocs, setDoc, serverTimestamp, writeBatch, query, where, orderBy, limit, startAfter, startAt, endAt, terminate, clearIndexedDbPersistence, onSnapshot } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
     import { getMessaging, onMessage } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-messaging.js';
     import { getStorage, ref as storageRef, uploadBytesResumable, getDownloadURL, deleteObject } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js';
 
@@ -4616,6 +4616,7 @@ img.brand-icon[src*="home.svg"],
     const __solaNoCache = (url) => `${url}${url.includes('?') ? '&' : '?'}v=${__SOLA_DYNAMIC_IMPORT_VERSION__}`;
     const { mountIdleTimer } = await import(__solaNoCache("./tracking.js"));
     const { ENV, FIREBASE_CONFIG, API_URL, TTS_SERVICE_URL } = await import(__solaNoCache("./env-config.js"));
+    const { checkServerSessionOrLogout, startSessionKeepAlive, logoutServerSession } = await import(__solaNoCache("./session-client.js"));
 
     const envBadge = document.getElementById('envBadge');
     if (envBadge && ENV === 'dev') envBadge.classList.add('show');
@@ -4719,7 +4720,7 @@ img.brand-icon[src*="home.svg"],
     async function secureAdminSignOut(){
       resetAdminSensitiveUI();
       try{
-        if(auth) await signOut(auth);
+        if(auth) { await logoutServerSession(auth, API_URL[ENV]); await signOut(auth); }
       }catch(error){
         console.warn('Firebase signOut skip', error);
       }
@@ -6578,20 +6579,40 @@ function fillForm(item){
           const userData = userSnap.exists() ? (userSnap.data() || {}) : {};
           state.adminProfile = userData;
 
-          const stored = getStoredLoginUser();
-          const localSessionId = stored.sessionId || '';
-          const serverSessionId = userData.activeSessionId || '';
-
-          if(serverSessionId && localSessionId && localSessionId !== serverSessionId){
-            await writeSecurityLog('SESSION_CONFLICT', { localSessionId, serverSessionId });
-            qs('#authStatusText').textContent='중복 로그인 감지';
-            updateAdminHeader(user);
+          const sessionResult = await checkServerSessionOrLogout({
+            auth,
+            api: API_URL[ENV],
+            signOutFn: async (authInstance) => signOut(authInstance),
+            redirectTo: '/',
+            alertFn: (message) => openModalAlert(message, qs('#adminLoginId'))
+          });
+          if(!sessionResult?.valid){
+            resetAdminSensitiveUI();
             setAdminDashboardLocked(true);
             hideGlobalLoading(80);
-            await openModalAlert('다른 기기에서 로그인되어 현재 세션이 종료되었습니다.', qs('#adminLoginId'));
-            await secureAdminSignOut();
             return;
           }
+
+          if(!window.__THEUNJEONGPICK_ADMIN_SESSION_KEEPALIVE__){
+            window.__THEUNJEONGPICK_ADMIN_SESSION_KEEPALIVE__ = startSessionKeepAlive({
+              auth,
+              api: API_URL[ENV],
+              signOutFn: async (authInstance) => signOut(authInstance),
+              redirectTo: '/',
+              alertFn: (message) => openModalAlert(message, qs('#adminLoginId')),
+              intervalMs: 3 * 60 * 1000,
+              checkEveryMs: 60 * 1000,
+              requireActivity: true,
+              adminMode: true,
+              db,
+              docFn: doc,
+              onSnapshotFn: onSnapshot
+            });
+          }
+
+          const stored = getStoredLoginUser();
+          const localSessionId = stored.sessionId || '';
+          const serverSessionId = sessionResult?.sessionId || userData.activeSessionId || '';
 
           const role = userData.role || userData.userRole || '';
           const isAdminRole = role === 'admin' || role === 'root' || role === 'superAdmin';
