@@ -7029,6 +7029,31 @@ h3 .upick-inline-icon,.section-head .upick-inline-icon{width:1.18em;height:1.18e
   word-break:keep-all !important;
 }
 
+
+/* ===== Reaction Toggle Active States ===== */
+.reaction-btn{
+  transition:all .18s ease;
+}
+.reaction-btn.active-like{
+  background:#eff6ff !important;
+  border-color:#93c5fd !important;
+  color:#1d4ed8 !important;
+  box-shadow:0 8px 18px rgba(37,99,235,.10);
+}
+.reaction-btn.active-recommend{
+  background:#eef2ff !important;
+  border-color:#a5b4fc !important;
+  color:#4338ca !important;
+  box-shadow:0 8px 18px rgba(67,56,202,.10);
+}
+.reaction-btn.active-hot{
+  background:#fff7ed !important;
+  border-color:#fdba74 !important;
+  color:#ea580c !important;
+  box-shadow:0 8px 18px rgba(234,88,12,.10);
+}
+
+
 </style>
  <style id="myhills-ios-safearea-fix">
  :root{--myhills-safe-area-top:env(safe-area-inset-top,0px)}
@@ -14011,6 +14036,196 @@ nav.bottom-nav{
 }
 </style>
 
+
+<style id="kakao-share-click-feedback-v1">
+/* ===== 카카오 공유 클릭 즉시 반응 UX ===== */
+.share-actions .btn.share-loading,
+.share-actions .btn.is-share-loading,
+#benefitKakaoShareBtn.share-loading,
+#noticeKakaoShareBtn.share-loading{
+  position:relative!important;
+  pointer-events:none!important;
+  opacity:.86!important;
+  filter:saturate(.92)!important;
+}
+.share-actions .btn.share-loading::before,
+.share-actions .btn.is-share-loading::before,
+#benefitKakaoShareBtn.share-loading::before,
+#noticeKakaoShareBtn.share-loading::before{
+  content:""!important;
+  width:14px!important;
+  height:14px!important;
+  border-radius:999px!important;
+  border:2px solid rgba(255,255,255,.44)!important;
+  border-top-color:#fff!important;
+  display:inline-block!important;
+  flex:0 0 auto!important;
+  animation:kakaoShareSpin .72s linear infinite!important;
+}
+.share-actions .btn.btn-soft.share-loading::before,
+.share-actions .btn.btn-soft.is-share-loading::before,
+#benefitKakaoShareBtn.btn-soft.share-loading::before,
+#noticeKakaoShareBtn.btn-soft.share-loading::before{
+  border-color:rgba(29,78,216,.18)!important;
+  border-top-color:#1d4ed8!important;
+}
+.share-actions .btn.share-loading img,
+.share-actions .btn.is-share-loading img,
+#benefitKakaoShareBtn.share-loading img,
+#noticeKakaoShareBtn.share-loading img{
+  display:none!important;
+}
+@keyframes kakaoShareSpin{to{transform:rotate(360deg)}}
+</style>
+<style id="upick-reaction-toggle-final-force">
+/* ===== 좋아요/추천/HOT 실제 토글 활성 상태 ===== */
+.reaction-box .reaction-btn{
+  transition:background-color .18s ease,border-color .18s ease,color .18s ease,box-shadow .18s ease,transform .12s ease !important;
+}
+.reaction-box .reaction-btn:active{
+  transform:scale(.985) !important;
+}
+.reaction-box .reaction-btn.active-like{
+  background:#eff6ff !important;
+  border-color:#93c5fd !important;
+  color:#1d4ed8 !important;
+  box-shadow:0 8px 18px rgba(37,99,235,.12) !important;
+}
+.reaction-box .reaction-btn.active-recommend{
+  background:#eef2ff !important;
+  border-color:#a5b4fc !important;
+  color:#4338ca !important;
+  box-shadow:0 8px 18px rgba(67,56,202,.12) !important;
+}
+.reaction-box .reaction-btn.active-hot{
+  background:#fff7ed !important;
+  border-color:#fdba74 !important;
+  color:#ea580c !important;
+  box-shadow:0 8px 18px rgba(234,88,12,.12) !important;
+}
+.reaction-box .reaction-btn[data-processing="1"]{
+  opacity:.72 !important;
+  pointer-events:none !important;
+}
+.reaction-box .reaction-btn.active-like img,
+.reaction-box .reaction-btn.active-recommend img,
+.reaction-box .reaction-btn.active-hot img{
+  filter:drop-shadow(0 3px 7px rgba(15,23,42,.12)) !important;
+}
+</style>
+
+
+<style id="upick-share-mobile-layout-v2">
+/* ===== 공유 버튼 3개 한 줄 고정 + 중복 로딩 방지용 최종 CSS ===== */
+
+/* 혜택 상세 / 공지 상세 공유 버튼 묶음 */
+#detailModal :is(.share-actions, .notice-detail-actions),
+#noticeModal :is(.share-actions, .notice-detail-actions),
+.modal :is(.share-actions, .notice-detail-actions),
+.detail-modal :is(.share-actions, .notice-detail-actions){
+  display:grid !important;
+  grid-template-columns:repeat(3, minmax(0, 1fr)) !important;
+  gap:8px !important;
+  width:100% !important;
+  max-width:100% !important;
+  align-items:stretch !important;
+}
+
+/* 혹시 inline style / 기존 width:100% 버튼이 있어도 3등분 */
+#detailModal :is(.share-actions, .notice-detail-actions) > *,
+#noticeModal :is(.share-actions, .notice-detail-actions) > *,
+.modal :is(.share-actions, .notice-detail-actions) > *,
+.detail-modal :is(.share-actions, .notice-detail-actions) > *{
+  min-width:0 !important;
+  width:100% !important;
+  max-width:100% !important;
+}
+
+/* 버튼 본체 */
+#detailModal :is(.share-actions, .notice-detail-actions) button,
+#detailModal :is(.share-actions, .notice-detail-actions) .btn,
+#noticeModal :is(.share-actions, .notice-detail-actions) button,
+#noticeModal :is(.share-actions, .notice-detail-actions) .btn,
+.modal :is(.share-actions, .notice-detail-actions) button,
+.modal :is(.share-actions, .notice-detail-actions) .btn,
+.detail-modal :is(.share-actions, .notice-detail-actions) button,
+.detail-modal :is(.share-actions, .notice-detail-actions) .btn{
+  min-width:0 !important;
+  width:100% !important;
+  max-width:100% !important;
+  height:46px !important;
+  min-height:46px !important;
+  padding:0 6px !important;
+  border-radius:16px !important;
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  gap:5px !important;
+  white-space:nowrap !important;
+  overflow:hidden !important;
+  text-overflow:ellipsis !important;
+  font-size:12px !important;
+  font-weight:900 !important;
+  line-height:1 !important;
+  letter-spacing:-.045em !important;
+  box-sizing:border-box !important;
+}
+
+/* 아이콘/스피너 크기 고정 */
+#detailModal :is(.share-actions, .notice-detail-actions) button :is(img, svg, .upick-inline-icon),
+#detailModal :is(.share-actions, .notice-detail-actions) .btn :is(img, svg, .upick-inline-icon),
+#noticeModal :is(.share-actions, .notice-detail-actions) button :is(img, svg, .upick-inline-icon),
+#noticeModal :is(.share-actions, .notice-detail-actions) .btn :is(img, svg, .upick-inline-icon),
+.modal :is(.share-actions, .notice-detail-actions) button :is(img, svg, .upick-inline-icon),
+.modal :is(.share-actions, .notice-detail-actions) .btn :is(img, svg, .upick-inline-icon){
+  width:16px !important;
+  height:16px !important;
+  flex:0 0 16px !important;
+  margin:0 2px 0 0 !important;
+}
+
+/* 기존 로딩 스피너가 하나만 보이도록 크기만 정리 */
+#detailModal :is(.share-actions, .notice-detail-actions) :is(.share-spinner, .btn-spinner, .loading-spinner),
+#noticeModal :is(.share-actions, .notice-detail-actions) :is(.share-spinner, .btn-spinner, .loading-spinner),
+.modal :is(.share-actions, .notice-detail-actions) :is(.share-spinner, .btn-spinner, .loading-spinner){
+  width:14px !important;
+  height:14px !important;
+  flex:0 0 14px !important;
+}
+
+/* 혹시 같은 버튼 안에 스피너가 2개 생기면 첫 번째만 표시 */
+#detailModal :is(.share-actions, .notice-detail-actions) button :is(.share-spinner, .btn-spinner, .loading-spinner) ~ :is(.share-spinner, .btn-spinner, .loading-spinner),
+#detailModal :is(.share-actions, .notice-detail-actions) .btn :is(.share-spinner, .btn-spinner, .loading-spinner) ~ :is(.share-spinner, .btn-spinner, .loading-spinner),
+#noticeModal :is(.share-actions, .notice-detail-actions) button :is(.share-spinner, .btn-spinner, .loading-spinner) ~ :is(.share-spinner, .btn-spinner, .loading-spinner),
+#noticeModal :is(.share-actions, .notice-detail-actions) .btn :is(.share-spinner, .btn-spinner, .loading-spinner) ~ :is(.share-spinner, .btn-spinner, .loading-spinner){
+  display:none !important;
+}
+
+@media(max-width:420px){
+  #detailModal :is(.share-actions, .notice-detail-actions),
+  #noticeModal :is(.share-actions, .notice-detail-actions),
+  .modal :is(.share-actions, .notice-detail-actions),
+  .detail-modal :is(.share-actions, .notice-detail-actions){
+    grid-template-columns:repeat(3, minmax(0, 1fr)) !important;
+    gap:7px !important;
+  }
+
+  #detailModal :is(.share-actions, .notice-detail-actions) button,
+  #detailModal :is(.share-actions, .notice-detail-actions) .btn,
+  #noticeModal :is(.share-actions, .notice-detail-actions) button,
+  #noticeModal :is(.share-actions, .notice-detail-actions) .btn,
+  .modal :is(.share-actions, .notice-detail-actions) button,
+  .modal :is(.share-actions, .notice-detail-actions) .btn,
+  .detail-modal :is(.share-actions, .notice-detail-actions) button,
+  .detail-modal :is(.share-actions, .notice-detail-actions) .btn{
+    height:44px !important;
+    min-height:44px !important;
+    padding:0 4px !important;
+    font-size:11px !important;
+    gap:4px !important;
+  }
+}
+</style>
 </head>
 <body>
  <div class="global-loading" id="globalLoadingBar" aria-hidden="true">
@@ -16509,37 +16724,172 @@ async function refreshPushStatus(){
  }catch(error){console.warn('입주민 활동 로그 저장 실패', error);}
  }
  async function handleResidentReaction(benefitId = '', reactionType = 'like'){
- if(!benefitId || !state.currentUser?.uid){ await openModalAlert('로그인 후 반응을 남길 수 있습니다.'); return; }
- const uid = state.currentUser.uid; const reactionId = `${benefitId}_${uid}_${reactionType}`; const reactionRef = doc(db, 'benefit_reactions', reactionId);
- const existing = await getDoc(reactionRef).catch(() => null); if(existing?.exists?.()){ await openModalAlert('이미 반영된 반응입니다.'); return; }
- const fieldMap = { like:'likeCount', recommend:'recommendCount', hot:'hotCount' }; const labelMap = { like:'좋아요', recommend:'추천', hot:'HOT' };
- const statField = fieldMap[reactionType] || 'likeCount'; const points = residentActivityPoints(reactionType);
+ if(!benefitId || !state.currentUser?.uid){ await openModalAlert('로그인 후 반응을 남길 수 있습니다.'); return { active:false, changed:false }; }
+
+ const uid = state.currentUser.uid;
+ const reactionId = `${benefitId}_${uid}_${reactionType}`;
+ const reactionRef = doc(db, 'benefit_reactions', reactionId);
+
+ const fieldMap = { like:'likeCount', recommend:'recommendCount', hot:'hotCount' };
+ const labelMap = { like:'좋아요', recommend:'추천', hot:'HOT' };
+ const statField = fieldMap[reactionType] || 'likeCount';
+ const points = residentActivityPoints(reactionType);
+ const statRef = doc(db, BENEFIT_STATS_COLLECTION, benefitId);
+
  try{
- await setDoc(reactionRef, { benefitId, uid, type: reactionType, createdAt: serverTimestamp() }, { merge:true });
- await setDoc(doc(db, BENEFIT_STATS_COLLECTION, benefitId), {benefitId, [statField]: increment(1), popularScore: increment(points), updatedAt: serverTimestamp()}, { merge:true });
- await recordResidentActivity(reactionType, points, benefitId);
- await openModalAlert(`${labelMap[reactionType] || '반응'}이 반영되었습니다.\n인기점수에 바로 반영됩니다.`);
- }catch(error){console.warn('입주민 반응 저장 실패', error); await openModalAlert('반응 저장 중 오류가 발생했습니다.');}
+   const existing = await getDoc(reactionRef).catch(() => null);
+
+   // 이미 반응한 상태면 취소: count -1, popularScore -points
+   if(existing?.exists?.()){
+     await deleteDoc(reactionRef);
+     await setDoc(statRef, {
+       benefitId,
+       [statField]: increment(-1),
+       popularScore: increment(-points),
+       updatedAt: serverTimestamp()
+     }, { merge:true });
+
+     return {
+       active:false,
+       changed:true,
+       label:labelMap[reactionType] || '반응',
+       message:`${labelMap[reactionType] || '반응'}이 취소되었습니다.`
+     };
+   }
+
+   // 아직 반응하지 않은 상태면 등록: count +1, popularScore +points
+   await setDoc(reactionRef, {
+     benefitId,
+     uid,
+     type: reactionType,
+     createdAt: serverTimestamp()
+   }, { merge:true });
+
+   await setDoc(statRef, {
+     benefitId,
+     [statField]: increment(1),
+     popularScore: increment(points),
+     updatedAt: serverTimestamp()
+   }, { merge:true });
+
+   await recordResidentActivity(reactionType, points, benefitId);
+
+   return {
+     active:true,
+     changed:true,
+     label:labelMap[reactionType] || '반응',
+     message:`${labelMap[reactionType] || '반응'}이 반영되었습니다.`
+   };
+ }catch(error){
+   console.warn('입주민 반응 토글 실패', error);
+   await openModalAlert('반응 처리 중 오류가 발생했습니다.');
+   return { active:false, changed:false, error };
+ }
  }
  function residentReactionHtml(item = {}){ if(!item?.id) return ''; return `<div class="reaction-help">HOT 반응을 남기면 이 혜택의 인기 랭킹이 올라갑니다.</div><div class="reaction-box" data-benefit-id="${escapeHtml(item.id)}"><button type="button" class="reaction-btn" data-reaction="like"><img class="upick-svg-icon" src="/icons/internal/favorite.svg" alt="" loading="lazy"> 좋아요</button><button type="button" class="reaction-btn" data-reaction="recommend"><img class="upick-svg-icon" src="/icons/internal/benefit.svg" alt="" loading="lazy"> 추천</button><button type="button" class="reaction-btn" data-reaction="hot"><img class="upick-svg-icon" src="/icons/internal/top5.svg" alt="" loading="lazy"> HOT</button></div>`; }
- function bindResidentReactionButtons(item = {}){ qsa('.reaction-btn').forEach((btn) => { btn.onclick = async (event) => { event.preventDefault(); event.stopPropagation(); await handleResidentReaction(item.id, btn.dataset.reaction || 'like'); }; }); }
+ function getReactionActiveClass(reactionType = 'like'){
+ const map = { like:'active-like', recommend:'active-recommend', hot:'active-hot' };
+ return map[reactionType] || 'active-like';
+ }
 
- const normalizeCategory = (v) => String(v || '기타').trim().replace(/\s+/g, ' ');
+ async function refreshResidentReactionButtons(benefitId = ''){
+ const uid = state.currentUser?.uid;
+ if(!benefitId || !uid) return;
 
+ const buttons = qsa('.reaction-btn');
+ await Promise.all(buttons.map(async (btn) => {
+   const reactionType = btn.dataset.reaction || 'like';
+   const reactionId = `${benefitId}_${uid}_${reactionType}`;
+   const activeClass = getReactionActiveClass(reactionType);
+   const snap = await getDoc(doc(db, 'benefit_reactions', reactionId)).catch(() => null);
+
+   btn.classList.toggle(activeClass, !!snap?.exists?.());
+   btn.dataset.active = snap?.exists?.() ? '1' : '0';
+   btn.setAttribute('aria-pressed', snap?.exists?.() ? 'true' : 'false');
+ }));
+ }
+
+ function bindResidentReactionButtons(item = {}){
+ const benefitId = item?.id || qs('.reaction-box')?.dataset?.benefitId || '';
+ refreshResidentReactionButtons(benefitId).catch(() => {});
+
+ qsa('.reaction-btn').forEach((btn) => {
+   btn.onclick = async (event) => {
+     event.preventDefault();
+     event.stopPropagation();
+
+     if(btn.dataset.processing === '1') return;
+     btn.dataset.processing = '1';
+
+     const reactionType = btn.dataset.reaction || 'like';
+     const activeClass = getReactionActiveClass(reactionType);
+
+     try{
+       const result = await handleResidentReaction(benefitId, reactionType);
+
+       if(result?.changed){
+         btn.classList.toggle(activeClass, !!result.active);
+         btn.dataset.active = result.active ? '1' : '0';
+         btn.setAttribute('aria-pressed', result.active ? 'true' : 'false');
+
+         // 기존 알럿 대신 버튼 상태만 바꾸되, 아주 짧은 토스트성 피드백이 필요하면 alert가 아닌 상태 표시만 남김
+         const help = btn.closest('.reaction-box')?.previousElementSibling;
+         if(help && help.classList?.contains('reaction-help')){
+           const original = help.dataset.originalText || help.textContent;
+           help.dataset.originalText = original;
+           help.textContent = result.active ? `${result.label} 반응이 반영되었습니다.` : `${result.label} 반응이 취소되었습니다.`;
+           setTimeout(() => {
+             if(help.dataset.originalText) help.textContent = help.dataset.originalText;
+           }, 1200);
+         }
+       }
+     }finally{
+       btn.dataset.processing = '0';
+     }
+   };
+ });
+ }
+ 
+ 
  function toDateFromFirestore(value){
- if(!value) return null;
- try{
- if(typeof value.toDate === 'function') return value.toDate();
- if(typeof value.seconds === 'number') return new Date(value.seconds * 1000);
- if(value instanceof Date) return value;
- const parsed = new Date(value);
- return Number.isNaN(parsed.getTime()) ? null : parsed;
- }catch(_){
- return null;
- }
+   if(!value) return null;
+   if(value instanceof Date) return value;
+   if(typeof value.toDate === 'function') return value.toDate();
+
+   if(typeof value === 'number'){
+     const date = new Date(value);
+     return Number.isNaN(date.getTime()) ? null : date;
+   }
+
+   if(typeof value === 'string'){
+     const raw = value.trim();
+     if(!raw) return null;
+
+     // "2026. 5. 5.", "2026-05-05", "2026/05/05" 모두 대응
+     const normalized = raw
+       .replace(/\.$/, '')
+       .replace(/\s+/g, '')
+       .replace(/[./]/g, '-');
+
+     const date = new Date(normalized);
+     return Number.isNaN(date.getTime()) ? null : date;
+   }
+
+   if(typeof value === 'object'){
+     if(typeof value.seconds === 'number'){
+       const date = new Date(value.seconds * 1000);
+       return Number.isNaN(date.getTime()) ? null : date;
+     }
+     if(typeof value._seconds === 'number'){
+       const date = new Date(value._seconds * 1000);
+       return Number.isNaN(date.getTime()) ? null : date;
+     }
+   }
+
+   return null;
  }
 
- function formatKoreanDate(value){
+function formatKoreanDate(value){
  const date = toDateFromFirestore(value);
  if(!date) return '';
  return new Intl.DateTimeFormat('ko-KR', {
@@ -17322,6 +17672,8 @@ function getSpreadMapPosition(nm, center, index, count){const fakeItem={lat:cent
  '운동':'/icons/internal/walk.svg',
  '기타':'/icons/internal/pin.svg'
  };
+  const normalizeCategory = (value) => String(value || '').trim().replace(/\s+/g, '').replace(/[ㆍ·]/g, '').toLowerCase();
+
  const getCategoryIcon = (category) => { const src = CATEGORY_ICONS[normalizeCategory(category)] || '/icons/internal/pin.svg'; return `<img class="upick-svg-icon category-svg-icon" src="${src}" alt="" loading="lazy">`; };
 
  const STORE_STATUS_META={preparing:{label:'영업 준비 중',cls:'status-store-preparing'},active:{label:'정상 영업',cls:'status-store-active'},paused:{label:'휴업',cls:'status-store-paused'},closed:{label:'영업 종료',cls:'status-store-closed'},shutdown:{label:'폐점',cls:'status-store-shutdown'},reopened:{label:'재영업',cls:'status-store-reopened'},hidden:{label:'숨김',cls:'status-store-closed'}};
@@ -17783,12 +18135,70 @@ function getShareTrackingParams(){
 
  if(!window.Kakao.isInitialized()){
  window.Kakao.init(KAKAO_JS_KEY);
+ window.__upickKakaoReady = true;
+ document.documentElement.classList.add('kakao-sdk-ready');
  }
 
  return window.Kakao.isInitialized();
  }catch(error){
  console.warn('카카오 SDK 초기화 실패', error);
  return false;
+ }
+ }
+
+ function prewarmKakaoShareSdk(){
+ try{
+ if(window.__upickKakaoReady) return true;
+ const ready = ensureKakaoReady();
+ window.__upickKakaoReady = !!ready;
+ return ready;
+ }catch(error){
+ console.warn('카카오 SDK 사전 초기화 실패', error);
+ return false;
+ }
+ }
+
+ const kakaoPrewarmSchedule = () => {
+ const run = () => prewarmKakaoShareSdk();
+ if('requestIdleCallback' in window){
+ window.requestIdleCallback(run, { timeout: 1800 });
+ }else{
+ setTimeout(run, 500);
+ }
+ };
+ if(document.readyState === 'loading'){
+ document.addEventListener('DOMContentLoaded', kakaoPrewarmSchedule, { once:true });
+ }else{
+ kakaoPrewarmSchedule();
+ }
+
+ function getShareButtonText(type){
+ return type === 'notice' ? '공유 준비 중' : '공유 준비 중';
+ }
+
+ async function withShareButtonFeedback(button, type, task){
+ if(!button || button.dataset.shareBusy === '1'){
+ return;
+ }
+
+ const originalHtml = button.innerHTML;
+ const originalDisabled = button.disabled;
+ button.dataset.shareBusy = '1';
+ button.disabled = true;
+ button.setAttribute('aria-busy', 'true');
+ button.classList.add('share-loading', 'is-share-loading');
+ button.innerHTML = getShareButtonText(type);
+
+ try{
+ return await task();
+ }finally{
+ setTimeout(() => {
+ button.innerHTML = originalHtml;
+ button.disabled = originalDisabled;
+ button.removeAttribute('aria-busy');
+ button.classList.remove('share-loading', 'is-share-loading');
+ delete button.dataset.shareBusy;
+ }, 650);
  }
  }
 
@@ -18119,7 +18529,7 @@ ${item.content || ''}`);
  }
 
  qs('#noticeCopyShareBtn')?.addEventListener('click', () => copyShareUrl('notice', item));
- qs('#noticeKakaoShareBtn')?.addEventListener('click', () => shareKakaoItem('notice', item));
+ qs('#noticeKakaoShareBtn')?.addEventListener('click', (event) => withShareButtonFeedback(event.currentTarget, 'notice', () => shareKakaoItem('notice', item)));
  qs('#noticeQrShareBtn')?.addEventListener('click', () => showQrCode('notice', item));
  }
 
@@ -19895,7 +20305,7 @@ function renderCalendarDayModal(){
  modal.showModal();
  qs('#openCalendarReservationBtn')?.addEventListener('click', () => openCalendarReservationModal(item));
  qs('#benefitCopyShareBtn')?.addEventListener('click', () => copyShareUrl('benefit', item));
- qs('#benefitKakaoShareBtn')?.addEventListener('click', () => shareKakaoItem('benefit', item));
+ qs('#benefitKakaoShareBtn')?.addEventListener('click', (event) => withShareButtonFeedback(event.currentTarget, 'benefit', () => shareKakaoItem('benefit', item)));
  qs('#benefitQrShareBtn')?.addEventListener('click', () => showQrCode('benefit', item));
  bindResidentReactionButtons(item);
  updateDistanceText(item);
@@ -31223,6 +31633,345 @@ body.upick-modal-lock{position:fixed!important;width:100%!important;left:0!impor
 
 
 <!-- upick-ai-visible-attach-count-real-fix-v3-20260512 -->
+
+<script>
+(function(){
+  const ACTIVE_MAP = {
+    like: 'active-like',
+    recommend: 'active-recommend',
+    hot: 'active-hot'
+  };
+
+  function bindReactionButtons(){
+    const buttons = document.querySelectorAll('.reaction-btn');
+
+    buttons.forEach((btn, idx) => {
+      let type = 'like';
+
+      const txt = (btn.textContent || '').trim();
+
+      if(txt.includes('추천')) type = 'recommend';
+      else if(txt.includes('HOT')) type = 'hot';
+
+      const storageKey = 'upick_reaction_' + type + '_' + idx;
+
+      // 초기 상태 복원
+      if(localStorage.getItem(storageKey) === '1'){
+        btn.classList.add(ACTIVE_MAP[type]);
+      }
+
+      // 중복 바인딩 방지
+      if(btn.dataset.reactionBound === '1') return;
+      btn.dataset.reactionBound = '1';
+
+      btn.addEventListener('click', function(e){
+        setTimeout(() => {
+          const isActive = btn.classList.contains(ACTIVE_MAP[type]);
+
+          if(isActive){
+            btn.classList.remove(ACTIVE_MAP[type]);
+            localStorage.removeItem(storageKey);
+          }else{
+            btn.classList.add(ACTIVE_MAP[type]);
+            localStorage.setItem(storageKey, '1');
+          }
+        }, 0);
+      });
+    });
+  }
+
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', bindReactionButtons);
+  }else{
+    bindReactionButtons();
+  }
+
+  // modal 재렌더링 대응
+  const observer = new MutationObserver(() => {
+    bindReactionButtons();
+  });
+
+  observer.observe(document.body, {
+    childList: true,
+    subtree: true
+  });
+})();
+</script>
+
+<script id="upick-share-text-normalizer-v2">
+(function(){
+  function normalizeShareButtons(){
+    document.querySelectorAll('#detailModal .share-actions button, #detailModal .share-actions .btn, #noticeModal .share-actions button, #noticeModal .share-actions .btn, #noticeModal .notice-detail-actions button, #noticeModal .notice-detail-actions .btn, .modal .share-actions button, .modal .share-actions .btn').forEach((btn) => {
+      const text = (btn.textContent || '').replace(/\s+/g, ' ').trim();
+
+      if(/혜택 공유 준비 중|공지 공유 준비 중|카카오톡 열 준비 중/.test(text)){
+        // 기존 스피너는 유지하고 문구만 짧게 변경
+        const nodes = Array.from(btn.childNodes);
+        const textNode = nodes.find(n => n.nodeType === Node.TEXT_NODE && n.textContent.trim());
+        if(textNode){
+          textNode.textContent = ' 공유 준비 중';
+        }else{
+          const label = Array.from(btn.querySelectorAll('span,b,strong,em')).find(el => /혜택 공유 준비 중|공지 공유 준비 중|카카오톡 열 준비 중/.test(el.textContent || ''));
+          if(label) label.textContent = '공유 준비 중';
+        }
+      }
+
+      // 같은 버튼 내부 스피너 중복은 실제 DOM에서도 제거
+      const spinners = btn.querySelectorAll('.share-spinner, .btn-spinner, .loading-spinner');
+      spinners.forEach((spinner, idx) => {
+        if(idx > 0) spinner.remove();
+      });
+    });
+  }
+
+  document.addEventListener('click', () => {
+    setTimeout(normalizeShareButtons, 0);
+    setTimeout(normalizeShareButtons, 80);
+    setTimeout(normalizeShareButtons, 180);
+  }, true);
+
+  const observer = new MutationObserver(normalizeShareButtons);
+  if(document.body){
+    observer.observe(document.body, {childList:true, subtree:true, characterData:true});
+  }
+
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', normalizeShareButtons);
+  }else{
+    normalizeShareButtons();
+  }
+})();
+</script>
+
+
+<style id="upick-notice-share-one-line-v6">
+/* ===== 공지 상세 공유 버튼 모바일 3열 최종 고정 ===== */
+html body #noticeModal .notice-detail-actions{
+  display:block !important;
+  width:100% !important;
+  max-width:100% !important;
+  min-width:0 !important;
+  margin:12px 0 0 !important;
+  padding:0 !important;
+  overflow:visible !important;
+}
+
+html body #noticeModal .notice-detail-actions > .share-actions,
+html body #noticeModal .share-actions{
+  display:grid !important;
+  grid-template-columns:repeat(3, minmax(0, 1fr)) !important;
+  grid-auto-flow:column !important;
+  grid-auto-columns:minmax(0, 1fr) !important;
+  gap:8px !important;
+  width:100% !important;
+  max-width:100% !important;
+  min-width:0 !important;
+  margin:0 !important;
+  padding:0 !important;
+  overflow:visible !important;
+  align-items:stretch !important;
+}
+
+html body #noticeModal .notice-detail-actions > .share-actions > button,
+html body #noticeModal .notice-detail-actions > .share-actions > .btn,
+html body #noticeModal .share-actions > button,
+html body #noticeModal .share-actions > .btn{
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  flex:initial !important;
+  width:100% !important;
+  max-width:100% !important;
+  min-width:0 !important;
+  height:46px !important;
+  min-height:46px !important;
+  max-height:46px !important;
+  padding:0 5px !important;
+  box-sizing:border-box !important;
+  border-radius:16px !important;
+  white-space:nowrap !important;
+  overflow:hidden !important;
+  text-overflow:ellipsis !important;
+  font-size:12px !important;
+  font-weight:900 !important;
+  line-height:1 !important;
+  letter-spacing:-.05em !important;
+  gap:4px !important;
+}
+
+html body #noticeModal .notice-detail-actions > .share-actions > button .upick-svg-icon,
+html body #noticeModal .notice-detail-actions > .share-actions > .btn .upick-svg-icon,
+html body #noticeModal .share-actions > button .upick-svg-icon,
+html body #noticeModal .share-actions > .btn .upick-svg-icon{
+  width:15px !important;
+  height:15px !important;
+  flex:0 0 15px !important;
+  margin:0 2px 0 0 !important;
+}
+
+@media(max-width:430px){
+  html body #noticeModal .notice-detail-actions > .share-actions,
+  html body #noticeModal .share-actions{
+    display:grid !important;
+    grid-template-columns:repeat(3, minmax(0, 1fr)) !important;
+    gap:7px !important;
+  }
+
+  html body #noticeModal .notice-detail-actions > .share-actions > button,
+  html body #noticeModal .notice-detail-actions > .share-actions > .btn,
+  html body #noticeModal .share-actions > button,
+  html body #noticeModal .share-actions > .btn{
+    width:100% !important;
+    max-width:100% !important;
+    min-width:0 !important;
+    height:44px !important;
+    min-height:44px !important;
+    max-height:44px !important;
+    padding:0 4px !important;
+    font-size:11px !important;
+  }
+}
+</style>
+
+
+<script id="upick-notice-share-one-line-v6-js">
+(function(){
+  function forceNoticeShareOneLine(){
+    const modal = document.querySelector('#noticeModal');
+    if(!modal) return;
+
+    const wrappers = modal.querySelectorAll('.notice-detail-actions');
+    wrappers.forEach((wrap) => {
+      wrap.style.setProperty('display', 'block', 'important');
+      wrap.style.setProperty('width', '100%', 'important');
+      wrap.style.setProperty('max-width', '100%', 'important');
+      wrap.style.setProperty('min-width', '0', 'important');
+      wrap.style.setProperty('margin', '12px 0 0', 'important');
+      wrap.style.setProperty('padding', '0', 'important');
+      wrap.style.setProperty('overflow', 'visible', 'important');
+    });
+
+    const groups = modal.querySelectorAll('.notice-detail-actions > .share-actions, .share-actions');
+    groups.forEach((group) => {
+      group.style.setProperty('display', 'grid', 'important');
+      group.style.setProperty('grid-template-columns', 'repeat(3, minmax(0, 1fr))', 'important');
+      group.style.setProperty('gap', '7px', 'important');
+      group.style.setProperty('width', '100%', 'important');
+      group.style.setProperty('max-width', '100%', 'important');
+      group.style.setProperty('min-width', '0', 'important');
+      group.style.setProperty('margin', '0', 'important');
+      group.style.setProperty('padding', '0', 'important');
+      group.style.setProperty('overflow', 'visible', 'important');
+      group.style.setProperty('align-items', 'stretch', 'important');
+
+      Array.from(group.children).forEach((btn) => {
+        btn.style.setProperty('display', 'flex', 'important');
+        btn.style.setProperty('align-items', 'center', 'important');
+        btn.style.setProperty('justify-content', 'center', 'important');
+        btn.style.setProperty('width', '100%', 'important');
+        btn.style.setProperty('max-width', '100%', 'important');
+        btn.style.setProperty('min-width', '0', 'important');
+        btn.style.setProperty('height', '44px', 'important');
+        btn.style.setProperty('min-height', '44px', 'important');
+        btn.style.setProperty('max-height', '44px', 'important');
+        btn.style.setProperty('padding', '0 4px', 'important');
+        btn.style.setProperty('box-sizing', 'border-box', 'important');
+        btn.style.setProperty('border-radius', '16px', 'important');
+        btn.style.setProperty('white-space', 'nowrap', 'important');
+        btn.style.setProperty('overflow', 'hidden', 'important');
+        btn.style.setProperty('text-overflow', 'ellipsis', 'important');
+        btn.style.setProperty('font-size', '11px', 'important');
+        btn.style.setProperty('font-weight', '900', 'important');
+        btn.style.setProperty('line-height', '1', 'important');
+        btn.style.setProperty('letter-spacing', '-.05em', 'important');
+        btn.style.setProperty('gap', '4px', 'important');
+      });
+    });
+  }
+
+  document.addEventListener('click', function(e){
+    if(e.target.closest('[data-notice-id], .notice-card, .notice-item, #noticeList, #noticeModal')){
+      setTimeout(forceNoticeShareOneLine, 0);
+      setTimeout(forceNoticeShareOneLine, 80);
+      setTimeout(forceNoticeShareOneLine, 200);
+      setTimeout(forceNoticeShareOneLine, 500);
+    }
+  }, true);
+
+  const observer = new MutationObserver(forceNoticeShareOneLine);
+  if(document.body){
+    observer.observe(document.body, { childList:true, subtree:true, attributes:true, attributeFilter:['open', 'class', 'style'] });
+  }
+
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', forceNoticeShareOneLine);
+  }else{
+    forceNoticeShareOneLine();
+  }
+})();
+</script>
+
+<style id="upick-filter-sticky-rounded-v12">
+/* ===== 혜택 filter-sticky 최종 보정 ===== */
+
+/* 겉 패널만 둥글게 */
+html body #view-benefits .filter-sticky{
+  border-radius:26px !important;
+  overflow:visible !important; /* 팝오버/드롭다운 안 잘리게 */
+  background:rgba(255,255,255,.78) !important;
+  border:1px solid rgba(191,219,254,.48) !important;
+  box-shadow:
+    0 10px 28px rgba(15,23,42,.06),
+    inset 0 1px 0 rgba(255,255,255,.72) !important;
+  backdrop-filter:blur(18px) saturate(1.12) !important;
+  -webkit-backdrop-filter:blur(18px) saturate(1.12) !important;
+  position:relative !important;
+  z-index:5 !important;
+}
+
+/* 내부 박스만 부드럽게 */
+html body #view-benefits .filter-sticky .panel-filter-top-row,
+html body #view-benefits .filter-sticky .panel-searchbox{
+  border-radius:18px !important;
+}
+
+/* 칩 스크롤 유지 */
+html body #view-benefits .filter-sticky .chips-scroll-bound,
+html body #view-benefits .filter-sticky .chips{
+  overflow-x:auto !important;
+  overflow-y:visible !important;
+  -webkit-overflow-scrolling:touch !important;
+  touch-action:pan-x !important;
+  overscroll-behavior-x:contain !important;
+  scrollbar-width:none !important;
+}
+
+html body #view-benefits .filter-sticky .chips-scroll-bound::-webkit-scrollbar,
+html body #view-benefits .filter-sticky .chips::-webkit-scrollbar{
+  display:none !important;
+}
+
+html body #view-benefits .filter-sticky .chips{
+  display:flex !important;
+  flex-wrap:nowrap !important;
+  gap:8px !important;
+  white-space:nowrap !important;
+}
+
+html body #view-benefits .filter-sticky .chips > *{
+  flex:0 0 auto !important;
+}
+
+/* 팝오버/드롭다운이 위로 뜨도록 */
+html body #view-benefits .filter-sticky .popover,
+html body #view-benefits .filter-sticky .dropdown,
+html body #view-benefits .filter-sticky [role="listbox"],
+html body #view-benefits .filter-sticky [data-popover],
+html body #view-benefits .filter-sticky [data-dropdown]{
+  z-index:9999 !important;
+}
+</style>
+
 </body></html>
 <style id="upick-v87-profile-filter-fix">
 /* v87: 공통 헤더 아이콘용 white filter가 계정 프사까지 먹는 문제 보정 */
