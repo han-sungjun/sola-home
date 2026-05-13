@@ -32306,13 +32306,17 @@ html body #view-benefits .filter-sticky .chips .chip-all-person-icon-removed{
 .gnb-inline-badge.deprecated{background:rgba(100,116,139,.86);color:#fff;border-color:rgba(203,213,225,.62)}
 </style>
 
-<style id="upick-benefit-detail-photo-final-v6">
-/* ===== 혜택 상세 대표 사진 v6: 딥링크 진입 대응 ===== */
+<style id="upick-benefit-detail-photo-final-v9">
+/* ===== 혜택 상세 대표 사진 v9: 이미지 로드 완료 후 확대 활성화 ===== */
 #detailModal .benefit-detail-photo{
-  cursor:zoom-in !important;
+  cursor:default !important;
   position:absolute !important;
   overflow:hidden !important;
   -webkit-tap-highlight-color:transparent !important;
+}
+
+#detailModal .benefit-detail-photo.is-photo-ready{
+  cursor:zoom-in !important;
 }
 
 #detailModal .benefit-detail-photo-badge{
@@ -32324,6 +32328,7 @@ html body #view-benefits .filter-sticky .chips .chip-all-person-icon-removed{
   display:none !important;
 }
 
+/* 이미지 로드 완료 전에는 돋보기 숨김 */
 #detailModal .benefit-detail-photo .benefit-photo-zoom-icon{
   position:absolute !important;
   right:8px !important;
@@ -32340,6 +32345,14 @@ html body #view-benefits .filter-sticky .chips .chip-all-person-icon-removed{
   place-items:center !important;
   pointer-events:none !important;
   z-index:6 !important;
+  opacity:0 !important;
+  transform:scale(.86) !important;
+  transition:opacity .18s ease, transform .18s ease !important;
+}
+
+#detailModal .benefit-detail-photo.is-photo-ready .benefit-photo-zoom-icon{
+  opacity:1 !important;
+  transform:scale(1) !important;
 }
 
 #detailModal .benefit-detail-photo .benefit-photo-zoom-icon::before{
@@ -32351,6 +32364,7 @@ html body #view-benefits .filter-sticky .chips .chip-all-person-icon-removed{
   filter:brightness(0) invert(1) !important;
 }
 
+/* 확대 뷰어 */
 #detailModal #benefitPhotoZoomViewer{
   position:fixed !important;
   inset:0 !important;
@@ -32431,10 +32445,10 @@ html body #view-benefits .filter-sticky .chips .chip-all-person-icon-removed{
 </style>
 
 
-<script id="upick-benefit-detail-photo-final-v6-js">
+<script id="upick-benefit-detail-photo-final-v9-js">
 (function(){
-  let modalObserver = null;
-  let markTimer = null;
+  let retryTimer = null;
+  let applyTimer = null;
 
   function getModal(){
     return document.getElementById('detailModal');
@@ -32472,8 +32486,79 @@ html body #view-benefits .filter-sticky .chips .chip-all-person-icon-removed{
     return viewer;
   }
 
+  function isImageReady(img){
+    return !!(img && img.complete && img.naturalWidth > 0 && img.naturalHeight > 0);
+  }
+
+  function applyBenefitPhotoUI(){
+    const modal = getModal();
+    if(!modal) return false;
+
+    const photo = modal.querySelector('.benefit-detail-photo');
+    if(!photo) return false;
+
+    photo.querySelectorAll('.benefit-detail-photo-badge').forEach(el => el.remove());
+
+    if(!photo.querySelector('.benefit-photo-zoom-icon')){
+      const icon = document.createElement('span');
+      icon.className = 'benefit-photo-zoom-icon';
+      icon.setAttribute('aria-hidden', 'true');
+      photo.appendChild(icon);
+    }
+
+    const img = photo.querySelector('img');
+
+    photo.setAttribute('role', 'button');
+    photo.setAttribute('tabindex', '0');
+    photo.setAttribute('aria-label', '대표 사진 확대 보기');
+
+    if(isImageReady(img)){
+      photo.classList.add('is-photo-ready');
+      photo.dataset.photoReady = '1';
+      return true;
+    }
+
+    photo.classList.remove('is-photo-ready');
+    photo.dataset.photoReady = '0';
+
+    if(img && !img.dataset.upickZoomLoadBound){
+      img.dataset.upickZoomLoadBound = '1';
+      img.addEventListener('load', function(){
+        requestAnimationFrame(applyBenefitPhotoUI);
+      }, { once:true });
+      img.addEventListener('error', function(){
+        photo.classList.remove('is-photo-ready');
+        photo.dataset.photoReady = '0';
+      }, { once:true });
+    }
+
+    return false;
+  }
+
+  function scheduleApply(){
+    clearTimeout(applyTimer);
+    requestAnimationFrame(applyBenefitPhotoUI);
+    applyTimer = setTimeout(applyBenefitPhotoUI, 120);
+  }
+
+  function startShortRetry(){
+    clearInterval(retryTimer);
+
+    let count = 0;
+    retryTimer = setInterval(function(){
+      count += 1;
+      const done = applyBenefitPhotoUI();
+
+      if(done || count >= 30){
+        clearInterval(retryTimer);
+        retryTimer = null;
+      }
+    }, 180);
+  }
+
   function openViewer(src, title){
     if(!src) return;
+
     const viewer = ensureViewer();
     if(!viewer) return;
 
@@ -32496,64 +32581,7 @@ html body #view-benefits .filter-sticky .chips .chip-all-person-icon-removed{
     const img = viewer.querySelector('.photo-viewer-body img');
     if(img) img.removeAttribute('src');
     document.documentElement.classList.remove('benefit-photo-viewer-open');
-
-    // 확대창 닫고 돌아온 뒤에도 혹시 누락되면 즉시 보정
-    scheduleMarkPhoto();
-  }
-
-  function markPhoto(){
-    const modal = getModal();
-    if(!modal) return;
-
-    const photo = modal.querySelector('.benefit-detail-photo');
-    if(!photo) return;
-
-    photo.querySelectorAll('.benefit-detail-photo-badge').forEach(el => el.remove());
-
-    if(!photo.querySelector('.benefit-photo-zoom-icon')){
-      const icon = document.createElement('span');
-      icon.className = 'benefit-photo-zoom-icon';
-      icon.setAttribute('aria-hidden', 'true');
-      photo.appendChild(icon);
-    }
-
-    photo.setAttribute('role', 'button');
-    photo.setAttribute('tabindex', '0');
-    photo.setAttribute('aria-label', '대표 사진 확대 보기');
-
-    const img = photo.querySelector('img');
-    if(img && !img.dataset.upickZoomLoadBound){
-      img.dataset.upickZoomLoadBound = '1';
-      img.addEventListener('load', scheduleMarkPhoto, { once:false });
-    }
-  }
-
-  function scheduleMarkPhoto(){
-    clearTimeout(markTimer);
-    markTimer = setTimeout(markPhoto, 30);
-    requestAnimationFrame(markPhoto);
-  }
-
-  function startModalObserver(){
-    const modal = getModal();
-    if(!modal || modalObserver) return;
-
-    modalObserver = new MutationObserver(function(){
-      scheduleMarkPhoto();
-    });
-
-    // 전체 body가 아니라 detailModal 내부만 감시해서 부담 최소화
-    modalObserver.observe(modal, {
-      childList:true,
-      subtree:true,
-      attributes:true,
-      attributeFilter:['open','class','style','src']
-    });
-
-    scheduleMarkPhoto();
-    setTimeout(markPhoto, 100);
-    setTimeout(markPhoto, 300);
-    setTimeout(markPhoto, 700);
+    scheduleApply();
   }
 
   document.addEventListener('click', function(e){
@@ -32561,7 +32589,15 @@ html body #view-benefits .filter-sticky .chips .chip-all-person-icon-removed{
     if(!photo) return;
 
     const img = photo.querySelector('img');
-    if(!img || !img.src) return;
+
+    // 이미지 렌더링 완료 전에는 확대 차단
+    if(!isImageReady(img) || !photo.classList.contains('is-photo-ready')){
+      e.preventDefault();
+      e.stopPropagation();
+      scheduleApply();
+      startShortRetry();
+      return;
+    }
 
     e.preventDefault();
     e.stopPropagation();
@@ -32581,7 +32617,13 @@ html body #view-benefits .filter-sticky .chips .chip-all-person-icon-removed{
     if(e.key !== 'Enter' && e.key !== ' ') return;
 
     const img = photo.querySelector('img');
-    if(!img || !img.src) return;
+
+    if(!isImageReady(img) || !photo.classList.contains('is-photo-ready')){
+      e.preventDefault();
+      scheduleApply();
+      startShortRetry();
+      return;
+    }
 
     e.preventDefault();
 
@@ -32589,42 +32631,47 @@ html body #view-benefits .filter-sticky .chips .chip-all-person-icon-removed{
     openViewer(img.currentSrc || img.src, titleEl ? titleEl.textContent.trim() : '');
   }, true);
 
-  // 일반 클릭 진입, 딥링크 자동 진입 모두 대응
+  // 일반 클릭 진입 + 딥링크 자동 진입 대응
   document.addEventListener('click', function(){
-    startModalObserver();
-    setTimeout(scheduleMarkPhoto, 80);
-    setTimeout(scheduleMarkPhoto, 250);
+    setTimeout(scheduleApply, 60);
+    setTimeout(scheduleApply, 220);
+    setTimeout(scheduleApply, 600);
+    startShortRetry();
   }, true);
 
   window.addEventListener('pageshow', function(){
-    startModalObserver();
-    scheduleMarkPhoto();
-    setTimeout(scheduleMarkPhoto, 250);
+    scheduleApply();
+    setTimeout(scheduleApply, 250);
+    setTimeout(scheduleApply, 700);
+    startShortRetry();
   });
 
   document.addEventListener('visibilitychange', function(){
     if(!document.hidden){
-      startModalObserver();
-      scheduleMarkPhoto();
+      scheduleApply();
+      startShortRetry();
     }
   });
 
   if(document.readyState === 'loading'){
     document.addEventListener('DOMContentLoaded', function(){
-      startModalObserver();
-      scheduleMarkPhoto();
-      setTimeout(scheduleMarkPhoto, 250);
-      setTimeout(scheduleMarkPhoto, 800);
+      scheduleApply();
+      setTimeout(scheduleApply, 250);
+      setTimeout(scheduleApply, 800);
+      startShortRetry();
     });
   }else{
-    startModalObserver();
-    scheduleMarkPhoto();
-    setTimeout(scheduleMarkPhoto, 250);
-    setTimeout(scheduleMarkPhoto, 800);
+    scheduleApply();
+    setTimeout(scheduleApply, 250);
+    setTimeout(scheduleApply, 800);
+    startShortRetry();
   }
 
   window.closeBenefitPhotoZoomViewer = closeViewer;
-  window.upickMarkBenefitPhotoZoomIcon = scheduleMarkPhoto;
+  window.upickApplyBenefitPhotoUI = function(){
+    scheduleApply();
+    startShortRetry();
+  };
 })();
 </script>
 
