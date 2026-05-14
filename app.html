@@ -1123,17 +1123,17 @@
     <aside aria-hidden="true" class="gnb-sheet" id="gnbSheet">
       <div class="gnb-top">
         <div class="gnb-icons">
-          <button class="gnb-close" id="gnbCloseBtn" title="닫기" type="button">
-            ✕
-          </button>
           <button class="gnb-icon-btn gnb-home-active" data-view-link="home" title="홈" type="button">
             <img alt class="upick-svg-icon" loading="lazy" src="/icons/internal/home.svg">
           </button>
-          <button aria-label="로그아웃" class="gnb-icon-btn" id="gnbLogoutQuickBtn" title="로그아웃">
+          <button aria-label="로그아웃" class="gnb-icon-btn" id="gnbLogoutQuickBtn" title="로그아웃" type="button">
             <img alt class="upick-svg-icon logout-exit-icon" loading="lazy" src="/icons/internal/logout.svg">
             <span class="gnb-tooltip">
               로그아웃
             </span>
+          </button>
+          <button aria-label="전체 메뉴 닫기" class="gnb-close" id="gnbCloseBtn" title="닫기" type="button">
+            ✕
           </button>
         </div>
         <div class="gnb-hero">
@@ -1530,6 +1530,14 @@
                     닉네임 중심
                   </span>
                 </button>
+                <button class="gnb-action-btn outline" id="openPasswordChangeBtn" type="button">
+                  <span>
+                    비밀번호 변경
+                  </span>
+                  <span class="desc">
+                    재로그인 필요
+                  </span>
+                </button>
                 <button class="gnb-action-btn outline" id="logoutBtn" type="button">
                   <span>
                     로그아웃
@@ -1639,6 +1647,51 @@
         </form>
       </div>
     </dialog>
+    <dialog id="passwordChangeModal">
+      <div class="modal-head">
+        <div class="pill">
+          비밀번호 변경
+        </div>
+        <button class="close-btn" id="closePasswordChangeModal" type="button">
+          ✕
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="account-edit-help">
+          현재 비밀번호 확인 후 새 비밀번호로 변경합니다. 변경 완료 후 보안을 위해 자동 로그아웃됩니다.
+        </div>
+        <form class="account-edit-form" id="passwordChangeForm">
+          <div class="account-edit-field">
+            <label for="currentPasswordInput">
+              기존 비밀번호
+            </label>
+            <input autocomplete="current-password" id="currentPasswordInput" name="currentPassword" placeholder="기존 비밀번호 입력" type="password">
+          </div>
+          <div class="account-edit-field">
+            <label for="newPasswordInput">
+              새 비밀번호
+            </label>
+            <input autocomplete="new-password" id="newPasswordInput" name="newPassword" placeholder="새 비밀번호 입력" type="password">
+          </div>
+          <div class="account-edit-field">
+            <label for="newPasswordConfirmInput">
+              새 비밀번호 확인
+            </label>
+            <input autocomplete="new-password" id="newPasswordConfirmInput" name="newPasswordConfirm" placeholder="새 비밀번호 다시 입력" type="password">
+            <p class="password-live-message" id="passwordChangeMatchMessage" aria-live="polite"></p>
+          </div>
+          <div class="account-edit-actions">
+            <button class="btn btn-soft block" id="cancelPasswordChangeBtn" type="button">
+              취소
+            </button>
+            <button class="btn btn-primary block" id="submitPasswordChangeBtn" type="submit">
+              비밀번호 변경
+            </button>
+          </div>
+        </form>
+      </div>
+    </dialog>
+
     <dialog aria-hidden="true" class="app-alert" id="appAlert">
       <div aria-describedby="appAlertMessage" aria-labelledby="appAlertTitle" aria-modal="true" class="app-alert-card" role="alertdialog">
         <div class="app-alert-head">
@@ -1694,7 +1747,7 @@
         </div>
       </div>
     </dialog>
-    <script src="/js/app.js?v=2026051402" type="module">
+    <script src="/js/app.js?v=2026051407" type="module">
     </script>
       <script defer src="/common/accessibility.js?v=2026051401"></script>
   </body>

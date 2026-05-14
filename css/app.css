@@ -18990,3 +18990,284 @@ body.ui-loading-lock.gnb-open .gnb-sheet{
   visibility:visible!important;
   opacity:1!important;
 }
+
+/* ===== accessibility: favorite button keyboard focus fix ===== */
+.fav-iconbtn:focus-visible,
+.fav-icon-btn:focus-visible{
+  outline:none!important;
+  border-radius:999px!important;
+  box-shadow:0 0 0 3px rgba(37,99,235,.42)!important;
+}
+
+.card .fav-iconbtn,
+.card .fav-icon-btn{
+  position:relative;
+  z-index:5;
+}
+
+/* ===== accessibility: favorite star focus ring strong override =====
+   기존 #cardList.view-* .fav-icon-btn { box-shadow:none!important; } 보다
+   더 높은 우선순위로 포커스 링을 다시 살립니다. */
+#cardList.view-card .card .fav-icon-btn:focus,
+#cardList.view-card .card .fav-icon-btn:focus-visible,
+#cardList.view-list .card .fav-icon-btn:focus,
+#cardList.view-list .card .fav-icon-btn:focus-visible,
+#favoriteList .card .fav-icon-btn:focus,
+#favoriteList .card .fav-icon-btn:focus-visible,
+#cardList.view-card .card .fav-iconbtn:focus,
+#cardList.view-card .card .fav-iconbtn:focus-visible,
+#cardList.view-list .card .fav-iconbtn:focus,
+#cardList.view-list .card .fav-iconbtn:focus-visible,
+#favoriteList .card .fav-iconbtn:focus,
+#favoriteList .card .fav-iconbtn:focus-visible{
+  outline:none!important;
+  border-radius:999px!important;
+  box-shadow:0 0 0 3px rgba(37,99,235,.55)!important;
+}
+
+#cardList.view-card .card .fav-icon-btn:focus img,
+#cardList.view-card .card .fav-icon-btn:focus-visible img,
+#cardList.view-list .card .fav-icon-btn:focus img,
+#cardList.view-list .card .fav-icon-btn:focus-visible img,
+#favoriteList .card .fav-icon-btn:focus img,
+#favoriteList .card .fav-icon-btn:focus-visible img,
+#cardList.view-card .card .fav-iconbtn:focus img,
+#cardList.view-card .card .fav-iconbtn:focus-visible img,
+#cardList.view-list .card .fav-iconbtn:focus img,
+#cardList.view-list .card .fav-iconbtn:focus-visible img,
+#favoriteList .card .fav-iconbtn:focus img,
+#favoriteList .card .fav-iconbtn:focus-visible img{
+  filter:drop-shadow(0 0 0 rgba(37,99,235,.55))!important;
+}
+
+
+/* ===== accessibility: global header icon focus ring fix =====
+   glass/overflow 계열 버튼도 키보드 포커스 링이 잘리지 않도록 내부+외부 링을 함께 표시합니다. */
+#upickGlobalHero.upick-global-hero-shell #globalGnbBtn,
+#upickGlobalHero.upick-global-hero-shell #globalAiBtn,
+#upickGlobalHero.upick-global-hero-shell #globalUserChip,
+#upickGlobalHero.upick-global-hero-shell #globalInstallBtn{
+  overflow:visible!important;
+}
+
+#upickGlobalHero.upick-global-hero-shell #globalGnbBtn:focus,
+#upickGlobalHero.upick-global-hero-shell #globalGnbBtn:focus-visible,
+#upickGlobalHero.upick-global-hero-shell #globalAiBtn:focus,
+#upickGlobalHero.upick-global-hero-shell #globalAiBtn:focus-visible,
+#upickGlobalHero.upick-global-hero-shell #globalUserChip:focus,
+#upickGlobalHero.upick-global-hero-shell #globalUserChip:focus-visible,
+#upickGlobalHero.upick-global-hero-shell #globalInstallBtn:focus,
+#upickGlobalHero.upick-global-hero-shell #globalInstallBtn:focus-visible{
+  outline:none!important;
+  border-color:#2563eb!important;
+  box-shadow:
+    0 0 0 3px rgba(37,99,235,.55),
+    0 0 0 6px rgba(37,99,235,.18),
+    inset 0 1px 0 rgba(255,255,255,.28)!important;
+}
+
+/* ===== accessibility: stronger global header focus ring visibility =====
+   상단 히어로 영역은 배경이 파란 계열이라 기존 파란 링이 약하게 보여
+   흰색 내부 링 + 브랜드 블루 외부 링 + 은은한 글로우로 대비를 강화합니다. */
+#upickGlobalHero.upick-global-hero-shell #globalGnbBtn:focus,
+#upickGlobalHero.upick-global-hero-shell #globalGnbBtn:focus-visible,
+#upickGlobalHero.upick-global-hero-shell #globalAiBtn:focus,
+#upickGlobalHero.upick-global-hero-shell #globalAiBtn:focus-visible,
+#upickGlobalHero.upick-global-hero-shell #globalUserChip:focus,
+#upickGlobalHero.upick-global-hero-shell #globalUserChip:focus-visible,
+#upickGlobalHero.upick-global-hero-shell #globalInstallBtn:focus,
+#upickGlobalHero.upick-global-hero-shell #globalInstallBtn:focus-visible{
+  outline:none!important;
+  border-color:rgba(255,255,255,.95)!important;
+  box-shadow:
+    0 0 0 2px rgba(255,255,255,.98),
+    0 0 0 6px rgba(37,99,235,.92),
+    0 0 0 10px rgba(255,255,255,.28),
+    0 10px 24px rgba(15,23,42,.24),
+    inset 0 0 0 1px rgba(255,255,255,.45)!important;
+}
+
+#upickGlobalHero.upick-global-hero-shell #globalGnbBtn:focus-visible img,
+#upickGlobalHero.upick-global-hero-shell #globalAiBtn:focus-visible img,
+#upickGlobalHero.upick-global-hero-shell #globalUserChip:focus-visible img,
+#upickGlobalHero.upick-global-hero-shell #globalInstallBtn:focus-visible img{
+  transform:scale(1.04);
+}
+
+/* =========================================================
+   A11Y PATCH: GNB third/menu button focus ring outside button
+   - Prevent focus ring from being buried inside the glass button
+   - Keep parent wrappers from clipping outline/outer glow
+   ========================================================= */
+#upickGlobalHero,
+#upickGlobalHero .upick-home-hero-shell,
+#upickGlobalHero .upick-global-hero-shell,
+#upickGlobalHero .unified-topbar,
+#upickGlobalHero .upick-header-utils,
+#upickGlobalHero .gnb-wrap,
+#upickGlobalHero .global-user-wrap,
+#upickGlobalHero .global-ai-wrap {
+  overflow: visible !important;
+}
+
+#globalGnbBtn:focus-visible {
+  outline: 4px solid rgba(255, 255, 255, 0.98) !important;
+  outline-offset: 4px !important;
+  border-color: rgba(255, 255, 255, 0.98) !important;
+  box-shadow:
+    0 0 0 8px rgba(37, 99, 235, 0.58),
+    0 0 20px rgba(37, 99, 235, 0.72),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.65),
+    inset 0 1px 0 rgba(255, 255, 255, 0.35) !important;
+  transform: scale(1.06) !important;
+}
+
+#globalGnbBtn:focus:not(:focus-visible) {
+  outline: none !important;
+}
+
+
+/* =========================================================
+   A11Y PATCH: GNB sheet focus visibility + tab order
+   - Opening the GNB moves focus to the left Home button
+   - Close button remains visually top-right but appears later in tab order
+   - Focus ring is drawn outside the glass button and is not clipped
+   ========================================================= */
+#gnbSheet,
+#gnbSheet .gnb-top,
+#gnbSheet .gnb-icons {
+  overflow: visible !important;
+}
+
+#gnbSheet .gnb-icon-btn,
+#gnbSheet .gnb-close {
+  position: relative !important;
+  z-index: 3 !important;
+  overflow: visible !important;
+}
+
+#gnbSheet .gnb-icon-btn:focus,
+#gnbSheet .gnb-icon-btn:focus-visible,
+#gnbSheet .gnb-close:focus,
+#gnbSheet .gnb-close:focus-visible {
+  outline: 4px solid rgba(255,255,255,.98) !important;
+  outline-offset: 4px !important;
+  border-color: rgba(255,255,255,.98) !important;
+  box-shadow:
+    0 0 0 8px rgba(37,99,235,.72),
+    0 0 22px rgba(37,99,235,.78),
+    0 12px 28px rgba(15,23,42,.24),
+    inset 0 0 0 1px rgba(255,255,255,.72),
+    inset 0 1px 0 rgba(255,255,255,.42) !important;
+  transform: scale(1.06) !important;
+}
+
+#gnbSheet .gnb-icon-btn:focus:not(:focus-visible),
+#gnbSheet .gnb-close:focus:not(:focus-visible) {
+  outline: none !important;
+}
+
+/* =========================================================
+   A11Y PATCH: GNB sheet universal focus ring
+   - Show a visible focus ring on every focusable control inside GNB
+   - Do not suppress the ring when focus is restored by script or mouse
+   ========================================================= */
+#gnbSheet :is(button, a, [role="button"], input, select, textarea, [tabindex]:not([tabindex="-1"])):focus {
+  outline: 4px solid rgba(255,255,255,.98) !important;
+  outline-offset: 4px !important;
+  border-color: rgba(255,255,255,.98) !important;
+  box-shadow:
+    0 0 0 8px rgba(37,99,235,.72),
+    0 0 24px rgba(37,99,235,.82),
+    0 12px 28px rgba(15,23,42,.24),
+    inset 0 0 0 1px rgba(255,255,255,.72),
+    inset 0 1px 0 rgba(255,255,255,.42) !important;
+  border-radius: 14px !important;
+  position: relative !important;
+  z-index: 10 !important;
+}
+
+#gnbSheet .gnb-close:focus,
+#gnbSheet .gnb-icon-btn:focus {
+  border-radius: 14px !important;
+  transform: scale(1.06) !important;
+}
+
+#gnbSheet :is(.gnb-menu-item, .gnb-menu-subitem, .gnb-chip, .gnb-banner, .all-menu-card):focus {
+  outline-color: #2563eb !important;
+  box-shadow:
+    0 0 0 4px rgba(255,255,255,.98),
+    0 0 0 8px rgba(37,99,235,.48),
+    0 12px 26px rgba(15,23,42,.16) !important;
+}
+
+
+/* =========================================================
+   A11Y PATCH: force-visible focus ring for GNB initial focus
+   - Chrome may not apply :focus-visible after script focus in some entry paths
+   - This class is added only to the first focused GNB control on open
+   ========================================================= */
+#gnbSheet .upick-force-focus-ring,
+#gnbSheet .upick-force-focus-ring:focus,
+#gnbSheet .upick-force-focus-ring:focus-visible {
+  outline: 4px solid rgba(255,255,255,.98) !important;
+  outline-offset: 4px !important;
+  border-color: rgba(255,255,255,.98) !important;
+  box-shadow:
+    0 0 0 8px rgba(37,99,235,.78),
+    0 0 26px rgba(37,99,235,.86),
+    0 12px 28px rgba(15,23,42,.26),
+    inset 0 0 0 1px rgba(255,255,255,.76),
+    inset 0 1px 0 rgba(255,255,255,.45) !important;
+  border-radius: 14px !important;
+  position: relative !important;
+  z-index: 20 !important;
+  transform: scale(1.06) !important;
+}
+
+/* ===== GNB header close alignment + password change ===== */
+.gnb-icons{
+  display:flex !important;
+  align-items:center !important;
+  gap:10px !important;
+  width:100% !important;
+}
+
+.gnb-icons .gnb-close{
+  margin-left:auto !important;
+}
+
+#passwordChangeModal .password-live-message{
+  margin:8px 2px 0;
+  font-size:12px;
+  line-height:1.4;
+  color:#64748b;
+}
+
+#passwordChangeModal .password-live-message.success{
+  color:#16a34a;
+}
+
+#passwordChangeModal .password-live-message.error{
+  color:#dc2626;
+}
+
+#passwordChangeModal .password-live-message.info{
+  color:#2563eb;
+}
+
+/* ===== GNB close button edge alignment ===== */
+.gnb-icons{
+  padding-right:max(6px, env(safe-area-inset-right)) !important;
+}
+
+.gnb-icons .gnb-close{
+  margin-left:auto !important;
+  transform:translateX(1px) !important;
+}
+
+@media (max-width: 480px){
+  .gnb-icons .gnb-close{
+    transform:translateX(2px) !important;
+  }
+}

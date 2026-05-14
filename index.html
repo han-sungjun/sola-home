@@ -91,6 +91,19 @@
               </label>
               <input autocomplete="current-password" class="input" id="password" placeholder="비밀번호 입력" type="password">
             </div>
+            <div class="login-support-row">
+              <label class="save-id-check" for="saveLoginId">
+                <input id="saveLoginId" type="checkbox">
+                <span>아이디 저장</span>
+              </label>
+              <div class="login-help-links" aria-label="로그인 도움 메뉴">
+                <button class="login-help-link" id="openFindNicknameBtn" type="button">닉네임 찾기</button>
+                <span aria-hidden="true">|</span>
+                <button class="login-help-link" id="openFindIdBtn" type="button">아이디 찾기</button>
+                <span aria-hidden="true">|</span>
+                <button class="login-help-link" id="openResetPwBtn" type="button">비밀번호 재설정</button>
+              </div>
+            </div>
             <div class="helper">
               회원가입 후 바로 입주민 전용 서비스를 이용할 수 있습니다.
             </div>
@@ -136,68 +149,66 @@
       </div>
     </div>
     <div aria-hidden="true" class="sheet-modal" id="accountHelpModal">
-      <div aria-labelledby="accountHelpTitle" aria-modal="true" class="sheet-panel" role="dialog">
-        <div class="sheet-handle">
-        </div>
+      <div aria-labelledby="accountHelpTitle" aria-modal="true" class="sheet-panel account-recovery-panel" role="dialog">
+        <div class="sheet-handle"></div>
         <div class="sheet-head">
           <div>
-            <h3 class="sheet-title" id="accountHelpTitle">
-              로그인 안내
-            </h3>
-            <p class="sheet-desc" id="accountHelpDesc">
-              아이디 찾기 및 비밀번호 재설정을 진행합니다.
-            </p>
+            <h3 class="sheet-title" id="accountHelpTitle">로그인 도움</h3>
+            <p class="sheet-desc" id="accountHelpDesc">아이디, 닉네임 확인 또는 비밀번호 재설정을 진행합니다.</p>
           </div>
-          <button aria-label="닫기" class="sheet-close" id="accountHelpCloseBtn" type="button">
-            ✕
-          </button>
+          <button aria-label="닫기" class="sheet-close" id="accountHelpCloseBtn" type="button">✕</button>
         </div>
-        <div class="sheet-tabs">
-          <button class="sheet-tab active" id="tabFindId" type="button">
-            아이디 찾기
-          </button>
-          <button class="sheet-tab" id="tabResetPw" type="button">
-            비밀번호 재설정
-          </button>
+        <div class="sheet-tabs account-recovery-tabs" role="tablist" aria-label="로그인 도움 탭">
+          <button class="sheet-tab active" id="tabFindNickname" type="button" role="tab" aria-controls="findNicknameSection" aria-selected="true">닉네임 찾기</button>
+          <button class="sheet-tab" id="tabFindId" type="button" role="tab" aria-controls="findIdSection" aria-selected="false">아이디 찾기</button>
+          <button class="sheet-tab" id="tabResetPw" type="button" role="tab" aria-controls="resetPwSection" aria-selected="false">비밀번호 재설정</button>
         </div>
         <div class="sheet-body">
-          <section class="sheet-section active" id="findIdSection">
-            <p class="sheet-note">
-              현재 로그인 방식은 이메일이 아니라 가입 시 등록한 아이디입니다.
-아이디가 기억나지 않으면 운영자에게 확인을 요청해 주세요.
-            </p>
+          <section class="sheet-section active" id="findNicknameSection" role="tabpanel" aria-labelledby="tabFindNickname">
+            <p class="sheet-note">아이디는 알고 있으나 닉네임이 기억나지 않을 때 사용합니다. 아이디도 기억나지 않는 경우 관리자에게 문의하거나 신규 간편 입장 신청을 진행해주세요.</p>
             <div class="field">
-              <label for="findIdEmail">
-                로그인 아이디 안내
-              </label>
-              <input autocomplete="username" class="input" id="findIdEmail" inputmode="text" placeholder="가입 시 사용한 아이디 입력" type="text">
+              <label for="findNicknameLoginId">아이디</label>
+              <input autocomplete="username" class="input" id="findNicknameLoginId" inputmode="text" placeholder="아이디 입력" type="text">
             </div>
             <div class="sheet-inline-actions">
-              <button class="btn btn-primary" id="applyFindIdBtn" type="button">
-                입력한 값을 아이디 칸에 넣기
-              </button>
+              <button class="btn btn-primary" id="findNicknameBtn" type="button">닉네임 찾기</button>
             </div>
-            <div class="sheet-result info" id="findIdResult">
-            </div>
+            <div class="sheet-result info" id="findNicknameResult"></div>
           </section>
-          <section class="sheet-section" id="resetPwSection">
-            <p class="sheet-note">
-              가입 시 등록한 이메일이 있으면 Firebase 비밀번호 재설정 메일을 발송합니다.
-이메일이 없고 휴대폰 번호가 등록되어 있으면 휴대폰 인증 후 재설정 단계로 이동합니다.
-            </p>
+          <section class="sheet-section" id="findIdSection" role="tabpanel" aria-labelledby="tabFindId">
+            <p class="sheet-note">닉네임은 알고 있으나 아이디가 기억나지 않을 때 사용합니다. 닉네임도 기억나지 않는 경우 관리자에게 문의하거나 신규 간편 입장 신청을 진행해주세요.</p>
             <div class="field">
-              <label for="resetPwLoginId">
-                아이디
-              </label>
+              <label for="findIdNickname">닉네임</label>
+              <input autocomplete="nickname" class="input" id="findIdNickname" inputmode="text" placeholder="닉네임 입력" type="text">
+            </div>
+            <div class="sheet-inline-actions">
+              <button class="btn btn-primary" id="findIdBtn" type="button">아이디 찾기</button>
+            </div>
+            <div class="sheet-result info" id="findIdResult"></div>
+          </section>
+          <section class="sheet-section" id="resetPwSection" role="tabpanel" aria-labelledby="tabResetPw">
+            <p class="sheet-note">비밀번호는 보안상 확인할 수 없습니다. 아이디와 닉네임 확인 후 새 비밀번호로 재설정됩니다.</p>
+            <div class="field">
+              <label for="resetPwLoginId">아이디</label>
               <input autocomplete="username" class="input" id="resetPwLoginId" inputmode="text" placeholder="아이디 입력" type="text">
             </div>
+            <div class="field">
+              <label for="resetPwNickname">닉네임</label>
+              <input autocomplete="nickname" class="input" id="resetPwNickname" inputmode="text" placeholder="닉네임 입력" type="text">
+            </div>
+            <div class="field">
+              <label for="resetPwNewPassword">새 비밀번호</label>
+              <input autocomplete="new-password" class="input" id="resetPwNewPassword" placeholder="새 비밀번호 입력" type="password">
+            </div>
+            <div class="field">
+              <label for="resetPwNewPasswordConfirm">새 비밀번호 확인</label>
+              <input autocomplete="new-password" class="input" id="resetPwNewPasswordConfirm" placeholder="새 비밀번호 다시 입력" type="password">
+              <p class="password-live-message" id="resetPwMatchMessage" aria-live="polite"></p>
+            </div>
             <div class="sheet-inline-actions">
-              <button class="btn btn-primary" id="sendResetPwBtn" type="button">
-                재설정 메일 보내기
-              </button>
+              <button class="btn btn-primary" id="resetPwSubmitBtn" type="button">비밀번호 재설정</button>
             </div>
-            <div class="sheet-result info" id="resetPwResult">
-            </div>
+            <div class="sheet-result info" id="resetPwResult"></div>
           </section>
         </div>
       </div>
@@ -229,8 +240,8 @@
         </div>
       </div>
     </div>
-    <script src="/js/index.js">
-    </script>
+    <script src="/js/index.js"></script>
+    <script type="module" src="/js/account-recovery.js?v=2026051402"></script>
       <script defer src="/common/accessibility.js?v=2026051401"></script>
   </body>
 </html>

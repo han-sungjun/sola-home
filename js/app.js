@@ -1488,10 +1488,8 @@ function setPushStatusUi(enabled){
 
  alertConfirmEl.addEventListener('click', () => closeModal(true));
  alertCancelEl.addEventListener('click', () => closeModal(false));
- alertEl.addEventListener('click', (event) => {
- if(event.target === alertEl) closeModal(false);
- });
- window.addEventListener('keydown', (event) => {
+ // 앱 알림은 바깥 영역 클릭으로 닫지 않습니다.
+window.addEventListener('keydown', (event) => {
  if(!alertEl.classList.contains('show')) return;
  if(event.key === 'Escape') closeModal(false);
  });
@@ -1820,7 +1818,65 @@ function setPushStatusUi(enabled){
  }
  }
 
- function openAccountEditModal(){
+ 
+
+/* ===== Global modal backdrop lock =====
+   모든 dialog / role=dialog / alertdialog 계열은 바깥 영역 클릭으로 닫지 않습니다.
+   사용자는 X, 취소, 확인 등 명시 버튼으로만 닫을 수 있습니다. */
+function lockModalBackdropClick(event){
+  const target = event.target;
+  const current = event.currentTarget;
+
+  if(target === current){
+    event.preventDefault();
+    event.stopPropagation();
+    event.stopImmediatePropagation?.();
+  }
+}
+
+function bindGlobalModalBackdropLock(){
+  const selectors = [
+    'dialog',
+    '.app-alert',
+    '[role="dialog"]',
+    '[role="alertdialog"]',
+    '.modal',
+    '.modal-overlay',
+    '.modal-backdrop',
+    '.sheet-modal'
+  ];
+
+  document.querySelectorAll(selectors.join(',')).forEach((el) => {
+    if(el.dataset.backdropLockBound === '1') return;
+    el.dataset.backdropLockBound = '1';
+    el.addEventListener('click', lockModalBackdropClick, true);
+    el.addEventListener('pointerdown', lockModalBackdropClick, true);
+  });
+}
+
+bindGlobalModalBackdropLock();
+
+const modalBackdropLockObserver = new MutationObserver(() => {
+  bindGlobalModalBackdropLock();
+});
+
+modalBackdropLockObserver.observe(document.documentElement, {
+  childList:true,
+  subtree:true
+});
+
+function preventBackdropClose(event){
+  if(event.target === event.currentTarget){
+    event.preventDefault();
+    event.stopPropagation();
+  }
+}
+
+['#accountEditModal', '#passwordChangeModal', '#appAlert'].forEach((selector) => {
+  qs(selector)?.addEventListener('click', preventBackdropClose, true);
+});
+
+function openAccountEditModal(){
  fillAccountEditForm();
  const modal = qs('#accountEditModal');
  if(!modal) return;
@@ -1875,6 +1931,134 @@ function setPushStatusUi(enabled){
  await openModalAlert('계정 정보 저장 중 오류가 발생했습니다.', qs('#openAccountEditBtn'));
  }
  }
+
+function resetPasswordChangeForm(){
+  ['#currentPasswordInput','#newPasswordInput','#newPasswordConfirmInput'].forEach((selector) => {
+    const el = qs(selector);
+    if(el) el.value = '';
+  });
+  const msg = qs('#passwordChangeMatchMessage');
+  if(msg){
+    msg.textContent = '';
+    msg.className = 'password-live-message';
+  }
+}
+
+function updatePasswordChangeMatchMessage(){
+  const pw = qs('#newPasswordInput')?.value || '';
+  const confirm = qs('#newPasswordConfirmInput')?.value || '';
+  const msg = qs('#passwordChangeMatchMessage');
+  if(!msg) return;
+  msg.className = 'password-live-message';
+  if(!pw && !confirm){
+    msg.textContent = '';
+    return;
+  }
+  if(pw.length > 0 && pw.length < 6){
+    msg.textContent = '새 비밀번호는 6자 이상 입력해주세요.';
+    msg.classList.add('error');
+    return;
+  }
+  if(!confirm){
+    msg.textContent = '새 비밀번호 확인란을 입력해주세요.';
+    msg.classList.add('info');
+    return;
+  }
+  if(pw === confirm){
+    msg.textContent = '새 비밀번호가 일치합니다.';
+    msg.classList.add('success');
+  }else{
+    msg.textContent = '새 비밀번호가 일치하지 않습니다.';
+    msg.classList.add('error');
+  }
+}
+
+function openPasswordChangeModal(){
+  const modal = qs('#passwordChangeModal');
+  if(!modal) return;
+  resetPasswordChangeForm();
+  if(modal.open) modal.close();
+  modal.showModal();
+  requestAnimationFrame(() => qs('#currentPasswordInput')?.focus());
+}
+
+function closePasswordChangeModal(){
+  const modal = qs('#passwordChangeModal');
+  if(modal?.open) modal.close();
+  resetPasswordChangeForm();
+}
+
+async function submitPasswordChange(event){
+  event?.preventDefault?.();
+  const currentPassword = qs('#currentPasswordInput')?.value || '';
+  const newPassword = qs('#newPasswordInput')?.value || '';
+  const newPasswordConfirm = qs('#newPasswordConfirmInput')?.value || '';
+  const submitBtn = qs('#submitPasswordChangeBtn');
+
+  if(!currentPassword){
+    await openModalAlert('기존 비밀번호를 입력해주세요.', qs('#currentPasswordInput'));
+    return;
+  }
+  if(!newPassword || newPassword.length < 6){
+    await openModalAlert('새 비밀번호는 6자 이상 입력해주세요.', qs('#newPasswordInput'));
+    return;
+  }
+  if(newPassword !== newPasswordConfirm){
+    await openModalAlert('새 비밀번호가 일치하지 않습니다.', qs('#newPasswordConfirmInput'));
+    return;
+  }
+  if(currentPassword === newPassword){
+    await openModalAlert('기존 비밀번호와 다른 비밀번호를 입력해주세요.', qs('#newPasswordInput'));
+    return;
+  }
+
+  try{
+    if(submitBtn){
+      submitBtn.disabled = true;
+      submitBtn.dataset.originalText = submitBtn.textContent;
+      submitBtn.textContent = '변경 중...';
+    }
+
+    const idToken = await auth.currentUser?.getIdToken?.(true);
+    if(!idToken){
+      await openModalAlert('로그인 정보가 만료되었습니다. 다시 로그인해주세요.');
+      redirectToLogin();
+      return;
+    }
+
+    const response = await fetch(API_URL[ENV].changePasswordWithCurrent, {
+      method:'POST',
+      headers:{
+        'Content-Type':'application/json',
+        'Authorization':`Bearer ${idToken}`
+      },
+      body:JSON.stringify({ currentPassword, newPassword, newPasswordConfirm })
+    });
+
+    let data = {};
+    try{ data = await response.json(); }catch(_){}
+
+    if(!response.ok || data.ok === false){
+      throw new Error(data.message || '비밀번호 변경 처리 중 오류가 발생했습니다.');
+    }
+
+    closePasswordChangeModal();
+    await openModalAlert(data.message || '비밀번호 변경이 완료되었습니다. 보안을 위해 다시 로그인해주세요.');
+    try{ await logoutServerSession(auth, API_URL[ENV]); }catch(_){}
+    try{ await signOut(auth); }catch(_){}
+    redirectToLogin();
+  }catch(error){
+    console.error('비밀번호 변경 실패', error);
+    await openModalAlert(error.message || '비밀번호 변경 처리 중 오류가 발생했습니다.', qs('#submitPasswordChangeBtn'));
+  }finally{
+    if(submitBtn){
+      submitBtn.disabled = false;
+      submitBtn.textContent = submitBtn.dataset.originalText || '비밀번호 변경';
+      delete submitBtn.dataset.originalText;
+    }
+  }
+}
+
 async function enablePushNotifications(){
  try{
  if(!state.currentUser?.uid){
@@ -3306,12 +3490,26 @@ stationAccessText:item.stationAccessText||item.transitText||item.stationGuide||i
  return collection(db, 'users', state.currentUser.uid, 'favorites');
  }
 
+ function restoreFavoriteButtonFocus(id){
+ if(!id) return;
+ const selector = `.fav-icon-btn[data-favorite-id="${CSS.escape(id)}"], .fav-iconbtn[data-favorite-id="${CSS.escape(id)}"], .fav-btn[data-favorite-id="${CSS.escape(id)}"]`;
+ const restore = () => {
+ const btn = document.querySelector(selector);
+ if(btn && typeof btn.focus === 'function') btn.focus({preventScroll:true});
+ };
+ requestAnimationFrame(restore);
+ setTimeout(restore, 80);
+ setTimeout(restore, 220);
+ }
+
  function subscribeFavorites(){
  const favoritesRef = getFavoritesCollectionRef();
  if(!favoritesRef) return;
  onSnapshot(favoritesRef, (snapshot) => {
+ const activeFavoriteId = document.activeElement?.dataset?.favoriteId || '';
  state.favoriteIds = snapshot.docs.map((d) => d.id);
  renderAll();
+ if(activeFavoriteId) restoreFavoriteButtonFocus(activeFavoriteId);
  }, (error) => {
  console.error('즐겨찾기 로드 실패', error);
  });
@@ -3340,6 +3538,7 @@ stationAccessText:item.stationAccessText||item.transitText||item.stationGuide||i
 
  state.favoriteIds = Array.from(set);
  renderAll();
+ restoreFavoriteButtonFocus(id);
  return isAdding;
  }catch(error){
  console.error('즐겨찾기 저장 실패', id, error);
@@ -4257,6 +4456,23 @@ ${item.content || ''}`);
  }
  }
 
+ function makeKeyboardClickable(el, label){
+ if(!el) return el;
+ el.setAttribute('role','button');
+ el.setAttribute('tabindex','0');
+ if(label && !el.getAttribute('aria-label')) el.setAttribute('aria-label', label);
+ if(el.__upickA11yClickableBound) return el;
+ el.__upickA11yClickableBound = true;
+ el.addEventListener('keydown', (event) => {
+ if(event.key !== 'Enter' && event.key !== ' ') return;
+ const interactive = event.target && event.target.closest && event.target.closest('button,a,input,select,textarea,[role="button"],[role="link"],summary');
+ if(interactive && interactive !== el) return;
+ event.preventDefault();
+ el.click();
+ });
+ return el;
+ }
+
  function renderNotices(){
  const listEl = qs('#noticeList');
  const homeListEl = qs('#homeNoticeList');
@@ -4272,6 +4488,7 @@ ${item.content || ''}`);
  el.className = `notice-item${item.pinned ? ' pinned' : ''}`;
  el.dataset.noticeId = item.id;
  el.innerHTML = noticeCardTemplate(item);
+ makeKeyboardClickable(el, `공지 상세 열기: ${item.title || item.name || '공지'}`);
  el.onclick = () => openNoticeFromList(item);
  listEl.appendChild(el);
  });
@@ -4289,6 +4506,7 @@ ${item.content || ''}`);
  el.className = `notice-item${item.pinned ? ' pinned' : ''}`;
  el.dataset.noticeId = item.id;
  el.innerHTML = noticeCardTemplate(item);
+ makeKeyboardClickable(el, `공지 상세 열기: ${item.title || item.name || '공지'}`);
  el.onclick = () => openNoticeFromList(item, { moveToNoticeView:true });
  homeListEl.appendChild(el);
  });
@@ -5062,6 +5280,7 @@ ${item.content || ''}`);
  list.querySelectorAll('.hot-now-item').forEach((el) => {
  const id = el.dataset.benefitId;
  const item = items.find((v) => v.id === id);
+ makeKeyboardClickable(el, `인기 혜택 상세 열기: ${item?.name || item?.benefit?.name || '혜택'}`);
  el.onclick = () => {
  if(item?.benefit) openDetail(item.benefit);
  };
@@ -5101,6 +5320,7 @@ ${item.content || ''}`);
  <span>인기점수</span>
  </div>
  `;
+ makeKeyboardClickable(row, `인기 매장 상세 열기: ${item.name || '혜택'}`);
  row.onclick = () => {
  if(item.benefit){
  openDetail(item.benefit);
@@ -5228,8 +5448,8 @@ ${item.content || ''}`);
  ${distanceTag}
 
  </div>
- <button class="fav-icon-btn fav-btn ${isFavorite ? 'is-favorite' : ''}" type="button" aria-label="${isFavorite ? '즐겨찾기 해제' : '즐겨찾기 추가'}">${favIcon}</button>
- <div class="actions"><button class="btn btn-soft fav-btn">${favIcon}</button></div>`;
+ <button class="fav-icon-btn fav-btn ${isFavorite ? 'is-favorite' : ''}" type="button" data-favorite-id="${item.id}" aria-pressed="${isFavorite ? 'true' : 'false'}" aria-label="${isFavorite ? '즐겨찾기 해제' : '즐겨찾기 추가'}">${favIcon}</button>
+ <div class="actions"><button class="btn btn-soft fav-btn" type="button" data-favorite-id="${item.id}" aria-pressed="${isFavorite ? 'true' : 'false'}" aria-label="${isFavorite ? '즐겨찾기 해제' : '즐겨찾기 추가'}">${favIcon}</button></div>`;
  }
  function updateBenefitViewModeButtons(){
  const isList = state.benefitViewMode !== 'card';
@@ -5261,6 +5481,7 @@ ${item.content || ''}`);
  const topRank=getBenefitTopRank(item);
  card.className=`card ${benefitCardStatusClass(item)} ${topRank ? `top-rank-${topRank}` : ''}`;
  card.innerHTML=cardTemplate(item,favorites.has(item.id));
+ makeKeyboardClickable(card, `혜택 상세 열기: ${item.name || '혜택'}`);
  card.onclick=()=>{increaseStat(item.id, item.name, 'cardClickCount');logBenefitEvent(item.id, 'card_click');openDetail(item);};
  card.querySelector('.detail-btn')?.addEventListener('click',(e)=>{e.stopPropagation();openDetail(item);});
  card.querySelectorAll('.fav-btn').forEach((btn)=>{
@@ -9693,8 +9914,36 @@ async function askAiAssistant(rawQuestion=''){
  const gnbSheet = qs('#gnbSheet');
  const gnbOverlay = qs('#gnbOverlay');
  const gnbCloseBtn = qs('#gnbCloseBtn');
+ let lastGnbOpener = null;
 
- function openGnb(){
+ function getVisibleGnbOpener(){
+ const candidates = [
+ lastGnbOpener,
+ qs('#globalGnbBtn'),
+ qs('#gnbToggleBtn'),
+ qs('#gnbOpenBtn'),
+ qs('#openGnbBtn'),
+ qs('[data-open-gnb]'),
+ qs('.gnb-open-btn')
+ ];
+ return candidates.find((el) => el && el.focus && !el.disabled && el.offsetParent !== null) || null;
+ }
+
+ function restoreGnbOpenerFocus(){
+ const opener = getVisibleGnbOpener();
+ if(!opener) return;
+ requestAnimationFrame(() => {
+ setTimeout(() => {
+ try { opener.focus({ preventScroll:true }); }
+ catch(_) { opener.focus(); }
+ }, 40);
+ });
+ }
+
+ function openGnb(opener){
+ if(opener && opener.focus) lastGnbOpener = opener;
+ else if(document.activeElement && document.activeElement.closest && !gnbSheet?.contains(document.activeElement)) lastGnbOpener = document.activeElement;
+
  gnbSheet?.classList.add('show');
  gnbOverlay?.classList.add('show');
  gnbSheet?.setAttribute('aria-hidden', 'false');
@@ -9708,11 +9957,30 @@ async function askAiAssistant(rawQuestion=''){
  [{ transform:'translateY(0)', opacity:1 }, { transform:'translateY(-1px)', opacity:1 }],
  { duration:180, easing:'ease-out' }
  );
+  requestAnimationFrame(() => {
+    setTimeout(() => {
+      try { homeBtn.focus({ preventScroll: true }); }
+      catch(_) { homeBtn.focus(); }
+
+      // Some entry paths open the GNB after scripted view changes, and Chrome may not
+      // paint :focus-visible even though focus is correctly on the first button.
+      // Force the visual ring for the initial GNB focus, then remove it when focus moves.
+      homeBtn.classList.add('upick-force-focus-ring');
+      const clearForcedRing = () => homeBtn.classList.remove('upick-force-focus-ring');
+      homeBtn.addEventListener('blur', clearForcedRing, { once:true });
+      homeBtn.addEventListener('keydown', function clearOnTab(event){
+        if(event.key === 'Tab'){
+          clearForcedRing();
+          homeBtn.removeEventListener('keydown', clearOnTab);
+        }
+      });
+    }, 90);
+  });
   setTimeout(()=>{ loadUserBottomNavSettings?.(); renderUserBottomNavSettings?.(); }, 120);
  }
  }
 
- function closeGnb(){
+ function closeGnb(options = {}){
  const closeBtn = gnbCloseBtn;
  closeBtn?.animate(
  [{ transform:'scale(1) rotate(0deg)' }, { transform:'scale(.94) rotate(-8deg)' }, { transform:'scale(1) rotate(0deg)' }],
@@ -9724,15 +9992,18 @@ async function askAiAssistant(rawQuestion=''){
  document.body.style.overflow = '';
  document.body.classList.remove('gnb-open');
  gnbSheet?.style.removeProperty('transform');
+ if(options.restoreFocus !== false) restoreGnbOpenerFocus();
  }
 
  gnbToggleBtn?.addEventListener('click', (event) => {
  event.stopPropagation();
- openGnb();
+ const active = document.activeElement;
+ const opener = (active && active.id === 'globalGnbBtn') ? active : event.currentTarget;
+ openGnb(opener);
  });
 
  function openGnbToSettings(){
- openGnb();
+ openGnb(document.activeElement && document.activeElement.focus ? document.activeElement : null);
  requestAnimationFrame(() => {
  const settingsSection = qs('#gnbSettingsAccountSummary');
  settingsSection?.scrollIntoView({ behavior:'smooth', block:'start' });
@@ -9863,7 +10134,7 @@ async function askAiAssistant(rawQuestion=''){
  const endX = event.changedTouches[0].clientX;
  const moved = gnbTouchStartX - endX;
  if(moved > 40){
- openGnb();
+ openGnb(qs('#globalGnbBtn') || qs('#gnbToggleBtn'));
  }
  gnbTouchStartX = 0;
  }, { passive:true });
@@ -11246,6 +11517,14 @@ document.addEventListener('keydown', (event) => {
  qs('#gnbEnablePushBtn')?.addEventListener('click', enablePushNotifications);
  qs('#gnbDisablePushBtn')?.addEventListener('click', disablePushNotifications);
  qs('#openAccountEditBtn')?.addEventListener('click', openAccountEditModal);
+ qs('#openPasswordChangeBtn')?.addEventListener('click', openPasswordChangeModal);
+ qs('#closePasswordChangeModal')?.addEventListener('click', closePasswordChangeModal);
+ qs('#cancelPasswordChangeBtn')?.addEventListener('click', closePasswordChangeModal);
+ qs('#passwordChangeForm')?.addEventListener('submit', submitPasswordChange);
+ qs('#newPasswordInput')?.addEventListener('input', updatePasswordChangeMatchMessage);
+ qs('#newPasswordConfirmInput')?.addEventListener('input', updatePasswordChangeMatchMessage);
+ // 비밀번호 변경 모달은 바깥 영역 클릭으로 닫지 않습니다.
+ qs('#openAccountEditBtn')?.addEventListener('click', openAccountEditModal);
  qs('#closeAccountEditModal')?.addEventListener('click', closeAccountEditModal);
  qs('#cancelAccountEditBtn')?.addEventListener('click', closeAccountEditModal);
  qs('#accountProfileFileInput')?.addEventListener('change', handleProfileImageFileChange);
@@ -11256,10 +11535,7 @@ document.addEventListener('keydown', (event) => {
  });
  syncFontSizeSettingUi();
 
- qs('#accountEditModal')?.addEventListener('click', (event) => {
- const modal = qs('#accountEditModal');
- if(event.target === modal) closeAccountEditModal();
- });
+ // 계정 정보 수정 모달은 바깥 영역 클릭으로 닫지 않습니다.
  qs('#withdrawBtn')?.addEventListener('click', withdrawCurrentUser);
 
  qs('#logoutBtn').onclick=async()=>{const confirmed=await openModalConfirm('로그아웃 하시겠습니까?', qs('#logoutBtn'), '로그아웃', '로그아웃', '취소'); if(!confirmed) return; try{await logoutServerSession(auth, API_URL[ENV]); await signOut(auth);redirectToLogin();}catch(error){await openModalAlert('로그아웃 중 오류가 발생했습니다.', qs('#logoutBtn'));}};
