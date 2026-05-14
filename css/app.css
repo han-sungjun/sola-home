@@ -19271,3 +19271,51 @@ body.ui-loading-lock.gnb-open .gnb-sheet{
     transform:translateX(2px) !important;
   }
 }
+
+/* =========================================================
+   A11Y PATCH: bottom navigation visible focus ring
+   - Earlier bottom-nav cleanup rules intentionally removed icon shadows.
+   - Restore a strong keyboard focus indicator for every bottom nav button.
+   ========================================================= */
+body .bottom-nav,
+body nav.bottom-nav{
+  overflow: visible !important;
+}
+
+body .bottom-nav .nav-btn,
+body nav.bottom-nav .nav-btn{
+  position: relative !important;
+  overflow: visible !important;
+  z-index: 1 !important;
+}
+
+body .bottom-nav .nav-btn:focus,
+body .bottom-nav .nav-btn:focus-visible,
+body nav.bottom-nav .nav-btn:focus,
+body nav.bottom-nav .nav-btn:focus-visible{
+  outline: 3px solid rgba(255,255,255,.98) !important;
+  outline-offset: 4px !important;
+  border-radius: 18px !important;
+  border-color: rgba(255,255,255,.86) !important;
+  box-shadow:
+    0 0 0 7px rgba(37,99,235,.66),
+    0 0 20px rgba(37,99,235,.72),
+    0 10px 24px rgba(7,26,61,.26),
+    inset 0 1px 0 rgba(255,255,255,.32) !important;
+  background: linear-gradient(180deg,rgba(96,165,250,.32),rgba(37,99,235,.18)) !important;
+  color: #fff !important;
+  transform: translateY(-1px) !important;
+  z-index: 15 !important;
+}
+
+body .bottom-nav .nav-btn:focus .nav-icon,
+body .bottom-nav .nav-btn:focus-visible .nav-icon,
+body nav.bottom-nav .nav-btn:focus .nav-icon,
+body nav.bottom-nav .nav-btn:focus-visible .nav-icon{
+  filter: drop-shadow(0 0 10px rgba(255,255,255,.65)) drop-shadow(0 0 14px rgba(96,165,250,.55)) !important;
+}
+
+body .bottom-nav .nav-btn:focus:not(:focus-visible),
+body nav.bottom-nav .nav-btn:focus:not(:focus-visible){
+  outline: 3px solid rgba(255,255,255,.98) !important;
+}
