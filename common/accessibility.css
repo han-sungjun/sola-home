@@ -1,0 +1,111 @@
+/* 더운정픽 공통 웹/모바일 접근성 보정 패치 */
+:root{
+  --a11y-focus-color:#2563eb;
+  --a11y-focus-ring:0 0 0 3px rgba(37,99,235,.28);
+  --safe-top:env(safe-area-inset-top,0px);
+  --safe-right:env(safe-area-inset-right,0px);
+  --safe-bottom:env(safe-area-inset-bottom,0px);
+  --safe-left:env(safe-area-inset-left,0px);
+}
+html{
+  -webkit-text-size-adjust:100%;
+  text-size-adjust:100%;
+  scroll-padding-top:calc(var(--safe-top) + 72px);
+}
+body{
+  min-height:100svh;
+  padding-left:var(--safe-left);
+  padding-right:var(--safe-right);
+  -webkit-tap-highlight-color:rgba(37,99,235,.14);
+  overflow-wrap:anywhere;
+}
+body::before{
+  content:"";
+  position:fixed;
+  left:0;
+  right:0;
+  top:0;
+  height:var(--safe-top);
+  background:inherit;
+  z-index:2147483000;
+  pointer-events:none;
+}
+@supports (height:100dvh){
+  body{min-height:100dvh;}
+}
+button,[role="button"],a,input,select,textarea,summary{
+  touch-action:manipulation;
+}
+button,[role="button"],input[type="button"],input[type="submit"],input[type="reset"],a.btn,.btn,.icon-btn,.nav-btn,.chip,.gnb-item,.favorite-btn{
+  min-width:44px;
+  min-height:44px;
+}
+input,select,textarea{
+  font-size:max(16px,1rem);
+}
+img[alt=""]{speak:none;}
+:focus{outline:none;}
+:focus-visible{
+  outline:3px solid var(--a11y-focus-color) !important;
+  outline-offset:3px !important;
+  box-shadow:var(--a11y-focus-ring) !important;
+}
+.a11y-skip-link{
+  position:fixed;
+  left:calc(12px + var(--safe-left));
+  top:calc(8px + var(--safe-top));
+  z-index:2147483647;
+  transform:translateY(-160%);
+  transition:transform .16s ease;
+  padding:10px 14px;
+  border-radius:12px;
+  background:#111827;
+  color:#fff;
+  font-weight:800;
+  text-decoration:none;
+  box-shadow:0 10px 24px rgba(15,23,42,.24);
+}
+.a11y-skip-link:focus,.a11y-skip-link:focus-visible{transform:translateY(0);}
+.a11y-sr-only{
+  position:absolute!important;
+  width:1px!important;
+  height:1px!important;
+  padding:0!important;
+  margin:-1px!important;
+  overflow:hidden!important;
+  clip:rect(0,0,0,0)!important;
+  white-space:nowrap!important;
+  border:0!important;
+}
+.topbar,.unified-topbar,.admin-topbar,.public-unified-header,.admin-unified-header,.login-unified-header{
+  padding-top:max(var(--safe-top),0px);
+}
+.global-loading,.page-loader,.app-alert,.sheet-modal,.modal-backdrop,dialog::backdrop{
+  padding-top:var(--safe-top);
+  padding-right:var(--safe-right);
+  padding-bottom:var(--safe-bottom);
+  padding-left:var(--safe-left);
+}
+.bottom-nav,.mobile-bottom-nav,.tabbar,.bottom-bar,.ai-composer,.composer-bar,.install-banner,.myhills-install-banner{
+  padding-bottom:max(12px,var(--safe-bottom));
+}
+[aria-disabled="true"],button:disabled,input:disabled,select:disabled,textarea:disabled{
+  cursor:not-allowed;
+}
+[hidden]{display:none!important;}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{
+    animation-duration:.001ms!important;
+    animation-iteration-count:1!important;
+    scroll-behavior:auto!important;
+    transition-duration:.001ms!important;
+  }
+}
+@media (forced-colors:active){
+  :focus-visible{outline:2px solid Highlight!important;box-shadow:none!important;}
+  button,.btn,.icon-btn{border:1px solid ButtonText;}
+}
+@media (max-width:480px){
+  body{font-size:16px;}
+  .modal-card,.sheet-panel,.app-alert-card{max-width:calc(100vw - 24px - var(--safe-left) - var(--safe-right));}
+}
