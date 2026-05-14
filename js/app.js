@@ -9951,31 +9951,33 @@ async function askAiAssistant(rawQuestion=''){
  requestAnimationFrame(() => gnbSheet?.classList.add('gnb-enter'));
  document.body.style.overflow = 'hidden';
  document.body.classList.add('gnb-open');
- const homeBtn = gnbSheet?.querySelector('.gnb-home-active');
- if(homeBtn){
- homeBtn.animate(
+ const firstGnbBtn = gnbSheet?.querySelector('.gnb-icons .gnb-icon-btn[data-view-link="home"], .gnb-icons .gnb-icon-btn, .gnb-icons button, button, a[href], [tabindex]:not([tabindex="-1"])');
+ if(firstGnbBtn){
+ firstGnbBtn.animate(
  [{ transform:'translateY(0)', opacity:1 }, { transform:'translateY(-1px)', opacity:1 }],
  { duration:180, easing:'ease-out' }
  );
-  requestAnimationFrame(() => {
-    setTimeout(() => {
-      try { homeBtn.focus({ preventScroll: true }); }
-      catch(_) { homeBtn.focus(); }
+  const applyInitialGnbFocus = () => {
+    try { firstGnbBtn.focus({ preventScroll: true }); }
+    catch(_) { firstGnbBtn.focus(); }
 
-      // Some entry paths open the GNB after scripted view changes, and Chrome may not
-      // paint :focus-visible even though focus is correctly on the first button.
-      // Force the visual ring for the initial GNB focus, then remove it when focus moves.
-      homeBtn.classList.add('upick-force-focus-ring');
-      const clearForcedRing = () => homeBtn.classList.remove('upick-force-focus-ring');
-      homeBtn.addEventListener('blur', clearForcedRing, { once:true });
-      homeBtn.addEventListener('keydown', function clearOnTab(event){
-        if(event.key === 'Tab'){
-          clearForcedRing();
-          homeBtn.removeEventListener('keydown', clearOnTab);
-        }
-      });
-    }, 90);
-  });
+    // 다른 탭에서 GNB를 열면 현재 view active class가 홈 버튼에서 빠져
+    // 기존 .gnb-home-active 기준 포커스 링이 안 보일 수 있습니다.
+    // 그래서 '실제 첫 버튼'에 강제 링 클래스를 부여하고, 포커스가 이동할 때만 제거합니다.
+    firstGnbBtn.classList.add('upick-force-focus-ring');
+
+    const clearForcedRing = () => firstGnbBtn.classList.remove('upick-force-focus-ring');
+    firstGnbBtn.addEventListener('blur', clearForcedRing, { once:true });
+    firstGnbBtn.addEventListener('keydown', function clearOnTab(event){
+      if(event.key === 'Tab'){
+        clearForcedRing();
+        firstGnbBtn.removeEventListener('keydown', clearOnTab);
+      }
+    });
+  };
+
+  requestAnimationFrame(() => setTimeout(applyInitialGnbFocus, 90));
+  setTimeout(applyInitialGnbFocus, 180);
   setTimeout(()=>{ loadUserBottomNavSettings?.(); renderUserBottomNavSettings?.(); }, 120);
  }
  }

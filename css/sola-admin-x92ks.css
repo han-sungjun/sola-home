@@ -5795,14 +5795,3 @@ img.brand-icon[src*="home.svg"],
   #pageLoader.page-loader .loader-mark::after{border-radius:34px!important;}
 }
 
-/* ===== Admin login state controls ===== */
-#loginBtn.hidden,
-#logoutBtn.hidden{
-  display:none !important;
-}
-
-.admin-login-disabled-input{
-  opacity:.72;
-  cursor:not-allowed;
-  background:#eef4ff !important;
-}

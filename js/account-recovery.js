@@ -2,45 +2,6 @@ const __RECOVERY_VERSION__ = globalThis.__SOLA_DYNAMIC_IMPORT_VERSION__ || Strin
 const noCache = (url) => `${url}${url.includes('?') ? '&' : '?'}v=${__RECOVERY_VERSION__}`;
 const { ENV, API_URL } = await import(noCache('/common/env-config.js'));
 
-
-/* ===== account-recovery modal backdrop lock =====
-   모든 dialog / alert / sheet / modal 계열은 바깥 영역 클릭으로 닫지 않습니다.
-   X, 취소, 확인 등 명시 버튼으로만 닫을 수 있습니다. */
-function lockPageModalBackdropClick(event){
-  if(event.target === event.currentTarget){
-    event.preventDefault();
-    event.stopPropagation();
-    event.stopImmediatePropagation?.();
-  }
-}
-
-function bindPageModalBackdropLock(){
-  const selectors = [
-    'dialog',
-    '.app-alert',
-    '.sheet-modal',
-    '[role="dialog"]',
-    '[role="alertdialog"]',
-    '.modal',
-    '.modal-overlay',
-    '.modal-backdrop'
-  ];
-
-  document.querySelectorAll(selectors.join(',')).forEach((el) => {
-    if(el.dataset.pageBackdropLockBound === '1') return;
-    el.dataset.pageBackdropLockBound = '1';
-    el.addEventListener('click', lockPageModalBackdropClick, true);
-    el.addEventListener('pointerdown', lockPageModalBackdropClick, true);
-  });
-}
-
-bindPageModalBackdropLock();
-
-new MutationObserver(() => bindPageModalBackdropLock()).observe(document.documentElement, {
-  childList:true,
-  subtree:true
-});
-
 const API = API_URL[ENV] || {};
 const qs = (selector) => document.querySelector(selector);
 
@@ -369,7 +330,9 @@ qs('#openFindNicknameBtn')?.addEventListener('click', () => openSheet('nickname'
 qs('#openFindIdBtn')?.addEventListener('click', () => openSheet('id'));
 qs('#openResetPwBtn')?.addEventListener('click', () => openSheet('reset'));
 closeBtn?.addEventListener('click', closeSheet);
-// account-recovery: 계정 복구 바텀시트는 바깥 영역 클릭으로 닫지 않습니다.
+modal?.addEventListener('click', (event) => {
+  if (event.target === modal) closeSheet();
+});
 document.addEventListener('keydown', (event) => {
   if (event.key === 'Escape' && modal?.classList.contains('show')) closeSheet();
 });
