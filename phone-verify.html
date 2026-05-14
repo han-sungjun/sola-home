@@ -1,139 +1,208 @@
 <!DOCTYPE html>
-
 <html lang="ko">
-<head>
-
-<meta content="no-store, no-cache, must-revalidate, max-age=0" http-equiv="Cache-Control"/>
-<meta content="no-cache" http-equiv="Pragma"/>
-<meta content="0" http-equiv="Expires"/>
-<meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
-
-<link href="/manifest.json" rel="manifest"/>
-<meta content="width=device-width, initial-scale=1, viewport-fit=cover" name="viewport"/>
-<meta content="#0f172a" name="theme-color"/>
-<meta content="yes" name="apple-mobile-web-app-capable"/>
-<meta content="yes" name="mobile-web-app-capable"/>
-<meta content="default" name="apple-mobile-web-app-status-bar-style"/>
-<meta content="더운정픽" name="apple-mobile-web-app-title"/>
-<link href="/icons/icon-180.png" rel="apple-touch-icon"/>
-<meta content="입주민 전용 혜택 플랫폼" name="description"/>
-<meta content="index,follow" name="robots"/>
-<title>더운정픽 · 휴대폰 인증</title>
-<meta content="website" property="og:type"/>
-<meta content="더운정픽" property="og:site_name"/>
-<meta content="더운정픽" property="og:title"/>
-<meta content="더운정픽 · 휴대폰 인증" property="og:description"/>
-<meta content="__BASE_URL__/icons/og-icon.png?v=20260511" property="og:image"/>
-<meta content="__BASE_URL__/app" property="og:url"/>
-<meta content="summary_large_image" name="twitter:card"/>
-<meta content="더운정픽" name="twitter:title"/>
-<meta content="더운정픽 · 휴대폰 인증" name="twitter:description"/>
-<meta content="__BASE_URL__/icons/og-icon.png?v=20260511" name="twitter:image"/>
-<link href="/icons/favicon.ico?v=20260511" rel="icon"/>
-
-<link href="/icons/splash-ios-750x1334.png" media="(device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2)" rel="apple-touch-startup-image">
-<link href="/icons/splash-ios-828x1792.png" media="(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2)" rel="apple-touch-startup-image">
-<link href="/icons/splash-ios-1170x2532.png" media="(device-width: 390px) and (device-height: 844px) and (-webkit-device-pixel-ratio: 3)" rel="apple-touch-startup-image"/>
-<link href="/icons/splash-ios-1290x2796.png" media="(device-width: 430px) and (device-height: 932px) and (-webkit-device-pixel-ratio: 3)" rel="apple-touch-startup-image"/>
-
-</link></link><link href="/css/phone-verify.css" rel="stylesheet"/></head>
-<body>
-<div class="wrap">
-<section class="hero">
-<div class="eyebrow" id="heroEyebrow">📱 휴대폰 인증</div>
-<div class="env-badge" id="envBadge"><span class="env-badge-dot"></span><span>DEV ENV</span></div>
-<h1 id="heroTitle">더운정픽<br/>휴대폰 인증</h1>
-<p id="heroDesc">휴대폰 인증 완료 후 입주민 전용 서비스로 이동합니다.</p>
-</section>
-<section class="panel">
-<div class="brand">
-<div class="logo" id="brandLogo">🔐</div>
-<div>
-<h2 id="panelTitle">SMS 인증</h2>
-<p id="panelDesc">인증이 완료되면 앱으로 이동합니다</p>
-</div>
-</div>
-<div class="stage-chip" id="stageChip">1단계 · 휴대폰 확인</div>
-<div class="field">
-<label for="phoneNumber">휴대폰 번호</label>
-<input class="input" id="phoneNumber" inputmode="numeric" maxlength="13" placeholder="01012345678" type="tel"/>
-<div class="helper" id="phoneHelper">숫자만 입력하면 자동으로 정리됩니다.</div>
-</div>
-<div class="btn-row" id="sendRow">
-<button class="btn btn-primary" id="sendCodeBtn" type="button">문자 인증 시작</button>
-<button class="btn btn-soft" id="signOutBtn" type="button">로그아웃</button>
-</div>
-<div class="verify-card hidden" id="verifySection">
-<div class="verify-head">
-<div class="verify-badge">💬</div>
-<div>
-<strong>인증 코드 입력</strong>
-<span>문자로 받은 6자리 코드를 입력해 주세요</span>
-</div>
-</div>
-<div class="field" style="margin-top:0;">
-<label for="smsCode">인증 코드</label>
-<input class="input" id="smsCode" inputmode="numeric" maxlength="6" placeholder="문자로 받은 6자리 코드" type="text"/>
-<div class="helper">인증 코드는 보통 수 초 내 도착합니다.</div>
-</div>
-<div class="btn-row">
-<button class="btn btn-primary" id="verifyCodeBtn" type="button">인증 확인</button>
-<button class="btn btn-soft" id="resendBtn" type="button">코드 다시 보내기</button>
-</div>
-</div>
-<div class="verify-card hidden" id="resetSection" style="margin-top:14px;">
-<div class="verify-head">
-<div class="verify-badge">🔐</div>
-<div>
-<strong>새 비밀번호 설정</strong>
-<span>새로운 비밀번호를 입력해 주세요</span>
-</div>
-</div>
-<div class="field" style="margin-top:10px;">
-<label for="newPassword">새 비밀번호</label>
-<input autocomplete="new-password" class="input" id="newPassword" placeholder="6자 이상 입력" type="password"/>
-</div>
-<div class="field">
-<label for="newPasswordConfirm">새 비밀번호 확인</label>
-<input autocomplete="new-password" class="input" id="newPasswordConfirm" placeholder="비밀번호 재입력" type="password"/>
-</div>
-<div class="btn-row">
-<button class="btn btn-primary" disabled="" id="resetPasswordBtn" type="button">
-			  비밀번호 변경
-			</button>
-</div>
-</div>
-<div class="notice info" id="notice"></div>
-<div id="recaptcha-container"></div>
-</section>
-<div class="footer" id="footerText">
-      휴대폰 인증 완료 후 입주민 전용 서비스로 이동합니다.
+  <head>
+    <meta content="no-store, no-cache, must-revalidate, max-age=0" http-equiv="Cache-Control">
+    <meta content="no-cache" http-equiv="Pragma">
+    <meta content="0" http-equiv="Expires">
+    <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+    <link href="/manifest.json" rel="manifest">
+    <meta content="width=device-width, initial-scale=1, viewport-fit=cover" name="viewport">
+    <meta content="#0f172a" name="theme-color">
+    <meta content="yes" name="apple-mobile-web-app-capable">
+    <meta content="yes" name="mobile-web-app-capable">
+    <meta content="default" name="apple-mobile-web-app-status-bar-style">
+    <meta content="더운정픽" name="apple-mobile-web-app-title">
+    <link href="/icons/icon-180.png" rel="apple-touch-icon">
+    <meta content="입주민 전용 혜택 플랫폼" name="description">
+    <meta content="index,follow" name="robots">
+    <title>
+      더운정픽 &middot; 휴대폰 인증
+    </title>
+    <meta content="website" property="og:type">
+    <meta content="더운정픽" property="og:site_name">
+    <meta content="더운정픽" property="og:title">
+    <meta content="더운정픽 &middot; 휴대폰 인증" property="og:description">
+    <meta content="__BASE_URL__/icons/og-icon.png?v=20260511" property="og:image">
+    <meta content="__BASE_URL__/app" property="og:url">
+    <meta content="summary_large_image" name="twitter:card">
+    <meta content="더운정픽" name="twitter:title">
+    <meta content="더운정픽 &middot; 휴대폰 인증" name="twitter:description">
+    <meta content="__BASE_URL__/icons/og-icon.png?v=20260511" name="twitter:image">
+    <link href="/icons/favicon.ico?v=20260511" rel="icon">
+    <link href="/icons/splash-ios-750x1334.png" media="(device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2)" rel="apple-touch-startup-image">
+    <link href="/icons/splash-ios-828x1792.png" media="(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2)" rel="apple-touch-startup-image">
+    <link href="/icons/splash-ios-1170x2532.png" media="(device-width: 390px) and (device-height: 844px) and (-webkit-device-pixel-ratio: 3)" rel="apple-touch-startup-image">
+    <link href="/icons/splash-ios-1290x2796.png" media="(device-width: 430px) and (device-height: 932px) and (-webkit-device-pixel-ratio: 3)" rel="apple-touch-startup-image">
+    <link href="/css/phone-verify.css" rel="stylesheet">
+  </head>
+  <body>
+    <div class="wrap">
+      <section class="hero">
+        <div class="eyebrow" id="heroEyebrow">
+          📱 휴대폰 인증
+        </div>
+        <div class="env-badge" id="envBadge">
+          <span class="env-badge-dot">
+          </span>
+          <span>
+            DEV ENV
+          </span>
+        </div>
+        <h1 id="heroTitle">
+          더운정픽
+          <br>
+          휴대폰 인증
+        </h1>
+        <p id="heroDesc">
+          휴대폰 인증 완료 후 입주민 전용 서비스로 이동합니다.
+        </p>
+      </section>
+      <section class="panel">
+        <div class="brand">
+          <div class="logo" id="brandLogo">
+            🔐
+          </div>
+          <div>
+            <h2 id="panelTitle">
+              SMS 인증
+            </h2>
+            <p id="panelDesc">
+              인증이 완료되면 앱으로 이동합니다
+            </p>
+          </div>
+        </div>
+        <div class="stage-chip" id="stageChip">
+          1단계 &middot; 휴대폰 확인
+        </div>
+        <div class="field">
+          <label for="phoneNumber">
+            휴대폰 번호
+          </label>
+          <input class="input" id="phoneNumber" inputmode="numeric" maxlength="13" placeholder="01012345678" type="tel">
+          <div class="helper" id="phoneHelper">
+            숫자만 입력하면 자동으로 정리됩니다.
+          </div>
+        </div>
+        <div class="btn-row" id="sendRow">
+          <button class="btn btn-primary" id="sendCodeBtn" type="button">
+            문자 인증 시작
+          </button>
+          <button class="btn btn-soft" id="signOutBtn" type="button">
+            로그아웃
+          </button>
+        </div>
+        <div class="verify-card hidden" id="verifySection">
+          <div class="verify-head">
+            <div class="verify-badge">
+              💬
+            </div>
+            <div>
+              <strong>
+                인증 코드 입력
+              </strong>
+              <span>
+                문자로 받은 6자리 코드를 입력해 주세요
+              </span>
+            </div>
+          </div>
+          <div class="field" style="margin-top:0;">
+            <label for="smsCode">
+              인증 코드
+            </label>
+            <input class="input" id="smsCode" inputmode="numeric" maxlength="6" placeholder="문자로 받은 6자리 코드" type="text">
+            <div class="helper">
+              인증 코드는 보통 수 초 내 도착합니다.
+            </div>
+          </div>
+          <div class="btn-row">
+            <button class="btn btn-primary" id="verifyCodeBtn" type="button">
+              인증 확인
+            </button>
+            <button class="btn btn-soft" id="resendBtn" type="button">
+              코드 다시 보내기
+            </button>
+          </div>
+        </div>
+        <div class="verify-card hidden" id="resetSection" style="margin-top:14px;">
+          <div class="verify-head">
+            <div class="verify-badge">
+              🔐
+            </div>
+            <div>
+              <strong>
+                새 비밀번호 설정
+              </strong>
+              <span>
+                새로운 비밀번호를 입력해 주세요
+              </span>
+            </div>
+          </div>
+          <div class="field" style="margin-top:10px;">
+            <label for="newPassword">
+              새 비밀번호
+            </label>
+            <input autocomplete="new-password" class="input" id="newPassword" placeholder="6자 이상 입력" type="password">
+          </div>
+          <div class="field">
+            <label for="newPasswordConfirm">
+              새 비밀번호 확인
+            </label>
+            <input autocomplete="new-password" class="input" id="newPasswordConfirm" placeholder="비밀번호 재입력" type="password">
+          </div>
+          <div class="btn-row">
+            <button class="btn btn-primary" disabled id="resetPasswordBtn" type="button">
+              비밀번호 변경
+            </button>
+          </div>
+        </div>
+        <div class="notice info" id="notice">
+        </div>
+        <div id="recaptcha-container">
+        </div>
+      </section>
+      <div class="footer" id="footerText">
+        휴대폰 인증 완료 후 입주민 전용 서비스로 이동합니다.
+      </div>
     </div>
-</div>
-<div aria-hidden="true" class="page-loader" id="pageLoader">
-<div aria-label="로딩 중" class="loader-mark" role="status"></div>
-</div>
-
-<div aria-hidden="true" class="myhills-first-launch" id="myhillsFirstLaunch">
-<div class="myhills-first-launch-inner">
-<div aria-hidden="true" class="myhills-first-launch-icon"></div>
-<div class="myhills-first-launch-title">더운정픽</div>
-<div class="myhills-first-launch-sub">입주민 전용 혜택 플랫폼</div>
-</div>
-</div>
-<div aria-hidden="true" class="myhills-install-banner" id="myhillsInstallBanner">
-<div class="myhills-install-card">
-<div aria-hidden="true" class="myhills-install-icon"></div>
-<div class="myhills-install-copy">
-<strong>더운정픽를 앱처럼 이용해보세요</strong>
-<span>홈 화면에 추가하면 더 빠르게 열 수 있습니다.</span>
-</div>
-<div class="myhills-install-actions">
-<button class="myhills-install-btn" id="myhillsInstallBtn" type="button">설치</button>
-<button aria-label="설치 안내 닫기" class="myhills-install-close" id="myhillsInstallClose" type="button">×</button>
-</div>
-</div>
-</div>
-
-<script src="/js/phone-verify.js"></script></body>
+    <div aria-hidden="true" class="page-loader" id="pageLoader">
+      <div aria-label="로딩 중" class="loader-mark" role="status">
+      </div>
+    </div>
+    <div aria-hidden="true" class="myhills-first-launch" id="myhillsFirstLaunch">
+      <div class="myhills-first-launch-inner">
+        <div aria-hidden="true" class="myhills-first-launch-icon">
+        </div>
+        <div class="myhills-first-launch-title">
+          더운정픽
+        </div>
+        <div class="myhills-first-launch-sub">
+          입주민 전용 혜택 플랫폼
+        </div>
+      </div>
+    </div>
+    <div aria-hidden="true" class="myhills-install-banner" id="myhillsInstallBanner">
+      <div class="myhills-install-card">
+        <div aria-hidden="true" class="myhills-install-icon">
+        </div>
+        <div class="myhills-install-copy">
+          <strong>
+            더운정픽를 앱처럼 이용해보세요
+          </strong>
+          <span>
+            홈 화면에 추가하면 더 빠르게 열 수 있습니다.
+          </span>
+        </div>
+        <div class="myhills-install-actions">
+          <button class="myhills-install-btn" id="myhillsInstallBtn" type="button">
+            설치
+          </button>
+          <button aria-label="설치 안내 닫기" class="myhills-install-close" id="myhillsInstallClose" type="button">
+            &times;
+          </button>
+        </div>
+      </div>
+    </div>
+    <script src="/js/phone-verify.js">
+    </script>
+  </body>
 </html>

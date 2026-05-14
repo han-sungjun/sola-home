@@ -1,106 +1,276 @@
 <!DOCTYPE html>
-
 <html lang="ko">
-<head>
-
-<meta content="no-store, no-cache, must-revalidate, max-age=0" http-equiv="Cache-Control"/>
-<meta content="no-cache" http-equiv="Pragma"/>
-<meta content="0" http-equiv="Expires"/>
-<meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
-
-<link href="/manifest.json" rel="manifest"/>
-<meta content="width=device-width, initial-scale=1, viewport-fit=cover" name="viewport"/>
-<meta content="#0f172a" name="theme-color"/>
-<meta content="yes" name="apple-mobile-web-app-capable"/>
-<meta content="yes" name="mobile-web-app-capable"/>
-<meta content="default" name="apple-mobile-web-app-status-bar-style"/>
-<meta content="더운정픽" name="apple-mobile-web-app-title"/>
-<link href="/icons/icon-180.png" rel="apple-touch-icon"/>
-<meta content="입주민 전용 혜택 플랫폼" name="description"/>
-<meta content="index,follow" name="robots"/>
-<title>더운정픽 · 간단 입장</title>
-<meta content="website" property="og:type"/>
-<meta content="더운정픽" property="og:site_name"/>
-<meta content="더운정픽" property="og:title"/>
-<meta content="더운정픽 · 간단 입장" property="og:description"/>
-<meta content="__BASE_URL__/icons/og-icon.png?v=20260511" property="og:image"/>
-<meta content="__BASE_URL__/app" property="og:url"/>
-<meta content="summary_large_image" name="twitter:card"/>
-<meta content="더운정픽" name="twitter:title"/>
-<meta content="더운정픽 · 간단 입장" name="twitter:description"/>
-<meta content="__BASE_URL__/icons/og-icon.png?v=20260511" name="twitter:image"/>
-<link href="/icons/favicon.ico?v=20260511" rel="icon"/>
-
-<link href="/icons/splash-ios-750x1334.png" media="(device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2)" rel="apple-touch-startup-image">
-<link href="/icons/splash-ios-828x1792.png" media="(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2)" rel="apple-touch-startup-image">
-<link href="/icons/splash-ios-1170x2532.png" media="(device-width: 390px) and (device-height: 844px) and (-webkit-device-pixel-ratio: 3)" rel="apple-touch-startup-image"/>
-<link href="/icons/splash-ios-1290x2796.png" media="(device-width: 430px) and (device-height: 932px) and (-webkit-device-pixel-ratio: 3)" rel="apple-touch-startup-image"/>
-
-</link></link><link href="/css/signup.css" rel="stylesheet"/></head>
-<body>
-<main class="page">
-<section class="signup-premium-hero-shell signup-premium-hero-shell-structural">
-<div class="brand"><div class="logo"><img alt="" class="brand-icon" loading="lazy" src="/icons/internal/home.svg"/></div><div><h1>더운정픽</h1><p>입주민 전용 혜택 플랫폼</p></div></div>
-<section class="hero">
-<div class="eyebrow"><img alt="" class="eyebrow-icon" loading="lazy" src="/icons/internal/signup.svg"/> 간단 확인 후 입장</div>
-<div class="env-badge hero-env" id="signupEnvBadge"><span class="env-badge-dot"></span><span>DEV ENV</span></div>
-<h2>복잡한 절차 없이<br/>바로 시작하세요</h2>
-<p>입주민 혜택 이용에 필요한 계정 정보만 간단하게 입력하면 됩니다.</p>
-<div class="safe-row"><span class="safe-chip">간단 입장</span><span class="safe-chip">가벼운 확인</span><span class="safe-chip">바로 이용</span></div>
-</section>
-<section class="panel signup-info-panel">
-<h3>간단 입장 방식</h3>
-<p class="helper">입주민분들이 부담 없이 이용하실 수 있도록 신청 화면을 계정 중심으로 단순화했습니다.</p>
-<div class="zero-grid"><div class="zero-item"><strong>로그인 ID</strong><span>앱 접속에 사용하는 계정 ID입니다.</span></div><div class="zero-item"><strong>닉네임</strong><span>앱 화면에 표시되는 이름입니다.</span></div><div class="zero-item"><strong>회원 유형</strong><span>기능 접근을 나누는 단순 분류입니다.</span></div><div class="zero-item"><strong>초대 코드</strong><span>안내받은 경우에만 입력합니다.</span></div></div>
-</section>
-<section class="panel">
-<h3>간단 입장</h3>
-<p class="helper">로그인 ID와 닉네임 중복 확인 후 바로 계정을 만들 수 있습니다.</p>
-<form class="form" id="signupForm" novalidate="">
-<div class="field"><label for="loginId">로그인 ID</label><div class="input-row"><input autocomplete="username" id="loginId" maxlength="20" minlength="4" name="loginId" pattern="[A-Za-z0-9]+" placeholder="영문+숫자 4~20자" required=""/><button class="check-btn" id="checkLoginIdBtn" type="button">중복 확인</button></div><div class="field-msg" id="loginIdMsg">영문과 숫자만 사용할 수 있습니다.</div></div>
-<div class="field"><label for="password">비밀번호</label><input autocomplete="new-password" id="password" minlength="8" name="password" placeholder="8자 이상" required="" type="password"/><div class="field-msg" id="passwordMsg">8자 이상 입력해 주세요.</div></div>
-<div class="field"><label for="passwordConfirm">비밀번호 확인</label><input autocomplete="new-password" id="passwordConfirm" minlength="8" name="passwordConfirm" placeholder="비밀번호 재입력" required="" type="password"/><div class="field-msg" id="passwordMatchMsg">비밀번호를 한 번 더 입력해 주세요.</div></div>
-<div class="field"><label for="nickname">닉네임</label><div class="input-row"><input id="nickname" maxlength="20" name="nickname" placeholder="예: 더운정픽 입주민" required=""/><button class="check-btn" id="checkNicknameBtn" type="button">중복 확인</button></div><div class="field-msg" id="nicknameMsg">앱 화면에 표시되는 이름입니다.</div></div>
-<div class="field"><label for="memberType">회원 유형</label><select id="memberType" name="memberType" required=""><option value="resident_apartment">입주민(아파트)</option><option value="resident_officetel">입주민(오피스텔)</option><option value="etc">기타</option></select><div class="field-msg">단지 구분을 위한 단순 분류입니다.</div></div>
-<div class="field"><label for="inviteCode">초대 코드 / 안내 코드 <small style="color:#94a3b8">선택</small></label><input id="inviteCode" maxlength="40" name="inviteCode" placeholder="운영진이 안내한 경우에만 입력"/></div>
-<div class="notice">※ 입력한 계정 정보로 바로 이용할 수 있습니다. 아이디와 닉네임은 중복 확인 후 진행해 주세요.</div>
-<label class="agree"><input id="agree" required="" type="checkbox"/><span>입주민 전용 혜택 제공을 위한 최소 계정 생성에 동의합니다.</span></label>
-<div class="sub-actions signup-action-row">
-<button class="btn" id="submitBtn" type="submit">간단 입장 신청</button>
-<button class="btn btn-soft" onclick="location.replace('/')" type="button">로그인으로</button>
-</div>
-</form>
-<div class="status" id="statusBox"></div>
-</section>
-</section>
-</main>
-
-<div aria-hidden="true" class="app-alert" id="appAlert">
-<div aria-describedby="appAlertMessage" aria-labelledby="appAlertTitle" aria-modal="true" class="app-alert-card" role="alertdialog">
-<div class="app-alert-head">
-<div aria-hidden="true" class="app-alert-icon" id="appAlertIcon"></div>
-<h3 class="app-alert-title" id="appAlertTitle">안내</h3>
-</div>
-<p class="app-alert-message" id="appAlertMessage"></p>
-<div class="app-alert-actions">
-<button class="app-alert-confirm" id="appAlertConfirm" type="button">확인</button>
-</div>
-</div>
-</div>
-<div aria-hidden="true" class="page-loader" id="pageLoader">
-<div aria-label="로딩 중" class="loader-mark" role="status">
-<span class="arm top"></span>
-<span class="arm left"></span>
-<span class="arm mid"></span>
-<span class="arm bot"></span>
-<span class="arm bot2"></span>
-</div>
-<div aria-hidden="true" class="loader-copy">
-<p class="loader-message">입주민 전용 서비스를 연결하고 있어요</p>
-<p class="loader-sub-message">잠시만 기다려주세요</p>
-</div>
-</div>
-
-<script src="/js/signup.js"></script></body>
+  <head>
+    <meta content="no-store, no-cache, must-revalidate, max-age=0" http-equiv="Cache-Control">
+    <meta content="no-cache" http-equiv="Pragma">
+    <meta content="0" http-equiv="Expires">
+    <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+    <link href="/manifest.json" rel="manifest">
+    <meta content="width=device-width, initial-scale=1, viewport-fit=cover" name="viewport">
+    <meta content="#0f172a" name="theme-color">
+    <meta content="yes" name="apple-mobile-web-app-capable">
+    <meta content="yes" name="mobile-web-app-capable">
+    <meta content="default" name="apple-mobile-web-app-status-bar-style">
+    <meta content="더운정픽" name="apple-mobile-web-app-title">
+    <link href="/icons/icon-180.png" rel="apple-touch-icon">
+    <meta content="입주민 전용 혜택 플랫폼" name="description">
+    <meta content="index,follow" name="robots">
+    <title>
+      더운정픽 &middot; 간단 입장
+    </title>
+    <meta content="website" property="og:type">
+    <meta content="더운정픽" property="og:site_name">
+    <meta content="더운정픽" property="og:title">
+    <meta content="더운정픽 &middot; 간단 입장" property="og:description">
+    <meta content="__BASE_URL__/icons/og-icon.png?v=20260511" property="og:image">
+    <meta content="__BASE_URL__/app" property="og:url">
+    <meta content="summary_large_image" name="twitter:card">
+    <meta content="더운정픽" name="twitter:title">
+    <meta content="더운정픽 &middot; 간단 입장" name="twitter:description">
+    <meta content="__BASE_URL__/icons/og-icon.png?v=20260511" name="twitter:image">
+    <link href="/icons/favicon.ico?v=20260511" rel="icon">
+    <link href="/icons/splash-ios-750x1334.png" media="(device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2)" rel="apple-touch-startup-image">
+    <link href="/icons/splash-ios-828x1792.png" media="(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2)" rel="apple-touch-startup-image">
+    <link href="/icons/splash-ios-1170x2532.png" media="(device-width: 390px) and (device-height: 844px) and (-webkit-device-pixel-ratio: 3)" rel="apple-touch-startup-image">
+    <link href="/icons/splash-ios-1290x2796.png" media="(device-width: 430px) and (device-height: 932px) and (-webkit-device-pixel-ratio: 3)" rel="apple-touch-startup-image">
+    <link href="/css/signup.css" rel="stylesheet">
+  </head>
+  <body>
+    <main class="page">
+      <section class="signup-premium-hero-shell signup-premium-hero-shell-structural">
+        <div class="brand">
+          <div class="logo">
+            <img alt class="brand-icon" loading="lazy" src="/icons/internal/home.svg">
+          </div>
+          <div>
+            <h1>
+              더운정픽
+            </h1>
+            <p>
+              입주민 전용 혜택 플랫폼
+            </p>
+          </div>
+        </div>
+        <section class="hero">
+          <div class="eyebrow">
+            <img alt class="eyebrow-icon" loading="lazy" src="/icons/internal/signup.svg">
+            간단 확인 후 입장
+          </div>
+          <div class="env-badge hero-env" id="signupEnvBadge">
+            <span class="env-badge-dot">
+            </span>
+            <span>
+              DEV ENV
+            </span>
+          </div>
+          <h2>
+            복잡한 절차 없이
+            <br>
+            바로 시작하세요
+          </h2>
+          <p>
+            입주민 혜택 이용에 필요한 계정 정보만 간단하게 입력하면 됩니다.
+          </p>
+          <div class="safe-row">
+            <span class="safe-chip">
+              간단 입장
+            </span>
+            <span class="safe-chip">
+              가벼운 확인
+            </span>
+            <span class="safe-chip">
+              바로 이용
+            </span>
+          </div>
+        </section>
+        <section class="panel signup-info-panel">
+          <h3>
+            간단 입장 방식
+          </h3>
+          <p class="helper">
+            입주민분들이 부담 없이 이용하실 수 있도록 신청 화면을 계정 중심으로 단순화했습니다.
+          </p>
+          <div class="zero-grid">
+            <div class="zero-item">
+              <strong>
+                로그인 ID
+              </strong>
+              <span>
+                앱 접속에 사용하는 계정 ID입니다.
+              </span>
+            </div>
+            <div class="zero-item">
+              <strong>
+                닉네임
+              </strong>
+              <span>
+                앱 화면에 표시되는 이름입니다.
+              </span>
+            </div>
+            <div class="zero-item">
+              <strong>
+                회원 유형
+              </strong>
+              <span>
+                기능 접근을 나누는 단순 분류입니다.
+              </span>
+            </div>
+            <div class="zero-item">
+              <strong>
+                초대 코드
+              </strong>
+              <span>
+                안내받은 경우에만 입력합니다.
+              </span>
+            </div>
+          </div>
+        </section>
+        <section class="panel">
+          <h3>
+            간단 입장
+          </h3>
+          <p class="helper">
+            로그인 ID와 닉네임 중복 확인 후 바로 계정을 만들 수 있습니다.
+          </p>
+          <form class="form" id="signupForm" novalidate>
+            <div class="field">
+              <label for="loginId">
+                로그인 ID
+              </label>
+              <div class="input-row">
+                <input autocomplete="username" id="loginId" maxlength="20" minlength="4" name="loginId" pattern="[A-Za-z0-9]+" placeholder="영문+숫자 4~20자" required>
+                <button class="check-btn" id="checkLoginIdBtn" type="button">
+                  중복 확인
+                </button>
+              </div>
+              <div class="field-msg" id="loginIdMsg">
+                영문과 숫자만 사용할 수 있습니다.
+              </div>
+            </div>
+            <div class="field">
+              <label for="password">
+                비밀번호
+              </label>
+              <input autocomplete="new-password" id="password" minlength="8" name="password" placeholder="8자 이상" required type="password">
+              <div class="field-msg" id="passwordMsg">
+                8자 이상 입력해 주세요.
+              </div>
+            </div>
+            <div class="field">
+              <label for="passwordConfirm">
+                비밀번호 확인
+              </label>
+              <input autocomplete="new-password" id="passwordConfirm" minlength="8" name="passwordConfirm" placeholder="비밀번호 재입력" required type="password">
+              <div class="field-msg" id="passwordMatchMsg">
+                비밀번호를 한 번 더 입력해 주세요.
+              </div>
+            </div>
+            <div class="field">
+              <label for="nickname">
+                닉네임
+              </label>
+              <div class="input-row">
+                <input id="nickname" maxlength="20" name="nickname" placeholder="예: 더운정픽 입주민" required>
+                <button class="check-btn" id="checkNicknameBtn" type="button">
+                  중복 확인
+                </button>
+              </div>
+              <div class="field-msg" id="nicknameMsg">
+                앱 화면에 표시되는 이름입니다.
+              </div>
+            </div>
+            <div class="field">
+              <label for="memberType">
+                회원 유형
+              </label>
+              <select id="memberType" name="memberType" required>
+                <option value="resident_apartment">
+                  입주민(아파트)
+                </option>
+                <option value="resident_officetel">
+                  입주민(오피스텔)
+                </option>
+                <option value="etc">
+                  기타
+                </option>
+              </select>
+              <div class="field-msg">
+                단지 구분을 위한 단순 분류입니다.
+              </div>
+            </div>
+            <div class="field">
+              <label for="inviteCode">
+                초대 코드 / 안내 코드
+                <small style="color:#94a3b8">
+                  선택
+                </small>
+              </label>
+              <input id="inviteCode" maxlength="40" name="inviteCode" placeholder="운영진이 안내한 경우에만 입력">
+            </div>
+            <div class="notice">
+              ※ 입력한 계정 정보로 바로 이용할 수 있습니다. 아이디와 닉네임은 중복 확인 후 진행해 주세요.
+            </div>
+            <label class="agree">
+              <input id="agree" required type="checkbox">
+              <span>
+                입주민 전용 혜택 제공을 위한 최소 계정 생성에 동의합니다.
+              </span>
+            </label>
+            <div class="sub-actions signup-action-row">
+              <button class="btn" id="submitBtn" type="submit">
+                간단 입장 신청
+              </button>
+              <button class="btn btn-soft" onclick="location.replace('/')" type="button">
+                로그인으로
+              </button>
+            </div>
+          </form>
+          <div class="status" id="statusBox">
+          </div>
+        </section>
+      </section>
+    </main>
+    <div aria-hidden="true" class="app-alert" id="appAlert">
+      <div aria-describedby="appAlertMessage" aria-labelledby="appAlertTitle" aria-modal="true" class="app-alert-card" role="alertdialog">
+        <div class="app-alert-head">
+          <div aria-hidden="true" class="app-alert-icon" id="appAlertIcon">
+          </div>
+          <h3 class="app-alert-title" id="appAlertTitle">
+            안내
+          </h3>
+        </div>
+        <p class="app-alert-message" id="appAlertMessage">
+        </p>
+        <div class="app-alert-actions">
+          <button class="app-alert-confirm" id="appAlertConfirm" type="button">
+            확인
+          </button>
+        </div>
+      </div>
+    </div>
+    <div aria-hidden="true" class="page-loader" id="pageLoader">
+      <div aria-label="로딩 중" class="loader-mark" role="status">
+        <span class="arm top">
+        </span>
+        <span class="arm left">
+        </span>
+        <span class="arm mid">
+        </span>
+        <span class="arm bot">
+        </span>
+        <span class="arm bot2">
+        </span>
+      </div>
+      <div aria-hidden="true" class="loader-copy">
+        <p class="loader-message">
+          입주민 전용 서비스를 연결하고 있어요
+        </p>
+        <p class="loader-sub-message">
+          잠시만 기다려주세요
+        </p>
+      </div>
+    </div>
+    <script src="/js/signup.js">
+    </script>
+  </body>
 </html>
-

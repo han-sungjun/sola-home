@@ -1,80 +1,112 @@
 <!DOCTYPE html>
-
 <html lang="ko">
-<head>
-
-<meta content="no-store, no-cache, must-revalidate, max-age=0" http-equiv="Cache-Control"/>
-<meta content="no-cache" http-equiv="Pragma"/>
-<meta content="0" http-equiv="Expires"/>
-<meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
-
-<link href="/manifest.json" rel="manifest"/>
-<meta content="width=device-width, initial-scale=1, viewport-fit=cover" name="viewport"/>
-<meta content="#0f172a" name="theme-color"/>
-<meta content="yes" name="apple-mobile-web-app-capable"/>
-<meta content="yes" name="mobile-web-app-capable"/>
-<meta content="default" name="apple-mobile-web-app-status-bar-style"/>
-<meta content="더운정픽" name="apple-mobile-web-app-title"/>
-<link href="/icons/icon-180.png" rel="apple-touch-icon"/>
-<meta content="입주민 전용 혜택 플랫폼" name="description"/>
-<meta content="index,follow" name="robots"/>
-<title>더운정픽 | 페이지를 찾을 수 없습니다</title>
-<meta content="website" property="og:type"/>
-<meta content="더운정픽" property="og:site_name"/>
-<meta content="더운정픽" property="og:title"/>
-<meta content="페이지를 찾을 수 없습니다" property="og:description"/>
-<meta content="__BASE_URL__/icons/og-icon.png?v=20260511" property="og:image"/>
-<meta content="__BASE_URL__/app" property="og:url"/>
-<meta content="summary_large_image" name="twitter:card"/>
-<meta content="더운정픽" name="twitter:title"/>
-<meta content="페이지를 찾을 수 없습니다" name="twitter:description"/>
-<meta content="__BASE_URL__/icons/og-icon.png?v=20260511" name="twitter:image"/>
-<link href="/icons/favicon.ico?v=20260511" rel="icon"/>
-
-<link href="/icons/splash-ios-750x1334.png" media="(device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2)" rel="apple-touch-startup-image">
-<link href="/icons/splash-ios-828x1792.png" media="(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2)" rel="apple-touch-startup-image">
-<link href="/icons/splash-ios-1170x2532.png" media="(device-width: 390px) and (device-height: 844px) and (-webkit-device-pixel-ratio: 3)" rel="apple-touch-startup-image"/>
-<link href="/icons/splash-ios-1290x2796.png" media="(device-width: 430px) and (device-height: 932px) and (-webkit-device-pixel-ratio: 3)" rel="apple-touch-startup-image"/>
-
-</link></link><link href="/css/error.css" rel="stylesheet"/></head>
-<body>
-<main aria-labelledby="errorTitle" class="box" role="main">
-<div aria-hidden="true" class="brand-mark"></div>
-<div class="eyebrow">더운정픽 안내</div>
-<h1>404</h1>
-<h2 id="errorTitle">페이지를 찾을 수 없습니다</h2>
-<p>요청하신 주소가 변경되었거나 더 이상 제공되지 않는 페이지입니다. 아래 메뉴에서 필요한 화면으로 다시 이동해주세요.</p>
-<div aria-label="빠른 이동" class="actions">
-<button onclick="goHome()" type="button">홈</button>
-<button class="secondary" onclick="location.replace('/app#benefits')" type="button">혜택</button>
-<button class="secondary" onclick="location.replace('/app#top5')" type="button">TOP 5</button>
-</div>
-<div class="hint">입주민 전용 혜택과 공지는 더운정픽 홈에서 다시 확인하실 수 있습니다.</div>
-</main>
-<script src="/common/env-config.js"></script>
-<script src="/common/firebase-config.js"></script>
-<script src="/common/security-log.js"></script>
-
-<div aria-hidden="true" class="myhills-first-launch" id="myhillsFirstLaunch">
-<div class="myhills-first-launch-inner">
-<div aria-hidden="true" class="myhills-first-launch-icon"></div>
-<div class="myhills-first-launch-title">더운정픽</div>
-<div class="myhills-first-launch-sub">입주민 전용 혜택 플랫폼</div>
-</div>
-</div>
-<div aria-hidden="true" class="myhills-install-banner" id="myhillsInstallBanner">
-<div class="myhills-install-card">
-<div aria-hidden="true" class="myhills-install-icon"></div>
-<div class="myhills-install-copy">
-<strong>더운정픽를 앱처럼 이용해보세요</strong>
-<span>홈 화면에 추가하면 더 빠르게 열 수 있습니다.</span>
-</div>
-<div class="myhills-install-actions">
-<button class="myhills-install-btn" id="myhillsInstallBtn" type="button">설치</button>
-<button aria-label="설치 안내 닫기" class="myhills-install-close" id="myhillsInstallClose" type="button">×</button>
-</div>
-</div>
-</div>
-
-<script src="/js/error.js"></script></body>
+  <head>
+    <meta content="no-store, no-cache, must-revalidate, max-age=0" http-equiv="Cache-Control">
+    <meta content="no-cache" http-equiv="Pragma">
+    <meta content="0" http-equiv="Expires">
+    <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+    <link href="/manifest.json" rel="manifest">
+    <meta content="width=device-width, initial-scale=1, viewport-fit=cover" name="viewport">
+    <meta content="#0f172a" name="theme-color">
+    <meta content="yes" name="apple-mobile-web-app-capable">
+    <meta content="yes" name="mobile-web-app-capable">
+    <meta content="default" name="apple-mobile-web-app-status-bar-style">
+    <meta content="더운정픽" name="apple-mobile-web-app-title">
+    <link href="/icons/icon-180.png" rel="apple-touch-icon">
+    <meta content="입주민 전용 혜택 플랫폼" name="description">
+    <meta content="index,follow" name="robots">
+    <title>
+      더운정픽 | 페이지를 찾을 수 없습니다
+    </title>
+    <meta content="website" property="og:type">
+    <meta content="더운정픽" property="og:site_name">
+    <meta content="더운정픽" property="og:title">
+    <meta content="페이지를 찾을 수 없습니다" property="og:description">
+    <meta content="__BASE_URL__/icons/og-icon.png?v=20260511" property="og:image">
+    <meta content="__BASE_URL__/app" property="og:url">
+    <meta content="summary_large_image" name="twitter:card">
+    <meta content="더운정픽" name="twitter:title">
+    <meta content="페이지를 찾을 수 없습니다" name="twitter:description">
+    <meta content="__BASE_URL__/icons/og-icon.png?v=20260511" name="twitter:image">
+    <link href="/icons/favicon.ico?v=20260511" rel="icon">
+    <link href="/icons/splash-ios-750x1334.png" media="(device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2)" rel="apple-touch-startup-image">
+    <link href="/icons/splash-ios-828x1792.png" media="(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2)" rel="apple-touch-startup-image">
+    <link href="/icons/splash-ios-1170x2532.png" media="(device-width: 390px) and (device-height: 844px) and (-webkit-device-pixel-ratio: 3)" rel="apple-touch-startup-image">
+    <link href="/icons/splash-ios-1290x2796.png" media="(device-width: 430px) and (device-height: 932px) and (-webkit-device-pixel-ratio: 3)" rel="apple-touch-startup-image">
+    <link href="/css/error.css" rel="stylesheet">
+  </head>
+  <body>
+    <main aria-labelledby="errorTitle" class="box" role="main">
+      <div aria-hidden="true" class="brand-mark">
+      </div>
+      <div class="eyebrow">
+        더운정픽 안내
+      </div>
+      <h1>
+        404
+      </h1>
+      <h2 id="errorTitle">
+        페이지를 찾을 수 없습니다
+      </h2>
+      <p>
+        요청하신 주소가 변경되었거나 더 이상 제공되지 않는 페이지입니다. 아래 메뉴에서 필요한 화면으로 다시 이동해주세요.
+      </p>
+      <div aria-label="빠른 이동" class="actions">
+        <button onclick="goHome()" type="button">
+          홈
+        </button>
+        <button class="secondary" onclick="location.replace('/app#benefits')" type="button">
+          혜택
+        </button>
+        <button class="secondary" onclick="location.replace('/app#top5')" type="button">
+          TOP 5
+        </button>
+      </div>
+      <div class="hint">
+        입주민 전용 혜택과 공지는 더운정픽 홈에서 다시 확인하실 수 있습니다.
+      </div>
+    </main>
+    <script src="/common/env-config.js">
+    </script>
+    <script src="/common/firebase-config.js">
+    </script>
+    <script src="/common/security-log.js">
+    </script>
+    <div aria-hidden="true" class="myhills-first-launch" id="myhillsFirstLaunch">
+      <div class="myhills-first-launch-inner">
+        <div aria-hidden="true" class="myhills-first-launch-icon">
+        </div>
+        <div class="myhills-first-launch-title">
+          더운정픽
+        </div>
+        <div class="myhills-first-launch-sub">
+          입주민 전용 혜택 플랫폼
+        </div>
+      </div>
+    </div>
+    <div aria-hidden="true" class="myhills-install-banner" id="myhillsInstallBanner">
+      <div class="myhills-install-card">
+        <div aria-hidden="true" class="myhills-install-icon">
+        </div>
+        <div class="myhills-install-copy">
+          <strong>
+            더운정픽를 앱처럼 이용해보세요
+          </strong>
+          <span>
+            홈 화면에 추가하면 더 빠르게 열 수 있습니다.
+          </span>
+        </div>
+        <div class="myhills-install-actions">
+          <button class="myhills-install-btn" id="myhillsInstallBtn" type="button">
+            설치
+          </button>
+          <button aria-label="설치 안내 닫기" class="myhills-install-close" id="myhillsInstallClose" type="button">
+            &times;
+          </button>
+        </div>
+      </div>
+    </div>
+    <script src="/js/error.js">
+    </script>
+  </body>
 </html>

@@ -1,158 +1,233 @@
 <!DOCTYPE html>
-
 <html lang="ko">
-<head>
-
-<meta content="no-store, no-cache, must-revalidate, max-age=0" http-equiv="Cache-Control"/>
-<meta content="no-cache" http-equiv="Pragma"/>
-<meta content="0" http-equiv="Expires"/>
-<meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
-
-<link href="/manifest.json" rel="manifest"/>
-<meta content="width=device-width, initial-scale=1, viewport-fit=cover" name="viewport"/>
-<meta content="#0f172a" name="theme-color"/>
-<meta content="yes" name="apple-mobile-web-app-capable"/>
-<meta content="yes" name="mobile-web-app-capable"/>
-<meta content="default" name="apple-mobile-web-app-status-bar-style"/>
-<meta content="더운정픽" name="apple-mobile-web-app-title"/>
-<link href="/icons/icon-180.png" rel="apple-touch-icon"/>
-<meta content="입주민 전용 혜택 플랫폼" name="description"/>
-<meta content="index,follow" name="robots"/>
-<title>더운정픽 - 로그인</title>
-<meta content="website" property="og:type"/>
-<meta content="더운정픽" property="og:site_name"/>
-<meta content="더운정픽" property="og:title"/>
-<meta content="더운정픽 - 로그인" property="og:description"/>
-<meta content="__BASE_URL__/icons/og-icon.png?v=20260511" property="og:image"/>
-<meta content="__BASE_URL__/app" property="og:url"/>
-<meta content="summary_large_image" name="twitter:card"/>
-<meta content="더운정픽" name="twitter:title"/>
-<meta content="더운정픽 - 로그인" name="twitter:description"/>
-<meta content="__BASE_URL__/icons/og-icon.png?v=20260511" name="twitter:image"/>
-<link href="/icons/favicon.ico?v=20260511" rel="icon"/>
-
-<link href="/icons/splash-ios-750x1334.png" media="(device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2)" rel="apple-touch-startup-image">
-<link href="/icons/splash-ios-828x1792.png" media="(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2)" rel="apple-touch-startup-image">
-<link href="/icons/splash-ios-1170x2532.png" media="(device-width: 390px) and (device-height: 844px) and (-webkit-device-pixel-ratio: 3)" rel="apple-touch-startup-image"/>
-<link href="/icons/splash-ios-1290x2796.png" media="(device-width: 430px) and (device-height: 932px) and (-webkit-device-pixel-ratio: 3)" rel="apple-touch-startup-image"/>
-
-</link></link><link href="/css/index.css" rel="stylesheet"/></head>
-<body>
-<div class="wrap">
-<section class="login-premium-hero-shell login-premium-hero-shell-structural">
-<header class="login-unified-header">
-<div class="login-brand-block">
-<div class="logo"><img alt="더운정픽" loading="lazy" src="/icons/internal/brand-symbol-real.png"/></div>
-<div><strong>더운정픽</strong><span>입주민 전용 혜택 플랫폼</span></div>
-</div>
-</header>
-<section class="hero">
-<div class="eyebrow"><img alt="" class="eyebrow-icon" loading="lazy" src="/icons/internal/lock.svg"/> 입주민 전용 로그인</div>
-<div class="env-badge hero-env" id="envBadge"><span class="env-badge-dot"></span><span>DEV ENV</span></div>
-<img alt="" aria-hidden="true" class="hero-ghost-logo" loading="lazy" src="/icons/internal/brand-symbol-real.png"/>
-<h1>더운정픽<br/>로그인</h1>
-<p>입주민 전용 서비스 이용을 위해 로그인해 주세요.</p>
-</section>
-<section class="panel">
-<form id="loginForm">
-<div class="field">
-<label for="loginId">아이디</label>
-<input autocomplete="username" class="input" id="loginId" inputmode="text" placeholder="아이디 입력" type="text"/>
-</div>
-<div class="field">
-<label for="password">비밀번호</label>
-<input autocomplete="current-password" class="input" id="password" placeholder="비밀번호 입력" type="password"/>
-</div>
-<div class="helper">
-          회원가입 후 바로 입주민 전용 서비스를 이용할 수 있습니다.
+  <head>
+    <meta content="no-store, no-cache, must-revalidate, max-age=0" http-equiv="Cache-Control">
+    <meta content="no-cache" http-equiv="Pragma">
+    <meta content="0" http-equiv="Expires">
+    <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+    <link href="/manifest.json" rel="manifest">
+    <meta content="width=device-width, initial-scale=1, viewport-fit=cover" name="viewport">
+    <meta content="#0f172a" name="theme-color">
+    <meta content="yes" name="apple-mobile-web-app-capable">
+    <meta content="yes" name="mobile-web-app-capable">
+    <meta content="default" name="apple-mobile-web-app-status-bar-style">
+    <meta content="더운정픽" name="apple-mobile-web-app-title">
+    <link href="/icons/icon-180.png" rel="apple-touch-icon">
+    <meta content="입주민 전용 혜택 플랫폼" name="description">
+    <meta content="index,follow" name="robots">
+    <title>
+      더운정픽 - 로그인
+    </title>
+    <meta content="website" property="og:type">
+    <meta content="더운정픽" property="og:site_name">
+    <meta content="더운정픽" property="og:title">
+    <meta content="더운정픽 - 로그인" property="og:description">
+    <meta content="__BASE_URL__/icons/og-icon.png?v=20260511" property="og:image">
+    <meta content="__BASE_URL__/app" property="og:url">
+    <meta content="summary_large_image" name="twitter:card">
+    <meta content="더운정픽" name="twitter:title">
+    <meta content="더운정픽 - 로그인" name="twitter:description">
+    <meta content="__BASE_URL__/icons/og-icon.png?v=20260511" name="twitter:image">
+    <link href="/icons/favicon.ico?v=20260511" rel="icon">
+    <link href="/icons/splash-ios-750x1334.png" media="(device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2)" rel="apple-touch-startup-image">
+    <link href="/icons/splash-ios-828x1792.png" media="(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2)" rel="apple-touch-startup-image">
+    <link href="/icons/splash-ios-1170x2532.png" media="(device-width: 390px) and (device-height: 844px) and (-webkit-device-pixel-ratio: 3)" rel="apple-touch-startup-image">
+    <link href="/icons/splash-ios-1290x2796.png" media="(device-width: 430px) and (device-height: 932px) and (-webkit-device-pixel-ratio: 3)" rel="apple-touch-startup-image">
+    <link href="/css/index.css" rel="stylesheet">
+  </head>
+  <body>
+    <div class="wrap">
+      <section class="login-premium-hero-shell login-premium-hero-shell-structural">
+        <header class="login-unified-header">
+          <div class="login-brand-block">
+            <div class="logo">
+              <img alt="더운정픽" loading="lazy" src="/icons/internal/brand-symbol-real.png">
+            </div>
+            <div>
+              <strong>
+                더운정픽
+              </strong>
+              <span>
+                입주민 전용 혜택 플랫폼
+              </span>
+            </div>
+          </div>
+        </header>
+        <section class="hero">
+          <div class="eyebrow">
+            <img alt class="eyebrow-icon" loading="lazy" src="/icons/internal/lock.svg">
+            입주민 전용 로그인
+          </div>
+          <div class="env-badge hero-env" id="envBadge">
+            <span class="env-badge-dot">
+            </span>
+            <span>
+              DEV ENV
+            </span>
+          </div>
+          <img alt aria-hidden="true" class="hero-ghost-logo" loading="lazy" src="/icons/internal/brand-symbol-real.png">
+          <h1>
+            더운정픽
+            <br>
+            로그인
+          </h1>
+          <p>
+            입주민 전용 서비스 이용을 위해 로그인해 주세요.
+          </p>
+        </section>
+        <section class="panel">
+          <form id="loginForm">
+            <div class="field">
+              <label for="loginId">
+                아이디
+              </label>
+              <input autocomplete="username" class="input" id="loginId" inputmode="text" placeholder="아이디 입력" type="text">
+            </div>
+            <div class="field">
+              <label for="password">
+                비밀번호
+              </label>
+              <input autocomplete="current-password" class="input" id="password" placeholder="비밀번호 입력" type="password">
+            </div>
+            <div class="helper">
+              회원가입 후 바로 입주민 전용 서비스를 이용할 수 있습니다.
+            </div>
+            <div class="btn-row">
+              <button class="btn btn-primary" id="loginBtn" type="submit">
+                로그인
+              </button>
+              <button class="btn btn-soft" id="signupBtn" onclick="if(window.__LOGIN_SAFE_SIGNUP__ && !window.__LOGIN_MODULE_READY__){window.__LOGIN_SAFE_SIGNUP__();}" type="button">
+                회원가입
+              </button>
+            </div>
+            <button class="btn btn-install" hidden id="installAppBtn" type="button">
+              <img alt class="btn-icon" loading="lazy" src="/icons/internal/install.svg">
+              앱으로 빠르게 이용하기
+            </button>
+          </form>
+          <div class="notice info" id="notice">
+          </div>
+        </section>
+      </section>
+      <div aria-hidden="true" class="footer hidden">
+      </div>
+    </div>
+    <div aria-hidden="true" class="app-alert" id="appAlert">
+      <div aria-describedby="appAlertMessage" aria-labelledby="appAlertTitle" aria-modal="true" class="app-alert-card" role="alertdialog">
+        <div class="app-alert-head">
+          <div aria-hidden="true" class="app-alert-icon" id="appAlertIcon">
+          </div>
+          <h3 class="app-alert-title" id="appAlertTitle">
+            안내
+          </h3>
         </div>
-<div class="btn-row">
-<button class="btn btn-primary" id="loginBtn" type="submit">로그인</button>
-<button class="btn btn-soft" id="signupBtn" onclick="if(window.__LOGIN_SAFE_SIGNUP__ &amp;&amp; !window.__LOGIN_MODULE_READY__){window.__LOGIN_SAFE_SIGNUP__();}" type="button">회원가입</button>
-</div>
-<button class="btn btn-install" hidden="" id="installAppBtn" type="button">
-<img alt="" class="btn-icon" loading="lazy" src="/icons/internal/install.svg"/>앱으로 빠르게 이용하기
-        </button>
-</form>
-<div class="notice info" id="notice"></div>
-</section>
-</section>
-<div aria-hidden="true" class="footer hidden"></div>
-</div>
-
-<div aria-hidden="true" class="app-alert" id="appAlert">
-<div aria-describedby="appAlertMessage" aria-labelledby="appAlertTitle" aria-modal="true" class="app-alert-card" role="alertdialog">
-<div class="app-alert-head">
-<div aria-hidden="true" class="app-alert-icon" id="appAlertIcon"></div>
-<h3 class="app-alert-title" id="appAlertTitle">안내</h3>
-</div>
-<p class="app-alert-message" id="appAlertMessage"></p>
-<div class="app-alert-actions">
-<button class="app-alert-cancel hidden" id="appAlertCancel" type="button">취소</button>
-<button class="app-alert-confirm" id="appAlertConfirm" type="button">확인</button>
-</div>
-</div>
-</div>
-<div aria-hidden="true" class="sheet-modal" id="accountHelpModal">
-<div aria-labelledby="accountHelpTitle" aria-modal="true" class="sheet-panel" role="dialog">
-<div class="sheet-handle"></div>
-<div class="sheet-head">
-<div>
-<h3 class="sheet-title" id="accountHelpTitle">로그인 안내</h3>
-<p class="sheet-desc" id="accountHelpDesc">아이디 찾기 및 비밀번호 재설정을 진행합니다.</p>
-</div>
-<button aria-label="닫기" class="sheet-close" id="accountHelpCloseBtn" type="button">✕</button>
-</div>
-<div class="sheet-tabs">
-<button class="sheet-tab active" id="tabFindId" type="button">아이디 찾기</button>
-<button class="sheet-tab" id="tabResetPw" type="button">비밀번호 재설정</button>
-</div>
-<div class="sheet-body">
-<section class="sheet-section active" id="findIdSection">
-<p class="sheet-note">현재 로그인 방식은 이메일이 아니라 가입 시 등록한 아이디입니다.
-아이디가 기억나지 않으면 운영자에게 확인을 요청해 주세요.</p>
-<div class="field">
-<label for="findIdEmail">로그인 아이디 안내</label>
-<input autocomplete="username" class="input" id="findIdEmail" inputmode="text" placeholder="가입 시 사용한 아이디 입력" type="text"/>
-</div>
-<div class="sheet-inline-actions">
-<button class="btn btn-primary" id="applyFindIdBtn" type="button">입력한 값을 아이디 칸에 넣기</button>
-</div>
-<div class="sheet-result info" id="findIdResult"></div>
-</section>
-<section class="sheet-section" id="resetPwSection">
-<p class="sheet-note">가입 시 등록한 이메일이 있으면 Firebase 비밀번호 재설정 메일을 발송합니다.
-이메일이 없고 휴대폰 번호가 등록되어 있으면 휴대폰 인증 후 재설정 단계로 이동합니다.</p>
-<div class="field">
-<label for="resetPwLoginId">아이디</label>
-<input autocomplete="username" class="input" id="resetPwLoginId" inputmode="text" placeholder="아이디 입력" type="text"/>
-</div>
-<div class="sheet-inline-actions">
-<button class="btn btn-primary" id="sendResetPwBtn" type="button">재설정 메일 보내기</button>
-</div>
-<div class="sheet-result info" id="resetPwResult"></div>
-</section>
-</div>
-</div>
-</div>
-<div aria-hidden="true" class="page-loader" id="pageLoader">
-<div aria-live="polite" class="loader-content" role="status">
-<div aria-label="로딩 중" class="loader-mark">
-<span aria-hidden="true" class="loader-orbit"></span>
-<img alt="" aria-hidden="true" src="/icons/internal/brand-symbol-real.png">
-<span class="arm top"></span>
-<span class="arm left"></span>
-<span class="arm mid"></span>
-<span class="arm bot"></span>
-<span class="arm bot2"></span>
-</img></div>
-<div aria-hidden="true" class="loader-copy">
-<p class="loader-message" id="loaderMessage">입주민 전용 서비스를 연결하고 있어요</p>
-<p class="loader-sub-message" id="loaderSubMessage">잠시만 기다려주세요</p>
-</div>
-</div>
-</div>
-
-<script src="/js/index.js"></script></body>
+        <p class="app-alert-message" id="appAlertMessage">
+        </p>
+        <div class="app-alert-actions">
+          <button class="app-alert-cancel hidden" id="appAlertCancel" type="button">
+            취소
+          </button>
+          <button class="app-alert-confirm" id="appAlertConfirm" type="button">
+            확인
+          </button>
+        </div>
+      </div>
+    </div>
+    <div aria-hidden="true" class="sheet-modal" id="accountHelpModal">
+      <div aria-labelledby="accountHelpTitle" aria-modal="true" class="sheet-panel" role="dialog">
+        <div class="sheet-handle">
+        </div>
+        <div class="sheet-head">
+          <div>
+            <h3 class="sheet-title" id="accountHelpTitle">
+              로그인 안내
+            </h3>
+            <p class="sheet-desc" id="accountHelpDesc">
+              아이디 찾기 및 비밀번호 재설정을 진행합니다.
+            </p>
+          </div>
+          <button aria-label="닫기" class="sheet-close" id="accountHelpCloseBtn" type="button">
+            ✕
+          </button>
+        </div>
+        <div class="sheet-tabs">
+          <button class="sheet-tab active" id="tabFindId" type="button">
+            아이디 찾기
+          </button>
+          <button class="sheet-tab" id="tabResetPw" type="button">
+            비밀번호 재설정
+          </button>
+        </div>
+        <div class="sheet-body">
+          <section class="sheet-section active" id="findIdSection">
+            <p class="sheet-note">
+              현재 로그인 방식은 이메일이 아니라 가입 시 등록한 아이디입니다.
+아이디가 기억나지 않으면 운영자에게 확인을 요청해 주세요.
+            </p>
+            <div class="field">
+              <label for="findIdEmail">
+                로그인 아이디 안내
+              </label>
+              <input autocomplete="username" class="input" id="findIdEmail" inputmode="text" placeholder="가입 시 사용한 아이디 입력" type="text">
+            </div>
+            <div class="sheet-inline-actions">
+              <button class="btn btn-primary" id="applyFindIdBtn" type="button">
+                입력한 값을 아이디 칸에 넣기
+              </button>
+            </div>
+            <div class="sheet-result info" id="findIdResult">
+            </div>
+          </section>
+          <section class="sheet-section" id="resetPwSection">
+            <p class="sheet-note">
+              가입 시 등록한 이메일이 있으면 Firebase 비밀번호 재설정 메일을 발송합니다.
+이메일이 없고 휴대폰 번호가 등록되어 있으면 휴대폰 인증 후 재설정 단계로 이동합니다.
+            </p>
+            <div class="field">
+              <label for="resetPwLoginId">
+                아이디
+              </label>
+              <input autocomplete="username" class="input" id="resetPwLoginId" inputmode="text" placeholder="아이디 입력" type="text">
+            </div>
+            <div class="sheet-inline-actions">
+              <button class="btn btn-primary" id="sendResetPwBtn" type="button">
+                재설정 메일 보내기
+              </button>
+            </div>
+            <div class="sheet-result info" id="resetPwResult">
+            </div>
+          </section>
+        </div>
+      </div>
+    </div>
+    <div aria-hidden="true" class="page-loader" id="pageLoader">
+      <div aria-live="polite" class="loader-content" role="status">
+        <div aria-label="로딩 중" class="loader-mark">
+          <span aria-hidden="true" class="loader-orbit">
+          </span>
+          <img alt aria-hidden="true" src="/icons/internal/brand-symbol-real.png">
+          <span class="arm top">
+          </span>
+          <span class="arm left">
+          </span>
+          <span class="arm mid">
+          </span>
+          <span class="arm bot">
+          </span>
+          <span class="arm bot2">
+          </span>
+        </div>
+        <div aria-hidden="true" class="loader-copy">
+          <p class="loader-message" id="loaderMessage">
+            입주민 전용 서비스를 연결하고 있어요
+          </p>
+          <p class="loader-sub-message" id="loaderSubMessage">
+            잠시만 기다려주세요
+          </p>
+        </div>
+      </div>
+    </div>
+    <script src="/js/index.js">
+    </script>
+  </body>
 </html>
-

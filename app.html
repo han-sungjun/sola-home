@@ -1,645 +1,1698 @@
 <!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta content="no-store, no-cache, must-revalidate, max-age=0" http-equiv="Cache-Control">
+    <meta content="no-cache" http-equiv="Pragma">
+    <meta content="0" http-equiv="Expires">
+    <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+    <link href="/manifest.json" rel="manifest">
+    <meta content="width=device-width, initial-scale=1, viewport-fit=cover" name="viewport">
+    <meta content="#0f172a" name="theme-color">
+    <meta content="yes" name="apple-mobile-web-app-capable">
+    <meta content="yes" name="mobile-web-app-capable">
+    <meta content="default" name="apple-mobile-web-app-status-bar-style">
+    <meta content="더운정픽" name="apple-mobile-web-app-title">
+    <link href="/icons/icon-180.png" rel="apple-touch-icon">
+    <meta content="입주민 전용 혜택 플랫폼" name="description">
+    <meta content="index,follow" name="robots">
+    <title>
+      더운정픽
+    </title>
+    <meta content="website" property="og:type">
+    <meta content="더운정픽" property="og:site_name">
+    <meta content="더운정픽" property="og:title">
+    <meta content="입주민 전용 혜택과 공지 바로가기" property="og:description">
+    <meta content="__BASE_URL__/icons/og-icon.png?v=20260511" property="og:image">
+    <meta content="__BASE_URL__/app" property="og:url">
+    <meta content="summary_large_image" name="twitter:card">
+    <meta content="더운정픽" name="twitter:title">
+    <meta content="입주민 전용 혜택과 공지 바로가기" name="twitter:description">
+    <meta content="__BASE_URL__/icons/og-icon.png?v=20260511" name="twitter:image">
+    <link href="/icons/favicon.ico?v=20260511" rel="icon">
+    <link href="/icons/splash-ios-750x1334.png" media="(device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2)" rel="apple-touch-startup-image">
+    <link href="/icons/splash-ios-828x1792.png" media="(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2)" rel="apple-touch-startup-image">
+    <link href="/icons/splash-ios-1170x2532.png" media="(device-width: 390px) and (device-height: 844px) and (-webkit-device-pixel-ratio: 3)" rel="apple-touch-startup-image">
+    <link href="/icons/splash-ios-1290x2796.png" media="(device-width: 430px) and (device-height: 932px) and (-webkit-device-pixel-ratio: 3)" rel="apple-touch-startup-image">
+    <link href="/css/app.css" rel="stylesheet">
+  </head>
+  <body>
+    <div aria-hidden="true" class="global-loading" id="globalLoadingBar">
+      <div aria-label="로딩 중" class="loader-mark" role="status">
+        <span class="arm top">
+        </span>
+        <span class="arm left">
+        </span>
+        <span class="arm mid">
+        </span>
+        <span class="arm bot">
+        </span>
+        <span class="arm bot2">
+        </span>
+      </div>
+      <div aria-hidden="true" class="loader-copy">
+        <p class="loader-message">
+          입주민 전용 서비스를 연결하고 있어요
+        </p>
+        <p class="loader-sub-message">
+          잠시만 기다려주세요
+        </p>
+      </div>
+    </div>
+    <div class="app">
+      <div class="shell">
+        <section class="" id="view-home">
+          <div class="upick-home-hero-shell">
+            <header aria-label="더운정픽 공통 헤더" class="topbar unified-topbar public-unified-header">
+              <div class="upick-header-brand brand">
+                <div class="logo">
+                  <img alt="더운정픽" class="upick-svg-icon" loading="lazy" src="/icons/internal/brand-symbol-real.png">
+                </div>
+                <div class="upick-brand-copy">
+                  <h1>
+                    더운정픽
+                  </h1>
+                  <p>
+                    입주민 전용 혜택 플랫폼
+                  </p>
+                </div>
+              </div>
+              <div class="upick-header-utils">
+                <div aria-label="설정 열기" class="user-chip" id="userChip" role="button" tabindex="0" title="계정 정보">
+                  <div class="user-avatar">
+                    <img alt class="upick-svg-icon" loading="lazy" src="/icons/internal/user.svg">
+                  </div>
+                  <div class="user-meta">
+                    <strong class="user-name" id="userNickname" title="로그인 확인 중">
+                      로그인 확인 중
+                    </strong>
+                    <span class="user-sub" id="userUnitInfo">
+                      입주민 계정
+                    </span>
+                  </div>
+                </div>
+                <button aria-label="AI 생활 도우미 열기" class="icon-btn ai-btn" data-view-link="ai" id="aiQuickBtn" title="AI 생활 도우미" type="button">
+                  <img alt class="upick-svg-icon" loading="lazy" src="/icons/internal/ai-assistant.svg">
+                </button>
+                <button class="icon-btn" id="installTopBtn" title="앱처럼 설치">
+                  <img alt class="upick-svg-icon" loading="lazy" src="/icons/internal/install.svg">
+                </button>
+                <div class="gnb-wrap">
+                  <button class="icon-btn" id="gnbToggleBtn" title="메뉴">
+                    <img alt class="upick-svg-icon" loading="lazy" src="/icons/internal/all-menu.svg">
+                  </button>
+                </div>
+              </div>
+            </header>
+            <div class="hero">
+              <div class="eyebrow">
+                <img alt class="upick-svg-icon upick-inline-icon" loading="lazy" src="/icons/internal/lock.svg">
+                간단 확인 후 입주민 혜택
+              </div>
+              <div class="env-badge hero-env" id="envBadge">
+                <span class="env-badge-dot">
+                </span>
+                <span>
+                  DEV ENV
+                </span>
+              </div>
+              <h2>
+                간단한 확인만으로
+                <br>
+                입주민 혜택을 깔끔하게
+              </h2>
+              <p>
+                부담되는 입력 절차는 줄이고, 필요한 혜택과 공지만 앱처럼 편하게 확인해보세요.
+              </p>
+              <div aria-label="안심 이용 안내" class="trust-hero-badges">
+                <span class="trust-hero-badge">
+                  간단 입장
+                </span>
+                <span class="trust-hero-badge">
+                  가벼운 확인
+                </span>
+                <span class="trust-hero-badge">
+                  혜택 바로 확인
+                </span>
+              </div>
+              <div class="stats">
+                <div class="stat">
+                  <strong id="statMax">
+                    0%
+                  </strong>
+                  <span>
+                    최대 할인
+                  </span>
+                </div>
+                <div class="stat">
+                  <strong id="statCount">
+                    0
+                  </strong>
+                  <span>
+                    전체 제휴
+                  </span>
+                </div>
+                <div class="stat">
+                  <strong id="statCat">
+                    0
+                  </strong>
+                  <span>
+                    카테고리
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="panel notice hidden" id="firebaseNotice">
+            Firebase 설정값이 비어 있습니다. firebaseConfig를 확인해 주세요.
+          </div>
+          <div class="panel" style="margin-top:14px;">
+            <div class="section-head" style="margin-bottom:12px;">
+              <h3>
+                최근 공지
+              </h3>
+              <small>
+                최신 안내
+              </small>
+            </div>
+            <div class="notice-list" id="homeNoticeList">
+              <div class="notice-empty">
+                등록된 공지가 없습니다.
+              </div>
+            </div>
+          </div>
+        </section>
+        <section class="hidden" id="view-benefits">
+          <div class="panel" style="margin-bottom:14px;">
+            <div class="section-head" style="margin-bottom:12px;">
+              <h3>
+                <img alt class="upick-svg-icon upick-inline-icon" decoding="async" loading="lazy" src="/icons/internal/benefit.svg">
+                혜택
+              </h3>
+              <small>
+                전체 혜택 검색
+              </small>
+            </div>
+            <div class="helper">
+              매장명, 카테고리, 조건으로 원하는 혜택을 빠르게 찾을 수 있습니다. 카테고리를 눌러 바로 필터링해 보세요. 즐겨찾기는 현재 계정 기준으로 저장됩니다.
+            </div>
+          </div>
+          <div class="filter-sticky">
+            <div class="benefit-filter-top-row">
+              <div class="filter-icon-row" id="filterIconRow">
+                <div class="filter-pop-wrap">
+                  <button aria-expanded="false" aria-haspopup="true" class="filter-icon-btn" id="sortPopoverBtn" type="button">
+                    &varr; 정렬
+                  </button>
+                  <div class="filter-popover hidden" id="sortPopover">
+                    <button data-sort-value="default" type="button">
+                      추천/할인순
+                    </button>
+                    <button data-sort-value="latest" type="button">
+                      최신 순
+                    </button>
+                    <button data-sort-value="top" type="button">
+                      TOP 5 순
+                    </button>
+                    <button data-sort-value="distance" type="button">
+                      가까운 순
+                    </button>
+                  </div>
+                </div>
+                <div class="filter-pop-wrap">
+                  <button aria-expanded="false" aria-haspopup="true" class="filter-icon-btn" id="radiusPopoverBtn" type="button">
+                    <img alt class="upick-svg-icon upick-inline-icon" loading="lazy" src="/icons/internal/pin.svg">
+                    반경
+                  </button>
+                  <div class="filter-popover hidden" id="radiusPopover">
+                    <button data-radius-value="all" type="button">
+                      전체
+                    </button>
+                    <button data-radius-value="500" type="button">
+                      500m 이내
+                    </button>
+                    <button data-radius-value="1000" type="button">
+                      1km 이내
+                    </button>
+                    <button data-radius-value="3000" type="button">
+                      3km 이내
+                    </button>
+                  </div>
+                </div>
+                <select aria-hidden="true" class="sr-only-filter" id="benefitSortSelect" tabindex="-1">
+                  <option value="default">
+                    추천/할인순
+                  </option>
+                  <option value="latest">
+                    최신 순
+                  </option>
+                  <option value="top">
+                    TOP 5 순
+                  </option>
+                  <option value="distance">
+                    가까운 순
+                  </option>
+                </select>
+                <select aria-hidden="true" class="sr-only-filter" id="distanceRadiusSelect" tabindex="-1">
+                  <option value="all">
+                    전체
+                  </option>
+                  <option value="500">
+                    500m 이내
+                  </option>
+                  <option value="1000">
+                    1km 이내
+                  </option>
+                  <option value="3000">
+                    3km 이내
+                  </option>
+                </select>
+                <div class="distance-filter-help hidden" id="distanceFilterHelp">
+                </div>
+              </div>
+              <div aria-label="혜택 보기 방식" class="benefit-view-switch">
+                <button class="view-mode-btn" data-view-mode="card" id="benefitCardModeBtn" type="button">
+                  ▦ 카드형
+                </button>
+                <button class="view-mode-btn active" data-view-mode="list" id="benefitListModeBtn" type="button">
+                  <img alt class="upick-inline-icon" loading="lazy" src="/icons/internal/all-menu.svg">
+                  리스트형
+                </button>
+              </div>
+            </div>
+            <div class="panel searchbox">
+              <span>
+                <img alt class="upick-svg-icon" loading="lazy" src="/icons/internal/search.svg">
+              </span>
+              <input id="searchInput" placeholder="매장명, 카테고리, 조건 검색" type="text">
+              <button class="icon-btn" id="resetBtn" title="초기화">
+                &olarr;
+              </button>
+            </div>
+            <div class="chips" id="chips">
+            </div>
+            <div class="chips-toggle">
+              <button class="chip chips-toggle-btn hidden" id="chipsToggle" type="button">
+                더보기 &dtrif;
+              </button>
+            </div>
+          </div>
+          <div class="section-head">
+            <h3 id="sectionTitle">
+              전체 혜택
+            </h3>
+            <small id="resultCount">
+              0건
+            </small>
+          </div>
+          <div class="loading hidden" id="homeLoading">
+            정보를 불러오는 중입니다...
+          </div>
+          <div class="list" id="cardList">
+            <div class="panel empty">
+              조건에 맞는 항목이 없습니다.
+            </div>
+          </div>
+        </section>
+        <section class="hidden" id="view-favorite">
+          <div class="panel" style="margin-bottom:14px;">
+            <div class="section-head" style="margin-bottom:12px;">
+              <h3>
+                즐겨찾기
+              </h3>
+              <small>
+                자주 쓰는 혜택
+              </small>
+            </div>
+            <div class="helper">
+              관심 있는 매장을 계정에 저장해 두고 빠르게 확인할 수 있습니다. 로그인한 계정 기준으로 동기화됩니다.
+            </div>
+          </div>
+          <div class="list" id="favoriteList">
+            <div class="panel empty">
+              조건에 맞는 항목이 없습니다.
+            </div>
+          </div>
+        </section>
+        <section class="hidden" id="view-map">
+          <div class="panel map-mode-panel" style="margin-bottom:14px;">
+            <div class="section-head" style="margin-bottom:2px;">
+              <h3>
+                지도 기반 혜택 탐색
+              </h3>
+              <small id="mapModeCount">
+                0건
+              </small>
+            </div>
+            <div class="helper">
+              현재 필터 조건에 맞는 매장을 지도에서 한 번에 확인할 수 있습니다. 가까운 매장은 숫자 묶음으로 정리됩니다.
+            </div>
+            <div class="map-mode-actions">
+              <button class="btn btn-primary" id="mapUseMyLocationBtn" type="button">
+                <img alt class="upick-svg-icon upick-inline-icon" loading="lazy" src="/icons/internal/pin.svg">
+                현재 위치로 보기
+              </button>
+              <button class="btn btn-soft" id="mapRefreshBtn" type="button">
+                &orarr; 지도 새로고침
+              </button>
+            </div>
+            <div class="map-mode-status muted" id="mapModeStatus">
+              지도 로딩 전입니다.
+            </div>
+          </div>
+          <div class="map-mode-canvas-wrap">
+            <div id="benefitMap">
+            </div>
+          </div>
+          <div class="map-mode-list" id="mapPlaceList" style="margin-top:14px;">
+          </div>
+        </section>
+        <section class="hidden" id="view-notices">
+          <div class="panel" style="margin-bottom:14px;">
+            <div class="section-head" style="margin-bottom:12px;">
+              <h3>
+                공지사항
+              </h3>
+              <small>
+                입주민 안내
+              </small>
+            </div>
+            <div class="helper">
+              관리자가 등록한 공지사항을 확인할 수 있습니다.
+            </div>
+          </div>
+          <div class="notice-list" id="noticeList">
+            <div class="notice-empty">
+              등록된 공지가 없습니다.
+            </div>
+          </div>
+        </section>
+        <section class="hidden" id="view-shareinsights">
+          <div class="panel" style="margin-bottom:14px;">
+            <div class="section-head" style="margin-bottom:12px;">
+              <h3>
+                공유 인사이트
+              </h3>
+              <small>
+                바이럴 분석
+              </small>
+            </div>
+            <div class="helper">
+              카카오톡 공유, 실제 유입, 공유자별 확산 흐름을 운영자 기준으로 확인합니다.
+            </div>
+            <div class="insight-toolbar">
+              <small id="shareInsightUpdatedText" style="color:var(--muted);">
+                집계 전
+              </small>
+              <button class="btn btn-soft" id="shareInsightRefreshBtn" type="button">
+                &orarr; 새로고침
+              </button>
+            </div>
+          </div>
+          <div id="shareInsightsContent">
+            <div class="panel empty">
+              공유 인사이트를 불러오는 중입니다.
+            </div>
+          </div>
+        </section>
+        <section class="hidden" id="view-community">
+          <div class="panel community-hero-panel" style="margin-bottom:14px;">
+            <div class="section-head" style="margin-bottom:12px;">
+              <h3>
+                <img alt class="upick-svg-icon upick-inline-icon" loading="lazy" src="/icons/internal/community.svg">
+                입주민 커뮤니티
+              </h3>
+              <small id="communityCountText" style="color:rgba(255,255,255,.82)">
+                게시글
+              </small>
+            </div>
+            <div class="helper">
+              입주민끼리 자유롭게 정보를 나누는 공간입니다. 초기 버전은 게시글과 댓글 중심으로 운영됩니다.
+            </div>
+          </div>
+          <div class="panel" style="margin-bottom:14px;">
+            <div class="community-toolbar">
+              <strong>
+                게시글
+              </strong>
+              <button class="btn btn-primary" id="communityWriteBtn" type="button">
+                글쓰기
+              </button>
+            </div>
+            <div class="community-filter" id="communityCategoryFilter">
+            </div>
+          </div>
+          <div class="list" id="communityPostList">
+            <div class="panel empty">
+              게시글을 불러오는 중입니다.
+            </div>
+          </div>
+          <button class="btn btn-soft community-more-btn hidden" id="communityMoreBtn" type="button">
+            더 보기
+          </button>
+        </section>
+        <section class="hidden" id="view-all">
+          <div class="panel" style="margin-bottom:14px;">
+            <div class="section-head" style="margin-bottom:12px;">
+              <h3>
+                전체 기능
+              </h3>
+              <small>
+                서비스 메뉴
+              </small>
+            </div>
+            <div class="helper">
+              하단 네비바에 모두 담기 어려운 기능을 한 곳에 모았습니다.
+            </div>
+          </div>
+          <div class="all-menu-grid" id="allMenuGrid">
+            <div class="panel empty" style="grid-column:1/-1;">
+              전체 기능 메뉴를 불러오는 중입니다.
+            </div>
+          </div>
+        </section>
+        <section class="hidden" id="view-ai">
+          <div class="ai-view-hero">
+            <span class="ai-ready-pill">
+              <img alt class="upick-svg-icon upick-inline-icon" decoding="async" loading="lazy" src="/icons/internal/ai-assistant.svg">
+              지금 필요한 정보를 바로 도와드릴게요
+            </span>
+            <h3>
+              AI 생활 도우미
+            </h3>
+            <p>
+              입주민 생활에 필요한 정보를 빠르게 찾아드려요.
+              <br>
+              생활 &middot; 혜택 &middot; 매장까지 편하게 물어보세요.
+            </p>
+          </div>
+          <div class="panel ai-chat-panel">
+            <div aria-label="AI 대화 관리" class="ai-memory-toolbar">
+              <button class="ai-memory-btn" id="aiNewConversationBtn" type="button">
+                ＋ 새 대화
+              </button>
+              <button class="ai-memory-btn" id="aiOpenConversationListBtn" type="button">
+                <img alt class="upick-svg-icon upick-inline-icon" loading="lazy" src="/icons/internal/clock.svg">
+                이전 대화
+              </button>
+              <button class="ai-memory-btn danger" id="aiClearConversationBtn" type="button">
+                초기화
+              </button>
+            </div>
+            <div class="ai-memory-status" id="aiConversationStatus">
+              <span>
+                현재 대화:
+                <strong>
+                  새 대화
+                </strong>
+              </span>
+              <span>
+                최근 맥락 반영
+              </span>
+            </div>
+            <div aria-live="polite" class="ai-conversation-panel" id="aiConversationPanel">
+              <div class="ai-conversation-head">
+                <strong>
+                  이전 대화
+                </strong>
+                <button class="btn btn-soft" id="aiCloseConversationListBtn" type="button">
+                  닫기
+                </button>
+              </div>
+              <div class="ai-conversation-list" id="aiConversationList">
+                <div class="ai-conversation-empty">
+                  이전 대화를 불러오는 중입니다.
+                </div>
+              </div>
+            </div>
+            <div class="ai-quick-row" id="aiQuickRow">
+              <button class="ai-quick-btn" data-ai-question="최근 공지 알려줘" type="button">
+                최근 공지 알려줘
+              </button>
+              <button class="ai-quick-btn" data-ai-question="혜택 매장 추천해줘" type="button">
+                혜택 매장 추천해줘
+              </button>
+              <button class="ai-quick-btn" data-ai-question="지도에서 볼 수 있는 혜택 알려줘" type="button">
+                지도 혜택 알려줘
+              </button>
+              <button class="ai-quick-btn" data-ai-question="인기 매장 TOP 5 알려줘" type="button">
+                인기 매장 알려줘
+              </button>
+              <button class="ai-quick-btn" data-ai-question="공지사항은 어디서 봐?" type="button">
+                공지사항 위치
+              </button>
+            </div>
+            <div class="ai-busy-note" id="aiBusyNote">
+              답변을 준비하는 동안 새 질문은 잠시 멈춰둘게요.
+            </div>
+            <div aria-live="polite" class="ai-chat-window" id="aiChatWindow">
+              <div class="ai-message bot">
+                <div class="ai-bubble">
+                  지금 상황에 맞춰 먼저 도와드릴게요
 
-<html lang="ko"><head>
-
-<meta content="no-store, no-cache, must-revalidate, max-age=0" http-equiv="Cache-Control"/>
-<meta content="no-cache" http-equiv="Pragma"/>
-<meta content="0" http-equiv="Expires"/>
-<meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
-
-<link href="/manifest.json" rel="manifest"/>
-<meta content="width=device-width, initial-scale=1, viewport-fit=cover" name="viewport"/>
-<meta content="#0f172a" name="theme-color"/>
-<meta content="yes" name="apple-mobile-web-app-capable"/>
-<meta content="yes" name="mobile-web-app-capable"/>
-<meta content="default" name="apple-mobile-web-app-status-bar-style"/>
-<meta content="더운정픽" name="apple-mobile-web-app-title"/>
-<link href="/icons/icon-180.png" rel="apple-touch-icon"/>
-<meta content="입주민 전용 혜택 플랫폼" name="description"/>
-<meta content="index,follow" name="robots"/>
-<title>더운정픽</title>
-<meta content="website" property="og:type"/>
-<meta content="더운정픽" property="og:site_name"/>
-<meta content="더운정픽" property="og:title"/>
-<meta content="입주민 전용 혜택과 공지 바로가기" property="og:description"/>
-<meta content="__BASE_URL__/icons/og-icon.png?v=20260511" property="og:image"/>
-<meta content="__BASE_URL__/app" property="og:url"/>
-<meta content="summary_large_image" name="twitter:card"/>
-<meta content="더운정픽" name="twitter:title"/>
-<meta content="입주민 전용 혜택과 공지 바로가기" name="twitter:description"/>
-<meta content="__BASE_URL__/icons/og-icon.png?v=20260511" name="twitter:image"/>
-<link href="/icons/favicon.ico?v=20260511" rel="icon"/>
-
-<link href="/icons/splash-ios-750x1334.png" media="(device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2)" rel="apple-touch-startup-image">
-<link href="/icons/splash-ios-828x1792.png" media="(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2)" rel="apple-touch-startup-image">
-<link href="/icons/splash-ios-1170x2532.png" media="(device-width: 390px) and (device-height: 844px) and (-webkit-device-pixel-ratio: 3)" rel="apple-touch-startup-image"/>
-<link href="/icons/splash-ios-1290x2796.png" media="(device-width: 430px) and (device-height: 932px) and (-webkit-device-pixel-ratio: 3)" rel="apple-touch-startup-image"/>
-
-</link></link><link href="/css/app.css" rel="stylesheet"/></head>
-<body>
-<div aria-hidden="true" class="global-loading" id="globalLoadingBar">
-<div aria-label="로딩 중" class="loader-mark" role="status">
-<span class="arm top"></span>
-<span class="arm left"></span>
-<span class="arm mid"></span>
-<span class="arm bot"></span>
-<span class="arm bot2"></span>
-</div>
-<div aria-hidden="true" class="loader-copy">
-<p class="loader-message">입주민 전용 서비스를 연결하고 있어요</p>
-<p class="loader-sub-message">잠시만 기다려주세요</p>
-</div>
-</div>
-<div class="app"><div class="shell">
-<section class="" id="view-home">
-<div class="upick-home-hero-shell">
-<header aria-label="더운정픽 공통 헤더" class="topbar unified-topbar public-unified-header">
-<div class="upick-header-brand brand">
-<div class="logo"><img alt="더운정픽" class="upick-svg-icon" loading="lazy" src="/icons/internal/brand-symbol-real.png"/></div>
-<div class="upick-brand-copy">
-<h1>더운정픽</h1>
-<p>입주민 전용 혜택 플랫폼</p>
-</div>
-</div>
-<div class="upick-header-utils">
-<div aria-label="설정 열기" class="user-chip" id="userChip" role="button" tabindex="0" title="계정 정보">
-<div class="user-avatar"><img alt="" class="upick-svg-icon" loading="lazy" src="/icons/internal/user.svg"/></div>
-<div class="user-meta">
-<strong class="user-name" id="userNickname" title="로그인 확인 중">로그인 확인 중</strong>
-<span class="user-sub" id="userUnitInfo">입주민 계정</span>
-</div>
-</div>
-<button aria-label="AI 생활 도우미 열기" class="icon-btn ai-btn" data-view-link="ai" id="aiQuickBtn" title="AI 생활 도우미" type="button"><img alt="" class="upick-svg-icon" loading="lazy" src="/icons/internal/ai-assistant.svg"/></button>
-<button class="icon-btn" id="installTopBtn" title="앱처럼 설치"><img alt="" class="upick-svg-icon" loading="lazy" src="/icons/internal/install.svg"/></button>
-<div class="gnb-wrap"><button class="icon-btn" id="gnbToggleBtn" title="메뉴"><img alt="" class="upick-svg-icon" loading="lazy" src="/icons/internal/all-menu.svg"/></button></div>
-</div>
-</header>
-<div class="hero">
-<div class="eyebrow"><img alt="" class="upick-svg-icon upick-inline-icon" loading="lazy" src="/icons/internal/lock.svg"/> 간단 확인 후 입주민 혜택</div>
-<div class="env-badge hero-env" id="envBadge"><span class="env-badge-dot"></span><span>DEV ENV</span></div>
-<h2>간단한 확인만으로<br/>입주민 혜택을 깔끔하게</h2>
-<p>부담되는 입력 절차는 줄이고, 필요한 혜택과 공지만 앱처럼 편하게 확인해보세요.</p>
-<div aria-label="안심 이용 안내" class="trust-hero-badges">
-<span class="trust-hero-badge">간단 입장</span>
-<span class="trust-hero-badge">가벼운 확인</span>
-<span class="trust-hero-badge">혜택 바로 확인</span>
-</div>
-<div class="stats"><div class="stat"><strong id="statMax">0%</strong><span>최대 할인</span></div><div class="stat"><strong id="statCount">0</strong><span>전체 제휴</span></div><div class="stat"><strong id="statCat">0</strong><span>카테고리</span></div></div>
-</div>
-</div>
-<div class="panel notice hidden" id="firebaseNotice">Firebase 설정값이 비어 있습니다. firebaseConfig를 확인해 주세요.</div>
-<div class="panel" style="margin-top:14px;">
-<div class="section-head" style="margin-bottom:12px;"><h3>최근 공지</h3><small>최신 안내</small></div>
-<div class="notice-list" id="homeNoticeList"><div class="notice-empty">등록된 공지가 없습니다.</div></div>
-</div>
-
-</section>
-<section class="hidden" id="view-benefits">
-<div class="panel" style="margin-bottom:14px;">
-<div class="section-head" style="margin-bottom:12px;"><h3><img alt="" class="upick-svg-icon upick-inline-icon" decoding="async" loading="lazy" src="/icons/internal/benefit.svg"/> 혜택</h3><small>전체 혜택 검색</small></div>
-<div class="helper">매장명, 카테고리, 조건으로 원하는 혜택을 빠르게 찾을 수 있습니다. 카테고리를 눌러 바로 필터링해 보세요. 즐겨찾기는 현재 계정 기준으로 저장됩니다.</div>
-</div>
-<div class="filter-sticky"><div class="benefit-filter-top-row"><div class="filter-icon-row" id="filterIconRow">
-<div class="filter-pop-wrap">
-<button aria-expanded="false" aria-haspopup="true" class="filter-icon-btn" id="sortPopoverBtn" type="button">↕ 정렬</button>
-<div class="filter-popover hidden" id="sortPopover">
-<button data-sort-value="default" type="button">추천/할인순</button>
-<button data-sort-value="latest" type="button">최신 순</button>
-<button data-sort-value="top" type="button">TOP 5 순</button>
-<button data-sort-value="distance" type="button">가까운 순</button>
-</div>
-</div>
-<div class="filter-pop-wrap">
-<button aria-expanded="false" aria-haspopup="true" class="filter-icon-btn" id="radiusPopoverBtn" type="button"><img alt="" class="upick-svg-icon upick-inline-icon" loading="lazy" src="/icons/internal/pin.svg"/>반경</button>
-<div class="filter-popover hidden" id="radiusPopover">
-<button data-radius-value="all" type="button">전체</button>
-<button data-radius-value="500" type="button">500m 이내</button>
-<button data-radius-value="1000" type="button">1km 이내</button>
-<button data-radius-value="3000" type="button">3km 이내</button>
-</div>
-</div>
-<select aria-hidden="true" class="sr-only-filter" id="benefitSortSelect" tabindex="-1">
-<option value="default">추천/할인순</option>
-<option value="latest">최신 순</option>
-<option value="top">TOP 5 순</option>
-<option value="distance">가까운 순</option>
-</select>
-<select aria-hidden="true" class="sr-only-filter" id="distanceRadiusSelect" tabindex="-1">
-<option value="all">전체</option>
-<option value="500">500m 이내</option>
-<option value="1000">1km 이내</option>
-<option value="3000">3km 이내</option>
-</select>
-<div class="distance-filter-help hidden" id="distanceFilterHelp"></div>
-</div><div aria-label="혜택 보기 방식" class="benefit-view-switch">
-<button class="view-mode-btn" data-view-mode="card" id="benefitCardModeBtn" type="button">▦ 카드형</button>
-<button class="view-mode-btn active" data-view-mode="list" id="benefitListModeBtn" type="button"><img alt="" class="upick-inline-icon" loading="lazy" src="/icons/internal/all-menu.svg"/> 리스트형</button>
-</div></div><div class="panel searchbox"><span><img alt="" class="upick-svg-icon" loading="lazy" src="/icons/internal/search.svg"/></span><input id="searchInput" placeholder="매장명, 카테고리, 조건 검색" type="text"/><button class="icon-btn" id="resetBtn" title="초기화">↺</button></div>
-<div class="chips" id="chips"></div><div class="chips-toggle"><button class="chip chips-toggle-btn hidden" id="chipsToggle" type="button">더보기 ▾</button></div></div>
-<div class="section-head"><h3 id="sectionTitle">전체 혜택</h3><small id="resultCount">0건</small></div>
-<div class="loading hidden" id="homeLoading">정보를 불러오는 중입니다...</div>
-<div class="list" id="cardList"><div class="panel empty">조건에 맞는 항목이 없습니다.</div></div>
-</section>
-<section class="hidden" id="view-favorite"><div class="panel" style="margin-bottom:14px;"><div class="section-head" style="margin-bottom:12px;"><h3>즐겨찾기</h3><small>자주 쓰는 혜택</small></div><div class="helper">관심 있는 매장을 계정에 저장해 두고 빠르게 확인할 수 있습니다. 로그인한 계정 기준으로 동기화됩니다.</div></div><div class="list" id="favoriteList"><div class="panel empty">조건에 맞는 항목이 없습니다.</div></div></section>
-<section class="hidden" id="view-map">
-<div class="panel map-mode-panel" style="margin-bottom:14px;">
-<div class="section-head" style="margin-bottom:2px;"><h3>지도 기반 혜택 탐색</h3><small id="mapModeCount">0건</small></div>
-<div class="helper">현재 필터 조건에 맞는 매장을 지도에서 한 번에 확인할 수 있습니다. 가까운 매장은 숫자 묶음으로 정리됩니다.</div>
-<div class="map-mode-actions"><button class="btn btn-primary" id="mapUseMyLocationBtn" type="button"><img alt="" class="upick-svg-icon upick-inline-icon" loading="lazy" src="/icons/internal/pin.svg"/>현재 위치로 보기</button><button class="btn btn-soft" id="mapRefreshBtn" type="button">↻ 지도 새로고침</button></div>
-<div class="map-mode-status muted" id="mapModeStatus">지도 로딩 전입니다.</div>
-</div>
-<div class="map-mode-canvas-wrap"><div id="benefitMap"></div></div>
-<div class="map-mode-list" id="mapPlaceList" style="margin-top:14px;"></div>
-</section>
-<section class="hidden" id="view-notices"><div class="panel" style="margin-bottom:14px;"><div class="section-head" style="margin-bottom:12px;"><h3>공지사항</h3><small>입주민 안내</small></div><div class="helper">관리자가 등록한 공지사항을 확인할 수 있습니다.</div></div><div class="notice-list" id="noticeList"><div class="notice-empty">등록된 공지가 없습니다.</div></div></section>
-<section class="hidden" id="view-shareinsights">
-<div class="panel" style="margin-bottom:14px;">
-<div class="section-head" style="margin-bottom:12px;">
-<h3>공유 인사이트</h3>
-<small>바이럴 분석</small>
-</div>
-<div class="helper">카카오톡 공유, 실제 유입, 공유자별 확산 흐름을 운영자 기준으로 확인합니다.</div>
-<div class="insight-toolbar">
-<small id="shareInsightUpdatedText" style="color:var(--muted);">집계 전</small>
-<button class="btn btn-soft" id="shareInsightRefreshBtn" type="button">↻ 새로고침</button>
-</div>
-</div>
-<div id="shareInsightsContent">
-<div class="panel empty">공유 인사이트를 불러오는 중입니다.</div>
-</div>
-</section>
-<section class="hidden" id="view-community">
-<div class="panel community-hero-panel" style="margin-bottom:14px;">
-<div class="section-head" style="margin-bottom:12px;"><h3><img alt="" class="upick-svg-icon upick-inline-icon" loading="lazy" src="/icons/internal/community.svg"/> 입주민 커뮤니티</h3><small id="communityCountText" style="color:rgba(255,255,255,.82)">게시글</small></div>
-<div class="helper">입주민끼리 자유롭게 정보를 나누는 공간입니다. 초기 버전은 게시글과 댓글 중심으로 운영됩니다.</div>
-</div>
-<div class="panel" style="margin-bottom:14px;">
-<div class="community-toolbar"><strong>게시글</strong><button class="btn btn-primary" id="communityWriteBtn" type="button">글쓰기</button></div>
-<div class="community-filter" id="communityCategoryFilter"></div>
-</div>
-<div class="list" id="communityPostList"><div class="panel empty">게시글을 불러오는 중입니다.</div></div>
-<button class="btn btn-soft community-more-btn hidden" id="communityMoreBtn" type="button">더 보기</button>
-</section>
-<section class="hidden" id="view-all">
-<div class="panel" style="margin-bottom:14px;">
-<div class="section-head" style="margin-bottom:12px;"><h3>전체 기능</h3><small>서비스 메뉴</small></div>
-<div class="helper">하단 네비바에 모두 담기 어려운 기능을 한 곳에 모았습니다.</div>
-</div>
-<div class="all-menu-grid" id="allMenuGrid">
-<div class="panel empty" style="grid-column:1/-1;">전체 기능 메뉴를 불러오는 중입니다.</div>
-</div>
-</section>
-<section class="hidden" id="view-ai">
-<div class="ai-view-hero">
-<span class="ai-ready-pill"><img alt="" class="upick-svg-icon upick-inline-icon" decoding="async" loading="lazy" src="/icons/internal/ai-assistant.svg"/> 지금 필요한 정보를 바로 도와드릴게요</span>
-<h3>AI 생활 도우미</h3>
-<p>입주민 생활에 필요한 정보를 빠르게 찾아드려요.<br/>생활 · 혜택 · 매장까지 편하게 물어보세요.</p>
-</div>
-<div class="panel ai-chat-panel">
-<div aria-label="AI 대화 관리" class="ai-memory-toolbar">
-<button class="ai-memory-btn" id="aiNewConversationBtn" type="button">＋ 새 대화</button>
-<button class="ai-memory-btn" id="aiOpenConversationListBtn" type="button"><img alt="" class="upick-svg-icon upick-inline-icon" loading="lazy" src="/icons/internal/clock.svg"/>이전 대화</button>
-<button class="ai-memory-btn danger" id="aiClearConversationBtn" type="button">초기화</button>
-</div>
-<div class="ai-memory-status" id="aiConversationStatus">
-<span>현재 대화: <strong>새 대화</strong></span>
-<span>최근 맥락 반영</span>
-</div>
-<div aria-live="polite" class="ai-conversation-panel" id="aiConversationPanel">
-<div class="ai-conversation-head">
-<strong>이전 대화</strong>
-<button class="btn btn-soft" id="aiCloseConversationListBtn" type="button">닫기</button>
-</div>
-<div class="ai-conversation-list" id="aiConversationList">
-<div class="ai-conversation-empty">이전 대화를 불러오는 중입니다.</div>
-</div>
-</div>
-<div class="ai-quick-row" id="aiQuickRow">
-<button class="ai-quick-btn" data-ai-question="최근 공지 알려줘" type="button">최근 공지 알려줘</button>
-<button class="ai-quick-btn" data-ai-question="혜택 매장 추천해줘" type="button">혜택 매장 추천해줘</button>
-<button class="ai-quick-btn" data-ai-question="지도에서 볼 수 있는 혜택 알려줘" type="button">지도 혜택 알려줘</button>
-<button class="ai-quick-btn" data-ai-question="인기 매장 TOP 5 알려줘" type="button">인기 매장 알려줘</button>
-<button class="ai-quick-btn" data-ai-question="공지사항은 어디서 봐?" type="button">공지사항 위치</button>
-</div>
-<div class="ai-busy-note" id="aiBusyNote">답변을 준비하는 동안 새 질문은 잠시 멈춰둘게요.</div>
-<div aria-live="polite" class="ai-chat-window" id="aiChatWindow">
-<div class="ai-message bot"><div class="ai-bubble"> 지금 상황에 맞춰 먼저 도와드릴게요 
-
- 시간대에 맞는 혜택 매장을 먼저 골라드릴 수 있어요.
- 최근 공지와 혜택 매장 위치도 바로 안내해드릴 수 있어요.
-
-<div aria-label="AI 선제 추천 버튼" class="ai-dialog-action-row"><button class="ai-dialog-action-btn" data-ai-dialog-question="지금 상황에 맞는 혜택 매장 TOP3 추천해줘" type="button">지금 추천 TOP3</button><button class="ai-dialog-action-btn" data-ai-dialog-question="아이와 함께 가기 좋은 곳 추천해줘" type="button">아이와 함께</button><button class="ai-dialog-action-btn" data-ai-dialog-question="가까운 혜택 매장 알려줘" type="button">가까운 곳</button><button class="ai-dialog-action-btn" data-ai-dialog-question="최근 공지 알려줘" type="button">최근 공지</button></div><small>필요한 버튼을 누르면 지금 상황에 맞춰 이어서 안내해드릴게요.</small></div></div>
-</div>
-<div class="ai-attach-panel ai-attach-panel-compact" id="aiAttachPanel">
-<input accept="image/*,video/*,audio/*,.m4a,.mp3,.wav,.aac,.ogg,.flac,.pdf,.txt,.doc,.docx,.ppt,.pptx,.xls,.xlsx" class="ai-attach-input" id="aiFileInput" multiple="" type="file">
-<div class="ai-attach-status" id="aiAttachStatus"></div>
-<div class="ai-attach-list" id="aiAttachList"></div>
-<button class="ai-attach-clear" id="aiAttachClearBtn" type="button">첨부 모두 지우기</button>
-<div class="ai-attach-drop-hint">파일은 버튼 선택뿐 아니라 이 입력창으로 드래그 앤 드롭해도 첨부됩니다.</div>
-</input></div>
-<div class="ai-input-row ai-composer-row" id="aiComposerRow">
-<button aria-label="사진, 파일, 영상 첨부" class="ai-composer-icon ai-attach-btn" id="aiAttachBtn" title="사진/파일/영상 첨부" type="button"><img alt="" class="upick-svg-icon" loading="lazy" src="/icons/internal/attach.svg"/></button>
-<button aria-label="말로 질문" class="ai-composer-icon ai-voice-btn" id="aiVoiceBtn" title="말로 질문" type="button"><img alt="" class="upick-svg-icon" loading="lazy" src="/icons/internal/voice.svg"/></button>
-<textarea id="aiQuestionInput" maxlength="500" placeholder="궁금한 내용을 입력하세요" rows="1"></textarea>
-<button aria-label="질문 보내기" class="btn btn-primary ai-send-btn" id="aiAskBtn" type="button">질문</button>
-</div>
-</div>
-</section>
-<section class="hidden" id="view-calendar">
-<div class="calendar-hero">
-<span class="calendar-kicker"><img alt="" class="upick-svg-icon" loading="lazy" src="/icons/internal/calendar.svg"/> 혜택 매장 방문 알림</span>
-<h3>방문 예약 알림</h3>
-<p>혜택 매장 방문 일정을 등록해두면 원하는 시간에 미리 알려드립니다. 등록한 방문 일정은 내 예약 캘린더에서 편하게 확인할 수 있습니다.</p>
-</div>
-<div class="calendar-summary-grid">
-<div class="calendar-summary-card"><strong id="calendarTotalCount">0</strong><span>전체 일정</span></div>
-<div class="calendar-summary-card"><strong id="calendarTodayCount">0</strong><span>오늘 방문</span></div>
-<div class="calendar-summary-card"><strong id="calendarUpcomingCount">0</strong><span>알림 예정</span></div>
-</div>
-<div class="panel calendar-view-panel">
-<div class="calendar-toolbar">
-<div><strong>내 예약 캘린더</strong><div class="helper">월간·주간·일간으로 방문 알림을 확인할 수 있습니다.</div></div>
-<button class="btn btn-soft" id="calendarRefreshBtn" type="button">새로고침</button>
-</div>
-<div class="calendar-nav-row">
-<button aria-label="이전" class="calendar-nav-btn" id="calendarPrevBtn" type="button">‹</button>
-<button aria-label="날짜 선택" class="calendar-nav-title" id="calendarTitleBtn" type="button">-</button>
-<button aria-label="다음" class="calendar-nav-btn" id="calendarNextBtn" type="button">›</button>
-<button class="calendar-today-btn" id="calendarTodayBtn" type="button">오늘</button>
-<input aria-label="캘린더 날짜 선택" class="calendar-hidden-date-picker" id="calendarMainDatePicker" type="date"/>
-</div>
-<div aria-label="캘린더 보기 전환" class="calendar-mode-tabs" role="tablist">
-<button class="calendar-mode-btn active" data-calendar-mode="month" type="button">월간</button>
-<button class="calendar-mode-btn" data-calendar-mode="week" type="button">주간</button>
-<button class="calendar-mode-btn" data-calendar-mode="day" type="button">일간</button>
-</div>
-<div class="calendar-board" id="calendarVisualBoard"></div>
-</div>
-<div class="calendar-selected-section">
-<div class="calendar-selected-head" id="calendarSelectedHead"></div>
-<div class="calendar-list" id="calendarReservationList"><div class="calendar-empty">등록된 예약 알림이 없습니다.<br/>혜택 매장 상세에서 방문 알림을 추가해 보세요.</div></div>
-</div>
-</section>
-<section class="hidden" id="view-top5"><div class="panel" style="margin-bottom:14px;"><div class="section-head" style="margin-bottom:12px;"><h3><img alt="" class="upick-svg-icon upick-inline-icon" decoding="async" loading="lazy" src="/icons/internal/top5.svg"/> 인기 매장 TOP 5</h3><small id="popularUpdatedText">실시간 집계</small></div><div class="helper">상세조회 + 클릭 + 즐겨찾기 + 공유수 + 입주민 반응을 합산한 실시간 인기 매장입니다.</div></div><div class="panel hot-now-panel hidden" id="hotNowPanel"><div class="hot-now-head"><div><h3 class="hot-now-title">지금 뜨는 매장</h3><p class="hot-now-desc">공유수와 인기점수가 빠르게 올라가는 매장을 자동 표시합니다.</p></div><span class="hot-now-live">LIVE</span></div><div class="hot-now-list" id="hotNowList"></div></div><div class="panel nearby-proximity-panel" id="nearbyProximityPanel"><div class="nearby-proximity-head"><div><h3 class="nearby-proximity-title"><img alt="" class="upick-svg-icon upick-inline-icon" loading="lazy" src="/icons/internal/pin.svg"/>근처 자동 알림</h3><p class="nearby-proximity-desc">100m / 300m 안에 들어오면 앱 실행 중 토스트와 브라우저 알림으로 알려줍니다.</p></div></div><div class="nearby-proximity-actions"><button class="nearby-mini-btn" id="enableNearbyAutoPushBtn" type="button">근처 알림 시작</button><button class="nearby-mini-btn soft" id="checkNearbyNowBtn" type="button">지금 주변 확인</button></div><div class="nearby-proximity-status" id="nearbyProximityStatus">위치 권한을 허용하면 근처 혜택 알림이 동작합니다.</div></div><div class="list popular-list" id="popularList"><div class="panel empty">아직 집계된 인기 매장이 없습니다.</div></div><div class="panel resident-rank-panel" id="residentRankPanel"><div class="resident-rank-head"><div><h3 class="resident-rank-title"><img alt="" class="upick-svg-icon upick-inline-icon" decoding="async" loading="lazy" src="/icons/internal/top5.svg"/> 입주민 활동 랭킹</h3><p class="resident-rank-desc">조회, 공유, 추천, HOT 반응을 점수로 합산합니다.</p></div><small id="residentRankUpdatedText">실시간 집계</small></div><div class="resident-rank-list" id="residentRankList"><div class="notice-empty">아직 활동 랭킹 정보가 없습니다.</div></div></div></section>
-</div></div>
-<div aria-label="AI 추천 메뉴 열기" class="ai-bottom-reco" id="aiBottomReco" role="button" tabindex="0">
-<div class="ai-bottom-reco-icon"><img alt="" class="upick-svg-icon" loading="lazy" src="/icons/internal/ai-assistant.svg"/></div>
-<div class="ai-bottom-reco-copy">
-<strong id="aiBottomRecoTitle">AI 추천 메뉴</strong>
-<span id="aiBottomRecoText">오늘 자주 쓰는 메뉴를 추천해드릴게요.</span>
-</div>
-<div class="ai-bottom-reco-arrow">›</div>
-</div>
-<nav class="bottom-nav"><button class="nav-btn active" data-view="home"><span class="nav-icon"><img alt="" class="upick-svg-icon" loading="lazy" src="/icons/internal/home.svg"/></span><span class="nav-label">홈</span></button><button class="nav-btn" data-view="benefits"><span class="nav-icon"><img alt="" class="upick-svg-icon" loading="lazy" src="/icons/internal/benefit.svg"/></span><span class="nav-label">혜택</span></button><button class="nav-btn" data-view="favorite"><span class="nav-icon"><img alt="" class="upick-svg-icon" loading="lazy" src="/icons/internal/favorite.svg"/></span><span class="nav-label">즐겨찾기</span></button><button class="nav-btn" data-view="top5"><span class="nav-icon"><img alt="" class="upick-svg-icon" loading="lazy" src="/icons/internal/top5.svg"/></span><span class="nav-label">TOP 5</span></button><button class="nav-btn" data-view="all"><span class="nav-icon"><img alt="" class="upick-svg-icon" loading="lazy" src="/icons/internal/all-menu.svg"/></span><span class="nav-label">전체</span></button></nav>
-<dialog id="detailModal"><div class="modal-head"><div class="pill">혜택 상세</div><button class="close-btn" id="closeModal">✕</button></div><div class="modal-body" id="modalBody"></div></dialog>
-<dialog id="calendarReservationModal">
-<div class="modal-head"><div class="pill">방문 알림 추가</div><button class="close-btn" id="closeCalendarReservationModal">✕</button></div>
-<div class="modal-body">
-<form class="calendar-form" id="calendarReservationForm">
-<p class="calendar-form-help">방문 예정일과 알림 시간을 선택해 주세요. 등록된 일정은 캘린더 메뉴에서 확인할 수 있습니다.</p>
-<div class="calendar-selected-store" id="calendarSelectedStore">혜택 매장 선택 중</div>
-<input id="calendarBenefitId" type="hidden"/>
-<div class="calendar-field"><label for="calendarVisitDate">방문 예정일</label><input id="calendarVisitDate" required="" type="date"/></div>
-<div class="calendar-field"><label for="calendarVisitTime">방문 예정 시간</label><input id="calendarVisitTime" required="" type="time"/></div>
-<div class="calendar-field"><label for="calendarNotifyBefore">알림 시간</label><select id="calendarNotifyBefore"><option value="10">10분 전</option><option selected="" value="30">30분 전</option><option value="60">1시간 전</option><option value="1440">하루 전</option></select></div>
-<div class="calendar-field"><label for="calendarReservationMemo">메모</label><textarea id="calendarReservationMemo" maxlength="200" placeholder="예: 가족과 방문, 전화 확인 필요 등"></textarea></div>
-<div class="calendar-form-actions"><button class="btn btn-primary" type="submit">알림 등록</button><button class="btn btn-soft" id="cancelCalendarReservationBtn" type="button">취소</button></div>
-</form>
-</div>
-</dialog>
-<dialog id="calendarDayModal">
-<div class="calendar-day-modal-head">
-<button aria-label="이전 날짜" class="calendar-day-modal-arrow" id="calendarDayPrevBtn" type="button">‹</button>
-<button class="calendar-day-modal-date" id="calendarDayDateBtn" type="button">-</button>
-<button aria-label="다음 날짜" class="calendar-day-modal-arrow" id="calendarDayNextBtn" type="button">›</button>
-<button aria-label="닫기" class="calendar-day-modal-close" id="calendarDayCloseBtn" type="button">✕</button>
-</div>
-<div class="calendar-day-modal-body">
-<input class="calendar-hidden-date-picker" id="calendarDayDatePicker" type="date"/>
-<div class="calendar-day-modal-list" id="calendarDayModalList"></div>
-<div class="calendar-day-modal-footer">
-<button class="btn btn-soft" id="calendarDayTodayBtn" type="button">오늘로 이동</button>
-<button class="btn btn-primary" id="calendarDayCloseBottomBtn" type="button">닫기</button>
-</div>
-</div>
-</dialog>
-<dialog id="noticeModal"><div class="modal-head"><div class="pill">공지 상세</div><button class="close-btn" id="closeNoticeModal">✕</button></div><div class="modal-body" id="noticeModalBody"></div></dialog>
-<dialog id="communityEditorModal"><div class="modal-head"><div class="pill" id="communityEditorTitle">커뮤니티 글쓰기</div><button class="close-btn" id="closeCommunityEditor">✕</button></div><div class="modal-body"><div class="community-write-form"><select id="communityPostCategory"><option value="자유">자유</option><option value="질문">질문</option><option value="나눔">나눔</option><option value="생활정보">생활정보</option><option value="건의">건의</option></select><input id="communityPostTitle" maxlength="80" placeholder="궁금한 내용을 입력하세요"/><textarea id="communityPostContent" maxlength="3000" placeholder="궁금한 내용을 입력하세요"></textarea><button class="btn btn-primary block" id="submitCommunityPostBtn" type="button">게시글 등록</button></div></div></dialog>
-<dialog id="communityDetailModal"><div class="modal-head"><div class="pill">커뮤니티</div><button class="close-btn" id="closeCommunityDetail">✕</button></div><div class="modal-body"><div id="communityDetailBody"></div><div class="comment-list" id="communityCommentList"></div><div class="comment-write"><textarea id="communityCommentContent" maxlength="1000" placeholder="궁금한 내용을 입력하세요"></textarea><button class="btn btn-primary" id="submitCommunityCommentBtn" type="button">댓글 등록</button></div></div></dialog>
-<dialog id="communityReportModal">
-<div class="modal-head">
-<div class="pill">신고 사유 선택</div>
-<button class="close-btn" id="closeCommunityReportModal">✕</button>
-</div>
-<div class="modal-body">
-<p class="community-report-modal-copy">신고 사유를 선택해 주세요. 동일한 게시글/댓글은 한 번만 신고할 수 있습니다.</p>
-<div class="community-report-reasons" id="communityReportReasons">
-<button class="community-report-reason" data-report-reason="욕설/비방" type="button"><span><strong>욕설/비방</strong><small>비방, 모욕, 분쟁 유발 표현</small></span><span class="check">✓</span></button>
-<button class="community-report-reason" data-report-reason="광고/홍보" type="button"><span><strong>광고/홍보</strong><small>무단 광고, 홍보성 게시글</small></span><span class="check">✓</span></button>
-<button class="community-report-reason" data-report-reason="개인정보" type="button"><span><strong>개인정보</strong><small>연락처, 주소 등 개인정보 노출</small></span><span class="check">✓</span></button>
-<button class="community-report-reason" data-report-reason="기타" type="button"><span><strong>기타</strong><small>관리자 검토가 필요한 내용</small></span><span class="check">✓</span></button>
-</div>
-<div class="community-report-actions">
-<button class="btn btn-soft" id="cancelCommunityReportBtn" type="button">취소</button>
-<button class="btn btn-primary" id="submitCommunityReportBtn" type="button">신고 접수</button>
-</div>
-</div>
-</dialog>
-<dialog id="qrModal"><div class="modal-head"><div class="pill">공유 QR</div><button class="close-btn" id="closeQrModal">✕</button></div><div class="modal-body"><div class="qr-modal-card"><div class="qr-canvas-wrap"><canvas height="220" id="qrCanvas" width="220"></canvas></div><div class="qr-share-url" id="qrShareUrl"></div><button class="btn btn-primary block" id="qrCopyBtn" type="button">URL 복사</button></div></div></dialog>
-<script crossorigin="anonymous" integrity="sha384-OL+ylM/iuPLtW5U3XcvLSGhE8JzReKDank5InqlHGWPhb4140/yrBw0bg0y7+C9J" src="https://t1.kakaocdn.net/kakao_js_sdk/2.8.1/kakao.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.1/build/qrcode.min.js"></script>
-<div class="gnb-overlay" id="gnbOverlay"></div>
-<aside aria-hidden="true" class="gnb-sheet" id="gnbSheet">
-<div class="gnb-top">
-<div class="gnb-icons"><button class="gnb-close" id="gnbCloseBtn" title="닫기" type="button">✕</button>
-<button class="gnb-icon-btn gnb-home-active" data-view-link="home" title="홈" type="button"><img alt="" class="upick-svg-icon" loading="lazy" src="/icons/internal/home.svg"/></button>
-<button aria-label="로그아웃" class="gnb-icon-btn" id="gnbLogoutQuickBtn" title="로그아웃"><img alt="" class="upick-svg-icon logout-exit-icon" loading="lazy" src="/icons/internal/logout.svg"/><span class="gnb-tooltip">로그아웃</span></button>
-</div>
-<div class="gnb-hero">
-<div class="gnb-copy">
-<small>오늘은 어떤 혜택이 있을까?</small>
-<strong>입주민 혜택 서비스<br/>전체보기</strong>
-</div>
-<div class="gnb-hero-emoji"><img alt="" class="upick-svg-icon" loading="lazy" src="/icons/internal/brand-symbol-real.png"/></div>
-</div>
-</div>
-<div class="gnb-body">
-<div class="gnb-banner">
-<span>입주민 혜택을 한 번에 찾아보세요!</span>
-<span>›</span>
-</div>
-<section class="gnb-section gnb-search-section">
-<h3 class="gnb-section-title premium-section-title section-animate"><span class="title-icon"><img alt="" class="upick-svg-icon" loading="lazy" src="/icons/internal/search.svg"/></span><span class="title-text">메뉴 검색</span></h3>
-<div class="gnb-search-box"><input autocomplete="off" id="gnbMenuSearchInput" placeholder="메뉴 통합검색, 인기메뉴, 최근메뉴" type="search"/></div>
-<div class="gnb-menu-search-results hidden" id="gnbMenuSearchResults"></div>
-</section>
-<section class="gnb-section">
-<h3 class="gnb-section-title premium-section-title section-animate"><span class="title-icon"><img alt="" class="upick-svg-icon" loading="lazy" src="/icons/internal/clock.svg"/></span><span class="title-text">최근에 봤어요</span></h3>
-<div class="gnb-chip-row" id="gnbRecentMenus"><div class="gnb-empty">최근 방문 메뉴를 불러오는 중입니다.</div></div>
-</section>
-<section class="gnb-section">
-<h3 class="gnb-section-title premium-section-title section-animate"><span class="title-icon"><img alt="" class="upick-svg-icon" loading="lazy" src="/icons/internal/top5.svg"/></span><span class="title-text">인기 메뉴</span></h3>
-<div class="gnb-chip-row" id="gnbPopularMenus"><div class="gnb-empty">인기 메뉴를 불러오는 중입니다.</div></div>
-</section>
-<section class="gnb-section">
-<div class="gnb-menu-group">
-<h4 class="gnb-menu-group-title"><img alt="" class="upick-inline-icon" loading="lazy" src="/icons/internal/pin-blue.svg"/> 새로 나왔어요</h4>
-<div class="gnb-new-section"><div class="gnb-menu-list" id="gnbNewMenus"><div class="gnb-empty">새 메뉴를 불러오는 중입니다.</div></div></div>
-</div>
-<div class="gnb-menu-group">
-<h4 class="gnb-menu-group-title"><img alt="" class="upick-inline-icon" loading="lazy" src="/icons/internal/home.svg"/> 더운정픽</h4>
-<div class="gnb-menu-sublist" id="gnbMainMenus"><div class="gnb-empty">메뉴를 불러오는 중입니다.</div></div>
-</div>
-</section>
-<section aria-label="관리자 전용 메뉴" class="gnb-section admin-only-menu">
-<div class="gnb-admin-premium">
-<div class="gnb-admin-head">
-<div>
-<span class="gnb-admin-kicker"><img alt="" class="upick-inline-icon" loading="lazy" src="/icons/internal/shield-check.svg"/> 관리자 전용</span>
-<h3 class="gnb-admin-title">운영 메뉴</h3>
-<p class="gnb-admin-desc">공유 흐름과 운영 지표는 관리자 계정에서만 확인할 수 있습니다.</p>
-</div>
-<div class="gnb-admin-crown"><img alt="" class="upick-svg-icon" loading="lazy" src="/icons/internal/crown.svg"/></div>
-</div>
-<div class="gnb-admin-actions">
-<button class="gnb-menu-item" data-view-link="shareinsights" type="button">공유 인사이트</button>
-<button class="gnb-menu-item" id="openAdminPageFromGnbBtn" type="button">관리자 페이지</button>
-</div>
-<div aria-label="Root 전용 숨겨진 기능 패널" class="gnb-root-panel root-only-panel">
-<h4><img alt="" class="upick-inline-icon" loading="lazy" src="/icons/internal/crown.svg"/> Root 전용 숨겨진 기능 패널</h4>
-<p>최고 관리자 계정에서만 보이는 운영 보조 영역입니다.</p>
-<div class="gnb-root-actions">
-<button class="gnb-action-btn primary" id="rootOpenAdminBtn" type="button">
-<span>관리자 열기</span>
-<span class="desc">Root</span>
-</button>
-<button class="gnb-action-btn outline" id="rootRefreshStateBtn" type="button">
-<span>화면 새로고침</span>
-<span class="desc">상태 갱신</span>
-</button>
-</div>
-</div>
-</div>
-</section>
-<section class="gnb-section">
-<h3 class="premium-section-title section-animate"><span class="title-icon"><img alt="" class="upick-svg-icon" loading="lazy" src="/icons/internal/settings.svg"/></span><span class="title-text">설정</span></h3>
-<div class="gnb-settings-wrap">
-<div class="gnb-settings-section" id="gnbSettingsAccountSummary">
-<div class="gnb-settings-section-header">
-<div>
-<h4 class="gnb-settings-section-title">계정 요약</h4>
-<p class="gnb-settings-section-desc">현재 로그인한 계정과 기기 상태를 한눈에 확인할 수 있도록 정리했습니다.</p>
-</div>
-<div class="gnb-status-pill" id="gnbPushStatusPill">상태 확인 중</div>
-</div>
-<div class="gnb-account-card">
-<div class="gnb-account">
-<div class="gnb-account-avatar"><img alt="" class="upick-svg-icon" loading="lazy" src="/icons/internal/user.svg"/></div>
-<div class="gnb-account-meta">
-<span class="gnb-account-label">계정</span>
-<strong class="gnb-account-name" id="gnbAccountName">로그인 확인 중</strong>
-<span class="gnb-account-sub" id="gnbAccountUnit">입주민 계정</span>
-</div>
-</div>
-</div>
-</div>
-<div class="gnb-settings-section" id="fontSizeSettingsSection">
-<div class="gnb-settings-section-header">
-<div>
-<h4 class="gnb-settings-section-title">글자 크기</h4>
-<p class="gnb-settings-section-desc">한 번 선택한 글자 크기는 내 계정에 저장되어, 다음 접속 시에도 그대로 적용됩니다.</p>
-</div>
-</div>
-<div aria-label="글자 크기 선택" class="font-size-control" role="radiogroup">
-<div class="font-size-options">
-<button aria-checked="false" class="font-size-option" data-font-size="small" role="radio" type="button"><span class="sample">가</span><span class="label">작게</span></button>
-<button aria-checked="true" class="font-size-option" data-font-size="normal" role="radio" type="button"><span class="sample">가</span><span class="label">기본</span></button>
-<button aria-checked="false" class="font-size-option" data-font-size="large" role="radio" type="button"><span class="sample">가</span><span class="label">크게</span></button>
-<button aria-checked="false" class="font-size-option" data-font-size="xlarge" role="radio" type="button"><span class="sample">가</span><span class="label">아주 크게</span></button>
-</div>
-<div class="font-size-status" id="fontSizeStatus">현재 글자 크기를 확인하고 있습니다.</div>
-</div>
-</div>
-<div class="gnb-settings-section" id="userBottomNavSettingsSection">
-<div class="gnb-settings-section-header">
-<div>
-<h4 class="gnb-settings-section-title">하단 네비바 설정</h4>
-<p class="gnb-settings-section-desc">홈과 전체는 고정됩니다. 가운데 메뉴는 최대 3개까지 직접 선택할 수 있습니다.</p>
-</div>
-</div>
-<div class="user-bottom-nav-settings">
-<div class="user-bottom-nav-help">
- 선택하지 않으면 관리자 기본 메뉴가 표시됩니다.<br/>
- 1~2개만 선택하면 남은 자리는 관리자 기본 메뉴로 자동으로 채워집니다.
- </div>
-<div class="field">
-<label>현재 구성</label>
-<div class="user-bottom-nav-current" id="userBottomNavCurrent">
-<span class="user-bottom-nav-chip fixed"><img alt="" class="upick-svg-icon upick-menu-icon-img" loading="lazy" src="/icons/internal/home.svg"/> 홈</span>
-<span class="user-bottom-nav-chip fixed"><img alt="" class="upick-svg-icon upick-menu-icon-img" loading="lazy" src="/icons/internal/all-menu.svg"/> 전체</span>
-</div>
-</div>
-<div class="field">
-<label>가운데 메뉴 선택 <small style="color:#64748b;">최대 3개</small></label>
-<div class="user-bottom-nav-grid" id="userBottomNavPicker">
-<div class="notice">메뉴를 불러오는 중입니다.</div>
-</div>
-</div>
-<div class="user-bottom-nav-actions">
-<button class="gnb-action-btn primary" id="saveUserBottomNavBtn" type="button"><span>저장</span><span class="desc">내 설정</span></button>
-<button class="gnb-action-btn outline" id="resetUserBottomNavBtn" type="button"><span>기본값 사용</span><span class="desc">개인화 해제</span></button>
-</div>
-<div class="user-bottom-nav-status" id="userBottomNavStatus">내 하단 네비바 설정을 확인하고 있습니다.</div>
-</div>
-</div>
-<div class="gnb-settings-section">
-<div class="gnb-settings-section-header">
-<div>
-<h4 class="gnb-settings-section-title">알림</h4>
-<p class="gnb-settings-section-desc">이 브라우저에서 공지와 주요 안내를 바로 받을 수 있도록 기기 기준으로 관리합니다.</p>
-</div>
-</div>
-<div class="gnb-info-grid">
-<div class="gnb-info-item">
-<div class="gnb-info-icon"><img alt="" class="upick-svg-icon" loading="lazy" src="/icons/internal/notification.svg"/></div>
-<div class="gnb-info-copy">
-<strong>푸시 알림 상태</strong>
-<p id="gnbPushStatusText">현재 브라우저의 알림 수신 상태를 확인하고 있습니다.</p>
-</div>
-</div>
-</div>
-<div class="gnb-action-grid" style="margin-top:12px;">
-<button class="gnb-action-btn primary" id="gnbEnablePushBtn" type="button">
-<span>알림 받기</span>
-<span class="desc">이 기기 등록</span>
-</button>
-<button class="gnb-action-btn soft hidden" id="gnbDisablePushBtn" type="button">
-<span>알림 해제</span>
-<span class="desc">이 기기 해제</span>
-</button>
-</div>
-</div>
-<div class="gnb-settings-section">
-<div class="gnb-settings-section-header">
-<div>
-<h4 class="gnb-settings-section-title">계정 관리</h4>
-<p class="gnb-settings-section-desc">복잡한 입력 부담을 줄이고, 필요한 계정 상태만 간단하게 관리합니다.</p>
-</div>
-</div>
-<div class="gnb-info-grid">
-<div class="gnb-info-item">
-<div class="gnb-info-icon"><img alt="" class="upick-svg-icon" loading="lazy" src="/icons/internal/shield-check.svg"/></div>
-<div class="gnb-info-copy">
-<strong>표시 정보 관리</strong>
-<p>앱 화면에 표시되는 닉네임 중심으로 계정 정보를 관리합니다.</p>
-</div>
-</div>
-</div>
-<div class="gnb-action-grid" style="margin-top:12px;">
-<button class="account-edit-trigger" id="openAccountEditBtn" type="button">
-<span>계정 정보 수정</span>
-<span class="desc">닉네임 중심</span>
-</button>
-<button class="gnb-action-btn outline" id="logoutBtn" type="button">
-<span>로그아웃</span>
-<span class="desc">현재 계정 종료</span>
-</button>
-</div>
-</div>
-<div class="gnb-settings-section">
-<div class="gnb-settings-section-header">
-<div>
-<h4 class="gnb-settings-section-title">회원 탈퇴 안내</h4>
-<p class="gnb-settings-section-desc">회원 탈퇴 시 계정 정보와 일부 설정이 삭제되며 복구가 어렵습니다. 진행 전 내용을 다시 확인해 주세요.</p>
-</div>
-</div>
-<div class="gnb-action-grid">
-<button class="gnb-action-btn danger" id="withdrawBtn" type="button">
-<span>회원 탈퇴</span>
-<span class="desc">복구 불가</span>
-</button>
-</div>
-<div class="gnb-danger-note">회원 탈퇴 시 계정 정보, 즐겨찾기, 현재 기기의 알림 설정이 함께 삭제됩니다.</div>
-</div>
-</div>
-</section>
-</div>
-</aside>
-<dialog id="accountEditModal">
-<div class="modal-head">
-<div class="pill">계정 정보 수정</div>
-<button class="close-btn" id="closeAccountEditModal" type="button">✕</button>
-</div>
-<div class="modal-body">
-<div class="account-edit-help">로그인한 계정의 표시 정보를 수정합니다. 이름·연락처 대신 닉네임 중심으로만 관리합니다.</div>
-<form class="account-edit-form" id="accountEditForm">
-<div class="account-edit-field">
-<label for="accountNicknameInput">닉네임</label>
-<input id="accountNicknameInput" maxlength="20" name="nickname" placeholder="예: 더운정픽 입주민" type="text"/>
-</div>
-<div class="account-edit-field">
-<label>프로필 이미지 <small style="color:#94a3b8">선택</small></label>
-<div class="profile-preview-row">
-<div class="profile-preview-avatar" id="accountProfilePreview">
-<button aria-label="프로필 이미지 업로드" class="profile-upload-plus" id="accountProfileUploadBtn" title="프로필 이미지 업로드" type="button">+</button>
-</div>
-<div class="profile-preview-copy">
-<strong>프사 이미지 설정</strong>
-<span>+ 버튼을 눌러 이미지를 업로드하면 상단 계정칩과 계정 요약에 바로 표시됩니다.</span>
-<span class="profile-upload-status" id="accountProfileUploadStatus">이미지 파일은 3MB 이하를 권장합니다.</span>
-</div>
-</div>
-<input accept="image/*" class="profile-file-input" id="accountProfileFileInput" type="file"/>
-</div>
-<div class="account-edit-field privacy-hidden-field">
-<label for="accountBuildingInput">동</label>
-<input id="accountBuildingInput" inputmode="numeric" maxlength="10" name="building" placeholder="예: 101" type="text"/>
-</div>
-<div class="account-edit-field privacy-hidden-field">
-<label for="accountUnitInput">호</label>
-<input id="accountUnitInput" inputmode="numeric" maxlength="10" name="unit" placeholder="예: 1203" type="text"/>
-</div>
-<div class="account-edit-actions">
-<button class="btn btn-soft block" id="cancelAccountEditBtn" type="button">취소</button>
-<button class="btn btn-primary block" id="saveAccountEditBtn" type="submit">저장</button>
-</div>
-</form>
-</div>
-</dialog>
-<dialog aria-hidden="true" class="app-alert" id="appAlert">
-<div aria-describedby="appAlertMessage" aria-labelledby="appAlertTitle" aria-modal="true" class="app-alert-card" role="alertdialog">
-<div class="app-alert-head">
-<div aria-hidden="true" class="app-alert-icon" id="appAlertIcon"></div>
-<h3 class="app-alert-title" id="appAlertTitle">안내</h3>
-</div>
-<p class="app-alert-message" id="appAlertMessage"></p>
-<div class="app-alert-actions">
-<button class="app-alert-cancel hidden" id="appAlertCancel" type="button">취소</button>
-<button class="app-alert-confirm" id="appAlertConfirm" type="button">확인</button>
-</div>
-</div>
-
-<div aria-hidden="true" aria-live="polite" class="ai-daily-nudge-toast" id="aiDailyNudgeToast" role="status">
-<div class="ai-daily-nudge-top">
-<div class="ai-daily-nudge-icon"><img alt="" class="upick-svg-icon" loading="lazy" src="/icons/internal/ai-assistant.svg"/></div>
-<div class="ai-daily-nudge-copy">
-<strong id="aiDailyNudgeTitle">AI 생활도우미가 오늘 추천을 준비했어요</strong>
-<span id="aiDailyNudgeMessage">날씨·시간·인기 혜택 기준으로 먼저 확인해볼까요?</span>
-</div>
-</div>
-<div class="ai-daily-nudge-actions">
-<button class="ai-daily-nudge-open" id="aiDailyNudgeOpenBtn" type="button">AI 생활도우미 보기</button>
-<button aria-label="오늘 AI 유도 닫기" class="ai-daily-nudge-close" id="aiDailyNudgeCloseBtn" type="button">닫기</button>
-</div>
-</div>
-
-<div aria-hidden="true" class="ai-image-zoom-backdrop" id="aiImageZoomBackdrop">
-<div class="ai-image-zoom-title" id="aiImageZoomTitle">이미지 확대 보기</div>
-<button aria-label="닫기" class="ai-image-zoom-close" id="aiImageZoomCloseBtn" onclick="window.closeAiImageZoom &amp;&amp; window.closeAiImageZoom()" type="button">×</button>
-<div class="ai-image-zoom-scroll" id="aiImageZoomScroll">
-<img alt="확대 이미지" class="ai-image-zoom-img" id="aiImageZoomImg" src=""/>
-</div>
-</div>
-
-</dialog><script src="/js/app.js?v=2026051402" type="module"></script></body></html>
-
+  시간대에 맞는 혜택 매장을 먼저 골라드릴 수 있어요.
+  최근 공지와 혜택 매장 위치도 바로 안내해드릴 수 있어요.
+                  <div aria-label="AI 선제 추천 버튼" class="ai-dialog-action-row">
+                    <button class="ai-dialog-action-btn" data-ai-dialog-question="지금 상황에 맞는 혜택 매장 TOP3 추천해줘" type="button">
+                      지금 추천 TOP3
+                    </button>
+                    <button class="ai-dialog-action-btn" data-ai-dialog-question="아이와 함께 가기 좋은 곳 추천해줘" type="button">
+                      아이와 함께
+                    </button>
+                    <button class="ai-dialog-action-btn" data-ai-dialog-question="가까운 혜택 매장 알려줘" type="button">
+                      가까운 곳
+                    </button>
+                    <button class="ai-dialog-action-btn" data-ai-dialog-question="최근 공지 알려줘" type="button">
+                      최근 공지
+                    </button>
+                  </div>
+                  <small>
+                    필요한 버튼을 누르면 지금 상황에 맞춰 이어서 안내해드릴게요.
+                  </small>
+                </div>
+              </div>
+            </div>
+            <div class="ai-attach-panel ai-attach-panel-compact" id="aiAttachPanel">
+              <input accept="image/*,video/*,audio/*,.m4a,.mp3,.wav,.aac,.ogg,.flac,.pdf,.txt,.doc,.docx,.ppt,.pptx,.xls,.xlsx" class="ai-attach-input" id="aiFileInput" multiple type="file">
+              <div class="ai-attach-status" id="aiAttachStatus">
+              </div>
+              <div class="ai-attach-list" id="aiAttachList">
+              </div>
+              <button class="ai-attach-clear" id="aiAttachClearBtn" type="button">
+                첨부 모두 지우기
+              </button>
+              <div class="ai-attach-drop-hint">
+                파일은 버튼 선택뿐 아니라 이 입력창으로 드래그 앤 드롭해도 첨부됩니다.
+              </div>
+            </div>
+            <div class="ai-input-row ai-composer-row" id="aiComposerRow">
+              <button aria-label="사진, 파일, 영상 첨부" class="ai-composer-icon ai-attach-btn" id="aiAttachBtn" title="사진/파일/영상 첨부" type="button">
+                <img alt class="upick-svg-icon" loading="lazy" src="/icons/internal/attach.svg">
+              </button>
+              <button aria-label="말로 질문" class="ai-composer-icon ai-voice-btn" id="aiVoiceBtn" title="말로 질문" type="button">
+                <img alt class="upick-svg-icon" loading="lazy" src="/icons/internal/voice.svg">
+              </button>
+              <textarea id="aiQuestionInput" maxlength="500" placeholder="궁금한 내용을 입력하세요" rows="1"></textarea>
+              <button aria-label="질문 보내기" class="btn btn-primary ai-send-btn" id="aiAskBtn" type="button">
+                질문
+              </button>
+            </div>
+          </div>
+        </section>
+        <section class="hidden" id="view-calendar">
+          <div class="calendar-hero">
+            <span class="calendar-kicker">
+              <img alt class="upick-svg-icon" loading="lazy" src="/icons/internal/calendar.svg">
+              혜택 매장 방문 알림
+            </span>
+            <h3>
+              방문 예약 알림
+            </h3>
+            <p>
+              혜택 매장 방문 일정을 등록해두면 원하는 시간에 미리 알려드립니다. 등록한 방문 일정은 내 예약 캘린더에서 편하게 확인할 수 있습니다.
+            </p>
+          </div>
+          <div class="calendar-summary-grid">
+            <div class="calendar-summary-card">
+              <strong id="calendarTotalCount">
+                0
+              </strong>
+              <span>
+                전체 일정
+              </span>
+            </div>
+            <div class="calendar-summary-card">
+              <strong id="calendarTodayCount">
+                0
+              </strong>
+              <span>
+                오늘 방문
+              </span>
+            </div>
+            <div class="calendar-summary-card">
+              <strong id="calendarUpcomingCount">
+                0
+              </strong>
+              <span>
+                알림 예정
+              </span>
+            </div>
+          </div>
+          <div class="panel calendar-view-panel">
+            <div class="calendar-toolbar">
+              <div>
+                <strong>
+                  내 예약 캘린더
+                </strong>
+                <div class="helper">
+                  월간&middot;주간&middot;일간으로 방문 알림을 확인할 수 있습니다.
+                </div>
+              </div>
+              <button class="btn btn-soft" id="calendarRefreshBtn" type="button">
+                새로고침
+              </button>
+            </div>
+            <div class="calendar-nav-row">
+              <button aria-label="이전" class="calendar-nav-btn" id="calendarPrevBtn" type="button">
+                &lsaquo;
+              </button>
+              <button aria-label="날짜 선택" class="calendar-nav-title" id="calendarTitleBtn" type="button">
+                -
+              </button>
+              <button aria-label="다음" class="calendar-nav-btn" id="calendarNextBtn" type="button">
+                &rsaquo;
+              </button>
+              <button class="calendar-today-btn" id="calendarTodayBtn" type="button">
+                오늘
+              </button>
+              <input aria-label="캘린더 날짜 선택" class="calendar-hidden-date-picker" id="calendarMainDatePicker" type="date">
+            </div>
+            <div aria-label="캘린더 보기 전환" class="calendar-mode-tabs" role="tablist">
+              <button class="calendar-mode-btn active" data-calendar-mode="month" type="button">
+                월간
+              </button>
+              <button class="calendar-mode-btn" data-calendar-mode="week" type="button">
+                주간
+              </button>
+              <button class="calendar-mode-btn" data-calendar-mode="day" type="button">
+                일간
+              </button>
+            </div>
+            <div class="calendar-board" id="calendarVisualBoard">
+            </div>
+          </div>
+          <div class="calendar-selected-section">
+            <div class="calendar-selected-head" id="calendarSelectedHead">
+            </div>
+            <div class="calendar-list" id="calendarReservationList">
+              <div class="calendar-empty">
+                등록된 예약 알림이 없습니다.
+                <br>
+                혜택 매장 상세에서 방문 알림을 추가해 보세요.
+              </div>
+            </div>
+          </div>
+        </section>
+        <section class="hidden" id="view-top5">
+          <div class="panel" style="margin-bottom:14px;">
+            <div class="section-head" style="margin-bottom:12px;">
+              <h3>
+                <img alt class="upick-svg-icon upick-inline-icon" decoding="async" loading="lazy" src="/icons/internal/top5.svg">
+                인기 매장 TOP 5
+              </h3>
+              <small id="popularUpdatedText">
+                실시간 집계
+              </small>
+            </div>
+            <div class="helper">
+              상세조회 + 클릭 + 즐겨찾기 + 공유수 + 입주민 반응을 합산한 실시간 인기 매장입니다.
+            </div>
+          </div>
+          <div class="panel hot-now-panel hidden" id="hotNowPanel">
+            <div class="hot-now-head">
+              <div>
+                <h3 class="hot-now-title">
+                  지금 뜨는 매장
+                </h3>
+                <p class="hot-now-desc">
+                  공유수와 인기점수가 빠르게 올라가는 매장을 자동 표시합니다.
+                </p>
+              </div>
+              <span class="hot-now-live">
+                LIVE
+              </span>
+            </div>
+            <div class="hot-now-list" id="hotNowList">
+            </div>
+          </div>
+          <div class="panel nearby-proximity-panel" id="nearbyProximityPanel">
+            <div class="nearby-proximity-head">
+              <div>
+                <h3 class="nearby-proximity-title">
+                  <img alt class="upick-svg-icon upick-inline-icon" loading="lazy" src="/icons/internal/pin.svg">
+                  근처 자동 알림
+                </h3>
+                <p class="nearby-proximity-desc">
+                  100m / 300m 안에 들어오면 앱 실행 중 토스트와 브라우저 알림으로 알려줍니다.
+                </p>
+              </div>
+            </div>
+            <div class="nearby-proximity-actions">
+              <button class="nearby-mini-btn" id="enableNearbyAutoPushBtn" type="button">
+                근처 알림 시작
+              </button>
+              <button class="nearby-mini-btn soft" id="checkNearbyNowBtn" type="button">
+                지금 주변 확인
+              </button>
+            </div>
+            <div class="nearby-proximity-status" id="nearbyProximityStatus">
+              위치 권한을 허용하면 근처 혜택 알림이 동작합니다.
+            </div>
+          </div>
+          <div class="list popular-list" id="popularList">
+            <div class="panel empty">
+              아직 집계된 인기 매장이 없습니다.
+            </div>
+          </div>
+          <div class="panel resident-rank-panel" id="residentRankPanel">
+            <div class="resident-rank-head">
+              <div>
+                <h3 class="resident-rank-title">
+                  <img alt class="upick-svg-icon upick-inline-icon" decoding="async" loading="lazy" src="/icons/internal/top5.svg">
+                  입주민 활동 랭킹
+                </h3>
+                <p class="resident-rank-desc">
+                  조회, 공유, 추천, HOT 반응을 점수로 합산합니다.
+                </p>
+              </div>
+              <small id="residentRankUpdatedText">
+                실시간 집계
+              </small>
+            </div>
+            <div class="resident-rank-list" id="residentRankList">
+              <div class="notice-empty">
+                아직 활동 랭킹 정보가 없습니다.
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+    </div>
+    <div aria-label="AI 추천 메뉴 열기" class="ai-bottom-reco" id="aiBottomReco" role="button" tabindex="0">
+      <div class="ai-bottom-reco-icon">
+        <img alt class="upick-svg-icon" loading="lazy" src="/icons/internal/ai-assistant.svg">
+      </div>
+      <div class="ai-bottom-reco-copy">
+        <strong id="aiBottomRecoTitle">
+          AI 추천 메뉴
+        </strong>
+        <span id="aiBottomRecoText">
+          오늘 자주 쓰는 메뉴를 추천해드릴게요.
+        </span>
+      </div>
+      <div class="ai-bottom-reco-arrow">
+        &rsaquo;
+      </div>
+    </div>
+    <nav class="bottom-nav">
+      <button class="nav-btn active" data-view="home">
+        <span class="nav-icon">
+          <img alt class="upick-svg-icon" loading="lazy" src="/icons/internal/home.svg">
+        </span>
+        <span class="nav-label">
+          홈
+        </span>
+      </button>
+      <button class="nav-btn" data-view="benefits">
+        <span class="nav-icon">
+          <img alt class="upick-svg-icon" loading="lazy" src="/icons/internal/benefit.svg">
+        </span>
+        <span class="nav-label">
+          혜택
+        </span>
+      </button>
+      <button class="nav-btn" data-view="favorite">
+        <span class="nav-icon">
+          <img alt class="upick-svg-icon" loading="lazy" src="/icons/internal/favorite.svg">
+        </span>
+        <span class="nav-label">
+          즐겨찾기
+        </span>
+      </button>
+      <button class="nav-btn" data-view="top5">
+        <span class="nav-icon">
+          <img alt class="upick-svg-icon" loading="lazy" src="/icons/internal/top5.svg">
+        </span>
+        <span class="nav-label">
+          TOP 5
+        </span>
+      </button>
+      <button class="nav-btn" data-view="all">
+        <span class="nav-icon">
+          <img alt class="upick-svg-icon" loading="lazy" src="/icons/internal/all-menu.svg">
+        </span>
+        <span class="nav-label">
+          전체
+        </span>
+      </button>
+    </nav>
+    <dialog id="detailModal">
+      <div class="modal-head">
+        <div class="pill">
+          혜택 상세
+        </div>
+        <button class="close-btn" id="closeModal">
+          ✕
+        </button>
+      </div>
+      <div class="modal-body" id="modalBody">
+      </div>
+    </dialog>
+    <dialog id="calendarReservationModal">
+      <div class="modal-head">
+        <div class="pill">
+          방문 알림 추가
+        </div>
+        <button class="close-btn" id="closeCalendarReservationModal">
+          ✕
+        </button>
+      </div>
+      <div class="modal-body">
+        <form class="calendar-form" id="calendarReservationForm">
+          <p class="calendar-form-help">
+            방문 예정일과 알림 시간을 선택해 주세요. 등록된 일정은 캘린더 메뉴에서 확인할 수 있습니다.
+          </p>
+          <div class="calendar-selected-store" id="calendarSelectedStore">
+            혜택 매장 선택 중
+          </div>
+          <input id="calendarBenefitId" type="hidden">
+          <div class="calendar-field">
+            <label for="calendarVisitDate">
+              방문 예정일
+            </label>
+            <input id="calendarVisitDate" required type="date">
+          </div>
+          <div class="calendar-field">
+            <label for="calendarVisitTime">
+              방문 예정 시간
+            </label>
+            <input id="calendarVisitTime" required type="time">
+          </div>
+          <div class="calendar-field">
+            <label for="calendarNotifyBefore">
+              알림 시간
+            </label>
+            <select id="calendarNotifyBefore">
+              <option value="10">
+                10분 전
+              </option>
+              <option selected value="30">
+                30분 전
+              </option>
+              <option value="60">
+                1시간 전
+              </option>
+              <option value="1440">
+                하루 전
+              </option>
+            </select>
+          </div>
+          <div class="calendar-field">
+            <label for="calendarReservationMemo">
+              메모
+            </label>
+            <textarea id="calendarReservationMemo" maxlength="200" placeholder="예: 가족과 방문, 전화 확인 필요 등"></textarea>
+          </div>
+          <div class="calendar-form-actions">
+            <button class="btn btn-primary" type="submit">
+              알림 등록
+            </button>
+            <button class="btn btn-soft" id="cancelCalendarReservationBtn" type="button">
+              취소
+            </button>
+          </div>
+        </form>
+      </div>
+    </dialog>
+    <dialog id="calendarDayModal">
+      <div class="calendar-day-modal-head">
+        <button aria-label="이전 날짜" class="calendar-day-modal-arrow" id="calendarDayPrevBtn" type="button">
+          &lsaquo;
+        </button>
+        <button class="calendar-day-modal-date" id="calendarDayDateBtn" type="button">
+          -
+        </button>
+        <button aria-label="다음 날짜" class="calendar-day-modal-arrow" id="calendarDayNextBtn" type="button">
+          &rsaquo;
+        </button>
+        <button aria-label="닫기" class="calendar-day-modal-close" id="calendarDayCloseBtn" type="button">
+          ✕
+        </button>
+      </div>
+      <div class="calendar-day-modal-body">
+        <input class="calendar-hidden-date-picker" id="calendarDayDatePicker" type="date">
+        <div class="calendar-day-modal-list" id="calendarDayModalList">
+        </div>
+        <div class="calendar-day-modal-footer">
+          <button class="btn btn-soft" id="calendarDayTodayBtn" type="button">
+            오늘로 이동
+          </button>
+          <button class="btn btn-primary" id="calendarDayCloseBottomBtn" type="button">
+            닫기
+          </button>
+        </div>
+      </div>
+    </dialog>
+    <dialog id="noticeModal">
+      <div class="modal-head">
+        <div class="pill">
+          공지 상세
+        </div>
+        <button class="close-btn" id="closeNoticeModal">
+          ✕
+        </button>
+      </div>
+      <div class="modal-body" id="noticeModalBody">
+      </div>
+    </dialog>
+    <dialog id="communityEditorModal">
+      <div class="modal-head">
+        <div class="pill" id="communityEditorTitle">
+          커뮤니티 글쓰기
+        </div>
+        <button class="close-btn" id="closeCommunityEditor">
+          ✕
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="community-write-form">
+          <select id="communityPostCategory">
+            <option value="자유">
+              자유
+            </option>
+            <option value="질문">
+              질문
+            </option>
+            <option value="나눔">
+              나눔
+            </option>
+            <option value="생활정보">
+              생활정보
+            </option>
+            <option value="건의">
+              건의
+            </option>
+          </select>
+          <input id="communityPostTitle" maxlength="80" placeholder="궁금한 내용을 입력하세요">
+          <textarea id="communityPostContent" maxlength="3000" placeholder="궁금한 내용을 입력하세요"></textarea>
+          <button class="btn btn-primary block" id="submitCommunityPostBtn" type="button">
+            게시글 등록
+          </button>
+        </div>
+      </div>
+    </dialog>
+    <dialog id="communityDetailModal">
+      <div class="modal-head">
+        <div class="pill">
+          커뮤니티
+        </div>
+        <button class="close-btn" id="closeCommunityDetail">
+          ✕
+        </button>
+      </div>
+      <div class="modal-body">
+        <div id="communityDetailBody">
+        </div>
+        <div class="comment-list" id="communityCommentList">
+        </div>
+        <div class="comment-write">
+          <textarea id="communityCommentContent" maxlength="1000" placeholder="궁금한 내용을 입력하세요"></textarea>
+          <button class="btn btn-primary" id="submitCommunityCommentBtn" type="button">
+            댓글 등록
+          </button>
+        </div>
+      </div>
+    </dialog>
+    <dialog id="communityReportModal">
+      <div class="modal-head">
+        <div class="pill">
+          신고 사유 선택
+        </div>
+        <button class="close-btn" id="closeCommunityReportModal">
+          ✕
+        </button>
+      </div>
+      <div class="modal-body">
+        <p class="community-report-modal-copy">
+          신고 사유를 선택해 주세요. 동일한 게시글/댓글은 한 번만 신고할 수 있습니다.
+        </p>
+        <div class="community-report-reasons" id="communityReportReasons">
+          <button class="community-report-reason" data-report-reason="욕설/비방" type="button">
+            <span>
+              <strong>
+                욕설/비방
+              </strong>
+              <small>
+                비방, 모욕, 분쟁 유발 표현
+              </small>
+            </span>
+            <span class="check">
+              &checkmark;
+            </span>
+          </button>
+          <button class="community-report-reason" data-report-reason="광고/홍보" type="button">
+            <span>
+              <strong>
+                광고/홍보
+              </strong>
+              <small>
+                무단 광고, 홍보성 게시글
+              </small>
+            </span>
+            <span class="check">
+              &checkmark;
+            </span>
+          </button>
+          <button class="community-report-reason" data-report-reason="개인정보" type="button">
+            <span>
+              <strong>
+                개인정보
+              </strong>
+              <small>
+                연락처, 주소 등 개인정보 노출
+              </small>
+            </span>
+            <span class="check">
+              &checkmark;
+            </span>
+          </button>
+          <button class="community-report-reason" data-report-reason="기타" type="button">
+            <span>
+              <strong>
+                기타
+              </strong>
+              <small>
+                관리자 검토가 필요한 내용
+              </small>
+            </span>
+            <span class="check">
+              &checkmark;
+            </span>
+          </button>
+        </div>
+        <div class="community-report-actions">
+          <button class="btn btn-soft" id="cancelCommunityReportBtn" type="button">
+            취소
+          </button>
+          <button class="btn btn-primary" id="submitCommunityReportBtn" type="button">
+            신고 접수
+          </button>
+        </div>
+      </div>
+    </dialog>
+    <dialog id="qrModal">
+      <div class="modal-head">
+        <div class="pill">
+          공유 QR
+        </div>
+        <button class="close-btn" id="closeQrModal">
+          ✕
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="qr-modal-card">
+          <div class="qr-canvas-wrap">
+            <canvas height="220" id="qrCanvas" width="220">
+            </canvas>
+          </div>
+          <div class="qr-share-url" id="qrShareUrl">
+          </div>
+          <button class="btn btn-primary block" id="qrCopyBtn" type="button">
+            URL 복사
+          </button>
+        </div>
+      </div>
+    </dialog>
+    <script crossorigin="anonymous" integrity="sha384-OL+ylM/iuPLtW5U3XcvLSGhE8JzReKDank5InqlHGWPhb4140/yrBw0bg0y7+C9J" src="https://t1.kakaocdn.net/kakao_js_sdk/2.8.1/kakao.min.js">
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.1/build/qrcode.min.js">
+    </script>
+    <div class="gnb-overlay" id="gnbOverlay">
+    </div>
+    <aside aria-hidden="true" class="gnb-sheet" id="gnbSheet">
+      <div class="gnb-top">
+        <div class="gnb-icons">
+          <button class="gnb-close" id="gnbCloseBtn" title="닫기" type="button">
+            ✕
+          </button>
+          <button class="gnb-icon-btn gnb-home-active" data-view-link="home" title="홈" type="button">
+            <img alt class="upick-svg-icon" loading="lazy" src="/icons/internal/home.svg">
+          </button>
+          <button aria-label="로그아웃" class="gnb-icon-btn" id="gnbLogoutQuickBtn" title="로그아웃">
+            <img alt class="upick-svg-icon logout-exit-icon" loading="lazy" src="/icons/internal/logout.svg">
+            <span class="gnb-tooltip">
+              로그아웃
+            </span>
+          </button>
+        </div>
+        <div class="gnb-hero">
+          <div class="gnb-copy">
+            <small>
+              오늘은 어떤 혜택이 있을까?
+            </small>
+            <strong>
+              입주민 혜택 서비스
+              <br>
+              전체보기
+            </strong>
+          </div>
+          <div class="gnb-hero-emoji">
+            <img alt class="upick-svg-icon" loading="lazy" src="/icons/internal/brand-symbol-real.png">
+          </div>
+        </div>
+      </div>
+      <div class="gnb-body">
+        <div class="gnb-banner">
+          <span>
+            입주민 혜택을 한 번에 찾아보세요!
+          </span>
+          <span>
+            &rsaquo;
+          </span>
+        </div>
+        <section class="gnb-section gnb-search-section">
+          <h3 class="gnb-section-title premium-section-title section-animate">
+            <span class="title-icon">
+              <img alt class="upick-svg-icon" loading="lazy" src="/icons/internal/search.svg">
+            </span>
+            <span class="title-text">
+              메뉴 검색
+            </span>
+          </h3>
+          <div class="gnb-search-box">
+            <input autocomplete="off" id="gnbMenuSearchInput" placeholder="메뉴 통합검색, 인기메뉴, 최근메뉴" type="search">
+          </div>
+          <div class="gnb-menu-search-results hidden" id="gnbMenuSearchResults">
+          </div>
+        </section>
+        <section class="gnb-section">
+          <h3 class="gnb-section-title premium-section-title section-animate">
+            <span class="title-icon">
+              <img alt class="upick-svg-icon" loading="lazy" src="/icons/internal/clock.svg">
+            </span>
+            <span class="title-text">
+              최근에 봤어요
+            </span>
+          </h3>
+          <div class="gnb-chip-row" id="gnbRecentMenus">
+            <div class="gnb-empty">
+              최근 방문 메뉴를 불러오는 중입니다.
+            </div>
+          </div>
+        </section>
+        <section class="gnb-section">
+          <h3 class="gnb-section-title premium-section-title section-animate">
+            <span class="title-icon">
+              <img alt class="upick-svg-icon" loading="lazy" src="/icons/internal/top5.svg">
+            </span>
+            <span class="title-text">
+              인기 메뉴
+            </span>
+          </h3>
+          <div class="gnb-chip-row" id="gnbPopularMenus">
+            <div class="gnb-empty">
+              인기 메뉴를 불러오는 중입니다.
+            </div>
+          </div>
+        </section>
+        <section class="gnb-section">
+          <div class="gnb-menu-group">
+            <h4 class="gnb-menu-group-title">
+              <img alt class="upick-inline-icon" loading="lazy" src="/icons/internal/pin-blue.svg">
+              새로 나왔어요
+            </h4>
+            <div class="gnb-new-section">
+              <div class="gnb-menu-list" id="gnbNewMenus">
+                <div class="gnb-empty">
+                  새 메뉴를 불러오는 중입니다.
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="gnb-menu-group">
+            <h4 class="gnb-menu-group-title">
+              <img alt class="upick-inline-icon" loading="lazy" src="/icons/internal/home.svg">
+              더운정픽
+            </h4>
+            <div class="gnb-menu-sublist" id="gnbMainMenus">
+              <div class="gnb-empty">
+                메뉴를 불러오는 중입니다.
+              </div>
+            </div>
+          </div>
+        </section>
+        <section aria-label="관리자 전용 메뉴" class="gnb-section admin-only-menu">
+          <div class="gnb-admin-premium">
+            <div class="gnb-admin-head">
+              <div>
+                <span class="gnb-admin-kicker">
+                  <img alt class="upick-inline-icon" loading="lazy" src="/icons/internal/shield-check.svg">
+                  관리자 전용
+                </span>
+                <h3 class="gnb-admin-title">
+                  운영 메뉴
+                </h3>
+                <p class="gnb-admin-desc">
+                  공유 흐름과 운영 지표는 관리자 계정에서만 확인할 수 있습니다.
+                </p>
+              </div>
+              <div class="gnb-admin-crown">
+                <img alt class="upick-svg-icon" loading="lazy" src="/icons/internal/crown.svg">
+              </div>
+            </div>
+            <div class="gnb-admin-actions">
+              <button class="gnb-menu-item" data-view-link="shareinsights" type="button">
+                공유 인사이트
+              </button>
+              <button class="gnb-menu-item" id="openAdminPageFromGnbBtn" type="button">
+                관리자 페이지
+              </button>
+            </div>
+            <div aria-label="Root 전용 숨겨진 기능 패널" class="gnb-root-panel root-only-panel">
+              <h4>
+                <img alt class="upick-inline-icon" loading="lazy" src="/icons/internal/crown.svg">
+                Root 전용 숨겨진 기능 패널
+              </h4>
+              <p>
+                최고 관리자 계정에서만 보이는 운영 보조 영역입니다.
+              </p>
+              <div class="gnb-root-actions">
+                <button class="gnb-action-btn primary" id="rootOpenAdminBtn" type="button">
+                  <span>
+                    관리자 열기
+                  </span>
+                  <span class="desc">
+                    Root
+                  </span>
+                </button>
+                <button class="gnb-action-btn outline" id="rootRefreshStateBtn" type="button">
+                  <span>
+                    화면 새로고침
+                  </span>
+                  <span class="desc">
+                    상태 갱신
+                  </span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </section>
+        <section class="gnb-section">
+          <h3 class="premium-section-title section-animate">
+            <span class="title-icon">
+              <img alt class="upick-svg-icon" loading="lazy" src="/icons/internal/settings.svg">
+            </span>
+            <span class="title-text">
+              설정
+            </span>
+          </h3>
+          <div class="gnb-settings-wrap">
+            <div class="gnb-settings-section" id="gnbSettingsAccountSummary">
+              <div class="gnb-settings-section-header">
+                <div>
+                  <h4 class="gnb-settings-section-title">
+                    계정 요약
+                  </h4>
+                  <p class="gnb-settings-section-desc">
+                    현재 로그인한 계정과 기기 상태를 한눈에 확인할 수 있도록 정리했습니다.
+                  </p>
+                </div>
+                <div class="gnb-status-pill" id="gnbPushStatusPill">
+                  상태 확인 중
+                </div>
+              </div>
+              <div class="gnb-account-card">
+                <div class="gnb-account">
+                  <div class="gnb-account-avatar">
+                    <img alt class="upick-svg-icon" loading="lazy" src="/icons/internal/user.svg">
+                  </div>
+                  <div class="gnb-account-meta">
+                    <span class="gnb-account-label">
+                      계정
+                    </span>
+                    <strong class="gnb-account-name" id="gnbAccountName">
+                      로그인 확인 중
+                    </strong>
+                    <span class="gnb-account-sub" id="gnbAccountUnit">
+                      입주민 계정
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="gnb-settings-section" id="fontSizeSettingsSection">
+              <div class="gnb-settings-section-header">
+                <div>
+                  <h4 class="gnb-settings-section-title">
+                    글자 크기
+                  </h4>
+                  <p class="gnb-settings-section-desc">
+                    한 번 선택한 글자 크기는 내 계정에 저장되어, 다음 접속 시에도 그대로 적용됩니다.
+                  </p>
+                </div>
+              </div>
+              <div aria-label="글자 크기 선택" class="font-size-control" role="radiogroup">
+                <div class="font-size-options">
+                  <button aria-checked="false" class="font-size-option" data-font-size="small" role="radio" type="button">
+                    <span class="sample">
+                      가
+                    </span>
+                    <span class="label">
+                      작게
+                    </span>
+                  </button>
+                  <button aria-checked="true" class="font-size-option" data-font-size="normal" role="radio" type="button">
+                    <span class="sample">
+                      가
+                    </span>
+                    <span class="label">
+                      기본
+                    </span>
+                  </button>
+                  <button aria-checked="false" class="font-size-option" data-font-size="large" role="radio" type="button">
+                    <span class="sample">
+                      가
+                    </span>
+                    <span class="label">
+                      크게
+                    </span>
+                  </button>
+                  <button aria-checked="false" class="font-size-option" data-font-size="xlarge" role="radio" type="button">
+                    <span class="sample">
+                      가
+                    </span>
+                    <span class="label">
+                      아주 크게
+                    </span>
+                  </button>
+                </div>
+                <div class="font-size-status" id="fontSizeStatus">
+                  현재 글자 크기를 확인하고 있습니다.
+                </div>
+              </div>
+            </div>
+            <div class="gnb-settings-section" id="userBottomNavSettingsSection">
+              <div class="gnb-settings-section-header">
+                <div>
+                  <h4 class="gnb-settings-section-title">
+                    하단 네비바 설정
+                  </h4>
+                  <p class="gnb-settings-section-desc">
+                    홈과 전체는 고정됩니다. 가운데 메뉴는 최대 3개까지 직접 선택할 수 있습니다.
+                  </p>
+                </div>
+              </div>
+              <div class="user-bottom-nav-settings">
+                <div class="user-bottom-nav-help">
+                  선택하지 않으면 관리자 기본 메뉴가 표시됩니다.
+                  <br>
+                  1~2개만 선택하면 남은 자리는 관리자 기본 메뉴로 자동으로 채워집니다.
+                </div>
+                <div class="field">
+                  <label>
+                    현재 구성
+                  </label>
+                  <div class="user-bottom-nav-current" id="userBottomNavCurrent">
+                    <span class="user-bottom-nav-chip fixed">
+                      <img alt class="upick-svg-icon upick-menu-icon-img" loading="lazy" src="/icons/internal/home.svg">
+                      홈
+                    </span>
+                    <span class="user-bottom-nav-chip fixed">
+                      <img alt class="upick-svg-icon upick-menu-icon-img" loading="lazy" src="/icons/internal/all-menu.svg">
+                      전체
+                    </span>
+                  </div>
+                </div>
+                <div class="field">
+                  <label>
+                    가운데 메뉴 선택
+                    <small style="color:#64748b;">
+                      최대 3개
+                    </small>
+                  </label>
+                  <div class="user-bottom-nav-grid" id="userBottomNavPicker">
+                    <div class="notice">
+                      메뉴를 불러오는 중입니다.
+                    </div>
+                  </div>
+                </div>
+                <div class="user-bottom-nav-actions">
+                  <button class="gnb-action-btn primary" id="saveUserBottomNavBtn" type="button">
+                    <span>
+                      저장
+                    </span>
+                    <span class="desc">
+                      내 설정
+                    </span>
+                  </button>
+                  <button class="gnb-action-btn outline" id="resetUserBottomNavBtn" type="button">
+                    <span>
+                      기본값 사용
+                    </span>
+                    <span class="desc">
+                      개인화 해제
+                    </span>
+                  </button>
+                </div>
+                <div class="user-bottom-nav-status" id="userBottomNavStatus">
+                  내 하단 네비바 설정을 확인하고 있습니다.
+                </div>
+              </div>
+            </div>
+            <div class="gnb-settings-section">
+              <div class="gnb-settings-section-header">
+                <div>
+                  <h4 class="gnb-settings-section-title">
+                    알림
+                  </h4>
+                  <p class="gnb-settings-section-desc">
+                    이 브라우저에서 공지와 주요 안내를 바로 받을 수 있도록 기기 기준으로 관리합니다.
+                  </p>
+                </div>
+              </div>
+              <div class="gnb-info-grid">
+                <div class="gnb-info-item">
+                  <div class="gnb-info-icon">
+                    <img alt class="upick-svg-icon" loading="lazy" src="/icons/internal/notification.svg">
+                  </div>
+                  <div class="gnb-info-copy">
+                    <strong>
+                      푸시 알림 상태
+                    </strong>
+                    <p id="gnbPushStatusText">
+                      현재 브라우저의 알림 수신 상태를 확인하고 있습니다.
+                    </p>
+                  </div>
+                </div>
+              </div>
+              <div class="gnb-action-grid" style="margin-top:12px;">
+                <button class="gnb-action-btn primary" id="gnbEnablePushBtn" type="button">
+                  <span>
+                    알림 받기
+                  </span>
+                  <span class="desc">
+                    이 기기 등록
+                  </span>
+                </button>
+                <button class="gnb-action-btn soft hidden" id="gnbDisablePushBtn" type="button">
+                  <span>
+                    알림 해제
+                  </span>
+                  <span class="desc">
+                    이 기기 해제
+                  </span>
+                </button>
+              </div>
+            </div>
+            <div class="gnb-settings-section">
+              <div class="gnb-settings-section-header">
+                <div>
+                  <h4 class="gnb-settings-section-title">
+                    계정 관리
+                  </h4>
+                  <p class="gnb-settings-section-desc">
+                    복잡한 입력 부담을 줄이고, 필요한 계정 상태만 간단하게 관리합니다.
+                  </p>
+                </div>
+              </div>
+              <div class="gnb-info-grid">
+                <div class="gnb-info-item">
+                  <div class="gnb-info-icon">
+                    <img alt class="upick-svg-icon" loading="lazy" src="/icons/internal/shield-check.svg">
+                  </div>
+                  <div class="gnb-info-copy">
+                    <strong>
+                      표시 정보 관리
+                    </strong>
+                    <p>
+                      앱 화면에 표시되는 닉네임 중심으로 계정 정보를 관리합니다.
+                    </p>
+                  </div>
+                </div>
+              </div>
+              <div class="gnb-action-grid" style="margin-top:12px;">
+                <button class="account-edit-trigger" id="openAccountEditBtn" type="button">
+                  <span>
+                    계정 정보 수정
+                  </span>
+                  <span class="desc">
+                    닉네임 중심
+                  </span>
+                </button>
+                <button class="gnb-action-btn outline" id="logoutBtn" type="button">
+                  <span>
+                    로그아웃
+                  </span>
+                  <span class="desc">
+                    현재 계정 종료
+                  </span>
+                </button>
+              </div>
+            </div>
+            <div class="gnb-settings-section">
+              <div class="gnb-settings-section-header">
+                <div>
+                  <h4 class="gnb-settings-section-title">
+                    회원 탈퇴 안내
+                  </h4>
+                  <p class="gnb-settings-section-desc">
+                    회원 탈퇴 시 계정 정보와 일부 설정이 삭제되며 복구가 어렵습니다. 진행 전 내용을 다시 확인해 주세요.
+                  </p>
+                </div>
+              </div>
+              <div class="gnb-action-grid">
+                <button class="gnb-action-btn danger" id="withdrawBtn" type="button">
+                  <span>
+                    회원 탈퇴
+                  </span>
+                  <span class="desc">
+                    복구 불가
+                  </span>
+                </button>
+              </div>
+              <div class="gnb-danger-note">
+                회원 탈퇴 시 계정 정보, 즐겨찾기, 현재 기기의 알림 설정이 함께 삭제됩니다.
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+    </aside>
+    <dialog id="accountEditModal">
+      <div class="modal-head">
+        <div class="pill">
+          계정 정보 수정
+        </div>
+        <button class="close-btn" id="closeAccountEditModal" type="button">
+          ✕
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="account-edit-help">
+          로그인한 계정의 표시 정보를 수정합니다. 이름&middot;연락처 대신 닉네임 중심으로만 관리합니다.
+        </div>
+        <form class="account-edit-form" id="accountEditForm">
+          <div class="account-edit-field">
+            <label for="accountNicknameInput">
+              닉네임
+            </label>
+            <input id="accountNicknameInput" maxlength="20" name="nickname" placeholder="예: 더운정픽 입주민" type="text">
+          </div>
+          <div class="account-edit-field">
+            <label>
+              프로필 이미지
+              <small style="color:#94a3b8">
+                선택
+              </small>
+            </label>
+            <div class="profile-preview-row">
+              <div class="profile-preview-avatar" id="accountProfilePreview">
+                <button aria-label="프로필 이미지 업로드" class="profile-upload-plus" id="accountProfileUploadBtn" title="프로필 이미지 업로드" type="button">
+                  +
+                </button>
+              </div>
+              <div class="profile-preview-copy">
+                <strong>
+                  프사 이미지 설정
+                </strong>
+                <span>
+                  + 버튼을 눌러 이미지를 업로드하면 상단 계정칩과 계정 요약에 바로 표시됩니다.
+                </span>
+                <span class="profile-upload-status" id="accountProfileUploadStatus">
+                  이미지 파일은 3MB 이하를 권장합니다.
+                </span>
+              </div>
+            </div>
+            <input accept="image/*" class="profile-file-input" id="accountProfileFileInput" type="file">
+          </div>
+          <div class="account-edit-field privacy-hidden-field">
+            <label for="accountBuildingInput">
+              동
+            </label>
+            <input id="accountBuildingInput" inputmode="numeric" maxlength="10" name="building" placeholder="예: 101" type="text">
+          </div>
+          <div class="account-edit-field privacy-hidden-field">
+            <label for="accountUnitInput">
+              호
+            </label>
+            <input id="accountUnitInput" inputmode="numeric" maxlength="10" name="unit" placeholder="예: 1203" type="text">
+          </div>
+          <div class="account-edit-actions">
+            <button class="btn btn-soft block" id="cancelAccountEditBtn" type="button">
+              취소
+            </button>
+            <button class="btn btn-primary block" id="saveAccountEditBtn" type="submit">
+              저장
+            </button>
+          </div>
+        </form>
+      </div>
+    </dialog>
+    <dialog aria-hidden="true" class="app-alert" id="appAlert">
+      <div aria-describedby="appAlertMessage" aria-labelledby="appAlertTitle" aria-modal="true" class="app-alert-card" role="alertdialog">
+        <div class="app-alert-head">
+          <div aria-hidden="true" class="app-alert-icon" id="appAlertIcon">
+          </div>
+          <h3 class="app-alert-title" id="appAlertTitle">
+            안내
+          </h3>
+        </div>
+        <p class="app-alert-message" id="appAlertMessage">
+        </p>
+        <div class="app-alert-actions">
+          <button class="app-alert-cancel hidden" id="appAlertCancel" type="button">
+            취소
+          </button>
+          <button class="app-alert-confirm" id="appAlertConfirm" type="button">
+            확인
+          </button>
+        </div>
+      </div>
+      <div aria-hidden="true" aria-live="polite" class="ai-daily-nudge-toast" id="aiDailyNudgeToast" role="status">
+        <div class="ai-daily-nudge-top">
+          <div class="ai-daily-nudge-icon">
+            <img alt class="upick-svg-icon" loading="lazy" src="/icons/internal/ai-assistant.svg">
+          </div>
+          <div class="ai-daily-nudge-copy">
+            <strong id="aiDailyNudgeTitle">
+              AI 생활도우미가 오늘 추천을 준비했어요
+            </strong>
+            <span id="aiDailyNudgeMessage">
+              날씨&middot;시간&middot;인기 혜택 기준으로 먼저 확인해볼까요?
+            </span>
+          </div>
+        </div>
+        <div class="ai-daily-nudge-actions">
+          <button class="ai-daily-nudge-open" id="aiDailyNudgeOpenBtn" type="button">
+            AI 생활도우미 보기
+          </button>
+          <button aria-label="오늘 AI 유도 닫기" class="ai-daily-nudge-close" id="aiDailyNudgeCloseBtn" type="button">
+            닫기
+          </button>
+        </div>
+      </div>
+      <div aria-hidden="true" class="ai-image-zoom-backdrop" id="aiImageZoomBackdrop">
+        <div class="ai-image-zoom-title" id="aiImageZoomTitle">
+          이미지 확대 보기
+        </div>
+        <button aria-label="닫기" class="ai-image-zoom-close" id="aiImageZoomCloseBtn" onclick="window.closeAiImageZoom && window.closeAiImageZoom()" type="button">
+          &times;
+        </button>
+        <div class="ai-image-zoom-scroll" id="aiImageZoomScroll">
+          <img alt="확대 이미지" class="ai-image-zoom-img" id="aiImageZoomImg" src>
+        </div>
+      </div>
+    </dialog>
+    <script src="/js/app.js?v=2026051402" type="module">
+    </script>
+  </body>
+</html>
