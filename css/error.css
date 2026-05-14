@@ -1,0 +1,369 @@
+/* ===== error.html inline style #1 ===== */
+:root{
+      --upick-navy:#071A3D;
+      --upick-navy-2:#0B2A60;
+      --upick-blue:#2563EB;
+      --upick-sky:#60A5FA;
+      --upick-soft:#EFF6FF;
+      --upick-card:rgba(255,255,255,.92);
+      --upick-line:rgba(191,219,254,.72);
+      --safe-bottom:env(safe-area-inset-bottom,0px);
+      --safe-top:env(safe-area-inset-top,0px);
+    }
+
+    *{box-sizing:border-box}
+    html,body{margin:0;min-height:100%;}
+    body{
+      font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Noto Sans KR","Segoe UI",sans-serif;
+      min-height:100dvh;
+      color:#0f172a;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:calc(22px + var(--safe-top)) 18px calc(24px + var(--safe-bottom));
+      text-align:center;
+      background:
+        radial-gradient(circle at 78% 18%,rgba(96,165,250,.32),transparent 30%),
+        radial-gradient(circle at 18% 78%,rgba(200,175,135,.18),transparent 28%),
+        linear-gradient(180deg,#f8fbff 0%,#eef5ff 48%,#f8fafc 100%);
+      overflow:hidden;
+    }
+
+    body::before{
+      content:"";
+      position:fixed;
+      inset:auto -44px -70px auto;
+      width:180px;
+      height:180px;
+      border-radius:46px;
+      transform:rotate(18deg);
+      background:linear-gradient(135deg,rgba(37,99,235,.14),rgba(96,165,250,.08));
+      pointer-events:none;
+    }
+
+    body::after{
+      content:"";
+      position:fixed;
+      inset:-78px auto auto -70px;
+      width:210px;
+      height:210px;
+      border-radius:62px;
+      transform:rotate(-18deg);
+      background:linear-gradient(135deg,rgba(7,26,61,.08),rgba(96,165,250,.10));
+      pointer-events:none;
+    }
+
+    .box{
+      position:relative;
+      z-index:1;
+      width:min(100%,420px);
+      padding:26px 22px 22px;
+      border-radius:34px;
+      background:var(--upick-card);
+      border:1px solid var(--upick-line);
+      box-shadow:0 28px 70px rgba(7,26,61,.16), inset 0 1px 0 rgba(255,255,255,.96);
+      backdrop-filter:blur(18px);
+      -webkit-backdrop-filter:blur(18px);
+      overflow:hidden;
+    }
+
+    .box::before{
+      content:"";
+      position:absolute;
+      left:0;
+      right:0;
+      top:0;
+      height:5px;
+      background:linear-gradient(90deg,var(--upick-sky),var(--upick-blue),var(--upick-navy-2));
+    }
+
+    .brand-mark{
+      width:82px;
+      height:82px;
+      margin:4px auto 16px;
+      border-radius:26px;
+      display:grid;
+      place-items:center;
+      background:linear-gradient(180deg,#ffffff 0%,#eef6ff 100%);
+      border:1px solid rgba(191,219,254,.90);
+      box-shadow:0 18px 38px rgba(37,99,235,.14), inset 0 1px 0 rgba(255,255,255,.96);
+    }
+
+    .brand-mark::before{
+      content:"";
+      width:62px;
+      height:62px;
+      display:block;
+      background:url('/icons/internal/brand-symbol-real.png') center/contain no-repeat;
+      filter:drop-shadow(0 8px 18px rgba(7,26,61,.14));
+    }
+
+    .eyebrow{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      min-height:30px;
+      padding:7px 12px;
+      border-radius:999px;
+      background:#eff6ff;
+      border:1px solid #bfdbfe;
+      color:#1d4ed8;
+      font-size:12px;
+      font-weight:1000;
+      letter-spacing:-.02em;
+      margin-bottom:12px;
+    }
+
+    h1{
+      margin:0;
+      font-size:68px;
+      line-height:1;
+      letter-spacing:-.07em;
+      color:var(--upick-navy);
+      text-shadow:0 10px 26px rgba(37,99,235,.10);
+    }
+
+    h2{
+      margin:12px 0 8px;
+      font-size:23px;
+      line-height:1.3;
+      letter-spacing:-.055em;
+      color:#071A3D;
+    }
+
+    p{
+      margin:0 auto;
+      max-width:310px;
+      color:#64748b;
+      font-size:14px;
+      font-weight:700;
+      line-height:1.7;
+    }
+
+    .actions{
+      margin-top:22px;
+      display:grid;
+      grid-template-columns:1fr 1fr 1fr;
+      gap:9px;
+    }
+
+    button{
+      min-height:48px;
+      border:none;
+      border-radius:17px;
+      padding:0 12px;
+      color:#fff;
+      cursor:pointer;
+      font:inherit;
+      font-size:14px;
+      font-weight:1000;
+      letter-spacing:-.02em;
+      background:linear-gradient(135deg,var(--upick-navy) 0%,var(--upick-navy-2) 54%,var(--upick-blue) 100%);
+      box-shadow:0 14px 30px rgba(37,99,235,.22);
+      transition:transform .16s ease, box-shadow .16s ease, opacity .16s ease;
+      -webkit-tap-highlight-color:transparent;
+    }
+
+    button.secondary{
+      background:#fff;
+      color:#1d4ed8;
+      border:1px solid #bfdbfe;
+      box-shadow:0 10px 22px rgba(37,99,235,.08);
+    }
+
+    button:active{transform:scale(.97)}
+    button:hover{transform:translateY(-1px)}
+
+    .hint{
+      margin-top:16px;
+      padding:11px 12px;
+      border-radius:18px;
+      background:#f8fafc;
+      border:1px solid #e2e8f0;
+      color:#64748b;
+      font-size:12px;
+      font-weight:800;
+      line-height:1.55;
+    }
+
+    @media(max-width:380px){
+      .box{padding:24px 18px 20px;border-radius:30px;}
+      h1{font-size:60px;}
+      h2{font-size:21px;}
+      .actions{grid-template-columns:1fr;}
+      button{width:100%;}
+    }
+
+
+/* ===== error.html inline style #2 : myhills-install-ux-style ===== */
+.myhills-install-banner{
+      position:fixed;
+      left:16px;
+      right:16px;
+      bottom:calc(18px + env(safe-area-inset-bottom,0px));
+      z-index:100000;
+      display:none;
+      pointer-events:none;
+    }
+    .myhills-install-banner.show{
+      display:block;
+      animation:myhillsInstallUp .28s ease both;
+      pointer-events:auto;
+    }
+    .myhills-install-card{
+      width:min(100%,480px);
+      margin:0 auto;
+      display:flex;
+      align-items:center;
+      gap:12px;
+      padding:14px 14px;
+      border-radius:24px;
+      color:#fff;
+      background:rgba(15,23,42,.94);
+      border:1px solid rgba(255,255,255,.12);
+      box-shadow:0 22px 48px rgba(15,23,42,.28);
+      backdrop-filter:blur(18px);
+      -webkit-backdrop-filter:blur(18px);
+    }
+    .myhills-install-icon{
+      width:46px;
+      height:46px;
+      border-radius:16px;
+      background:#0F172A url('/icons/icon-192.png') center/72% no-repeat;
+      border:1px solid rgba(255,255,255,.12);
+      flex:0 0 auto;
+      box-shadow:inset 0 0 0 1px rgba(255,255,255,.04);
+    }
+    .myhills-install-copy{
+      flex:1;
+      min-width:0;
+      line-height:1.35;
+    }
+    .myhills-install-copy strong{
+      display:block;
+      font-size:14px;
+      font-weight:900;
+      letter-spacing:-.02em;
+      color:#fff;
+    }
+    .myhills-install-copy span{
+      display:block;
+      margin-top:3px;
+      font-size:12px;
+      font-weight:700;
+      color:rgba(255,255,255,.72);
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+    .myhills-install-actions{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      flex:0 0 auto;
+    }
+    .myhills-install-btn,
+    .myhills-install-close{
+      border:none;
+      cursor:pointer;
+      font:inherit;
+      -webkit-tap-highlight-color:transparent;
+    }
+    .myhills-install-btn{
+      min-width:62px;
+      padding:11px 13px;
+      border-radius:15px;
+      color:#fff;
+      background:linear-gradient(135deg,#ef4444,#b91c1c);
+      font-size:13px;
+      font-weight:900;
+      box-shadow:0 10px 22px rgba(239,68,68,.25);
+    }
+    .myhills-install-close{
+      width:34px;
+      height:34px;
+      border-radius:13px;
+      color:rgba(255,255,255,.82);
+      background:rgba(255,255,255,.08);
+      font-size:18px;
+      line-height:1;
+    }
+    .myhills-install-btn:active,
+    .myhills-install-close:active{
+      transform:scale(.96);
+    }
+    .myhills-first-launch{
+      position:fixed;
+      inset:0;
+      z-index:100001;
+      display:none;
+      align-items:center;
+      justify-content:center;
+      background:
+        radial-gradient(circle at 65% 30%,rgba(239,68,68,.22),transparent 34%),
+        linear-gradient(180deg,#0F172A 0%,#111827 100%);
+      opacity:1;
+      transition:opacity .48s ease, visibility .48s ease;
+    }
+    .myhills-first-launch.show{
+      display:flex;
+    }
+    .myhills-first-launch.hide{
+      opacity:0;
+      visibility:hidden;
+    }
+    .myhills-first-launch-inner{
+      display:grid;
+      place-items:center;
+      gap:16px;
+      transform:translateY(4px);
+      animation:myhillsSplashIn .58s cubic-bezier(.2,.9,.2,1) both;
+    }
+    .myhills-first-launch-icon{
+      width:96px;
+      height:96px;
+      border-radius:28px;
+      background:#0F172A url('/icons/icon-192.png') center/72% no-repeat;
+      box-shadow:0 24px 50px rgba(0,0,0,.28), inset 0 0 0 1px rgba(255,255,255,.08);
+    }
+    .myhills-first-launch-title{
+      color:#fff;
+      font-size:18px;
+      font-weight:900;
+      letter-spacing:-.04em;
+    }
+    .myhills-first-launch-sub{
+      margin-top:-8px;
+      color:rgba(255,255,255,.68);
+      font-size:12px;
+      font-weight:700;
+    }
+    @keyframes myhillsInstallUp{
+      from{opacity:0;transform:translateY(12px)}
+      to{opacity:1;transform:translateY(0)}
+    }
+    @keyframes myhillsSplashIn{
+      from{opacity:0;transform:translateY(10px) scale(.92)}
+      to{opacity:1;transform:translateY(0) scale(1)}
+    }
+    @media (max-width:380px){
+      .myhills-install-card{padding:12px}
+      .myhills-install-copy span{display:none}
+      .myhills-install-icon{width:42px;height:42px}
+      .myhills-install-btn{min-width:58px;padding:10px 12px}
+    }
+
+
+/* ===== error.html inline style #3 : myhills-ios-safearea-fix ===== */
+:root{--myhills-safe-area-top:env(safe-area-inset-top,0px)}
+    @supports (padding-top: constant(safe-area-inset-top)){
+      :root{--myhills-safe-area-top:constant(safe-area-inset-top)}
+    }
+    .app{padding-top:calc(18px + var(--myhills-safe-area-top)) !important}
+    .page{padding-top:calc(22px + var(--myhills-safe-area-top)) !important}
+    body > .wrap{padding-top:var(--myhills-safe-area-top)}
+    body > .box{margin-top:var(--myhills-safe-area-top)}
+    .topbar-userbar{min-width:0}
+    .user-chip{min-width:0;max-width:min(260px,calc(100vw - 156px))}
+    .user-name{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
