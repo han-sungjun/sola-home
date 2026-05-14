@@ -9951,33 +9951,31 @@ async function askAiAssistant(rawQuestion=''){
  requestAnimationFrame(() => gnbSheet?.classList.add('gnb-enter'));
  document.body.style.overflow = 'hidden';
  document.body.classList.add('gnb-open');
- const firstGnbBtn = gnbSheet?.querySelector('.gnb-icons .gnb-icon-btn[data-view-link="home"], .gnb-icons .gnb-icon-btn, .gnb-icons button, button, a[href], [tabindex]:not([tabindex="-1"])');
- if(firstGnbBtn){
- firstGnbBtn.animate(
+ const homeBtn = gnbSheet?.querySelector('.gnb-home-active');
+ if(homeBtn){
+ homeBtn.animate(
  [{ transform:'translateY(0)', opacity:1 }, { transform:'translateY(-1px)', opacity:1 }],
  { duration:180, easing:'ease-out' }
  );
-  const applyInitialGnbFocus = () => {
-    try { firstGnbBtn.focus({ preventScroll: true }); }
-    catch(_) { firstGnbBtn.focus(); }
+  requestAnimationFrame(() => {
+    setTimeout(() => {
+      try { homeBtn.focus({ preventScroll: true }); }
+      catch(_) { homeBtn.focus(); }
 
-    // 다른 탭에서 GNB를 열면 현재 view active class가 홈 버튼에서 빠져
-    // 기존 .gnb-home-active 기준 포커스 링이 안 보일 수 있습니다.
-    // 그래서 '실제 첫 버튼'에 강제 링 클래스를 부여하고, 포커스가 이동할 때만 제거합니다.
-    firstGnbBtn.classList.add('upick-force-focus-ring');
-
-    const clearForcedRing = () => firstGnbBtn.classList.remove('upick-force-focus-ring');
-    firstGnbBtn.addEventListener('blur', clearForcedRing, { once:true });
-    firstGnbBtn.addEventListener('keydown', function clearOnTab(event){
-      if(event.key === 'Tab'){
-        clearForcedRing();
-        firstGnbBtn.removeEventListener('keydown', clearOnTab);
-      }
-    });
-  };
-
-  requestAnimationFrame(() => setTimeout(applyInitialGnbFocus, 90));
-  setTimeout(applyInitialGnbFocus, 180);
+      // Some entry paths open the GNB after scripted view changes, and Chrome may not
+      // paint :focus-visible even though focus is correctly on the first button.
+      // Force the visual ring for the initial GNB focus, then remove it when focus moves.
+      homeBtn.classList.add('upick-force-focus-ring');
+      const clearForcedRing = () => homeBtn.classList.remove('upick-force-focus-ring');
+      homeBtn.addEventListener('blur', clearForcedRing, { once:true });
+      homeBtn.addEventListener('keydown', function clearOnTab(event){
+        if(event.key === 'Tab'){
+          clearForcedRing();
+          homeBtn.removeEventListener('keydown', clearOnTab);
+        }
+      });
+    }, 90);
+  });
   setTimeout(()=>{ loadUserBottomNavSettings?.(); renderUserBottomNavSettings?.(); }, 120);
  }
  }
@@ -11568,3 +11566,73 @@ document.addEventListener('keydown', (event) => {
  }
  })();
  
+/* =========================================================
+   A11Y HOTFIX: GNB first focus ring in every tab
+   홈 탭 외 다른 탭에서 GNB를 열 때도 첫 번째 홈 버튼에 포커스와 시각 링을 강제 복원합니다.
+   ========================================================= */
+(function(){
+  'use strict';
+  const FOCUS_RING_CLASS = 'upick-force-focus-ring';
+  const SHEET_SELECTOR = '#gnbSheet';
+  const FIRST_BUTTON_SELECTOR = '.gnb-home-active, .gnb-icons button:first-of-type, button[data-view-link="home"]';
+
+  function q(sel, root){ return (root || document).querySelector(sel); }
+  function isOpen(sheet){ return !!(sheet && sheet.classList.contains('show') && sheet.getAttribute('aria-hidden') !== 'true'); }
+
+  function clearForcedRings(sheet){
+    (sheet || document).querySelectorAll('.' + FOCUS_RING_CLASS).forEach(function(el){
+      el.classList.remove(FOCUS_RING_CLASS);
+    });
+  }
+
+  function focusFirstGnbButton(reason){
+    const sheet = q(SHEET_SELECTOR);
+    if(!isOpen(sheet)) return;
+    const first = q(FIRST_BUTTON_SELECTOR, sheet);
+    if(!first || first.disabled) return;
+
+    clearForcedRings(sheet);
+    first.classList.add(FOCUS_RING_CLASS);
+    first.dataset.upickForcedFocusReason = reason || 'open';
+
+    try { first.focus({ preventScroll: true }); }
+    catch(_) { try { first.focus(); } catch(__){} }
+  }
+
+  function scheduleInitialFocus(reason){
+    [0, 40, 120, 260].forEach(function(delay){
+      setTimeout(function(){ focusFirstGnbButton(reason); }, delay);
+    });
+    requestAnimationFrame(function(){ focusFirstGnbButton(reason + ':raf'); });
+  }
+
+  document.addEventListener('click', function(event){
+    const opener = event.target && event.target.closest && event.target.closest('#globalGnbBtn, #gnbToggleBtn, #gnbOpenBtn, #openGnbBtn, [data-open-gnb], .gnb-open-btn');
+    if(opener) scheduleInitialFocus('opener-click');
+  }, true);
+
+  document.addEventListener('keydown', function(event){
+    if(event.key !== 'Enter' && event.key !== ' ') return;
+    const opener = event.target && event.target.closest && event.target.closest('#globalGnbBtn, #gnbToggleBtn, #gnbOpenBtn, #openGnbBtn, [data-open-gnb], .gnb-open-btn');
+    if(opener) scheduleInitialFocus('opener-key');
+  }, true);
+
+  document.addEventListener('focusin', function(event){
+    const sheet = q(SHEET_SELECTOR);
+    if(!sheet || !sheet.contains(event.target)) return;
+    if(!event.target.matches(FIRST_BUTTON_SELECTOR)) clearForcedRings(sheet);
+  }, true);
+
+  function bindObserver(){
+    const sheet = q(SHEET_SELECTOR);
+    if(!sheet || sheet.__upickGnbInitialFocusObserver) return;
+    sheet.__upickGnbInitialFocusObserver = true;
+    new MutationObserver(function(){
+      if(isOpen(sheet)) scheduleInitialFocus('sheet-open');
+      else clearForcedRings(sheet);
+    }).observe(sheet, { attributes:true, attributeFilter:['class','aria-hidden'] });
+  }
+
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', bindObserver, {once:true});
+  else bindObserver();
+})();
