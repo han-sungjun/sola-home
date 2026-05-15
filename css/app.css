@@ -10619,6 +10619,8 @@ dialog:not(.app-alert) .modal-body{
 .detail-mini-zoom-btn{
   width:34px;
   height:34px;
+  min-width:34px;
+  min-height:34px;
   border:0;
   background:#fff;
   color:#0f172a;
@@ -10626,9 +10628,16 @@ dialog:not(.app-alert) .modal-body{
   line-height:1;
   font-weight:900;
   cursor:pointer;
-  display:grid;
-  place-items:center;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:0;
   -webkit-tap-highlight-color:transparent;
+}
+
+.detail-mini-zoom-btn span{
+  display:block;
+  transform:translateX(-1px);
 }
 .detail-mini-zoom-btn + .detail-mini-zoom-btn{
   border-top:1px solid #e2e8f0;
