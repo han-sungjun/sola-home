@@ -84,8 +84,8 @@
                     <img alt class="upick-svg-icon" loading="lazy" src="/icons/internal/user.svg">
                   </div>
                   <div class="user-meta">
-                    <strong class="user-name" id="userNickname" title="로그인 확인 중">
-                      로그인 확인 중
+                    <strong class="user-name" id="userNickname" title="입장 확인 중">
+                      입장 확인 중
                     </strong>
                     <span class="user-sub" id="userUnitInfo">
                       입주민 계정
@@ -127,7 +127,7 @@
               </p>
               <div aria-label="안심 이용 안내" class="trust-hero-badges">
                 <span class="trust-hero-badge">
-                  간단 입장
+                  계정 만들기
                 </span>
                 <span class="trust-hero-badge">
                   가벼운 확인
@@ -326,7 +326,7 @@
               </small>
             </div>
             <div class="helper">
-              관심 있는 매장을 계정에 저장해 두고 빠르게 확인할 수 있습니다. 로그인한 계정 기준으로 동기화됩니다.
+              관심 있는 매장을 계정에 저장해 두고 빠르게 확인할 수 있습니다. 입장한 계정 기준으로 동기화됩니다.
             </div>
           </div>
           <div class="list" id="favoriteList">
@@ -1126,10 +1126,10 @@
           <button class="gnb-icon-btn gnb-home-active" data-view-link="home" title="홈" type="button">
             <img alt class="upick-svg-icon" loading="lazy" src="/icons/internal/home.svg">
           </button>
-          <button aria-label="로그아웃" class="gnb-icon-btn" id="gnbLogoutQuickBtn" title="로그아웃" type="button">
+          <button aria-label="나가기" class="gnb-icon-btn" id="gnbLogoutQuickBtn" title="나가기" type="button">
             <img alt class="upick-svg-icon logout-exit-icon" loading="lazy" src="/icons/internal/logout.svg">
             <span class="gnb-tooltip">
-              로그아웃
+              나가기
             </span>
           </button>
           <button aria-label="전체 메뉴 닫기" class="gnb-close" id="gnbCloseBtn" title="닫기" type="button">
@@ -1305,7 +1305,7 @@
                     계정 요약
                   </h4>
                   <p class="gnb-settings-section-desc">
-                    현재 로그인한 계정과 기기 상태를 한눈에 확인할 수 있도록 정리했습니다.
+                    현재 입장한 계정과 기기 상태를 한눈에 확인할 수 있도록 정리했습니다.
                   </p>
                 </div>
                 <div class="gnb-status-pill" id="gnbPushStatusPill">
@@ -1322,7 +1322,7 @@
                       계정
                     </span>
                     <strong class="gnb-account-name" id="gnbAccountName">
-                      로그인 확인 중
+                      입장 확인 중
                     </strong>
                     <span class="gnb-account-sub" id="gnbAccountUnit">
                       입주민 계정
@@ -1535,15 +1535,15 @@
                     비밀번호 변경
                   </span>
                   <span class="desc">
-                    재로그인 필요
+                    재입장 필요
                   </span>
                 </button>
                 <button class="gnb-action-btn outline" id="logoutBtn" type="button">
                   <span>
-                    로그아웃
+                    나가기
                   </span>
                   <span class="desc">
-                    현재 계정 종료
+                    현재 공간 나가기
                   </span>
                 </button>
               </div>
@@ -1552,17 +1552,17 @@
               <div class="gnb-settings-section-header">
                 <div>
                   <h4 class="gnb-settings-section-title">
-                    회원 탈퇴 안내
+                    계정 삭제 안내
                   </h4>
                   <p class="gnb-settings-section-desc">
-                    회원 탈퇴 시 계정 정보와 일부 설정이 삭제되며 복구가 어렵습니다. 진행 전 내용을 다시 확인해 주세요.
+                    계정 삭제 시 계정 정보와 일부 설정이 삭제되며 복구가 어렵습니다. 진행 전 내용을 다시 확인해 주세요.
                   </p>
                 </div>
               </div>
               <div class="gnb-action-grid">
                 <button class="gnb-action-btn danger" id="withdrawBtn" type="button">
                   <span>
-                    회원 탈퇴
+                    계정 삭제
                   </span>
                   <span class="desc">
                     복구 불가
@@ -1570,7 +1570,7 @@
                 </button>
               </div>
               <div class="gnb-danger-note">
-                회원 탈퇴 시 계정 정보, 즐겨찾기, 현재 기기의 알림 설정이 함께 삭제됩니다.
+                계정 삭제 시 계정 정보, 즐겨찾기, 현재 기기의 알림 설정이 함께 삭제됩니다.
               </div>
             </div>
           </div>
@@ -1588,7 +1588,7 @@
       </div>
       <div class="modal-body">
         <div class="account-edit-help">
-          로그인한 계정의 표시 정보를 수정합니다. 이름&middot;연락처 대신 닉네임 중심으로만 관리합니다.
+          입장한 계정의 표시 정보를 수정합니다.
         </div>
         <form class="account-edit-form" id="accountEditForm">
           <div class="account-edit-field">
@@ -1666,7 +1666,7 @@
       </div>
       <div class="modal-body">
         <div class="account-edit-help">
-          현재 비밀번호 확인 후 새 비밀번호로 변경합니다. 변경 완료 후 보안을 위해 자동 로그아웃됩니다.
+          현재 비밀번호 확인 후 새 비밀번호로 변경합니다. 변경 완료 후 보안을 위해 입장 화면으로 이동됩니다.
         </div>
         <form class="account-edit-form" id="passwordChangeForm">
           <div class="account-edit-field">

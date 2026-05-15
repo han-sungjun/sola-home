@@ -511,7 +511,7 @@ qs('#resetPwSubmitBtn')?.addEventListener('click', async (event) => {
     setResult(fields.resetResult, data.message || '비밀번호 재설정이 완료되었습니다.', 'success');
     await showAppAlert({
       title: '비밀번호 재설정 완료',
-      message: data.message || '비밀번호 재설정이 완료되었습니다. 재로그인 하시면 됩니다.',
+      message: data.message || '비밀번호 재설정이 완료되었습니다. 재입장 하시면 됩니다.',
       onConfirm: () => closeSheet(),
     });
   } catch (error) {

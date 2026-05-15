@@ -2863,7 +2863,7 @@ body.gnb-open{overflow:hidden!important;overscroll-behavior:none!important;touch
 .gnb-body{flex:1 1 auto!important;min-height:0!important;overflow-y:auto!important;overflow-x:hidden!important;-webkit-overflow-scrolling:touch!important;overscroll-behavior:contain!important;background:linear-gradient(180deg,#fff 0%,#f8fbff 100%)!important;padding-bottom:calc(120px + env(safe-area-inset-bottom,0px))!important;}
 body.gnb-open .bottom-nav,body.gnb-open .admin-bottom-nav,body.gnb-open .mobile-bottom-nav,body.gnb-open nav.bottom-nav{opacity:0!important;visibility:hidden!important;pointer-events:none!important;transform:translateY(18px)!important;}
 
-/* 4) 회원 탈퇴 레드톤 제거: 위험 액션은 기능 유지, 시각은 슬레이트/블루 */
+/* 4) 계정 삭제 레드톤 제거: 위험 액션은 기능 유지, 시각은 슬레이트/블루 */
 #withdrawBtn,.gnb-action-btn.danger,[data-member-action="withdraw"],.btn-danger{background:linear-gradient(180deg,#f8fafc,#eef5ff)!important;color:#334155!important;border:1px solid #cbd5e1!important;box-shadow:0 12px 26px rgba(15,23,42,.07)!important;}
 #withdrawBtn span:first-child,.gnb-action-btn.danger span:first-child{color:#1e3a8a!important;}
 .gnb-danger-note,.danger-note{background:#f8fafc!important;color:#64748b!important;border:1px solid #e2e8f0!important;border-radius:18px!important;}

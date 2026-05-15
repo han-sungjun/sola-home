@@ -1818,7 +1818,7 @@ html[data-font-size="xlarge"] .calendar-summary-grid{grid-template-columns:1fr;}
 .profile-preview-copy{min-width:0;color:#64748b;font-size:12px;line-height:1.55}
 .profile-preview-copy strong{display:block;color:#0f172a;font-size:13px;margin-bottom:2px}
 
-/* ===== 프리미엄 헤더 정렬 패치: 상단/자동 로그아웃/브랜드 균형 ===== */
+/* ===== 프리미엄 헤더 정렬 패치: 상단/자동 나가기/브랜드 균형 ===== */
 .topbar{
  width:100%;
  align-items:stretch;
@@ -1886,7 +1886,7 @@ html[data-font-size="xlarge"] .calendar-summary-grid{grid-template-columns:1fr;}
  margin-top:5px;
  white-space:nowrap;
 }
-/* tracking.js가 삽입하는 자동 로그아웃 박스를 브랜드 우측 끝에 정렬 */
+/* tracking.js가 삽입하는 자동 나가기 박스를 브랜드 우측 끝에 정렬 */
 .topbar-left-titleline > :not(.brand){
  justify-self:end;
  align-self:center;
@@ -1946,7 +1946,7 @@ html[data-font-size="xlarge"] .calendar-summary-grid{grid-template-columns:1fr;}
  }
 }
 
-/* ===== 자동 로그아웃 iPhone 위젯 스타일 + 시간 애니메이션 ===== */
+/* ===== 자동 나가기 iPhone 위젯 스타일 + 시간 애니메이션 ===== */
 .topbar-left-titleline .myhills-idle-widget,
 .topbar-left-titleline [data-myhills-idle-widget="true"]{
  position:relative!important;
@@ -10894,7 +10894,7 @@ body.gnb-open{overflow:hidden!important;overscroll-behavior:none!important;touch
 .gnb-body{flex:1 1 auto!important;min-height:0!important;overflow-y:auto!important;overflow-x:hidden!important;-webkit-overflow-scrolling:touch!important;overscroll-behavior:contain!important;background:linear-gradient(180deg,#fff 0%,#f8fbff 100%)!important;padding-bottom:calc(120px + env(safe-area-inset-bottom,0px))!important;}
 body.gnb-open .bottom-nav,body.gnb-open .admin-bottom-nav,body.gnb-open .mobile-bottom-nav,body.gnb-open nav.bottom-nav{opacity:0!important;visibility:hidden!important;pointer-events:none!important;transform:translateY(18px)!important;}
 
-/* 4) 회원 탈퇴 레드톤 제거: 위험 액션은 기능 유지, 시각은 슬레이트/블루 */
+/* 4) 계정 삭제 레드톤 제거: 위험 액션은 기능 유지, 시각은 슬레이트/블루 */
 #withdrawBtn,.gnb-action-btn.danger,[data-member-action="withdraw"],.btn-danger{background:linear-gradient(180deg,#f8fafc,#eef5ff)!important;color:#334155!important;border:1px solid #cbd5e1!important;box-shadow:0 12px 26px rgba(15,23,42,.07)!important;}
 #withdrawBtn span:first-child,.gnb-action-btn.danger span:first-child{color:#1e3a8a!important;}
 .gnb-danger-note,.danger-note{background:#f8fafc!important;color:#64748b!important;border:1px solid #e2e8f0!important;border-radius:18px!important;}
@@ -10947,7 +10947,7 @@ body.gnb-open .bottom-nav,body.gnb-open .admin-bottom-nav,body.gnb-open .mobile-
 
 
 /* ===== app.html inline style #32 : upick-blue-premium-v6-priority-fix ===== */
-/* ===== v6: 공개앱 자동 로그아웃 UI 제거 / 기능 유지 ===== */
+/* ===== v6: 공개앱 자동 나가기 UI 제거 / 기능 유지 ===== */
 .idle-timer-chip,
 [data-idle-timer-chip],
 .myhills-idle-widget,
@@ -12294,7 +12294,7 @@ header.public-unified-header button.icon-btn svg{
 
 /* ===== app.html inline style #43 : upick-public-v29-navy-app-shell ===== */
 /* ===== 더운정픽 v29: 공개앱 전체 네이비 프리미엄 쉘 적용 =====
-   로그인 페이지처럼 공개앱 전체를 하나의 네이비 프리미엄 영역으로 감쌉니다.
+   입장 페이지처럼 공개앱 전체를 하나의 네이비 프리미엄 영역으로 감쌉니다.
    내부 기능/버튼/하단 네비 동작은 변경하지 않습니다.
 */
 
@@ -12413,7 +12413,7 @@ body > .app > .shell{
   }
 }
 
-/* PC/태블릿 미리보기에서는 로그인 페이지처럼 카드형 외곽 유지 */
+/* PC/태블릿 미리보기에서는 입장 페이지처럼 카드형 외곽 유지 */
 @media(min-width:521px){
   body > .app{
     max-width:480px!important;
@@ -12422,7 +12422,7 @@ body > .app > .shell{
 
 
 /* ===== app.html inline style #44 : upick-public-v30-login-like-shell ===== */
-/* ===== 더운정픽 v30: 공개앱 외곽 쉘을 로그인/회원가입 페이지 톤으로 완화 =====
+/* ===== 더운정픽 v30: 공개앱 외곽 쉘을 입장/계정 만들기 페이지 톤으로 완화 =====
    - 전체 공개앱은 유지하되, 바깥은 밝게 두고
    - 안쪽 앱만 카드형 네이비 쉘로 감싸 눈 피로도를 줄입니다.
    - 기존 기능/탭 전환/헤더/버튼 동작은 건드리지 않습니다.
@@ -12480,7 +12480,7 @@ body > .app > .shell{
   box-shadow:0 12px 28px rgba(2,8,23,.10)!important;
 }
 
-/* 모바일도 로그인/회원가입처럼 카드형 외곽을 유지 */
+/* 모바일도 입장/계정 만들기처럼 카드형 외곽을 유지 */
 @media(max-width:520px){
   body > .app{
     width:calc(100% - 22px)!important;
@@ -12505,7 +12505,7 @@ body > .app > .shell{
    눈 피로도를 낮추기 위해 전체 네이비 색상만 조금 밝고 부드럽게 조정합니다.
 */
 
-/* 바깥 배경은 로그인/회원가입처럼 밝은 블루그레이 유지 */
+/* 바깥 배경은 입장/계정 만들기처럼 밝은 블루그레이 유지 */
 html,
 body{
   background:
@@ -14610,7 +14610,7 @@ body.app-scrolled .topbar .icon-btn{
 @keyframes upickLoaderLine{0%{background-position:0% 50%;opacity:.72}50%{background-position:100% 50%;opacity:1}100%{background-position:0% 50%;opacity:.72}}
 
 
-/* ===== 더운정픽 UI v3: GNB/회원탈퇴/심볼 통일 보정 ===== */
+/* ===== 더운정픽 UI v3: GNB/계정 삭제/심볼 통일 보정 ===== */
 .brand .logo img[src*="home.svg"],.brand .logo .upick-svg-icon{width:42px!important;height:42px!important;}
 .brand .logo{background:linear-gradient(180deg,rgba(255,255,255,.92),rgba(239,246,255,.78))!important;border:1px solid rgba(191,219,254,.72)!important;box-shadow:0 12px 30px rgba(37,99,235,.08)!important;}
 .gnb-sheet{height:100dvh!important;max-height:100dvh!important;overflow:hidden!important;background:#fff!important;overscroll-behavior:contain!important;}
@@ -16131,7 +16131,7 @@ body.upick-modal-lock{position:fixed!important;width:100%!important;left:0!impor
 
 
 /* ===== app.html inline style #81 : upick-v75-loader-ring-hard-fix ===== */
-/* 공개앱/로그인/회원가입/관리자 공통: 로고 레이어와 회전 링 레이어를 완전히 분리 */
+/* 공개앱/입장/계정 만들기/관리자 공통: 로고 레이어와 회전 링 레이어를 완전히 분리 */
 .global-loading.upick-loader-enhanced .loader-mark,
 .page-loader.upick-loader-enhanced .loader-mark,
 .global-loading.upick-admin-loader-enhanced .loader-mark,

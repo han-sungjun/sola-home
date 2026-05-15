@@ -106,15 +106,15 @@ export async function logoutServerSession(auth, api = {}){
 
 export function getSessionInvalidMessage(reason = ''){
   if (reason === 'duplicated_login') {
-    return '다른 기기 또는 브라우저에서 로그인되어 현재 세션이 종료되었습니다.\n계속 이용하시려면 다시 로그인해 주세요.';
+    return '다른 기기 또는 브라우저에서 입장되어 현재 세션이 종료되었습니다.\n계속 이용하시려면 다시 입장해 주세요.';
   }
   if (reason === 'session_expired') {
-    return '장시간 활동이 없어 자동 로그아웃되었습니다.\n계속 이용하시려면 다시 로그인해 주세요.';
+    return '장시간 활동이 없어 자동 나가기되었습니다.\n계속 이용하시려면 다시 입장해 주세요.';
   }
   if (reason === 'logged_out') {
-    return '로그아웃된 세션입니다.\n다시 로그인해 주세요.';
+    return '나가기된 세션입니다.\n다시 입장해 주세요.';
   }
-  return '세션이 만료되었습니다.\n다시 로그인해 주세요.';
+  return '세션이 만료되었습니다.\n다시 입장해 주세요.';
 }
 
 export async function handleInvalidSession({ auth, api, reason, signOutFn, redirectTo = '/', alertFn } = {}){
@@ -124,7 +124,7 @@ export async function handleInvalidSession({ auth, api, reason, signOutFn, redir
   const message = getSessionInvalidMessage(reason);
 
   // 보안 세션 종료는 사용자가 갑자기 튕겼다고 느끼지 않도록 먼저 안내합니다.
-  // 확인 버튼, 바깥 영역 클릭, ESC 등으로 모달이 닫히면 그 다음 단계에서 무조건 로그아웃합니다.
+  // 확인 버튼, 바깥 영역 클릭, ESC 등으로 모달이 닫히면 그 다음 단계에서 무조건 나가기합니다.
   if (typeof alertFn === 'function') {
     try{ await alertFn(message); }catch(_e){}
   } else if (typeof window !== 'undefined') {
@@ -175,8 +175,8 @@ export function startRealtimeSessionWatcher({
       const serverSessionId = String(data.activeSessionId || '').trim();
       const status = String(data.sessionStatus || '').trim();
 
-      // 첫 스냅샷도 검사합니다. 이미 다른 브라우저에서 로그인된 상태라면
-      // 페이지 재진입 즉시 중복 로그인을 감지해야 하기 때문입니다.
+      // 첫 스냅샷도 검사합니다. 이미 다른 브라우저에서 입장된 상태라면
+      // 페이지 재진입 즉시 중복 입장을 감지해야 하기 때문입니다.
       initialSnapshotSeen = true;
 
       if (!localSessionId) return;
@@ -278,7 +278,7 @@ export function startSessionKeepAlive({
     }
   }
 
-  // checkTimer: 중복 로그인/강제 만료 감지용. DB 업데이트 없이 activeSessionId만 확인합니다.
+  // checkTimer: 중복 입장/강제 만료 감지용. DB 업데이트 없이 activeSessionId만 확인합니다.
   // pingTimer: 실제 사용 중인 세션 유지용. 활동이 있었고 최소 간격이 지났을 때만 DB를 갱신합니다.
   const safeCheckMs = Math.max(30 * 1000, Number(checkEveryMs || 60 * 1000));
   const checkTimer = window.setInterval(() => tick(true), safeCheckMs);

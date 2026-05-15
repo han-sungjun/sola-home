@@ -35,7 +35,7 @@
   const isAdminPage = ADMIN_PAGES.includes(path);
 
   if (!loginUser && !isPublicPage) {
-    console.warn("비로그인 접근 차단:", path);
+    console.warn("비입장 접근 차단:", path);
 
     sessionStorage.setItem("pendingDeepLink", location.href);
 

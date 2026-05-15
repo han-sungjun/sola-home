@@ -49,11 +49,11 @@ async function sessionCheck(options = {}) {
 
     const user = snap.data();
 
-    // 중복 로그인 차단
+    // 중복 입장 차단
     const serverSessionId = user.activeSessionId || "";
 
     if (serverSessionId && localSessionId && localSessionId !== serverSessionId) {
-      console.warn("중복 로그인 감지");
+      console.warn("중복 입장 감지");
 
       if (typeof writeSecurityLog === "function") {
         await writeSecurityLog("SESSION_CONFLICT", {
@@ -62,7 +62,7 @@ async function sessionCheck(options = {}) {
         });
       }
 
-      alert("다른 기기에서 로그인되어 현재 세션이 종료되었습니다.");
+      alert("다른 기기에서 입장되어 현재 세션이 종료되었습니다.");
       localStorage.removeItem("loginUser");
       location.replace("/");
       return false;

@@ -261,7 +261,7 @@ async function handleAlreadyLinkedUser(user, phoneDigits = '') {
   const snap = await getDoc(doc(db, 'users', user.uid));
 
   if (!snap.exists()) {
-    showNotice('사용자 정보가 없습니다. 다시 로그인해주세요.', 'error');
+    showNotice('사용자 정보가 없습니다. 다시 입장해주세요.', 'error');
     return;
   }
 
@@ -285,7 +285,7 @@ async function sendCode() {
   if (isSendingCode) return;
 
   if (isResetMode && !loginId) {
-    showNotice('비밀번호를 재설정할 아이디 정보가 없습니다. 로그인 화면에서 다시 진행해주세요.', 'error');
+    showNotice('비밀번호를 재설정할 아이디 정보가 없습니다. 입장 화면에서 다시 진행해주세요.', 'error');
     return;
   }
 
@@ -462,7 +462,7 @@ async function resetPassword() {
       return;
     }
 
-    showNotice('비밀번호가 변경되었습니다. 로그인 화면으로 이동합니다.', 'success');
+    showNotice('비밀번호가 변경되었습니다. 입장 화면으로 이동합니다.', 'success');
 
     await signOut(auth).catch(() => {});
 
@@ -519,7 +519,7 @@ if (signOutBtn) {
 onAuthStateChanged(auth, async (user) => {
   if (isResetMode) {
     if (signOutBtn) {
-      signOutBtn.textContent = '로그인으로';
+      signOutBtn.textContent = '입장 화면 으로';
       signOutBtn.onclick = async () => {
         await signOut(auth).catch(() => {});
         window.location.replace(HOME_PATH);
@@ -539,7 +539,7 @@ onAuthStateChanged(auth, async (user) => {
     const data = await loadUser(user);
 
     if (!data) {
-      showNotice('사용자 정보가 없습니다. 다시 로그인해주세요.', 'error');
+      showNotice('사용자 정보가 없습니다. 다시 입장해주세요.', 'error');
       return;
     }
 

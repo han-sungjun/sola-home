@@ -1,7 +1,7 @@
 // =========================
 // tracking.js
 // 운영형 입주민 플랫폼용 통합 추적 모듈
-// 로그인 성공 후에만 30분 타이머 시작
+// 입장 성공 후에만 30분 타이머 시작
 // =========================
 
 import {
@@ -143,7 +143,7 @@ export async function saveVisit(pageName, detail = "") {
 
 
 // =========================
-// 로그인 이력 저장
+// 입장 이력 저장
 // =========================
 
 export async function saveLogin({ email, status, reason }) {
@@ -168,7 +168,7 @@ export async function saveLogin({ email, status, reason }) {
 
 
 // =========================
-// 로그인 실패 제한
+// 입장 실패 제한
 // =========================
 
 const LOGIN_FAIL_KEY = "sola_login_fail_info";
@@ -254,7 +254,7 @@ export function clearLoginFailureLocal() {
 
 
 // =========================
-// 자동 로그아웃 (로그인 후에만 시작)
+// 자동 나가기 (입장 후에만 시작)
 // =========================
 
 
@@ -328,8 +328,8 @@ function startAutoLogoutTimer() {
       warningModalOpen = true;
 
       // 안내 모달의 [확인]을 누르면 사용 의사가 있는 것으로 보고 세션 시간을 다시 30분으로 연장합니다.
-      showAppModalAlert(`1분 후 자동 로그아웃 됩니다.
-계속 이용하시려면 확인을 눌러 주세요.`, "자동 로그아웃 안내")
+      showAppModalAlert(`1분 후 자동 나가기 됩니다.
+계속 이용하시려면 확인을 눌러 주세요.`, "자동 나가기 안내")
         .then(() => {
           warningModalOpen = false;
           if (auth.currentUser) {
@@ -342,7 +342,7 @@ function startAutoLogoutTimer() {
       try {
         stopAutoLogoutTimer();
         await signOut(auth);
-        await showAppModalAlert("장시간 미사용으로 자동 로그아웃되었습니다.", "자동 로그아웃");
+        await showAppModalAlert("장시간 미사용으로 자동 나가기되었습니다.", "자동 나가기");
         location.href = "/";
       } catch (e) {
         console.log("auto logout error", e);
@@ -634,9 +634,9 @@ export async function renderAdminStatsUI({
   if (statsEl) {
     statsEl.innerHTML = `
       <div class="summary-row"><strong>오늘 방문</strong><span>${stats.visitCount}건</span></div>
-      <div class="summary-row"><strong>오늘 로그인 시도</strong><span>${stats.loginCount}건</span></div>
-      <div class="summary-row"><strong>오늘 로그인 성공</strong><span>${stats.successCount}건</span></div>
-      <div class="summary-row"><strong>오늘 로그인 실패</strong><span>${stats.failCount}건</span></div>
+      <div class="summary-row"><strong>오늘 입장 시도</strong><span>${stats.loginCount}건</span></div>
+      <div class="summary-row"><strong>오늘 입장 성공</strong><span>${stats.successCount}건</span></div>
+      <div class="summary-row"><strong>오늘 입장 실패</strong><span>${stats.failCount}건</span></div>
       <div class="summary-row"><strong>오늘 차단</strong><span>${stats.blockedCount}건</span></div>
     `;
   }
@@ -667,7 +667,7 @@ export async function renderAdminStatsUI({
               <span class="tag">방문 ${item.visitCount}</span>
             </div>
             <div class="tags">
-              <span class="tag">로그인 ${item.loginCount}</span>
+              <span class="tag">입장 ${item.loginCount}</span>
               <span class="tag">실패 ${item.failCount}</span>
               <span class="tag">차단 ${item.blockedCount}</span>
             </div>
@@ -681,7 +681,7 @@ export async function renderAdminStatsUI({
       ? recentLogs.map(item => `
           <div class="mini-item">
             <div class="mini-item-head">
-              <h5>${item.type === "visit" ? "방문" : "로그인"}</h5>
+              <h5>${item.type === "visit" ? "방문" : "입장"}</h5>
               <span class="tag">${safeText(item.email)}</span>
             </div>
             <div class="helper">
@@ -701,8 +701,8 @@ export async function renderAdminStatsUI({
 
 
 // =========================
-// 공통 자동 로그아웃 타이머 컴포넌트
-// 로그인 성공 후에만 시작
+// 공통 자동 나가기 타이머 컴포넌트
+// 입장 성공 후에만 시작
 // =========================
 
 export const IDLE_TIMER_TOTAL_SECONDS = 30 * 60;
@@ -771,7 +771,7 @@ function resetIdleTimerState() {
 export function getIdleTimerHtml() {
   return `
     <div class="idle-timer-chip idle-safe" data-idle-timer-chip aria-live="polite">
-      <span class="idle-timer-label">자동 로그아웃</span>
+      <span class="idle-timer-label">자동 나가기</span>
       <strong data-idle-timer-text>30:00</strong>
       <div class="idle-progress-track" aria-hidden="true">
         <div class="idle-progress-bar" data-idle-timer-progress></div>
