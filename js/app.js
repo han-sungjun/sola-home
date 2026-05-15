@@ -78,6 +78,7 @@
  const AI_PROACTIVE_URL = AI_STREAM_SERVER_BASE_URL ? `${AI_STREAM_SERVER_BASE_URL}/assistant/proactive` : '';
  const AI_ASSISTANT_LOG_URL = AI_STREAM_SERVER_BASE_URL ? `${AI_STREAM_SERVER_BASE_URL}/assistant/log` : '';
  const AI_TTS_SERVICE_URL = String((TTS_SERVICE_URL && TTS_SERVICE_URL[ENV]) || '').replace(/\/+$/, '');
+ const CHECK_NICKNAME_URL = API_URL?.[ENV]?.checkNickname || '';
 
  // AI 첨부파일 다운로드는 Firebase Storage URL을 직접 열지 않고 Cloud Run 다운로드 API를 사용합니다.
  function extractAiAttachmentStoragePath(url=''){
@@ -1675,12 +1676,131 @@ window.addEventListener('keydown', (event) => {
  return String(value || '').trim();
  }
 
+ function validateProfileNicknameFormat(value=''){
+ const v = normalizeProfileInput(value);
+ return v.length >= 2 && v.length <= 20;
+ }
+
+ function setAccountNicknameMessage(type='', message=''){
+ const msg = qs('#accountNicknameMsg');
+ if(!msg) return;
+ msg.className = `account-field-msg ${type}`.trim();
+ msg.textContent = message || '';
+ }
+
+ function setAccountNicknameState(stateValue=null){
+ const input = qs('#accountNicknameInput');
+ if(!input) return;
+ input.classList.remove('valid','invalid');
+ if(stateValue === true) input.classList.add('valid');
+ if(stateValue === false) input.classList.add('invalid');
+ }
+
+ let accountNicknameCheckedValue = '';
+ let accountNicknameCheckStatus = 'idle';
+
+ function setAccountNicknameCheckStatus(status='idle', checkedValue=''){
+ accountNicknameCheckStatus = status;
+ accountNicknameCheckedValue = checkedValue || '';
+ const input = qs('#accountNicknameInput');
+ const checkBtn = qs('#accountCheckNicknameBtn');
+ if(input) input.dataset.nicknameCheckStatus = status;
+ if(checkBtn) checkBtn.dataset.nicknameCheckStatus = status;
+ }
+
+ function getOriginalAccountNickname(){
+ return normalizeProfileInput(state.currentUserProfile?.nickname || state.currentUser?.displayName || '');
+ }
+
+ async function checkAccountNicknameDuplicate({ silent=false } = {}){
+ const input = qs('#accountNicknameInput');
+ const checkBtn = qs('#accountCheckNicknameBtn');
+ const nickname = normalizeProfileInput(input?.value || '');
+ const originalNickname = getOriginalAccountNickname();
+ setAccountNicknameCheckStatus('idle');
+ setAccountNicknameState(null);
+
+ if(!nickname){
+ setAccountNicknameCheckStatus('empty');
+ setAccountNicknameMessage('err', '닉네임을 입력해 주세요.');
+ if(!silent) await openModalAlert('닉네임을 입력해 주세요.', input);
+ return false;
+ }
+
+ if(!validateProfileNicknameFormat(nickname)){
+ setAccountNicknameCheckStatus('invalid');
+ setAccountNicknameState(false);
+ setAccountNicknameMessage('err', '닉네임은 2~20자로 입력해 주세요.');
+ if(!silent) await openModalAlert('닉네임은 2~20자로 입력해 주세요.', input);
+ return false;
+ }
+
+ if(nickname === originalNickname){
+ setAccountNicknameCheckStatus('same');
+ setAccountNicknameState(false);
+ setAccountNicknameMessage('err', '현재 사용 중인 닉네임과 동일합니다. 변경할 닉네임을 입력해 주세요.');
+ if(!silent) await openModalAlert('현재 사용 중인 닉네임과 동일합니다. 변경할 닉네임을 입력해 주세요.', input);
+ return false;
+ }
+
+ if(!CHECK_NICKNAME_URL){
+ setAccountNicknameCheckStatus('error');
+ setAccountNicknameState(false);
+ setAccountNicknameMessage('err', '닉네임 중복 확인 주소가 설정되지 않았습니다.');
+ if(!silent) await openModalAlert('닉네임 중복 확인 주소가 설정되지 않았습니다.', checkBtn || input);
+ return false;
+ }
+
+ try{
+ setAccountNicknameCheckStatus('checking');
+ if(checkBtn){
+ checkBtn.disabled = true;
+ checkBtn.textContent = '확인 중';
+ }
+ setAccountNicknameMessage('', '닉네임 중복 여부를 확인 중입니다...');
+ const url = `${CHECK_NICKNAME_URL}?nickname=${encodeURIComponent(nickname)}`;
+ const response = await fetch(url, { method:'GET' });
+ const result = await response.json().catch(() => ({}));
+
+ if(!response.ok || !result.ok){
+ throw new Error(result.message || '닉네임 중복 확인 중 오류가 발생했습니다.');
+ }
+
+ if(!result.available){
+ setAccountNicknameCheckStatus('duplicate');
+ setAccountNicknameState(false);
+ setAccountNicknameMessage('err', result.message || '이미 사용 중인 닉네임입니다.');
+ if(!silent) await openModalAlert(result.message || '이미 사용 중인 닉네임입니다.', input);
+ return false;
+ }
+
+ setAccountNicknameCheckStatus('available', nickname);
+ setAccountNicknameState(true);
+ setAccountNicknameMessage('ok', result.message || '사용 가능한 닉네임입니다.');
+ return true;
+ }catch(error){
+ setAccountNicknameCheckStatus('error');
+ setAccountNicknameState(false);
+ setAccountNicknameMessage('err', error.message || '닉네임 중복 확인 중 오류가 발생했습니다.');
+ if(!silent) await openModalAlert(error.message || '닉네임 중복 확인 중 오류가 발생했습니다.', checkBtn || input);
+ return false;
+ }finally{
+ if(checkBtn){
+ checkBtn.disabled = false;
+ checkBtn.textContent = '중복 확인';
+ }
+ }
+ }
+
  function fillAccountEditForm(){
  const profile = state.currentUserProfile || {};
  const nicknameInput = qs('#accountNicknameInput');
  const buildingInput = qs('#accountBuildingInput');
  const unitInput = qs('#accountUnitInput');
  if(nicknameInput) nicknameInput.value = normalizeProfileInput(profile.nickname || state.currentUser?.displayName || '');
+ setAccountNicknameCheckStatus('idle');
+ setAccountNicknameState(null);
+ setAccountNicknameMessage('', '닉네임을 변경한 뒤 중복 확인을 완료해야 저장됩니다.');
  if(buildingInput) buildingInput.value = normalizeProfileInput(profile.building || '');
  if(unitInput) unitInput.value = normalizeProfileInput(profile.unit || '');
  updateProfileImagePreview();
@@ -1907,6 +2027,29 @@ function openAccountEditModal(){
  return;
  }
 
+ if(!validateProfileNicknameFormat(nickname)){
+ setAccountNicknameState(false);
+ setAccountNicknameMessage('err', '닉네임은 2~20자로 입력해 주세요.');
+ await openModalAlert('닉네임은 2~20자로 입력해 주세요.', qs('#accountNicknameInput'));
+ return;
+ }
+
+ const originalNickname = getOriginalAccountNickname();
+ if(nickname === originalNickname){
+ setAccountNicknameCheckStatus('same');
+ setAccountNicknameState(false);
+ setAccountNicknameMessage('err', '현재 사용 중인 닉네임과 동일합니다. 변경할 닉네임을 입력해 주세요.');
+ await openModalAlert('현재 사용 중인 닉네임과 동일합니다. 변경할 닉네임을 입력해 주세요.', qs('#accountNicknameInput'));
+ return;
+ }
+
+ if(accountNicknameCheckStatus !== 'available' || accountNicknameCheckedValue !== nickname){
+ setAccountNicknameState(false);
+ setAccountNicknameMessage('err', '닉네임 중복 확인을 먼저 완료해 주세요.');
+ await openModalAlert('닉네임 중복 확인을 먼저 완료해 주세요.', qs('#accountCheckNicknameBtn') || qs('#accountNicknameInput'));
+ return;
+ }
+
  showGlobalLoading();
  await setDoc(doc(db, 'users', state.currentUser.uid), {
  nickname,
@@ -1921,6 +2064,9 @@ function openAccountEditModal(){
  building,
  unit
  };
+ setAccountNicknameCheckStatus('available', nickname);
+ setAccountNicknameState(true);
+ setAccountNicknameMessage('ok', '저장된 닉네임입니다.');
  updateUserChip();
  closeAccountEditModal();
  hideGlobalLoading(80);
@@ -11528,6 +11674,19 @@ document.addEventListener('keydown', (event) => {
  qs('#closeAccountEditModal')?.addEventListener('click', closeAccountEditModal);
  qs('#cancelAccountEditBtn')?.addEventListener('click', closeAccountEditModal);
  qs('#accountProfileFileInput')?.addEventListener('change', handleProfileImageFileChange);
+ qs('#accountCheckNicknameBtn')?.addEventListener('click', () => checkAccountNicknameDuplicate());
+ qs('#accountNicknameInput')?.addEventListener('input', () => {
+ const nickname = normalizeProfileInput(qs('#accountNicknameInput')?.value || '');
+ const originalNickname = getOriginalAccountNickname();
+ setAccountNicknameCheckStatus(nickname === originalNickname ? 'same' : 'idle');
+ setAccountNicknameState(null);
+ if(nickname === originalNickname){
+ setAccountNicknameState(false);
+ setAccountNicknameMessage('err', '현재 사용 중인 닉네임과 동일합니다. 변경할 닉네임을 입력해 주세요.');
+ }else{
+ setAccountNicknameMessage('', '닉네임 중복 확인을 먼저 완료해 주세요.');
+ }
+ });
  bindProfileUploadButton();
  qs('#accountEditForm')?.addEventListener('submit', saveAccountProfile);
  qsa('.font-size-option').forEach((btn) => {

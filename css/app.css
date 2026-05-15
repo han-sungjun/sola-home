@@ -19352,3 +19352,65 @@ body nav.bottom-nav .nav-btn:focus:not(:focus-visible){
 #gnbSheet.show .gnb-close:focus:not(:focus-visible):not(.upick-force-focus-ring) {
   outline: none !important;
 }
+
+
+/* ===== Account edit nickname duplicate check ===== */
+.account-nickname-check-row{
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+.account-nickname-check-row input{
+  flex:1 1 auto;
+  min-width:0;
+}
+.account-check-btn{
+  flex:0 0 auto;
+  border:0;
+  border-radius:12px;
+  padding:0 13px;
+  min-height:42px;
+  font-size:13px;
+  font-weight:800;
+  color:#fff;
+  background:linear-gradient(135deg,#2563eb,#0f766e);
+  box-shadow:0 10px 22px rgba(37,99,235,.18);
+  cursor:pointer;
+  white-space:nowrap;
+}
+.account-check-btn:disabled{
+  opacity:.58;
+  cursor:not-allowed;
+  box-shadow:none;
+}
+.account-field-msg{
+  margin-top:7px;
+  font-size:12px;
+  line-height:1.45;
+  color:#64748b;
+}
+.account-field-msg.ok{
+  color:#0f766e;
+  font-weight:800;
+}
+.account-field-msg.err{
+  color:#dc2626;
+  font-weight:800;
+}
+#accountNicknameInput.valid{
+  border-color:#14b8a6 !important;
+  box-shadow:0 0 0 3px rgba(20,184,166,.15) !important;
+}
+#accountNicknameInput.invalid{
+  border-color:#ef4444 !important;
+  box-shadow:0 0 0 3px rgba(239,68,68,.14) !important;
+}
+@media (max-width:420px){
+  .account-nickname-check-row{
+    gap:6px;
+  }
+  .account-check-btn{
+    padding:0 11px;
+    font-size:12px;
+  }
+}

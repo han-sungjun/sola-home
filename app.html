@@ -1595,7 +1595,15 @@
             <label for="accountNicknameInput">
               닉네임
             </label>
-            <input id="accountNicknameInput" maxlength="20" name="nickname" placeholder="예: 더운정픽 입주민" type="text">
+            <div class="account-nickname-check-row">
+              <input id="accountNicknameInput" maxlength="20" name="nickname" placeholder="예: 더운정픽 입주민" type="text">
+              <button class="account-check-btn" id="accountCheckNicknameBtn" type="button">
+                중복 확인
+              </button>
+            </div>
+            <div class="account-field-msg" id="accountNicknameMsg">
+              닉네임을 변경하는 경우 중복 확인 후 저장됩니다.
+            </div>
           </div>
           <div class="account-edit-field">
             <label>
@@ -1747,8 +1755,9 @@
         </div>
       </div>
     </dialog>
-    <script src="/js/app.js?v=2026051423" type="module">
-    </script>    <script defer src="/common/modal-backdrop-lock.js?v=2026051401"></script>
+    <script src="/js/app.js?v=2026051503" type="module">
+    </script>    <script defer src="/common/password-field-enhance.js?v=2026051501"></script>
+    <script defer src="/common/modal-backdrop-lock.js?v=2026051401"></script>
 
       <script defer src="/common/accessibility.js?v=2026051401"></script>
   </body>
