@@ -34,30 +34,31 @@
     <link href="/icons/splash-ios-828x1792.png" media="(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2)" rel="apple-touch-startup-image">
     <link href="/icons/splash-ios-1170x2532.png" media="(device-width: 390px) and (device-height: 844px) and (-webkit-device-pixel-ratio: 3)" rel="apple-touch-startup-image">
     <link href="/icons/splash-ios-1290x2796.png" media="(device-width: 430px) and (device-height: 932px) and (-webkit-device-pixel-ratio: 3)" rel="apple-touch-startup-image">
-    <link href="/css/sola-admin-x92ks.css" rel="stylesheet">
+    <link href="/css/sola-admin-x92ks.css?v=2026051601" rel="stylesheet">
       <link href="/common/accessibility.css?v=2026051401" rel="stylesheet">
+    <link href="/common/common-alert.css?v=2026051601" rel="stylesheet">
+    <link href="/common/common-loading.css?v=2026051607" rel="stylesheet">
+    <link href="/common/common-modal.css?v=2026051603" rel="stylesheet">
+    <script defer src="/common/common-alert.js?v=2026051601"></script>
+    <script defer src="/common/common-loading.js?v=2026051607"></script>
+    <script defer src="/common/common-modal.js?v=2026051603"></script>
   </head>
   <body>
     <div aria-hidden="true" class="global-loading" id="globalLoadingBar">
-      <div aria-label="로딩 중" class="loader-mark" role="status">
-        <span class="arm top">
-        </span>
-        <span class="arm left">
-        </span>
-        <span class="arm mid">
-        </span>
-        <span class="arm bot">
-        </span>
-        <span class="arm bot2">
-        </span>
-      </div>
-      <div aria-hidden="true" class="loader-copy">
-        <p class="loader-message">
-          입주민 전용 서비스를 연결하고 있어요
-        </p>
-        <p class="loader-sub-message">
-          잠시만 기다려주세요
-        </p>
+      <div aria-live="polite" class="loader-content" role="status">
+        <div aria-label="로딩 중" class="loader-mark">
+          <span aria-hidden="true" class="loader-orbit"></span>
+          <img alt="" aria-hidden="true" src="/icons/internal/brand-symbol-real.png">
+          <span class="arm top"></span>
+          <span class="arm left"></span>
+          <span class="arm mid"></span>
+          <span class="arm bot"></span>
+          <span class="arm bot2"></span>
+        </div>
+        <div aria-hidden="true" class="loader-copy">
+          <p class="loader-message">입주민 전용 서비스를 연결하고 있어요</p>
+          <p class="loader-sub-message">잠시만 기다려주세요</p>
+        </div>
       </div>
     </div>
     <div class="app">

@@ -1,3 +1,11 @@
+async function upickSessionAlert(message) {
+  if (typeof window !== "undefined" && typeof window.showCommonAlert === "function") {
+    await window.showCommonAlert({ message });
+    return;
+  }
+  alert(message);
+}
+
 async function sessionCheck(options = {}) {
   console.log("Firestore 세션 검증 시작");
 
@@ -62,7 +70,7 @@ async function sessionCheck(options = {}) {
         });
       }
 
-      alert("다른 기기에서 입장되어 현재 세션이 종료되었습니다.");
+      await upickSessionAlert("다른 기기에서 입장되어 현재 세션이 종료되었습니다.");
       localStorage.removeItem("loginUser");
       location.replace("/");
       return false;
@@ -75,7 +83,7 @@ async function sessionCheck(options = {}) {
         });
       }
 
-      alert("탈퇴된 계정입니다.");
+      await upickSessionAlert("탈퇴된 계정입니다.");
       localStorage.removeItem("loginUser");
       location.replace("/");
       return false;
@@ -89,7 +97,7 @@ async function sessionCheck(options = {}) {
         });
       }
 
-      alert("보안 정책에 따라 차단된 계정입니다.");
+      await upickSessionAlert("보안 정책에 따라 차단된 계정입니다.");
       localStorage.removeItem("loginUser");
       location.replace("/");
       return false;
@@ -102,7 +110,7 @@ async function sessionCheck(options = {}) {
         });
       }
 
-      alert("관리자 승인 후 이용 가능합니다.");
+      await upickSessionAlert("관리자 승인 후 이용 가능합니다.");
       localStorage.removeItem("loginUser");
       location.replace("/");
       return false;
@@ -122,7 +130,7 @@ async function sessionCheck(options = {}) {
         });
       }
 
-      alert("관리자 권한이 없습니다.");
+      await upickSessionAlert("관리자 권한이 없습니다.");
       location.replace("/app");
       return false;
     }

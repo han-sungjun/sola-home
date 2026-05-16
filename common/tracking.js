@@ -268,6 +268,11 @@ async function showAppModalAlert(message, title = "안내") {
     console.log("app modal alert error", e);
   }
 
+  if (typeof window !== "undefined" && typeof window.showCommonAlert === "function") {
+    await window.showCommonAlert({ title, message });
+    return true;
+  }
+
   alert(message);
   return true;
 }

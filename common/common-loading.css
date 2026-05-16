@@ -1,0 +1,372 @@
+/* 더운정픽 공통 로딩 UI
+   - 로그인 화면 로딩바를 기준으로 전 페이지 공통화
+   - 페이지별 CSS에 남아 있는 loader 스타일보다 항상 뒤에서 우선 적용 */
+:root{
+  --upick-loading-symbol:url('/icons/internal/brand-symbol-real.png');
+}
+
+.top-loader,
+.top-progress,
+.loading-bar,
+#topLoader,
+#topLoadingBar,
+.browser-loading-bar,
+.app-top-loading{
+  display:none!important;
+  height:0!important;
+  opacity:0!important;
+  visibility:hidden!important;
+  pointer-events:none!important;
+}
+
+#pageLoader,
+#globalLoadingBar,
+#commonLoadingDialog,
+.page-loader,
+.global-loading{
+  position:fixed!important;
+  inset:0!important;
+  width:100vw!important;
+  height:100dvh!important;
+  min-height:100dvh!important;
+  display:none!important;
+  align-items:center!important;
+  justify-content:center!important;
+  padding:24px!important;
+  margin:0!important;
+  overflow:hidden!important;
+  background:rgba(7,18,42,.46)!important;
+  backdrop-filter:blur(14px)!important;
+  -webkit-backdrop-filter:blur(14px)!important;
+  z-index:2147483900!important;
+  opacity:1!important;
+  visibility:visible!important;
+  pointer-events:auto!important;
+}
+
+#pageLoader.show,
+#globalLoadingBar.show,
+#commonLoadingDialog.show,
+.page-loader.show,
+.global-loading.show,
+#pageLoader.is-visible,
+#globalLoadingBar.is-visible,
+#commonLoadingDialog.is-visible,
+.page-loader.is-visible,
+.global-loading.is-visible,
+#pageLoader[aria-hidden="false"],
+#globalLoadingBar[aria-hidden="false"],
+#commonLoadingDialog[aria-hidden="false"],
+.page-loader[aria-hidden="false"],
+.global-loading[aria-hidden="false"]{
+  display:flex!important;
+}
+
+#pageLoader[aria-hidden="true"]:not(.show):not(.is-visible),
+#globalLoadingBar[aria-hidden="true"]:not(.show):not(.is-visible),
+#commonLoadingDialog[aria-hidden="true"]:not(.show):not(.is-visible),
+.page-loader[aria-hidden="true"]:not(.show):not(.is-visible),
+.global-loading[aria-hidden="true"]:not(.show):not(.is-visible){
+  display:none!important;
+}
+
+#pageLoader::before,
+#globalLoadingBar::before,
+#commonLoadingDialog::before,
+.page-loader::before,
+.global-loading::before{
+  content:""!important;
+  position:absolute!important;
+  inset:0!important;
+  background:radial-gradient(circle at 50% 45%,rgba(96,165,250,.18),transparent 32%)!important;
+  pointer-events:none!important;
+}
+
+#pageLoader .loader-content,
+#globalLoadingBar .loader-content,
+#commonLoadingDialog .loader-content,
+.page-loader .loader-content,
+.global-loading .loader-content{
+  position:relative!important;
+  z-index:1!important;
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:center!important;
+  justify-content:center!important;
+  gap:22px!important;
+  min-width:0!important;
+  text-align:center!important;
+}
+
+#pageLoader .loader-mark,
+#globalLoadingBar .loader-mark,
+#commonLoadingDialog .loader-mark,
+.page-loader .loader-mark,
+.global-loading .loader-mark{
+  width:108px!important;
+  height:108px!important;
+  min-width:108px!important;
+  min-height:108px!important;
+  border-radius:34px!important;
+  background:linear-gradient(180deg,rgba(255,255,255,.97),rgba(238,246,255,.88))!important;
+  border:1px solid rgba(191,219,254,.92)!important;
+  box-shadow:0 28px 70px rgba(7,26,61,.32),inset 0 1px 0 rgba(255,255,255,.92)!important;
+  display:grid!important;
+  place-items:center!important;
+  position:relative!important;
+  overflow:visible!important;
+  transform:none!important;
+  animation:upickCommonLoaderFloat 1.3s ease-in-out infinite!important;
+}
+
+#pageLoader .loader-mark::before,
+#globalLoadingBar .loader-mark::before,
+#commonLoadingDialog .loader-mark::before,
+.page-loader .loader-mark::before,
+.global-loading .loader-mark::before{
+  content:""!important;
+  width:76px!important;
+  height:76px!important;
+  background:var(--upick-loading-symbol) center/contain no-repeat!important;
+  display:block!important;
+  filter:drop-shadow(0 8px 18px rgba(7,26,61,.16))!important;
+  transform-origin:center!important;
+  animation:upickCommonLoaderLogo 1.3s ease-in-out infinite!important;
+}
+
+#pageLoader .loader-mark::after,
+#globalLoadingBar .loader-mark::after,
+#commonLoadingDialog .loader-mark::after,
+.page-loader .loader-mark::after,
+.global-loading .loader-mark::after{
+  content:""!important;
+  position:absolute!important;
+  inset:-10px!important;
+  width:auto!important;
+  height:auto!important;
+  left:-10px!important;
+  right:-10px!important;
+  top:-10px!important;
+  bottom:-10px!important;
+  border-radius:42px!important;
+  border:2px solid rgba(96,165,250,.20)!important;
+  border-top-color:#60a5fa!important;
+  border-right-color:#2563eb!important;
+  background:none!important;
+  transform:none!important;
+  opacity:1!important;
+  animation:upickCommonLoaderRing 1.05s linear infinite!important;
+  box-shadow:0 0 24px rgba(37,99,235,.18)!important;
+}
+
+#pageLoader .loader-mark img,
+#globalLoadingBar .loader-mark img,
+#commonLoadingDialog .loader-mark img,
+.page-loader .loader-mark img,
+.global-loading .loader-mark img,
+#pageLoader .loader-mark .loader-orbit,
+#globalLoadingBar .loader-mark .loader-orbit,
+#commonLoadingDialog .loader-mark .loader-orbit,
+.page-loader .loader-mark .loader-orbit,
+.global-loading .loader-mark .loader-orbit,
+#pageLoader .loader-mark .arm,
+#globalLoadingBar .loader-mark .arm,
+#commonLoadingDialog .loader-mark .arm,
+.page-loader .loader-mark .arm,
+.global-loading .loader-mark .arm,
+#pageLoader .loader-mark span,
+#globalLoadingBar .loader-mark span,
+#commonLoadingDialog .loader-mark span,
+.page-loader .loader-mark span,
+.global-loading .loader-mark span{
+  display:none!important;
+  opacity:0!important;
+  visibility:hidden!important;
+}
+
+#pageLoader .loader-copy,
+#globalLoadingBar .loader-copy,
+#commonLoadingDialog .loader-copy,
+.page-loader .loader-copy,
+.global-loading .loader-copy{
+  display:grid!important;
+  gap:6px!important;
+  text-align:center!important;
+  transform:translateY(0)!important;
+  opacity:1!important;
+  transition:opacity .18s ease, transform .18s ease!important;
+}
+
+#pageLoader .loader-copy.is-changing,
+#globalLoadingBar .loader-copy.is-changing,
+#commonLoadingDialog .loader-copy.is-changing,
+.page-loader .loader-copy.is-changing,
+.global-loading .loader-copy.is-changing{
+  opacity:.62!important;
+  transform:translateY(2px)!important;
+}
+
+#pageLoader .loader-message,
+#globalLoadingBar .loader-message,
+#commonLoadingDialog .loader-message,
+.page-loader .loader-message,
+.global-loading .loader-message{
+  margin:0!important;
+  color:#fff!important;
+  font-size:15px!important;
+  font-weight:900!important;
+  letter-spacing:-.02em!important;
+  line-height:1.45!important;
+  text-shadow:0 10px 28px rgba(0,0,0,.24)!important;
+}
+
+#pageLoader .loader-sub-message,
+#globalLoadingBar .loader-sub-message,
+#commonLoadingDialog .loader-sub-message,
+.page-loader .loader-sub-message,
+.global-loading .loader-sub-message{
+  margin:0!important;
+  color:rgba(226,232,240,.86)!important;
+  font-size:12px!important;
+  font-weight:800!important;
+  letter-spacing:-.01em!important;
+  line-height:1.45!important;
+}
+
+#pageLoader .loader-content::after,
+#globalLoadingBar .loader-content::after,
+#commonLoadingDialog .loader-content::after,
+.page-loader .loader-content::after,
+.global-loading .loader-content::after{
+  content:""!important;
+  width:min(210px,52vw)!important;
+  height:4px!important;
+  border-radius:999px!important;
+  margin-top:2px!important;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.86),transparent)!important;
+  background-size:200% 100%!important;
+  box-shadow:0 0 24px rgba(96,165,250,.34)!important;
+  animation:upickCommonLoaderFlow 1.18s ease-in-out infinite!important;
+}
+
+html.upick-loading-lock,
+body.upick-loading-lock{
+  overflow:hidden!important;
+  overscroll-behavior:none!important;
+}
+
+@keyframes upickCommonLoaderFloat{
+  0%,100%{transform:translate3d(0,0,0) scale(1)}
+  50%{transform:translate3d(0,-8px,0) scale(1.018)}
+}
+@keyframes upickCommonLoaderLogo{
+  0%,100%{transform:scale(1);opacity:1}
+  50%{transform:scale(1.055);opacity:.96}
+}
+@keyframes upickCommonLoaderRing{
+  to{transform:rotate(360deg)}
+}
+@keyframes upickCommonLoaderFlow{
+  0%{background-position:200% 0;opacity:.28}
+  50%{opacity:1}
+  100%{background-position:-200% 0;opacity:.28}
+}
+
+@media (prefers-reduced-motion:reduce){
+  #pageLoader .loader-mark,
+  #globalLoadingBar .loader-mark,
+  #commonLoadingDialog .loader-mark,
+  .page-loader .loader-mark,
+  .global-loading .loader-mark,
+  #pageLoader .loader-mark::before,
+  #globalLoadingBar .loader-mark::before,
+  #commonLoadingDialog .loader-mark::before,
+  .page-loader .loader-mark::before,
+  .global-loading .loader-mark::before,
+  #pageLoader .loader-mark::after,
+  #commonLoadingDialog .loader-mark::after,
+  .page-loader .loader-mark::after,
+  .global-loading .loader-mark::after,
+  #pageLoader .loader-content::after,
+  #globalLoadingBar .loader-content::after,
+  #commonLoadingDialog .loader-content::after,
+  .page-loader .loader-content::after,
+  .global-loading .loader-content::after{
+    animation:none!important;
+  }
+}
+
+
+/* dialog 기반 최상위 로딩: showModal() top-layer로 기존 dialog 위에 표시 */
+#commonLoadingDialog{
+  border:0!important;
+  max-width:none!important;
+  max-height:none!important;
+  box-sizing:border-box!important;
+  color:inherit!important;
+}
+#commonLoadingDialog::backdrop{
+  background:transparent!important;
+  backdrop-filter:none!important;
+  -webkit-backdrop-filter:none!important;
+}
+#commonLoadingDialog[open],
+#commonLoadingDialog.show,
+#commonLoadingDialog.is-visible,
+#commonLoadingDialog[aria-hidden="false"]{
+  display:flex!important;
+}
+
+
+/* v2026051606: dialog top-layer 로딩 안정화
+   - 일반 dialog 공통 스타일(app.css dialog{})의 영향을 받지 않게 전체 화면으로 강제
+   - 닫힘 후 top-layer가 클릭을 막지 않도록 JS에서 close()와 함께 사용 */
+dialog#commonLoadingDialog.upick-loading-dialog,
+dialog#commonLoadingDialog.global-loading,
+dialog#commonLoadingDialog.page-loader{
+  position:fixed!important;
+  inset:0!important;
+  left:0!important;
+  top:0!important;
+  right:0!important;
+  bottom:0!important;
+  width:100vw!important;
+  max-width:100vw!important;
+  min-width:100vw!important;
+  height:100dvh!important;
+  max-height:100dvh!important;
+  min-height:100dvh!important;
+  margin:0!important;
+  padding:24px!important;
+  border:0!important;
+  outline:0!important;
+  border-radius:0!important;
+  box-sizing:border-box!important;
+  background:rgba(7,18,42,.54)!important;
+  color:inherit!important;
+  overflow:hidden!important;
+  box-shadow:none!important;
+  align-items:center!important;
+  justify-content:center!important;
+  pointer-events:auto!important;
+}
+dialog#commonLoadingDialog.upick-loading-dialog:not([open]),
+dialog#commonLoadingDialog.global-loading:not([open]){
+  display:none!important;
+  pointer-events:none!important;
+}
+dialog#commonLoadingDialog.upick-loading-dialog[open][aria-hidden="true"]:not(.show):not(.is-visible),
+dialog#commonLoadingDialog.global-loading[open][aria-hidden="true"]:not(.show):not(.is-visible){
+  display:none!important;
+  pointer-events:none!important;
+}
+dialog#commonLoadingDialog.upick-loading-dialog[open].show,
+dialog#commonLoadingDialog.upick-loading-dialog[open].is-visible,
+dialog#commonLoadingDialog.upick-loading-dialog[open][aria-hidden="false"]{
+  display:flex!important;
+}
+dialog#commonLoadingDialog.upick-loading-dialog::backdrop{
+  background:transparent!important;
+  backdrop-filter:none!important;
+  -webkit-backdrop-filter:none!important;
+}

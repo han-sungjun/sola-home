@@ -127,6 +127,8 @@ export async function handleInvalidSession({ auth, api, reason, signOutFn, redir
   // 확인 버튼, 바깥 영역 클릭, ESC 등으로 모달이 닫히면 그 다음 단계에서 무조건 나가기합니다.
   if (typeof alertFn === 'function') {
     try{ await alertFn(message); }catch(_e){}
+  } else if (typeof window !== 'undefined' && typeof window.showCommonAlert === 'function') {
+    try{ await window.showCommonAlert({ message }); }catch(_e){}
   } else if (typeof window !== 'undefined') {
     alert(message);
   }

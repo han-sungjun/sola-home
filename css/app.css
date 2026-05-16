@@ -683,7 +683,9 @@ body.gnb-open .bottom-nav{
  #accountEditModal{width:calc(100% - 20px);border-radius:26px;}
  #accountEditModal .modal-head{padding:16px 16px 8px;}
  #accountEditModal .modal-body{padding:0 16px 18px;}
- .account-edit-actions{grid-template-columns:1fr;}
+ /* 모바일 계정 정보 수정 모달: 취소/저장 버튼은 세로 분리하지 않고 한 줄 유지 */
+ .account-edit-actions{grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px;}
+ #accountEditModal .account-edit-actions .btn{width:100%;min-width:0;}
 }
 
 /* ===== 입주민 글자 크기 조정: DB 저장형 접근성 옵션 ===== */
@@ -2247,6 +2249,32 @@ body.app-role-resident [data-view="shareinsights"]{
 .profile-upload-plus:hover{transform:translateY(-1px) scale(1.04);box-shadow:0 14px 28px rgba(15,23,42,.26)}
 .profile-upload-plus:active{transform:scale(.94)}
 .profile-upload-plus[disabled]{opacity:.55;cursor:wait;transform:none;}
+
+/* ===== 계정 정보 수정 모달: 프로필 업로드 + 버튼 접근성 예외 =====
+/* 공통 접근성 CSS(button min 44px)는 유지하고, 프로필 이미지 위의 + 버튼만 시각 크기 예외 처리 */
+#accountProfileUploadBtn.profile-upload-plus{
+ min-width:28px!important;
+ min-height:28px!important;
+ width:28px!important;
+ height:28px!important;
+ padding:0!important;
+ right:-6px!important;
+ bottom:-6px!important;
+ border-radius:999px!important;
+ z-index:3!important;
+}
+@media (max-width:768px){
+ #accountProfileUploadBtn.profile-upload-plus{
+  min-width:26px!important;
+  min-height:26px!important;
+  width:26px!important;
+  height:26px!important;
+  right:-4px!important;
+  bottom:-4px!important;
+  font-size:16px!important;
+ }
+}
+
 .profile-file-input{display:none!important;}
 .profile-upload-status{display:block;margin-top:8px;font-size:11px;font-weight:800;color:#64748b;line-height:1.5;}
 .profile-upload-status.success{color:#1d4ed8;}
@@ -2788,7 +2816,7 @@ body.app-role-resident [data-view="shareinsights"]{
 .searchbox>span{font-size:14px!important;line-height:1!important;}
 .searchbox input{min-height:24px!important;height:24px!important;font-size:13px!important;line-height:1.2!important;}
 .searchbox input::placeholder{font-size:13px!important;}
-.searchbox .icon-btn,.filter-sticky .icon-btn{width:30px!important;height:30px!important;min-width:30px!important;border-radius:11px!important;flex:0 0 30px!important;font-size:14px!important;box-shadow:0 6px 14px rgba(15,23,42,.06)!important;}
+.searchbox .icon-btn,.filter-sticky .icon-btn{width:30px!important;height:30px!important;min-width:30px!important;min-height:30px!important;border-radius:11px!important;flex:0 0 30px!important;font-size:14px!important;box-shadow:0 6px 14px rgba(15,23,42,.06)!important;}
 .chips{gap:6px!important;padding:1px 2px 1px!important;}
 .chip{min-height:28px!important;padding:5px 9px!important;font-size:12px!important;line-height:1!important;border-radius:999px!important;}
 .chip-icon{font-size:11px!important;}
@@ -19421,5 +19449,652 @@ body nav.bottom-nav .nav-btn:focus:not(:focus-visible){
   .account-check-btn{
     padding:0 11px;
     font-size:12px;
+  }
+}
+
+
+/* ===== GNB 설정/운영 기능 탭 팝업 분리 v1 ===== */
+.gnb-summary-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:flex-end;}
+.gnb-manage-open-btn,.gnb-operation-open-btn{border:1px solid rgba(37,99,235,.16);background:linear-gradient(180deg,#fff,#eff6ff);color:#1e3a8a;border-radius:999px;padding:12px 14px;font-weight:900;letter-spacing:-.03em;display:inline-flex;align-items:center;justify-content:center;gap:8px;box-shadow:0 10px 24px rgba(37,99,235,.10);cursor:pointer;min-height:46px;}
+.gnb-manage-open-btn:focus-visible,.gnb-operation-open-btn:focus-visible,.gnb-management-tabs button:focus-visible,.gnb-manage-close:focus-visible{outline:3px solid rgba(37,99,235,.35);outline-offset:3px;}
+.gnb-operation-open-btn{width:100%;margin-top:16px;border-radius:24px;padding:18px;background:linear-gradient(135deg,#0f172a,#1d4ed8);color:#fff;box-shadow:0 18px 38px rgba(15,23,42,.18);flex-direction:column;align-items:flex-start;gap:7px;}
+.gnb-operation-open-btn span{display:flex;align-items:center;gap:8px;font-size:17px;}
+.gnb-operation-open-btn small{font-size:12px;color:rgba(255,255,255,.76);font-weight:800;}
+.gnb-management-dialog{width:min(560px,calc(100% - 24px))!important;max-height:min(760px,calc(100dvh - 36px))!important;border:none!important;border-radius:30px!important;padding:0!important;background:rgba(255,255,255,.96)!important;box-shadow:0 32px 80px rgba(15,23,42,.28)!important;overflow:hidden!important;}
+.gnb-management-dialog::backdrop{background:rgba(15,23,42,.48)!important;backdrop-filter:blur(6px)!important;}
+.gnb-management-shell{display:flex;flex-direction:column;max-height:min(760px,calc(100dvh - 36px));}
+.gnb-management-head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;padding:22px 22px 14px;background:linear-gradient(135deg,#f8fafc,#eff6ff);border-bottom:1px solid rgba(148,163,184,.20);}
+.gnb-management-head.operation{background:linear-gradient(135deg,#0f172a,#1d4ed8);color:#fff;}
+.gnb-management-kicker{display:inline-flex;align-items:center;border-radius:999px;padding:7px 10px;background:rgba(37,99,235,.10);color:#1d4ed8;font-size:12px;font-weight:900;margin-bottom:8px;}
+.gnb-management-head.operation .gnb-management-kicker{background:rgba(255,255,255,.14);color:#fff;}
+.gnb-management-head h3{margin:0;font-size:23px;letter-spacing:-.06em;line-height:1.15;}
+.gnb-management-head p{margin:8px 0 0;font-size:13px;line-height:1.55;color:#64748b;font-weight:750;}
+.gnb-management-head.operation p{color:rgba(255,255,255,.78);}
+.gnb-manage-close{flex:0 0 auto;width:42px;height:42px;border:none;border-radius:16px;background:rgba(255,255,255,.88);color:#0f172a;font-size:20px;font-weight:900;cursor:pointer;box-shadow:0 8px 18px rgba(15,23,42,.10);}
+.gnb-management-tabs{display:flex;gap:8px;padding:14px 16px 10px;overflow-x:auto;scrollbar-width:none;background:#fff;}
+.gnb-management-tabs::-webkit-scrollbar{display:none;}
+.gnb-management-tabs button{flex:1 0 auto;min-width:76px;border:1px solid #e2e8f0;background:#f8fafc;color:#475569;border-radius:999px;padding:11px 14px;font-size:13px;font-weight:950;cursor:pointer;}
+.gnb-management-tabs button.active{background:#0f172a;color:#fff;border-color:#0f172a;box-shadow:0 10px 22px rgba(15,23,42,.16);}
+.gnb-management-body{padding:0 16px 18px;overflow:auto;-webkit-overflow-scrolling:touch;}
+.gnb-management-panel{display:grid;gap:12px;}
+.gnb-management-panel[hidden]{display:none!important;}
+.gnb-management-dialog .gnb-settings-section{box-shadow:none;margin:0;border-radius:24px;border:1px solid rgba(226,232,240,.95);background:#fff;}
+.gnb-management-dialog .gnb-settings-section + .gnb-settings-section{margin-top:12px;}
+.gnb-management-dialog .gnb-action-grid{grid-template-columns:1fr;}
+.gnb-management-action-slot{display:grid;gap:12px;}
+.gnb-management-action-slot .gnb-menu-item{width:100%;min-height:64px;border-radius:22px;border:1px solid #e2e8f0;background:#fff;box-shadow:0 12px 24px rgba(15,23,42,.07);font-weight:950;color:#0f172a;}
+.gnb-management-empty{border:1px dashed #cbd5e1;border-radius:24px;background:#f8fafc;padding:18px;color:#475569;line-height:1.6;}
+.gnb-management-empty strong{display:block;color:#0f172a;font-size:16px;margin-bottom:5px;}
+.gnb-management-empty p{margin:0;font-size:13px;font-weight:800;}
+.gnb-operation-dialog .gnb-root-panel{margin:0;}
+@media (max-width:520px){
+  .gnb-summary-actions{width:100%;justify-content:flex-start;margin-top:10px;}
+  .gnb-manage-open-btn{flex:1;}
+  .gnb-management-dialog{width:calc(100% - 18px)!important;border-radius:26px!important;}
+  .gnb-management-head{padding:20px 18px 12px;}
+  .gnb-management-head h3{font-size:21px;}
+  .gnb-management-tabs{padding-inline:12px;}
+  .gnb-management-tabs button{min-width:72px;padding:10px 12px;}
+  .gnb-management-body{padding:0 12px 14px;}
+}
+
+/* ===== 2026-05 GNB 운영 관리 상단 왕관 버튼 분리 ===== */
+.gnb-admin-section-source{
+  display:none!important;
+}
+.gnb-operation-top-btn.admin-only-menu{
+  display:none;
+}
+body.app-role-root .gnb-operation-top-btn.admin-only-menu,
+body.app-role-admin .gnb-operation-top-btn.admin-only-menu{
+  display:grid!important;
+}
+.gnb-operation-top-btn{
+  width:42px;
+  min-width:42px;
+  padding:0;
+  border:1px solid rgba(255,255,255,.16);
+  background:linear-gradient(135deg,rgba(254,243,199,.22),rgba(245,158,11,.18));
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.16),0 10px 22px rgba(15,23,42,.18);
+}
+.gnb-operation-top-btn .upick-svg-icon{
+  width:22px!important;
+  height:22px!important;
+  filter:drop-shadow(0 6px 10px rgba(245,158,11,.20));
+}
+.gnb-operation-top-btn:hover,
+.gnb-operation-top-btn:focus-visible{
+  background:linear-gradient(135deg,rgba(254,243,199,.34),rgba(245,158,11,.26));
+  border-color:rgba(253,230,138,.42);
+}
+.gnb-operation-top-btn .gnb-tooltip{
+  position:absolute;
+  left:50%;
+  top:calc(100% + 10px);
+  transform:translateX(-50%) translateY(-4px);
+  background:rgba(15,23,42,.96);
+  color:#fff;
+  font-size:12px;
+  font-weight:900;
+  letter-spacing:-.02em;
+  padding:7px 10px;
+  border-radius:12px;
+  white-space:nowrap;
+  pointer-events:none;
+  opacity:0;
+  visibility:hidden;
+  transition:opacity .16s ease, transform .16s ease, visibility .16s ease;
+  box-shadow:0 12px 24px rgba(15,23,42,.18);
+  z-index:5;
+}
+.gnb-operation-top-btn .gnb-tooltip::before{
+  content:"";
+  position:absolute;
+  left:50%;
+  top:-5px;
+  width:10px;
+  height:10px;
+  transform:translateX(-50%) rotate(45deg);
+  background:rgba(15,23,42,.96);
+  border-radius:2px;
+}
+.gnb-operation-top-btn:hover .gnb-tooltip,
+.gnb-operation-top-btn:focus-visible .gnb-tooltip{
+  opacity:1;
+  visibility:visible;
+  transform:translateX(-50%) translateY(0);
+}
+
+
+/* ===== 2026-05 GNB 탭 팝업 스크롤 잠금 보정 ===== */
+html.gnb-manage-scroll-lock,
+body.gnb-manage-scroll-lock{
+  width:100%!important;
+  overflow:hidden!important;
+  overscroll-behavior:none!important;
+}
+body.gnb-manage-scroll-lock{
+  position:fixed!important;
+  left:0!important;
+  right:0!important;
+  touch-action:none!important;
+}
+.gnb-management-dialog[open]{
+  overflow:hidden!important;
+  overscroll-behavior:contain!important;
+}
+.gnb-management-shell{
+  overflow:hidden!important;
+}
+.gnb-management-body{
+  overflow:visible!important;
+  max-height:none!important;
+}
+.gnb-management-tabs{
+  overscroll-behavior:contain!important;
+}
+@media (max-width:520px){
+  .gnb-management-dialog{
+    max-height:calc(100dvh - 36px)!important;
+  }
+}
+
+/* ===== 2026-05 GNB 탭 팝업: 배경 잠금 + 모달 내부 스크롤 + 고정 높이 보정 ===== */
+html.gnb-manage-scroll-lock,
+body.gnb-manage-scroll-lock{
+  width:100%!important;
+  overflow:hidden!important;
+  overscroll-behavior:none!important;
+}
+body.gnb-manage-scroll-lock{
+  position:fixed!important;
+  left:0!important;
+  right:0!important;
+  touch-action:auto!important;
+}
+.gnb-management-dialog{
+  height:min(640px,calc(100dvh - 72px))!important;
+  max-height:calc(100dvh - 72px)!important;
+  overflow:hidden!important;
+  overscroll-behavior:contain!important;
+}
+.gnb-management-shell{
+  height:100%!important;
+  max-height:none!important;
+  display:flex!important;
+  flex-direction:column!important;
+  overflow:hidden!important;
+}
+.gnb-management-head,
+.gnb-management-tabs{
+  flex:0 0 auto!important;
+}
+.gnb-management-body{
+  flex:1 1 auto!important;
+  min-height:0!important;
+  overflow-y:auto!important;
+  overflow-x:hidden!important;
+  overscroll-behavior:contain!important;
+  -webkit-overflow-scrolling:touch!important;
+}
+.gnb-management-panel{
+  min-height:100%!important;
+  align-content:start!important;
+}
+@media (max-width:520px){
+  .gnb-management-dialog{
+    width:calc(100% - 18px)!important;
+    height:min(620px,calc(100dvh - 64px))!important;
+    max-height:calc(100dvh - 64px)!important;
+  }
+}
+
+/* ===== 2026-05 운영 관리 팝업 탭 고정/내용부 스크롤 최종 보정 ===== */
+.gnb-management-dialog,
+.gnb-operation-dialog{
+  height:min(640px,calc(100dvh - 72px))!important;
+  max-height:calc(100dvh - 72px)!important;
+  overflow:hidden!important;
+}
+.gnb-management-dialog .gnb-management-shell,
+.gnb-operation-dialog .gnb-management-shell{
+  height:100%!important;
+  max-height:none!important;
+  display:flex!important;
+  flex-direction:column!important;
+  overflow:hidden!important;
+}
+.gnb-management-dialog .gnb-management-head,
+.gnb-management-dialog .gnb-management-tabs,
+.gnb-operation-dialog .gnb-management-head,
+.gnb-operation-dialog .gnb-management-tabs{
+  flex:0 0 auto!important;
+}
+.gnb-management-dialog .gnb-management-tabs,
+.gnb-operation-dialog .gnb-management-tabs{
+  position:relative!important;
+  z-index:3!important;
+  background:#fff!important;
+  border-bottom:1px solid rgba(226,232,240,.72)!important;
+}
+.gnb-management-dialog .gnb-management-body,
+.gnb-operation-dialog .gnb-management-body{
+  flex:1 1 auto!important;
+  min-height:0!important;
+  overflow-y:auto!important;
+  overflow-x:hidden!important;
+  overscroll-behavior:contain!important;
+  -webkit-overflow-scrolling:touch!important;
+}
+.gnb-management-dialog .gnb-management-panel,
+.gnb-operation-dialog .gnb-management-panel{
+  min-height:100%!important;
+  align-content:start!important;
+}
+@media (max-width:520px){
+  .gnb-management-dialog,
+  .gnb-operation-dialog{
+    height:min(620px,calc(100dvh - 64px))!important;
+    max-height:calc(100dvh - 64px)!important;
+  }
+}
+
+
+/* ===== 2026-05-16 GNB 운영 버튼 권한/계정 요약 액션 정렬 보정 ===== */
+#openGnbOperationManageBtn[hidden],
+.gnb-operation-top-btn[aria-hidden="true"]{
+  display:none!important;
+}
+#gnbSettingsAccountSummary .gnb-settings-section-header{
+  display:grid;
+  grid-template-columns:1fr;
+  gap:14px;
+}
+#gnbSettingsAccountSummary .gnb-summary-actions{
+  width:100%;
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+  align-items:stretch;
+  justify-content:stretch;
+}
+#gnbSettingsAccountSummary .gnb-status-pill,
+#gnbSettingsAccountSummary .gnb-manage-open-btn{
+  width:100%;
+  min-height:52px;
+  padding:0 14px;
+  border-radius:999px;
+  display:inline-flex!important;
+  align-items:center;
+  justify-content:center;
+  box-sizing:border-box;
+  text-align:center;
+  line-height:1.2;
+}
+#gnbSettingsAccountSummary .gnb-manage-open-btn img,
+#gnbSettingsAccountSummary .gnb-status-pill::before{
+  flex:0 0 auto;
+}
+@media (max-width:420px){
+  #gnbSettingsAccountSummary .gnb-summary-actions{
+    grid-template-columns:1fr 1fr;
+  }
+  #gnbSettingsAccountSummary .gnb-status-pill,
+  #gnbSettingsAccountSummary .gnb-manage-open-btn{
+    min-height:50px;
+    font-size:13px;
+  }
+}
+
+
+/* ===== 2026-05-16 GNB 계정/운영 관리 탭-본문 간격 보정 ===== */
+.gnb-management-dialog .gnb-management-body,
+.gnb-operation-dialog .gnb-management-body{
+  padding-top:14px!important;
+}
+.gnb-management-dialog .gnb-management-tabs,
+.gnb-operation-dialog .gnb-management-tabs{
+  padding-bottom:12px!important;
+}
+@media (max-width:520px){
+  .gnb-management-dialog .gnb-management-body,
+  .gnb-operation-dialog .gnb-management-body{
+    padding-top:12px!important;
+  }
+}
+
+
+/* ===== 공통 로딩 UI 통일 : login loader 기준 ===== */
+:root{--upick-real-symbol:url('/icons/internal/brand-symbol-real.png');}
+#pageLoader,
+#globalLoadingBar,
+.page-loader,
+.global-loading{
+  position:fixed!important;
+  inset:0!important;
+  width:100vw!important;
+  height:100dvh!important;
+  min-height:100dvh!important;
+  display:none!important;
+  align-items:center!important;
+  justify-content:center!important;
+  background:rgba(7,18,42,.46)!important;
+  backdrop-filter:blur(14px)!important;
+  -webkit-backdrop-filter:blur(14px)!important;
+  z-index:2147483000!important;
+  overflow:hidden!important;
+}
+#pageLoader.show,
+#globalLoadingBar.show,
+.page-loader.show,
+.global-loading.show{display:flex!important;}
+#pageLoader::before,
+#globalLoadingBar::before,
+.page-loader::before,
+.global-loading::before{
+  content:""!important;
+  position:absolute!important;
+  inset:0!important;
+  background:radial-gradient(circle at 50% 45%,rgba(96,165,250,.18),transparent 32%)!important;
+  pointer-events:none!important;
+}
+#pageLoader .loader-content,
+#globalLoadingBar .loader-content,
+.page-loader .loader-content,
+.global-loading .loader-content{
+  position:relative!important;
+  z-index:1!important;
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:center!important;
+  justify-content:center!important;
+  gap:22px!important;
+  transform:translateY(-6px)!important;
+  text-align:center!important;
+}
+#pageLoader .loader-mark,
+#globalLoadingBar .loader-mark,
+.page-loader .loader-mark,
+.global-loading .loader-mark{
+  width:108px!important;
+  height:108px!important;
+  border-radius:34px!important;
+  background:linear-gradient(180deg,rgba(255,255,255,.97),rgba(238,246,255,.88))!important;
+  border:1px solid rgba(191,219,254,.92)!important;
+  box-shadow:0 28px 70px rgba(7,26,61,.32),inset 0 1px 0 rgba(255,255,255,.92)!important;
+  display:grid!important;
+  place-items:center!important;
+  position:relative!important;
+  overflow:visible!important;
+  animation:upickV82LoaderShadow 1.18s ease-in-out infinite!important;
+}
+#pageLoader .loader-mark::before,
+#globalLoadingBar .loader-mark::before,
+.page-loader .loader-mark::before,
+.global-loading .loader-mark::before{
+  content:""!important;
+  width:76px!important;
+  height:76px!important;
+  background:var(--upick-real-symbol) center/contain no-repeat!important;
+  display:block!important;
+  transform-origin:center center!important;
+  will-change:transform, filter, opacity!important;
+  animation:upickV82LogoBreathe 1.18s ease-in-out infinite!important;
+}
+#pageLoader .loader-mark::after,
+#globalLoadingBar .loader-mark::after,
+.page-loader .loader-mark::after,
+.global-loading .loader-mark::after{
+  content:""!important;
+  position:absolute!important;
+  left:16px!important;
+  right:16px!important;
+  bottom:-14px!important;
+  height:5px!important;
+  border:0!important;
+  border-radius:999px!important;
+  background:linear-gradient(90deg,rgba(96,165,250,.18),#60a5fa,#2563eb,rgba(96,165,250,.18))!important;
+  background-size:220% 100%!important;
+  box-shadow:0 0 22px rgba(37,99,235,.34)!important;
+  transform-origin:center center!important;
+  will-change:transform, opacity, background-position!important;
+  animation:upickV82LoaderBarFlow 1.05s ease-in-out infinite!important;
+}
+#pageLoader .loader-mark img,
+#globalLoadingBar .loader-mark img,
+.page-loader .loader-mark img,
+.global-loading .loader-mark img,
+#pageLoader .loader-mark .arm,
+#globalLoadingBar .loader-mark .arm,
+.page-loader .loader-mark .arm,
+.global-loading .loader-mark .arm,
+#pageLoader .loader-mark .loader-orbit,
+#globalLoadingBar .loader-mark .loader-orbit,
+.page-loader .loader-mark .loader-orbit,
+.global-loading .loader-mark .loader-orbit{display:none!important;opacity:0!important;visibility:hidden!important;}
+#pageLoader .loader-copy,
+#globalLoadingBar .loader-copy,
+.page-loader .loader-copy,
+.global-loading .loader-copy{display:block!important;text-align:center!important;transition:opacity .18s ease,transform .18s ease!important;}
+#pageLoader .loader-message,
+#globalLoadingBar .loader-message,
+.page-loader .loader-message,
+.global-loading .loader-message{margin:0!important;font-size:15.5px!important;font-weight:900!important;letter-spacing:-.04em!important;color:#fff!important;text-shadow:0 8px 24px rgba(0,0,0,.24)!important;}
+#pageLoader .loader-sub-message,
+#globalLoadingBar .loader-sub-message,
+.page-loader .loader-sub-message,
+.global-loading .loader-sub-message{margin:7px 0 0!important;font-size:13px!important;font-weight:700!important;letter-spacing:-.03em!important;color:rgba(255,255,255,.76)!important;}
+#pageLoader .loader-copy.is-changing,
+#globalLoadingBar .loader-copy.is-changing,
+.page-loader .loader-copy.is-changing,
+.global-loading .loader-copy.is-changing{opacity:.35!important;transform:translateY(2px)!important;}
+@keyframes upickV82LogoBreathe{0%,100%{transform:translateY(0) scale(1) rotate(0deg);filter:drop-shadow(0 8px 18px rgba(7,26,61,.16));opacity:.96;}45%{transform:translateY(-5px) scale(1.055) rotate(-1.2deg);filter:drop-shadow(0 13px 24px rgba(37,99,235,.24));opacity:1;}70%{transform:translateY(-2px) scale(1.025) rotate(.8deg);}}
+@keyframes upickV82LoaderShadow{0%,100%{box-shadow:0 28px 70px rgba(7,26,61,.30), inset 0 1px 0 rgba(255,255,255,.94), 0 0 0 1px rgba(255,255,255,.28);}50%{box-shadow:0 34px 82px rgba(37,99,235,.28), inset 0 1px 0 rgba(255,255,255,.96), 0 0 0 1px rgba(147,197,253,.34);}}
+@keyframes upickV82LoaderBarFlow{0%,100%{opacity:.38;transform:scaleX(.72);background-position:0% 50%;}50%{opacity:.95;transform:scaleX(1);background-position:100% 50%;}}
+@media (max-width:420px){#pageLoader .loader-content,#globalLoadingBar .loader-content,.page-loader .loader-content,.global-loading .loader-content{gap:20px!important;transform:translateY(-4px)!important;}#pageLoader .loader-message,#globalLoadingBar .loader-message,.page-loader .loader-message,.global-loading .loader-message{font-size:14.5px!important;}}
+@media (prefers-reduced-motion: reduce){#pageLoader .loader-mark,#globalLoadingBar .loader-mark,.page-loader .loader-mark,.global-loading .loader-mark,#pageLoader .loader-mark::before,#globalLoadingBar .loader-mark::before,.page-loader .loader-mark::before,.global-loading .loader-mark::before,#pageLoader .loader-mark::after,#globalLoadingBar .loader-mark::after,.page-loader .loader-mark::after,.global-loading .loader-mark::after{animation:none!important;}}
+
+/* v2026051607: 공개앱 최초 로딩 UI 안정화
+   common-loading.css가 로드되기 전/후에도 같은 형태가 유지되도록 app.css 끝에서도 공통 로딩 스타일을 다시 고정합니다. */
+#globalLoadingBar,
+#pageLoader,
+#commonLoadingDialog,
+.global-loading,
+.page-loader{
+  position:fixed!important;
+  inset:0!important;
+  width:100vw!important;
+  height:100dvh!important;
+  min-height:100dvh!important;
+  display:none!important;
+  align-items:center!important;
+  justify-content:center!important;
+  padding:24px!important;
+  margin:0!important;
+  overflow:hidden!important;
+  background:rgba(7,18,42,.54)!important;
+  backdrop-filter:blur(14px)!important;
+  -webkit-backdrop-filter:blur(14px)!important;
+  z-index:2147483900!important;
+  opacity:1!important;
+  visibility:visible!important;
+  pointer-events:auto!important;
+}
+#globalLoadingBar.show,
+#pageLoader.show,
+#commonLoadingDialog.show,
+.global-loading.show,
+.page-loader.show,
+#globalLoadingBar[aria-hidden="false"],
+#pageLoader[aria-hidden="false"],
+#commonLoadingDialog[aria-hidden="false"],
+.global-loading[aria-hidden="false"],
+.page-loader[aria-hidden="false"]{display:flex!important;}
+#globalLoadingBar[aria-hidden="true"]:not(.show):not(.is-visible),
+#pageLoader[aria-hidden="true"]:not(.show):not(.is-visible),
+#commonLoadingDialog[aria-hidden="true"]:not(.show):not(.is-visible),
+.global-loading[aria-hidden="true"]:not(.show):not(.is-visible),
+.page-loader[aria-hidden="true"]:not(.show):not(.is-visible){display:none!important;pointer-events:none!important;}
+#globalLoadingBar::before,
+#pageLoader::before,
+#commonLoadingDialog::before,
+.global-loading::before,
+.page-loader::before{
+  content:""!important;
+  position:absolute!important;
+  inset:0!important;
+  background:radial-gradient(circle at 50% 45%,rgba(96,165,250,.18),transparent 32%)!important;
+  pointer-events:none!important;
+}
+#globalLoadingBar .loader-content,
+#pageLoader .loader-content,
+#commonLoadingDialog .loader-content,
+.global-loading .loader-content,
+.page-loader .loader-content{
+  position:relative!important;
+  z-index:1!important;
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:center!important;
+  justify-content:center!important;
+  gap:22px!important;
+  min-width:0!important;
+  text-align:center!important;
+}
+#globalLoadingBar .loader-mark,
+#pageLoader .loader-mark,
+#commonLoadingDialog .loader-mark,
+.global-loading .loader-mark,
+.page-loader .loader-mark{
+  width:108px!important;
+  height:108px!important;
+  min-width:108px!important;
+  min-height:108px!important;
+  border-radius:34px!important;
+  background:linear-gradient(180deg,rgba(255,255,255,.97),rgba(238,246,255,.88))!important;
+  border:1px solid rgba(191,219,254,.92)!important;
+  box-shadow:0 28px 70px rgba(7,26,61,.32),inset 0 1px 0 rgba(255,255,255,.92)!important;
+  display:grid!important;
+  place-items:center!important;
+  position:relative!important;
+  overflow:visible!important;
+  transform:none!important;
+  animation:upickCommonLoaderFloat 1.3s ease-in-out infinite!important;
+}
+#globalLoadingBar .loader-mark::before,
+#pageLoader .loader-mark::before,
+#commonLoadingDialog .loader-mark::before,
+.global-loading .loader-mark::before,
+.page-loader .loader-mark::before{
+  content:""!important;
+  width:76px!important;
+  height:76px!important;
+  background:url('/icons/internal/brand-symbol-real.png') center/contain no-repeat!important;
+  display:block!important;
+  filter:drop-shadow(0 8px 18px rgba(7,26,61,.16))!important;
+  transform-origin:center!important;
+  animation:upickCommonLoaderLogo 1.3s ease-in-out infinite!important;
+}
+#globalLoadingBar .loader-mark::after,
+#pageLoader .loader-mark::after,
+#commonLoadingDialog .loader-mark::after,
+.global-loading .loader-mark::after,
+.page-loader .loader-mark::after{
+  content:""!important;
+  position:absolute!important;
+  inset:-10px!important;
+  width:auto!important;
+  height:auto!important;
+  left:-10px!important;
+  right:-10px!important;
+  top:-10px!important;
+  bottom:-10px!important;
+  border-radius:42px!important;
+  border:2px solid rgba(96,165,250,.20)!important;
+  border-top-color:#60a5fa!important;
+  border-right-color:#2563eb!important;
+  background:none!important;
+  transform:none!important;
+  opacity:1!important;
+  animation:upickCommonLoaderRing 1.05s linear infinite!important;
+  box-shadow:0 0 24px rgba(37,99,235,.18)!important;
+}
+#globalLoadingBar .loader-mark img,
+#pageLoader .loader-mark img,
+#commonLoadingDialog .loader-mark img,
+.global-loading .loader-mark img,
+.page-loader .loader-mark img,
+#globalLoadingBar .loader-mark span,
+#pageLoader .loader-mark span,
+#commonLoadingDialog .loader-mark span,
+.global-loading .loader-mark span,
+.page-loader .loader-mark span{display:none!important;opacity:0!important;visibility:hidden!important;}
+#globalLoadingBar .loader-message,
+#pageLoader .loader-message,
+#commonLoadingDialog .loader-message,
+.global-loading .loader-message,
+.page-loader .loader-message{
+  margin:0!important;
+  color:#fff!important;
+  font-size:15px!important;
+  font-weight:900!important;
+  letter-spacing:-.02em!important;
+  line-height:1.45!important;
+  text-shadow:0 10px 28px rgba(0,0,0,.24)!important;
+}
+#globalLoadingBar .loader-sub-message,
+#pageLoader .loader-sub-message,
+#commonLoadingDialog .loader-sub-message,
+.global-loading .loader-sub-message,
+.page-loader .loader-sub-message{
+  margin:0!important;
+  color:rgba(226,232,240,.86)!important;
+  font-size:12px!important;
+  font-weight:800!important;
+  line-height:1.45!important;
+}
+#globalLoadingBar .loader-content::after,
+#pageLoader .loader-content::after,
+#commonLoadingDialog .loader-content::after,
+.global-loading .loader-content::after,
+.page-loader .loader-content::after{
+  content:""!important;
+  width:min(210px,52vw)!important;
+  height:4px!important;
+  border-radius:999px!important;
+  margin-top:2px!important;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.86),transparent)!important;
+  background-size:200% 100%!important;
+  box-shadow:0 0 24px rgba(96,165,250,.34)!important;
+  animation:upickCommonLoaderFlow 1.18s ease-in-out infinite!important;
+}
+
+/* ===== 웹 접근성 공통 버튼 44px 예외: 혜택 상단 필터/보기 전환 전용 ===== */
+#view-benefits .benefit-filter-top-row .filter-icon-btn,
+#view-benefits .benefit-filter-top-row .view-mode-btn {
+  min-width: auto !important;
+  min-height: 34px !important;
+  height: 34px !important;
+  padding: 7px 10px !important;
+  line-height: 1 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  box-sizing: border-box !important;
+}
+
+#view-benefits .benefit-filter-top-row .filter-icon-row,
+#view-benefits .benefit-filter-top-row .benefit-view-switch {
+  align-items: center !important;
+}
+
+@media (max-width: 480px) {
+  #view-benefits .benefit-filter-top-row .filter-icon-btn,
+  #view-benefits .benefit-filter-top-row .view-mode-btn {
+    min-width: auto !important;
+    min-height: 32px !important;
+    height: 32px !important;
+    padding: 6px 9px !important;
+    font-size: 11px !important;
   }
 }

@@ -1,0 +1,110 @@
+/* 더운정픽 공통 모달 시스템 v2
+   - 기존 <dialog>는 건드리지 않습니다.
+   - CommonModal.open()으로 호출한 동적 모달만 공통 UI/스크롤 잠금을 적용합니다.
+*/
+:root{
+  --common-modal-z:2147483000;
+  --common-modal-backdrop:rgba(15,23,42,.48);
+  --common-modal-blur:12px;
+}
+
+html.common-modal-lock,
+body.common-modal-lock{
+  width:100%!important;
+  overflow:hidden!important;
+  overscroll-behavior:none!important;
+}
+body.common-modal-lock{
+  position:fixed!important;
+  left:0!important;
+  right:0!important;
+}
+
+.common-modal-root{position:relative;z-index:var(--common-modal-z);}
+.common-modal-overlay{
+  position:fixed;
+  inset:0;
+  z-index:var(--common-modal-z);
+  display:grid;
+  place-items:center;
+  padding:calc(14px + env(safe-area-inset-top)) 14px calc(14px + env(safe-area-inset-bottom));
+  background:var(--common-modal-backdrop);
+  backdrop-filter:blur(var(--common-modal-blur));
+  -webkit-backdrop-filter:blur(var(--common-modal-blur));
+  overscroll-behavior:none;
+  touch-action:none;
+}
+.common-modal-stage{
+  max-width:100%;
+  max-height:100%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  touch-action:auto;
+  animation:commonModalIn .18s cubic-bezier(.22,.8,.24,1) both;
+}
+.common-modal-stage > *{max-width:100%;max-height:100%;}
+
+/* GNB 계정/운영 관리 팝업은 공통 루트 안에서만 고정 높이/내부 스크롤 적용 */
+.common-modal-stage .gnb-management-dialog,
+.common-modal-stage .gnb-operation-dialog{
+  position:relative!important;
+  display:block!important;
+  width:min(560px,calc(100vw - 24px))!important;
+  height:min(640px,calc(100dvh - 72px))!important;
+  max-height:calc(100dvh - 72px)!important;
+  margin:0!important;
+  padding:0!important;
+  border:0!important;
+  border-radius:30px!important;
+  background:rgba(255,255,255,.96)!important;
+  box-shadow:0 32px 80px rgba(15,23,42,.28)!important;
+  overflow:hidden!important;
+  color:#0f172a;
+}
+.common-modal-stage .gnb-management-shell{
+  height:100%!important;
+  max-height:none!important;
+  display:flex!important;
+  flex-direction:column!important;
+  overflow:hidden!important;
+}
+.common-modal-stage .gnb-management-head,
+.common-modal-stage .gnb-management-tabs{
+  flex:0 0 auto!important;
+}
+.common-modal-stage .gnb-management-tabs{
+  position:relative!important;
+  z-index:3!important;
+  background:#fff!important;
+  border-bottom:1px solid rgba(226,232,240,.72)!important;
+}
+.common-modal-stage .gnb-management-body{
+  flex:1 1 auto!important;
+  min-height:0!important;
+  overflow-y:auto!important;
+  overflow-x:hidden!important;
+  overscroll-behavior:contain!important;
+  -webkit-overflow-scrolling:touch!important;
+}
+.common-modal-stage .gnb-management-panel{
+  min-height:100%!important;
+  align-content:start!important;
+}
+
+@keyframes commonModalIn{
+  from{opacity:0;transform:translateY(14px) scale(.975);}
+  to{opacity:1;transform:translateY(0) scale(1);}
+}
+@media (max-width:520px){
+  .common-modal-overlay{padding:calc(10px + env(safe-area-inset-top)) 9px calc(10px + env(safe-area-inset-bottom));}
+  .common-modal-stage .gnb-management-dialog,
+  .common-modal-stage .gnb-operation-dialog{
+    width:calc(100vw - 18px)!important;
+    height:min(620px,calc(100dvh - 64px))!important;
+    max-height:calc(100dvh - 64px)!important;
+    border-radius:26px!important;
+  }
+}
+
+.common-modal-stash{display:none!important;}

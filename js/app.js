@@ -79,6 +79,7 @@
  const AI_ASSISTANT_LOG_URL = AI_STREAM_SERVER_BASE_URL ? `${AI_STREAM_SERVER_BASE_URL}/assistant/log` : '';
  const AI_TTS_SERVICE_URL = String((TTS_SERVICE_URL && TTS_SERVICE_URL[ENV]) || '').replace(/\/+$/, '');
  const CHECK_NICKNAME_URL = API_URL?.[ENV]?.checkNickname || '';
+ const UPDATE_ACCOUNT_PROFILE_URL = API_URL?.[ENV]?.updateAccountProfile || '';
 
  // AI 첨부파일 다운로드는 Firebase Storage URL을 직접 열지 않고 Cloud Run 다운로드 API를 사용합니다.
  function extractAiAttachmentStoragePath(url=''){
@@ -1258,8 +1259,12 @@ showForegroundPushToast({
    gnbSheet?.setAttribute('aria-hidden', 'false');
    document.body.classList.add('gnb-open');
  }
- globalLoadingBar.classList.add('show');
- globalLoadingBar.setAttribute('aria-hidden', 'false');
+ if(window.UpickLoading && typeof window.UpickLoading.show === 'function'){
+   window.UpickLoading.show();
+ }else{
+   globalLoadingBar.classList.add('show');
+   globalLoadingBar.setAttribute('aria-hidden', 'false');
+ }
  }
 
  function hideGlobalLoading(delay=160){
@@ -1267,8 +1272,12 @@ showForegroundPushToast({
  clearTimeout(globalLoadingTimer);
  globalLoadingTimer = setTimeout(() => {
  const shouldKeepGnbOpen = document.body.dataset.gnbOpenBeforeLoading === '1';
+ if(window.UpickLoading && typeof window.UpickLoading.hide === 'function'){
+ window.UpickLoading.hide();
+ }else{
  globalLoadingBar.classList.remove('show');
  globalLoadingBar.setAttribute('aria-hidden', 'true');
+ }
  document.body.classList.remove('ui-loading-lock');
  document.documentElement.classList.remove('ui-loading-lock');
  if(shouldKeepGnbOpen){
@@ -1360,6 +1369,23 @@ function setPushStatusUi(enabled){
  function applyBodyRoleClass(roleMeta = getCurrentRoleMeta()){
  document.body.classList.remove('app-role-root','app-role-admin','app-role-resident');
  document.body.classList.add(`app-role-${roleMeta.role || 'resident'}`);
+ }
+
+
+ function syncGnbOperationAccess(roleMeta = getCurrentRoleMeta()){
+ const role = String(roleMeta?.role || '').toLowerCase();
+ const allowed = role === 'root' || role === 'admin';
+ const topBtn = qs('#openGnbOperationManageBtn');
+ if(topBtn){
+ topBtn.hidden = !allowed;
+ topBtn.setAttribute('aria-hidden', allowed ? 'false' : 'true');
+ topBtn.style.setProperty('display', allowed ? 'grid' : 'none', 'important');
+ topBtn.tabIndex = allowed ? 0 : -1;
+ }
+ const modal = qs('#gnbOperationManageModal');
+ if(modal && !allowed && modal.open){
+ try{ modal.close(); }catch(_){ modal.removeAttribute('open'); }
+ }
  }
 
  function enforceShareInsightAccess(){
@@ -1460,10 +1486,26 @@ function setPushStatusUi(enabled){
  }
 
  function openModalAlert(message, focusTarget=null, title='안내'){
+ if(typeof window.showCommonAlert === 'function'){
+ return window.showCommonAlert({ title, message, confirmText:'확인' }).then((result)=>{
+ if(focusTarget && typeof focusTarget.focus === 'function'){
+ try{ focusTarget.focus({preventScroll:true}); }catch(_){ try{ focusTarget.focus(); }catch(__){} }
+ }
+ return result;
+ });
+ }
  return openModalBase({ title, message, focusTarget, mode:'alert', confirmText:'확인', icon:'' });
  }
 
  function openModalConfirm(message, focusTarget=null, title='확인', confirmText='확인', cancelText='취소'){
+ if(typeof window.showCommonConfirm === 'function'){
+ return window.showCommonConfirm({ title, message, confirmText, cancelText }).then((result)=>{
+ if(result === false && focusTarget && typeof focusTarget.focus === 'function'){
+ try{ focusTarget.focus({preventScroll:true}); }catch(_){ try{ focusTarget.focus(); }catch(__){} }
+ }
+ return result;
+ });
+ }
  return openModalBase({ title, message, focusTarget, mode:'confirm', confirmText, cancelText, icon:'' });
  }
 
@@ -1639,6 +1681,7 @@ window.addEventListener('keydown', (event) => {
  applyRoleClass(userChipEl, roleMeta.className);
  applyRoleClass(gnbAccountCardEl, roleMeta.className);
  applyBodyRoleClass(roleMeta);
+ syncGnbOperationAccess(roleMeta);
  renderProfileAvatar(userAvatarEl, roleMeta, profileImageUrl);
  renderProfileAvatar(gnbAvatarEl, roleMeta, profileImageUrl);
  syncHeaderProfileAvatars(profileImageUrl);
@@ -2050,19 +2093,40 @@ function openAccountEditModal(){
  return;
  }
 
+ if(!UPDATE_ACCOUNT_PROFILE_URL){
+ setAccountNicknameState(false);
+ setAccountNicknameMessage('err', '계정 정보 수정 주소가 설정되지 않았습니다.');
+ await openModalAlert('계정 정보 수정 주소가 설정되지 않았습니다.', qs('#saveAccountEditBtn'));
+ return;
+ }
+
  showGlobalLoading();
- await setDoc(doc(db, 'users', state.currentUser.uid), {
- nickname,
- building,
- unit,
- updatedAt: serverTimestamp()
- }, { merge:true });
+ const idToken = await state.currentUser.getIdToken(true);
+ const response = await fetch(UPDATE_ACCOUNT_PROFILE_URL, {
+ method:'POST',
+ headers:{
+ 'Content-Type':'application/json',
+ 'Authorization': `Bearer ${idToken}`
+ },
+ body: JSON.stringify({ nickname, building, unit })
+ });
+ const result = await response.json().catch(() => ({}));
+ if(!response.ok || !result.ok){
+ const message = result.message || '계정 정보 저장 중 오류가 발생했습니다.';
+ if(result.code === 'nickname_duplicate'){
+ setAccountNicknameCheckStatus('duplicate');
+ setAccountNicknameState(false);
+ setAccountNicknameMessage('err', message);
+ }
+ throw new Error(message);
+ }
 
  state.currentUserProfile = {
  ...(state.currentUserProfile || {}),
- nickname,
- building,
- unit
+ nickname: result.nickname || nickname,
+ building: result.building ?? building,
+ unit: result.unit ?? unit,
+ nicknameKey: result.nicknameKey || nickname.toLowerCase()
  };
  setAccountNicknameCheckStatus('available', nickname);
  setAccountNicknameState(true);
@@ -2074,7 +2138,7 @@ function openAccountEditModal(){
  }catch(error){
  console.error('계정 정보 저장 실패', error);
  hideGlobalLoading(80);
- await openModalAlert('계정 정보 저장 중 오류가 발생했습니다.', qs('#openAccountEditBtn'));
+ await openModalAlert(error.message || '계정 정보 저장 중 오류가 발생했습니다.', qs('#openAccountEditBtn'));
  }
  }
 
@@ -2162,12 +2226,14 @@ async function submitPasswordChange(event){
     if(submitBtn){
       submitBtn.disabled = true;
       submitBtn.dataset.originalText = submitBtn.textContent;
-      submitBtn.textContent = '변경 중...';
     }
+    showGlobalLoading();
 
     const idToken = await auth.currentUser?.getIdToken?.(true);
     if(!idToken){
+      hideGlobalLoading(80);
       await openModalAlert('입장 정보가 만료되었습니다. 다시 입장해주세요.');
+      showGlobalLoading();
       redirectToLogin();
       return;
     }
@@ -2188,13 +2254,16 @@ async function submitPasswordChange(event){
       throw new Error(data.message || '비밀번호 변경 처리 중 오류가 발생했습니다.');
     }
 
+    hideGlobalLoading(80);
     closePasswordChangeModal();
     await openModalAlert(data.message || '비밀번호 변경이 완료되었습니다. 보안을 위해 다시 입장해주세요.');
+    showGlobalLoading();
     try{ await logoutServerSession(auth, API_URL[ENV]); }catch(_){}
     try{ await signOut(auth); }catch(_){}
     redirectToLogin();
   }catch(error){
     console.error('비밀번호 변경 실패', error);
+    hideGlobalLoading(80);
     await openModalAlert(error.message || '비밀번호 변경 처리 중 오류가 발생했습니다.', qs('#submitPasswordChangeBtn'));
   }finally{
     if(submitBtn){
@@ -3436,7 +3505,10 @@ function getSpreadMapPosition(nm, center, index, count){const fakeItem={lat:cent
    const controls=document.createElement('div');
    controls.className='detail-mini-zoom-controls';
    controls.setAttribute('aria-label','미니지도 확대 축소');
-   controls.innerHTML='<button type="button" class="detail-mini-zoom-btn" data-zoom-delta="1" aria-label="지도 확대">+</button><button type="button" class="detail-mini-zoom-btn" data-zoom-delta="-1" aria-label="지도 축소">−</button>';
+   controls.innerHTML=`
+<button type="button" class="detail-mini-zoom-btn" data-zoom-delta="1" aria-label="지도 확대"><span>+</span></button>
+<button type="button" class="detail-mini-zoom-btn" data-zoom-delta="-1" aria-label="지도 축소"><span>−</span></button>
+`;
    controls.addEventListener('click',(event)=>{
     const btn=event.target.closest('[data-zoom-delta]');
     if(!btn) return;
@@ -11702,15 +11774,17 @@ document.addEventListener('keydown', (event) => {
  bindGlobalLoadingTriggers();
 
  (async()=>{
+ // 최초 진입 시에는 화면이 먼저 비어 보이지 않도록 앱 부트스트랩 로딩을 바로 유지합니다.
+ // 이후 benefits/notices/popular의 첫 스냅샷이 모두 도착하면 markInitialDataLoaded()에서 닫습니다.
+ showGlobalLoading();
+ try{
  await initPushSystem();
  const ok = await ensureAuthenticatedUser();
  if(!ok) return;
  await handleShareClickLog();
  await refreshPushStatus();
- renderAll();
  if(hasFirebaseConfig()){
  qs('#firebaseNotice').classList.add('hidden');
- showGlobalLoading();
  subscribeBenefits();
  subscribeNotices();
  subscribeAiKnowledge();
@@ -11722,6 +11796,14 @@ document.addEventListener('keydown', (event) => {
  qs('#firebaseNotice').classList.remove('hidden');
  state.loading=false;
  renderAll();
+ hideGlobalLoading(80);
+ }
+ }catch(error){
+ console.error('공개앱 초기 로딩 실패', error);
+ state.loading=false;
+ renderAll();
+ hideGlobalLoading(80);
+ await openModalAlert('앱 정보를 불러오는 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.');
  }
  })();
  
