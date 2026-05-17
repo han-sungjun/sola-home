@@ -72,7 +72,7 @@ export default async function handler(req, res) {
 
 <script>
   // 카카오/브라우저 자동 리디렉션
-  window.location.href = "${deepLink}";
+  window.location.replace("${deepLink}");
 </script>
 
 </head>

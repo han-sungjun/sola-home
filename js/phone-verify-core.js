@@ -118,7 +118,7 @@ function goHome() {
 
 function goApp(delay = 500) {
   window.setTimeout(() => {
-    window.location.href = APP_PATH;
+    window.location.replace(APP_PATH);
   }, delay);
 }
 

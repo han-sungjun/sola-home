@@ -348,7 +348,7 @@ function startAutoLogoutTimer() {
         stopAutoLogoutTimer();
         await signOut(auth);
         await showAppModalAlert("장시간 미사용으로 자동 나가기되었습니다.", "자동 나가기");
-        location.href = "/";
+        location.replace("/");
       } catch (e) {
         console.log("auto logout error", e);
       }
