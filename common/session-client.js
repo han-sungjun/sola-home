@@ -238,6 +238,7 @@ export function startSessionKeepAlive({
   let disposed = false;
   let lastPingAt = 0;
   let hasActivity = true;
+  let lastActivityAt = Date.now();
   let running = false;
   const minPingMs = Number(intervalMs || (adminMode ? ADMIN_PING_INTERVAL_MS : DEFAULT_PING_INTERVAL_MS));
   const stopRealtimeWatcher = startRealtimeSessionWatcher({
@@ -250,9 +251,29 @@ export function startSessionKeepAlive({
     alertFn
   });
 
-  const markActivity = () => { hasActivity = true; };
-  ['click', 'touchstart', 'keydown', 'scroll', 'pointerdown'].forEach((eventName) => {
-    window.addEventListener(eventName, markActivity, { passive:true });
+  const markActivity = () => {
+    hasActivity = true;
+    lastActivityAt = Date.now();
+  };
+
+  // 실제 사용 중인데도 30분 만료되는 일을 줄이기 위해 입력/스크롤/터치/포커스 계열 활동을 폭넓게 감지합니다.
+  [
+    'click',
+    'touchstart',
+    'touchmove',
+    'keydown',
+    'keyup',
+    'input',
+    'change',
+    'scroll',
+    'wheel',
+    'pointerdown',
+    'pointermove',
+    'mousemove',
+    'focus',
+    'focusin'
+  ].forEach((eventName) => {
+    window.addEventListener(eventName, markActivity, { passive:true, capture:true });
   });
 
   async function tick(forceCheck = false){
@@ -260,19 +281,25 @@ export function startSessionKeepAlive({
     if (document.hidden) return;
     if (!auth?.currentUser) return;
     const now = Date.now();
-    if (!forceCheck && now - lastPingAt < minPingMs) return;
+    const shouldPing = hasActivity && (now - lastPingAt >= minPingMs);
+
+    if (!forceCheck && !shouldPing) return;
     if (requireActivity && !hasActivity && !forceCheck) return;
 
     running = true;
     try{
-      const data = await requestServerSession(auth, api, forceCheck ? 'check' : 'ping');
+      // 활동이 있었고 최소 간격이 지났다면 check보다 ping을 우선해 서버 lastActiveAt를 갱신합니다.
+      const kind = shouldPing ? 'ping' : 'check';
+      const data = await requestServerSession(auth, api, kind);
       if (!data?.valid) {
         disposed = true;
         await handleInvalidSession({ auth, api, reason:data?.reason, signOutFn, redirectTo, alertFn });
         return;
       }
-      lastPingAt = now;
-      hasActivity = false;
+      if (kind === 'ping') {
+        lastPingAt = now;
+        hasActivity = false;
+      }
     }catch(error){
       console.warn('[session] keep-alive skipped', error);
     }finally{
@@ -304,6 +331,12 @@ export function startSessionKeepAlive({
     window.clearInterval(pingTimer);
     document.removeEventListener('visibilitychange', onVisibilityChange);
     window.removeEventListener('pageshow', onPageShow);
+    [
+      'click','touchstart','touchmove','keydown','keyup','input','change','scroll','wheel',
+      'pointerdown','pointermove','mousemove','focus','focusin'
+    ].forEach((eventName) => {
+      window.removeEventListener(eventName, markActivity, { capture:true });
+    });
     try{ stopRealtimeWatcher(); }catch(_e){}
   };
 }

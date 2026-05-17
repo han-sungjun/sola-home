@@ -3355,10 +3355,28 @@ function normalizeSupportProgramsForDetail(item = {}){
 
  return [...new Set(programs)];
 }
+
+function getSupportProgramIconSvg(name = ''){
+ const label = String(name || '').trim();
+ const safeLabel = escapeHtml(label);
+ if(label.includes('고유가') || label.includes('유가') || label.includes('피해지원금')){
+   return `<span class="support-program-svg-icon oil" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M7 3h8.2c.7 0 1.3.6 1.3 1.3v14.4c0 .7-.6 1.3-1.3 1.3H7c-.7 0-1.3-.6-1.3-1.3V4.3C5.7 3.6 6.3 3 7 3Z"/><path d="M8.2 5.2h5.8v4.6H8.2V5.2Z"/><path d="M16.5 7.2h1.1l1.8 1.8v6.2c0 .9.7 1.6 1.6 1.6.8 0 1.5-.7 1.5-1.6v-3.1"/><path d="M19.4 9l-1.2 1.2 2.2 2.2 1.2-1.2"/><path d="M11.2 13.2c-1.2 1.3-1.8 2.3-1.8 3.1 0 1 .8 1.8 1.8 1.8s1.8-.8 1.8-1.8c0-.8-.6-1.8-1.8-3.1Z"/></svg></span>`;
+ }
+ if(label.includes('지역화폐') || label.includes('화폐')){
+   return `<span class="support-program-svg-icon local" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><rect x="3" y="6" width="18" height="12" rx="2.2"/><path d="M6.5 10h6M6.5 14h4M16.5 10.5h1.5M16.5 13.5h1.5"/></svg></span>`;
+ }
+ return `<span class="support-program-svg-icon card" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><rect x="3" y="5" width="18" height="14" rx="2.5"/><path d="M3 9h18M7 14h4"/></svg></span>`;
+}
+function supportProgramChipHtml(name = ''){
+ const label = String(name || '').trim();
+ if(!label) return '';
+ return `<span class="support-program-detail-chip" title="${escapeAttr(label)}">${getSupportProgramIconSvg(label)}<span class="support-program-chip-label">${escapeHtml(label)}</span></span>`;
+}
+
 function supportProgramsPanelHtml(item = {}){
  const programs = normalizeSupportProgramsForDetail(item);
  if(!programs.length) return '';
- const names = programs.map(v => `<span class="support-program-detail-chip">${escapeHtml(v)}</span>`).join('');
+ const names = programs.map(v => supportProgramChipHtml(v)).join('');
  return `<div class="panel support-program-detail-panel"><strong style="display:block;margin-bottom:6px;font-size:13px;color:var(--muted);">정부지원금 사용 가능</strong><div class="support-program-detail-list">${names}</div><p class="support-program-detail-note">매장 사정이나 결제 수단에 따라 사용 가능 여부가 달라질 수 있으니, 방문 전 매장에 확인해주세요.</p></div>`;
 }
 function normalizeCouponLinksForDetail(item = {}){
@@ -3383,6 +3401,91 @@ function couponLinksPanelHtml(item = {}){
  const first = rows[0];
  return `<div class="panel coupon-link-detail-panel"><strong style="display:block;margin-bottom:10px;font-size:15px;color:#0f172a;">쿠폰</strong><a class="coupon-link-detail-card" href="${escapeAttr(first.url)}" target="_blank" rel="noopener"><span class="coupon-link-detail-icon">🎁</span><span class="coupon-link-detail-copy"><b>쿠폰 있어요</b><em>${escapeHtml(first.title)}</em></span><span class="coupon-link-detail-action">모두 보기</span></a></div>`;
 }
+
+
+function normalizeNewsItemsForDetail(item = {}){
+ const raw = item.newsItems || item.news || item.storeNews || item.noticeLinks || [];
+ let rows = [];
+ if(Array.isArray(raw)){
+   rows = raw.map(row => {
+     if(typeof row === 'string') return { title:'소식', imageUrl:'', date:'', url:row };
+     row = row || {};
+     return {
+       title:String(row.title || row.name || row.label || row.newsTitle || '소식').trim(),
+       badge:String(row.badge || row.type || row.badgeLabel || row.newsBadge || '소식').trim(),
+       imageUrl:String(row.imageUrl || row.thumbnailUrl || row.thumbnail || row.photoUrl || row.image || '').trim(),
+       date:String(row.date || row.newsDate || row.publishedAt || row.createdText || '').trim(),
+       url:String(row.url || row.link || row.href || row.newsUrl || '').trim()
+     };
+   });
+ }else if(raw && typeof raw === 'object'){
+   rows = [{ title:String(raw.title || raw.name || raw.label || raw.newsTitle || '소식').trim(), badge:String(raw.badge || raw.type || raw.badgeLabel || raw.newsBadge || '소식').trim(), imageUrl:String(raw.imageUrl || raw.thumbnailUrl || raw.thumbnail || raw.photoUrl || raw.image || '').trim(), date:String(raw.date || raw.newsDate || raw.publishedAt || raw.createdText || '').trim(), url:String(raw.url || raw.link || raw.href || raw.newsUrl || '').trim() }];
+ }else if(typeof raw === 'string'){
+   rows = raw.split(/[\n,，]/).map(url => ({ title:'소식', imageUrl:'', date:'', url:String(url).trim() }));
+ }
+ return rows.filter(row => row.title || row.imageUrl || row.url).map(row => ({ title:row.title || '소식', badge:row.badge || row.type || '소식', imageUrl:row.imageUrl || '', date:row.date || '', url:row.url || '' }));
+}
+
+function newsItemsPanelHtml(item = {}){
+ const rows = normalizeNewsItemsForDetail(item);
+ if(!rows.length) return '';
+ const cards = rows.map((row) => {
+   const badge = String(row.badge || row.type || '소식').trim() || '소식';
+   const badgeKey = badge.toLowerCase().replace(/[^a-z0-9가-힣_-]/g,'');
+   const badgeHtml = `<span class="news-detail-badge ${escapeAttr(badgeKey)}">${escapeHtml(badge)}</span>`;
+   const image = row.imageUrl ? `<button type="button" class="news-detail-thumb benefit-detail-photo-like" data-news-image="${escapeAttr(row.imageUrl)}" data-news-title="${escapeAttr(row.title || '소식 이미지')}" aria-label="소식 이미지 확대">${badgeHtml}<img src="${escapeAttr(row.imageUrl)}" alt="" loading="lazy" decoding="async"></button>` : `<span class="news-detail-thumb empty">${badgeHtml}소식</span>`;
+   const body = `<div class="news-detail-copy"><b>${escapeHtml(row.title || '소식')}</b>${row.date ? `<em>${escapeHtml(row.date)}</em>` : ''}</div>`;
+   if(row.url){
+     return `<a class="news-detail-card" href="${escapeAttr(row.url)}" target="_blank" rel="noopener">${image}${body}</a>`;
+   }
+   return `<div class="news-detail-card">${image}${body}</div>`;
+ }).join('');
+ return `<div class="panel news-detail-panel"><strong style="display:block;margin-bottom:10px;font-size:15px;color:#0f172a;">소식</strong><div class="news-detail-list">${cards}</div></div>`;
+}
+
+function openNewsImagePreview(src='', title='소식 이미지'){
+ const imageUrl = String(src || '').trim();
+ if(!imageUrl) return;
+ let overlay = document.getElementById('newsImagePreviewOverlay');
+ if(!overlay){
+   overlay = document.createElement('dialog');
+   overlay.id = 'newsImagePreviewOverlay';
+   overlay.className = 'news-image-preview-overlay';
+   overlay.innerHTML = `<div class="news-image-preview-dialog" role="document" aria-label="소식 이미지 확대"><div class="news-image-preview-head"><div class="news-image-preview-title">소식 이미지</div><button type="button" class="news-image-preview-close" aria-label="닫기">×</button></div><div class="news-image-preview-body"><img alt=""></div></div>`;
+   document.body.appendChild(overlay);
+   const closePreview = () => {
+     overlay.classList.remove('show');
+     overlay.setAttribute('aria-hidden','true');
+     document.body.classList.remove('news-image-preview-open');
+     if(typeof overlay.close === 'function' && overlay.open) overlay.close();
+   };
+   overlay.addEventListener('click', (event) => {
+     if(event.target === overlay || event.target.closest('.news-image-preview-close')) closePreview();
+   });
+   overlay.addEventListener('cancel', (event) => {
+     event.preventDefault();
+     closePreview();
+   });
+ }
+ const img = overlay.querySelector('img');
+ if(img){
+   img.src = imageUrl;
+   img.alt = title || '소식 이미지';
+ }
+ overlay.classList.add('show');
+ overlay.setAttribute('aria-hidden','false');
+ document.body.classList.add('news-image-preview-open');
+ if(typeof overlay.showModal === 'function' && !overlay.open) overlay.showModal();
+}
+
+document.addEventListener('click', (event) => {
+ const thumb = event.target.closest?.('[data-news-image]');
+ if(!thumb) return;
+ event.preventDefault();
+ event.stopPropagation();
+ openNewsImagePreview(thumb.dataset.newsImage || '', thumb.dataset.newsTitle || '소식 이미지');
+}, true);
+
 
 function benefitExtraInfoHtml(item = {}){
  const links = getBenefitSocialLinks(item);
@@ -3514,7 +3617,15 @@ const stationAccessText = String(item.stationAccessText || item.transitText || i
  window.getMapModeItems = getMapModeItems;
  window.getMapModelItems = getMapModeItems;
  function clusterMapItems(items=[], zoom=15){const z=Number(zoom||15); const threshold=z>=19?3:z>=18?8:z>=17?18:z>=16?80:z>=15?150:z>=14?280:z>=13?520:z>=12?950:1800; const clusters=[]; items.forEach(item=>{const pos=getBenefitLatLng(item); if(!pos)return; let selected=null; for(const c of clusters){if(getDistanceMeters(pos.lat,pos.lng,c.lat,c.lng)<=threshold){selected=c;break;}} if(selected){selected.items.push(item); selected.lat=selected.items.reduce((sum,it)=>sum+getBenefitLatLng(it).lat,0)/selected.items.length; selected.lng=selected.items.reduce((sum,it)=>sum+getBenefitLatLng(it).lng,0)/selected.items.length;}else{clusters.push({lat:pos.lat,lng:pos.lng,items:[item]});}}); return clusters;}
- function markerHtmlForItem(item){const d=getItemDistance(item); const label=Number.isFinite(d)?formatDistance(d).replace('약 ',''):'혜택'; return '<div class="map-marker-store"><img class="upick-svg-icon" src="/icons/internal/pin.svg" alt="" loading="lazy"> '+label+'</div>';}
+ function getMapMarkerLabel(item = {}){
+ const raw = String(item.name || item.storeName || item.title || '매장').trim();
+ if(!raw) return '매장';
+ return raw.length > 10 ? raw.slice(0,10) + '…' : raw;
+}
+function markerHtmlForItem(item){
+ const label = getMapMarkerLabel(item);
+ return '<div class="map-marker-store" title="'+escapeAttr(String(item?.name || label))+'"><img class="upick-svg-icon" src="/icons/internal/pin.svg" alt="" loading="lazy"> '+escapeHtml(label)+'</div>';
+}
  function clusterHtml(count){return '<div class="map-marker-cluster">'+count+'</div>';}
  function normalizeMapCoord(value){const n=Number(value); return Number.isFinite(n)?n.toFixed(6):'';}
  function getSamePositionClusterKey(items=[]){if(!Array.isArray(items)||items.length<=1)return ''; const first=getBenefitLatLng(items[0]); if(!first)return ''; const key=normalizeMapCoord(first.lat)+','+normalizeMapCoord(first.lng); const allSame=items.every(item=>{const pos=getBenefitLatLng(item); return pos&&(normalizeMapCoord(pos.lat)+','+normalizeMapCoord(pos.lng))===key;}); return allSame?key:'';}
@@ -3636,7 +3747,7 @@ function getSpreadMapPosition(nm, center, index, count){const fakeItem={lat:cent
    pinchZoom:true
   });
   ensureDetailMiniMapZoomControls(mapEl, detailMapInstance);
-  new nm.Marker({position:store,map:detailMapInstance,icon:{content:'<div class="map-marker-store">매장</div>',anchor:new nm.Point(20,34)},zIndex:100});
+  new nm.Marker({position:store,map:detailMapInstance,icon:{content:markerHtmlForItem(item),anchor:new nm.Point(20,34)},zIndex:100});
   let bounds=null;
   if(hasFreshUserLocation()){
    const me=new nm.LatLng(state.userLocation.lat,state.userLocation.lng);
@@ -3745,6 +3856,7 @@ stationAccessText:item.stationAccessText||item.transitText||item.stationGuide||i
  supportPrograms:item.supportPrograms||item.supportProgram||item.governmentSupport||item.supportProgramNames||item.supportProgramList||null,
  supportProgramsText:item.supportProgramsText||'',
  couponLinks:item.couponLinks||item.coupons||item.couponList||item.couponUrls||[],
+ newsItems:item.newsItems||item.news||item.storeNews||item.noticeLinks||[],
  lat:Number.isFinite(lat)?lat:null,
  lng:Number.isFinite(lng)?lng:null,
  service:!!item.service||String(item.discountText).trim()==='서비스',
@@ -5560,7 +5672,7 @@ ${item.content || ''}`);
  list.querySelectorAll('.hot-now-item').forEach((el) => {
  const id = el.dataset.benefitId;
  const item = items.find((v) => v.id === id);
- makeKeyboardClickable(el, `인기 혜택 상세 열기: ${item?.name || item?.benefit?.name || '혜택'}`);
+ makeKeyboardClickable(el, `인기 혜택 상세 열기: ${item?.name || item?.benefit?.name || getMapMarkerLabel(item)}`);
  el.onclick = () => {
  if(item?.benefit) openDetail(item.benefit);
  };
@@ -5600,7 +5712,7 @@ ${item.content || ''}`);
  <span>인기점수</span>
  </div>
  `;
- makeKeyboardClickable(row, `인기 매장 상세 열기: ${item.name || '혜택'}`);
+ makeKeyboardClickable(row, `인기 매장 상세 열기: ${item.name || getMapMarkerLabel(item)}`);
  row.onclick = () => {
  if(item.benefit){
  openDetail(item.benefit);
@@ -5761,7 +5873,7 @@ ${item.content || ''}`);
  const topRank=getBenefitTopRank(item);
  card.className=`card ${benefitCardStatusClass(item)} ${topRank ? `top-rank-${topRank}` : ''}`;
  card.innerHTML=cardTemplate(item,favorites.has(item.id));
- makeKeyboardClickable(card, `혜택 상세 열기: ${item.name || '혜택'}`);
+ makeKeyboardClickable(card, `혜택 상세 열기: ${item.name || getMapMarkerLabel(item)}`);
  card.onclick=()=>{increaseStat(item.id, item.name, 'cardClickCount');logBenefitEvent(item.id, 'card_click');openDetail(item);};
  card.querySelector('.detail-btn')?.addEventListener('click',(e)=>{e.stopPropagation();openDetail(item);});
  card.querySelectorAll('.fav-btn').forEach((btn)=>{
@@ -6495,7 +6607,7 @@ function renderCalendarDayModal(){
  increaseStat(item.id, item.name, 'detailViewCount');
  logBenefitEvent(item.id, 'detail_view');
  const isFav=getFavorites().includes(item.id);
- qs('#modalBody').innerHTML=`${benefitDetailHeroHtml(item)}<div style="display:grid;gap:10px;margin:16px 0;"><div class="panel"><strong style="display:block;margin-bottom:6px;font-size:13px;color:var(--muted);">혜택 조건</strong>${item.condition}</div>${supportProgramsPanelHtml(item)}${couponLinksPanelHtml(item)}${benefitPriceDetailsHtml(item)}${locationPanelHtml(item)}${benefitExtraInfoHtml(item)}<div class="panel"><strong style="display:block;margin-bottom:6px;font-size:13px;color:var(--muted);">연락처</strong>${benefitContactHtml(item)}</div>${benefitDetailDateHtml(item)}</div>${residentReactionHtml(item)}<div class="grid-2"><a class="btn btn-primary block" id="callBtn" href="tel:${item.phone}">전화하기</a><button class="btn btn-soft block" id="modalFavBtn"><img class="upick-svg-icon upick-inline-icon" src="/icons/internal/${isFav ? 'star-fill' : 'star-outline'}.svg" alt="" loading="lazy" decoding="async">${isFav?'즐겨찾기 해제':'즐겨찾기 추가'}</button></div><button class="btn btn-soft block" id="openCalendarReservationBtn" style="margin-top:10px;">방문 알림 추가</button>${shareActionsHtml('benefit')}`;
+ qs('#modalBody').innerHTML=`${benefitDetailHeroHtml(item)}<div style="display:grid;gap:10px;margin:16px 0;"><div class="panel"><strong style="display:block;margin-bottom:6px;font-size:13px;color:var(--muted);">혜택 조건</strong>${item.condition}</div>${supportProgramsPanelHtml(item)}${couponLinksPanelHtml(item)}${newsItemsPanelHtml(item)}${benefitPriceDetailsHtml(item)}${locationPanelHtml(item)}${benefitExtraInfoHtml(item)}<div class="panel"><strong style="display:block;margin-bottom:6px;font-size:13px;color:var(--muted);">연락처</strong>${benefitContactHtml(item)}</div>${benefitDetailDateHtml(item)}</div>${residentReactionHtml(item)}<div class="grid-2"><a class="btn btn-primary block" id="callBtn" href="tel:${item.phone}">전화하기</a><button class="btn btn-soft block" id="modalFavBtn"><img class="upick-svg-icon upick-inline-icon" src="/icons/internal/${isFav ? 'star-fill' : 'star-outline'}.svg" alt="" loading="lazy" decoding="async">${isFav?'즐겨찾기 해제':'즐겨찾기 추가'}</button></div><button class="btn btn-soft block" id="openCalendarReservationBtn" style="margin-top:10px;">방문 알림 추가</button>${shareActionsHtml('benefit')}`;
  const modal=qs('#detailModal');
  if(modal.open)modal.close();
  modal.showModal();
@@ -7195,7 +7307,7 @@ function renderCalendarDayModal(){
  <div class="ai-live-card-grid">
  ${cards.map(({item, reason}) => `
  <div class="ai-live-card">
- <b>${escapeHtml(item.name || item.storeName || item.title || '혜택')}</b>
+ <b>${escapeHtml(item.name || item.storeName || item.title || getMapMarkerLabel(item))}</b>
  <span>${escapeHtml(item.benefit || item.description || item.content || '등록된 혜택 정보를 확인해보세요.')}</span>
  <div class="ai-live-meta">
  ${item.category ? `<em>${escapeHtml(item.category)}</em>` : ''}
@@ -8701,7 +8813,7 @@ function buildAiEnhancedAnswerHtml(finalText='', question=''){
  const benefitCards = mappedCards.map(({item, score, reason, reasons}) => `
  <div class="ai-benefit-card-auto enhanced">
  <div class="ai-card-top">
- <b>${escapeHtml(item.name || item.storeName || item.title || '혜택')}</b>
+ <b>${escapeHtml(item.name || item.storeName || item.title || getMapMarkerLabel(item))}</b>
  <span class="ai-match-score">매칭 ${Math.min(99, Math.round(Number(score || 0) * 7))}%</span>
  </div>
  <span>${escapeHtml(item.benefit || item.description || item.content || '등록된 혜택 정보를 확인해보세요.')}</span>

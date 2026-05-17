@@ -34,7 +34,7 @@
     <link href="/icons/splash-ios-828x1792.png" media="(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2)" rel="apple-touch-startup-image">
     <link href="/icons/splash-ios-1170x2532.png" media="(device-width: 390px) and (device-height: 844px) and (-webkit-device-pixel-ratio: 3)" rel="apple-touch-startup-image">
     <link href="/icons/splash-ios-1290x2796.png" media="(device-width: 430px) and (device-height: 932px) and (-webkit-device-pixel-ratio: 3)" rel="apple-touch-startup-image">
-    <link href="/css/app.css?v=20260517-support-detail-fix02" rel="stylesheet">
+    <link href="/css/app.css?v=20260517-news-popup-split01" rel="stylesheet">
       <link href="/common/accessibility.css?v=2026051401" rel="stylesheet">
     <link href="/common/common-alert.css?v=2026051601" rel="stylesheet">
     <link href="/common/common-loading.css?v=2026051607" rel="stylesheet">
@@ -1765,7 +1765,7 @@
         </div>
       </div>
     </dialog>
-    <script src="/js/app.js?v=20260517-support-detail-fix02" type="module">
+    <script src="/js/app.js?v=20260517-news-popup-split01" type="module">
     </script>    <script defer src="/common/password-field-enhance.js?v=2026051501"></script>
     <script defer src="/common/modal-backdrop-lock.js?v=2026051401"></script>
 
@@ -2039,6 +2039,267 @@
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',init,{once:true}); else init();
 })();
 </script>
+
+
+<script id="upick-photo-viewer-a11y-fix-20260518">
+(function(){
+  'use strict';
+
+  var viewer = null;
+  var closeBtn = null;
+  var lastFocus = null;
+
+  function qs(sel, root){ return (root || document).querySelector(sel); }
+
+  function getViewer(){
+    return document.getElementById('benefitPhotoZoomViewer');
+  }
+
+  function isOpen(){
+    viewer = getViewer();
+    return !!(viewer && viewer.classList.contains('show'));
+  }
+
+  function getFocusable(root){
+    if(!root) return [];
+    return Array.prototype.slice.call(root.querySelectorAll([
+      'button:not([disabled])',
+      'a[href]',
+      'input:not([disabled])',
+      'select:not([disabled])',
+      'textarea:not([disabled])',
+      '[tabindex]:not([tabindex="-1"])'
+    ].join(','))).filter(function(el){
+      return !!(el.offsetWidth || el.offsetHeight || el.getClientRects().length);
+    });
+  }
+
+  function focusClose(){
+    if(!isOpen()) return;
+    closeBtn = qs('.photo-viewer-close', viewer);
+    if(closeBtn){
+      closeBtn.setAttribute('type', 'button');
+      closeBtn.setAttribute('aria-label', closeBtn.getAttribute('aria-label') || '닫기');
+      requestAnimationFrame(function(){
+        try{ closeBtn.focus({preventScroll:true}); }
+        catch(_){ closeBtn.focus(); }
+      });
+    }
+  }
+
+  function closeViewer(){
+    if(!isOpen()) return;
+    if(closeBtn) closeBtn.click();
+    else viewer.classList.remove('show');
+    if(lastFocus && typeof lastFocus.focus === 'function'){
+      requestAnimationFrame(function(){
+        try{ lastFocus.focus({preventScroll:true}); }
+        catch(_){ lastFocus.focus(); }
+      });
+    }
+  }
+
+  function onClick(event){
+    if(!isOpen()) return;
+
+    // 대표 사진 팝업은 바깥 영역 클릭으로 닫히지 않도록 차단합니다.
+    if(event.target === viewer){
+      event.preventDefault();
+      event.stopPropagation();
+      if(typeof event.stopImmediatePropagation === 'function') event.stopImmediatePropagation();
+      focusClose();
+      return false;
+    }
+  }
+
+  function onKeydown(event){
+    if(!isOpen()) return;
+
+    if(event.key === 'Escape'){
+      event.preventDefault();
+      event.stopPropagation();
+      closeViewer();
+      return;
+    }
+
+    if(event.key !== 'Tab') return;
+
+    var card = qs('.photo-viewer-card', viewer) || viewer;
+    var focusables = getFocusable(card);
+    if(!focusables.length){
+      event.preventDefault();
+      focusClose();
+      return;
+    }
+
+    var first = focusables[0];
+    var last = focusables[focusables.length - 1];
+    var active = document.activeElement;
+
+    if(event.shiftKey && active === first){
+      event.preventDefault();
+      last.focus();
+    }else if(!event.shiftKey && active === last){
+      event.preventDefault();
+      first.focus();
+    }else if(!card.contains(active)){
+      event.preventDefault();
+      first.focus();
+    }
+  }
+
+  function syncOpenState(){
+    if(isOpen()){
+      document.documentElement.classList.add('upick-photo-viewer-open');
+      document.body.classList.add('upick-photo-viewer-open');
+      if(!viewer.dataset.a11yFocused){
+        viewer.dataset.a11yFocused = '1';
+        lastFocus = document.activeElement;
+        focusClose();
+      }
+    }else{
+      document.documentElement.classList.remove('upick-photo-viewer-open');
+      document.body.classList.remove('upick-photo-viewer-open');
+      if(viewer) delete viewer.dataset.a11yFocused;
+    }
+  }
+
+  function bind(){
+    viewer = getViewer();
+    if(!viewer) return;
+    if(viewer.dataset.photoA11yBound === '1') return;
+    viewer.dataset.photoA11yBound = '1';
+
+    viewer.setAttribute('aria-modal', 'true');
+    viewer.setAttribute('role', viewer.getAttribute('role') || 'presentation');
+
+    viewer.addEventListener('click', onClick, true);
+    document.addEventListener('keydown', onKeydown, true);
+
+    var observer = new MutationObserver(syncOpenState);
+    observer.observe(viewer, {attributes:true, attributeFilter:['class', 'style', 'aria-hidden']});
+    syncOpenState();
+  }
+
+  function init(){
+    bind();
+    new MutationObserver(bind).observe(document.body, {childList:true, subtree:true});
+  }
+
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init, {once:true});
+  else init();
+})();
+</script>
+<style id="upick-photo-viewer-a11y-style-20260518">
+#detailModal #benefitPhotoZoomViewer .photo-viewer-close:focus-visible{
+  outline: 3px solid rgba(37, 99, 235, 0.95) !important;
+  outline-offset: 3px !important;
+  box-shadow: 0 0 0 5px rgba(255,255,255,0.92), 0 12px 26px rgba(15,23,42,0.28) !important;
+}
+</style>
+
+<script id="upick-photo-viewer-focus-return-fix-20260518">
+(function(){
+  'use strict';
+
+  var viewer = null;
+  var lastPhotoTrigger = null;
+  var wasOpen = false;
+  var restoring = false;
+
+  function qs(sel, root){ return (root || document).querySelector(sel); }
+  function getViewer(){ return document.getElementById('benefitPhotoZoomViewer'); }
+  function isVisible(el){ return !!(el && (el.offsetWidth || el.offsetHeight || el.getClientRects().length)); }
+
+  function rememberTrigger(target){
+    var photo = target && target.closest ? target.closest('#detailModal .benefit-detail-photo') : null;
+    if(photo && isVisible(photo)){
+      lastPhotoTrigger = photo;
+      if(!photo.hasAttribute('tabindex')) photo.setAttribute('tabindex', '0');
+      if(!photo.hasAttribute('role')) photo.setAttribute('role', 'button');
+      if(!photo.hasAttribute('aria-label')) photo.setAttribute('aria-label', '대표 사진 확대 보기');
+    }
+  }
+
+  function restorePhotoFocus(){
+    if(restoring) return;
+    var target = lastPhotoTrigger;
+    if(!target || !document.contains(target) || !isVisible(target)){
+      target = qs('#detailModal .benefit-detail-photo.is-photo-ready, #detailModal .benefit-detail-photo[tabindex]');
+    }
+    if(!target || !isVisible(target)) return;
+
+    restoring = true;
+    requestAnimationFrame(function(){
+      setTimeout(function(){
+        try{ target.focus({preventScroll:true}); }
+        catch(_){ target.focus(); }
+        restoring = false;
+      }, 0);
+    });
+  }
+
+  function sync(){
+    viewer = getViewer();
+    var open = !!(viewer && viewer.classList.contains('show'));
+
+    if(open && !wasOpen){
+      var active = document.activeElement;
+      if(active && active.closest && active.closest('#detailModal .benefit-detail-photo')){
+        rememberTrigger(active);
+      }else if(!lastPhotoTrigger){
+        var fallback = qs('#detailModal .benefit-detail-photo.is-photo-ready, #detailModal .benefit-detail-photo[tabindex]');
+        if(fallback) lastPhotoTrigger = fallback;
+      }
+    }
+
+    if(!open && wasOpen){
+      restorePhotoFocus();
+    }
+
+    wasOpen = open;
+  }
+
+  function bind(){
+    document.addEventListener('focusin', function(event){
+      rememberTrigger(event.target);
+    }, true);
+
+    document.addEventListener('pointerdown', function(event){
+      rememberTrigger(event.target);
+    }, true);
+
+    document.addEventListener('keydown', function(event){
+      if(event.key === 'Enter' || event.key === ' '){
+        rememberTrigger(event.target);
+      }
+    }, true);
+
+    document.addEventListener('click', function(event){
+      var v = getViewer();
+      if(!v || !v.classList.contains('show')) return;
+      if(event.target && event.target.closest && event.target.closest('#benefitPhotoZoomViewer .photo-viewer-close')){
+        setTimeout(restorePhotoFocus, 30);
+        setTimeout(restorePhotoFocus, 120);
+      }
+    }, true);
+
+    var mo = new MutationObserver(sync);
+    mo.observe(document.body, {subtree:true, childList:true, attributes:true, attributeFilter:['class','style','aria-hidden']});
+    sync();
+  }
+
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', bind, {once:true});
+  else bind();
+})();
+</script>
+<style id="upick-photo-viewer-focus-return-style-20260518">
+#detailModal .benefit-detail-photo:focus-visible{
+  outline: 3px solid rgba(37, 99, 235, 0.95) !important;
+  outline-offset: 4px !important;
+  box-shadow: 0 0 0 5px rgba(255,255,255,0.92), 0 12px 26px rgba(15,23,42,0.22) !important;
+}
+</style>
 
 </body>
 </html>

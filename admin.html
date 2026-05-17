@@ -34,7 +34,7 @@
     <link href="/icons/splash-ios-828x1792.png" media="(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2)" rel="apple-touch-startup-image">
     <link href="/icons/splash-ios-1170x2532.png" media="(device-width: 390px) and (device-height: 844px) and (-webkit-device-pixel-ratio: 3)" rel="apple-touch-startup-image">
     <link href="/icons/splash-ios-1290x2796.png" media="(device-width: 430px) and (device-height: 932px) and (-webkit-device-pixel-ratio: 3)" rel="apple-touch-startup-image">
-    <link href="/css/admin.css?v=2026051706" rel="stylesheet">
+    <link href="/css/admin.css?v=20260517-news-badge-custom01" rel="stylesheet">
       <link href="/common/accessibility.css?v=2026051401" rel="stylesheet">
     <link href="/common/common-alert.css?v=2026051601" rel="stylesheet">
     <link href="/common/common-loading.css?v=2026051607" rel="stylesheet">
@@ -871,6 +871,24 @@
                   </button>
                   <input id="couponLinksText" type="hidden">
                 </div>
+                <div class="field news-item-field">
+                  <label>
+                    소식 링크
+                    <span style="font-weight:600;color:#94a3b8;">
+                      (선택 · 여러 개 가능)
+                    </span>
+                  </label>
+                  <div class="benefit-extra-help">
+                    네이버 지도 소식처럼 제목, 이미지, 날짜, 링크를 등록합니다. 공개앱 상세에서는 소식 카드로 표시되고, 카드는 링크로 이동됩니다.
+                  </div>
+                  <div class="news-item-list" id="newsItemList">
+                  </div>
+                  <button class="btn btn-soft" id="addNewsItemBtn" type="button">
+                    + 소식 추가
+                  </button>
+                  <input id="newsItemsText" type="hidden">
+                </div>
+
                 <div class="field">
                   <label>
                     이용 옵션
@@ -2021,10 +2039,40 @@
         </div>
       </div>
     </div>
-    <script src="/js/admin.js?v=2026051706">
+    <script src="/js/admin.js?v=20260517-news-badge-custom01">
     </script>    <script defer src="/common/password-field-enhance.js?v=2026051501"></script>
     <script defer src="/common/modal-backdrop-lock.js?v=2026051401"></script>
 
       <script defer src="/common/accessibility.js?v=2026051401"></script>
-  </body>
+  <script id="news-field-label-runtime-fix">
+(function(){
+  function enhanceNewsRows(){
+    document.querySelectorAll('.news-item-row').forEach((row)=>{
+      const map=[
+        ['.news-title','소식 제목'],
+        ['.news-date','소식 날짜'],
+        ['.news-image-url','이미지 URL'],
+        ['.news-url','소식 링크 URL']
+      ];
+      map.forEach(([sel,label])=>{
+        const input=row.querySelector(sel);
+        if(!input || input.dataset.newsFieldEnhanced==='1') return;
+        input.dataset.newsFieldEnhanced='1';
+        input.setAttribute('aria-label', label);
+        input.setAttribute('title', label);
+        if(!input.previousElementSibling || !input.previousElementSibling.classList?.contains('news-field-label')){
+          const small=document.createElement('small');
+          small.className='news-field-label';
+          small.textContent=label;
+          input.parentNode.insertBefore(small,input);
+        }
+      });
+    });
+  }
+  document.addEventListener('DOMContentLoaded', enhanceNewsRows);
+  document.addEventListener('click',()=>setTimeout(enhanceNewsRows,30),true);
+  new MutationObserver(enhanceNewsRows).observe(document.documentElement,{childList:true,subtree:true});
+})();
+</script>
+</body>
 </html>
