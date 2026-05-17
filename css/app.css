@@ -20098,3 +20098,46 @@ body.gnb-manage-scroll-lock{
     font-size: 11px !important;
   }
 }
+
+
+/* ===== Public GNB bottom-nav settings: label tone + help bullets fix ===== */
+.user-bottom-nav-settings .user-bottom-nav-field > .user-bottom-nav-label{
+  display:flex;
+  align-items:baseline;
+  gap:6px;
+  margin-bottom:8px;
+  color:#0f172a!important;
+  font-size:13px!important;
+  font-weight:900!important;
+  letter-spacing:-.03em;
+  line-height:1.35;
+}
+.user-bottom-nav-settings .user-bottom-nav-label-note{
+  color:#64748b!important;
+  font-size:12px!important;
+  font-weight:800!important;
+}
+.user-bottom-nav-settings .user-bottom-nav-help{
+  display:grid!important;
+  gap:4px!important;
+  padding:14px 16px!important;
+  border-radius:18px!important;
+  background:#f8fafc!important;
+  border:1px solid #e2e8f0!important;
+  color:#64748b!important;
+  font-size:12px!important;
+  line-height:1.65!important;
+  font-weight:800!important;
+}
+.user-bottom-nav-settings .user-bottom-nav-help-item{
+  position:relative;
+  padding-left:12px;
+}
+.user-bottom-nav-settings .user-bottom-nav-help-item::before{
+  content:'•';
+  position:absolute;
+  left:0;
+  top:0;
+  color:#64748b;
+  font-weight:900;
+}
