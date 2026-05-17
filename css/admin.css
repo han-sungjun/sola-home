@@ -5937,3 +5937,18 @@ img.brand-icon[src*="home.svg"],
 @keyframes upickV82LoaderBarFlow{0%,100%{opacity:.38;transform:scaleX(.72);background-position:0% 50%;}50%{opacity:.95;transform:scaleX(1);background-position:100% 50%;}}
 @media (max-width:420px){#pageLoader .loader-content,#globalLoadingBar .loader-content,.page-loader .loader-content,.global-loading .loader-content{gap:20px!important;transform:translateY(-4px)!important;}#pageLoader .loader-message,#globalLoadingBar .loader-message,.page-loader .loader-message,.global-loading .loader-message{font-size:14.5px!important;}}
 @media (prefers-reduced-motion: reduce){#pageLoader .loader-mark,#globalLoadingBar .loader-mark,.page-loader .loader-mark,.global-loading .loader-mark,#pageLoader .loader-mark::before,#globalLoadingBar .loader-mark::before,.page-loader .loader-mark::before,.global-loading .loader-mark::before,#pageLoader .loader-mark::after,#globalLoadingBar .loader-mark::after,.page-loader .loader-mark::after,.global-loading .loader-mark::after{animation:none!important;}}
+
+
+.coupon-link-list{display:grid;gap:10px;margin:10px 0}
+.coupon-link-row{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.35fr) auto;gap:8px;align-items:center}
+.coupon-link-row input{width:100%}
+.coupon-link-remove-btn{border:1px solid var(--line);background:#fff;color:#64748b;border-radius:12px;padding:10px 12px;font-weight:900;cursor:pointer}
+.coupon-link-remove-btn:hover{border-color:#fecaca;color:#dc2626;background:#fff7f7}
+.coupon-link-chip-row{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.coupon-link-chip{display:inline-flex;align-items:center;gap:4px;padding:5px 8px;border-radius:999px;background:#fff7ed;color:#9a3412;border:1px solid #fed7aa;font-size:12px;font-weight:900}
+@media (max-width:640px){.coupon-link-row{grid-template-columns:1fr}.coupon-link-remove-btn{width:100%}}
+
+
+.support-program-chip-row{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;align-items:center;}
+.support-program-chip{display:inline-flex;align-items:center;gap:4px;max-width:100%;padding:5px 8px;border-radius:999px;background:#ecfeff;color:#075985;border:1px solid #bae6fd;font-size:12px;font-weight:900;line-height:1.1;white-space:nowrap;}
+.admin-benefit-card .support-program-chip{white-space:nowrap;}

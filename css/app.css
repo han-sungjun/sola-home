@@ -20141,3 +20141,27 @@ body.gnb-manage-scroll-lock{
   color:#64748b;
   font-weight:900;
 }
+
+
+.upick-coupon-link-section{margin:14px 0;padding:16px;border-radius:18px;background:#fff;border:1px solid #e5e7eb;box-shadow:0 10px 24px rgba(15,23,42,.06)}
+.upick-coupon-link-section h3{margin:0 0 10px;font-size:15px;font-weight:900;color:#0f172a}
+.upick-coupon-link-card{display:flex;align-items:center;gap:12px;padding:12px;border-radius:16px;border:1px solid #e5e7eb;background:#fff}
+.upick-coupon-icon{width:42px;height:42px;border-radius:14px;display:flex;align-items:center;justify-content:center;background:#ecfdf5;font-size:22px;flex:0 0 auto}
+.upick-coupon-copy{min-width:0;display:flex;flex-direction:column;gap:3px;flex:1}
+.upick-coupon-copy strong{font-size:13px;font-weight:900;color:#059669}
+.upick-coupon-copy span{font-size:14px;font-weight:800;color:#0f172a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.upick-coupon-link-card button{border:0;background:transparent;color:#16a34a;font-size:13px;font-weight:900;white-space:nowrap;cursor:pointer}
+
+
+.support-program-detail-panel{border:1px solid #bfdbfe;background:linear-gradient(180deg,#eff6ff,#fff);}
+.support-program-detail-list{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px;}
+.support-program-detail-chip{display:inline-flex;align-items:center;gap:5px;max-width:100%;padding:8px 10px;border-radius:999px;background:#ecfeff;border:1px solid #bae6fd;color:#075985;font-size:13px;font-weight:900;line-height:1.1;white-space:nowrap;}
+.support-program-detail-chip::before{content:'💳';font-size:13px;}
+.support-program-detail-note{margin:10px 0 0;color:#64748b;font-size:12px;line-height:1.55;}
+.coupon-link-detail-panel{border:1px solid #e5e7eb;background:#fff;}
+.coupon-link-detail-card{display:flex;align-items:center;gap:12px;padding:12px;border-radius:16px;border:1px solid #e5e7eb;background:#fff;color:inherit;text-decoration:none;}
+.coupon-link-detail-icon{width:38px;height:38px;display:inline-flex;align-items:center;justify-content:center;border-radius:12px;background:#dcfce7;font-size:20px;flex:0 0 auto;}
+.coupon-link-detail-copy{display:grid;gap:2px;min-width:0;flex:1;}
+.coupon-link-detail-copy b{font-size:13px;color:#16a34a;font-weight:900;}
+.coupon-link-detail-copy em{font-style:normal;font-size:14px;font-weight:800;color:#0f172a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.coupon-link-detail-action{font-size:13px;font-weight:900;color:#16a34a;white-space:nowrap;}

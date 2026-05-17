@@ -34,7 +34,7 @@
     <link href="/icons/splash-ios-828x1792.png" media="(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2)" rel="apple-touch-startup-image">
     <link href="/icons/splash-ios-1170x2532.png" media="(device-width: 390px) and (device-height: 844px) and (-webkit-device-pixel-ratio: 3)" rel="apple-touch-startup-image">
     <link href="/icons/splash-ios-1290x2796.png" media="(device-width: 430px) and (device-height: 932px) and (-webkit-device-pixel-ratio: 3)" rel="apple-touch-startup-image">
-    <link href="/css/admin.css?v=2026051601" rel="stylesheet">
+    <link href="/css/admin.css?v=2026051706" rel="stylesheet">
       <link href="/common/accessibility.css?v=2026051401" rel="stylesheet">
     <link href="/common/common-alert.css?v=2026051601" rel="stylesheet">
     <link href="/common/common-loading.css?v=2026051607" rel="stylesheet">
@@ -821,6 +821,55 @@
                     <input id="smartstoreUrl" placeholder="스마트스토어 URL">
                     <input id="bandUrl" placeholder="밴드 URL">
                   </div>
+                </div>
+                <div class="field support-program-field">
+                  <label>
+                    정부지원금 / 바우처 사용 가능
+                    <span style="font-weight:600;color:#94a3b8;">
+                      (선택 · 여러 개 가능)
+                    </span>
+                  </label>
+                  <div class="benefit-extra-help">
+                    매장에서 사용 가능한 정부지원금, 지역화폐, 바우처를 여러 개 선택할 수 있습니다. 공개앱 상세와 AI 생활도우미 답변에서 함께 활용됩니다.
+                  </div>
+                  <div class="benefit-extra-checks support-program-checks" id="supportProgramChecks">
+                    <label>
+                      <input class="support-program-checkbox" data-program="민생회복지원금" type="checkbox">
+                      민생회복지원금
+                    </label>
+                    <label>
+                      <input class="support-program-checkbox" data-program="경기지역화폐" type="checkbox">
+                      경기지역화폐
+                    </label>
+                    <label>
+                      <input class="support-program-checkbox" data-program="아동급식카드" type="checkbox">
+                      아동급식카드
+                    </label>
+                    <label>
+                      <input class="support-program-checkbox" data-program="문화누리카드" type="checkbox">
+                      문화누리카드
+                    </label>
+                  </div>
+                  <input id="supportProgramOther" placeholder="기타 지원금/바우처가 있으면 쉼표로 입력하세요. 예: 청년 바우처, 복지포인트">
+                  <input id="supportProgramsText" type="hidden">
+                </div>
+
+                <div class="field coupon-link-field">
+                  <label>
+                    쿠폰 링크
+                    <span style="font-weight:600;color:#94a3b8;">
+                      (선택 · 여러 개 가능)
+                    </span>
+                  </label>
+                  <div class="benefit-extra-help">
+                    네이버 지도, 스마트플레이스, 인스타그램 등 외부 쿠폰 페이지로 연결되는 링크를 등록합니다. 공개앱 상세에서는 쿠폰 카드로 표시됩니다.
+                  </div>
+                  <div class="coupon-link-list" id="couponLinkList">
+                  </div>
+                  <button class="btn btn-soft" id="addCouponLinkBtn" type="button">
+                    + 쿠폰 링크 추가
+                  </button>
+                  <input id="couponLinksText" type="hidden">
                 </div>
                 <div class="field">
                   <label>
@@ -1972,7 +2021,7 @@
         </div>
       </div>
     </div>
-    <script src="/js/admin.js">
+    <script src="/js/admin.js?v=2026051706">
     </script>    <script defer src="/common/password-field-enhance.js?v=2026051501"></script>
     <script defer src="/common/modal-backdrop-lock.js?v=2026051401"></script>
 

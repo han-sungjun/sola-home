@@ -3325,7 +3325,66 @@ function formatTravelDuration(minutes){
  });
  }
 
- function benefitExtraInfoHtml(item = {}){
+ 
+function normalizeSupportProgramsForDetail(item = {}){
+ const raw = item.supportPrograms ?? item.supportProgram ?? item.governmentSupport ?? item.supportProgramNames ?? item.supportProgramList ?? {};
+ let programs = [];
+
+ if(Array.isArray(raw)) {
+   programs = raw;
+ } else if(raw && typeof raw === 'object') {
+   if(Array.isArray(raw.programs)) programs = raw.programs;
+   else if(Array.isArray(raw.items)) programs = raw.items;
+   else if(Array.isArray(raw.names)) programs = raw.names;
+   else {
+     programs = Object.entries(raw)
+       .filter(([key, value]) => key !== 'enabled' && value)
+       .map(([key, value]) => typeof value === 'string' ? value : key);
+   }
+ } else if(typeof raw === 'string') {
+   programs = raw.split(/[·,，\n]/);
+ }
+
+ if(!programs.length && typeof item.supportProgramsText === 'string') {
+   programs = item.supportProgramsText.split(/[·,，\n]/);
+ }
+
+ programs = programs
+   .map(v => String(v || '').trim())
+   .filter(Boolean);
+
+ return [...new Set(programs)];
+}
+function supportProgramsPanelHtml(item = {}){
+ const programs = normalizeSupportProgramsForDetail(item);
+ if(!programs.length) return '';
+ const names = programs.map(v => `<span class="support-program-detail-chip">${escapeHtml(v)}</span>`).join('');
+ return `<div class="panel support-program-detail-panel"><strong style="display:block;margin-bottom:6px;font-size:13px;color:var(--muted);">정부지원금 사용 가능</strong><div class="support-program-detail-list">${names}</div><p class="support-program-detail-note">매장 사정이나 결제 수단에 따라 사용 가능 여부가 달라질 수 있으니, 방문 전 매장에 확인해주세요.</p></div>`;
+}
+function normalizeCouponLinksForDetail(item = {}){
+ const raw = item.couponLinks || item.coupons || item.couponList || item.couponUrls || [];
+ let rows = [];
+ if(Array.isArray(raw)){
+   rows = raw.map(row => {
+     if(typeof row === 'string') return { title:'쿠폰 있어요', url:row };
+     row = row || {};
+     return { title:String(row.title || row.name || row.label || row.couponTitle || '쿠폰 있어요').trim(), url:String(row.url || row.link || row.href || row.couponUrl || '').trim() };
+   });
+ }else if(raw && typeof raw === 'object'){
+   rows = [{ title:String(raw.title || raw.name || raw.label || raw.couponTitle || '쿠폰 있어요').trim(), url:String(raw.url || raw.link || raw.href || raw.couponUrl || '').trim() }];
+ }else if(typeof raw === 'string'){
+   rows = raw.split(/[\n,，]/).map(url => ({ title:'쿠폰 있어요', url:String(url).trim() }));
+ }
+ return rows.filter(row => row.url).map(row => ({ title:row.title || '쿠폰 있어요', url:row.url }));
+}
+function couponLinksPanelHtml(item = {}){
+ const rows = normalizeCouponLinksForDetail(item);
+ if(!rows.length) return '';
+ const first = rows[0];
+ return `<div class="panel coupon-link-detail-panel"><strong style="display:block;margin-bottom:10px;font-size:15px;color:#0f172a;">쿠폰</strong><a class="coupon-link-detail-card" href="${escapeAttr(first.url)}" target="_blank" rel="noopener"><span class="coupon-link-detail-icon">🎁</span><span class="coupon-link-detail-copy"><b>쿠폰 있어요</b><em>${escapeHtml(first.title)}</em></span><span class="coupon-link-detail-action">모두 보기</span></a></div>`;
+}
+
+function benefitExtraInfoHtml(item = {}){
  const links = getBenefitSocialLinks(item);
  const services = [];
  if(item.deliveryAvailable || item.serviceTags?.delivery) services.push('배달');
@@ -3683,6 +3742,9 @@ stationAccessText:item.stationAccessText||item.transitText||item.stationGuide||i
  directionText:item.directionText||item.directionGuide||item.locationGuide||item.guideText||'',
  externalLinks:item.externalLinks||{},
  serviceTags:item.serviceTags||{},
+ supportPrograms:item.supportPrograms||item.supportProgram||item.governmentSupport||item.supportProgramNames||item.supportProgramList||null,
+ supportProgramsText:item.supportProgramsText||'',
+ couponLinks:item.couponLinks||item.coupons||item.couponList||item.couponUrls||[],
  lat:Number.isFinite(lat)?lat:null,
  lng:Number.isFinite(lng)?lng:null,
  service:!!item.service||String(item.discountText).trim()==='서비스',
@@ -6433,7 +6495,7 @@ function renderCalendarDayModal(){
  increaseStat(item.id, item.name, 'detailViewCount');
  logBenefitEvent(item.id, 'detail_view');
  const isFav=getFavorites().includes(item.id);
- qs('#modalBody').innerHTML=`${benefitDetailHeroHtml(item)}<div style="display:grid;gap:10px;margin:16px 0;"><div class="panel"><strong style="display:block;margin-bottom:6px;font-size:13px;color:var(--muted);">혜택 조건</strong>${item.condition}</div>${benefitPriceDetailsHtml(item)}${locationPanelHtml(item)}${benefitExtraInfoHtml(item)}<div class="panel"><strong style="display:block;margin-bottom:6px;font-size:13px;color:var(--muted);">연락처</strong>${benefitContactHtml(item)}</div>${benefitDetailDateHtml(item)}</div>${residentReactionHtml(item)}<div class="grid-2"><a class="btn btn-primary block" id="callBtn" href="tel:${item.phone}">전화하기</a><button class="btn btn-soft block" id="modalFavBtn"><img class="upick-svg-icon upick-inline-icon" src="/icons/internal/${isFav ? 'star-fill' : 'star-outline'}.svg" alt="" loading="lazy" decoding="async">${isFav?'즐겨찾기 해제':'즐겨찾기 추가'}</button></div><button class="btn btn-soft block" id="openCalendarReservationBtn" style="margin-top:10px;">방문 알림 추가</button>${shareActionsHtml('benefit')}`;
+ qs('#modalBody').innerHTML=`${benefitDetailHeroHtml(item)}<div style="display:grid;gap:10px;margin:16px 0;"><div class="panel"><strong style="display:block;margin-bottom:6px;font-size:13px;color:var(--muted);">혜택 조건</strong>${item.condition}</div>${supportProgramsPanelHtml(item)}${couponLinksPanelHtml(item)}${benefitPriceDetailsHtml(item)}${locationPanelHtml(item)}${benefitExtraInfoHtml(item)}<div class="panel"><strong style="display:block;margin-bottom:6px;font-size:13px;color:var(--muted);">연락처</strong>${benefitContactHtml(item)}</div>${benefitDetailDateHtml(item)}</div>${residentReactionHtml(item)}<div class="grid-2"><a class="btn btn-primary block" id="callBtn" href="tel:${item.phone}">전화하기</a><button class="btn btn-soft block" id="modalFavBtn"><img class="upick-svg-icon upick-inline-icon" src="/icons/internal/${isFav ? 'star-fill' : 'star-outline'}.svg" alt="" loading="lazy" decoding="async">${isFav?'즐겨찾기 해제':'즐겨찾기 추가'}</button></div><button class="btn btn-soft block" id="openCalendarReservationBtn" style="margin-top:10px;">방문 알림 추가</button>${shareActionsHtml('benefit')}`;
  const modal=qs('#detailModal');
  if(modal.open)modal.close();
  modal.showModal();
