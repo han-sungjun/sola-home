@@ -21247,3 +21247,15 @@ body.gnb-manage-scroll-lock{
     font-size:22px !important;
   }
 }
+
+/* v20260518 소식 이미지 팝업 닫힘 상태 잔상 제거 */
+.news-image-preview-overlay:not(.show):not([open]){
+  display:none !important;
+  visibility:hidden !important;
+  pointer-events:none !important;
+}
+.news-image-preview-overlay.show,
+.news-image-preview-overlay[open]{
+  visibility:visible !important;
+  pointer-events:auto !important;
+}
