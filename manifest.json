@@ -1,6 +1,6 @@
 {
-  "name": "더운정픽 DEV",
-  "short_name": "더운정픽(DEV)",
+  "name": "더운정픽",
+  "short_name": "더운정픽",
   "description": "입주민 전용 혜택 웹앱",
   "id": "/",
   "start_url": "/",
