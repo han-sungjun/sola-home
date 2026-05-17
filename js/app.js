@@ -5679,7 +5679,23 @@ ${item.content || ''}`);
  try{localStorage.setItem('benefitViewMode', state.benefitViewMode);}catch(_){}
  renderHome();
  }
- function renderList(target,items){
+ function getEmptyListMessage(target){
+ if(target === '#favoriteList'){
+ return '아직 저장한 혜택이 없습니다.';
+ }
+ if(target === '#cardList'){
+ const hasKeyword = !!String(state.keyword || '').trim();
+ const hasCategoryFilter = state.category && state.category !== '전체';
+ const hasHighFilter = state.filter && state.filter !== 'all';
+ const hasRadiusFilter = state.distanceRadius && state.distanceRadius !== 'all';
+ if(hasKeyword || hasCategoryFilter || hasHighFilter || hasRadiusFilter){
+ return '조건에 맞는 혜택을 찾지 못했습니다.<br>검색어나 필터를 변경해보세요.';
+ }
+ return '현재 제공 중인 혜택이 없습니다.';
+ }
+ return '표시할 항목이 없습니다.';
+}
+function renderList(target,items){
  const wrap=qs(target),favorites=new Set(getFavorites());
  if(!wrap) return;
  wrap.innerHTML='';
@@ -5693,7 +5709,7 @@ ${item.content || ''}`);
  wrap.classList.add('view-list');
  wrap.classList.remove('view-card');
  }
- if(!items.length){wrap.innerHTML='<div class="panel empty">조건에 맞는 항목이 없습니다.</div>';return;}
+ if(!items.length){wrap.innerHTML=`<div class="panel empty">${getEmptyListMessage(target)}</div>`;return;}
  items.forEach(item=>{
  const card=document.createElement('article');
  const topRank=getBenefitTopRank(item);
