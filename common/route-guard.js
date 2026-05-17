@@ -11,7 +11,6 @@
   ];
 
   const ADMIN_PAGES = [
-    "/sola-admin-x92ks",
     "/admin"
   ];
 

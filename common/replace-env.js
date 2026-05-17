@@ -22,7 +22,7 @@ const files = [
   "signup.html",
   "phone-verify.html",
   "error.html",
-  "sola-admin-x92ks.html"
+  "admin.html"
 ];
 
 files.forEach(file => {

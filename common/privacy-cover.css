@@ -1,0 +1,85 @@
+/* 더운정픽 백그라운드/최근 앱 미리보기 보호 커버 */
+#privacyCover {
+  position: fixed;
+  inset: 0;
+  z-index: 2147483647;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: max(24px, env(safe-area-inset-top)) max(24px, env(safe-area-inset-right)) max(24px, env(safe-area-inset-bottom)) max(24px, env(safe-area-inset-left));
+  background:
+    radial-gradient(circle at 20% 10%, rgba(96, 165, 250, 0.24), transparent 34%),
+    radial-gradient(circle at 80% 0%, rgba(14, 165, 233, 0.16), transparent 30%),
+    linear-gradient(135deg, #07111f 0%, #0f172a 48%, #102a5c 100%);
+  color: #ffffff;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transform: translateZ(0);
+  transition: opacity 120ms ease, visibility 0s linear 120ms;
+  -webkit-tap-highlight-color: transparent;
+}
+
+#privacyCover.is-visible {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transition: opacity 80ms ease, visibility 0s;
+}
+
+.privacy-cover-card {
+  width: min(82vw, 360px);
+  padding: 28px 24px 26px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 28px;
+  background: rgba(15, 23, 42, 0.44);
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.36);
+  -webkit-backdrop-filter: blur(18px);
+  backdrop-filter: blur(18px);
+  text-align: center;
+}
+
+.privacy-cover-logo {
+  width: 74px;
+  height: 74px;
+  margin: 0 auto 16px;
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.12);
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+}
+
+.privacy-cover-logo img {
+  width: 54px;
+  height: 54px;
+  object-fit: contain;
+}
+
+.privacy-cover-title {
+  margin: 0;
+  font-size: 23px;
+  font-weight: 900;
+  letter-spacing: -0.05em;
+  line-height: 1.2;
+}
+
+.privacy-cover-desc {
+  margin: 9px 0 0;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.45;
+  color: rgba(255, 255, 255, 0.78);
+  letter-spacing: -0.03em;
+}
+
+html.privacy-cover-active,
+body.privacy-cover-active {
+  background: #07111f !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #privacyCover {
+    transition: none;
+  }
+}
