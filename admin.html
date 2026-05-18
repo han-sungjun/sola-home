@@ -474,11 +474,25 @@
                 </div>
                 <div class="grid-2">
                   <div class="field">
+                    <label for="benefitStartedAt">
+                      혜택 시작일
+                    </label>
+                    <input id="benefitStartedAt" type="date">
+                    <div class="admin-field-help">
+                      시작일 전 혜택은 공개앱 목록에서 자동 제외됩니다.
+                    </div>
+                  </div>
+                  <div class="field">
                     <label for="benefitEndedAt">
                       혜택 종료일
                     </label>
                     <input id="benefitEndedAt" type="date">
+                    <div class="admin-field-help">
+                      종료 7일 전부터 공개앱에 종료 배지가 표시되고, 종료일 다음날부터 목록에서 자동 제외됩니다.
+                    </div>
                   </div>
+                </div>
+                <div class="grid-2">
                   <div class="field">
                     <label for="benefitStatusReason">
                       혜택 상태 사유
@@ -2039,7 +2053,7 @@
         </div>
       </div>
     </div>
-    <script src="/js/admin.js?v=20260517-news-badge-custom01">
+    <script src="/js/admin.js?v=20260518-benefit-date-auto03">
     </script>    <script defer src="/common/password-field-enhance.js?v=2026051501"></script>
     <script defer src="/common/modal-backdrop-lock.js?v=2026051401"></script>
 

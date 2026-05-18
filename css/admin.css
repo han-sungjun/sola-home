@@ -6078,3 +6078,12 @@ img.brand-icon[src*="home.svg"],
     grid-template-columns:1fr;
   }
 }
+
+
+/* ===== Admin benefit date status badges ===== */
+.admin-benefit-date-badge{font-weight:1000;border:1px solid transparent;}
+.admin-benefit-date-badge.scheduled{background:#eff6ff;border-color:#bfdbfe;color:#1d4ed8;}
+.admin-benefit-date-badge.soon{background:#fff7ed;border-color:#fed7aa;color:#c2410c;}
+.admin-benefit-date-badge.urgent{background:#fef2f2;border-color:#fecaca;color:#b91c1c;}
+.admin-benefit-date-badge.today{background:#7f1d1d;border-color:#7f1d1d;color:#fff;}
+.admin-benefit-date-badge.ended{background:#f1f5f9;border-color:#cbd5e1;color:#475569;}

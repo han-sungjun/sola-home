@@ -38,7 +38,7 @@
   background:rgba(7,18,42,.46)!important;
   backdrop-filter:blur(14px)!important;
   -webkit-backdrop-filter:blur(14px)!important;
-  z-index:2147483900!important;
+  z-index:2147483000!important;
   opacity:1!important;
   visibility:visible!important;
   pointer-events:auto!important;

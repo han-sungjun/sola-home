@@ -424,8 +424,8 @@ async function resetPassword() {
     return;
   }
 
-  if (newPassword.length < 6) {
-    showNotice('비밀번호는 6자 이상 입력해주세요.', 'error');
+  if (newPassword.length < 8) {
+    showNotice('비밀번호는 8자 이상 입력해주세요.', 'error');
     return;
   }
 
@@ -593,7 +593,7 @@ function updatePasswordResetUi() {
     if (pwBar1) pwBar1.style.background = '#dc2626';
     if (passwordStrengthStatus) {
       passwordStrengthStatus.classList.add('weak');
-      passwordStrengthStatus.textContent = '약함 · 6자 이상, 숫자와 문자를 함께 사용해 주세요.';
+      passwordStrengthStatus.textContent = '약함 · 8자 이상, 숫자와 문자를 함께 사용해 주세요.';
     }
   } else if (strength === 'medium') {
     if (pwBar1) pwBar1.style.background = '#b45309';
