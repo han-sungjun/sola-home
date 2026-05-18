@@ -402,8 +402,8 @@ function updateResetPasswordMessage() {
     msg.textContent = '';
     return;
   }
-  if (pw.length > 0 && pw.length < 8) {
-    msg.textContent = '비밀번호는 8자 이상 입력해주세요.';
+  if (pw.length > 0 && pw.length < 6) {
+    msg.textContent = '비밀번호는 6자 이상 입력해주세요.';
     msg.classList.add('error');
     return;
   }
@@ -512,7 +512,7 @@ qs('#resetPwSubmitBtn')?.addEventListener('click', async (event) => {
   if (!loginId && !nickname) return showAppAlert({ message: '아이디와 닉네임을 입력해주세요.' });
   if (!loginId) return showAppAlert({ message: '아이디를 입력해주세요.' });
   if (!nickname) return showAppAlert({ message: '닉네임을 입력해주세요.' });
-  if (!newPassword || newPassword.length < 8) return showAppAlert({ message: '새 비밀번호는 8자 이상 입력해주세요.' });
+  if (!newPassword || newPassword.length < 6) return showAppAlert({ message: '새 비밀번호는 6자 이상 입력해주세요.' });
   if (newPassword !== newPasswordConfirm) return showAppAlert({ message: '새 비밀번호가 일치하지 않습니다.' });
 
   setButtonLoading(btn, true, '재설정 중...');

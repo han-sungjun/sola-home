@@ -34,55 +34,14 @@
     <link href="/icons/splash-ios-828x1792.png" media="(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2)" rel="apple-touch-startup-image">
     <link href="/icons/splash-ios-1170x2532.png" media="(device-width: 390px) and (device-height: 844px) and (-webkit-device-pixel-ratio: 3)" rel="apple-touch-startup-image">
     <link href="/icons/splash-ios-1290x2796.png" media="(device-width: 430px) and (device-height: 932px) and (-webkit-device-pixel-ratio: 3)" rel="apple-touch-startup-image">
-    <link href="/css/app.css?v=benefit-shine-v32-loader-motion-v4-20260518" rel="stylesheet">
+    <link href="/css/app.css?v=benefit-shine-v31" rel="stylesheet">
       <link href="/common/accessibility.css?v=2026051401" rel="stylesheet">
     <link href="/common/common-alert.css?v=2026051601" rel="stylesheet">
-    <link href="/common/common-loading.css?v=2026051802" rel="stylesheet">
+    <link href="/common/common-loading.css?v=2026051607" rel="stylesheet">
     <link href="/common/common-modal.css?v=2026051604" rel="stylesheet">
     <script defer src="/common/common-alert.js?v=2026051601"></script>
-    <script defer src="/common/common-loading.js?v=2026051802"></script>
+    <script defer src="/common/common-loading.js?v=2026051607"></script>
     <script defer src="/common/common-modal.js?v=2026051604"></script>
-
-    <style id="upick-public-loader-motion-final-fix-20260518">
-      body.app-role-root #globalLoadingBar.global-loading .loader-mark,
-      body #globalLoadingBar.global-loading.show .loader-mark,
-      body #globalLoadingBar.global-loading[aria-hidden="false"] .loader-mark{
-        transform:translate3d(0,0,0) scale(1)!important;
-        animation:upickPublicLoaderMarkFloatFinal20260518 1.35s ease-in-out infinite!important;
-        will-change:transform!important;
-      }
-      body.app-role-root #globalLoadingBar.global-loading .loader-mark::before,
-      body #globalLoadingBar.global-loading.show .loader-mark::before,
-      body #globalLoadingBar.global-loading[aria-hidden="false"] .loader-mark::before{
-        transform:translate3d(0,0,0) scale(1)!important;
-        animation:upickPublicLoaderLogoPulseFinal20260518 1.35s ease-in-out infinite!important;
-        will-change:transform,opacity!important;
-      }
-      body.app-role-root #globalLoadingBar.global-loading .loader-mark::after,
-      body #globalLoadingBar.global-loading.show .loader-mark::after,
-      body #globalLoadingBar.global-loading[aria-hidden="false"] .loader-mark::after{
-        inset:-10px!important;
-        width:auto!important;
-        height:auto!important;
-        left:-10px!important;
-        right:-10px!important;
-        bottom:-10px!important;
-        border-radius:42px!important;
-        background:none!important;
-        transform:rotate(0deg)!important;
-        animation:upickPublicLoaderRingSpinFinal20260518 1.05s linear infinite!important;
-        will-change:transform!important;
-      }
-      @keyframes upickPublicLoaderMarkFloatFinal20260518{
-        0%,100%{transform:translate3d(0,0,0) scale(1)}
-        50%{transform:translate3d(0,-8px,0) scale(1.018)}
-      }
-      @keyframes upickPublicLoaderLogoPulseFinal20260518{
-        0%,100%{transform:translate3d(0,0,0) scale(1);opacity:1}
-        50%{transform:translate3d(0,2px,0) scale(1.055);opacity:.96}
-      }
-      @keyframes upickPublicLoaderRingSpinFinal20260518{to{transform:rotate(360deg)}}
-    </style>
   </head>
   <body>
     <div aria-hidden="false" class="global-loading show" id="globalLoadingBar" data-initial-app-loading="1">
@@ -353,8 +312,7 @@
           </div>
           <div class="list" id="cardList">
             <div class="panel empty">
-              현재 표시할 혜택이 없습니다.
-              <br><small>새로운 혜택이 등록되면 이곳에 표시됩니다.</small>
+              조건에 맞는 항목이 없습니다.
             </div>
           </div>
         </section>
@@ -374,8 +332,7 @@
           </div>
           <div class="list" id="favoriteList">
             <div class="panel empty">
-              아직 저장한 혜택이 없습니다.
-              <br><small>관심 있는 매장의 별표를 눌러 저장해 보세요.</small>
+              조건에 맞는 항목이 없습니다.
             </div>
           </div>
         </section>
