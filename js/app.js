@@ -1265,9 +1265,24 @@ showForegroundPushToast({
    globalLoadingBar.classList.add('show');
    globalLoadingBar.setAttribute('aria-hidden', 'false');
  }
+ // 로딩바와 알럿이 동시에 떠도 확인 버튼 클릭을 막지 않도록 로딩바는 클릭을 받지 않습니다.
+ globalLoadingBar.style.pointerEvents = 'none';
  }
 
- function hideGlobalLoading(delay=160){
+ 
+function keepModalAlertAboveLoading(){
+ const loader = qs('#globalLoadingBar') || document.getElementById('globalLoadingBar');
+ if(loader){
+   loader.style.pointerEvents = 'none';
+   loader.style.zIndex = '2147483000';
+ }
+ qsa('dialog[open], #appAlert, .common-alert, .app-alert, .modal-alert, .alert-backdrop, .common-alert-backdrop').forEach((el) => {
+   el.style.zIndex = '2147483600';
+   el.style.pointerEvents = 'auto';
+ });
+}
+
+function hideGlobalLoading(delay=160){
  if(!globalLoadingBar) return;
  clearTimeout(globalLoadingTimer);
  globalLoadingTimer = setTimeout(() => {
@@ -2164,8 +2179,8 @@ function updatePasswordChangeMatchMessage(){
     msg.textContent = '';
     return;
   }
-  if(pw.length > 0 && pw.length < 6){
-    msg.textContent = '새 비밀번호는 6자 이상 입력해주세요.';
+  if(pw.length > 0 && pw.length < 8){
+    msg.textContent = '새 비밀번호는 8자 이상 입력해주세요.';
     msg.classList.add('error');
     return;
   }
@@ -2209,8 +2224,8 @@ async function submitPasswordChange(event){
     await openModalAlert('기존 비밀번호를 입력해주세요.', qs('#currentPasswordInput'));
     return;
   }
-  if(!newPassword || newPassword.length < 6){
-    await openModalAlert('새 비밀번호는 6자 이상 입력해주세요.', qs('#newPasswordInput'));
+  if(!newPassword || newPassword.length < 8){
+    await openModalAlert('새 비밀번호는 8자 이상 입력해주세요.', qs('#newPasswordInput'));
     return;
   }
   if(newPassword !== newPasswordConfirm){
@@ -3172,8 +3187,8 @@ function formatTravelDuration(minutes){
  });
  }
 
- function ensureBenefitDistances(){
- if(!shouldUseDistanceFilter()){
+ function ensureBenefitDistances({ initialDisplay = false } = {}){
+ if(!initialDisplay && !shouldUseDistanceFilter()){
  updateDistanceFilterHelp();
  return Promise.resolve(false);
  }
@@ -3210,6 +3225,60 @@ function formatTravelDuration(minutes){
  return false;
  });
  }
+
+
+/* ===== Fix: 혜택 최초 진입 시에도 거리 태그 준비 ===== */
+
+function prepareInitialBenefitDistances(){
+  // 최초 혜택 진입에서도 거리 태그가 보이도록 기본 상태에서도 한 번만 거리 계산을 수행합니다.
+  if(prepareInitialBenefitDistances._running || prepareInitialBenefitDistances._done) return Promise.resolve(false);
+  if(!navigator.geolocation) return Promise.resolve(false);
+
+  const repaintBenefitLists = () => {
+    try {
+      recalculateBenefitDistances();
+      renderList('#cardList', getFilteredBenefits());
+      renderList('#favoriteList', getVisibleBenefits().filter((item) => state.favoriteIds.includes(item.id)));
+      updateDistanceFilterHelp();
+    } catch(_) {}
+  };
+
+  if(hasFreshUserLocation()){
+    state.distanceStatus = 'ready';
+    repaintBenefitLists();
+    prepareInitialBenefitDistances._done = true;
+    return Promise.resolve(true);
+  }
+
+  prepareInitialBenefitDistances._running = true;
+  state.distanceStatus = 'loading';
+  updateDistanceFilterHelp();
+
+  return getReliableCurrentPosition()
+    .then(() => {
+      state.distanceStatus = 'ready';
+      repaintBenefitLists();
+      prepareInitialBenefitDistances._done = true;
+      return true;
+    })
+    .catch(() => {
+      state.distanceStatus = 'idle';
+      updateDistanceFilterHelp();
+      return false;
+    })
+    .finally(() => {
+      prepareInitialBenefitDistances._running = false;
+    });
+}
+
+document.addEventListener('DOMContentLoaded', function(){
+  setTimeout(prepareInitialBenefitDistances, 900);
+});
+window.addEventListener('load', function(){
+  setTimeout(prepareInitialBenefitDistances, 700);
+});
+
+
 
  function updateDistanceText(item = {}){
  const target = qs('#distanceText');
@@ -3852,12 +3921,25 @@ function getSpreadMapPosition(nm, center, index, count){const fakeItem={lat:cent
  const safeScope=String(scope||'card').replace(/[^a-z0-9_-]/gi,'').toLowerCase() || 'card';
  return `<div class="benefit-end-badge ${status.className} benefit-date-scope-${safeScope}" title="${escapeHtml(status.endDate)} 기준">${escapeHtml(status.label)}</div>`;
  }
+ function formatBenefitEndDateLabel(value){
+ const raw=String(value||'').trim();
+ if(!raw) return '';
+ const match=raw.match(/^(\d{4})[-.\/](\d{1,2})[-.\/](\d{1,2})/);
+ if(!match) return raw;
+ const y=match[1];
+ const m=String(Number(match[2])).padStart(2,'0');
+ const d=String(Number(match[3])).padStart(2,'0');
+ return `${y}.${m}.${d}`;
+ }
  function benefitEndStatusChipHtml(item={}, options={}){
  const status=getBenefitEndDateStatus(item);
  if(!status || status.key==='ended') return '';
  const compact=!!options.compact;
  if(compact) return '';
- return `<div class="benefit-status-row benefit-date-status-row"><span class="status-chip benefit-date-status-chip status-benefit-date-${status.className}" title="${escapeHtml(status.endDate)} 기준" aria-label="${escapeHtml(status.label)}">${escapeHtml(status.label)}</span></div>`;
+ const endDateLabel=formatBenefitEndDateLabel(status.endDate);
+ const chipLabel=endDateLabel?`${status.label} · 종료일 ${endDateLabel}`:status.label;
+ const chipTitle=endDateLabel?`${status.label} · ${endDateLabel} 기준`:`${status.label}`;
+ return `<div class="benefit-status-row benefit-date-status-row"><span class="status-chip benefit-date-status-chip status-benefit-date-${status.className}" title="${escapeHtml(chipTitle)}" aria-label="${escapeHtml(chipLabel)}">${escapeHtml(chipLabel)}</span></div>`;
  }
  function isStaleBenefitEndReason(text=''){
  const raw=String(text||'').trim();
@@ -4008,6 +4090,7 @@ stationAccessText:item.stationAccessText||item.transitText||item.stationGuide||i
  renderAll();
  handleCleanDeepLink();
  markInitialDataLoaded('benefits');
+ setTimeout(prepareInitialBenefitDistances, 300);
  }, () => {
  state.loading = false;
  qs('#homeLoading').textContent = '정보를 불러오지 못했습니다. Firestore 규칙과 설정을 확인해 주세요.';
@@ -5928,7 +6011,13 @@ ${item.content || ''}`);
  wrap.classList.add('view-list');
  wrap.classList.remove('view-card');
  }
- if(!items.length){wrap.innerHTML='<div class="panel empty">조건에 맞는 항목이 없습니다.</div>';return;}
+ if(!items.length){
+ const emptyMessage = target === '#favoriteList'
+   ? '아직 즐겨찾기한 혜택이 없어요.<br><small>마음에 드는 혜택의 별표를 누르면 이곳에서 다시 볼 수 있습니다.</small>'
+   : '현재 조건에 맞는 혜택을 찾지 못했어요.<br><small>검색어나 필터를 조금 바꿔 다시 확인해 주세요.</small>';
+ wrap.innerHTML='<div class="panel empty">'+emptyMessage+'</div>';
+ return;
+ }
  items.forEach(item=>{
  const card=document.createElement('article');
  const topRank=getBenefitTopRank(item);
@@ -12111,4 +12200,35 @@ document.addEventListener('keydown', (event) => {
 
   if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', bindObserver, {once:true});
   else bindObserver();
+})();
+
+/* ===== Fix: 로딩바와 알럿이 동시에 떠도 확인 버튼 클릭 가능 =====
+   성능 보정: 문서 전체 MutationObserver를 제거하고, 로딩바는 클릭을 가로채지 않도록 CSS에 맡깁니다. */
+(function(){
+  function releaseLoadingPointer(){
+    document.querySelectorAll('#globalLoadingBar,.global-loading,.page-loader').forEach(function(loader){
+      loader.style.pointerEvents = 'none';
+    });
+  }
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', releaseLoadingPointer, { once:true });
+  else releaseLoadingPointer();
+  window.addEventListener('load', releaseLoadingPointer, { once:true });
+})();
+
+
+/* ===== Fix v4: session alert unlock hook ===== */
+(function(){
+  function run(){
+    if(typeof window.__upickUnlockForAlertClick === 'function'){
+      window.__upickUnlockForAlertClick();
+    }
+  }
+  document.addEventListener('click', function(e){
+    if(e.target && e.target.closest && e.target.closest('dialog[open], #appAlert, .common-alert, .app-alert, .modal-alert')) run();
+  }, true);
+  document.addEventListener('DOMContentLoaded', run);
+  window.addEventListener('load', run);
+  setTimeout(run, 100);
+  setTimeout(run, 500);
+  setTimeout(run, 1200);
 })();

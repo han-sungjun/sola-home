@@ -129,3 +129,132 @@ body.upick-alert-open .app-alert-card{touch-action:auto!important;}
   .app-alert-actions.is-confirm .app-alert-confirm{grid-column:2!important;}
   .app-alert-cancel,.app-alert-confirm{width:100%!important;min-width:0!important;display:flex!important;align-items:center!important;justify-content:center!important;}
 }
+
+/* ===== Fix: 알럿/확인 버튼은 로딩바보다 항상 위에서 클릭 가능 ===== */
+#appAlert,
+#appAlert[open],
+dialog#appAlert,
+.common-alert,
+.common-alert.show,
+.common-alert-backdrop,
+.modal-alert,
+.modal-alert.show,
+dialog[open],
+[role="dialog"][aria-modal="true"] {
+  z-index: 2147483600 !important;
+  pointer-events: auto !important;
+}
+
+#globalLoadingBar,
+.global-loading,
+.page-loader {
+  z-index: 2147483000 !important;
+}
+
+body:has(dialog[open]) #globalLoadingBar,
+body:has(dialog[open]) .global-loading,
+body:has(.common-alert.show) #globalLoadingBar,
+body:has(.common-alert.show) .global-loading,
+body:has(.modal-alert.show) #globalLoadingBar,
+body:has(.modal-alert.show) .global-loading {
+  pointer-events: none !important;
+}
+
+
+
+/* ===== Performance Fix: loading overlay must not block alert buttons ===== */
+#globalLoadingBar,
+.global-loading,
+.page-loader {
+  pointer-events: none !important;
+}
+#appAlert,
+#appAlert[open],
+dialog#appAlert,
+dialog[open],
+.common-alert,
+.common-alert.show,
+.modal-alert,
+.modal-alert.show,
+[role="dialog"][aria-modal="true"] {
+  z-index: 2147483600 !important;
+  pointer-events: auto !important;
+}
+
+
+/* ===== Fix v3: 로딩바와 알럿 동시 노출 시 확인 버튼 클릭 보장 ===== */
+#globalLoadingBar,
+.global-loading,
+.page-loader {
+  pointer-events: none !important;
+  z-index: 2147483000 !important;
+}
+
+dialog[open],
+#appAlert,
+#appAlert[open],
+.common-alert,
+.common-alert.show,
+.app-alert,
+.app-alert.show,
+.modal-alert,
+.alert-backdrop,
+.common-alert-backdrop {
+  pointer-events: auto !important;
+  z-index: 2147483600 !important;
+}
+
+
+/* ===== Fix v4: 알럿 표시 중 body/html 잠금이 확인 버튼을 막지 않도록 해제 ===== */
+html:has(dialog[open]),
+body:has(dialog[open]),
+html:has(#appAlert[open]),
+body:has(#appAlert[open]),
+html:has(.common-alert.show),
+body:has(.common-alert.show),
+html:has(.app-alert.show),
+body:has(.app-alert.show),
+html:has(.modal-alert.show),
+body:has(.modal-alert.show) {
+  overflow: auto !important;
+  overscroll-behavior: auto !important;
+  touch-action: auto !important;
+  pointer-events: auto !important;
+}
+
+html:has(dialog[open]) #globalLoadingBar,
+body:has(dialog[open]) #globalLoadingBar,
+html:has(#appAlert[open]) #globalLoadingBar,
+body:has(#appAlert[open]) #globalLoadingBar,
+html:has(.common-alert.show) #globalLoadingBar,
+body:has(.common-alert.show) #globalLoadingBar,
+html:has(.app-alert.show) #globalLoadingBar,
+body:has(.app-alert.show) #globalLoadingBar,
+html:has(.modal-alert.show) #globalLoadingBar,
+body:has(.modal-alert.show) #globalLoadingBar,
+html:has(dialog[open]) .global-loading,
+body:has(dialog[open]) .global-loading,
+html:has(.common-alert.show) .global-loading,
+body:has(.common-alert.show) .global-loading {
+  display: none !important;
+  pointer-events: none !important;
+  z-index: 1 !important;
+}
+
+dialog[open],
+#appAlert[open],
+#appAlert.show,
+.common-alert.show,
+.app-alert.show,
+.modal-alert.show {
+  pointer-events: auto !important;
+  z-index: 2147483600 !important;
+}
+
+dialog[open] button,
+#appAlert button,
+.common-alert button,
+.app-alert button,
+.modal-alert button {
+  pointer-events: auto !important;
+}

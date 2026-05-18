@@ -204,3 +204,86 @@
   if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', ensureAlert, {once:true});
   else ensureAlert();
 })();
+
+
+/* upickAlertOverLoadingFix: 알럿이 로딩바와 동시에 떠도 확인 버튼 클릭 가능 */
+(function(){
+  window.upickAlertOverLoadingFix = function(){
+    var loaders = document.querySelectorAll('#globalLoadingBar,.global-loading,.page-loader');
+    loaders.forEach(function(el){
+      el.style.pointerEvents = 'none';
+      el.style.zIndex = '2147483000';
+    });
+    document.querySelectorAll('dialog[open], #appAlert, .common-alert, .app-alert, .modal-alert, .alert-backdrop, .common-alert-backdrop').forEach(function(el){
+      el.style.zIndex = '2147483600';
+      el.style.pointerEvents = 'auto';
+    });
+  };
+  document.addEventListener('click', function(e){
+    if(e.target && e.target.closest && e.target.closest('dialog[open], #appAlert, .common-alert, .app-alert, .modal-alert')){
+      window.upickAlertOverLoadingFix();
+    }
+  }, true);
+})();
+
+
+/* ===== Fix v4: 알럿 표시 중 로딩 잠금 클래스가 확인 버튼을 막지 않도록 강제 해제 ===== */
+(function(){
+  const LOCK_CLASSES = [
+    'upick-loading-lock',
+    'ui-loading-lock',
+    'upick-modal-lock',
+    'upick-modal-hard-lock',
+    'upick-alert-open'
+  ];
+
+  function hasVisibleAlert(){
+    return !!document.querySelector(
+      'dialog[open], #appAlert[open], #appAlert.show, .common-alert.show, .app-alert.show, .modal-alert.show, [data-upick-common-alert][open]'
+    );
+  }
+
+  function unlockForAlertClick(){
+    if(!hasVisibleAlert()) return;
+
+    LOCK_CLASSES.forEach(function(cls){
+      document.body && document.body.classList.remove(cls);
+      document.documentElement && document.documentElement.classList.remove(cls);
+    });
+
+    document.querySelectorAll('#globalLoadingBar,.global-loading,.page-loader').forEach(function(loader){
+      loader.style.pointerEvents = 'none';
+      loader.style.zIndex = '2147483000';
+      loader.classList.remove('show');
+      loader.setAttribute('aria-hidden', 'true');
+    });
+
+    document.querySelectorAll('dialog[open], #appAlert, .common-alert, .app-alert, .modal-alert').forEach(function(alertEl){
+      alertEl.style.pointerEvents = 'auto';
+      alertEl.style.zIndex = '2147483600';
+    });
+
+    document.querySelectorAll('dialog[open] button, #appAlert button, .common-alert button, .app-alert button, .modal-alert button').forEach(function(btn){
+      btn.style.pointerEvents = 'auto';
+      btn.disabled = false;
+      btn.removeAttribute('aria-disabled');
+    });
+  }
+
+  window.__upickUnlockForAlertClick = unlockForAlertClick;
+
+  document.addEventListener('click', function(event){
+    if(event.target && event.target.closest && event.target.closest('dialog[open], #appAlert, .common-alert, .app-alert, .modal-alert')){
+      unlockForAlertClick();
+    }
+  }, true);
+
+  document.addEventListener('keydown', function(event){
+    if(event.key === 'Enter' || event.key === ' ' || event.key === 'Escape') unlockForAlertClick();
+  }, true);
+
+  const timer = setInterval(unlockForAlertClick, 180);
+  window.addEventListener('beforeunload', function(){ clearInterval(timer); });
+  document.addEventListener('DOMContentLoaded', unlockForAlertClick);
+  window.addEventListener('load', unlockForAlertClick);
+})();
