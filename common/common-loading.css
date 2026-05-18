@@ -370,3 +370,21 @@ dialog#commonLoadingDialog.upick-loading-dialog::backdrop{
   backdrop-filter:none!important;
   -webkit-backdrop-filter:none!important;
 }
+
+/* v20260518: 공개앱 app.css/캐시 충돌 방지용 최종 애니메이션 고정 */
+#globalLoadingBar.global-loading .loader-mark,
+#pageLoader.page-loader .loader-mark,
+#commonLoadingDialog.global-loading .loader-mark{transform:translate3d(0,0,0)!important;animation:upickLoaderGlassFloatFix20260518 1.35s ease-in-out infinite!important;will-change:transform!important;overflow:visible!important;contain:layout paint!important;}
+#globalLoadingBar.global-loading .loader-mark::before,
+#pageLoader.page-loader .loader-mark::before,
+#commonLoadingDialog.global-loading .loader-mark::before{content:""!important;display:block!important;background:url('/icons/internal/brand-symbol-real.png') center/contain no-repeat!important;transform:translate3d(0,0,0) scale(1)!important;animation:upickLoaderLogoPulseFix20260518 1.35s ease-in-out infinite!important;will-change:transform,opacity!important;}
+#globalLoadingBar.global-loading .loader-mark::after,
+#pageLoader.page-loader .loader-mark::after,
+#commonLoadingDialog.global-loading .loader-mark::after{content:""!important;display:block!important;animation:upickLoaderRingSpinFix20260518 1.05s linear infinite!important;will-change:transform!important;}
+#globalLoadingBar.global-loading .loader-content::after,
+#pageLoader.page-loader .loader-content::after,
+#commonLoadingDialog.global-loading .loader-content::after{animation:upickLoaderLineFlowFix20260518 1.18s ease-in-out infinite!important;will-change:background-position,opacity!important;}
+@keyframes upickLoaderGlassFloatFix20260518{0%,100%{transform:translate3d(0,0,0) scale(1)}50%{transform:translate3d(0,-8px,0) scale(1.018)}}
+@keyframes upickLoaderLogoPulseFix20260518{0%,100%{transform:translate3d(0,0,0) scale(1);opacity:1}50%{transform:translate3d(0,2px,0) scale(1.055);opacity:.96}}
+@keyframes upickLoaderRingSpinFix20260518{to{transform:rotate(360deg)}}
+@keyframes upickLoaderLineFlowFix20260518{0%{background-position:200% 0;opacity:.28}50%{opacity:1}100%{background-position:-200% 0;opacity:.28}}

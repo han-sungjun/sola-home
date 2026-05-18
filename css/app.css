@@ -22657,3 +22657,142 @@ body.gnb-manage-scroll-lock{
   }
 }
 
+
+/* ===== public app loader motion hard-fix v20260518 =====
+   공개앱 app.css에 남아 있던 이전 로딩 보정값이 공통 로딩 애니메이션을 덮는 경우를 방지합니다.
+   로고/글래스/하단 라인을 각각 독립 애니메이션으로 고정합니다. */
+#globalLoadingBar.global-loading .loader-content,
+#pageLoader.page-loader .loader-content,
+#commonLoadingDialog.global-loading .loader-content{
+  position:relative!important;
+  z-index:1!important;
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:center!important;
+  justify-content:center!important;
+  gap:22px!important;
+  text-align:center!important;
+  transform:translate3d(0,0,0)!important;
+  will-change:transform!important;
+}
+#globalLoadingBar.global-loading .loader-mark,
+#pageLoader.page-loader .loader-mark,
+#commonLoadingDialog.global-loading .loader-mark{
+  width:108px!important;
+  height:108px!important;
+  min-width:108px!important;
+  min-height:108px!important;
+  border-radius:34px!important;
+  background:linear-gradient(180deg,rgba(255,255,255,.97),rgba(238,246,255,.88))!important;
+  border:1px solid rgba(191,219,254,.92)!important;
+  box-shadow:0 28px 70px rgba(7,26,61,.32),inset 0 1px 0 rgba(255,255,255,.94),0 0 0 1px rgba(255,255,255,.28)!important;
+  display:grid!important;
+  place-items:center!important;
+  position:relative!important;
+  overflow:visible!important;
+  padding:0!important;
+  margin:0!important;
+  isolation:isolate!important;
+  transform:translate3d(0,0,0)!important;
+  transform-origin:center!important;
+  animation:upickLoaderGlassFloatFix20260518 1.35s ease-in-out infinite!important;
+  will-change:transform!important;
+  contain:layout paint!important;
+}
+#globalLoadingBar.global-loading .loader-mark::before,
+#pageLoader.page-loader .loader-mark::before,
+#commonLoadingDialog.global-loading .loader-mark::before{
+  content:""!important;
+  width:76px!important;
+  height:76px!important;
+  display:block!important;
+  position:relative!important;
+  z-index:3!important;
+  background:url('/icons/internal/brand-symbol-real.png') center/contain no-repeat!important;
+  filter:drop-shadow(0 8px 18px rgba(7,26,61,.16))!important;
+  transform:translate3d(0,0,0) scale(1)!important;
+  transform-origin:center!important;
+  animation:upickLoaderLogoPulseFix20260518 1.35s ease-in-out infinite!important;
+  will-change:transform,opacity!important;
+  pointer-events:none!important;
+}
+#globalLoadingBar.global-loading .loader-mark::after,
+#pageLoader.page-loader .loader-mark::after,
+#commonLoadingDialog.global-loading .loader-mark::after{
+  content:""!important;
+  position:absolute!important;
+  inset:-10px!important;
+  width:auto!important;
+  height:auto!important;
+  border-radius:42px!important;
+  border:2px solid rgba(96,165,250,.20)!important;
+  border-top-color:rgba(96,165,250,.88)!important;
+  border-right-color:rgba(37,99,235,.76)!important;
+  border-bottom-color:rgba(191,219,254,.12)!important;
+  border-left-color:rgba(191,219,254,.18)!important;
+  background:none!important;
+  box-shadow:0 0 24px rgba(37,99,235,.18)!important;
+  opacity:1!important;
+  z-index:1!important;
+  transform:rotate(0deg)!important;
+  transform-origin:center!important;
+  animation:upickLoaderRingSpinFix20260518 1.05s linear infinite!important;
+  will-change:transform!important;
+  pointer-events:none!important;
+}
+#globalLoadingBar.global-loading .loader-mark > img,
+#pageLoader.page-loader .loader-mark > img,
+#commonLoadingDialog.global-loading .loader-mark > img,
+#globalLoadingBar.global-loading .loader-mark .arm,
+#pageLoader.page-loader .loader-mark .arm,
+#commonLoadingDialog.global-loading .loader-mark .arm,
+#globalLoadingBar.global-loading .loader-mark .loader-orbit,
+#pageLoader.page-loader .loader-mark .loader-orbit,
+#commonLoadingDialog.global-loading .loader-mark .loader-orbit{
+  display:none!important;
+  opacity:0!important;
+  visibility:hidden!important;
+  width:0!important;
+  height:0!important;
+  pointer-events:none!important;
+}
+#globalLoadingBar.global-loading .loader-content::after,
+#pageLoader.page-loader .loader-content::after,
+#commonLoadingDialog.global-loading .loader-content::after{
+  content:""!important;
+  width:min(210px,52vw)!important;
+  height:4px!important;
+  border-radius:999px!important;
+  margin-top:2px!important;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.86),transparent)!important;
+  background-size:200% 100%!important;
+  box-shadow:0 0 24px rgba(96,165,250,.34)!important;
+  transform:translate3d(0,0,0)!important;
+  animation:upickLoaderLineFlowFix20260518 1.18s ease-in-out infinite!important;
+  will-change:background-position,opacity!important;
+}
+@keyframes upickLoaderGlassFloatFix20260518{
+  0%,100%{transform:translate3d(0,0,0) scale(1)}
+  50%{transform:translate3d(0,-8px,0) scale(1.018)}
+}
+@keyframes upickLoaderLogoPulseFix20260518{
+  0%,100%{transform:translate3d(0,0,0) scale(1);opacity:1}
+  50%{transform:translate3d(0,2px,0) scale(1.055);opacity:.96}
+}
+@keyframes upickLoaderRingSpinFix20260518{to{transform:rotate(360deg)}}
+@keyframes upickLoaderLineFlowFix20260518{
+  0%{background-position:200% 0;opacity:.28}
+  50%{opacity:1}
+  100%{background-position:-200% 0;opacity:.28}
+}
+@media(max-width:480px){
+  #globalLoadingBar.global-loading .loader-mark,
+  #pageLoader.page-loader .loader-mark,
+  #commonLoadingDialog.global-loading .loader-mark{width:100px!important;height:100px!important;min-width:100px!important;min-height:100px!important;border-radius:32px!important;}
+  #globalLoadingBar.global-loading .loader-mark::before,
+  #pageLoader.page-loader .loader-mark::before,
+  #commonLoadingDialog.global-loading .loader-mark::before{width:70px!important;height:70px!important;}
+  #globalLoadingBar.global-loading .loader-mark::after,
+  #pageLoader.page-loader .loader-mark::after,
+  #commonLoadingDialog.global-loading .loader-mark::after{border-radius:40px!important;}
+}
