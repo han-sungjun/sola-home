@@ -1,0 +1,5 @@
+#detailModal #benefitPhotoZoomViewer .photo-viewer-close:focus-visible{
+  outline: 3px solid rgba(37, 99, 235, 0.95) !important;
+  outline-offset: 3px !important;
+  box-shadow: 0 0 0 5px rgba(255,255,255,0.92), 0 12px 26px rgba(15,23,42,0.28) !important;
+}
