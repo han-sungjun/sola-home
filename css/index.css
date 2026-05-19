@@ -4806,3 +4806,104 @@ body {
     line-height: 1.55;
   }
 }
+
+/* ===== TheunjeongPick brand round checkbox =====
+   - Login entry options: 아이디 저장 / 입장 상태 유지
+   - White background + soft navy border + gold brand check when unchecked
+   - Navy background + gold brand check when checked
+*/
+.login-premium-hero-shell .save-id-check input[type="checkbox"],
+.login-support-row .save-id-check input[type="checkbox"],
+.save-id-check input[type="checkbox"]{
+  appearance:none !important;
+  -webkit-appearance:none !important;
+  position:relative !important;
+  flex:0 0 auto !important;
+  width:20px !important;
+  height:20px !important;
+  margin:0 !important;
+  border-radius:999px !important;
+  border:1.5px solid rgba(11,42,91,.34) !important;
+  background:#fff !important;
+  box-shadow:inset 0 0 0 1px rgba(242,182,51,.16) !important;
+  cursor:pointer !important;
+  vertical-align:middle !important;
+  transition:background .18s ease,border-color .18s ease,box-shadow .18s ease,transform .14s ease !important;
+}
+
+.login-premium-hero-shell .save-id-check input[type="checkbox"]::after,
+.login-support-row .save-id-check input[type="checkbox"]::after,
+.save-id-check input[type="checkbox"]::after{
+  content:"" !important;
+  position:absolute !important;
+  inset:0 !important;
+  width:100% !important;
+  height:100% !important;
+  border:0 !important;
+  border-radius:0 !important;
+  background-image:url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='190%20204%20166%20150'%3E%3Cpath%20d='M%20253.25%20346.50%20C252.56,345.72%20252.00,344.39%20252.00,343.54%20C252.00,342.69%20251.55,342.00%20251.00,342.00%20C250.45,342.00%20250.00,341.10%20250.00,340.00%20C250.00,338.90%20249.55,338.00%20249.00,338.00%20C248.45,338.00%20248.00,337.10%20248.00,336.00%20C248.00,334.90%20247.55,334.00%20247.00,334.00%20C246.45,334.00%20246.00,333.10%20246.00,332.00%20C246.00,330.90%20245.55,330.00%20245.00,330.00%20C244.45,330.00%20244.00,329.16%20244.00,328.12%20C244.00,327.09%20243.30,325.67%20242.45,324.96%20C241.60,324.25%20240.06,321.82%20239.03,319.56%20C238.00,317.30%20236.23,314.61%20235.10,313.59%20C233.97,312.57%20233.24,311.41%20233.48,311.02%20C233.73,310.64%20232.36,308.81%20230.46,306.96%20C228.56,305.12%20227.00,303.11%20227.00,302.49%20C227.00,301.88%20225.65,300.08%20224.00,298.50%20C222.35,296.92%20221.00,295.15%20221.00,294.58%20C221.00,294.00%20215.52,288.04%20208.83,281.33%20C198.19,270.66%20196.82,268.92%20197.98,267.52%20C198.91,266.41%20199.63,266.23%20200.36,266.96%20C200.93,267.53%20202.86,268.00%20204.64,268.00%20C206.42,268.00%20208.16,268.45%20208.50,269.00%20C208.84,269.55%20210.19,270.00%20211.50,270.00%20C212.81,270.00%20214.16,270.45%20214.50,271.00%20C214.84,271.55%20216.44,272.00%20218.06,272.00%20C219.68,272.00%20221.00,272.45%20221.00,273.00%20C221.00,273.55%20221.90,274.00%20223.00,274.00%20C224.10,274.00%20225.00,274.45%20225.00,275.00%20C225.00,275.55%20225.72,276.00%20226.61,276.00%20C227.49,276.00%20229.10,277.12%20230.18,278.50%20C231.26,279.88%20233.01,281.00%20234.07,281.00%20C235.13,281.00%20236.00,281.45%20236.00,282.00%20C236.00,282.55%20236.80,283.00%20237.78,283.00%20C238.76,283.00%20240.21,283.90%20241.00,285.00%20C241.79,286.10%20243.05,287.00%20243.80,287.00%20C244.55,287.00%20246.89,288.80%20249.00,291.00%20C251.11,293.20%20253.36,295.00%20253.99,295.00%20C255.49,295.00%20258.00,292.47%20258.00,290.97%20C258.00,290.33%20259.35,288.54%20261.00,287.00%20C262.65,285.46%20264.00,283.57%20264.00,282.81%20C264.00,282.05%20266.25,279.21%20269.00,276.50%20C271.75,273.79%20274.00,271.10%20274.00,270.53%20C274.00,269.17%20312.19,231.00%20313.56,231.00%20C314.13,231.00%20316.35,229.20%20318.50,227.00%20C320.65,224.80%20322.91,223.00%20323.52,223.00%20C324.13,223.00%20325.92,221.65%20327.50,220.00%20C329.08,218.35%20331.09,217.00%20331.97,217.00%20C332.84,217.00%20334.21,216.10%20335.00,215.00%20C335.79,213.90%20337.14,213.00%20338.00,213.00%20C338.86,213.00%20340.21,212.10%20341.00,211.00%20C342.75,208.57%20348.00,208.22%20348.00,210.54%20C348.00,211.38%20343.95,216.09%20339.00,221.00%20C334.05,225.91%20330.00,230.55%20330.00,231.32%20C330.00,232.08%20327.52,235.05%20324.50,237.91%20C321.48,240.77%20319.00,243.72%20319.00,244.47%20C319.00,245.21%20317.65,246.96%20316.00,248.35%20C314.35,249.73%20313.00,251.52%20313.00,252.32%20C313.00,253.12%20311.65,254.84%20310.01,256.14%20C308.36,257.44%20307.01,259.28%20307.01,260.24%20C307.00,261.20%20306.10,262.55%20305.00,263.23%20C303.90,263.92%20303.00,265.20%20303.00,266.09%20C303.00,266.97%20302.10,268.50%20301.00,269.50%20C299.90,270.50%20299.00,271.85%20299.00,272.50%20C299.00,273.15%20298.10,274.50%20297.00,275.50%20C295.90,276.50%20295.00,277.85%20295.00,278.50%20C295.00,279.15%20294.10,280.50%20293.00,281.50%20C291.90,282.50%20291.00,283.86%20291.00,284.53%20C291.00,285.20%20290.30,286.33%20289.45,287.04%20C288.60,287.75%20287.05,290.20%20286.00,292.50%20C284.95,294.80%20283.40,297.25%20282.55,297.96%20C281.70,298.67%20281.00,299.81%20281.00,300.50%20C281.00,301.19%20280.31,302.32%20279.48,303.02%20C278.64,303.72%20278.19,304.52%20278.48,304.82%20C278.78,305.11%20278.08,306.35%20276.93,307.58%20C274.60,310.06%20266.00,326.68%20266.00,328.71%20C266.00,329.42%20265.55,330.00%20265.00,330.00%20C264.45,330.00%20264.00,330.90%20264.00,332.00%20C264.00,333.10%20263.55,334.00%20263.00,334.00%20C262.45,334.00%20262.00,334.80%20262.00,335.78%20C262.00,336.76%20261.10,338.21%20260.00,339.00%20C258.90,339.79%20258.00,341.50%20258.00,342.79%20C258.00,344.09%20257.36,345.79%20256.57,346.57%20C254.85,348.29%20254.82,348.29%20253.25,346.50%20Z'%20fill='%23caaa66'/%3E%3C/svg%3E") !important;
+  background-repeat:no-repeat !important;
+  background-position:center !important;
+  background-size:13px 13px !important;
+  opacity:.60 !important;
+  transform:translateY(-.2px) scale(.96) !important;
+  transform-origin:center !important;
+  transition:opacity .18s ease,transform .18s ease,filter .18s ease !important;
+}
+
+.login-premium-hero-shell .save-id-check input[type="checkbox"]:checked,
+.login-support-row .save-id-check input[type="checkbox"]:checked,
+.save-id-check input[type="checkbox"]:checked{
+  background:linear-gradient(135deg,#071f49 0%,#0b2a60 100%) !important;
+  border-color:#0b2a60 !important;
+  box-shadow:0 5px 12px rgba(11,42,96,.18),inset 0 0 0 1px rgba(255,255,255,.08) !important;
+}
+
+.login-premium-hero-shell .save-id-check input[type="checkbox"]:checked::after,
+.login-support-row .save-id-check input[type="checkbox"]:checked::after,
+.save-id-check input[type="checkbox"]:checked::after{
+  opacity:1 !important;
+  transform:translateY(-.2px) scale(1.04) !important;
+  filter:drop-shadow(0 1px 1px rgba(0,0,0,.12)) !important;
+}
+
+.login-premium-hero-shell .save-id-check:hover input[type="checkbox"],
+.login-support-row .save-id-check:hover input[type="checkbox"],
+.save-id-check:hover input[type="checkbox"]{
+  border-color:rgba(11,42,91,.58) !important;
+  box-shadow:0 3px 8px rgba(11,42,96,.08),inset 0 0 0 1px rgba(242,182,51,.22) !important;
+}
+
+.login-premium-hero-shell .save-id-check input[type="checkbox"]:focus-visible,
+.login-support-row .save-id-check input[type="checkbox"]:focus-visible,
+.save-id-check input[type="checkbox"]:focus-visible{
+  outline:3px solid rgba(242,182,51,.34) !important;
+  outline-offset:3px !important;
+  box-shadow:0 0 0 5px rgba(11,42,96,.08),inset 0 0 0 1px rgba(242,182,51,.22) !important;
+}
+
+.login-premium-hero-shell .save-id-check:active input[type="checkbox"],
+.login-support-row .save-id-check:active input[type="checkbox"],
+.save-id-check:active input[type="checkbox"]{
+  transform:scale(.94) !important;
+}
+
+.login-premium-hero-shell .save-id-check input[type="checkbox"]:disabled,
+.login-support-row .save-id-check input[type="checkbox"]:disabled,
+.save-id-check input[type="checkbox"]:disabled{
+  opacity:.42 !important;
+  cursor:not-allowed !important;
+}
+
+@media (max-width:360px){
+  .login-support-row .save-id-check input[type="checkbox"]{
+    width:18px !important;
+    height:18px !important;
+  }
+  .login-support-row .save-id-check input[type="checkbox"]::after{
+    width:9px !important;
+    height:5px !important;
+    border-left-width:2.2px !important;
+    border-bottom-width:2.2px !important;
+  }
+}
