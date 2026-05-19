@@ -2571,6 +2571,7 @@ async function refreshPushStatus(){
  }
 
  if(phoneVerificationRequired && !phoneVerified){
+ try{ sessionStorage.setItem('upick_allow_phone_verify','1'); }catch(_){}
  window.location.replace('/phone-verify');
  resolve(false);
  return;

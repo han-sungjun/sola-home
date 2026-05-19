@@ -46,6 +46,11 @@ export function saveLoginSession(userLike = {}, sessionId = ''){
   return next;
 }
 
+
+export function clearKeepLoginState(){
+  try{ localStorage.removeItem(KEEP_LOGIN_STORAGE_KEY); }catch(_e){}
+}
+
 export function clearLoginSession(){
   try{ localStorage.removeItem(LOGIN_STORAGE_KEY); }catch(_e){}
   try{ sessionStorage.removeItem(LOGIN_STORAGE_KEY); }catch(_e){}
@@ -134,6 +139,9 @@ export async function handleInvalidSession({ auth, api, reason, signOutFn, redir
   }
 
   clearLoginSession();
+  if (reason === 'duplicated_login' || reason === 'abnormal_access' || reason === 'invalid_route_access') {
+    clearKeepLoginState();
+  }
   try{ if (typeof signOutFn === 'function') await signOutFn(auth); }catch(_e){}
 
   if (redirectTo) window.location.replace(redirectTo);
