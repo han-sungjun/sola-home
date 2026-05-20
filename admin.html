@@ -846,25 +846,11 @@
                   <div class="benefit-extra-help">
                     매장에서 사용 가능한 정부지원금, 지역화폐, 바우처를 여러 개 선택할 수 있습니다. 공개앱 상세와 AI 생활도우미 답변에서 함께 활용됩니다.
                   </div>
-                  <div class="benefit-extra-checks support-program-checks" id="supportProgramChecks">
-                    <label>
-                      <input class="support-program-checkbox" data-program="민생회복지원금" type="checkbox">
-                      민생회복지원금
-                    </label>
-                    <label>
-                      <input class="support-program-checkbox" data-program="경기지역화폐" type="checkbox">
-                      경기지역화폐
-                    </label>
-                    <label>
-                      <input class="support-program-checkbox" data-program="아동급식카드" type="checkbox">
-                      아동급식카드
-                    </label>
-                    <label>
-                      <input class="support-program-checkbox" data-program="문화누리카드" type="checkbox">
-                      문화누리카드
-                    </label>
+                  <div class="support-program-rows" id="supportProgramRows" aria-label="정부지원금 종류별 유효기간 목록"></div>
+                  <button class="btn btn-soft support-program-add-btn" type="button" id="addSupportProgramRowBtn">+ 종류 추가</button>
+                  <div class="benefit-extra-help support-program-period-help">
+                    각 지원금마다 시작일과 종료일을 따로 관리합니다. 시작일 전이거나 종료일이 지나면 공개앱 상세와 AI 답변용 데이터에서 자동으로 제외됩니다.
                   </div>
-                  <input id="supportProgramOther" placeholder="기타 지원금/바우처가 있으면 쉼표로 입력하세요. 예: 청년 바우처, 복지포인트">
                   <input id="supportProgramsText" type="hidden">
                 </div>
 

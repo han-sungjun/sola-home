@@ -6087,3 +6087,53 @@ img.brand-icon[src*="home.svg"],
 .admin-benefit-date-badge.urgent{background:#fef2f2;border-color:#fecaca;color:#b91c1c;}
 .admin-benefit-date-badge.today{background:#7f1d1d;border-color:#7f1d1d;color:#fff;}
 .admin-benefit-date-badge.ended{background:#f1f5f9;border-color:#cbd5e1;color:#475569;}
+
+/* v20260520 정부지원금 유효기간 입력 */
+.support-program-period-grid{
+  margin-top:10px;
+  gap:10px;
+}
+.support-program-period-grid .sub-field-label{
+  display:block;
+  margin:0 0 6px;
+  font-size:12px;
+  font-weight:800;
+  color:#64748b;
+}
+.support-program-period-help{
+  margin-top:8px;
+}
+.support-program-period-badge{
+  border-color:#bfdbfe !important;
+  background:#eff6ff !important;
+  color:#1d4ed8 !important;
+}
+.support-program-period-badge.expired{
+  border-color:#fecaca !important;
+  background:#fef2f2 !important;
+  color:#b91c1c !important;
+}
+
+
+/* v20260520 정부지원금 종류별 유효기간 행 입력 */
+.support-program-rows{display:grid;gap:10px;margin-top:10px;}
+.support-program-row{display:grid;grid-template-columns:minmax(160px,1.2fr) minmax(130px,.8fr) minmax(130px,.8fr) auto;gap:8px;align-items:end;padding:10px;border:1px solid #dbeafe;border-radius:16px;background:#f8fbff;}
+.support-program-row .sub-field-label{display:block;margin:0 0 6px;font-size:12px;font-weight:900;color:#64748b;}
+.support-program-row input{width:100%;}
+.support-program-name-input{
+  -webkit-appearance:none;
+  appearance:none;
+  background-image:none !important;
+  padding-right:12px;
+}
+.support-program-name-input::-webkit-calendar-picker-indicator{
+  display:none !important;
+  opacity:0;
+}
+
+.support-program-remove-btn{height:40px;border:1px solid #fecaca;background:#fff;color:#b91c1c;border-radius:12px;font-weight:900;padding:0 10px;cursor:pointer;}
+.support-program-add-btn{margin-top:10px;width:100%;justify-content:center;}
+.support-program-chip em{font-style:normal;font-weight:800;opacity:.78;margin-left:2px;}
+.support-program-chip.scheduled{background:#eff6ff;border-color:#bfdbfe;color:#1d4ed8;}
+.support-program-chip.expired{background:#fef2f2;border-color:#fecaca;color:#b91c1c;}
+@media (max-width:720px){.support-program-row{grid-template-columns:1fr;}.support-program-remove-btn{width:100%;}}
