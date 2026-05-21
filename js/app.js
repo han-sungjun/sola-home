@@ -6777,8 +6777,20 @@ function renderCalendarDayModal(){
  const phone = String(item.phone || item.contact?.phone || '').trim();
  const emergency = String(item.emergencyPhone || item.contact?.emergency || '').trim();
  const rows = [];
- if(phone) rows.push(`<div><img class="upick-svg-icon upick-contact-icon" src="/icons/internal/phone.svg" alt="" loading="lazy" decoding="async">${escapeHtml(phone)}</div>`);
- if(emergency) rows.push(`<div style="margin-top:6px;color:#dc2626;font-weight:800;"><img class="upick-svg-icon upick-contact-icon" src="/icons/internal/emergency.svg" alt="" loading="lazy" decoding="async">비상연락처: ${escapeHtml(emergency)}</div>`);
+ const toTelNumber = (value='') => String(value || '').replace(/[^\d+]/g, '');
+ const phoneTel = toTelNumber(phone);
+ const emergencyTel = toTelNumber(emergency);
+
+ if(phone){
+ rows.push(phoneTel
+ ? `<a class="benefit-contact-link" href="tel:${escapeAttr(phoneTel)}" aria-label="${escapeAttr(phone)} 전화걸기"><img class="upick-svg-icon upick-contact-icon" src="/icons/internal/phone.svg" alt="" loading="lazy" decoding="async"><span>${escapeHtml(phone)}</span></a>`
+ : `<div class="benefit-contact-link is-disabled" aria-label="등록된 연락처"><img class="upick-svg-icon upick-contact-icon" src="/icons/internal/phone.svg" alt="" loading="lazy" decoding="async"><span>${escapeHtml(phone)}</span></div>`);
+ }
+ if(emergency){
+ rows.push(emergencyTel
+ ? `<a class="benefit-contact-link benefit-contact-emergency" href="tel:${escapeAttr(emergencyTel)}" aria-label="비상연락처 ${escapeAttr(emergency)} 전화걸기"><img class="upick-svg-icon upick-contact-icon" src="/icons/internal/emergency.svg" alt="" loading="lazy" decoding="async"><span>비상연락처: ${escapeHtml(emergency)}</span></a>`
+ : `<div class="benefit-contact-link benefit-contact-emergency is-disabled" aria-label="비상연락처"><img class="upick-svg-icon upick-contact-icon" src="/icons/internal/emergency.svg" alt="" loading="lazy" decoding="async"><span>비상연락처: ${escapeHtml(emergency)}</span></div>`);
+ }
  return rows.length ? rows.join('') : '등록된 전화번호가 없습니다.';
  }
 

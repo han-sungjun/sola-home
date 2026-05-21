@@ -1011,6 +1011,36 @@ html[data-font-size="xlarge"] .calendar-summary-grid{grid-template-columns:1fr;}
 .distance-tag{background:#eff6ff;border-color:#bfdbfe;color:#1d4ed8;font-weight:900}
 @media (max-width:370px){.distance-filter-row{grid-template-columns:1fr}}
 
+
+.benefit-contact-link{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  width:max-content;
+  max-width:100%;
+  color:var(--text, #111827);
+  font-weight:700;
+  text-decoration:none;
+  border-radius:12px;
+  padding:2px 4px;
+  margin-left:-4px;
+  cursor:pointer;
+  -webkit-tap-highlight-color:rgba(30, 94, 255, .12);
+}
+.benefit-contact-link + .benefit-contact-link{margin-top:6px;}
+.benefit-contact-link:hover{color:#0b3d91;text-decoration:underline;text-underline-offset:3px;}
+.benefit-contact-link:active{transform:scale(.99);}
+.benefit-contact-link:focus-visible{
+  outline:3px solid rgba(37, 99, 235, .22);
+  outline-offset:3px;
+}
+.benefit-contact-link.is-disabled{
+  cursor:default;
+  text-decoration:none;
+  pointer-events:none;
+}
+.benefit-contact-emergency{color:#dc2626;font-weight:800;}
+
 .upick-fav-icon-img{width:22px;height:22px;display:block;object-fit:contain;filter:none}.fav-icon-btn .upick-fav-icon-img{width:24px;height:24px}.actions .fav-btn .upick-fav-icon-img{width:18px;height:18px;margin:auto}.upick-inline-icon{width:15px;height:15px;vertical-align:-2px;margin-right:4px}.upick-contact-icon{width:16px;height:16px;vertical-align:-3px;margin-right:6px}.location-transit .upick-inline-icon{width:14px;height:14px;margin-right:4px;filter:none}.benefit-extra-links .upick-link-icon,.ai-social-links .upick-link-icon{width:14px;height:14px;display:inline-block;object-fit:contain}
 /* 위치 안내: 혜택 상세 지도/네이버 길찾기/거리 표시 */
 .location-panel{background:linear-gradient(180deg,#f8fafc 0%,#ffffff 100%);border:1px solid rgba(15,23,42,.07)}
