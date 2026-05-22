@@ -23458,3 +23458,17 @@ dialog[open] button,
 #calendarDayModal .calendar-day-modal-list .calendar-item-actions{
  align-items:stretch!important;
 }
+
+
+/* ===== 상세 팝업 섹션: 제목과 내용 사이 구분선 제거 =====
+/* 카드 자체와 내부 콘텐츠 박스로 영역이 구분되므로 제목 아래 선은 사용하지 않습니다. */
+#detailModal .modal-body .benefit-condition-panel .benefit-detail-panel-title,
+#detailModal .modal-body .location-panel .location-title,
+#detailModal .modal-body .benefit-extra-panel > strong:first-child,
+#detailModal .modal-body .benefit-contact-panel > strong:first-child,
+#detailModal .modal-body .benefit-date-panel .benefit-detail-panel-title,
+#detailModal .modal-body .support-program-detail-panel > strong:first-child,
+#noticeModal .modal-body .notice-detail-panel > strong:first-child{
+  padding-bottom:0!important;
+  border-bottom:0!important;
+}
