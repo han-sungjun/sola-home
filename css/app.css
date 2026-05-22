@@ -23433,3 +23433,28 @@ dialog[open] button,
     font-size:13.5px!important;
   }
 }
+
+/* ===== 캘린더 예약 팝업: 예약 1건일 때 카드 세로 늘어남 방지 =====
+ - 날짜 팝업은 고정 높이를 유지하되, 목록 내부 카드만 내용 높이만큼 배치
+ - 예약이 1건이어도 카드/정보칸/버튼이 전체 높이로 stretch 되지 않도록 보정
+*/
+#calendarDayModal .calendar-day-modal-list{
+ align-content:start!important;
+ align-items:start!important;
+ grid-auto-rows:max-content!important;
+}
+#calendarDayModal .calendar-day-modal-list .calendar-item{
+ align-self:start!important;
+ height:auto!important;
+ min-height:0!important;
+}
+#calendarDayModal .calendar-day-modal-list .calendar-info-grid{
+ align-items:start!important;
+ grid-auto-rows:auto!important;
+}
+#calendarDayModal .calendar-day-modal-list .calendar-info{
+ align-self:start!important;
+}
+#calendarDayModal .calendar-day-modal-list .calendar-item-actions{
+ align-items:stretch!important;
+}
