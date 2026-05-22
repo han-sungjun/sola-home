@@ -53,7 +53,7 @@
                   <div>\
                     <span class="gnb-management-kicker">설정 모음</span>\
                     <h3 id="gnbAccountManageTitle">계정 관리</h3>\
-                    <p>자주 보지 않는 알림·계정·보안·삭제 기능을 탭으로 모았습니다.</p>\
+                    <p>알림, 계정, 보안 설정을 한곳에서 관리할 수 있습니다.</p>\
                   </div>\
                   <button class="gnb-manage-close" type="button" aria-label="계정 관리 닫기">✕</button>\
                 </div>\

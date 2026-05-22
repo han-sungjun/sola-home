@@ -669,6 +669,51 @@ body.gnb-open .bottom-nav{
 #accountEditModal .modal-head{padding:18px 20px 10px;align-items:center;}
 #accountEditModal .modal-body{padding:0 20px 22px;}
 .account-edit-help{margin:0 0 16px;color:#475569;font-size:14px;line-height:1.7;}
+
+/* 계정 정보 수정/비밀번호 변경 모달 안내 박스: 계정 찾기와 동일한 읽기 흐름 */
+.account-edit-note-list,
+.password-change-note-list{
+ margin:0 0 16px;
+ padding:12px 14px;
+ list-style:none;
+ display:grid;
+ gap:7px;
+ border:1px solid #edf1f7;
+ border-radius:16px;
+ background:#f8fafc;
+ color:#6b7688;
+ font-size:13px;
+ line-height:1.55;
+ font-weight:600;
+ letter-spacing:-0.035em;
+}
+.account-edit-note-list li,
+.password-change-note-list li{
+ position:relative;
+ padding-left:13px;
+ margin:0;
+ word-break:keep-all;
+ overflow-wrap:anywhere;
+}
+.account-edit-note-list li::before,
+.password-change-note-list li::before{
+ content:'•';
+ position:absolute;
+ left:0;
+ top:0;
+ color:#9aa7b8;
+ font-size:11px;
+ line-height:1.75;
+}
+@media (max-width:420px){
+ .account-edit-note-list,
+ .password-change-note-list{
+  margin-bottom:15px;
+  padding:12px 13px;
+  border-radius:15px;
+  font-size:12.5px;
+ }
+}
 .account-edit-form{display:grid;gap:12px;}
 .account-edit-field{display:grid;gap:8px;}
 .account-edit-field label{font-size:13px;font-weight:800;color:#334155;}
@@ -23035,3 +23080,356 @@ dialog[open] button,
 }
 
 /* 종료 리본은 기존 색/위치 우선. NEW만 별도 최종 보정 */
+
+/* ===== 혜택 상세 상단 액션 아이콘화 / 하단 중복 버튼 제거 ===== */
+#detailModal .detail-head-actions{
+  display:flex!important;
+  align-items:center!important;
+  gap:8px!important;
+  margin-left:auto!important;
+}
+#detailModal .detail-head-actions[hidden]{display:none!important;}
+#detailModal .detail-icon-action{
+  width:44px!important;
+  height:44px!important;
+  min-width:44px!important;
+  border-radius:16px!important;
+  border:1px solid rgba(191,219,254,.95)!important;
+  background:rgba(248,250,252,.98)!important;
+  color:#0f172a!important;
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  padding:0!important;
+  cursor:pointer!important;
+  box-shadow:0 8px 20px rgba(15,23,42,.04)!important;
+  -webkit-tap-highlight-color:rgba(37,99,235,.12)!important;
+}
+#detailModal .detail-icon-action .upick-svg-icon{
+  width:20px!important;
+  height:20px!important;
+  display:block!important;
+  margin:0!important;
+}
+#detailModal .detail-icon-action:hover,
+#detailModal .detail-icon-action:focus-visible{
+  border-color:#93c5fd!important;
+  background:#eff6ff!important;
+}
+#detailModal .detail-icon-action:focus-visible{
+  outline:3px solid rgba(37,99,235,.22)!important;
+  outline-offset:2px!important;
+}
+#detailModal .detail-icon-action.is-favorite{
+  background:#fff7ed!important;
+  border-color:#fdba74!important;
+}
+#detailModal .modal-head .pill{flex:0 0 auto!important;}
+#detailModal .modal-head .close-btn{flex:0 0 44px!important;}
+@media(max-width:390px){
+  #detailModal .modal-head{gap:8px!important;padding-left:14px!important;padding-right:14px!important;}
+  #detailModal .detail-head-actions{gap:6px!important;}
+  #detailModal .detail-icon-action,
+  #detailModal .modal-head .close-btn{width:42px!important;height:42px!important;min-width:42px!important;border-radius:15px!important;}
+}
+
+/* 연락처는 번호 자체가 전화 버튼임을 명확하게 표시 */
+#detailModal .benefit-contact-panel .benefit-contact-link{
+  width:100%!important;
+  min-height:48px!important;
+  justify-content:flex-start!important;
+  gap:10px!important;
+  margin:0!important;
+  padding:12px 14px!important;
+  border-radius:18px!important;
+  border:1px solid rgba(147,197,253,.95)!important;
+  background:linear-gradient(180deg,#eff6ff 0%,#ffffff 100%)!important;
+  color:#0b2a60!important;
+  font-size:16px!important;
+  font-weight:900!important;
+  text-decoration:none!important;
+  box-shadow:0 10px 24px rgba(37,99,235,.08)!important;
+}
+#detailModal .benefit-contact-panel .benefit-contact-link::after{
+  content:'전화걸기';
+  margin-left:auto;
+  padding:6px 10px;
+  border-radius:999px;
+  background:#0b2a60;
+  color:#fff;
+  font-size:12px;
+  font-weight:900;
+  white-space:nowrap;
+}
+#detailModal .benefit-contact-panel .benefit-contact-link:hover,
+#detailModal .benefit-contact-panel .benefit-contact-link:focus-visible{
+  border-color:#2563eb!important;
+  background:#eff6ff!important;
+  text-decoration:none!important;
+}
+#detailModal .benefit-contact-panel .upick-contact-icon{
+  width:18px!important;
+  height:18px!important;
+  margin:0!important;
+}
+
+/* ===== 혜택 상세 본문 톤 통일 / 등록 정보 한 줄 표시 ===== */
+#detailModal .modal-body .benefit-condition-panel,
+#detailModal .modal-body .location-panel,
+#detailModal .modal-body .benefit-date-panel{
+  color:#475569!important;
+}
+
+#detailModal .modal-body .benefit-detail-panel-title,
+#detailModal .modal-body .location-title strong{
+  display:block!important;
+  margin-bottom:6px!important;
+  font-size:13px!important;
+  color:#64748b!important;
+  font-weight:900!important;
+  letter-spacing:-.02em!important;
+}
+
+#detailModal .modal-body .benefit-detail-body-text,
+#detailModal .modal-body .location-address,
+#detailModal .modal-body .benefit-detail-date-line{
+  color:#334155!important;
+  font-size:14px!important;
+  font-weight:700!important;
+  line-height:1.65!important;
+  letter-spacing:-.025em!important;
+  word-break:keep-all!important;
+  overflow-wrap:anywhere!important;
+}
+
+#detailModal .modal-body .benefit-detail-date-line{
+  display:flex!important;
+  align-items:center!important;
+  gap:8px!important;
+  flex-wrap:nowrap!important;
+  white-space:nowrap!important;
+  font-size:13px!important;
+}
+
+#detailModal .modal-body .benefit-detail-date-separator{
+  color:#94a3b8!important;
+  font-weight:900!important;
+}
+
+@media(max-width:390px){
+  #detailModal .modal-body .benefit-detail-body-text,
+  #detailModal .modal-body .location-address{
+    font-size:13.5px!important;
+  }
+  #detailModal .modal-body .benefit-detail-date-line{
+    gap:6px!important;
+    font-size:12.5px!important;
+  }
+}
+
+
+/* ===== 혜택 상세 섹션 제목/내용 구분 강화 ===== */
+#detailModal .modal-body .benefit-condition-panel,
+#detailModal .modal-body .location-panel{
+  padding:18px 16px!important;
+}
+
+#detailModal .modal-body .benefit-condition-panel .benefit-detail-panel-title,
+#detailModal .modal-body .location-panel .location-title{
+  margin-bottom:10px!important;
+  padding-bottom:9px!important;
+  border-bottom:1px solid rgba(148,163,184,.18)!important;
+}
+
+#detailModal .modal-body .location-panel .location-title{
+  display:flex!important;
+  align-items:center!important;
+  justify-content:space-between!important;
+  gap:10px!important;
+}
+
+#detailModal .modal-body .benefit-condition-panel .benefit-detail-body-text,
+#detailModal .modal-body .location-panel .location-address{
+  display:block!important;
+  width:100%!important;
+  box-sizing:border-box!important;
+  padding:10px 12px!important;
+  border-radius:14px!important;
+  border:1px solid rgba(203,213,225,.72)!important;
+  background:rgba(248,250,252,.82)!important;
+}
+
+#detailModal .modal-body .location-panel .location-address{
+  margin-bottom:10px!important;
+}
+
+@media(max-width:390px){
+  #detailModal .modal-body .benefit-condition-panel,
+  #detailModal .modal-body .location-panel{
+    padding:16px 14px!important;
+  }
+  #detailModal .modal-body .benefit-condition-panel .benefit-detail-body-text,
+  #detailModal .modal-body .location-panel .location-address{
+    padding:9px 10px!important;
+    border-radius:13px!important;
+  }
+}
+
+/* ===== 혜택 상세: 매장 링크/연락처/등록 정보 제목-내용 구분 강화 ===== */
+#detailModal .modal-body .benefit-extra-panel,
+#detailModal .modal-body .benefit-contact-panel,
+#detailModal .modal-body .benefit-date-panel{
+  padding:18px 16px!important;
+}
+
+#detailModal .modal-body .benefit-extra-panel > strong:first-child,
+#detailModal .modal-body .benefit-contact-panel > strong:first-child,
+#detailModal .modal-body .benefit-date-panel .benefit-detail-panel-title{
+  display:block!important;
+  margin:0 0 10px!important;
+  padding-bottom:9px!important;
+  border-bottom:1px solid rgba(148,163,184,.18)!important;
+  color:#64748b!important;
+  font-size:13px!important;
+  font-weight:900!important;
+  letter-spacing:-.02em!important;
+}
+
+#detailModal .modal-body .benefit-extra-panel{
+  gap:10px!important;
+}
+
+#detailModal .modal-body .benefit-extra-panel .benefit-extra-services,
+#detailModal .modal-body .benefit-extra-panel .benefit-extra-links{
+  margin:0!important;
+  padding:0!important;
+}
+
+#detailModal .modal-body .benefit-extra-panel .benefit-extra-memo{
+  margin-top:2px!important;
+  color:#334155!important;
+  font-size:13.5px!important;
+  font-weight:700!important;
+  line-height:1.65!important;
+  border-color:rgba(203,213,225,.72)!important;
+  background:rgba(248,250,252,.82)!important;
+}
+
+#detailModal .modal-body .benefit-date-panel .benefit-detail-date-line{
+  width:100%!important;
+  box-sizing:border-box!important;
+  padding:10px 12px!important;
+  border-radius:14px!important;
+  border:1px solid rgba(203,213,225,.72)!important;
+  background:rgba(248,250,252,.82)!important;
+}
+
+@media(max-width:390px){
+  #detailModal .modal-body .benefit-extra-panel,
+  #detailModal .modal-body .benefit-contact-panel,
+  #detailModal .modal-body .benefit-date-panel{
+    padding:16px 14px!important;
+  }
+  #detailModal .modal-body .benefit-date-panel .benefit-detail-date-line{
+    padding:9px 10px!important;
+    border-radius:13px!important;
+  }
+}
+
+/* ===== 혜택 상세: 정부지원금 사용 가능 제목-내용 구분 강화 ===== */
+#detailModal .modal-body .support-program-detail-panel{
+  padding:18px 16px!important;
+}
+#detailModal .modal-body .support-program-detail-panel > strong:first-child{
+  display:block!important;
+  margin:0 0 10px!important;
+  padding-bottom:9px!important;
+  border-bottom:1px solid rgba(148,163,184,.18)!important;
+  color:#64748b!important;
+  font-size:13px!important;
+  font-weight:900!important;
+  letter-spacing:-.02em!important;
+}
+#detailModal .modal-body .support-program-detail-panel .support-program-detail-list{
+  width:100%!important;
+  box-sizing:border-box!important;
+  margin:0 0 10px!important;
+  padding:0!important;
+  border:0!important;
+  background:transparent!important;
+  display:grid!important;
+  gap:8px!important;
+}
+#detailModal .modal-body .support-program-detail-panel .support-program-detail-chip{
+  width:100%!important;
+  box-sizing:border-box!important;
+  justify-content:flex-start!important;
+  border-radius:14px!important;
+  padding:11px 12px!important;
+  background:rgba(236,254,255,.82)!important;
+  border:1px solid rgba(125,211,252,.9)!important;
+}
+#detailModal .modal-body .support-program-detail-panel .support-program-detail-note{
+  margin:0!important;
+  color:#64748b!important;
+  font-size:12px!important;
+  line-height:1.6!important;
+  font-weight:600!important;
+}
+@media(max-width:390px){
+  #detailModal .modal-body .support-program-detail-panel{
+    padding:16px 14px!important;
+  }
+  #detailModal .modal-body .support-program-detail-panel .support-program-detail-chip{
+    padding:10px 11px!important;
+    border-radius:13px!important;
+  }
+}
+
+/* ===== 공지 상세: 제목/내용 영역 구분 강화 ===== */
+#noticeModal .modal-body .notice-detail-panel{
+  padding:18px 16px!important;
+  background:#fff!important;
+  border:1px solid rgba(219,234,254,.86)!important;
+  box-shadow:0 14px 30px rgba(15,23,42,.06)!important;
+}
+#noticeModal .modal-body .notice-detail-panel > strong:first-child{
+  display:block!important;
+  margin:0 0 10px!important;
+  padding-bottom:9px!important;
+  border-bottom:1px solid rgba(148,163,184,.18)!important;
+  color:#64748b!important;
+  font-size:13px!important;
+  font-weight:900!important;
+  letter-spacing:-.02em!important;
+}
+#noticeModal .modal-body .notice-detail-content{
+  display:block!important;
+  width:100%!important;
+  box-sizing:border-box!important;
+  margin:0!important;
+  padding:12px 13px!important;
+  border-radius:14px!important;
+  border:1px solid rgba(203,213,225,.72)!important;
+  background:rgba(248,250,252,.82)!important;
+  color:#334155!important;
+  font-size:14px!important;
+  font-weight:700!important;
+  line-height:1.72!important;
+  letter-spacing:-.025em!important;
+  word-break:keep-all!important;
+  overflow-wrap:anywhere!important;
+}
+#noticeModal .modal-body .notice-detail-wrap{
+  gap:16px!important;
+}
+@media(max-width:390px){
+  #noticeModal .modal-body .notice-detail-panel{
+    padding:16px 14px!important;
+  }
+  #noticeModal .modal-body .notice-detail-content{
+    padding:10px 11px!important;
+    border-radius:13px!important;
+    font-size:13.5px!important;
+  }
+}

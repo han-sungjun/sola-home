@@ -843,6 +843,12 @@
         <div class="pill">
           혜택 상세
         </div>
+        <div class="detail-head-actions" id="detailHeadActions" hidden>
+          <button class="detail-icon-action" id="modalFavBtn" type="button" aria-label="즐겨찾기 추가" aria-pressed="false" title="즐겨찾기 추가"></button>
+          <button class="detail-icon-action" id="openCalendarReservationBtn" type="button" aria-label="방문 알림 추가" title="방문 알림 추가">
+            <img class="upick-svg-icon" src="/icons/internal/calendar.svg" alt="" loading="lazy" decoding="async">
+          </button>
+        </div>
         <button class="close-btn" id="closeModal">
           ✕
         </button>
@@ -1597,9 +1603,10 @@
         </button>
       </div>
       <div class="modal-body">
-        <div class="account-edit-help">
-          입장한 계정의 표시 정보를 수정합니다.
-        </div>
+        <ul class="account-edit-note-list" aria-label="계정 정보 수정 안내">
+          <li>입장한 계정의 표시 정보를 수정합니다.</li>
+          <li>닉네임을 변경한 경우 중복 확인을 완료해야 저장됩니다.</li>
+        </ul>
         <form class="account-edit-form" id="accountEditForm">
           <div class="account-edit-field">
             <label for="accountNicknameInput">
@@ -1675,9 +1682,10 @@
         </button>
       </div>
       <div class="modal-body">
-        <div class="account-edit-help">
-          현재 비밀번호 확인 후 새 비밀번호로 변경합니다. 변경 완료 후 보안을 위해 입장 화면으로 이동됩니다.
-        </div>
+        <ul class="password-change-note-list" aria-label="비밀번호 변경 안내">
+          <li>현재 비밀번호 확인 후 새 비밀번호로 변경합니다.</li>
+          <li>변경 완료 후 보안을 위해 입장 화면으로 이동됩니다.</li>
+        </ul>
         <form class="account-edit-form" id="passwordChangeForm">
           <div class="account-edit-field">
             <label for="currentPasswordInput">
