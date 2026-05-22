@@ -673,7 +673,7 @@ body.gnb-open .bottom-nav{
 /* 계정 정보 수정/비밀번호 변경 모달 안내 박스: 계정 찾기와 동일한 읽기 흐름 */
 .account-edit-note-list,
 .password-change-note-list{
- margin:0 0 16px;
+ margin:10px 0 16px;
  padding:12px 14px;
  list-style:none;
  display:grid;

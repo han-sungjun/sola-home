@@ -1858,7 +1858,7 @@ window.addEventListener('keydown', (event) => {
  if(nicknameInput) nicknameInput.value = normalizeProfileInput(profile.nickname || state.currentUser?.displayName || '');
  setAccountNicknameCheckStatus('idle');
  setAccountNicknameState(null);
- setAccountNicknameMessage('', '닉네임을 변경한 뒤 중복 확인을 완료해야 저장됩니다.');
+ setAccountNicknameMessage('', '');
  if(buildingInput) buildingInput.value = normalizeProfileInput(profile.building || '');
  if(unitInput) unitInput.value = normalizeProfileInput(profile.unit || '');
  updateProfileImagePreview();
