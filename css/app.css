@@ -24700,3 +24700,17 @@ dialog.benefit-image-preview-overlay .benefit-image-preview-frame-dots{
     flex-basis:42px!important;
   }
 }
+
+/* ===== 혜택 사진 확대 팝업 닫기 버튼 커서 보정 ===== */
+dialog.benefit-image-preview-overlay .benefit-image-preview-close,
+.benefit-image-preview-overlay .benefit-image-preview-close,
+#benefitImagePreviewClose,
+button.benefit-image-preview-close{
+  cursor:pointer!important;
+  pointer-events:auto!important;
+}
+
+dialog.benefit-image-preview-overlay .benefit-image-preview-close * ,
+.benefit-image-preview-overlay .benefit-image-preview-close *{
+  pointer-events:none!important;
+}
