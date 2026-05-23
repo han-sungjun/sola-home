@@ -34,7 +34,7 @@
     <link href="/icons/splash-ios-828x1792.png" media="(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2)" rel="apple-touch-startup-image">
     <link href="/icons/splash-ios-1170x2532.png" media="(device-width: 390px) and (device-height: 844px) and (-webkit-device-pixel-ratio: 3)" rel="apple-touch-startup-image">
     <link href="/icons/splash-ios-1290x2796.png" media="(device-width: 430px) and (device-height: 932px) and (-webkit-device-pixel-ratio: 3)" rel="apple-touch-startup-image">
-    <link href="/css/app.css?v=benefit-shine-v31" rel="stylesheet">
+    <link href="/css/app.css?v=photo-popup-index-sync-v6" rel="stylesheet">
       <link href="/common/accessibility.css?v=2026051401" rel="stylesheet">
     <link href="/common/common-alert.css?v=2026051601" rel="stylesheet">
     <link href="/common/common-loading.css?v=2026051607" rel="stylesheet">
@@ -1771,7 +1771,74 @@
         </div>
       </div>
     </dialog>
-    <script src="/js/app.js?v=benefit-shine-v31" type="module">
+
+<script id="upick-benefit-photo-drag-click-guard">
+(function(){
+  'use strict';
+  var active = false;
+  var sx = 0;
+  var sy = 0;
+  var moved = false;
+  var suppressNextClick = false;
+  function point(e){
+    var s = (e.touches && e.touches[0]) || (e.changedTouches && e.changedTouches[0]) || e;
+    return { x: Number(s.clientX || 0), y: Number(s.clientY || 0) };
+  }
+  function isSliderTarget(target){
+    return !!(target && target.closest && target.closest('#detailModal .benefit-detail-photo-slider'));
+  }
+  function down(e){
+    if(e.button != null && e.button !== 0) return;
+    if(!isSliderTarget(e.target)) return;
+    var p = point(e);
+    active = true;
+    moved = false;
+    sx = p.x;
+    sy = p.y;
+  }
+  function move(e){
+    if(!active) return;
+    var p = point(e);
+    var dx = p.x - sx;
+    var dy = p.y - sy;
+    if(Math.abs(dx) > 6 || Math.abs(dy) > 6){
+      moved = true;
+    }
+    if(Math.abs(dx) > 14 && Math.abs(dx) > Math.abs(dy) * 1.15){
+      suppressNextClick = true;
+      window.__upickBenefitPhotoSuppressNextClick = true;
+    }
+  }
+  function up(e){
+    if(!active) return;
+    active = false;
+    var p = point(e);
+    var dx = p.x - sx;
+    var dy = p.y - sy;
+    if(Math.abs(dx) > 14 && Math.abs(dx) > Math.abs(dy) * 1.15){
+      suppressNextClick = true;
+      window.__upickBenefitPhotoSuppressNextClick = true;
+    }
+    setTimeout(function(){ moved = false; }, 0);
+  }
+  function block(e){
+    if(!isSliderTarget(e.target)) return;
+    if(!suppressNextClick && window.__upickBenefitPhotoSuppressNextClick !== true) return;
+    suppressNextClick = false;
+    window.__upickBenefitPhotoSuppressNextClick = false;
+    e.preventDefault();
+    e.stopPropagation();
+    if(typeof e.stopImmediatePropagation === 'function') e.stopImmediatePropagation();
+    return false;
+  }
+  document.addEventListener('pointerdown', down, true);
+  document.addEventListener('pointermove', move, true);
+  document.addEventListener('pointerup', up, true);
+  document.addEventListener('pointercancel', up, true);
+  document.addEventListener('click', block, true);
+})();
+</script>
+    <script src="/js/app.js?v=photo-popup-index-sync-v6" type="module">
     </script>    <script defer src="/common/password-field-enhance.js?v=2026051501"></script>
     <script defer src="/common/modal-backdrop-lock.js?v=2026051401"></script>
 

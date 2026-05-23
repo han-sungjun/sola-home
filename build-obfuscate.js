@@ -27,7 +27,11 @@ const COPY_ONLY_EXTENSIONS = new Set([
 const COPY_ONLY_FILES = new Set([
   'firebase-messaging-sw.js',
   'common/env-config.js',
-  'common/firebase-config.js'
+  'common/firebase-config.js',
+  // 사진 확대 팝업/슬라이더 보정 스크립트는 pointer/touch 이벤트와
+  // MutationObserver 의 순서가 중요해서 난독화하지 않고 안전 압축만 적용합니다.
+  'js/app.inline.4.js',
+  'js/app.inline.5.js'
 ]);
 
 // Vercel 서버리스 함수는 브라우저에 직접 노출되는 정적 파일이 아니므로 원본 그대로 둡니다.

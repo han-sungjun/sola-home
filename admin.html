@@ -92,7 +92,7 @@
                   </span>
                 </div>
               </div>
-              <button class="icon-btn admin-public-app-btn" onclick="location.replace('/')" title="입주민 앱">
+              <button class="icon-btn admin-public-app-btn" onclick="location.replace('/app.html')" title="입주민 앱">
                 <img alt class="upick-svg-icon" loading="lazy" src="/icons/internal/brand-symbol-real.png">
               </button>
               <button class="icon-btn" id="adminGnbToggleBtn" title="메뉴">
@@ -559,6 +559,43 @@
                     공유 문구
                   </label>
                   <input id="shareDescription" placeholder="비워두면 혜택 조건을 자동 사용">
+                </div>
+                <div class="field">
+                  <label for="detailImageUrls">
+                    혜택 상세 추가 사진 URL
+                  </label>
+                  <textarea id="detailImageUrls" placeholder="혜택 상세에서만 사용할 추가 사진 URL을 한 줄에 하나씩 입력하세요."></textarea>
+                  <div class="admin-field-help">
+                    대표 썸네일은 기존 공유/썸네일 이미지를 사용하고, 여기에 입력한 사진은 혜택 상세 슬라이드에만 추가됩니다.
+                  </div>
+                </div>
+                <div class="field">
+                  <label>
+                    혜택 상세 추가 사진 업로드
+                  </label>
+                  <div class="admin-thumb-upload-box">
+                    <div class="admin-thumb-upload-row">
+                      <input accept="image/png,image/jpeg,image/webp,image/gif" class="admin-thumb-file" id="detailImageFiles" multiple type="file">
+                      <button class="btn btn-blue" id="detailImagesUploadBtn" type="button">
+                        추가 사진 업로드
+                      </button>
+                    </div>
+                    <div class="admin-thumb-progress-track" id="detailImagesUploadProgressTrack">
+                      <div class="admin-thumb-progress-bar" id="detailImagesUploadProgressBar">
+                      </div>
+                    </div>
+                    <div class="admin-thumb-upload-status" id="detailImagesUploadStatus">
+                      여러 장을 선택해 업로드하면 상세 추가 사진 URL에 자동으로 추가됩니다.
+                    </div>
+                  </div>
+                </div>
+                <div class="field">
+                  <label>
+                    혜택 상세 추가 사진 미리보기
+                  </label>
+                  <div class="admin-detail-image-preview" id="detailImagePreview">
+                    추가 사진 URL 입력 시 미리보기
+                  </div>
                 </div>
                 <div class="field">
                   <label>
@@ -1667,7 +1704,7 @@
                   공개앱 메뉴, 검색 키워드, 노출 구역과 권한을 관리합니다.
                 </span>
               </button>
-              <button class="admin-all-card resident" onclick="location.replace('/')" type="button">
+              <button class="admin-all-card resident" onclick="location.replace('/app.html')" type="button">
                 <span class="admin-all-card-icon">
                   <img alt class="upick-svg-icon" loading="lazy" src="/icons/internal/home.svg">
                 </span>
@@ -1959,7 +1996,7 @@
                 </span>
               </span>
             </button>
-            <button class="gnb-menu-subitem gnb-tone-resident" onclick="location.replace('/')" type="button">
+            <button class="gnb-menu-subitem gnb-tone-resident" onclick="location.replace('/app.html')" type="button">
               <span class="gnb-active-badge" hidden>
                 ACTIVE
               </span>

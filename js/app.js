@@ -4050,6 +4050,16 @@ stationAccessText:item.stationAccessText||item.transitText||item.stationGuide||i
  url:item.url||'',
  imageUrl:item.imageUrl||item.thumbnailUrl||item.thumbnail||item.photoUrl||item.image||'',
  thumbnailUrl:item.thumbnailUrl||item.imageUrl||item.thumbnail||item.photoUrl||item.image||'',
+ // 혜택 상세 전용 다중 사진 필드는 대표 썸네일과 분리해서 공개앱까지 그대로 전달합니다.
+ // 대표사진(imageUrl/thumbnailUrl)은 카카오 공유/목록 썸네일에 계속 사용하고,
+ // 아래 배열/문자열 필드는 혜택 상세 슬라이드에만 사용됩니다.
+ detailImages:item.detailImages||item.detailImageUrls||item.detailImageUrl||item.detailPhotoUrls||item.detailPhotoUrl||item.benefitDetailImages||item.galleryImages||item.galleryImageUrls||item.additionalImages||item.extraImages||[],
+ detailImageUrls:item.detailImageUrls||item.detailImages||item.detailImageUrl||item.detailPhotoUrls||item.detailPhotoUrl||item.benefitDetailImages||item.galleryImages||item.galleryImageUrls||item.additionalImages||item.extraImages||[],
+ benefitDetailImages:item.benefitDetailImages||item.detailImages||item.detailImageUrls||item.detailImageUrl||[],
+ galleryImages:item.galleryImages||item.galleryImageUrls||[],
+ galleryImageUrls:item.galleryImageUrls||item.galleryImages||[],
+ additionalImages:item.additionalImages||[],
+ extraImages:item.extraImages||[],
  homepageUrl:item.homepageUrl||item.externalLinks?.homepage||'',
  blogUrl:item.blogUrl||item.externalLinks?.blog||'',
  instagramUrl:item.instagramUrl||item.externalLinks?.instagram||'',
@@ -6830,14 +6840,484 @@ function renderCalendarDayModal(){
  return url || '';
  }
 
- function benefitDetailHeroHtml(item = {}){
- const imageUrl = getBenefitRepresentativeImage(item);
- const isFavClass = imageUrl ? '' : ' no-photo';
- const photoHtml = imageUrl
- ? `<div class="benefit-detail-photo"><img src="${escapeAttr(imageUrl)}" alt="${escapeAttr(item.name || '매장 대표 사진')}" loading="lazy" decoding="async" onerror="this.closest('.benefit-detail-photo')?.remove(); this.closest('.benefit-detail-hero')?.classList.add('no-photo');"><span class="benefit-detail-photo-badge">대표 사진</span></div>`
- : '';
- return `<div class="benefit-detail-hero${isFavClass}"><div class="benefit-detail-main"><div class="${getBadgeClass(item)}" style="display:inline-block;min-width:auto;padding:12px 16px;">${item.discountText}</div><h3 style="margin:12px 0 6px;font-size:26px;letter-spacing:-.04em;">${item.name}</h3><div class="tags" style="margin-top:0;margin-bottom:10px;">${item.recommended?'<span class="tag rec">추천 혜택</span>':''}<span class="tag">${item.category}</span>${benefitOperationBadgesHtml(item)}${benefitDateTag(item)}</div>${benefitStatusChipsHtml(item,{includeDate:true})}${benefitStatusReasonHtml(item)}</div>${photoHtml}</div>`;
+ function getBenefitDetailImages(item = {}){
+ const representative = getBenefitRepresentativeImage(item);
+ const rawGroups = [
+ item.detailImages,
+ item.detailImageUrls,
+ item.detailImageUrl,
+ item.detailPhotoUrls,
+ item.detailPhotoUrl,
+ item.benefitDetailImages,
+ item.galleryImages,
+ item.galleryImageUrls,
+ item.additionalImages,
+ item.extraImages,
+ item.slideImages,
+ item.sliderImages
+ ];
+ const list = [];
+ if(representative) list.push(representative);
+ rawGroups.forEach((raw) => {
+   let rows = [];
+   if(Array.isArray(raw)) rows = raw;
+   else if(typeof raw === 'string') rows = raw.split(/[\n,，]/);
+   rows.forEach((row) => {
+     const value = typeof row === 'string' ? row : (row?.url || row?.imageUrl || row?.src || '');
+     const url = toAbsoluteUrl(String(value || '').trim());
+     if(url && !list.includes(url)) list.push(url);
+   });
+ });
+ return list;
  }
+
+ function benefitDetailImageSliderHtml(item = {}){
+ const images = getBenefitDetailImages(item);
+ if(!images.length) return '';
+ const slides = images.map((url, index) => `<div class="benefit-detail-photo-slide${index === 0 ? ' active' : ''}" data-benefit-photo-index="${index}" data-benefit-photo-url="${escapeAttr(url)}" role="button" tabindex="0" aria-label="${escapeAttr(item.name || '혜택 사진')} ${index + 1}번째 확대"><img src="${escapeAttr(url)}" alt="${escapeAttr(item.name || '매장 사진')}" loading="lazy" decoding="async" draggable="false" onerror="this.closest('.benefit-detail-photo-slide')?.remove();"></div>`).join('');
+ const dots = images.length > 1 ? `<div class="benefit-detail-photo-dots" aria-hidden="true">${images.map((_, index) => `<span class="${index === 0 ? 'active' : ''}"></span>`).join('')}</div>` : '';
+ const count = images.length > 1 ? `<span class="benefit-detail-photo-count">1/${images.length}</span>` : '';
+ return `<div class="benefit-detail-photo benefit-detail-photo-slider" data-benefit-photo-slider="1" data-benefit-photo-images="${escapeAttr(JSON.stringify(images))}"><div class="benefit-detail-photo-track">${slides}</div><span class="benefit-detail-photo-badge">${images.length > 1 ? '사진' : '대표 사진'}</span>${count}${dots}<span class="benefit-photo-zoom-icon" aria-hidden="true"></span></div>`;
+ }
+
+ function benefitDetailHeroHtml(item = {}){
+ const imageHtml = benefitDetailImageSliderHtml(item);
+ const isFavClass = imageHtml ? '' : ' no-photo';
+ return `<div class="benefit-detail-hero${isFavClass}"><div class="benefit-detail-main"><div class="${getBadgeClass(item)}" style="display:inline-block;min-width:auto;padding:12px 16px;">${item.discountText}</div><h3 style="margin:12px 0 6px;font-size:26px;letter-spacing:-.04em;">${item.name}</h3><div class="tags" style="margin-top:0;margin-bottom:10px;">${item.recommended?'<span class="tag rec">추천 혜택</span>':''}<span class="tag">${item.category}</span>${benefitOperationBadgesHtml(item)}${benefitDateTag(item)}</div>${benefitStatusChipsHtml(item,{includeDate:true})}${benefitStatusReasonHtml(item)}</div>${imageHtml}</div>`;
+ }
+
+ function getPointerClient(event){
+ const source = event?.touches?.[0] || event?.changedTouches?.[0] || event;
+ return { x: Number(source?.clientX || 0), y: Number(source?.clientY || 0) };
+ }
+
+ function setBenefitPhotoSlide(slider, nextIndex, options = {}){
+ if(!slider) return;
+ const slides = [...slider.querySelectorAll('.benefit-detail-photo-slide')];
+ if(!slides.length) return;
+ const max = slides.length;
+ const index = ((Number(nextIndex) || 0) + max) % max;
+ const track = slider.querySelector('.benefit-detail-photo-track');
+ if(track){
+   track.style.transition = options.animate === false ? 'none' : '';
+   track.style.transform = `translate3d(${-index * 100}%,0,0)`;
+ }
+ slides.forEach((slide, i) => {
+   const active = i === index;
+   slide.classList.toggle('active', active);
+   slide.setAttribute('aria-current', active ? 'true' : 'false');
+   slide.setAttribute('aria-label', `${slider.dataset.benefitPhotoTitle || '혜택 사진'} ${i + 1}번째 사진 크게 보기, 총 ${max}장`);
+ });
+ slider.querySelectorAll('.benefit-detail-photo-dots span').forEach((dot, i) => dot.classList.toggle('active', i === index));
+ const count = slider.querySelector('.benefit-detail-photo-count');
+ if(count) count.textContent = `${index + 1}/${max}`;
+ slider.dataset.currentIndex = String(index);
+ slider.setAttribute('aria-label', `${slider.dataset.benefitPhotoTitle || '혜택 사진'} 사진 영역, 현재 ${index + 1}번째 / 총 ${max}장`);
+ }
+
+ function bindBenefitPhotoSlider(item = {}){
+ const slider = qs('#modalBody .benefit-detail-photo-slider');
+ if(!slider || slider.dataset.bound === '1') return;
+ slider.dataset.bound = '1';
+ const track = slider.querySelector('.benefit-detail-photo-track');
+ slider.dataset.benefitPhotoTitle = item.name || '혜택 사진';
+ const getCurrent = () => Number(slider.dataset.currentIndex || 0);
+ const getMax = () => Math.max(1, slider.querySelectorAll('.benefit-detail-photo-slide').length);
+ const openCurrentPreview = () => openBenefitImagePreview(slider, getCurrent(), item.name || '혜택 사진');
+ setBenefitPhotoSlide(slider, getCurrent(), { animate:false });
+ slider.querySelectorAll('.benefit-detail-photo-slide').forEach((slide) => {
+   slide.addEventListener('focus', () => {
+     const focusIndex = Number(slide.dataset.benefitPhotoIndex || 0);
+     if(Number.isFinite(focusIndex)) setBenefitPhotoSlide(slider, focusIndex, { animate:false });
+   });
+ });
+ let startX = 0;
+ let startY = 0;
+ let dx = 0;
+ let dragging = false;
+ let moved = false;
+ let didDrag = false;
+ let pointerId = null;
+ let activeInput = '';
+ let suppressNextPreviewClick = false;
+ let ignoreClickUntil = 0;
+ const markClickSuppressed = () => {
+   suppressNextPreviewClick = true;
+   ignoreClickUntil = Date.now() + 420;
+   slider.dataset.photoDragSuppressNextClick = '1';
+   window.__upickBenefitPhotoSuppressNextClick = true;
+ };
+ const clearClickSuppressed = () => {
+   suppressNextPreviewClick = false;
+   delete slider.dataset.photoDragSuppressNextClick;
+   window.__upickBenefitPhotoSuppressNextClick = false;
+   ignoreClickUntil = 0;
+ };
+ const consumePreviewClickBlock = () => {
+   const blocked = suppressNextPreviewClick || slider.dataset.photoDragSuppressNextClick === '1' || window.__upickBenefitPhotoSuppressNextClick === true || Date.now() < ignoreClickUntil;
+   if(!blocked) return false;
+   clearClickSuppressed();
+   return true;
+ };
+ slider.addEventListener('dragstart', (event) => {
+   event.preventDefault();
+   markClickSuppressed();
+ }, true);
+ const resetTrack = (animate = true) => {
+   if(!track) return;
+   track.style.transition = animate ? '' : 'none';
+   track.style.transform = `translate3d(${(-getCurrent() * 100)}%,0,0)`;
+ };
+ const start = (event, inputType = 'pointer') => {
+   if(getMax() < 2) return;
+   if(inputType === 'pointer' && event.pointerType === 'touch') return;
+   if(inputType === 'pointer' && event.button != null && event.button !== 0) return;
+   const point = getPointerClient(event);
+   startX = point.x;
+   startY = point.y;
+   dx = 0;
+   moved = false;
+   didDrag = false;
+   dragging = true;
+   activeInput = inputType;
+   slider.classList.add('is-dragging');
+   slider.dataset.photoDragging = '1';
+   pointerId = event.pointerId ?? null;
+   if(track) track.style.transition = 'none';
+   if(inputType === 'pointer' && event.pointerId != null && slider.setPointerCapture){
+     try{ slider.setPointerCapture(event.pointerId); }catch(_){ }
+   }
+ };
+ const move = (event, inputType = 'pointer') => {
+   if(!dragging || activeInput !== inputType) return;
+   const point = getPointerClient(event);
+   dx = point.x - startX;
+   const dy = point.y - startY;
+   if(Math.abs(dx) > 3 || Math.abs(dy) > 3){
+     moved = true;
+   }
+   if(Math.abs(dx) > 8 && Math.abs(dx) > Math.abs(dy)){
+     didDrag = true;
+     markClickSuppressed();
+     event.preventDefault();
+     if(track){
+       const width = Math.max(1, slider.clientWidth || slider.getBoundingClientRect().width || 1);
+       const percent = (dx / width) * 100;
+       track.style.transform = `translate3d(${(-getCurrent() * 100) + percent}%,0,0)`;
+     }
+   }
+ };
+ const end = (event, inputType = 'pointer') => {
+   if(!dragging || activeInput !== inputType) return;
+   dragging = false;
+   activeInput = '';
+   slider.classList.remove('is-dragging');
+   delete slider.dataset.photoDragging;
+   if(inputType === 'pointer' && pointerId != null && slider.releasePointerCapture){
+     try{ slider.releasePointerCapture(pointerId); }catch(_){ }
+   }
+   const dy = Math.abs((getPointerClient(event).y || startY) - startY);
+   const width = Math.max(1, slider.clientWidth || slider.getBoundingClientRect().width || 1);
+   const threshold = Math.min(80, Math.max(36, width * 0.22));
+   const horizontalDragForClick = didDrag || (Math.abs(dx) > 14 && Math.abs(dx) > dy * 1.15);
+   const isTapLikeTouch = inputType === 'touch' && !horizontalDragForClick && Math.abs(dx) <= 8 && dy <= 8;
+   if(horizontalDragForClick){
+     markClickSuppressed();
+   }
+   if(Math.abs(dx) > threshold && Math.abs(dx) > dy * 1.15){
+     event.preventDefault();
+     event.stopPropagation();
+     setBenefitPhotoSlide(slider, getCurrent() + (dx < 0 ? 1 : -1));
+   }else{
+     resetTrack(true);
+     const isTapLikePointer = inputType === 'pointer' && !horizontalDragForClick && Math.abs(dx) <= 8 && dy <= 8;
+     if(isTapLikeTouch || isTapLikePointer){
+       event.preventDefault();
+       event.stopPropagation();
+       openCurrentPreview();
+       markClickSuppressed();
+     }
+   }
+   window.setTimeout(() => { moved = false; didDrag = false; dx = 0; }, 0);
+ };
+ slider.addEventListener('pointerdown', (event) => start(event, 'pointer'));
+ slider.addEventListener('pointermove', (event) => move(event, 'pointer'), { passive:false });
+ slider.addEventListener('pointerup', (event) => end(event, 'pointer'), { passive:false });
+ slider.addEventListener('pointercancel', (event) => end(event, 'pointer'), { passive:false });
+ slider.addEventListener('touchstart', (event) => start(event, 'touch'), { passive:true });
+ slider.addEventListener('touchmove', (event) => move(event, 'touch'), { passive:false });
+ slider.addEventListener('touchend', (event) => end(event, 'touch'), { passive:false });
+ slider.addEventListener('touchcancel', (event) => end(event, 'touch'), { passive:false });
+ slider.addEventListener('click', (event) => {
+   const horizontalDragClick = didDrag || (Math.abs(dx) > 14);
+   if(consumePreviewClickBlock() || horizontalDragClick){
+     event.preventDefault();
+     event.stopPropagation();
+     if(typeof event.stopImmediatePropagation === 'function') event.stopImmediatePropagation();
+     moved = false;
+     didDrag = false;
+     dx = 0;
+     return;
+   }
+   const isInsidePhoto = slider.contains(event.target);
+   const isPassiveUi = !!event.target.closest('.benefit-detail-photo-count,.benefit-detail-photo-dots');
+   if(isInsidePhoto && !isPassiveUi){
+     event.preventDefault();
+     event.stopPropagation();
+     if(typeof event.stopImmediatePropagation === 'function') event.stopImmediatePropagation();
+     openCurrentPreview();
+   }
+ }, true);
+ slider.addEventListener('keydown', (event) => {
+   if(event.key !== 'Enter' && event.key !== ' ') return;
+   event.preventDefault();
+   event.stopPropagation();
+   if(typeof event.stopImmediatePropagation === 'function') event.stopImmediatePropagation();
+   if(consumePreviewClickBlock()) return;
+   openCurrentPreview();
+ }, true);
+ resetTrack(false);
+ }
+
+ function removeLegacyBenefitPhotoViewer(){
+ const legacy = document.getElementById('benefitPhotoZoomViewer');
+ if(legacy){
+   legacy.classList.remove('show');
+   legacy.setAttribute('aria-hidden','true');
+   legacy.remove();
+ }
+ }
+
+ function openBenefitImagePreview(slider, startIndex = 0, title = '혜택 사진'){
+ removeLegacyBenefitPhotoViewer();
+ let images = [];
+ try{ images = JSON.parse(slider?.dataset?.benefitPhotoImages || '[]'); }catch(_){ images = []; }
+ images = images.filter(Boolean);
+ if(!images.length) return;
+ let index = Math.max(0, Math.min(images.length - 1, Number(startIndex) || 0));
+ let overlay = document.querySelector('dialog.benefit-image-preview-overlay');
+ const oldOverlay = document.querySelector('.benefit-image-preview-overlay:not(dialog)');
+ if(oldOverlay) oldOverlay.remove();
+ // 매번 새 dialog를 만들어 이전 open의 swipe/click 클로저가 남아 인덱스가 어긋나는 문제를 방지합니다.
+ if(overlay) overlay.remove();
+ overlay = null;
+ if(!overlay){
+   overlay = document.createElement('dialog');
+   overlay.className = 'benefit-image-preview-overlay';
+   overlay.setAttribute('aria-label', '혜택 사진 확대');
+   overlay.innerHTML = `<div class="benefit-image-preview-dialog" role="document"><div class="benefit-image-preview-head"><strong></strong><button type="button" class="benefit-image-preview-close" aria-label="닫기">×</button></div><div class="benefit-image-preview-body"><div class="benefit-image-preview-track"></div><span class="benefit-image-preview-count"></span><div class="benefit-image-preview-dots" aria-hidden="true"></div></div></div>`;
+   document.body.appendChild(overlay);
+ }else if(overlay.parentElement !== document.body){
+   document.body.appendChild(overlay);
+ }
+ const body = overlay.querySelector('.benefit-image-preview-body');
+ const track = overlay.querySelector('.benefit-image-preview-track');
+ const count = overlay.querySelector('.benefit-image-preview-count');
+ const titleEl = overlay.querySelector('.benefit-image-preview-head strong');
+ const dotsEl = overlay.querySelector('.benefit-image-preview-dots');
+ const closeBtn = overlay.querySelector('.benefit-image-preview-close');
+ if(overlay) overlay.dataset.previewCurrentIndex = String(index);
+ const fitDialogToActiveImage = () => {
+   const dialog = overlay?.querySelector('.benefit-image-preview-dialog');
+   if(!dialog || !body) return;
+   const vw = Math.max(320, window.innerWidth || document.documentElement.clientWidth || 0);
+   const vh = Math.max(320, window.innerHeight || document.documentElement.clientHeight || 0);
+   const isMobile = vw <= 560;
+   const outerPad = isMobile ? 24 : 48;
+   const headH = isMobile ? 54 : 58;
+   const topLineH = 4;
+   const indexSafeH = images.length > 1 ? (isMobile ? 32 : 34) : 0;
+
+   // v20260523: 사진마다 팝업 크기가 바뀌지 않도록 전체 팝업 프레임을 고정합니다.
+   // 이미지는 고정된 body 안에서 object-fit: contain으로 비율에 맞춰 표시됩니다.
+   const fixedW = Math.min(920, vw - outerPad);
+   const fixedDialogH = Math.max(360, vh - outerPad);
+   const fixedBodyH = Math.max(260, fixedDialogH - headH - topLineH);
+
+   dialog.style.setProperty('--benefit-preview-w', `${Math.round(fixedW)}px`);
+   dialog.style.setProperty('--benefit-preview-dialog-h', `${Math.round(fixedDialogH)}px`);
+   dialog.style.setProperty('--benefit-preview-h', `${Math.round(fixedBodyH - indexSafeH)}px`);
+   dialog.style.setProperty('--benefit-preview-body-h', `${Math.round(fixedBodyH)}px`);
+   resetTrack(false);
+ };
+ const render = (animate = true) => {
+   const dotsHtml = images.length > 1 ? `<div class="benefit-image-preview-frame-dots" aria-hidden="true">${images.map((_, dotIndex) => `<span class="${dotIndex === index ? 'active' : ''}"></span>`).join('')}</div>` : '';
+   const countHtml = images.length > 1 ? `<span class="benefit-image-preview-frame-count">${index + 1}/${images.length}</span>` : '';
+   if(track){
+     track.innerHTML = images.map((url, i) => `<div class="benefit-image-preview-slide${i === index ? ' active' : ''}"><div class="benefit-image-preview-frame"><img src="${escapeAttr(url)}" alt="${escapeAttr(title)} ${i + 1}번째 사진" draggable="false">${i === index ? countHtml + dotsHtml : ''}</div></div>`).join('');
+     track.style.transition = animate ? '' : 'none';
+     track.style.transform = `translate3d(${-index * 100}%,0,0)`;
+     const activeImg = track.querySelector('.benefit-image-preview-slide.active img');
+     if(activeImg){
+       if(activeImg.complete) requestAnimationFrame(fitDialogToActiveImage);
+       else activeImg.addEventListener('load', fitDialogToActiveImage, { once:true });
+     }
+   }
+   if(count){ count.textContent = ''; count.hidden = true; }
+   if(titleEl) titleEl.textContent = title;
+   if(dotsEl){ dotsEl.hidden = true; dotsEl.innerHTML = ''; }
+ };
+ const readPreviewIndexFromDom = () => {
+   const saved = Number(overlay?.dataset?.previewCurrentIndex);
+   if(Number.isFinite(saved)) return Math.max(0, Math.min(images.length - 1, saved));
+   const activeSlide = overlay?.querySelector?.('.benefit-image-preview-slide.active');
+   if(activeSlide && track){
+     const domIndex = Array.from(track.querySelectorAll('.benefit-image-preview-slide')).indexOf(activeSlide);
+     if(domIndex >= 0) return Math.max(0, Math.min(images.length - 1, domIndex));
+   }
+   const activeImg = activeSlide?.querySelector?.('img');
+   const activeSrc = activeImg?.getAttribute?.('src') || activeImg?.src || '';
+   if(activeSrc){
+     const urlIndex = images.findIndex((url) => String(url) === String(activeSrc));
+     if(urlIndex >= 0) return urlIndex;
+   }
+   return Math.max(0, Math.min(images.length - 1, index));
+ };
+ const getPreviewIndex = () => readPreviewIndexFromDom();
+ const syncDetailSlider = (animate = true, forceIndex = null) => {
+   const syncIndex = forceIndex == null ? getPreviewIndex() : Math.max(0, Math.min(images.length - 1, Number(forceIndex) || 0));
+   index = syncIndex;
+   if(overlay) overlay.dataset.previewCurrentIndex = String(syncIndex);
+   window.__upickBenefitPreviewLastIndex = syncIndex;
+   try{
+     if(slider) slider.dataset.currentIndex = String(syncIndex);
+     setBenefitPhotoSlide(slider, syncIndex, { animate });
+   }catch(_){ }
+ };
+ const close = () => {
+   const closingIndex = getPreviewIndex();
+   syncDetailSlider(false, closingIndex);
+   overlay.classList.remove('show');
+   overlay.setAttribute('aria-hidden','true');
+   try{ if(typeof overlay.close === 'function' && overlay.open) overlay.close(); }catch(_){}
+   document.body.classList.remove('benefit-image-preview-open');
+   // dialog close/focus 복귀 과정에서 상세 썸네일 focus 이벤트가 다시 실행될 수 있어
+   // 닫힌 직후와 다음 프레임에 동일 index를 한 번 더 고정합니다.
+   requestAnimationFrame(() => syncDetailSlider(false, closingIndex));
+   window.setTimeout(() => syncDetailSlider(false, closingIndex), 80);
+   try{ slider?.focus?.({preventScroll:true}); }catch(_){}
+ };
+ const moveTo = (nextIndex, animate = true) => {
+   index = (nextIndex + images.length) % images.length;
+   if(overlay) overlay.dataset.previewCurrentIndex = String(index);
+   window.__upickBenefitPreviewLastIndex = index;
+   render(animate);
+   syncDetailSlider(animate, index);
+ };
+ let startX = 0;
+ let startY = 0;
+ let dx = 0;
+ let dragging = false;
+ let pointerId = null;
+ let activeInput = '';
+ const resetTrack = (animate = true) => {
+   if(!track) return;
+   track.style.transition = animate ? '' : 'none';
+   track.style.transform = `translate3d(${-index * 100}%,0,0)`;
+ };
+ overlay.onclick = (event) => {
+   const closeTarget = event.target.closest('.benefit-image-preview-close');
+   if(closeTarget){ event.preventDefault(); event.stopPropagation(); close(); return; }
+   event.stopPropagation();
+ };
+ overlay.oncancel = (event) => {
+   event.preventDefault();
+   close();
+ };
+ overlay.onkeydown = (event) => {
+   if(event.key === 'Escape'){
+     event.preventDefault();
+     close();
+     return;
+   }
+   if(images.length > 1 && (event.key === 'ArrowRight' || event.key === 'ArrowLeft')){
+     event.preventDefault();
+     moveTo(index + (event.key === 'ArrowRight' ? 1 : -1));
+   }
+ };
+ overlay.addEventListener('click', (event) => {
+   if(event.target === overlay){
+     event.preventDefault();
+     event.stopPropagation();
+   }
+ }, true);
+ if(body && body.dataset.previewSwipeBound !== '2'){
+   body.dataset.previewSwipeBound = '2';
+   const start = (event, inputType = 'pointer') => {
+     if(images.length < 2) return;
+     if(inputType === 'pointer' && event.pointerType === 'touch') return;
+     if(inputType === 'pointer' && event.button != null && event.button !== 0) return;
+     const point = getPointerClient(event);
+     startX = point.x;
+     startY = point.y;
+     dx = 0;
+     dragging = true;
+     activeInput = inputType;
+     pointerId = event.pointerId ?? null;
+     if(track) track.style.transition = 'none';
+     if(inputType === 'pointer' && event.pointerId != null && body.setPointerCapture){
+       try{ body.setPointerCapture(event.pointerId); }catch(_){ }
+     }
+   };
+   const move = (event, inputType = 'pointer') => {
+     if(!dragging || activeInput !== inputType) return;
+     const point = getPointerClient(event);
+     dx = point.x - startX;
+     const dy = point.y - startY;
+     if(Math.abs(dx) > 8 && Math.abs(dx) > Math.abs(dy)){
+       event.preventDefault();
+       if(track){
+         const width = Math.max(1, body.clientWidth || body.getBoundingClientRect().width || 1);
+         const percent = (dx / width) * 100;
+         track.style.transform = `translate3d(${(-index * 100) + percent}%,0,0)`;
+       }
+     }
+   };
+   const finish = (event, inputType = 'pointer') => {
+     if(!dragging || activeInput !== inputType) return;
+     dragging = false;
+     activeInput = '';
+     if(inputType === 'pointer' && pointerId != null && body.releasePointerCapture){
+       try{ body.releasePointerCapture(pointerId); }catch(_){ }
+     }
+     const dy = Math.abs((getPointerClient(event).y || startY) - startY);
+     const width = Math.max(1, body.clientWidth || body.getBoundingClientRect().width || 1);
+     const threshold = Math.min(120, Math.max(48, width * 0.18));
+     if(Math.abs(dx) > threshold && Math.abs(dx) > dy * 1.15){
+       event.preventDefault();
+       moveTo(index + (dx < 0 ? 1 : -1));
+     }else{
+       resetTrack(true);
+     }
+     dx = 0;
+   };
+   body.addEventListener('pointerdown', (event) => start(event, 'pointer'));
+   body.addEventListener('pointermove', (event) => move(event, 'pointer'), { passive:false });
+   body.addEventListener('pointerup', (event) => finish(event, 'pointer'), { passive:false });
+   body.addEventListener('pointercancel', (event) => finish(event, 'pointer'), { passive:false });
+   body.addEventListener('touchstart', (event) => start(event, 'touch'), { passive:true });
+   body.addEventListener('touchmove', (event) => move(event, 'touch'), { passive:false });
+   body.addEventListener('touchend', (event) => finish(event, 'touch'), { passive:false });
+   body.addEventListener('touchcancel', (event) => finish(event, 'touch'), { passive:false });
+ }
+ render(false);
+ window.addEventListener('resize', fitDialogToActiveImage, { passive:true });
+ syncDetailSlider(false);
+ removeLegacyBenefitPhotoViewer();
+ overlay.setAttribute('aria-hidden','false');
+ document.body.classList.add('benefit-image-preview-open');
+ try{
+   if(typeof overlay.showModal === 'function' && !overlay.open) overlay.showModal();
+ }catch(_){
+   try{ overlay.setAttribute('open',''); }catch(__){}
+ }
+ overlay.classList.add('show');
+ requestAnimationFrame(() => { try{ closeBtn?.focus?.({preventScroll:true}); }catch(_){} });
+ setTimeout(removeLegacyBenefitPhotoViewer, 0);
+ setTimeout(removeLegacyBenefitPhotoViewer, 80);
+ }
+ window.__upickOpenBenefitImagePreview = openBenefitImagePreview;
+ window.__upickRemoveLegacyBenefitPhotoViewer = removeLegacyBenefitPhotoViewer;
 
  function openDetail(item, options = {}){
  const { skipUrlUpdate = false } = options;
@@ -6858,6 +7338,25 @@ function renderCalendarDayModal(){
    headFavBtn.setAttribute('aria-pressed', isFav ? 'true' : 'false');
    headFavBtn.setAttribute('aria-label', isFav ? '즐겨찾기 해제' : '즐겨찾기 추가');
    headFavBtn.title = isFav ? '즐겨찾기 해제' : '즐겨찾기 추가';
+ }
+ bindBenefitPhotoSlider(item);
+ const photoSliderEl = qs('#modalBody .benefit-detail-photo-slider');
+ if(photoSliderEl){
+   photoSliderEl.onclick = (event) => {
+     if(event.defaultPrevented) return;
+     if(event.target.closest('.benefit-detail-photo-slide') || event.target.closest('.benefit-photo-zoom-icon')){
+       event.preventDefault();
+       event.stopPropagation();
+       openBenefitImagePreview(photoSliderEl, Number(photoSliderEl.dataset.currentIndex || 0), item.name || '혜택 사진');
+     }
+   };
+   photoSliderEl.onkeydown = (event) => {
+     if(event.key !== 'Enter' && event.key !== ' ') return;
+     event.preventDefault();
+     event.stopPropagation();
+     if(typeof event.stopImmediatePropagation === 'function') event.stopImmediatePropagation();
+     openBenefitImagePreview(photoSliderEl, Number(photoSliderEl.dataset.currentIndex || 0), item.name || '혜택 사진');
+   };
  }
  qs('#openCalendarReservationBtn')?.addEventListener('click', () => openCalendarReservationModal(item));
  qs('#benefitCopyShareBtn')?.addEventListener('click', () => copyShareUrl('benefit', item));
