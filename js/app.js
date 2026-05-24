@@ -2744,34 +2744,33 @@ async function refreshPushStatus(){
  const actionWeight = getCrowdActionWeight(field);
  const lastActionField = getLastActionFieldName(field);
  const nowMs = Date.now();
- await runTransaction(db, async (tx) => {
-   const snap = await tx.get(statRef);
-   const prev = snap.exists() ? (snap.data() || {}) : {};
-   const decayedPulse = getDecayedCrowdPulseFromStat(prev, nowMs);
-   const nextPulse = Math.min(100, decayedPulse + actionWeight);
-   const payload = {
-     benefitId,
-     name: benefitName || prev.name || '',
-     ...buildSafeStatNumberUpdates(prev, {
-       [field]: 1,
-       ...(popularWeight > 0 ? { popularScore: popularWeight } : {}),
-       ...buildCrowdPatternDeltas(actionWeight, getSeoulNow())
-     }),
-     lastCrowdPatternDay: getCrowdPatternKeys(getSeoulNow()).day,
-     lastCrowdPatternHour: getCrowdPatternKeys(getSeoulNow()).hour,
-     [lastActionField]: serverTimestamp(),
-     lastActionType: field,
-     recentCrowdPulse: nextPulse,
-     recentCrowdLastAt: serverTimestamp(),
-     updatedAt: serverTimestamp()
-   };
-   tx.set(statRef, payload, { merge:true });
- });
+ const snap = await getDoc(statRef).catch(() => null);
+ const prev = snap && snap.exists() ? (snap.data() || {}) : {};
+ const decayedPulse = getDecayedCrowdPulseFromStat(prev, nowMs);
+ const nextPulse = Math.min(100, decayedPulse + actionWeight);
+ const keys = getCrowdPatternKeys(getSeoulNow());
+ const payload = {
+   benefitId,
+   name: benefitName || prev.name || '',
+   ...buildSafeStatNumberUpdates(prev, {
+     [field]: 1,
+     ...(popularWeight > 0 ? { popularScore: popularWeight } : {}),
+     ...buildCrowdPatternDeltas(actionWeight, getSeoulNow())
+   }),
+   lastCrowdPatternDay: keys.day,
+   lastCrowdPatternHour: keys.hour,
+   [lastActionField]: serverTimestamp(),
+   lastActionType: field,
+   recentCrowdPulse: nextPulse,
+   recentCrowdLastAt: serverTimestamp(),
+   updatedAt: serverTimestamp()
+ };
+ await setDoc(statRef, payload, { merge:true });
  }catch(error){
  console.error('통계 증가 실패', field, benefitId, error);
  }
  }
-
+ 
  async function logBenefitEvent(benefitId, type){
  if(!benefitId || !type || !state.currentUser?.uid) return;
  try{
