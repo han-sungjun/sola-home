@@ -607,88 +607,7 @@ body.gnb-open .admin-bottom-nav{
   .gnb-hero-emoji{font-size:64px}
 }
 
-/* ===== full screen loading overlay ===== */
-.global-loading{
-  position:fixed;
-  inset:0;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  background:rgba(15,23,42,.52);
-  backdrop-filter:blur(2px);
-  -webkit-backdrop-filter:blur(2px);
-  z-index:99999;
-  pointer-events:none;
-  opacity:0;
-  visibility:hidden;
-  transition:opacity .22s ease, visibility .22s ease;
-}
-.global-loading.show{
-  opacity:1;
-  visibility:visible;
-  pointer-events:auto;
-}
-.global-loading::before{
-  content:none;
-}
-.global-loading .loader-mark{
-  position:relative;
-  width:74px;
-  height:74px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  animation:loaderFloat .95s ease-in-out infinite;
-}
-.global-loading.show .loader-mark{
-  animation:loaderFloat .95s ease-in-out infinite, loaderPulse .9s ease-in-out infinite;
-}
-.global-loading .loader-mark .arm{
-  position:absolute;
-  left:50%;
-  top:50%;
-  width:10px;
-  border-radius:999px;
-  transform-origin:center center;
-  box-shadow:0 3px 10px rgba(0,0,0,.08);
-}
-.global-loading .loader-mark .arm.top{
-  height:34px;
-  background:#ffffff;
-  transform:translate(-50%,-72%) rotate(45deg);
-}
-.global-loading .loader-mark .arm.left{
-  height:34px;
-  background:#ffffff;
-  transform:translate(-50%,-72%) rotate(-45deg);
-}
-.global-loading .loader-mark .arm.mid{
-  width:42px;
-  height:8px;
-  background:linear-gradient(90deg,#ff4fc3 0%, #ff63d8 100%);
-  transform:translate(-50%,-2px);
-}
-.global-loading .loader-mark .arm.bot{
-  width:42px;
-  height:8px;
-  background:linear-gradient(90deg,#ff4fc3 0%, #ff63d8 100%);
-  transform:translate(-50%,12px);
-}
-.global-loading .loader-mark .arm.bot2{
-  width:42px;
-  height:8px;
-  background:linear-gradient(90deg,#ff4fc3 0%, #ff63d8 100%);
-  transform:translate(-50%,26px);
-}
-@keyframes loaderFloat{
-  0%,100%{ transform:translateY(0) scale(1); }
-  50%{ transform:translateY(-3px) scale(1.03); }
-}
-@keyframes loaderPulse{
-  0%{ opacity:.88; }
-  50%{ opacity:1; }
-  100%{ opacity:.9; }
-}
+
 
     .app-alert{position:fixed;inset:0;display:none;align-items:center;justify-content:center;padding:20px;z-index:100001;background:rgba(15,23,42,.46);backdrop-filter:blur(4px)}
     .app-alert.show{display:flex}
@@ -2805,17 +2724,6 @@ html,body{background:linear-gradient(180deg,#f8fbff 0%,#eef5ff 52%,#f8fafc 100%)
 .app-alert-icon::before{content:"";position:absolute;inset:9px;background:url('/icons/internal/alert.svg') center/contain no-repeat;}
 
 
-/* ===== 더운정픽 UI v3: 브랜드 심볼 기반 블루 프리미엄 로딩 ===== */
-.top-loader{background:linear-gradient(90deg,#0b1f4d,#2563eb,#60a5fa)!important;box-shadow:0 0 18px rgba(37,99,235,.34)!important;height:3px!important;}
-.page-loader,.global-loading{background:rgba(7,18,42,.56)!important;backdrop-filter:blur(8px)!important;-webkit-backdrop-filter:blur(8px)!important;}
-.page-loader .loader-mark,.global-loading .loader-mark{width:86px!important;height:86px!important;border-radius:28px!important;background:linear-gradient(180deg,rgba(255,255,255,.96),rgba(239,246,255,.86))!important;border:1px solid rgba(191,219,254,.88)!important;box-shadow:0 24px 56px rgba(7,26,61,.26),inset 0 1px 0 rgba(255,255,255,.94)!important;display:grid!important;place-items:center!important;position:relative!important;animation:upickLoaderFloat 1.15s ease-in-out infinite!important;overflow:visible!important;}
-.page-loader .loader-mark::before,.global-loading .loader-mark::before{content:""!important;width:60px!important;height:60px!important;background:url('/icons/internal/brand-symbol-real.png') center/contain no-repeat!important;display:block!important;filter:drop-shadow(0 8px 16px rgba(7,26,61,.14))!important;}
-.page-loader .loader-mark::after,.global-loading .loader-mark::after{content:""!important;position:absolute!important;left:16px!important;right:16px!important;bottom:-14px!important;height:5px!important;border-radius:999px!important;background:linear-gradient(90deg,rgba(96,165,250,.18),#60a5fa,#2563eb,rgba(96,165,250,.18))!important;background-size:220% 100%!important;animation:upickLoaderLine 1.05s ease-in-out infinite!important;box-shadow:0 0 22px rgba(37,99,235,.34)!important;}
-.page-loader .loader-mark .arm,.global-loading .loader-mark .arm{display:none!important;}
-@keyframes upickLoaderFloat{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-4px) scale(1.025)}}
-@keyframes upickLoaderLine{0%{background-position:0% 50%;opacity:.72}50%{background-position:100% 50%;opacity:1}100%{background-position:0% 50%;opacity:.72}}
-
-
 /* ===== 더운정픽 UI v3: 관리자 GNB/심볼/스크롤 보정 ===== */
 .gnb-sheet{height:100dvh!important;max-height:100dvh!important;overflow:hidden!important;background:#fff!important;overscroll-behavior:contain!important;}
 .gnb-top{flex:0 0 auto!important;background:radial-gradient(circle at 84% 12%,rgba(96,165,250,.34),transparent 28%),linear-gradient(135deg,#071a3d 0%,#0f2f67 58%,#1d4ed8 100%)!important;}
@@ -2834,22 +2742,13 @@ body.gnb-open{overflow:hidden!important;touch-action:none!important;}
 /* ===== admin.html inline style #10 : upick-blue-premium-v4-priority-fix ===== */
 /* ===== 더운정픽 UI v4: 1순위 결함 보정 ===== */
 :root{--upick-real-symbol:url('/icons/internal/brand-symbol-real.png');}
-/* 1) 상단/잔여 로딩바 숨김 + 로딩은 중앙 오버레이로만 표시 */
-.top-loader,.top-progress,.loading-bar,#topLoader,#topLoadingBar{display:none!important;height:0!important;opacity:0!important;visibility:hidden!important;pointer-events:none!important;}
-.global-loading,.page-loader{position:fixed!important;inset:0!important;width:100vw!important;height:100dvh!important;min-height:100dvh!important;display:none!important;align-items:center!important;justify-content:center!important;background:rgba(7,18,42,.54)!important;backdrop-filter:blur(12px)!important;-webkit-backdrop-filter:blur(12px)!important;z-index:2147483000!important;opacity:1!important;visibility:visible!important;pointer-events:auto!important;margin:0!important;padding:0!important;overflow:hidden!important;}
-.global-loading.show,.page-loader.show{display:flex!important;}
-.global-loading[aria-hidden="true"]:not(.show),.page-loader[aria-hidden="true"]:not(.show){display:none!important;}
-.global-loading::before,.page-loader::before{content:""!important;position:absolute!important;inset:0!important;background:radial-gradient(circle at 50% 45%,rgba(96,165,250,.20),transparent 34%),rgba(7,18,42,.20)!important;}
-.global-loading .loader-mark,.page-loader .loader-mark{width:104px!important;height:104px!important;border-radius:34px!important;background:linear-gradient(180deg,rgba(255,255,255,.96),rgba(239,246,255,.84))!important;border:1px solid rgba(191,219,254,.90)!important;box-shadow:0 28px 70px rgba(7,26,61,.34),inset 0 1px 0 rgba(255,255,255,.94)!important;display:grid!important;place-items:center!important;position:relative!important;overflow:visible!important;animation:upickLoaderFloat 1.25s ease-in-out infinite!important;}
-.global-loading .loader-mark::before,.page-loader .loader-mark::before{content:""!important;width:72px!important;height:72px!important;background:var(--upick-real-symbol) center/contain no-repeat!important;display:block!important;filter:drop-shadow(0 10px 20px rgba(7,26,61,.14))!important;}
-.global-loading .loader-mark::after,.page-loader .loader-mark::after{content:""!important;position:absolute!important;inset:-9px!important;border-radius:40px!important;border:2px solid rgba(96,165,250,.26)!important;border-top-color:#60a5fa!important;border-right-color:#2563eb!important;animation:upickLoaderRing 1.05s linear infinite!important;box-shadow:0 0 24px rgba(37,99,235,.22)!important;}
-.global-loading .loader-mark .arm,.page-loader .loader-mark .arm{display:none!important;}
-@keyframes upickLoaderFloat{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-4px) scale(1.02)}}
-@keyframes upickLoaderRing{to{transform:rotate(360deg)}}
+#topLoader{display:none!important;height:0!important;opacity:0!important;visibility:hidden!important;pointer-events:none!important;}
 
 /* 2) 실제 심볼마크 통일 */
 .logo::before,.brand .logo::before,.topbar .brand .logo::before,.page>.brand .logo::before,.admin-brand .logo::before{background:var(--upick-real-symbol) center/contain no-repeat!important;}
-.logo img[src*="brand-symbol"],.brand img[src*="brand-symbol"],.gnb-hero-emoji img,.loader-mark img{content:url('/icons/internal/brand-symbol-real.png')!important;object-fit:contain!important;}
+.logo img[src*="brand-symbol"],
+.brand img[src*="brand-symbol"],
+.gnb-hero-emoji img{content:url('/icons/internal/brand-symbol-real.png')!important;object-fit:contain!important;}
 .gnb-hero-emoji{font-size:0!important;}
 .gnb-hero-emoji::before{content:"";width:72px;height:72px;background:var(--upick-real-symbol) center/contain no-repeat;display:block;filter:drop-shadow(0 10px 18px rgba(7,26,61,.16));}
 .gnb-hero-emoji img{display:none!important;}
@@ -2879,11 +2778,17 @@ body.gnb-open .bottom-nav,body.gnb-open .admin-bottom-nav,body.gnb-open .mobile-
 /* ===== admin.html inline style #11 : upick-blue-premium-v5-fixes ===== */
 :root{--upick-real-symbol:url('/icons/internal/brand-symbol-real.png');}
 /* 실제 심볼 마크가 작은 박스 안에서 잘리지 않도록 공통 보정 */
-.logo,.brand .logo,.topbar-left-titleline .logo,.title-icon,.gnb-hero-emoji,.loader-mark{
+.logo,
+.brand .logo,
+.topbar-left-titleline .logo,
+.title-icon,
+.gnb-hero-emoji{
   overflow:visible!important;
 }
-.logo img[src*="brand-symbol"],.brand img[src*="brand-symbol"],.brand-icon[src*="brand-symbol"],
-.gnb-hero-emoji img,.loader-mark img{
+.logo img[src*="brand-symbol"],
+.brand img[src*="brand-symbol"],
+.brand-icon[src*="brand-symbol"],
+.gnb-hero-emoji img{
   width:100%!important;height:100%!important;object-fit:contain!important;object-position:center!important;
   content:url('/icons/internal/brand-symbol-real.png')!important;
 }
@@ -2892,17 +2797,7 @@ body.gnb-open .bottom-nav,body.gnb-open .admin-bottom-nav,body.gnb-open .mobile-
 }
 .gnb-hero-emoji{display:grid!important;place-items:center!important;background:linear-gradient(180deg,#f8fbff,#eef6ff)!important;border:1px solid rgba(191,219,254,.88)!important;box-shadow:0 18px 40px rgba(7,26,61,.18)!important;}
 .gnb-hero-emoji img{width:86%!important;height:86%!important;}
-/* 로딩은 중앙 심볼 + 블루 링만 사용. 대각선/하단바/핑크 잔상 제거 */
-.top-loader,.top-progress,.loading-bar,#topLoader,#topLoadingBar,.browser-loading-bar,.app-top-loading{display:none!important;height:0!important;opacity:0!important;visibility:hidden!important;pointer-events:none!important;}
-.global-loading,.page-loader{position:fixed!important;inset:0!important;width:100vw!important;height:100dvh!important;display:none!important;align-items:center!important;justify-content:center!important;background:rgba(7,18,42,.46)!important;backdrop-filter:blur(14px)!important;-webkit-backdrop-filter:blur(14px)!important;z-index:2147483000!important;overflow:hidden!important;}
-.global-loading.show,.page-loader.show{display:flex!important;}
-.global-loading::before,.page-loader::before{content:""!important;position:absolute!important;inset:0!important;background:radial-gradient(circle at 50% 45%,rgba(96,165,250,.18),transparent 32%)!important;}
-.global-loading .loader-mark,.page-loader .loader-mark{width:108px!important;height:108px!important;border-radius:34px!important;background:linear-gradient(180deg,rgba(255,255,255,.97),rgba(238,246,255,.88))!important;border:1px solid rgba(191,219,254,.92)!important;box-shadow:0 28px 70px rgba(7,26,61,.32),inset 0 1px 0 rgba(255,255,255,.92)!important;display:grid!important;place-items:center!important;position:relative!important;overflow:visible!important;animation:upickLoaderFloatV5 1.3s ease-in-out infinite!important;}
-.global-loading .loader-mark::before,.page-loader .loader-mark::before{content:""!important;width:76px!important;height:76px!important;background:var(--upick-real-symbol) center/contain no-repeat!important;display:block!important;filter:drop-shadow(0 8px 18px rgba(7,26,61,.16))!important;}
-.global-loading .loader-mark::after,.page-loader .loader-mark::after{content:""!important;position:absolute!important;inset:-10px!important;border-radius:42px!important;border:2px solid rgba(96,165,250,.20)!important;border-top-color:#60a5fa!important;border-right-color:#2563eb!important;background:none!important;height:auto!important;left:-10px!important;right:-10px!important;bottom:-10px!important;transform:none!important;animation:upickLoaderRingV5 1.05s linear infinite!important;box-shadow:0 0 24px rgba(37,99,235,.18)!important;}
-.global-loading .loader-mark .arm,.page-loader .loader-mark .arm,.global-loading .loader-mark span,.page-loader .loader-mark span{display:none!important;opacity:0!important;visibility:hidden!important;}
-@keyframes upickLoaderFloatV5{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
-@keyframes upickLoaderRingV5{to{transform:rotate(360deg)}}
+#topLoader{display:none!important;height:0!important;opacity:0!important;visibility:hidden!important;pointer-events:none!important;}
 /* GNB가 어둡게 잠긴 것처럼 보이지 않도록 오버레이/시트 레이어 정리 */
 body.gnb-open{overflow:hidden!important;overscroll-behavior:none!important;touch-action:none!important;}
 .gnb-overlay{position:fixed!important;inset:0!important;width:100vw!important;height:100dvh!important;z-index:2147481900!important;background:rgba(7,18,42,.10)!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important;overscroll-behavior:none!important;}
@@ -3154,8 +3049,7 @@ img.brand-icon[src*="home.svg"],
 .admin-premium-hero-shell .brand .logo img,
 .upick-header-brand .logo img,
 .brand .logo img,
-.gnb-hero-emoji img,
-.loader-mark img {
+.gnb-hero-emoji img{
   content:url('/icons/internal/brand-symbol-real.png')!important;
   object-fit:contain!important;
   background:transparent!important;
@@ -3404,76 +3298,6 @@ img.brand-icon[src*="home.svg"],
   content:url('/icons/internal/brand-symbol-real.png')!important;
 }
 
-/* 6) 로딩 화면: 카드형 로고 제거 + 캡슐형 로딩바 */
-.page-loader,
-.global-loading,
-#pageLoader {
-  background:
-    linear-gradient(180deg, rgba(10,22,54,.28), rgba(10,22,54,.18)),
-    rgba(248,244,236,.18)!important;
-  backdrop-filter:blur(18px)!important;
-  -webkit-backdrop-filter:blur(18px)!important;
-}
-.page-loader .loader-mark,
-.global-loading .loader-mark,
-#pageLoader .loader-mark {
-  width:96px!important;
-  height:96px!important;
-  border-radius:0!important;
-  background:transparent!important;
-  border:none!important;
-  box-shadow:none!important;
-  display:grid!important;
-  place-items:center!important;
-  filter:drop-shadow(0 10px 24px rgba(2,8,23,.18))!important;
-}
-.page-loader .loader-mark::before,
-.global-loading .loader-mark::before,
-#pageLoader .loader-mark::before {
-  content:""!important;
-  width:76px!important;
-  height:76px!important;
-  display:block!important;
-  background:url('/icons/internal/brand-symbol-real.png') center/contain no-repeat!important;
-  filter:none!important;
-}
-.page-loader .loader-mark img,
-.global-loading .loader-mark img,
-#pageLoader .loader-mark img {
-  width:76px!important;
-  height:76px!important;
-  object-fit:contain!important;
-  content:url('/icons/internal/brand-symbol-real.png')!important;
-}
-
-/* 기존 X/분홍 막대형 arm 숨김 */
-.page-loader .loader-mark .arm,
-.global-loading .loader-mark .arm,
-#pageLoader .loader-mark .arm {
-  display:none!important;
-}
-
-/* 짧은 캡슐형 로딩바 */
-.page-loader .loader-mark::after,
-.global-loading .loader-mark::after,
-#pageLoader .loader-mark::after {
-  content:""!important;
-  position:absolute!important;
-  left:50%!important;
-  bottom:-14px!important;
-  width:86px!important;
-  height:8px!important;
-  transform:translateX(-50%)!important;
-  border-radius:999px!important;
-  background:
-    linear-gradient(90deg, transparent 0%, rgba(147,197,253,.30) 16%, rgba(96,165,250,.95) 50%, rgba(147,197,253,.30) 84%, transparent 100%)!important;
-  box-shadow:0 0 14px rgba(96,165,250,.26), inset 0 1px 0 rgba(255,255,255,.22)!important;
-  animation:upickV39LoaderBar 1.15s ease-in-out infinite!important;
-}
-@keyframes upickV39LoaderBar {
-  0%,100% { opacity:.46; width:64px; }
-  50% { opacity:1; width:96px; }
-}
 
 /* 7) 관리자 히어로 깨짐/줄바꿈 안정화 */
 .admin-premium-hero-shell .hero h1,
@@ -3560,10 +3384,7 @@ img.brand-icon[src*="home.svg"],
 .upick-tab-premium-hero .brand .logo,
 .upick-tab-premium-hero .upick-tab-brand-logo,
 .upick-tab-premium-hero .upick-header-brand .logo,
-.gnb-hero-emoji,
-.loader-mark,
-.page-loader .loader-mark,
-.global-loading .loader-mark {
+.gnb-hero-emoji{
   background:transparent!important;
   background-color:transparent!important;
   background-image:none!important;
@@ -3611,10 +3432,7 @@ img.brand-icon[src*="home.svg"],
 .upick-tab-premium-hero .brand .logo img,
 .upick-tab-premium-hero .upick-tab-brand-logo img,
 .upick-tab-premium-hero .upick-header-brand .logo img,
-.gnb-hero-emoji img,
-.loader-mark img,
-.page-loader .loader-mark img,
-.global-loading .loader-mark img {
+.gnb-hero-emoji img{
   content:url('/icons/internal/brand-symbol-real.png')!important;
   display:block!important;
   object-fit:contain!important;
@@ -3732,15 +3550,6 @@ img.brand-icon[src*="home.svg"],
 .gnb-hero-emoji img {
   width:94px!important;
   height:94px!important;
-}
-
-/* 9) 로딩 심볼은 카드형 없이 심볼만 */
-.page-loader .loader-mark::before,
-.global-loading .loader-mark::before,
-#pageLoader .loader-mark::before {
-  background:url('/icons/internal/brand-symbol-real.png') center/contain no-repeat!important;
-  border:none!important;
-  box-shadow:none!important;
 }
 
 /* 모바일 */
@@ -3898,10 +3707,7 @@ img.brand-icon[src*="home.svg"],
 }
 
 /* 6) GNB/로딩 심볼 래퍼도 카드형 제거 유지 */
-.gnb-hero-emoji,
-.page-loader .loader-mark,
-.global-loading .loader-mark,
-#pageLoader .loader-mark {
+.gnb-hero-emoji{
   background:transparent!important;
   background-color:transparent!important;
   background-image:none!important;
@@ -4360,422 +4166,8 @@ img.brand-icon[src*="home.svg"],
 }
 
 
-/* ===== admin.html inline style #24 : upick-v65-admin-loader-orbit-copy ===== */
-#globalLoadingBar.global-loading.upick-admin-loader-enhanced,
-.global-loading.upick-admin-loader-enhanced,
-.page-loader.upick-admin-loader-enhanced{
-  position:fixed !important;
-  inset:0 !important;
-  width:100vw !important;
-  height:100dvh !important;
-  min-height:100dvh !important;
-  display:none !important;
-  align-items:center !important;
-  justify-content:center !important;
-  background:rgba(226,234,245,.72) !important;
-  backdrop-filter:blur(15px) saturate(1.08) !important;
-  -webkit-backdrop-filter:blur(15px) saturate(1.08) !important;
-  z-index:2147483000 !important;
-  overflow:hidden !important;
-  opacity:1 !important;
-  visibility:visible !important;
-  pointer-events:auto !important;
-}
-#globalLoadingBar.global-loading.upick-admin-loader-enhanced.show,
-.global-loading.upick-admin-loader-enhanced.show,
-.page-loader.upick-admin-loader-enhanced.show,
-#globalLoadingBar.global-loading.upick-admin-loader-enhanced.is-visible,
-.global-loading.upick-admin-loader-enhanced.is-visible,
-#globalLoadingBar.global-loading.upick-admin-loader-enhanced[aria-hidden="false"],
-.global-loading.upick-admin-loader-enhanced[aria-hidden="false"]{
-  display:flex !important;
-}
-#globalLoadingBar.global-loading.upick-admin-loader-enhanced::before,
-.global-loading.upick-admin-loader-enhanced::before,
-.page-loader.upick-admin-loader-enhanced::before{
-  content:"" !important;
-  position:absolute !important;
-  inset:0 !important;
-  background:
-    radial-gradient(ellipse at 50% 34%, rgba(37,99,235,.34), transparent 31%),
-    radial-gradient(ellipse at 50% 55%, rgba(255,255,255,.78), transparent 42%),
-    linear-gradient(180deg, rgba(9,37,86,.28) 0%, rgba(255,255,255,.40) 54%, rgba(238,231,219,.42) 100%) !important;
-  pointer-events:none !important;
-}
-#globalLoadingBar.global-loading.upick-admin-loader-enhanced .loader-content,
-.global-loading.upick-admin-loader-enhanced .loader-content,
-.page-loader.upick-admin-loader-enhanced .loader-content{
-  position:relative !important;
-  z-index:1 !important;
-  display:flex !important;
-  flex-direction:column !important;
-  align-items:center !important;
-  justify-content:center !important;
-  gap:22px !important;
-  transform:translateY(-6px) !important;
-  width:min(92vw, 520px) !important;
-  text-align:center !important;
-}
-#globalLoadingBar.global-loading.upick-admin-loader-enhanced .loader-mark,
-.global-loading.upick-admin-loader-enhanced .loader-mark,
-.page-loader.upick-admin-loader-enhanced .loader-mark{
-  width:92px !important;
-  height:92px !important;
-  min-width:92px !important;
-  min-height:92px !important;
-  border-radius:29px !important;
-  background:linear-gradient(180deg, rgba(255,255,255,.74), rgba(221,237,255,.46)) !important;
-  border:1px solid rgba(255,255,255,.50) !important;
-  box-shadow:0 22px 50px rgba(15,44,92,.16), inset 0 1px 0 rgba(255,255,255,.74), inset 0 -1px 0 rgba(96,165,250,.12) !important;
-  display:grid !important;
-  place-items:center !important;
-  position:relative !important;
-  overflow:visible !important;
-  animation:upickV65AdminLoaderFloat 1.65s ease-in-out infinite !important;
-}
-#globalLoadingBar.global-loading.upick-admin-loader-enhanced .loader-mark::before,
-.global-loading.upick-admin-loader-enhanced .loader-mark::before,
-.page-loader.upick-admin-loader-enhanced .loader-mark::before{
-  content:"" !important;
-  width:64px !important;
-  height:64px !important;
-  display:block !important;
-  background:url('/icons/internal/brand-symbol-real.png') center/contain no-repeat !important;
-  filter:drop-shadow(0 1px 0 rgba(255,255,255,.22)) drop-shadow(0 7px 16px rgba(2,8,23,.14)) !important;
-}
-#globalLoadingBar.global-loading.upick-admin-loader-enhanced .loader-mark::after,
-.global-loading.upick-admin-loader-enhanced .loader-mark::after,
-.page-loader.upick-admin-loader-enhanced .loader-mark::after{
-  content:"" !important;
-  position:absolute !important;
-  inset:-6px !important;
-  left:-6px !important;
-  right:-6px !important;
-  top:-6px !important;
-  bottom:-6px !important;
-  width:auto !important;
-  height:auto !important;
-  border-radius:35px !important;
-  border-width:1.5px !important;
-  border-style:solid !important;
-  border-top-color:rgba(147,197,253,.82) !important;
-  border-right-color:rgba(59,130,246,.58) !important;
-  border-bottom-color:rgba(191,219,254,.055) !important;
-  border-left-color:rgba(191,219,254,.13) !important;
-  background:none !important;
-  box-shadow:0 0 18px rgba(96,165,250,.22), 0 0 34px rgba(37,99,235,.095) !important;
-  filter:blur(.15px) !important;
-  opacity:.74 !important;
-  transform-origin:center center !important;
-  animation:upickV65AdminLoaderOrbitSoft 2.35s linear infinite !important;
-  pointer-events:none !important;
-}
-#globalLoadingBar.global-loading.upick-admin-loader-enhanced .loader-mark .arm,
-.global-loading.upick-admin-loader-enhanced .loader-mark .arm,
-.page-loader.upick-admin-loader-enhanced .loader-mark .arm,
-#globalLoadingBar.global-loading.upick-admin-loader-enhanced .loader-mark > img,
-.global-loading.upick-admin-loader-enhanced .loader-mark > img,
-.page-loader.upick-admin-loader-enhanced .loader-mark > img,
-#globalLoadingBar.global-loading.upick-admin-loader-enhanced .loader-mark span,
-.global-loading.upick-admin-loader-enhanced .loader-mark span,
-.page-loader.upick-admin-loader-enhanced .loader-mark span{
-  display:none !important;
-  opacity:0 !important;
-  visibility:hidden !important;
-}
-#globalLoadingBar.global-loading.upick-admin-loader-enhanced .loader-copy,
-.global-loading.upick-admin-loader-enhanced .loader-copy,
-.page-loader.upick-admin-loader-enhanced .loader-copy{
-  display:flex !important;
-  flex-direction:column !important;
-  align-items:center !important;
-  gap:8px !important;
-  min-height:54px !important;
-  color:#50637d !important;
-  text-shadow:0 1px 0 rgba(255,255,255,.38) !important;
-  transition:opacity .24s ease, transform .24s ease !important;
-}
-#globalLoadingBar.global-loading.upick-admin-loader-enhanced .loader-message,
-.global-loading.upick-admin-loader-enhanced .loader-message,
-.page-loader.upick-admin-loader-enhanced .loader-message{
-  margin:0 !important;
-  font-size:clamp(19px, 4.2vw, 23px) !important;
-  font-weight:800 !important;
-  letter-spacing:-.045em !important;
-  line-height:1.22 !important;
-  color:rgba(62,82,112,.90) !important;
-}
-#globalLoadingBar.global-loading.upick-admin-loader-enhanced .loader-sub-message,
-.global-loading.upick-admin-loader-enhanced .loader-sub-message,
-.page-loader.upick-admin-loader-enhanced .loader-sub-message{
-  margin:0 !important;
-  font-size:clamp(13px, 3.2vw, 15px) !important;
-  font-weight:650 !important;
-  letter-spacing:-.035em !important;
-  line-height:1.28 !important;
-  color:rgba(78,98,130,.68) !important;
-}
-#globalLoadingBar.global-loading.upick-admin-loader-enhanced .loader-copy.is-changing,
-.global-loading.upick-admin-loader-enhanced .loader-copy.is-changing,
-.page-loader.upick-admin-loader-enhanced .loader-copy.is-changing{
-  opacity:.28 !important;
-  transform:translateY(2px) !important;
-}
-@keyframes upickV65AdminLoaderFloat{
-  0%,100%{ transform:translateY(0); }
-  50%{ transform:translateY(-4px); }
-}
-@keyframes upickV65AdminLoaderOrbitSoft{
-  0%{ transform:rotate(0deg); opacity:.56; }
-  35%{ opacity:.82; }
-  70%{ opacity:.68; }
-  100%{ transform:rotate(360deg); opacity:.56; }
-}
-@media(max-width:430px){
-  #globalLoadingBar.global-loading.upick-admin-loader-enhanced .loader-content,
-  .global-loading.upick-admin-loader-enhanced .loader-content,
-  .page-loader.upick-admin-loader-enhanced .loader-content{gap:20px !important;transform:translateY(-4px) !important;}
-  #globalLoadingBar.global-loading.upick-admin-loader-enhanced .loader-mark,
-  .global-loading.upick-admin-loader-enhanced .loader-mark,
-  .page-loader.upick-admin-loader-enhanced .loader-mark{width:88px !important;height:88px !important;min-width:88px !important;min-height:88px !important;border-radius:28px !important;}
-  #globalLoadingBar.global-loading.upick-admin-loader-enhanced .loader-mark::after,
-  .global-loading.upick-admin-loader-enhanced .loader-mark::after,
-  .page-loader.upick-admin-loader-enhanced .loader-mark::after{inset:-6px !important;border-radius:34px !important;border-width:1.5px !important;}
-}
 
 
-/* ===== admin.html inline style #25 : upick-v67-loader-safe-css-only ===== */
-.global-loading.upick-loader-enhanced .loader-mark,
-.page-loader.upick-loader-enhanced .loader-mark,
-.global-loading.upick-admin-loader-enhanced .loader-mark,
-.page-loader.upick-admin-loader-enhanced .loader-mark,
-#globalLoadingBar.global-loading.upick-admin-loader-enhanced .loader-mark{
-  width:92px!important;
-  height:92px!important;
-  min-width:92px!important;
-  min-height:92px!important;
-  border-radius:29px!important;
-  background:linear-gradient(180deg,rgba(255,255,255,.78),rgba(221,237,255,.50))!important;
-  border:1px solid rgba(255,255,255,.56)!important;
-  box-shadow:0 22px 50px rgba(15,44,92,.16),inset 0 1px 0 rgba(255,255,255,.80),inset 0 -1px 0 rgba(96,165,250,.13)!important;
-  display:grid!important;
-  place-items:center!important;
-  position:relative!important;
-  overflow:visible!important;
-  isolation:isolate!important;
-}
-.global-loading.upick-loader-enhanced .loader-mark::before,
-.page-loader.upick-loader-enhanced .loader-mark::before,
-.global-loading.upick-admin-loader-enhanced .loader-mark::before,
-.page-loader.upick-admin-loader-enhanced .loader-mark::before,
-#globalLoadingBar.global-loading.upick-admin-loader-enhanced .loader-mark::before{
-  content:""!important;
-  width:64px!important;
-  height:64px!important;
-  display:block!important;
-  background:url('/icons/internal/brand-symbol-real.png') center/contain no-repeat!important;
-  filter:drop-shadow(0 1px 0 rgba(255,255,255,.22)) drop-shadow(0 7px 16px rgba(2,8,23,.14))!important;
-  position:relative!important;
-  z-index:2!important;
-}
-.global-loading.upick-loader-enhanced .loader-mark::after,
-.page-loader.upick-loader-enhanced .loader-mark::after,
-.global-loading.upick-admin-loader-enhanced .loader-mark::after,
-.page-loader.upick-admin-loader-enhanced .loader-mark::after,
-#globalLoadingBar.global-loading.upick-admin-loader-enhanced .loader-mark::after{
-  content:""!important;
-  position:absolute!important;
-  inset:-6px!important;
-  border-radius:35px!important;
-  border:1.25px solid transparent!important;
-  border-top-color:rgba(147,197,253,.56)!important;
-  border-right-color:rgba(59,130,246,.32)!important;
-  border-bottom-color:rgba(191,219,254,.04)!important;
-  border-left-color:rgba(191,219,254,.08)!important;
-  box-shadow:0 0 13px rgba(96,165,250,.14)!important;
-  opacity:.56!important;
-  background:transparent!important;
-  animation:upickV67LoaderOrbit 3s linear infinite!important;
-  z-index:1!important;
-}
-.global-loading.upick-loader-enhanced .loader-mark .arm,
-.page-loader.upick-loader-enhanced .loader-mark .arm,
-.global-loading.upick-admin-loader-enhanced .loader-mark .arm,
-.page-loader.upick-admin-loader-enhanced .loader-mark .arm,
-#globalLoadingBar.global-loading.upick-admin-loader-enhanced .loader-mark .arm,
-.global-loading.upick-loader-enhanced .loader-mark img,
-.page-loader.upick-loader-enhanced .loader-mark img,
-.global-loading.upick-admin-loader-enhanced .loader-mark img,
-.page-loader.upick-admin-loader-enhanced .loader-mark img,
-#globalLoadingBar.global-loading.upick-admin-loader-enhanced .loader-mark img{
-  display:none!important;
-}
-@keyframes upickV67LoaderOrbit{to{transform:rotate(360deg)}}
-@media(max-width:430px){
-  .global-loading.upick-loader-enhanced .loader-mark,
-  .page-loader.upick-loader-enhanced .loader-mark,
-  .global-loading.upick-admin-loader-enhanced .loader-mark,
-  .page-loader.upick-admin-loader-enhanced .loader-mark,
-  #globalLoadingBar.global-loading.upick-admin-loader-enhanced .loader-mark{
-    width:88px!important;height:88px!important;min-width:88px!important;min-height:88px!important;border-radius:28px!important;
-  }
-  .global-loading.upick-loader-enhanced .loader-mark::before,
-  .page-loader.upick-loader-enhanced .loader-mark::before,
-  .global-loading.upick-admin-loader-enhanced .loader-mark::before,
-  .page-loader.upick-admin-loader-enhanced .loader-mark::before,
-  #globalLoadingBar.global-loading.upick-admin-loader-enhanced .loader-mark::before{
-    width:61px!important;height:61px!important;
-  }
-  .global-loading.upick-loader-enhanced .loader-mark::after,
-  .page-loader.upick-loader-enhanced .loader-mark::after,
-  .global-loading.upick-admin-loader-enhanced .loader-mark::after,
-  .page-loader.upick-admin-loader-enhanced .loader-mark::after,
-  #globalLoadingBar.global-loading.upick-admin-loader-enhanced .loader-mark::after{
-    border-radius:34px!important;
-  }
-}
-
-
-/* ===== admin.html inline style #26 : upick-v68-loader-logo-restore ===== */
-/* 로딩 로고가 pseudo-element 충돌로 사라지는 현상 방지: 로고를 loader-mark 배경 레이어로 고정 */
-.global-loading.upick-loader-enhanced .loader-mark,
-.page-loader.upick-loader-enhanced .loader-mark,
-.global-loading.upick-admin-loader-enhanced .loader-mark,
-.page-loader.upick-admin-loader-enhanced .loader-mark,
-#globalLoadingBar.global-loading.upick-admin-loader-enhanced .loader-mark,
-#globalLoadingBar.global-loading.upick-loader-enhanced .loader-mark,
-#pageLoader.page-loader.upick-loader-enhanced .loader-mark{
-  background:
-    url('/icons/internal/brand-symbol-real.png') center/64px 64px no-repeat,
-    linear-gradient(180deg,rgba(255,255,255,.78),rgba(221,237,255,.50))!important;
-}
-.global-loading.upick-loader-enhanced .loader-mark::before,
-.page-loader.upick-loader-enhanced .loader-mark::before,
-.global-loading.upick-admin-loader-enhanced .loader-mark::before,
-.page-loader.upick-admin-loader-enhanced .loader-mark::before,
-#globalLoadingBar.global-loading.upick-admin-loader-enhanced .loader-mark::before,
-#globalLoadingBar.global-loading.upick-loader-enhanced .loader-mark::before,
-#pageLoader.page-loader.upick-loader-enhanced .loader-mark::before{
-  content:none!important;
-  display:none!important;
-}
-@media(max-width:430px){
-  .global-loading.upick-loader-enhanced .loader-mark,
-  .page-loader.upick-loader-enhanced .loader-mark,
-  .global-loading.upick-admin-loader-enhanced .loader-mark,
-  .page-loader.upick-admin-loader-enhanced .loader-mark,
-  #globalLoadingBar.global-loading.upick-admin-loader-enhanced .loader-mark,
-  #globalLoadingBar.global-loading.upick-loader-enhanced .loader-mark,
-  #pageLoader.page-loader.upick-loader-enhanced .loader-mark{
-    background:
-      url('/icons/internal/brand-symbol-real.png') center/61px 61px no-repeat,
-      linear-gradient(180deg,rgba(255,255,255,.78),rgba(221,237,255,.50))!important;
-  }
-}
-
-
-/* ===== admin.html inline style #27 : upick-v69-admin-loader-layer-fix ===== */
-/* 관리자 로딩바 깨짐 보정
-   - 로고를 배경이 아닌 ::before 전면 레이어로 고정
-   - 오빗 링은 ::after 후면 레이어로 분리
-   - 기존 img/arm 잔상은 숨김 유지
-*/
-#globalLoadingBar.global-loading.upick-admin-loader-enhanced .loader-mark,
-.global-loading.upick-admin-loader-enhanced .loader-mark,
-.page-loader.upick-admin-loader-enhanced .loader-mark,
-#pageLoader.page-loader.upick-admin-loader-enhanced .loader-mark{
-  width:92px!important;
-  height:92px!important;
-  min-width:92px!important;
-  min-height:92px!important;
-  border-radius:29px!important;
-  position:relative!important;
-  display:grid!important;
-  place-items:center!important;
-  overflow:visible!important;
-  isolation:isolate!important;
-  background:linear-gradient(180deg,rgba(255,255,255,.82),rgba(221,237,255,.54))!important;
-  border:1px solid rgba(255,255,255,.58)!important;
-  box-shadow:0 22px 50px rgba(15,44,92,.16),inset 0 1px 0 rgba(255,255,255,.82),inset 0 -1px 0 rgba(96,165,250,.13)!important;
-}
-#globalLoadingBar.global-loading.upick-admin-loader-enhanced .loader-mark::before,
-.global-loading.upick-admin-loader-enhanced .loader-mark::before,
-.page-loader.upick-admin-loader-enhanced .loader-mark::before,
-#pageLoader.page-loader.upick-admin-loader-enhanced .loader-mark::before{
-  content:""!important;
-  display:block!important;
-  position:absolute!important;
-  left:50%!important;
-  top:50%!important;
-  width:64px!important;
-  height:64px!important;
-  transform:translate(-50%,-50%)!important;
-  background:url('/icons/internal/brand-symbol-real.png') center/contain no-repeat!important;
-  filter:drop-shadow(0 1px 0 rgba(255,255,255,.24)) drop-shadow(0 7px 16px rgba(2,8,23,.14))!important;
-  z-index:3!important;
-  pointer-events:none!important;
-}
-#globalLoadingBar.global-loading.upick-admin-loader-enhanced .loader-mark::after,
-.global-loading.upick-admin-loader-enhanced .loader-mark::after,
-.page-loader.upick-admin-loader-enhanced .loader-mark::after,
-#pageLoader.page-loader.upick-admin-loader-enhanced .loader-mark::after{
-  content:""!important;
-  position:absolute!important;
-  inset:-6px!important;
-  width:auto!important;
-  height:auto!important;
-  left:-6px!important;
-  right:-6px!important;
-  top:-6px!important;
-  bottom:-6px!important;
-  transform:none!important;
-  border-radius:35px!important;
-  border:1.25px solid transparent!important;
-  border-top-color:rgba(147,197,253,.56)!important;
-  border-right-color:rgba(59,130,246,.30)!important;
-  border-bottom-color:rgba(191,219,254,.04)!important;
-  border-left-color:rgba(191,219,254,.08)!important;
-  background:transparent!important;
-  box-shadow:0 0 13px rgba(96,165,250,.14)!important;
-  opacity:.56!important;
-  animation:upickV69AdminLoaderOrbit 3s linear infinite!important;
-  z-index:1!important;
-  pointer-events:none!important;
-}
-#globalLoadingBar.global-loading.upick-admin-loader-enhanced .loader-mark > img,
-.global-loading.upick-admin-loader-enhanced .loader-mark > img,
-.page-loader.upick-admin-loader-enhanced .loader-mark > img,
-#globalLoadingBar.global-loading.upick-admin-loader-enhanced .loader-mark .arm,
-.global-loading.upick-admin-loader-enhanced .loader-mark .arm,
-.page-loader.upick-admin-loader-enhanced .loader-mark .arm,
-#globalLoadingBar.global-loading.upick-admin-loader-enhanced .loader-mark span,
-.global-loading.upick-admin-loader-enhanced .loader-mark span,
-.page-loader.upick-admin-loader-enhanced .loader-mark span{
-  display:none!important;
-  opacity:0!important;
-  visibility:hidden!important;
-}
-@keyframes upickV69AdminLoaderOrbit{to{transform:rotate(360deg)}}
-@media(max-width:430px){
-  #globalLoadingBar.global-loading.upick-admin-loader-enhanced .loader-mark,
-  .global-loading.upick-admin-loader-enhanced .loader-mark,
-  .page-loader.upick-admin-loader-enhanced .loader-mark,
-  #pageLoader.page-loader.upick-admin-loader-enhanced .loader-mark{
-    width:88px!important;height:88px!important;min-width:88px!important;min-height:88px!important;border-radius:28px!important;
-  }
-  #globalLoadingBar.global-loading.upick-admin-loader-enhanced .loader-mark::before,
-  .global-loading.upick-admin-loader-enhanced .loader-mark::before,
-  .page-loader.upick-admin-loader-enhanced .loader-mark::before,
-  #pageLoader.page-loader.upick-admin-loader-enhanced .loader-mark::before{
-    width:61px!important;height:61px!important;
-  }
-  #globalLoadingBar.global-loading.upick-admin-loader-enhanced .loader-mark::after,
-  .global-loading.upick-admin-loader-enhanced .loader-mark::after,
-  .page-loader.upick-admin-loader-enhanced .loader-mark::after,
-  #pageLoader.page-loader.upick-admin-loader-enhanced .loader-mark::after{
-    inset:-6px!important;border-radius:34px!important;
-  }
-}
 
 
 /* ===== admin.html inline style #28 : upick-admin-v70-compact-hero-header ===== */
@@ -5536,265 +4928,7 @@ img.brand-icon[src*="home.svg"],
 }
 
 
-/* ===== admin.html inline style #32 : upick-v76-loader-stability-fix ===== */
-/*
-  회전 링이 일부 브라우저/배포 캐시 조합에서 로고 내부 선처럼 비치는 문제 방지.
-  서버 응답/JS에는 영향 없는 CSS-only 보정입니다.
-*/
-.global-loading .loader-mark::after,
-.page-loader .loader-mark::after,
-#globalLoadingBar.global-loading .loader-mark::after,
-#pageLoader.page-loader .loader-mark::after{
-  content:none!important;
-  display:none!important;
-  opacity:0!important;
-  visibility:hidden!important;
-  animation:none!important;
-  background:none!important;
-  border:0!important;
-  box-shadow:none!important;
-}
-.global-loading .loader-mark,
-.page-loader .loader-mark,
-#globalLoadingBar.global-loading .loader-mark,
-#pageLoader.page-loader .loader-mark{
-  overflow:hidden!important;
-  background:
-    radial-gradient(circle at 34% 22%,rgba(255,255,255,.96),rgba(255,255,255,0) 34%),
-    linear-gradient(180deg,rgba(255,255,255,.86),rgba(221,237,255,.58))!important;
-  border:1px solid rgba(255,255,255,.66)!important;
-  box-shadow:
-    0 22px 52px rgba(15,44,92,.16),
-    0 0 0 1px rgba(147,197,253,.28),
-    inset 0 1px 0 rgba(255,255,255,.88),
-    inset 0 -1px 0 rgba(96,165,250,.10)!important;
-}
-.global-loading .loader-mark::before,
-.page-loader .loader-mark::before,
-#globalLoadingBar.global-loading .loader-mark::before,
-#pageLoader.page-loader .loader-mark::before{
-  content:""!important;
-  display:block!important;
-  width:64px!important;
-  height:64px!important;
-  background:url('/icons/internal/brand-symbol-real.png') center/contain no-repeat!important;
-  position:relative!important;
-  z-index:2!important;
-}
-@media(max-width:430px){
-  .global-loading .loader-mark::before,
-  .page-loader .loader-mark::before,
-  #globalLoadingBar.global-loading .loader-mark::before,
-  #pageLoader.page-loader .loader-mark::before{
-    width:61px!important;
-    height:61px!important;
-  }
-}
-
-
 /* ===== admin.html inline style #33 : upick-common-stable-loader-v78 ===== */
-:root{--upick-loader-symbol:url('/icons/internal/brand-symbol-real.png');}
-#pageLoader.page-loader,
-#globalLoadingBar.global-loading,
-.page-loader,
-.global-loading{
-  position:fixed!important;inset:0!important;width:100vw!important;height:100dvh!important;min-height:100dvh!important;
-  display:none!important;align-items:center!important;justify-content:center!important;flex-direction:column!important;gap:18px!important;
-  background:rgba(7,18,42,.46)!important;backdrop-filter:blur(14px)!important;-webkit-backdrop-filter:blur(14px)!important;
-  z-index:2147483000!important;overflow:hidden!important;pointer-events:auto!important;
-}
-#pageLoader.page-loader.show,
-#globalLoadingBar.global-loading.show,
-.global-loading.is-visible,
-.global-loading[aria-hidden="false"],
-.page-loader[aria-hidden="false"]{display:flex!important;}
-#pageLoader.page-loader::before,
-#globalLoadingBar.global-loading::before,
-.page-loader::before,
-.global-loading::before{
-  content:""!important;position:absolute!important;inset:0!important;pointer-events:none!important;
-  background:radial-gradient(circle at 50% 43%,rgba(96,165,250,.18),transparent 34%),radial-gradient(circle at 50% 58%,rgba(255,255,255,.08),transparent 30%)!important;
-}
-#pageLoader .loader-content,
-#globalLoadingBar .loader-content,
-.page-loader .loader-content,
-.global-loading .loader-content{
-  position:relative!important;z-index:1!important;display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;gap:18px!important;
-}
-#pageLoader .loader-mark,
-#globalLoadingBar .loader-mark,
-.page-loader .loader-mark,
-.global-loading .loader-mark{
-  width:108px!important;height:108px!important;min-width:108px!important;min-height:108px!important;max-width:108px!important;max-height:108px!important;
-  border-radius:34px!important;background:linear-gradient(180deg,rgba(255,255,255,.97),rgba(238,246,255,.88))!important;
-  border:1px solid rgba(191,219,254,.92)!important;box-shadow:0 28px 70px rgba(7,26,61,.32),inset 0 1px 0 rgba(255,255,255,.94),0 0 0 1px rgba(255,255,255,.28)!important;
-  display:grid!important;place-items:center!important;position:relative!important;overflow:hidden!important;padding:0!important;margin:0!important;transform:none!important;
-  animation:upickCommonLoaderFloatV78 1.35s ease-in-out infinite!important;
-}
-#pageLoader .loader-mark::before,
-#globalLoadingBar .loader-mark::before,
-.page-loader .loader-mark::before,
-.global-loading .loader-mark::before{
-  content:""!important;width:76px!important;height:76px!important;display:block!important;background:var(--upick-loader-symbol) center/contain no-repeat!important;
-  filter:drop-shadow(0 8px 18px rgba(7,26,61,.16))!important;position:relative!important;z-index:2!important;
-}
-#pageLoader .loader-mark::after,
-#globalLoadingBar .loader-mark::after,
-.page-loader .loader-mark::after,
-.global-loading .loader-mark::after{
-  content:""!important;position:absolute!important;left:22px!important;right:22px!important;bottom:12px!important;height:4px!important;border:0!important;border-radius:999px!important;
-  background:linear-gradient(90deg,rgba(96,165,250,.04),rgba(96,165,250,.28),rgba(37,99,235,.38),rgba(96,165,250,.04))!important;
-  box-shadow:0 0 18px rgba(37,99,235,.16)!important;animation:upickCommonLoaderLineV78 1.4s ease-in-out infinite!important;opacity:.72!important;transform:none!important;inset:auto 22px 12px 22px!important;
-}
-#pageLoader .loader-mark .arm,
-#globalLoadingBar .loader-mark .arm,
-.page-loader .loader-mark .arm,
-.global-loading .loader-mark .arm,
-#pageLoader .loader-mark > img,
-#globalLoadingBar .loader-mark > img,
-.page-loader .loader-mark > img,
-.global-loading .loader-mark > img,
-#pageLoader .loader-mark .loader-orbit,
-#globalLoadingBar .loader-mark .loader-orbit,
-.page-loader .loader-mark .loader-orbit,
-.global-loading .loader-mark .loader-orbit{
-  display:none!important;opacity:0!important;visibility:hidden!important;width:0!important;height:0!important;pointer-events:none!important;
-}
-#pageLoader .loader-copy,
-#globalLoadingBar .loader-copy,
-.page-loader .loader-copy,
-.global-loading .loader-copy{
-  position:relative!important;z-index:1!important;display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;text-align:center!important;gap:5px!important;
-  padding:0 24px!important;margin:0!important;color:#fff!important;text-shadow:0 2px 12px rgba(0,0,0,.20)!important;transition:opacity .18s ease,transform .18s ease!important;
-}
-#pageLoader .loader-message,
-#globalLoadingBar .loader-message,
-.page-loader .loader-message,
-.global-loading .loader-message{
-  margin:0!important;font-size:15px!important;line-height:1.45!important;font-weight:800!important;letter-spacing:-.02em!important;color:rgba(255,255,255,.96)!important;
-}
-#pageLoader .loader-sub-message,
-#globalLoadingBar .loader-sub-message,
-.page-loader .loader-sub-message,
-.global-loading .loader-sub-message{
-  margin:0!important;font-size:12.5px!important;line-height:1.45!important;font-weight:650!important;letter-spacing:-.02em!important;color:rgba(219,234,254,.84)!important;
-}
-#pageLoader .loader-copy.is-changing,
-#globalLoadingBar .loader-copy.is-changing,
-.page-loader .loader-copy.is-changing,
-.global-loading .loader-copy.is-changing{opacity:.35!important;transform:translateY(2px)!important;}
-@keyframes upickCommonLoaderFloatV78{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
-@keyframes upickCommonLoaderLineV78{0%,100%{opacity:.34;transform:scaleX(.72)}50%{opacity:.82;transform:scaleX(1)}}
-@media (max-width:480px){
-  #pageLoader .loader-mark,#globalLoadingBar .loader-mark,.page-loader .loader-mark,.global-loading .loader-mark{width:100px!important;height:100px!important;min-width:100px!important;min-height:100px!important;border-radius:32px!important;}
-  #pageLoader .loader-mark::before,#globalLoadingBar .loader-mark::before,.page-loader .loader-mark::before,.global-loading .loader-mark::before{width:70px!important;height:70px!important;}
-  #pageLoader .loader-message,#globalLoadingBar .loader-message,.page-loader .loader-message,.global-loading .loader-message{font-size:14.5px!important;}
-}
-
-
-/* ===== admin.html inline style #34 : upick-v75-loader-ring-hard-fix ===== */
-/* 공개앱/로그인/회원가입/관리자 공통: 로고 레이어와 회전 링 레이어를 완전히 분리 */
-.global-loading.upick-loader-enhanced .loader-mark,
-.page-loader.upick-loader-enhanced .loader-mark,
-.global-loading.upick-admin-loader-enhanced .loader-mark,
-.page-loader.upick-admin-loader-enhanced .loader-mark,
-#globalLoadingBar.global-loading .loader-mark,
-#pageLoader.page-loader .loader-mark{
-  width:92px!important;
-  height:92px!important;
-  min-width:92px!important;
-  min-height:92px!important;
-  border-radius:29px!important;
-  background:linear-gradient(180deg,rgba(255,255,255,.80),rgba(221,237,255,.52))!important;
-  border:1px solid rgba(255,255,255,.58)!important;
-  box-shadow:0 22px 50px rgba(15,44,92,.16),inset 0 1px 0 rgba(255,255,255,.82),inset 0 -1px 0 rgba(96,165,250,.12)!important;
-  position:relative!important;
-  display:grid!important;
-  place-items:center!important;
-  overflow:visible!important;
-  isolation:isolate!important;
-}
-.global-loading.upick-loader-enhanced .loader-mark::before,
-.page-loader.upick-loader-enhanced .loader-mark::before,
-.global-loading.upick-admin-loader-enhanced .loader-mark::before,
-.page-loader.upick-admin-loader-enhanced .loader-mark::before,
-#globalLoadingBar.global-loading .loader-mark::before,
-#pageLoader.page-loader .loader-mark::before{
-  content:""!important;
-  display:block!important;
-  width:64px!important;
-  height:64px!important;
-  position:relative!important;
-  z-index:3!important;
-  background:url('/icons/internal/brand-symbol-real.png') center/contain no-repeat!important;
-  filter:drop-shadow(0 1px 0 rgba(255,255,255,.22)) drop-shadow(0 7px 16px rgba(2,8,23,.14))!important;
-  pointer-events:none!important;
-}
-.global-loading.upick-loader-enhanced .loader-mark::after,
-.page-loader.upick-loader-enhanced .loader-mark::after,
-.global-loading.upick-admin-loader-enhanced .loader-mark::after,
-.page-loader.upick-admin-loader-enhanced .loader-mark::after,
-#globalLoadingBar.global-loading .loader-mark::after,
-#pageLoader.page-loader .loader-mark::after{
-  content:""!important;
-  position:absolute!important;
-  inset:-6px!important;
-  width:auto!important;
-  height:auto!important;
-  border:0!important;
-  border-radius:35px!important;
-  background:conic-gradient(from 0deg, rgba(96,165,250,0) 0deg, rgba(147,197,253,.20) 34deg, rgba(59,130,246,.62) 72deg, rgba(96,165,250,0) 116deg, rgba(96,165,250,0) 360deg)!important;
-  -webkit-mask:linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0)!important;
-  -webkit-mask-composite:xor!important;
-  mask-composite:exclude!important;
-  padding:1.5px!important;
-  box-shadow:0 0 14px rgba(96,165,250,.13)!important;
-  filter:blur(.1px)!important;
-  opacity:.62!important;
-  z-index:1!important;
-  animation:upickV75LoaderOrbit 3.2s linear infinite!important;
-  pointer-events:none!important;
-}
-.global-loading.upick-loader-enhanced .loader-mark > img,
-.page-loader.upick-loader-enhanced .loader-mark > img,
-.global-loading.upick-admin-loader-enhanced .loader-mark > img,
-.page-loader.upick-admin-loader-enhanced .loader-mark > img,
-#globalLoadingBar.global-loading .loader-mark > img,
-#pageLoader.page-loader .loader-mark > img,
-.global-loading.upick-loader-enhanced .loader-mark .arm,
-.page-loader.upick-loader-enhanced .loader-mark .arm,
-.global-loading.upick-admin-loader-enhanced .loader-mark .arm,
-.page-loader.upick-admin-loader-enhanced .loader-mark .arm,
-#globalLoadingBar.global-loading .loader-mark .arm,
-#pageLoader.page-loader .loader-mark .arm{
-  display:none!important;
-  opacity:0!important;
-  visibility:hidden!important;
-}
-@keyframes upickV75LoaderOrbit{to{transform:rotate(360deg)}}
-@media(max-width:430px){
-  .global-loading.upick-loader-enhanced .loader-mark,
-  .page-loader.upick-loader-enhanced .loader-mark,
-  .global-loading.upick-admin-loader-enhanced .loader-mark,
-  .page-loader.upick-admin-loader-enhanced .loader-mark,
-  #globalLoadingBar.global-loading .loader-mark,
-  #pageLoader.page-loader .loader-mark{
-    width:88px!important;height:88px!important;min-width:88px!important;min-height:88px!important;border-radius:28px!important;
-  }
-  .global-loading.upick-loader-enhanced .loader-mark::before,
-  .page-loader.upick-loader-enhanced .loader-mark::before,
-  .global-loading.upick-admin-loader-enhanced .loader-mark::before,
-  .page-loader.upick-admin-loader-enhanced .loader-mark::before,
-  #globalLoadingBar.global-loading .loader-mark::before,
-  #pageLoader.page-loader .loader-mark::before{width:61px!important;height:61px!important;}
-  .global-loading.upick-loader-enhanced .loader-mark::after,
-  .page-loader.upick-loader-enhanced .loader-mark::after,
-  .global-loading.upick-admin-loader-enhanced .loader-mark::after,
-  .page-loader.upick-admin-loader-enhanced .loader-mark::after,
-  #globalLoadingBar.global-loading .loader-mark::after,
-  #pageLoader.page-loader .loader-mark::after{border-radius:34px!important;}
-}
-
 /* ===== Admin login state controls ===== */
 #loginBtn.hidden,
 #logoutBtn.hidden{
@@ -5810,133 +4944,9 @@ img.brand-icon[src*="home.svg"],
 
 /* ===== 공통 로딩 UI 통일 : login loader 기준 ===== */
 :root{--upick-real-symbol:url('/icons/internal/brand-symbol-real.png');}
-#pageLoader,
-#globalLoadingBar,
-.page-loader,
-.global-loading{
-  position:fixed!important;
-  inset:0!important;
-  width:100vw!important;
-  height:100dvh!important;
-  min-height:100dvh!important;
-  display:none!important;
-  align-items:center!important;
-  justify-content:center!important;
-  background:rgba(7,18,42,.46)!important;
-  backdrop-filter:blur(14px)!important;
-  -webkit-backdrop-filter:blur(14px)!important;
-  z-index:2147483000!important;
-  overflow:hidden!important;
-}
-#pageLoader.show,
-#globalLoadingBar.show,
-.page-loader.show,
-.global-loading.show{display:flex!important;}
-#pageLoader::before,
-#globalLoadingBar::before,
-.page-loader::before,
-.global-loading::before{
-  content:""!important;
-  position:absolute!important;
-  inset:0!important;
-  background:radial-gradient(circle at 50% 45%,rgba(96,165,250,.18),transparent 32%)!important;
-  pointer-events:none!important;
-}
-#pageLoader .loader-content,
-#globalLoadingBar .loader-content,
-.page-loader .loader-content,
-.global-loading .loader-content{
-  position:relative!important;
-  z-index:1!important;
-  display:flex!important;
-  flex-direction:column!important;
-  align-items:center!important;
-  justify-content:center!important;
-  gap:22px!important;
-  transform:translateY(-6px)!important;
-  text-align:center!important;
-}
-#pageLoader .loader-mark,
-#globalLoadingBar .loader-mark,
-.page-loader .loader-mark,
-.global-loading .loader-mark{
-  width:108px!important;
-  height:108px!important;
-  border-radius:34px!important;
-  background:linear-gradient(180deg,rgba(255,255,255,.97),rgba(238,246,255,.88))!important;
-  border:1px solid rgba(191,219,254,.92)!important;
-  box-shadow:0 28px 70px rgba(7,26,61,.32),inset 0 1px 0 rgba(255,255,255,.92)!important;
-  display:grid!important;
-  place-items:center!important;
-  position:relative!important;
-  overflow:visible!important;
-  animation:upickV82LoaderShadow 1.18s ease-in-out infinite!important;
-}
-#pageLoader .loader-mark::before,
-#globalLoadingBar .loader-mark::before,
-.page-loader .loader-mark::before,
-.global-loading .loader-mark::before{
-  content:""!important;
-  width:76px!important;
-  height:76px!important;
-  background:var(--upick-real-symbol) center/contain no-repeat!important;
-  display:block!important;
-  transform-origin:center center!important;
-  will-change:transform, filter, opacity!important;
-  animation:upickV82LogoBreathe 1.18s ease-in-out infinite!important;
-}
-#pageLoader .loader-mark::after,
-#globalLoadingBar .loader-mark::after,
-.page-loader .loader-mark::after,
-.global-loading .loader-mark::after{
-  content:""!important;
-  position:absolute!important;
-  left:16px!important;
-  right:16px!important;
-  bottom:-14px!important;
-  height:5px!important;
-  border:0!important;
-  border-radius:999px!important;
-  background:linear-gradient(90deg,rgba(96,165,250,.18),#60a5fa,#2563eb,rgba(96,165,250,.18))!important;
-  background-size:220% 100%!important;
-  box-shadow:0 0 22px rgba(37,99,235,.34)!important;
-  transform-origin:center center!important;
-  will-change:transform, opacity, background-position!important;
-  animation:upickV82LoaderBarFlow 1.05s ease-in-out infinite!important;
-}
-#pageLoader .loader-mark img,
-#globalLoadingBar .loader-mark img,
-.page-loader .loader-mark img,
-.global-loading .loader-mark img,
-#pageLoader .loader-mark .arm,
-#globalLoadingBar .loader-mark .arm,
-.page-loader .loader-mark .arm,
-.global-loading .loader-mark .arm,
-#pageLoader .loader-mark .loader-orbit,
-#globalLoadingBar .loader-mark .loader-orbit,
-.page-loader .loader-mark .loader-orbit,
-.global-loading .loader-mark .loader-orbit{display:none!important;opacity:0!important;visibility:hidden!important;}
-#pageLoader .loader-copy,
-#globalLoadingBar .loader-copy,
-.page-loader .loader-copy,
-.global-loading .loader-copy{display:block!important;text-align:center!important;transition:opacity .18s ease,transform .18s ease!important;}
-#pageLoader .loader-message,
-#globalLoadingBar .loader-message,
-.page-loader .loader-message,
-.global-loading .loader-message{margin:0!important;font-size:15.5px!important;font-weight:900!important;letter-spacing:-.04em!important;color:#fff!important;text-shadow:0 8px 24px rgba(0,0,0,.24)!important;}
-#pageLoader .loader-sub-message,
-#globalLoadingBar .loader-sub-message,
-.page-loader .loader-sub-message,
-.global-loading .loader-sub-message{margin:7px 0 0!important;font-size:13px!important;font-weight:700!important;letter-spacing:-.03em!important;color:rgba(255,255,255,.76)!important;}
-#pageLoader .loader-copy.is-changing,
-#globalLoadingBar .loader-copy.is-changing,
-.page-loader .loader-copy.is-changing,
-.global-loading .loader-copy.is-changing{opacity:.35!important;transform:translateY(2px)!important;}
 @keyframes upickV82LogoBreathe{0%,100%{transform:translateY(0) scale(1) rotate(0deg);filter:drop-shadow(0 8px 18px rgba(7,26,61,.16));opacity:.96;}45%{transform:translateY(-5px) scale(1.055) rotate(-1.2deg);filter:drop-shadow(0 13px 24px rgba(37,99,235,.24));opacity:1;}70%{transform:translateY(-2px) scale(1.025) rotate(.8deg);}}
-@keyframes upickV82LoaderShadow{0%,100%{box-shadow:0 28px 70px rgba(7,26,61,.30), inset 0 1px 0 rgba(255,255,255,.94), 0 0 0 1px rgba(255,255,255,.28);}50%{box-shadow:0 34px 82px rgba(37,99,235,.28), inset 0 1px 0 rgba(255,255,255,.96), 0 0 0 1px rgba(147,197,253,.34);}}
-@keyframes upickV82LoaderBarFlow{0%,100%{opacity:.38;transform:scaleX(.72);background-position:0% 50%;}50%{opacity:.95;transform:scaleX(1);background-position:100% 50%;}}
-@media (max-width:420px){#pageLoader .loader-content,#globalLoadingBar .loader-content,.page-loader .loader-content,.global-loading .loader-content{gap:20px!important;transform:translateY(-4px)!important;}#pageLoader .loader-message,#globalLoadingBar .loader-message,.page-loader .loader-message,.global-loading .loader-message{font-size:14.5px!important;}}
-@media (prefers-reduced-motion: reduce){#pageLoader .loader-mark,#globalLoadingBar .loader-mark,.page-loader .loader-mark,.global-loading .loader-mark,#pageLoader .loader-mark::before,#globalLoadingBar .loader-mark::before,.page-loader .loader-mark::before,.global-loading .loader-mark::before,#pageLoader .loader-mark::after,#globalLoadingBar .loader-mark::after,.page-loader .loader-mark::after,.global-loading .loader-mark::after{animation:none!important;}}
+
+
 
 
 .coupon-link-list{display:grid;gap:10px;margin:10px 0}
@@ -6208,3 +5218,7 @@ img.brand-icon[src*="home.svg"],
   height:18px;
   accent-color:#03c75a;
 }
+
+
+/* Loading UI styles are centralized in /common/common-loading.css.
+   Page-specific loader overrides were removed to keep app/admin/index/signup/phone-verify consistent. */

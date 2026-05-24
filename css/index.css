@@ -252,105 +252,8 @@
     .app-alert-cancel{min-width:92px;border:1px solid var(--line);border-radius:16px;padding:12px 16px;background:#fff;color:var(--text);font-weight:800;cursor:pointer}
     .app-alert-confirm{min-width:92px;border:none;border-radius:16px;padding:12px 16px;background:var(--primary);color:#fff;font-weight:800;cursor:pointer}
     .app-alert-confirm{min-width:92px;border:none;border-radius:16px;padding:12px 16px;background:var(--primary);color:#fff;font-weight:800;cursor:pointer}
-    
-
-/* 상단 로딩바 */
-.top-loader{
-  position:fixed;
-  top:0;
-  left:0;
-  height:3px;
-  width:0;
-  background:linear-gradient(90deg,#0b1f4d,#2563eb,#60a5fa);
-  z-index:9999;
-  opacity:1;
-  transition:width .35s ease, opacity .35s ease;
-}
-.top-loader.active{width:78%}
-.top-loader.done{width:100%;opacity:0}
 
 
-/* ===== 전체 화면 로더 ===== */
-.page-loader{
-  position:fixed;
-  inset:0;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  background:rgba(15,23,42,.52);
-  backdrop-filter:blur(2px);
-  -webkit-backdrop-filter:blur(2px);
-  z-index:10000;
-  opacity:0;
-  visibility:hidden;
-  pointer-events:none;
-  transition:opacity .22s ease, visibility .22s ease;
-}
-.page-loader.show{
-  opacity:1;
-  visibility:visible;
-  pointer-events:auto;
-}
-.loader-mark{
-  position:relative;
-  width:74px;
-  height:74px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-}
-.loader-mark .arm{
-  position:absolute;
-  left:50%;
-  top:50%;
-  width:10px;
-  border-radius:999px;
-  transform-origin:center center;
-  box-shadow:0 3px 10px rgba(0,0,0,.08);
-}
-.loader-mark .arm.top{
-  height:34px;
-  background:#ffffff;
-  transform:translate(-50%,-72%) rotate(45deg);
-}
-.loader-mark .arm.left{
-  height:34px;
-  background:#ffffff;
-  transform:translate(-50%,-72%) rotate(-45deg);
-}
-.loader-mark .arm.mid{
-  width:42px;
-  height:8px;
-  background:linear-gradient(90deg,#ff4fc3 0%, #ff63d8 100%);
-  transform:translate(-50%,-2px);
-}
-.loader-mark .arm.bot{
-  width:42px;
-  height:8px;
-  background:linear-gradient(90deg,#ff4fc3 0%, #ff63d8 100%);
-  transform:translate(-50%,12px);
-}
-.loader-mark .arm.bot2{
-  width:42px;
-  height:8px;
-  background:linear-gradient(90deg,#ff4fc3 0%, #ff63d8 100%);
-  transform:translate(-50%,26px);
-}
-.loader-mark{
-  animation:loaderFloat .95s ease-in-out infinite;
-}
-.page-loader.show .loader-mark{
-  animation:loaderFloat .95s ease-in-out infinite, loaderPulse .9s ease-in-out infinite;
-}
-@keyframes loaderFloat{
-  0%,100%{ transform:translateY(0) scale(1); }
-  50%{ transform:translateY(-3px) scale(1.03); }
-}
-@keyframes loaderPulse{
-  0%{ opacity:.88; }
-  50%{ opacity:1; }
-  100%{ opacity:.9; }
-}
 
 
     .find-links{
@@ -771,41 +674,27 @@ dialog:not(.app-alert){position:relative!important;}
 .app-alert-card::before{content:"";position:absolute;left:0;right:0;top:0;height:4px;background:linear-gradient(90deg,#60A5FA,#2563EB,#0B2A60)!important;}
 
 
-/* ===== 더운정픽 UI v3: 브랜드 심볼 기반 블루 프리미엄 로딩 ===== */
-.top-loader{background:linear-gradient(90deg,#0b1f4d,#2563eb,#60a5fa)!important;box-shadow:0 0 18px rgba(37,99,235,.34)!important;height:3px!important;}
-.page-loader,.global-loading{background:rgba(7,18,42,.56)!important;backdrop-filter:blur(8px)!important;-webkit-backdrop-filter:blur(8px)!important;}
-.page-loader .loader-mark,.global-loading .loader-mark{width:86px!important;height:86px!important;border-radius:28px!important;background:linear-gradient(180deg,rgba(255,255,255,.96),rgba(239,246,255,.86))!important;border:1px solid rgba(191,219,254,.88)!important;box-shadow:0 24px 56px rgba(7,26,61,.26),inset 0 1px 0 rgba(255,255,255,.94)!important;display:grid!important;place-items:center!important;position:relative!important;animation:upickLoaderFloat 1.15s ease-in-out infinite!important;overflow:visible!important;}
-.page-loader .loader-mark::before,.global-loading .loader-mark::before{content:""!important;width:60px!important;height:60px!important;background:url('/icons/internal/brand-symbol-real.png') center/contain no-repeat!important;display:block!important;filter:drop-shadow(0 8px 16px rgba(7,26,61,.14))!important;}
-.page-loader .loader-mark::after,.global-loading .loader-mark::after{content:""!important;position:absolute!important;left:16px!important;right:16px!important;bottom:-14px!important;height:5px!important;border-radius:999px!important;background:linear-gradient(90deg,rgba(96,165,250,.18),#60a5fa,#2563eb,rgba(96,165,250,.18))!important;background-size:220% 100%!important;animation:upickLoaderLine 1.05s ease-in-out infinite!important;box-shadow:0 0 22px rgba(37,99,235,.34)!important;}
-.page-loader .loader-mark .arm,.global-loading .loader-mark .arm{display:none!important;}
-@keyframes upickLoaderFloat{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-4px) scale(1.025)}}
-@keyframes upickLoaderLine{0%{background-position:0% 50%;opacity:.72}50%{background-position:100% 50%;opacity:1}100%{background-position:0% 50%;opacity:.72}}
-
-
 /* ===== index.html inline style #6 : upick-blue-premium-v4-login-fix ===== */
 :root{--upick-real-symbol:url('/icons/internal/brand-symbol-real.png');}
-.top-loader,.top-progress,.loading-bar,#topLoader,#topLoadingBar{display:none!important;height:0!important;opacity:0!important;visibility:hidden!important;pointer-events:none!important;}
-.page-loader,.global-loading{position:fixed!important;inset:0!important;width:100vw!important;height:100dvh!important;min-height:100dvh!important;display:none!important;align-items:center!important;justify-content:center!important;background:rgba(7,18,42,.54)!important;backdrop-filter:blur(12px)!important;-webkit-backdrop-filter:blur(12px)!important;z-index:2147483000!important;overflow:hidden!important;}
-.page-loader.show,.global-loading.show{display:flex!important;}
-.page-loader[aria-hidden="true"]:not(.show),.global-loading[aria-hidden="true"]:not(.show){display:none!important;}
-.page-loader .loader-mark,.global-loading .loader-mark{width:104px!important;height:104px!important;border-radius:34px!important;background:linear-gradient(180deg,rgba(255,255,255,.96),rgba(239,246,255,.84))!important;border:1px solid rgba(191,219,254,.90)!important;box-shadow:0 28px 70px rgba(7,26,61,.34),inset 0 1px 0 rgba(255,255,255,.94)!important;display:grid!important;place-items:center!important;position:relative!important;animation:upickLoaderFloat 1.25s ease-in-out infinite!important;}
-.page-loader .loader-mark::before,.global-loading .loader-mark::before{content:""!important;width:72px!important;height:72px!important;background:var(--upick-real-symbol) center/contain no-repeat!important;display:block!important;}
-.page-loader .loader-mark::after,.global-loading .loader-mark::after{content:""!important;position:absolute!important;inset:-9px!important;border-radius:40px!important;border:2px solid rgba(96,165,250,.26)!important;border-top-color:#60a5fa!important;border-right-color:#2563eb!important;animation:upickLoaderRing 1.05s linear infinite!important;}
-.page-loader .loader-mark .arm,.global-loading .loader-mark .arm{display:none!important;}
+#topLoader{display:none!important;height:0!important;opacity:0!important;visibility:hidden!important;pointer-events:none!important;}
 .logo::before,.brand .logo::before{background:var(--upick-real-symbol) center/contain no-repeat!important;}
 .logo img[src*="brand-symbol"],.brand img[src*="brand-symbol"]{content:url('/icons/internal/brand-symbol-real.png')!important;object-fit:contain!important;}
-@keyframes upickLoaderFloat{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-4px) scale(1.02)}}
-@keyframes upickLoaderRing{to{transform:rotate(360deg)}}
 
 
 /* ===== index.html inline style #7 : upick-blue-premium-v5-fixes ===== */
 :root{--upick-real-symbol:url('/icons/internal/brand-symbol-real.png');}
 /* 실제 심볼 마크가 작은 박스 안에서 잘리지 않도록 공통 보정 */
-.logo,.brand .logo,.topbar-left-titleline .logo,.title-icon,.gnb-hero-emoji,.loader-mark{
+.logo,
+.brand .logo,
+.topbar-left-titleline .logo,
+.title-icon,
+.gnb-hero-emoji{
   overflow:visible!important;
 }
-.logo img[src*="brand-symbol"],.brand img[src*="brand-symbol"],.brand-icon[src*="brand-symbol"],
-.gnb-hero-emoji img,.loader-mark img{
+.logo img[src*="brand-symbol"],
+.brand img[src*="brand-symbol"],
+.brand-icon[src*="brand-symbol"],
+.gnb-hero-emoji img{
   width:100%!important;height:100%!important;object-fit:contain!important;object-position:center!important;
   content:url('/icons/internal/brand-symbol-real.png')!important;
 }
@@ -814,17 +703,7 @@ dialog:not(.app-alert){position:relative!important;}
 }
 .gnb-hero-emoji{display:grid!important;place-items:center!important;background:linear-gradient(180deg,#f8fbff,#eef6ff)!important;border:1px solid rgba(191,219,254,.88)!important;box-shadow:0 18px 40px rgba(7,26,61,.18)!important;}
 .gnb-hero-emoji img{width:86%!important;height:86%!important;}
-/* 로딩은 중앙 심볼 + 블루 링만 사용. 대각선/하단바/핑크 잔상 제거 */
-.top-loader,.top-progress,.loading-bar,#topLoader,#topLoadingBar,.browser-loading-bar,.app-top-loading{display:none!important;height:0!important;opacity:0!important;visibility:hidden!important;pointer-events:none!important;}
-.global-loading,.page-loader{position:fixed!important;inset:0!important;width:100vw!important;height:100dvh!important;display:none!important;align-items:center!important;justify-content:center!important;background:rgba(7,18,42,.46)!important;backdrop-filter:blur(14px)!important;-webkit-backdrop-filter:blur(14px)!important;z-index:2147483000!important;overflow:hidden!important;}
-.global-loading.show,.page-loader.show{display:flex!important;}
-.global-loading::before,.page-loader::before{content:""!important;position:absolute!important;inset:0!important;background:radial-gradient(circle at 50% 45%,rgba(96,165,250,.18),transparent 32%)!important;}
-.global-loading .loader-mark,.page-loader .loader-mark{width:108px!important;height:108px!important;border-radius:34px!important;background:linear-gradient(180deg,rgba(255,255,255,.97),rgba(238,246,255,.88))!important;border:1px solid rgba(191,219,254,.92)!important;box-shadow:0 28px 70px rgba(7,26,61,.32),inset 0 1px 0 rgba(255,255,255,.92)!important;display:grid!important;place-items:center!important;position:relative!important;overflow:visible!important;animation:upickLoaderFloatV5 1.3s ease-in-out infinite!important;}
-.global-loading .loader-mark::before,.page-loader .loader-mark::before{content:""!important;width:76px!important;height:76px!important;background:var(--upick-real-symbol) center/contain no-repeat!important;display:block!important;filter:drop-shadow(0 8px 18px rgba(7,26,61,.16))!important;}
-.global-loading .loader-mark::after,.page-loader .loader-mark::after{content:""!important;position:absolute!important;inset:-10px!important;border-radius:42px!important;border:2px solid rgba(96,165,250,.20)!important;border-top-color:#60a5fa!important;border-right-color:#2563eb!important;background:none!important;height:auto!important;left:-10px!important;right:-10px!important;bottom:-10px!important;transform:none!important;animation:upickLoaderRingV5 1.05s linear infinite!important;box-shadow:0 0 24px rgba(37,99,235,.18)!important;}
-.global-loading .loader-mark .arm,.page-loader .loader-mark .arm,.global-loading .loader-mark span,.page-loader .loader-mark span{display:none!important;opacity:0!important;visibility:hidden!important;}
-@keyframes upickLoaderFloatV5{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
-@keyframes upickLoaderRingV5{to{transform:rotate(360deg)}}
+#topLoader{display:none!important;height:0!important;opacity:0!important;visibility:hidden!important;pointer-events:none!important;}
 /* GNB가 어둡게 잠긴 것처럼 보이지 않도록 오버레이/시트 레이어 정리 */
 body.gnb-open{overflow:hidden!important;overscroll-behavior:none!important;touch-action:none!important;}
 .gnb-overlay{position:fixed!important;inset:0!important;width:100vw!important;height:100dvh!important;z-index:2147481900!important;background:rgba(7,18,42,.10)!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important;overscroll-behavior:none!important;}
@@ -952,8 +831,7 @@ img.brand-icon[src*="home.svg"],
 .admin-premium-hero-shell .brand .logo img,
 .upick-header-brand .logo img,
 .brand .logo img,
-.gnb-hero-emoji img,
-.loader-mark img {
+.gnb-hero-emoji img{
   content:url('/icons/internal/brand-symbol-real.png')!important;
   object-fit:contain!important;
   background:transparent!important;
@@ -1202,76 +1080,6 @@ img.brand-icon[src*="home.svg"],
   content:url('/icons/internal/brand-symbol-real.png')!important;
 }
 
-/* 6) 로딩 화면: 카드형 로고 제거 + 캡슐형 로딩바 */
-.page-loader,
-.global-loading,
-#pageLoader {
-  background:
-    linear-gradient(180deg, rgba(10,22,54,.28), rgba(10,22,54,.18)),
-    rgba(248,244,236,.18)!important;
-  backdrop-filter:blur(18px)!important;
-  -webkit-backdrop-filter:blur(18px)!important;
-}
-.page-loader .loader-mark,
-.global-loading .loader-mark,
-#pageLoader .loader-mark {
-  width:96px!important;
-  height:96px!important;
-  border-radius:0!important;
-  background:transparent!important;
-  border:none!important;
-  box-shadow:none!important;
-  display:grid!important;
-  place-items:center!important;
-  filter:drop-shadow(0 10px 24px rgba(2,8,23,.18))!important;
-}
-.page-loader .loader-mark::before,
-.global-loading .loader-mark::before,
-#pageLoader .loader-mark::before {
-  content:""!important;
-  width:76px!important;
-  height:76px!important;
-  display:block!important;
-  background:url('/icons/internal/brand-symbol-real.png') center/contain no-repeat!important;
-  filter:none!important;
-}
-.page-loader .loader-mark img,
-.global-loading .loader-mark img,
-#pageLoader .loader-mark img {
-  width:76px!important;
-  height:76px!important;
-  object-fit:contain!important;
-  content:url('/icons/internal/brand-symbol-real.png')!important;
-}
-
-/* 기존 X/분홍 막대형 arm 숨김 */
-.page-loader .loader-mark .arm,
-.global-loading .loader-mark .arm,
-#pageLoader .loader-mark .arm {
-  display:none!important;
-}
-
-/* 짧은 캡슐형 로딩바 */
-.page-loader .loader-mark::after,
-.global-loading .loader-mark::after,
-#pageLoader .loader-mark::after {
-  content:""!important;
-  position:absolute!important;
-  left:50%!important;
-  bottom:-14px!important;
-  width:86px!important;
-  height:8px!important;
-  transform:translateX(-50%)!important;
-  border-radius:999px!important;
-  background:
-    linear-gradient(90deg, transparent 0%, rgba(147,197,253,.30) 16%, rgba(96,165,250,.95) 50%, rgba(147,197,253,.30) 84%, transparent 100%)!important;
-  box-shadow:0 0 14px rgba(96,165,250,.26), inset 0 1px 0 rgba(255,255,255,.22)!important;
-  animation:upickV39LoaderBar 1.15s ease-in-out infinite!important;
-}
-@keyframes upickV39LoaderBar {
-  0%,100% { opacity:.46; width:64px; }
-  50% { opacity:1; width:96px; }
-}
 
 /* 7) 관리자 히어로 깨짐/줄바꿈 안정화 */
 .admin-premium-hero-shell .hero h1,
@@ -1358,10 +1166,7 @@ img.brand-icon[src*="home.svg"],
 .upick-tab-premium-hero .brand .logo,
 .upick-tab-premium-hero .upick-tab-brand-logo,
 .upick-tab-premium-hero .upick-header-brand .logo,
-.gnb-hero-emoji,
-.loader-mark,
-.page-loader .loader-mark,
-.global-loading .loader-mark {
+.gnb-hero-emoji{
   background:transparent!important;
   background-color:transparent!important;
   background-image:none!important;
@@ -1409,10 +1214,7 @@ img.brand-icon[src*="home.svg"],
 .upick-tab-premium-hero .brand .logo img,
 .upick-tab-premium-hero .upick-tab-brand-logo img,
 .upick-tab-premium-hero .upick-header-brand .logo img,
-.gnb-hero-emoji img,
-.loader-mark img,
-.page-loader .loader-mark img,
-.global-loading .loader-mark img {
+.gnb-hero-emoji img{
   content:url('/icons/internal/brand-symbol-real.png')!important;
   display:block!important;
   object-fit:contain!important;
@@ -1530,15 +1332,6 @@ img.brand-icon[src*="home.svg"],
 .gnb-hero-emoji img {
   width:94px!important;
   height:94px!important;
-}
-
-/* 9) 로딩 심볼은 카드형 없이 심볼만 */
-.page-loader .loader-mark::before,
-.global-loading .loader-mark::before,
-#pageLoader .loader-mark::before {
-  background:url('/icons/internal/brand-symbol-real.png') center/contain no-repeat!important;
-  border:none!important;
-  box-shadow:none!important;
 }
 
 /* 모바일 */
@@ -1696,10 +1489,7 @@ img.brand-icon[src*="home.svg"],
 }
 
 /* 6) GNB/로딩 심볼 래퍼도 카드형 제거 유지 */
-.gnb-hero-emoji,
-.page-loader .loader-mark,
-.global-loading .loader-mark,
-#pageLoader .loader-mark {
+.gnb-hero-emoji{
   background:transparent!important;
   background-color:transparent!important;
   background-image:none!important;
@@ -2199,41 +1989,6 @@ body{
   .hero-ghost-logo{width:66px!important;height:66px!important;}
 }
 
-
-/* ===== index.html inline style #16 : upick-v82-loader-logo-real-motion-hardfix ===== */
-/*
-  이전 버전에서 .loader-mark에 transform:none!important가 남아 있으면
-  keyframes의 transform이 무시되어 움직이지 않을 수 있습니다.
-  그래서 로고 레이어(::before) 자체에 모션을 직접 부여합니다.
-*/
-#pageLoader .loader-mark::before,
-#globalLoadingBar .loader-mark::before,
-.page-loader .loader-mark::before,
-.global-loading .loader-mark::before{
-  transform-origin:center center !important;
-  will-change:transform, filter, opacity !important;
-  animation:upickV82LogoBreathe 1.18s ease-in-out infinite !important;
-}
-
-/* 로고를 감싼 글래스 박스는 미세하게 그림자만 호흡 */
-#pageLoader .loader-mark,
-#globalLoadingBar .loader-mark,
-.page-loader .loader-mark,
-.global-loading .loader-mark{
-  animation:upickV82LoaderShadow 1.18s ease-in-out infinite !important;
-}
-
-/* 하단 캡슐 로딩바는 좌우로 흐르는 느낌을 추가 */
-#pageLoader .loader-mark::after,
-#globalLoadingBar .loader-mark::after,
-.page-loader .loader-mark::after,
-.global-loading .loader-mark::after{
-  transform-origin:center center !important;
-  will-change:transform, opacity, background-position !important;
-  background-size:220% 100% !important;
-  animation:upickV82LoaderBarFlow 1.05s ease-in-out infinite !important;
-}
-
 @keyframes upickV82LogoBreathe{
   0%,100%{
     transform:translateY(0) scale(1) rotate(0deg);
@@ -2250,44 +2005,9 @@ body{
   }
 }
 
-@keyframes upickV82LoaderShadow{
-  0%,100%{
-    box-shadow:0 28px 70px rgba(7,26,61,.30), inset 0 1px 0 rgba(255,255,255,.94), 0 0 0 1px rgba(255,255,255,.28) !important;
-  }
-  50%{
-    box-shadow:0 34px 82px rgba(37,99,235,.28), inset 0 1px 0 rgba(255,255,255,.96), 0 0 0 1px rgba(147,197,253,.34) !important;
-  }
-}
 
-@keyframes upickV82LoaderBarFlow{
-  0%,100%{
-    opacity:.38;
-    transform:scaleX(.72);
-    background-position:0% 50%;
-  }
-  50%{
-    opacity:.95;
-    transform:scaleX(1);
-    background-position:100% 50%;
-  }
-}
 
-@media (prefers-reduced-motion: reduce){
-  #pageLoader .loader-mark::before,
-  #globalLoadingBar .loader-mark::before,
-  .page-loader .loader-mark::before,
-  .global-loading .loader-mark::before,
-  #pageLoader .loader-mark,
-  #globalLoadingBar .loader-mark,
-  .page-loader .loader-mark,
-  .global-loading .loader-mark,
-  #pageLoader .loader-mark::after,
-  #globalLoadingBar .loader-mark::after,
-  .page-loader .loader-mark::after,
-  .global-loading .loader-mark::after{
-    animation:none !important;
-  }
-}
+
 
 
 /* ===== index.html inline style #17 : upick-blue-premium-v11-login-signup-hero ===== */
@@ -2691,72 +2411,7 @@ body {
   filter: brightness(0) invert(1) drop-shadow(0 6px 10px rgba(0,0,0,.16)) !important;
 }
 
-/* 8) 로딩은 마지막에 안정화 */
-.page-loader {
-  background:
-    linear-gradient(180deg, rgba(10,22,54,.30), rgba(10,22,54,.18)),
-    rgba(236,242,250,.20) !important;
-  backdrop-filter: blur(18px) saturate(110%) !important;
-  -webkit-backdrop-filter: blur(18px) saturate(110%) !important;
-}
 
-.page-loader .loader-mark {
-  position: relative !important;
-  width: 96px !important;
-  height: 96px !important;
-  min-width: 96px !important;
-  display: grid !important;
-  place-items: center !important;
-  border-radius: 30px !important;
-  background:
-    linear-gradient(180deg, rgba(255,255,255,.18), rgba(255,255,255,.055)) !important;
-  border: 1px solid rgba(255,255,255,.18) !important;
-  box-shadow:
-    0 14px 34px rgba(2,8,23,.16),
-    inset 0 1px 0 rgba(255,255,255,.22) !important;
-  backdrop-filter: blur(14px) saturate(125%) !important;
-  -webkit-backdrop-filter: blur(14px) saturate(125%) !important;
-  overflow: visible !important;
-}
-
-.page-loader .loader-mark .arm {
-  display: none !important;
-}
-
-.page-loader .loader-mark::before {
-  content: "" !important;
-  width: 74px !important;
-  height: 74px !important;
-  display: block !important;
-  background: url('/icons/internal/brand-symbol-real.png') center / contain no-repeat !important;
-  border: none !important;
-  box-shadow: none !important;
-  filter:
-    drop-shadow(0 1px 0 rgba(255,255,255,.22))
-    drop-shadow(0 8px 18px rgba(2,8,23,.18)) !important;
-}
-
-.page-loader .loader-mark::after {
-  content: "" !important;
-  position: absolute !important;
-  left: 50% !important;
-  bottom: -16px !important;
-  width: 82px !important;
-  height: 8px !important;
-  transform: translateX(-50%) !important;
-  border-radius: 999px !important;
-  background:
-    linear-gradient(90deg, rgba(147,197,253,.18), rgba(96,165,250,.95), rgba(147,197,253,.18)) !important;
-  box-shadow:
-    0 0 14px rgba(96,165,250,.22),
-    inset 0 1px 0 rgba(255,255,255,.24) !important;
-  animation: upickV52LoaderPulse 1.15s ease-in-out infinite !important;
-}
-
-@keyframes upickV52LoaderPulse {
-  0%,100% { opacity: .44; width: 62px; }
-  50% { opacity: 1; width: 96px; }
-}
 
 /* 9) 모바일 */
 @media (max-width: 430px) {
@@ -2901,207 +2556,6 @@ body {
 }
 
 
-/* ===== index.html inline style #20 : upick-v55-login-loader-fix ===== */
-/* 입장 로딩 심볼 카드형 제거 + soft glass */
-
-.page-loader{
-  background:
-    linear-gradient(180deg, rgba(10,22,54,.28), rgba(10,22,54,.18)),
-    rgba(236,242,250,.20) !important;
-  backdrop-filter: blur(18px) saturate(110%) !important;
-  -webkit-backdrop-filter: blur(18px) saturate(110%) !important;
-}
-
-.page-loader .loader-mark{
-  position:relative !important;
-  width:96px !important;
-  height:96px !important;
-  min-width:96px !important;
-  display:grid !important;
-  place-items:center !important;
-  border-radius:28px !important;
-  background:
-    linear-gradient(180deg, rgba(255,255,255,.16), rgba(255,255,255,.05)) !important;
-  border:1px solid rgba(255,255,255,.16) !important;
-  box-shadow:
-    0 14px 34px rgba(2,8,23,.16),
-    inset 0 1px 0 rgba(255,255,255,.20) !important;
-  overflow:visible !important;
-  backdrop-filter: blur(14px) !important;
-  -webkit-backdrop-filter: blur(14px) !important;
-}
-
-.page-loader .loader-mark .arm{
-  display:none !important;
-}
-
-.page-loader .loader-mark::before{
-  content:"" !important;
-  width:74px !important;
-  height:74px !important;
-  display:block !important;
-  background:url('/icons/internal/brand-symbol-real.png') center/contain no-repeat !important;
-  filter:
-    drop-shadow(0 1px 0 rgba(255,255,255,.20))
-    drop-shadow(0 8px 18px rgba(2,8,23,.18)) !important;
-}
-
-.page-loader .loader-mark::after{
-  content:"" !important;
-  position:absolute !important;
-  left:50% !important;
-  bottom:-14px !important;
-  width:86px !important;
-  height:8px !important;
-  transform:translateX(-50%) !important;
-  border-radius:999px !important;
-  background:
-    linear-gradient(90deg,
-      rgba(147,197,253,.14),
-      rgba(96,165,250,.96),
-      rgba(147,197,253,.14)
-    ) !important;
-  box-shadow:
-    0 0 14px rgba(96,165,250,.24),
-    inset 0 1px 0 rgba(255,255,255,.20) !important;
-  animation:upickV55LoaderPulse 1.15s ease-in-out infinite !important;
-}
-
-@keyframes upickV55LoaderPulse{
-  0%,100%{opacity:.46;width:64px}
-  50%{opacity:1;width:96px}
-}
-
-
-/* ===== index.html inline style #21 : upick-v56-loader-capsule-style ===== */
-/* 기존 카드형 느낌 제거 -> 공개앱처럼 캡슐형 glass */
-
-.page-loader .loader-mark{
-  width:132px !important;
-  height:78px !important;
-  min-width:132px !important;
-  border-radius:999px !important;
-
-  background:
-    linear-gradient(180deg,
-      rgba(255,255,255,.16),
-      rgba(255,255,255,.05)
-    ) !important;
-
-  border:1px solid rgba(255,255,255,.16) !important;
-
-  box-shadow:
-    0 14px 34px rgba(2,8,23,.14),
-    inset 0 1px 0 rgba(255,255,255,.18) !important;
-
-  backdrop-filter:blur(14px) saturate(120%) !important;
-  -webkit-backdrop-filter:blur(14px) saturate(120%) !important;
-}
-
-/* 심볼은 중앙에 작게 */
-.page-loader .loader-mark::before{
-  width:52px !important;
-  height:52px !important;
-  background:url('/icons/internal/brand-symbol-real.png') center/contain no-repeat !important;
-}
-
-/* 하단 로딩바는 더 짧고 은은하게 */
-.page-loader .loader-mark::after{
-  bottom:-12px !important;
-  height:7px !important;
-  border-radius:999px !important;
-}
-
-@media (max-width:430px){
-  .page-loader .loader-mark{
-    width:118px !important;
-    height:72px !important;
-    min-width:118px !important;
-  }
-
-  .page-loader .loader-mark::before{
-    width:48px !important;
-    height:48px !important;
-  }
-}
-
-
-/* ===== index.html inline style #22 : upick-v57-loader-mini-glass ===== */
-/* 공개앱 느낌의 작은 glass 심볼 */
-
-.page-loader .loader-mark{
-  width:92px !important;
-  height:92px !important;
-  min-width:92px !important;
-  border-radius:28px !important;
-
-  background:
-    linear-gradient(180deg,
-      rgba(255,255,255,.14),
-      rgba(255,255,255,.04)
-    ) !important;
-
-  border:1px solid rgba(255,255,255,.14) !important;
-
-  box-shadow:
-    0 10px 26px rgba(2,8,23,.12),
-    inset 0 1px 0 rgba(255,255,255,.16) !important;
-
-  backdrop-filter:blur(12px) saturate(118%) !important;
-  -webkit-backdrop-filter:blur(12px) saturate(118%) !important;
-}
-
-/* 은은한 하이라이트 */
-.page-loader .loader-mark::before{
-  content:"" !important;
-  position:absolute !important;
-  inset:1px !important;
-  border-radius:inherit !important;
-  background:
-    linear-gradient(135deg,
-      rgba(255,255,255,.12),
-      rgba(255,255,255,.02) 48%,
-      transparent 72%
-    ) !important;
-}
-
-/* 심볼 */
-.page-loader .loader-mark img{
-  width:50px !important;
-  height:50px !important;
-  position:relative !important;
-  z-index:2 !important;
-  filter:
-    drop-shadow(0 1px 0 rgba(255,255,255,.18))
-    drop-shadow(0 6px 14px rgba(2,8,23,.16)) !important;
-}
-
-/* 얇은 캡슐 로딩바 */
-.page-loader .loader-mark::after{
-  content:"" !important;
-  position:absolute !important;
-  left:50% !important;
-  top:-8px !important;
-  transform:translateX(-50%) !important;
-
-  width:42px !important;
-  height:6px !important;
-
-  border-radius:999px !important;
-
-  background:
-    linear-gradient(90deg,
-      rgba(147,197,253,.20),
-      rgba(96,165,250,.95),
-      rgba(147,197,253,.20)
-    ) !important;
-
-  box-shadow:
-    0 0 10px rgba(96,165,250,.18),
-    inset 0 1px 0 rgba(255,255,255,.18) !important;
-
-  animation:upickV57Pulse 1.2s ease-in-out infinite !important;
-}
 
 @keyframes upickV57Pulse{
   0%,100%{opacity:.46;width:34px}
@@ -3109,377 +2563,19 @@ body {
 }
 
 
-/* ===== index.html inline style #23 : upick-v58-loader-message-capsule ===== */
-#pageLoader.page-loader{
-  background:
-    radial-gradient(circle at 50% 38%, rgba(96,165,250,.30), transparent 30%),
-    linear-gradient(180deg, rgba(7,26,61,.32), rgba(236,242,250,.42) 58%, rgba(245,239,228,.42)) !important;
-  backdrop-filter: blur(18px) saturate(112%) !important;
-  -webkit-backdrop-filter: blur(18px) saturate(112%) !important;
-}
-
-#pageLoader .loader-content{
-  position:relative !important;
-  z-index:2 !important;
-  display:flex !important;
-  flex-direction:column !important;
-  align-items:center !important;
-  justify-content:center !important;
-  gap:26px !important;
-  transform:translateY(-6px) !important;
-  text-align:center !important;
-}
-
-#pageLoader .loader-mark{
-  position:relative !important;
-  width:92px !important;
-  height:92px !important;
-  min-width:92px !important;
-  display:grid !important;
-  place-items:center !important;
-  border-radius:28px !important;
-  background:
-    linear-gradient(180deg, rgba(255,255,255,.20), rgba(255,255,255,.055)) !important;
-  border:1px solid rgba(255,255,255,.22) !important;
-  box-shadow:
-    0 18px 42px rgba(2,8,23,.14),
-    inset 0 1px 0 rgba(255,255,255,.22),
-    inset 0 -1px 0 rgba(255,255,255,.08) !important;
-  backdrop-filter:blur(14px) saturate(124%) !important;
-  -webkit-backdrop-filter:blur(14px) saturate(124%) !important;
-  overflow:visible !important;
-  animation:upickV58LoaderFloat 1.35s ease-in-out infinite !important;
-}
-
-#pageLoader .loader-mark::before{
-  content:"" !important;
-  position:absolute !important;
-  inset:1px !important;
-  width:auto !important;
-  height:auto !important;
-  border-radius:inherit !important;
-  background:
-    linear-gradient(135deg, rgba(255,255,255,.16), rgba(255,255,255,.035) 48%, transparent 74%) !important;
-  filter:none !important;
-  pointer-events:none !important;
-}
-
-#pageLoader .loader-mark::after{
-  content:"" !important;
-  position:absolute !important;
-  left:50% !important;
-  top:-10px !important;
-  bottom:auto !important;
-  right:auto !important;
-  inset:auto !important;
-  transform:translateX(-50%) !important;
-  width:44px !important;
-  height:6px !important;
-  border:none !important;
-  border-radius:999px !important;
-  background:
-    linear-gradient(90deg, rgba(147,197,253,.18), rgba(96,165,250,.96), rgba(147,197,253,.18)) !important;
-  box-shadow:
-    0 0 12px rgba(96,165,250,.22),
-    inset 0 1px 0 rgba(255,255,255,.22) !important;
-  animation:upickV58CapsulePulse 1.15s ease-in-out infinite !important;
-}
-
-#pageLoader .loader-mark img{
-  display:block !important;
-  position:relative !important;
-  z-index:2 !important;
-  width:54px !important;
-  height:54px !important;
-  object-fit:contain !important;
-  opacity:1 !important;
-  background:transparent !important;
-  border:none !important;
-  box-shadow:none !important;
-  filter:
-    drop-shadow(0 1px 0 rgba(255,255,255,.22))
-    drop-shadow(0 7px 16px rgba(2,8,23,.16)) !important;
-}
-
-#pageLoader .loader-mark .arm{
-  display:none !important;
-  opacity:0 !important;
-  visibility:hidden !important;
-}
-
-#pageLoader .loader-copy{
-  min-height:54px !important;
-  display:flex !important;
-  flex-direction:column !important;
-  align-items:center !important;
-  justify-content:flex-start !important;
-  gap:8px !important;
-  padding:0 18px !important;
-}
-
-#pageLoader .loader-message,
-#pageLoader .loader-sub-message{
-  margin:0 !important;
-  word-break:keep-all !important;
-  letter-spacing:-.045em !important;
-  text-align:center !important;
-  transition:opacity .24s ease, transform .24s ease !important;
-}
-
-#pageLoader .loader-message{
-  color:rgba(43,62,96,.74) !important;
-  font-size:21px !important;
-  line-height:1.34 !important;
-  font-weight:700 !important;
-  text-shadow:0 1px 0 rgba(255,255,255,.28) !important;
-}
-
-#pageLoader .loader-sub-message{
-  color:rgba(43,62,96,.58) !important;
-  font-size:15px !important;
-  line-height:1.45 !important;
-  font-weight:600 !important;
-}
-
-#pageLoader .loader-copy.is-changing .loader-message,
-#pageLoader .loader-copy.is-changing .loader-sub-message{
-  opacity:0 !important;
-  transform:translateY(4px) !important;
-}
-
-@keyframes upickV58LoaderFloat{
-  0%,100%{transform:translateY(0) scale(1)}
-  50%{transform:translateY(-4px) scale(1.018)}
-}
 
 @keyframes upickV58CapsulePulse{
   0%,100%{opacity:.46;width:34px}
   50%{opacity:1;width:54px}
 }
 
-@media (max-width:430px){
-  #pageLoader .loader-content{gap:24px;transform:translateY(-4px)}
-  #pageLoader .loader-mark{width:88px!important;height:88px!important;min-width:88px!important;border-radius:27px!important}
-  #pageLoader .loader-mark img{width:52px!important;height:52px!important}
-  #pageLoader .loader-message{font-size:19px!important}
-  #pageLoader .loader-sub-message{font-size:14px!important}
-}
-
-
-/* ===== index.html inline style #24 : upick-v59-loader-orbit-highlight ===== */
-/* 상단 분리형 캡슐바 제거 -> 로고 외곽을 따라 흐르는 하이라이트 */
-#pageLoader .loader-mark{
-  overflow:visible !important;
-  isolation:isolate !important;
-}
-
-#pageLoader .loader-mark::before{
-  z-index:0 !important;
-}
-
-#pageLoader .loader-mark::after{
-  content:"" !important;
-  position:absolute !important;
-  inset:-4px !important;
-  left:-4px !important;
-  right:-4px !important;
-  top:-4px !important;
-  bottom:-4px !important;
-  width:auto !important;
-  height:auto !important;
-  transform:none !important;
-  border:0 !important;
-  border-radius:32px !important;
-  padding:2px !important;
-  z-index:1 !important;
-  pointer-events:none !important;
-  background:
-    conic-gradient(from 0deg,
-      transparent 0deg,
-      transparent 46deg,
-      rgba(147,197,253,.10) 58deg,
-      rgba(125,190,255,.92) 76deg,
-      rgba(37,99,235,.82) 88deg,
-      rgba(147,197,253,.10) 108deg,
-      transparent 124deg,
-      transparent 360deg
-    ) !important;
-  -webkit-mask:
-    linear-gradient(#000 0 0) content-box,
-    linear-gradient(#000 0 0) !important;
-  -webkit-mask-composite:xor !important;
-  mask-composite:exclude !important;
-  box-shadow:
-    0 0 16px rgba(96,165,250,.18),
-    0 0 26px rgba(37,99,235,.10) !important;
-  animation:upickV59OrbitHighlight 1.85s linear infinite !important;
-}
-
-#pageLoader .loader-mark img{
-  z-index:3 !important;
-}
-
 @keyframes upickV59OrbitHighlight{
   to{ transform:rotate(360deg) }
-}
-
-@media (max-width:430px){
-  #pageLoader .loader-mark::after{
-    inset:-4px !important;
-    left:-4px !important;
-    right:-4px !important;
-    top:-4px !important;
-    bottom:-4px !important;
-    border-radius:31px !important;
-  }
-}
-
-
-/* ===== index.html inline style #25 : upick-v59-loader-capsule-bar-repair ===== */
-#pageLoader .loader-mark{
-  isolation:isolate !important;
-}
-
-/* 내부 심볼은 실제 이미지로 고정해서 ::before/::after 충돌 방지 */
-#pageLoader .loader-mark .loader-symbol-img,
-#pageLoader .loader-mark > img{
-  display:block !important;
-  position:relative !important;
-  z-index:3 !important;
-  width:54px !important;
-  height:54px !important;
-  object-fit:contain !important;
-  object-position:center !important;
-  opacity:1 !important;
-  background:transparent !important;
-  border:0 !important;
-  border-radius:0 !important;
-  box-shadow:none !important;
-  filter:drop-shadow(0 1px 0 rgba(255,255,255,.22)) drop-shadow(0 7px 16px rgba(2,8,23,.16)) !important;
-}
-
-/* 글래스 본체의 은은한 내부 광택 */
-#pageLoader .loader-mark::before{
-  content:"" !important;
-  position:absolute !important;
-  z-index:1 !important;
-  inset:1px !important;
-  width:auto !important;
-  height:auto !important;
-  border-radius:inherit !important;
-  background:
-    linear-gradient(135deg, rgba(255,255,255,.20), rgba(255,255,255,.045) 48%, transparent 74%),
-    radial-gradient(circle at 28% 18%, rgba(255,255,255,.18), transparent 34%) !important;
-  border:0 !important;
-  box-shadow:none !important;
-  filter:none !important;
-  pointer-events:none !important;
-}
-
-/* 위쪽 얇은 캡슐 하이라이트바 */
-#pageLoader .loader-mark::after{
-  content:"" !important;
-  position:absolute !important;
-  z-index:4 !important;
-  left:50% !important;
-  top:-14px !important;
-  right:auto !important;
-  bottom:auto !important;
-  inset:auto auto auto 50% !important;
-  transform:translateX(-50%) !important;
-  width:82px !important;
-  height:6px !important;
-  border:1px solid rgba(255,255,255,.30) !important;
-  border-radius:999px !important;
-  background:
-    linear-gradient(90deg, rgba(191,219,254,.24) 0%, rgba(147,197,253,.78) 34%, rgba(96,165,250,.96) 50%, rgba(147,197,253,.78) 66%, rgba(191,219,254,.24) 100%) !important;
-  background-size:190% 100% !important;
-  box-shadow:
-    0 0 14px rgba(96,165,250,.26),
-    inset 0 1px 0 rgba(255,255,255,.38) !important;
-  opacity:.86 !important;
-  animation:upickV59CapsuleSweep 1.28s ease-in-out infinite !important;
-  pointer-events:none !important;
 }
 
 @keyframes upickV59CapsuleSweep{
   0%,100%{background-position:0% 50%; opacity:.58; width:72px}
   50%{background-position:100% 50%; opacity:1; width:86px}
-}
-
-@media (max-width:430px){
-  #pageLoader .loader-mark .loader-symbol-img,
-#pageLoader .loader-mark > img{width:52px!important;height:52px!important}
-  #pageLoader .loader-mark::after{top:-13px!important;height:5px!important}
-}
-
-
-/* ===== index.html inline style #26 : upick-v60-loader-orbit-final-fix ===== */
-/* 이전 분리형 캡슐바/중앙 가로선 스타일을 최종 차단 */
-#pageLoader .loader-mark{
-  position:relative !important;
-  isolation:isolate !important;
-  overflow:visible !important;
-}
-
-/* 글래스 본체 내부 광택만 유지 */
-#pageLoader .loader-mark::before{
-  content:"" !important;
-  position:absolute !important;
-  z-index:1 !important;
-  inset:1px !important;
-  width:auto !important;
-  height:auto !important;
-  border-radius:inherit !important;
-  background:
-    linear-gradient(135deg, rgba(255,255,255,.20), rgba(255,255,255,.045) 48%, transparent 74%),
-    radial-gradient(circle at 28% 18%, rgba(255,255,255,.18), transparent 34%) !important;
-  border:0 !important;
-  box-shadow:none !important;
-  filter:none !important;
-  pointer-events:none !important;
-}
-
-/* 로고 외곽을 도는 짧은 빛 조각: 중앙을 가로지르지 않도록 작은 캡슐만 회전 */
-#pageLoader .loader-mark::after{
-  content:"" !important;
-  position:absolute !important;
-  z-index:4 !important;
-  left:50% !important;
-  top:-8px !important;
-  right:auto !important;
-  bottom:auto !important;
-  inset:auto auto auto 50% !important;
-  width:26px !important;
-  height:6px !important;
-  margin-left:-13px !important;
-  border:1px solid rgba(255,255,255,.36) !important;
-  border-radius:999px !important;
-  background:
-    linear-gradient(90deg, rgba(191,219,254,.10), rgba(125,190,255,.98), rgba(37,99,235,.82), rgba(191,219,254,.10)) !important;
-  box-shadow:
-    0 0 12px rgba(96,165,250,.30),
-    0 0 22px rgba(37,99,235,.16),
-    inset 0 1px 0 rgba(255,255,255,.42) !important;
-  opacity:.95 !important;
-  transform:rotate(0deg) !important;
-  transform-origin:13px 54px !important;
-  animation:upickV60OrbitSpark 1.85s linear infinite !important;
-  pointer-events:none !important;
-}
-
-#pageLoader .loader-mark > img,
-#pageLoader .loader-mark .loader-symbol-img{
-  position:relative !important;
-  z-index:3 !important;
-  display:block !important;
-  width:54px !important;
-  height:54px !important;
-  object-fit:contain !important;
-  object-position:center !important;
-  background:transparent !important;
-  border:0 !important;
-  box-shadow:none !important;
 }
 
 @keyframes upickV60OrbitSpark{
@@ -3490,208 +2586,36 @@ body {
   100%{transform:rotate(360deg); opacity:.72}
 }
 
-@media (max-width:430px){
-  #pageLoader .loader-mark::after{
-    top:-8px !important;
-    width:24px !important;
-    height:5px !important;
-    margin-left:-12px !important;
-    transform-origin:12px 51px !important;
-  }
-}
-
 
 /* ===== index.html inline style #27 : upick-v61-loader-orbit-border-only ===== */
-/* 기존 ::after 방식은 내부 심볼을 침범할 수 있어 완전히 끄고, 별도 span으로 외곽 테두리만 회전 */
-#pageLoader .loader-mark::after{
+/* 기존 ::after 방식은 내부 심볼을 침범할 수 있어 완전히 끄고{
   content:none !important;
   display:none !important;
   animation:none !important;
-}
-
-#pageLoader .loader-mark{
-  position:relative !important;
-  overflow:visible !important;
-  isolation:isolate !important;
-}
-
-#pageLoader .loader-mark .loader-orbit{
-  display:block !important;
-  position:absolute !important;
-  z-index:2 !important;
-  inset:-5px !important;
-  width:auto !important;
-  height:auto !important;
-  border-radius:33px !important;
-  padding:2px !important;
-  pointer-events:none !important;
-  background:
-    conic-gradient(from 0deg,
-      transparent 0deg,
-      transparent 238deg,
-      rgba(191,219,254,.16) 252deg,
-      rgba(125,190,255,.98) 272deg,
-      rgba(37,99,235,.92) 290deg,
-      rgba(191,219,254,.16) 310deg,
-      transparent 326deg,
-      transparent 360deg
-    ) border-box !important;
-  -webkit-mask:
-    linear-gradient(#000 0 0) content-box,
-    linear-gradient(#000 0 0) !important;
-  -webkit-mask-composite:xor !important;
-  mask:
-    linear-gradient(#000 0 0) content-box,
-    linear-gradient(#000 0 0) !important;
-  mask-composite:exclude !important;
-  filter:drop-shadow(0 0 10px rgba(96,165,250,.28)) !important;
-  opacity:.95 !important;
-  animation:upickV61OrbitBorder 1.9s linear infinite !important;
-}
-
-#pageLoader .loader-mark > img{
-  position:relative !important;
-  z-index:4 !important;
-}
-
-#pageLoader .loader-mark::before{
-  z-index:1 !important;
 }
 
 @keyframes upickV61OrbitBorder{
   to{transform:rotate(360deg)}
 }
 
-@media (max-width:430px){
-  #pageLoader .loader-mark .loader-orbit{
-    inset:-5px !important;
-    border-radius:32px !important;
-    padding:2px !important;
-  }
-}
-
 
 /* ===== index.html inline style #28 : upick-v62-loader-orbit-visible-final ===== */
-/* v61의 mask 방식이 일부 환경에서 거의 안 보이는 문제를 피하기 위해,
-   외곽 전용 pseudo ring 방식으로 최종 보정합니다. */
-#pageLoader .loader-content{
+/* v61의 mask 방식이 일부 환경에서 거의 안 보이는 문제를 피하기 위해{
   position:relative !important;
   z-index:2 !important;
 }
 
-#pageLoader .loader-mark{
-  position:relative !important;
-  overflow:visible !important;
-  isolation:isolate !important;
-  width:92px !important;
-  height:92px !important;
-  min-width:92px !important;
-  border-radius:29px !important;
-  background:
-    linear-gradient(180deg, rgba(255,255,255,.78), rgba(220,236,255,.48)) !important;
-  border:1px solid rgba(255,255,255,.46) !important;
-  box-shadow:
-    0 22px 48px rgba(15,44,92,.18),
-    inset 0 1px 0 rgba(255,255,255,.72),
-    inset 0 -1px 0 rgba(96,165,250,.16) !important;
-  backdrop-filter:blur(16px) saturate(150%) !important;
-  -webkit-backdrop-filter:blur(16px) saturate(150%) !important;
-}
-
-/* 기존 span orbit/mask 레이어는 끄고, 위치 안정적인 외곽 ring만 사용 */
-#pageLoader .loader-mark .loader-orbit{
+/* 기존 span orbit/mask 레이어는 끄고{
   display:none !important;
   opacity:0 !important;
   visibility:hidden !important;
 }
 
-#pageLoader .loader-mark::before{
-  content:"" !important;
-  position:absolute !important;
-  inset:0 !important;
-  border-radius:inherit !important;
-  background:
-    radial-gradient(circle at 28% 18%, rgba(255,255,255,.42), transparent 34%),
-    linear-gradient(180deg, rgba(255,255,255,.16), rgba(255,255,255,0)) !important;
-  z-index:1 !important;
-  pointer-events:none !important;
-}
 
-#pageLoader .loader-mark::after{
-  content:"" !important;
-  display:block !important;
-  position:absolute !important;
-  inset:-7px !important;
-  left:-7px !important;
-  right:-7px !important;
-  top:-7px !important;
-  bottom:-7px !important;
-  width:auto !important;
-  height:auto !important;
-  margin:0 !important;
-  padding:0 !important;
-  border-radius:36px !important;
-  border:2px solid rgba(147,197,253,.16) !important;
-  border-top-color:rgba(125,190,255,1) !important;
-  border-right-color:rgba(37,99,235,.92) !important;
-  border-bottom-color:rgba(147,197,253,.08) !important;
-  border-left-color:rgba(191,219,254,.24) !important;
-  background:transparent !important;
-  box-shadow:
-    0 0 14px rgba(96,165,250,.38),
-    0 0 28px rgba(37,99,235,.20),
-    inset 0 0 10px rgba(255,255,255,.18) !important;
-  opacity:.98 !important;
-  z-index:2 !important;
-  transform:none !important;
-  transform-origin:50% 50% !important;
-  animation:upickV62LoaderOrbitVisible 1.45s linear infinite !important;
-  pointer-events:none !important;
-}
-
-#pageLoader .loader-mark > img{
-  position:relative !important;
-  z-index:4 !important;
-  display:block !important;
-  width:54px !important;
-  height:54px !important;
-  object-fit:contain !important;
-  background:transparent !important;
-  border:0 !important;
-  box-shadow:none !important;
-  filter:
-    drop-shadow(0 1px 0 rgba(255,255,255,.22))
-    drop-shadow(0 7px 16px rgba(2,8,23,.16)) !important;
-}
-
-@keyframes upickV62LoaderOrbitVisible{
-  0%{ transform:rotate(0deg); opacity:.86; }
-  45%{ opacity:1; }
-  100%{ transform:rotate(360deg); opacity:.86; }
-}
-
-@media(max-width:430px){
-  #pageLoader .loader-mark{
-    width:88px !important;
-    height:88px !important;
-    min-width:88px !important;
-    border-radius:28px !important;
-  }
-  #pageLoader .loader-mark::after{
-    inset:-7px !important;
-    border-radius:35px !important;
-    border-width:2px !important;
-  }
-  #pageLoader .loader-mark > img{
-    width:52px !important;
-    height:52px !important;
-  }
-}
 
 
 /* ===== index.html inline style #29 : upick-v63-loader-orbit-soft-polish ===== */
-/* v62에서 구현된 외곽 회전 링을 유지하되, 버튼 선택 테두리처럼 강해 보이지 않도록 프리미엄 로딩 느낌으로 완화 */
-#pageLoader .loader-mark{
+/* v62에서 구현된 외곽 회전 링을 유지하되{
   width:92px !important;
   height:92px !important;
   min-width:92px !important;
@@ -3705,507 +2629,13 @@ body {
     inset 0 -1px 0 rgba(96,165,250,.12) !important;
 }
 
-#pageLoader .loader-mark::after{
-  inset:-6px !important;
-  left:-6px !important;
-  right:-6px !important;
-  top:-6px !important;
-  bottom:-6px !important;
-  border-radius:35px !important;
-  border-width:1.5px !important;
-  border-style:solid !important;
-  border-top-color:rgba(147,197,253,.82) !important;
-  border-right-color:rgba(59,130,246,.58) !important;
-  border-bottom-color:rgba(191,219,254,.055) !important;
-  border-left-color:rgba(191,219,254,.13) !important;
-  box-shadow:
-    0 0 18px rgba(96,165,250,.22),
-    0 0 34px rgba(37,99,235,.095) !important;
-  filter:blur(.15px) !important;
-  opacity:.74 !important;
-  animation:upickV63LoaderOrbitSoft 2.35s linear infinite !important;
-}
-
-#pageLoader .loader-mark > img{
-  filter:
-    drop-shadow(0 1px 0 rgba(255,255,255,.22))
-    drop-shadow(0 7px 16px rgba(2,8,23,.14)) !important;
-}
-
-@keyframes upickV63LoaderOrbitSoft{
-  0%{ transform:rotate(0deg); opacity:.56; }
-  35%{ opacity:.82; }
-  70%{ opacity:.68; }
-  100%{ transform:rotate(360deg); opacity:.56; }
-}
-
-@media(max-width:430px){
-  #pageLoader .loader-mark{
-    width:88px !important;
-    height:88px !important;
-    min-width:88px !important;
-    border-radius:28px !important;
-  }
-  #pageLoader .loader-mark::after{
-    inset:-6px !important;
-    border-radius:34px !important;
-    border-width:1.5px !important;
-  }
-}
 
 
-/* ===== index.html inline style #30 : upick-v64-common-loader-orbit-copy ===== */
-.page-loader.upick-loader-enhanced,
-.global-loading.upick-loader-enhanced{
-  position:fixed !important;
-  inset:0 !important;
-  width:100vw !important;
-  height:100dvh !important;
-  min-height:100dvh !important;
-  display:none !important;
-  align-items:center !important;
-  justify-content:center !important;
-  background:rgba(226,234,245,.72) !important;
-  backdrop-filter:blur(15px) saturate(1.08) !important;
-  -webkit-backdrop-filter:blur(15px) saturate(1.08) !important;
-  z-index:2147483000 !important;
-  overflow:hidden !important;
-}
-.page-loader.upick-loader-enhanced.show,
-.global-loading.upick-loader-enhanced.show,
-.global-loading.upick-loader-enhanced.is-visible,
-.global-loading.upick-loader-enhanced[aria-hidden="false"]{
-  display:flex !important;
-}
-.page-loader.upick-loader-enhanced::before,
-.global-loading.upick-loader-enhanced::before{
-  content:"" !important;
-  position:absolute !important;
-  inset:0 !important;
-  background:
-    radial-gradient(ellipse at 50% 34%, rgba(37,99,235,.34), transparent 31%),
-    radial-gradient(ellipse at 50% 55%, rgba(255,255,255,.78), transparent 42%),
-    linear-gradient(180deg, rgba(9,37,86,.28) 0%, rgba(255,255,255,.40) 54%, rgba(238,231,219,.42) 100%) !important;
-  pointer-events:none !important;
-}
-.page-loader.upick-loader-enhanced .loader-content,
-.global-loading.upick-loader-enhanced .loader-content{
-  position:relative !important;
-  z-index:1 !important;
-  display:flex !important;
-  flex-direction:column !important;
-  align-items:center !important;
-  justify-content:center !important;
-  gap:22px !important;
-  transform:translateY(-6px) !important;
-  width:min(92vw, 520px) !important;
-  text-align:center !important;
-}
-.page-loader.upick-loader-enhanced .loader-mark,
-.global-loading.upick-loader-enhanced .loader-mark{
-  width:92px !important;
-  height:92px !important;
-  min-width:92px !important;
-  min-height:92px !important;
-  border-radius:29px !important;
-  background:linear-gradient(180deg, rgba(255,255,255,.74), rgba(221,237,255,.46)) !important;
-  border:1px solid rgba(255,255,255,.50) !important;
-  box-shadow:0 22px 50px rgba(15,44,92,.16), inset 0 1px 0 rgba(255,255,255,.74), inset 0 -1px 0 rgba(96,165,250,.12) !important;
-  display:grid !important;
-  place-items:center !important;
-  position:relative !important;
-  overflow:visible !important;
-  animation:upickV64LoaderFloat 1.65s ease-in-out infinite !important;
-}
-.page-loader.upick-loader-enhanced .loader-mark::before,
-.global-loading.upick-loader-enhanced .loader-mark::before{
-  content:"" !important;
-  width:64px !important;
-  height:64px !important;
-  display:block !important;
-  background:url('/icons/internal/brand-symbol-real.png') center/contain no-repeat !important;
-  filter:drop-shadow(0 1px 0 rgba(255,255,255,.22)) drop-shadow(0 7px 16px rgba(2,8,23,.14)) !important;
-}
-.page-loader.upick-loader-enhanced .loader-mark::after,
-.global-loading.upick-loader-enhanced .loader-mark::after{
-  content:"" !important;
-  position:absolute !important;
-  inset:-6px !important;
-  left:-6px !important;
-  right:-6px !important;
-  top:-6px !important;
-  bottom:-6px !important;
-  width:auto !important;
-  height:auto !important;
-  border-radius:35px !important;
-  border-width:1.5px !important;
-  border-style:solid !important;
-  border-top-color:rgba(147,197,253,.82) !important;
-  border-right-color:rgba(59,130,246,.58) !important;
-  border-bottom-color:rgba(191,219,254,.055) !important;
-  border-left-color:rgba(191,219,254,.13) !important;
-  background:none !important;
-  box-shadow:0 0 18px rgba(96,165,250,.22), 0 0 34px rgba(37,99,235,.095) !important;
-  filter:blur(.15px) !important;
-  opacity:.74 !important;
-  transform-origin:center center !important;
-  animation:upickV64LoaderOrbitSoft 2.35s linear infinite !important;
-  pointer-events:none !important;
-}
-.page-loader.upick-loader-enhanced .loader-mark .arm,
-.global-loading.upick-loader-enhanced .loader-mark .arm,
-.page-loader.upick-loader-enhanced .loader-mark > img,
-.global-loading.upick-loader-enhanced .loader-mark > img,
-.page-loader.upick-loader-enhanced .loader-mark .loader-orbit,
-.global-loading.upick-loader-enhanced .loader-mark .loader-orbit{
-  display:none !important;
-  opacity:0 !important;
-  visibility:hidden !important;
-}
-.page-loader.upick-loader-enhanced .loader-copy,
-.global-loading.upick-loader-enhanced .loader-copy{
-  display:flex !important;
-  flex-direction:column !important;
-  align-items:center !important;
-  gap:8px !important;
-  min-height:54px !important;
-  color:#50637d !important;
-  text-shadow:0 1px 0 rgba(255,255,255,.38) !important;
-}
-.page-loader.upick-loader-enhanced .loader-message,
-.global-loading.upick-loader-enhanced .loader-message{
-  margin:0 !important;
-  font-size:clamp(19px, 4.2vw, 23px) !important;
-  font-weight:800 !important;
-  letter-spacing:-.045em !important;
-  line-height:1.22 !important;
-  color:rgba(62,82,112,.90) !important;
-}
-.page-loader.upick-loader-enhanced .loader-sub-message,
-.global-loading.upick-loader-enhanced .loader-sub-message{
-  margin:0 !important;
-  font-size:clamp(13px, 3.2vw, 15px) !important;
-  font-weight:650 !important;
-  letter-spacing:-.035em !important;
-  line-height:1.28 !important;
-  color:rgba(78,98,130,.68) !important;
-}
-.page-loader.upick-loader-enhanced .loader-copy.is-changing,
-.global-loading.upick-loader-enhanced .loader-copy.is-changing{
-  opacity:.28 !important;
-  transform:translateY(2px) !important;
-  transition:opacity .22s ease, transform .22s ease !important;
-}
-.page-loader.upick-loader-enhanced .loader-copy,
-.global-loading.upick-loader-enhanced .loader-copy{
-  transition:opacity .24s ease, transform .24s ease !important;
-}
-@keyframes upickV64LoaderFloat{
-  0%,100%{ transform:translateY(0); }
-  50%{ transform:translateY(-4px); }
-}
-@keyframes upickV64LoaderOrbitSoft{
-  0%{ transform:rotate(0deg); opacity:.56; }
-  35%{ opacity:.82; }
-  70%{ opacity:.68; }
-  100%{ transform:rotate(360deg); opacity:.56; }
-}
-@media(max-width:430px){
-  .page-loader.upick-loader-enhanced .loader-content,
-  .global-loading.upick-loader-enhanced .loader-content{gap:20px !important;transform:translateY(-4px) !important;}
-  .page-loader.upick-loader-enhanced .loader-mark,
-  .global-loading.upick-loader-enhanced .loader-mark{width:88px !important;height:88px !important;min-width:88px !important;min-height:88px !important;border-radius:28px !important;}
-  .page-loader.upick-loader-enhanced .loader-mark::after,
-  .global-loading.upick-loader-enhanced .loader-mark::after{inset:-6px !important;border-radius:34px !important;border-width:1.5px !important;}
-}
 
 
-/* ===== index.html inline style #31 : upick-v67-loader-safe-css-only ===== */
-.global-loading.upick-loader-enhanced .loader-mark,
-.page-loader.upick-loader-enhanced .loader-mark,
-.global-loading.upick-admin-loader-enhanced .loader-mark,
-.page-loader.upick-admin-loader-enhanced .loader-mark,
-#globalLoadingBar.global-loading.upick-admin-loader-enhanced .loader-mark{
-  width:92px!important;
-  height:92px!important;
-  min-width:92px!important;
-  min-height:92px!important;
-  border-radius:29px!important;
-  background:linear-gradient(180deg,rgba(255,255,255,.78),rgba(221,237,255,.50))!important;
-  border:1px solid rgba(255,255,255,.56)!important;
-  box-shadow:0 22px 50px rgba(15,44,92,.16),inset 0 1px 0 rgba(255,255,255,.80),inset 0 -1px 0 rgba(96,165,250,.13)!important;
-  display:grid!important;
-  place-items:center!important;
-  position:relative!important;
-  overflow:visible!important;
-  isolation:isolate!important;
-}
-.global-loading.upick-loader-enhanced .loader-mark::before,
-.page-loader.upick-loader-enhanced .loader-mark::before,
-.global-loading.upick-admin-loader-enhanced .loader-mark::before,
-.page-loader.upick-admin-loader-enhanced .loader-mark::before,
-#globalLoadingBar.global-loading.upick-admin-loader-enhanced .loader-mark::before{
-  content:""!important;
-  width:64px!important;
-  height:64px!important;
-  display:block!important;
-  background:url('/icons/internal/brand-symbol-real.png') center/contain no-repeat!important;
-  filter:drop-shadow(0 1px 0 rgba(255,255,255,.22)) drop-shadow(0 7px 16px rgba(2,8,23,.14))!important;
-  position:relative!important;
-  z-index:2!important;
-}
-.global-loading.upick-loader-enhanced .loader-mark::after,
-.page-loader.upick-loader-enhanced .loader-mark::after,
-.global-loading.upick-admin-loader-enhanced .loader-mark::after,
-.page-loader.upick-admin-loader-enhanced .loader-mark::after,
-#globalLoadingBar.global-loading.upick-admin-loader-enhanced .loader-mark::after{
-  content:""!important;
-  position:absolute!important;
-  inset:-6px!important;
-  border-radius:35px!important;
-  border:1.25px solid transparent!important;
-  border-top-color:rgba(147,197,253,.56)!important;
-  border-right-color:rgba(59,130,246,.32)!important;
-  border-bottom-color:rgba(191,219,254,.04)!important;
-  border-left-color:rgba(191,219,254,.08)!important;
-  box-shadow:0 0 13px rgba(96,165,250,.14)!important;
-  opacity:.56!important;
-  background:transparent!important;
-  animation:upickV67LoaderOrbit 3s linear infinite!important;
-  z-index:1!important;
-}
-.global-loading.upick-loader-enhanced .loader-mark .arm,
-.page-loader.upick-loader-enhanced .loader-mark .arm,
-.global-loading.upick-admin-loader-enhanced .loader-mark .arm,
-.page-loader.upick-admin-loader-enhanced .loader-mark .arm,
-#globalLoadingBar.global-loading.upick-admin-loader-enhanced .loader-mark .arm,
-.global-loading.upick-loader-enhanced .loader-mark img,
-.page-loader.upick-loader-enhanced .loader-mark img,
-.global-loading.upick-admin-loader-enhanced .loader-mark img,
-.page-loader.upick-admin-loader-enhanced .loader-mark img,
-#globalLoadingBar.global-loading.upick-admin-loader-enhanced .loader-mark img{
-  display:none!important;
-}
-@keyframes upickV67LoaderOrbit{to{transform:rotate(360deg)}}
-@media(max-width:430px){
-  .global-loading.upick-loader-enhanced .loader-mark,
-  .page-loader.upick-loader-enhanced .loader-mark,
-  .global-loading.upick-admin-loader-enhanced .loader-mark,
-  .page-loader.upick-admin-loader-enhanced .loader-mark,
-  #globalLoadingBar.global-loading.upick-admin-loader-enhanced .loader-mark{
-    width:88px!important;height:88px!important;min-width:88px!important;min-height:88px!important;border-radius:28px!important;
-  }
-  .global-loading.upick-loader-enhanced .loader-mark::before,
-  .page-loader.upick-loader-enhanced .loader-mark::before,
-  .global-loading.upick-admin-loader-enhanced .loader-mark::before,
-  .page-loader.upick-admin-loader-enhanced .loader-mark::before,
-  #globalLoadingBar.global-loading.upick-admin-loader-enhanced .loader-mark::before{
-    width:61px!important;height:61px!important;
-  }
-  .global-loading.upick-loader-enhanced .loader-mark::after,
-  .page-loader.upick-loader-enhanced .loader-mark::after,
-  .global-loading.upick-admin-loader-enhanced .loader-mark::after,
-  .page-loader.upick-admin-loader-enhanced .loader-mark::after,
-  #globalLoadingBar.global-loading.upick-admin-loader-enhanced .loader-mark::after{
-    border-radius:34px!important;
-  }
-}
-
-
-/* ===== index.html inline style #32 : upick-v68-loader-logo-restore ===== */
-/* 로딩 로고가 pseudo-element 충돌로 사라지는 현상 방지: 로고를 loader-mark 배경 레이어로 고정 */
-.global-loading.upick-loader-enhanced .loader-mark,
-.page-loader.upick-loader-enhanced .loader-mark,
-.global-loading.upick-admin-loader-enhanced .loader-mark,
-.page-loader.upick-admin-loader-enhanced .loader-mark,
-#globalLoadingBar.global-loading.upick-admin-loader-enhanced .loader-mark,
-#globalLoadingBar.global-loading.upick-loader-enhanced .loader-mark,
-#pageLoader.page-loader.upick-loader-enhanced .loader-mark{
-  background:
-    url('/icons/internal/brand-symbol-real.png') center/64px 64px no-repeat,
-    linear-gradient(180deg,rgba(255,255,255,.78),rgba(221,237,255,.50))!important;
-}
-.global-loading.upick-loader-enhanced .loader-mark::before,
-.page-loader.upick-loader-enhanced .loader-mark::before,
-.global-loading.upick-admin-loader-enhanced .loader-mark::before,
-.page-loader.upick-admin-loader-enhanced .loader-mark::before,
-#globalLoadingBar.global-loading.upick-admin-loader-enhanced .loader-mark::before,
-#globalLoadingBar.global-loading.upick-loader-enhanced .loader-mark::before,
-#pageLoader.page-loader.upick-loader-enhanced .loader-mark::before{
-  content:none!important;
-  display:none!important;
-}
-@media(max-width:430px){
-  .global-loading.upick-loader-enhanced .loader-mark,
-  .page-loader.upick-loader-enhanced .loader-mark,
-  .global-loading.upick-admin-loader-enhanced .loader-mark,
-  .page-loader.upick-admin-loader-enhanced .loader-mark,
-  #globalLoadingBar.global-loading.upick-admin-loader-enhanced .loader-mark,
-  #globalLoadingBar.global-loading.upick-loader-enhanced .loader-mark,
-  #pageLoader.page-loader.upick-loader-enhanced .loader-mark{
-    background:
-      url('/icons/internal/brand-symbol-real.png') center/61px 61px no-repeat,
-      linear-gradient(180deg,rgba(255,255,255,.78),rgba(221,237,255,.50))!important;
-  }
-}
-
-
-/* ===== index.html inline style #33 : upick-v76-loader-stability-fix ===== */
-/*
-  회전 링이 일부 브라우저/배포 캐시 조합에서 로고 내부 선처럼 비치는 문제 방지.
-  서버 응답/JS에는 영향 없는 CSS-only 보정입니다.
-*/
-.global-loading .loader-mark::after,
-.page-loader .loader-mark::after,
-#globalLoadingBar.global-loading .loader-mark::after,
-#pageLoader.page-loader .loader-mark::after{
-  content:none!important;
-  display:none!important;
-  opacity:0!important;
-  visibility:hidden!important;
-  animation:none!important;
-  background:none!important;
-  border:0!important;
-  box-shadow:none!important;
-}
-.global-loading .loader-mark,
-.page-loader .loader-mark,
-#globalLoadingBar.global-loading .loader-mark,
-#pageLoader.page-loader .loader-mark{
-  overflow:hidden!important;
-  background:
-    radial-gradient(circle at 34% 22%,rgba(255,255,255,.96),rgba(255,255,255,0) 34%),
-    linear-gradient(180deg,rgba(255,255,255,.86),rgba(221,237,255,.58))!important;
-  border:1px solid rgba(255,255,255,.66)!important;
-  box-shadow:
-    0 22px 52px rgba(15,44,92,.16),
-    0 0 0 1px rgba(147,197,253,.28),
-    inset 0 1px 0 rgba(255,255,255,.88),
-    inset 0 -1px 0 rgba(96,165,250,.10)!important;
-}
-.global-loading .loader-mark::before,
-.page-loader .loader-mark::before,
-#globalLoadingBar.global-loading .loader-mark::before,
-#pageLoader.page-loader .loader-mark::before{
-  content:""!important;
-  display:block!important;
-  width:64px!important;
-  height:64px!important;
-  background:url('/icons/internal/brand-symbol-real.png') center/contain no-repeat!important;
-  position:relative!important;
-  z-index:2!important;
-}
-@media(max-width:430px){
-  .global-loading .loader-mark::before,
-  .page-loader .loader-mark::before,
-  #globalLoadingBar.global-loading .loader-mark::before,
-  #pageLoader.page-loader .loader-mark::before{
-    width:61px!important;
-    height:61px!important;
-  }
-}
 
 
 /* ===== index.html inline style #34 : upick-common-stable-loader-v78 ===== */
-:root{--upick-loader-symbol:url('/icons/internal/brand-symbol-real.png');}
-#pageLoader.page-loader,
-#globalLoadingBar.global-loading,
-.page-loader,
-.global-loading{
-  position:fixed!important;inset:0!important;width:100vw!important;height:100dvh!important;min-height:100dvh!important;
-  display:none!important;align-items:center!important;justify-content:center!important;flex-direction:column!important;gap:18px!important;
-  background:rgba(7,18,42,.46)!important;backdrop-filter:blur(14px)!important;-webkit-backdrop-filter:blur(14px)!important;
-  z-index:2147483000!important;overflow:hidden!important;pointer-events:auto!important;
-}
-#pageLoader.page-loader.show,
-#globalLoadingBar.global-loading.show,
-.global-loading.is-visible,
-.global-loading[aria-hidden="false"],
-.page-loader[aria-hidden="false"]{display:flex!important;}
-#pageLoader.page-loader::before,
-#globalLoadingBar.global-loading::before,
-.page-loader::before,
-.global-loading::before{
-  content:""!important;position:absolute!important;inset:0!important;pointer-events:none!important;
-  background:radial-gradient(circle at 50% 43%,rgba(96,165,250,.18),transparent 34%),radial-gradient(circle at 50% 58%,rgba(255,255,255,.08),transparent 30%)!important;
-}
-#pageLoader .loader-content,
-#globalLoadingBar .loader-content,
-.page-loader .loader-content,
-.global-loading .loader-content{
-  position:relative!important;z-index:1!important;display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;gap:18px!important;
-}
-#pageLoader .loader-mark,
-#globalLoadingBar .loader-mark,
-.page-loader .loader-mark,
-.global-loading .loader-mark{
-  width:108px!important;height:108px!important;min-width:108px!important;min-height:108px!important;max-width:108px!important;max-height:108px!important;
-  border-radius:34px!important;background:linear-gradient(180deg,rgba(255,255,255,.97),rgba(238,246,255,.88))!important;
-  border:1px solid rgba(191,219,254,.92)!important;box-shadow:0 28px 70px rgba(7,26,61,.32),inset 0 1px 0 rgba(255,255,255,.94),0 0 0 1px rgba(255,255,255,.28)!important;
-  display:grid!important;place-items:center!important;position:relative!important;overflow:hidden!important;padding:0!important;margin:0!important;transform:none!important;
-  animation:upickCommonLoaderFloatV78 1.35s ease-in-out infinite!important;
-}
-#pageLoader .loader-mark::before,
-#globalLoadingBar .loader-mark::before,
-.page-loader .loader-mark::before,
-.global-loading .loader-mark::before{
-  content:""!important;width:76px!important;height:76px!important;display:block!important;background:var(--upick-loader-symbol) center/contain no-repeat!important;
-  filter:drop-shadow(0 8px 18px rgba(7,26,61,.16))!important;position:relative!important;z-index:2!important;
-}
-#pageLoader .loader-mark::after,
-#globalLoadingBar .loader-mark::after,
-.page-loader .loader-mark::after,
-.global-loading .loader-mark::after{
-  content:""!important;position:absolute!important;left:22px!important;right:22px!important;bottom:12px!important;height:4px!important;border:0!important;border-radius:999px!important;
-  background:linear-gradient(90deg,rgba(96,165,250,.04),rgba(96,165,250,.28),rgba(37,99,235,.38),rgba(96,165,250,.04))!important;
-  box-shadow:0 0 18px rgba(37,99,235,.16)!important;animation:upickCommonLoaderLineV78 1.4s ease-in-out infinite!important;opacity:.72!important;transform:none!important;inset:auto 22px 12px 22px!important;
-}
-#pageLoader .loader-mark .arm,
-#globalLoadingBar .loader-mark .arm,
-.page-loader .loader-mark .arm,
-.global-loading .loader-mark .arm,
-#pageLoader .loader-mark > img,
-#globalLoadingBar .loader-mark > img,
-.page-loader .loader-mark > img,
-.global-loading .loader-mark > img,
-#pageLoader .loader-mark .loader-orbit,
-#globalLoadingBar .loader-mark .loader-orbit,
-.page-loader .loader-mark .loader-orbit,
-.global-loading .loader-mark .loader-orbit{
-  display:none!important;opacity:0!important;visibility:hidden!important;width:0!important;height:0!important;pointer-events:none!important;
-}
-#pageLoader .loader-copy,
-#globalLoadingBar .loader-copy,
-.page-loader .loader-copy,
-.global-loading .loader-copy{
-  position:relative!important;z-index:1!important;display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;text-align:center!important;gap:5px!important;
-  padding:0 24px!important;margin:0!important;color:#fff!important;text-shadow:0 2px 12px rgba(0,0,0,.20)!important;transition:opacity .18s ease,transform .18s ease!important;
-}
-#pageLoader .loader-message,
-#globalLoadingBar .loader-message,
-.page-loader .loader-message,
-.global-loading .loader-message{
-  margin:0!important;font-size:15px!important;line-height:1.45!important;font-weight:800!important;letter-spacing:-.02em!important;color:rgba(255,255,255,.96)!important;
-}
-#pageLoader .loader-sub-message,
-#globalLoadingBar .loader-sub-message,
-.page-loader .loader-sub-message,
-.global-loading .loader-sub-message{
-  margin:0!important;font-size:12.5px!important;line-height:1.45!important;font-weight:650!important;letter-spacing:-.02em!important;color:rgba(219,234,254,.84)!important;
-}
-#pageLoader .loader-copy.is-changing,
-#globalLoadingBar .loader-copy.is-changing,
-.page-loader .loader-copy.is-changing,
-.global-loading .loader-copy.is-changing{opacity:.35!important;transform:translateY(2px)!important;}
-@keyframes upickCommonLoaderFloatV78{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
-@keyframes upickCommonLoaderLineV78{0%,100%{opacity:.34;transform:scaleX(.72)}50%{opacity:.82;transform:scaleX(1)}}
-@media (max-width:480px){
-  #pageLoader .loader-mark,#globalLoadingBar .loader-mark,.page-loader .loader-mark,.global-loading .loader-mark{width:100px!important;height:100px!important;min-width:100px!important;min-height:100px!important;border-radius:32px!important;}
-  #pageLoader .loader-mark::before,#globalLoadingBar .loader-mark::before,.page-loader .loader-mark::before,.global-loading .loader-mark::before{width:70px!important;height:70px!important;}
-  #pageLoader .loader-message,#globalLoadingBar .loader-message,.page-loader .loader-message,.global-loading .loader-message{font-size:14.5px!important;}
-}
-
-
 /* ===== index.html inline style #35 : upick-v81-login-brand-capsule-content-width ===== */
 .login-unified-header{
   display:flex !important;
@@ -4232,208 +2662,14 @@ body {
 }
 
 
-/* ===== index.html inline style #36 : upick-v83-loader-logo-motion-restart ===== */
-/*
-  v83 핵심:
-  - 기존 회전 링은 유지
-  - 중앙 로고 자체를 별도 레이어처럼 움직임
-  - transform 충돌을 피하기 위해 translate/scale 개별 속성 우선 사용
-*/
-.global-loading .loader-mark,
-.page-loader .loader-mark,
-#globalLoadingBar .loader-mark,
-#pageLoader .loader-mark{
-  will-change:translate, scale, filter!important;
-  animation:upickV83LoaderCardFloat 1.28s ease-in-out infinite!important;
-}
 
-.global-loading .loader-mark::before,
-.page-loader .loader-mark::before,
-#globalLoadingBar .loader-mark::before,
-#pageLoader .loader-mark::before{
-  content:""!important;
-  display:block!important;
-  width:66px!important;
-  height:66px!important;
-  background:url('/icons/internal/brand-symbol-real.png') center/contain no-repeat!important;
-  position:relative!important;
-  z-index:5!important;
-  transform-origin:center center!important;
-  will-change:translate, scale, filter, opacity!important;
-  animation:upickV83LoaderLogoAlive 1.05s ease-in-out infinite!important;
-  filter:drop-shadow(0 8px 18px rgba(7,26,61,.18))!important;
-}
 
-/* 혹시 기존 CSS가 img를 남기는 경우에도 중앙 로고 중복/정지 방지 */
-.global-loading .loader-mark > img,
-.page-loader .loader-mark > img,
-#globalLoadingBar .loader-mark > img,
-#pageLoader .loader-mark > img{
-  display:none!important;
-  opacity:0!important;
-  visibility:hidden!important;
-}
-
-/* 링은 너무 빠르지 않게 계속 회전 */
-.global-loading .loader-mark::after,
-.page-loader .loader-mark::after,
-#globalLoadingBar .loader-mark::after,
-#pageLoader .loader-mark::after{
-  animation:upickV83LoaderRingSpin 1.15s linear infinite!important;
-  will-change:transform!important;
-}
-
-@keyframes upickV83LoaderCardFloat{
-  0%,100%{translate:0 0; scale:1; filter:brightness(1)}
-  50%{translate:0 -3px; scale:1.015; filter:brightness(1.03)}
-}
-@keyframes upickV83LoaderLogoAlive{
-  0%,100%{translate:0 0; scale:1; opacity:.94; filter:drop-shadow(0 8px 18px rgba(7,26,61,.16)) brightness(1)}
-  45%{translate:0 -6px; scale:1.07; opacity:1; filter:drop-shadow(0 14px 24px rgba(37,99,235,.24)) brightness(1.08)}
-  70%{translate:0 -2px; scale:1.025; opacity:.98; filter:drop-shadow(0 10px 20px rgba(7,26,61,.18)) brightness(1.03)}
-}
-@keyframes upickV83LoaderRingSpin{
-  to{transform:rotate(360deg)}
-}
 
 /* 구형 브라우저 보정 */
-@supports not (translate:0 0){
-  .global-loading .loader-mark,
-  .page-loader .loader-mark,
-  #globalLoadingBar .loader-mark,
-  #pageLoader .loader-mark{
-    animation:upickV83LoaderCardFloatLegacy 1.28s ease-in-out infinite!important;
-  }
-  .global-loading .loader-mark::before,
-  .page-loader .loader-mark::before,
-  #globalLoadingBar .loader-mark::before,
-  #pageLoader .loader-mark::before{
-    animation:upickV83LoaderLogoAliveLegacy 1.05s ease-in-out infinite!important;
-  }
-}
-@keyframes upickV83LoaderCardFloatLegacy{
-  0%,100%{transform:translateY(0) scale(1); filter:brightness(1)}
-  50%{transform:translateY(-3px) scale(1.015); filter:brightness(1.03)}
-}
-@keyframes upickV83LoaderLogoAliveLegacy{
-  0%,100%{transform:translateY(0) scale(1); opacity:.94; filter:drop-shadow(0 8px 18px rgba(7,26,61,.16)) brightness(1)}
-  45%{transform:translateY(-6px) scale(1.07); opacity:1; filter:drop-shadow(0 14px 24px rgba(37,99,235,.24)) brightness(1.08)}
-  70%{transform:translateY(-2px) scale(1.025); opacity:.98; filter:drop-shadow(0 10px 20px rgba(7,26,61,.18)) brightness(1.03)}
-}
-
-@media(max-width:430px){
-  .global-loading .loader-mark::before,
-  .page-loader .loader-mark::before,
-  #globalLoadingBar .loader-mark::before,
-  #pageLoader .loader-mark::before{
-    width:62px!important;
-    height:62px!important;
-  }
-}
 
 
-/* ===== index.html inline style #37 : upick-v75-loader-ring-hard-fix ===== */
-/* 공개앱/입장/계정 만들기/관리자 공통: 로고 레이어와 회전 링 레이어를 완전히 분리 */
-.global-loading.upick-loader-enhanced .loader-mark,
-.page-loader.upick-loader-enhanced .loader-mark,
-.global-loading.upick-admin-loader-enhanced .loader-mark,
-.page-loader.upick-admin-loader-enhanced .loader-mark,
-#globalLoadingBar.global-loading .loader-mark,
-#pageLoader.page-loader .loader-mark{
-  width:92px!important;
-  height:92px!important;
-  min-width:92px!important;
-  min-height:92px!important;
-  border-radius:29px!important;
-  background:linear-gradient(180deg,rgba(255,255,255,.80),rgba(221,237,255,.52))!important;
-  border:1px solid rgba(255,255,255,.58)!important;
-  box-shadow:0 22px 50px rgba(15,44,92,.16),inset 0 1px 0 rgba(255,255,255,.82),inset 0 -1px 0 rgba(96,165,250,.12)!important;
-  position:relative!important;
-  display:grid!important;
-  place-items:center!important;
-  overflow:visible!important;
-  isolation:isolate!important;
-}
-.global-loading.upick-loader-enhanced .loader-mark::before,
-.page-loader.upick-loader-enhanced .loader-mark::before,
-.global-loading.upick-admin-loader-enhanced .loader-mark::before,
-.page-loader.upick-admin-loader-enhanced .loader-mark::before,
-#globalLoadingBar.global-loading .loader-mark::before,
-#pageLoader.page-loader .loader-mark::before{
-  content:""!important;
-  display:block!important;
-  width:64px!important;
-  height:64px!important;
-  position:relative!important;
-  z-index:3!important;
-  background:url('/icons/internal/brand-symbol-real.png') center/contain no-repeat!important;
-  filter:drop-shadow(0 1px 0 rgba(255,255,255,.22)) drop-shadow(0 7px 16px rgba(2,8,23,.14))!important;
-  pointer-events:none!important;
-}
-.global-loading.upick-loader-enhanced .loader-mark::after,
-.page-loader.upick-loader-enhanced .loader-mark::after,
-.global-loading.upick-admin-loader-enhanced .loader-mark::after,
-.page-loader.upick-admin-loader-enhanced .loader-mark::after,
-#globalLoadingBar.global-loading .loader-mark::after,
-#pageLoader.page-loader .loader-mark::after{
-  content:""!important;
-  position:absolute!important;
-  inset:-6px!important;
-  width:auto!important;
-  height:auto!important;
-  border:0!important;
-  border-radius:35px!important;
-  background:conic-gradient(from 0deg, rgba(96,165,250,0) 0deg, rgba(147,197,253,.20) 34deg, rgba(59,130,246,.62) 72deg, rgba(96,165,250,0) 116deg, rgba(96,165,250,0) 360deg)!important;
-  -webkit-mask:linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0)!important;
-  -webkit-mask-composite:xor!important;
-  mask-composite:exclude!important;
-  padding:1.5px!important;
-  box-shadow:0 0 14px rgba(96,165,250,.13)!important;
-  filter:blur(.1px)!important;
-  opacity:.62!important;
-  z-index:1!important;
-  animation:upickV75LoaderOrbit 3.2s linear infinite!important;
-  pointer-events:none!important;
-}
-.global-loading.upick-loader-enhanced .loader-mark > img,
-.page-loader.upick-loader-enhanced .loader-mark > img,
-.global-loading.upick-admin-loader-enhanced .loader-mark > img,
-.page-loader.upick-admin-loader-enhanced .loader-mark > img,
-#globalLoadingBar.global-loading .loader-mark > img,
-#pageLoader.page-loader .loader-mark > img,
-.global-loading.upick-loader-enhanced .loader-mark .arm,
-.page-loader.upick-loader-enhanced .loader-mark .arm,
-.global-loading.upick-admin-loader-enhanced .loader-mark .arm,
-.page-loader.upick-admin-loader-enhanced .loader-mark .arm,
-#globalLoadingBar.global-loading .loader-mark .arm,
-#pageLoader.page-loader .loader-mark .arm{
-  display:none!important;
-  opacity:0!important;
-  visibility:hidden!important;
-}
-@keyframes upickV75LoaderOrbit{to{transform:rotate(360deg)}}
-@media(max-width:430px){
-  .global-loading.upick-loader-enhanced .loader-mark,
-  .page-loader.upick-loader-enhanced .loader-mark,
-  .global-loading.upick-admin-loader-enhanced .loader-mark,
-  .page-loader.upick-admin-loader-enhanced .loader-mark,
-  #globalLoadingBar.global-loading .loader-mark,
-  #pageLoader.page-loader .loader-mark{
-    width:88px!important;height:88px!important;min-width:88px!important;min-height:88px!important;border-radius:28px!important;
-  }
-  .global-loading.upick-loader-enhanced .loader-mark::before,
-  .page-loader.upick-loader-enhanced .loader-mark::before,
-  .global-loading.upick-admin-loader-enhanced .loader-mark::before,
-  .page-loader.upick-admin-loader-enhanced .loader-mark::before,
-  #globalLoadingBar.global-loading .loader-mark::before,
-  #pageLoader.page-loader .loader-mark::before{width:61px!important;height:61px!important;}
-  .global-loading.upick-loader-enhanced .loader-mark::after,
-  .page-loader.upick-loader-enhanced .loader-mark::after,
-  .global-loading.upick-admin-loader-enhanced .loader-mark::after,
-  .page-loader.upick-admin-loader-enhanced .loader-mark::after,
-  #globalLoadingBar.global-loading .loader-mark::after,
-  #pageLoader.page-loader .loader-mark::after{border-radius:34px!important;}
-}
+
+
 
 
 /* 입장 도움 / 계정 복구 기능 */
@@ -4907,3 +3143,7 @@ body {
     border-bottom-width:2.2px !important;
   }
 }
+
+
+/* Loading UI styles are centralized in /common/common-loading.css.
+   Page-specific loader overrides were removed to keep app/admin/index/signup/phone-verify consistent. */
