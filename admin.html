@@ -873,6 +873,29 @@
                     <input id="bandUrl" placeholder="밴드 URL">
                   </div>
                 </div>
+
+                <div class="field naver-reservation-field naver-service-field">
+                  <label>
+                    네이버 연동 / 문의 옵션
+                    <span style="font-weight:600;color:#94a3b8;">
+                      (선택)
+                    </span>
+                  </label>
+                  <div class="benefit-extra-help">
+                    매장별로 제공되는 네이버 예약·주문·배달·톡톡 링크를 등록합니다. 공개앱 카드와 상세, AI 생활도우미 안내에 함께 표시됩니다.
+                  </div>
+                  <div class="benefit-extra-grid naver-service-grid">
+                    <label class="check-row"><input id="naverReservationEnabled" type="checkbox"><span>네이버 예약 가능</span></label>
+                    <input id="naverReservationUrl" placeholder="네이버 예약 URL 예: https://booking.naver.com/...">
+                    <label class="check-row"><input id="naverOrderEnabled" type="checkbox"><span>네이버 주문 가능</span></label>
+                    <input id="naverOrderUrl" placeholder="네이버 주문 URL">
+                    <label class="check-row"><input id="naverDeliveryEnabled" type="checkbox"><span>네이버 배달 가능</span></label>
+                    <input id="naverDeliveryUrl" placeholder="네이버 배달 URL">
+                    <label class="check-row"><input id="naverTalkEnabled" type="checkbox"><span>톡톡 문의 가능</span></label>
+                    <input id="naverTalkUrl" placeholder="네이버 톡톡 URL">
+                  </div>
+                </div>
+
                 <div class="field support-program-field">
                   <label>
                     정부지원금 / 바우처 사용 가능
@@ -883,8 +906,8 @@
                   <div class="benefit-extra-help">
                     매장에서 사용 가능한 정부지원금, 지역화폐, 바우처를 여러 개 선택할 수 있습니다. 공개앱 상세와 AI 생활도우미 답변에서 함께 활용됩니다.
                   </div>
-                  <div class="support-program-rows" id="supportProgramRows" aria-label="정부지원금 종류별 유효기간 목록"></div>
                   <button class="btn btn-soft support-program-add-btn" type="button" id="addSupportProgramRowBtn">+ 종류 추가</button>
+                  <div class="support-program-rows" id="supportProgramRows" aria-label="정부지원금 종류별 유효기간 목록"></div>
                   <div class="benefit-extra-help support-program-period-help">
                     각 지원금마다 시작일과 종료일을 따로 관리합니다. 시작일 전이거나 종료일이 지나면 공개앱 상세와 AI 답변용 데이터에서 자동으로 제외됩니다.
                   </div>
@@ -901,11 +924,11 @@
                   <div class="benefit-extra-help">
                     네이버 지도, 스마트플레이스, 인스타그램 등 외부 쿠폰 페이지로 연결되는 링크를 등록합니다. 공개앱 상세에서는 쿠폰 카드로 표시됩니다.
                   </div>
-                  <div class="coupon-link-list" id="couponLinkList">
-                  </div>
                   <button class="btn btn-soft" id="addCouponLinkBtn" type="button">
                     + 쿠폰 링크 추가
                   </button>
+                  <div class="coupon-link-list" id="couponLinkList">
+                  </div>
                   <input id="couponLinksText" type="hidden">
                 </div>
                 <div class="field news-item-field">
@@ -918,11 +941,11 @@
                   <div class="benefit-extra-help">
                     네이버 지도 소식처럼 제목, 이미지, 날짜, 링크를 등록합니다. 공개앱 상세에서는 소식 카드로 표시되고, 카드는 링크로 이동됩니다.
                   </div>
-                  <div class="news-item-list" id="newsItemList">
-                  </div>
                   <button class="btn btn-soft" id="addNewsItemBtn" type="button">
                     + 소식 추가
                   </button>
+                  <div class="news-item-list" id="newsItemList">
+                  </div>
                   <input id="newsItemsText" type="hidden">
                 </div>
 
@@ -962,11 +985,11 @@
                     </span>
                   </label>
                   <div class="station-access-panel">
-                    <div class="station-list" id="stationList">
-                    </div>
                     <button class="btn btn-soft station-add-btn" id="addStationBtn" type="button">
                       + 역 추가
                     </button>
+                    <div class="station-list" id="stationList">
+                    </div>
                     <input id="stationAccessText" type="hidden">
                   </div>
                   <div class="benefit-extra-help">
@@ -2080,7 +2103,7 @@
         </div>
       </div>
     </div>
-    <script src="/js/admin.js?v=20260518-benefit-status-auto01">
+    <script src="/js/admin.js?v=20260524-array-add-top-v40">
     </script>    <script defer src="/common/password-field-enhance.js?v=2026051501"></script>
     <script defer src="/common/modal-backdrop-lock.js?v=2026051401"></script>
 

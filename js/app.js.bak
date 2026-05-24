@@ -61,7 +61,7 @@
    });
  }
  import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
- import { getFirestore, collection, onSnapshot, doc, getDoc, getDocs, setDoc, updateDoc, increment, serverTimestamp, addDoc, query, where, orderBy, limit, startAfter, deleteDoc, runTransaction } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
+ import { getFirestore, collection, onSnapshot, doc, getDoc, getDocs, setDoc, updateDoc, increment, serverTimestamp, addDoc, query, where, orderBy, limit, startAfter, deleteDoc } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
  import { getMessaging, getToken, onMessage, isSupported } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-messaging.js';
  import { getStorage, ref as storageRef, uploadBytes, getDownloadURL, deleteObject } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js';
  const firebaseConfig = FIREBASE_CONFIG[ENV];
@@ -915,7 +915,7 @@ showForegroundPushToast({
  }
  }
 
- const state={category:localStorage.getItem(LAST_CATEGORY_KEY)||'전체',keyword:'',filter:'all',view:'home',benefits:[],notices:[],loading:true,currentUser:null,currentUserProfile:null,popularItems:[],favoriteIds:[],benefitStatsMap:{},aiKnowledge:[],currentPushToken:null,isPushEnabledForThisDevice:false,appFontSize:'normal',calendarReservations:[],activeDistanceBenefitId:'',distanceRequestSeq:0,benefitSortMode:'default',distanceRadius:'all',userLocation:null,userLocationFetchedAt:0,distanceMap:{},distanceStatus:'idle',scrollMap:{home:0,benefits:0,favorite:0,top5:0,notices:0,calendar:0,shareinsights:0,ai:0},
+ const state={category:localStorage.getItem(LAST_CATEGORY_KEY)||'전체',keyword:'',filter:'all',view:'home',benefits:[],notices:[],loading:true,currentUser:null,currentUserProfile:null,popularItems:[],favoriteIds:[],aiKnowledge:[],currentPushToken:null,isPushEnabledForThisDevice:false,appFontSize:'normal',calendarReservations:[],activeDistanceBenefitId:'',distanceRequestSeq:0,benefitSortMode:'default',distanceRadius:'all',userLocation:null,userLocationFetchedAt:0,distanceMap:{},distanceStatus:'idle',scrollMap:{home:0,benefits:0,favorite:0,top5:0,notices:0,calendar:0,shareinsights:0,ai:0},
  benefitViewMode: localStorage.getItem('benefitViewMode') || 'list'
  };
 
@@ -2625,115 +2625,10 @@ async function refreshPushStatus(){
  if(key === 'cardClickCount') return 1;
  if(key === 'favoriteCount') return 3;
  if(key === 'shareClickCount') return 5;
- if(key === 'mapClickCount') return 2;
- if(key === 'directionClickCount') return 4;
- if(key === 'callClickCount') return 3;
  if(key === 'smartstoreClickCount') return 4;
  if(key === 'bandClickCount') return 3;
  if(['homepageClickCount','blogClickCount','instagramClickCount','youtubeClickCount','facebookClickCount','snsClickCount'].includes(key)) return 2;
  return 0;
- }
-
- function getCrowdActionWeight(field){
- const key = String(field || '');
- const weights = {
-   detailViewCount: 2.5,
-   cardClickCount: 1.8,
-   mapClickCount: 4.5,
-   directionClickCount: 7.5,
-   callClickCount: 6.5,
-   favoriteCount: 4,
-   shareClickCount: 5.5,
-   smartstoreClickCount: 5,
-   bandClickCount: 3.5,
-   snsClickCount: 2.5
- };
- if(Object.prototype.hasOwnProperty.call(weights, key)) return weights[key];
- if(['homepageClickCount','blogClickCount','instagramClickCount','youtubeClickCount','facebookClickCount'].includes(key)) return 2.5;
- return 1.2;
- }
-
- function getLastActionFieldName(field){
- const key = String(field || '');
- const map = {
-   detailViewCount:'lastDetailViewAt',
-   cardClickCount:'lastCardClickAt',
-   mapClickCount:'lastMapClickAt',
-   directionClickCount:'lastDirectionClickAt',
-   callClickCount:'lastCallClickAt',
-   favoriteCount:'lastFavoriteAt',
-   shareClickCount:'lastSharedAt',
-   smartstoreClickCount:'lastSmartstoreClickAt',
-   bandClickCount:'lastBandClickAt',
-   snsClickCount:'lastSnsClickAt'
- };
- return map[key] || `last${key.charAt(0).toUpperCase()}${key.slice(1).replace(/Count$/,'')}At`;
- }
-
- function getCrowdPatternKeys(now = getSeoulNow()){
- const date = now instanceof Date ? now : getSeoulNow();
- const day = Math.max(0, Math.min(6, Number(date.getDay()) || 0));
- const hour = Math.max(0, Math.min(23, Number(date.getHours()) || 0));
- const isWeekend = day === 0 || day === 6;
- return {
-   day,
-   hour,
-   isWeekend,
-   hourKey: `crowdHour_${hour}`,
-   dayHourKey: `crowdDayHour_${day}_${hour}`,
-   segmentHourKey: `${isWeekend ? 'crowdWeekendHour' : 'crowdWeekdayHour'}_${hour}`
- };
- }
-
- function buildCrowdPatternDeltas(actionWeight = 0, now = getSeoulNow()){
- const weight = Math.max(0, toSafeFiniteNumber(actionWeight, 0));
- if(!weight) return {};
- const keys = getCrowdPatternKeys(now);
- return {
-   [keys.hourKey]: weight,
-   [keys.dayHourKey]: weight,
-   [keys.segmentHourKey]: weight,
-   crowdHistoryTotal: weight,
-   crowdHistoryEvents: 1
- };
- }
-
- function getCrowdHistoricalSignal(stat = {}, now = getSeoulNow()){
- const keys = getCrowdPatternKeys(now);
- const hourPulse = toSafeFiniteNumber(stat[keys.hourKey], 0);
- const dayHourPulse = toSafeFiniteNumber(stat[keys.dayHourKey], 0);
- const segmentPulse = toSafeFiniteNumber(stat[keys.segmentHourKey], 0);
- const total = toSafeFiniteNumber(stat.crowdHistoryTotal, 0);
- const events = toSafeFiniteNumber(stat.crowdHistoryEvents, 0);
- const signal = dayHourPulse * 0.9 + segmentPulse * 0.45 + hourPulse * 0.22;
- const average = events > 0 ? total / Math.max(1, events) : 0;
- const concentration = total > 0 ? signal / Math.max(1, total) : 0;
- return { ...keys, hourPulse, dayHourPulse, segmentPulse, total, events, signal, average, concentration };
- }
-
-
- function toSafeFiniteNumber(value, fallback = 0){
- const n = Number(value);
- return Number.isFinite(n) ? n : fallback;
- }
-
- function buildSafeStatNumberUpdates(prev = {}, deltaMap = {}){
- const out = {};
- Object.entries(deltaMap || {}).forEach(([key, delta]) => {
-   const before = toSafeFiniteNumber(prev?.[key], 0);
-   const next = Math.max(0, before + toSafeFiniteNumber(delta, 0));
-   out[key] = next;
- });
- return out;
- }
-
- function getDecayedCrowdPulseFromStat(stat={}, nowMs=Date.now()){
- const raw = Number(stat.recentCrowdPulse || stat.crowdPulse || 0) || 0;
- const last = getTimestampMs(stat.recentCrowdLastAt || stat.lastCrowdPulseAt || stat.updatedAt);
- if(!raw || !last) return 0;
- const minutes = Math.max(0, (nowMs - last) / 60000);
- // 30분 반감기: 최근 행동은 강하게, 1~2시간 전 행동은 자연스럽게 약해집니다.
- return Math.max(0, raw * Math.pow(0.5, minutes / 30));
  }
 
  async function increaseStat(benefitId, benefitName, field){
@@ -2741,32 +2636,22 @@ async function refreshPushStatus(){
  try{
  const statRef = doc(db, BENEFIT_STATS_COLLECTION, benefitId);
  const popularWeight = getPopularScoreWeight(field);
- const actionWeight = getCrowdActionWeight(field);
- const lastActionField = getLastActionFieldName(field);
- const nowMs = Date.now();
- await runTransaction(db, async (tx) => {
-   const snap = await tx.get(statRef);
-   const prev = snap.exists() ? (snap.data() || {}) : {};
-   const decayedPulse = getDecayedCrowdPulseFromStat(prev, nowMs);
-   const nextPulse = Math.min(100, decayedPulse + actionWeight);
-   const payload = {
-     benefitId,
-     name: benefitName || prev.name || '',
-     ...buildSafeStatNumberUpdates(prev, {
-       [field]: 1,
-       ...(popularWeight > 0 ? { popularScore: popularWeight } : {}),
-       ...buildCrowdPatternDeltas(actionWeight, getSeoulNow())
-     }),
-     lastCrowdPatternDay: getCrowdPatternKeys(getSeoulNow()).day,
-     lastCrowdPatternHour: getCrowdPatternKeys(getSeoulNow()).hour,
-     [lastActionField]: serverTimestamp(),
-     lastActionType: field,
-     recentCrowdPulse: nextPulse,
-     recentCrowdLastAt: serverTimestamp(),
-     updatedAt: serverTimestamp()
-   };
-   tx.set(statRef, payload, { merge:true });
- });
+ await setDoc(statRef, {
+ benefitId,
+ name: benefitName || '',
+ updatedAt: serverTimestamp()
+ }, { merge:true });
+
+ const updatePayload = {
+ [field]: increment(1),
+ updatedAt: serverTimestamp()
+ };
+
+ if(popularWeight > 0){
+ updatePayload.popularScore = increment(popularWeight);
+ }
+
+ await updateDoc(statRef, updatePayload);
  }catch(error){
  console.error('통계 증가 실패', field, benefitId, error);
  }
@@ -2827,18 +2712,12 @@ async function refreshPushStatus(){
    // 이미 반응한 상태면 취소: count -1, popularScore -points
    if(existing?.exists?.()){
      await deleteDoc(reactionRef);
-     await runTransaction(db, async (tx) => {
-       const snap = await tx.get(statRef);
-       const prev = snap.exists() ? (snap.data() || {}) : {};
-       tx.set(statRef, {
-         benefitId,
-         ...buildSafeStatNumberUpdates(prev, {
-           [statField]: -1,
-           popularScore: -points
-         }),
-         updatedAt: serverTimestamp()
-       }, { merge:true });
-     });
+     await setDoc(statRef, {
+       benefitId,
+       [statField]: increment(-1),
+       popularScore: increment(-points),
+       updatedAt: serverTimestamp()
+     }, { merge:true });
 
      return {
        active:false,
@@ -2856,18 +2735,12 @@ async function refreshPushStatus(){
      createdAt: serverTimestamp()
    }, { merge:true });
 
-   await runTransaction(db, async (tx) => {
-     const snap = await tx.get(statRef);
-     const prev = snap.exists() ? (snap.data() || {}) : {};
-     tx.set(statRef, {
-       benefitId,
-       ...buildSafeStatNumberUpdates(prev, {
-         [statField]: 1,
-         popularScore: points
-       }),
-       updatedAt: serverTimestamp()
-     }, { merge:true });
-   });
+   await setDoc(statRef, {
+     benefitId,
+     [statField]: increment(1),
+     popularScore: increment(points),
+     updatedAt: serverTimestamp()
+   }, { merge:true });
 
    await recordResidentActivity(reactionType, points, benefitId);
 
@@ -3043,14 +2916,7 @@ function formatKoreanDate(value){
  }
 
  function getBenefitLatLng(item = {}){
- const candidates = typeof getBenefitLatLngCandidateObjects === 'function' ? getBenefitLatLngCandidateObjects(item) : [item];
- for(const source of candidates){
-   const rawLat = getStarfieldBoundaryValue(source, ['lat','latitude','_lat','storeLat','storeLatitude','mapLat','naverLat','placeLat','benefitLat','y']);
-   const rawLng = getStarfieldBoundaryValue(source, ['lng','lon','longitude','_lng','_long','storeLng','storeLongitude','mapLng','naverLng','placeLng','benefitLng','x']);
-   const normalized = normalizeKoreaLatLng(rawLat, rawLng);
-   if(normalized) return normalized;
- }
- return null;
+ return normalizeKoreaLatLng(item.lat, item.lng);
  }
 
 
@@ -3533,66 +3399,6 @@ window.addEventListener('load', function(){
  }
 
  
-
-const NAVER_SERVICE_CONFIGS = [
- { key:'reservation', label:'네이버 예약', shortLabel:'예약', buttonLabel:'예약하러 가기', statField:'reservationClickCount', eventName:'naver_reservation_click', icon:'/icons/internal/calendar.svg', enabledFields:['naverReservationEnabled','naverBookingEnabled','reservationEnabled'], urlFields:['naverReservationUrl','naverBookingUrl','reservationUrl'], externalKey:'naverReservation', nestedKey:'reservation' },
- { key:'order', label:'네이버 주문', shortLabel:'주문', buttonLabel:'주문하러 가기', statField:'orderClickCount', eventName:'naver_order_click', icon:'/icons/internal/benefit.svg', enabledFields:['naverOrderEnabled','naverSmartOrderEnabled','orderEnabled'], urlFields:['naverOrderUrl','naverSmartOrderUrl','orderUrl'], externalKey:'naverOrder', nestedKey:'order' },
- { key:'delivery', label:'네이버 배달', shortLabel:'배달', buttonLabel:'배달 주문하기', statField:'deliveryClickCount', eventName:'naver_delivery_click', icon:'/icons/internal/store.svg', enabledFields:['naverDeliveryEnabled','deliveryEnabled'], urlFields:['naverDeliveryUrl','deliveryUrl'], externalKey:'naverDelivery', nestedKey:'delivery' },
- { key:'talk', label:'톡톡 문의', shortLabel:'톡톡', buttonLabel:'톡톡 문의하기', statField:'talkClickCount', eventName:'naver_talk_click', icon:'/icons/internal/chat.svg', enabledFields:['naverTalkEnabled','talkTalkEnabled','talkEnabled'], urlFields:['naverTalkUrl','talkTalkUrl','talkUrl'], externalKey:'naverTalk', nestedKey:'talk' }
-];
-function normalizeExternalUrl(url=''){
- let value = String(url || '').trim();
- if(value && !/^https?:\/\//i.test(value)) value = `https://${value.replace(/^\/+/, '')}`;
- return value;
-}
-function getNaverServiceInfo(item = {}, config = NAVER_SERVICE_CONFIGS[0]){
- const rawUrl = config.urlFields.map(k => item?.[k]).find(Boolean)
-   || item?.[config.nestedKey]?.url
-   || item?.externalLinks?.[config.externalKey]
-   || item?.externalLinks?.[config.key]
-   || '';
- const url = normalizeExternalUrl(rawUrl);
- const enabled = !!(config.enabledFields.some(k => item?.[k]) || item?.[config.nestedKey]?.enabled || url);
- return { ...config, enabled, url };
-}
-function getNaverReservationInfo(item = {}){ return getNaverServiceInfo(item, NAVER_SERVICE_CONFIGS[0]); }
-function hasNaverReservation(item = {}){ return getNaverReservationInfo(item).enabled; }
-function getEnabledNaverServices(item = {}){ return NAVER_SERVICE_CONFIGS.map(cfg => getNaverServiceInfo(item, cfg)).filter(info => info.enabled); }
-function naverReservationBadgeHtml(item = {}){
- const info = getNaverReservationInfo(item);
- if(!info.enabled) return '';
- return '<span class="tag naver-reservation-tag"><img class="upick-svg-icon" src="/icons/internal/calendar.svg" alt="" loading="lazy"> 네이버 예약</span>';
-}
-function naverServiceBadgesHtml(item = {}){
- return getEnabledNaverServices(item).map(info => `<span class="tag naver-reservation-tag naver-service-tag naver-service-${escapeAttr(info.key)}"><img class="upick-svg-icon" src="${escapeAttr(info.icon)}" alt="" loading="lazy"> ${escapeHtml(info.label)}</span>`).join('');
-}
-function naverReservationPanelHtml(item = {}){
- const services = getEnabledNaverServices(item);
- if(!services.length) return '';
- const buttons = services.map(info => info.url
-   ? `<a class="btn btn-primary naver-reservation-btn naver-service-btn" href="${escapeAttr(info.url)}" target="_blank" rel="noopener noreferrer" data-naver-service-url="${escapeAttr(info.url)}" data-naver-service-key="${escapeAttr(info.key)}" data-naver-service-stat="${escapeAttr(info.statField)}" data-naver-service-event="${escapeAttr(info.eventName)}" data-benefit-id="${escapeAttr(item.id || '')}">${escapeHtml(info.buttonLabel)}</a>`
-   : `<span class="naver-reservation-muted">${escapeHtml(info.label)} 가능 매장입니다. URL은 관리자 등록 후 연결됩니다.</span>`).join('');
- const names = services.map(v => v.label).join(' · ');
- return `<div class="panel naver-reservation-panel naver-service-panel"><strong class="benefit-detail-panel-title">네이버 연동 가능</strong><div class="benefit-detail-body-text">${escapeHtml(names)}을 지원합니다. 실시간 예약·주문·배달 가능 여부는 네이버 페이지에서 확인해 주세요.</div><div class="naver-reservation-actions naver-service-actions">${buttons}</div></div>`;
-}
-function bindNaverReservationButtons(scope){
- const root = scope || document;
- root.querySelectorAll('[data-naver-service-url],[data-naver-reservation-url]').forEach((el)=>{
-   if(el.dataset.naverReservationBound === '1') return;
-   el.dataset.naverReservationBound = '1';
-   el.addEventListener('click', ()=>{
-     const id = el.dataset.benefitId || '';
-     if(id){
-       const item = (state.benefits || []).find(v => String(v.id) === String(id)) || {};
-       const statField = el.dataset.naverServiceStat || 'reservationClickCount';
-       const eventName = el.dataset.naverServiceEvent || 'naver_reservation_click';
-       increaseStat(id, item.name || '', statField);
-       logBenefitEvent(id, eventName);
-     }
-   });
- });
-}
-
 function normalizeSupportProgramsForDetail(item = {}){
  return normalizeSupportProgramItemsForDetail(item).map(row => row.name).filter(Boolean);
 }
@@ -3749,26 +3555,7 @@ function normalizeNewsItemsForDetail(item = {}){
  }else if(typeof raw === 'string'){
    rows = raw.split(/[\n,，]/).map(url => ({ title:'소식', imageUrl:'', date:'', url:String(url).trim() }));
  }
- return rows.filter(row => row.title || row.imageUrl || row.url).map(row => ({
-   title:row.title || '소식',
-   badge:row.badge || row.type || '소식',
-   imageUrl:row.imageUrl || '',
-   date:row.date || '',
-   url:row.url || '',
-   createdAt:row.createdAt || row.created || row.createdDate || row.createdAtText || row.publishedAt || row.newsDate || row.date || '',
-   registeredAt:row.registeredAt || row.registered || row.registeredDate || '',
-   updatedAt:row.updatedAt || row.updated || ''
- })).sort((a,b)=>{
-   const toMs = (v) => {
-     if(!v) return 0;
-     if(typeof v === 'number') return v;
-     if(v?.seconds) return v.seconds * 1000;
-     if(typeof v?.toDate === 'function') return v.toDate().getTime();
-     const t = Date.parse(String(v).replace(/\./g,'-'));
-     return Number.isFinite(t) ? t : 0;
-   };
-   return Math.max(toMs(b.createdAt), toMs(b.registeredAt), toMs(b.updatedAt), toMs(b.date)) - Math.max(toMs(a.createdAt), toMs(a.registeredAt), toMs(a.updatedAt), toMs(a.date));
- });
+ return rows.filter(row => row.title || row.imageUrl || row.url).map(row => ({ title:row.title || '소식', badge:row.badge || row.type || '소식', imageUrl:row.imageUrl || '', date:row.date || '', url:row.url || '' }));
 }
 
 function newsItemsPanelHtml(item = {}){
@@ -3882,7 +3669,6 @@ const stationAccessText = String(item.stationAccessText || item.transitText || i
  <div class="location-title"><strong>위치 안내</strong></div>
  <div class="location-address">${address || '등록된 주소가 없습니다.'}</div>
  ${renderStationAccessBadges(item)}
- ${benefitContextPanelHtml(item)}
  ${directionText ? `<div class="location-guide">${escapeHtml(directionText)}</div>` : ''}
  <div class="detail-map-box">${pos ? '<div id="detailNaverMap" class="detail-map-canvas"></div>' : '<div class="detail-map-empty">좌표가 등록되면 작은 지도가 표시됩니다.</div>'}</div>
  <div class="location-distance muted" id="distanceText"${distanceAttr}>${distanceText}</div>
@@ -3970,524 +3756,7 @@ const stationAccessText = String(item.stationAccessText || item.transitText || i
 }
 function markerHtmlForItem(item){
  const label = getMapMarkerLabel(item);
- // 지도 마커는 한 줄 캡슐 구조를 유지합니다.
- // 상권 구분 + 예상 혼잡도 + 매장명을 모두 inline으로 배치해 높이 증가로 인한 깨짐을 막습니다.
- return '<div class="map-marker-store" title="'+escapeAttr(String(item?.name || label))+'">'+mapMarkerInlineBadgesHtml(item)+'<span class="map-marker-title"><img class="upick-svg-icon" src="/icons/internal/pin.svg" alt="" loading="lazy"> '+escapeHtml(label)+'</span></div>';
-}
-
-
-// ===== 스타필드 내/외부 + 혼잡도/웨이팅 가능성 안내 =====
-// 매장명/주소 문자열이 아니라 관리자 페이지에 등록된 위도/경도 좌표를 기준으로 판별합니다.
-// 스타필드 빌리지 운정은 스트리트몰까지 포함해야 하므로 사각형 bounds가 아닌 polygon으로 판단합니다.
-// 운영 중 보정이 필요하면 window.UPICK_STARFIELD_POLYGON 또는 localStorage(UPICK_STARFIELD_POLYGON)에 좌표 배열을 넣어 덮어쓸 수 있습니다.
-const DEFAULT_STARFIELD_POLYGON_VERSION = '2026-05-24-final-shift-east-v35';
-const DEFAULT_STARFIELD_POLYGON = [
-  // 스타필드 빌리지 운정 + 스트리트몰 최종 생활권 기준입니다.
-  // 기준: 성준님이 지정한 4개 꼭짓점(1→2→4→3) 생활권 polygon.
-  // 주의: 공터영어/노가리세상 서측 외부 상권은 제외하고,
-  // 그라츠커피랩/테이블린 등 스타필드 주소권 매장은 포함되도록 서측 경계를 동쪽으로 재보정했습니다.
-  // 매장명/주소 하드코딩 없이 관리자 등록 위도/경도만으로 내부/외부를 판별합니다.
-  { lat: 37.73190, lng: 126.76470 }, // 1. 북서측 경계(외부 상권 제외선)
-  { lat: 37.73175, lng: 126.76720 }, // 2. 북동측 경계
-  { lat: 37.72455, lng: 126.76630 }, // 4. 남동측 스트리트몰 경계
-  { lat: 37.72470, lng: 126.76425 }  // 3. 남서측 스트리트몰 경계
-];
-
-const DEFAULT_STARFIELD_BOUNDS = (() => {
-  const lats = DEFAULT_STARFIELD_POLYGON.map(p => p.lat);
-  const lngs = DEFAULT_STARFIELD_POLYGON.map(p => p.lng);
-  return { minLat: Math.min(...lats), maxLat: Math.max(...lats), minLng: Math.min(...lngs), maxLng: Math.max(...lngs) };
-})();
-
-function normalizePolygonPoint(point){
- if(Array.isArray(point) && point.length >= 2){
-   const lat = Number(point[0]);
-   const lng = Number(point[1]);
-   return Number.isFinite(lat) && Number.isFinite(lng) ? { lat, lng } : null;
- }
- if(point && typeof point === 'object'){
-   const lat = Number(point.lat ?? point.latitude ?? point._lat ?? point.y);
-   const lng = Number(point.lng ?? point.lon ?? point.longitude ?? point._long ?? point._lng ?? point.x);
-   return Number.isFinite(lat) && Number.isFinite(lng) ? { lat, lng } : null;
- }
- return null;
-}
-
-function getConfiguredStarfieldPolygon(){
- try{
-   const runtime = window.UPICK_STARFIELD_POLYGON || window.STARFIELD_POLYGON;
-   const allowSavedOverride = window.UPICK_ALLOW_STARFIELD_POLYGON_OVERRIDE === true
-     || localStorage.getItem('UPICK_ALLOW_STARFIELD_POLYGON_OVERRIDE') === 'true';
-   const saved = (!runtime && allowSavedOverride)
-     ? JSON.parse(localStorage.getItem('UPICK_STARFIELD_POLYGON') || 'null')
-     : null;
-   const source = runtime || saved;
-   if(Array.isArray(source)){
-     const polygon = source.map(normalizePolygonPoint).filter(Boolean);
-     if(polygon.length >= 3) return polygon;
-   }
- }catch(_){ }
- return DEFAULT_STARFIELD_POLYGON;
-}
-
-function getConfiguredStarfieldBounds(){
- const polygon = getConfiguredStarfieldPolygon();
- const lats = polygon.map(p => p.lat);
- const lngs = polygon.map(p => p.lng);
- return { minLat: Math.min(...lats), maxLat: Math.max(...lats), minLng: Math.min(...lngs), maxLng: Math.max(...lngs) };
-}
-
-function getStarfieldBoundaryValue(source, keys){
- for(const key of keys){
-   const value = source?.[key];
-   if(value && typeof value === 'object'){
-     const nested = Number(value.latitude ?? value.lat ?? value._lat ?? value.longitude ?? value.lng ?? value._long);
-     if(Number.isFinite(nested)) return nested;
-   }
-   const n = Number(value);
-   if(Number.isFinite(n)) return n;
- }
- return NaN;
-}
-
-function getBenefitLatLngCandidateObjects(item={}){
- const candidates = [item];
- ['location','position','coord','coords','coordinate','coordinates','geo','geoPoint','geopoint','naverMap','map','place','storeLocation'].forEach((key)=>{
-   const value = item?.[key];
-   if(value && typeof value === 'object') candidates.push(value);
- });
- return candidates;
-}
-
-function isLatLngInBounds(pos, bounds){
- if(!pos || !bounds) return false;
- const lat = Number(pos.lat), lng = Number(pos.lng);
- return Number.isFinite(lat) && Number.isFinite(lng) && lat >= bounds.minLat && lat <= bounds.maxLat && lng >= bounds.minLng && lng <= bounds.maxLng;
-}
-
-function isLatLngInPolygon(pos, polygon){
- if(!pos || !Array.isArray(polygon) || polygon.length < 3) return false;
- const lat = Number(pos.lat);
- const lng = Number(pos.lng);
- if(!Number.isFinite(lat) || !Number.isFinite(lng)) return false;
- // 빠른 배제: polygon 바깥 사각영역이면 내부 검사 생략
- const lats = polygon.map(p => Number(p.lat));
- const lngs = polygon.map(p => Number(p.lng));
- if(lat < Math.min(...lats) || lat > Math.max(...lats) || lng < Math.min(...lngs) || lng > Math.max(...lngs)) return false;
- let inside = false;
- for(let i = 0, j = polygon.length - 1; i < polygon.length; j = i++){
-   const yi = Number(polygon[i].lat), xi = Number(polygon[i].lng);
-   const yj = Number(polygon[j].lat), xj = Number(polygon[j].lng);
-   const intersects = ((yi > lat) !== (yj > lat)) && (lng < (xj - xi) * (lat - yi) / ((yj - yi) || 1e-12) + xi);
-   if(intersects) inside = !inside;
- }
- return inside;
-}
-
-
-// 스타필드 생활권은 매장명 보정 없이 관리자 등록 좌표 + polygon만으로 판별합니다.
-// 경계 매장을 이름으로 강제 분류하면 신규/수정 매장 유지보수가 어려워지므로 사용하지 않습니다.
-
-function normalizeZoneType(value=''){
- const raw = String(value || '').trim().toLowerCase();
- if(!raw) return '';
- if(['starfield_inside','inside','in','internal','스타필드 내부','스타필드내부','내부'].includes(raw)) return 'starfield_inside';
- if(['outside_area','outside','out','external','외부 상권','외부상권','외부'].includes(raw)) return 'outside_area';
- return '';
-}
-
-function getBenefitZoneInfo(item={}){
- // 좌표가 있는 일반 매장은 관리자 페이지에 등록된 위도/경도 polygon 기준으로 판별합니다.
- const pos = getBenefitLatLng(item);
- if(pos){
-   const polygon = getConfiguredStarfieldPolygon();
-   if(isLatLngInPolygon(pos, polygon)){
-     return { type:'starfield_inside', label:'스타필드 내부', shortLabel:'내부', reason:'좌표 polygon 기준' };
-   }
-   return { type:'outside_area', label:'외부 상권', shortLabel:'외부', reason:'좌표 polygon 기준' };
- }
- // 좌표가 없는 예외 매장만 관리자 수동 필드를 보조적으로 사용합니다.
- const manual = normalizeZoneType(item.zoneType || item.locationZone || item.marketZone || item.commercialZone || item.starfieldZone);
- if(manual === 'starfield_inside') return { type:'starfield_inside', label:'스타필드 내부', shortLabel:'내부', reason:'관리자 등록 기준' };
- if(manual === 'outside_area') return { type:'outside_area', label:'외부 상권', shortLabel:'외부', reason:'관리자 등록 기준' };
- return { type:'outside_area', label:'외부 상권', shortLabel:'외부', reason:'기본 분류' };
-}
-
-function getBenefitStatsRow(item={}){
- const id = String(item.id || item.benefitId || '');
- if(!id) return null;
- return state.benefitStatsMap?.[id] || (state.popularItems || []).find((v) => String(v.id || v.benefit?.id || '') === id) || null;
-}
-
-function getBenefitPopularRank(item={}){
- const id = String(item.id || item.benefitId || '');
- const row = (state.popularItems || []).find((v) => String(v.id || v.benefit?.id || '') === id);
- return row ? Number(row.rank || 0) : 0;
-}
-
-function getBenefitEngagementScore(item={}){
- const row = getBenefitStatsRow(item);
- return Number(row?.popularScore || row?.score || item.popularScore || item.score || item.detailViewCount || item.clickCount || 0) || 0;
-}
-
-function numberFromAny(...values){
- for(const value of values){
-   if(value == null || value === '') continue;
-   const n = Number(String(value).replace(/[^0-9.\-]/g,''));
-   if(Number.isFinite(n)) return n;
- }
- return 0;
-}
-
-function getBenefitActionMetric(item={}, names=[]){
- const stat = getBenefitStatsRow(item) || {};
- let total = 0;
- for(const name of names){
-   total += numberFromAny(item[name], stat[name]);
- }
- return total;
-}
-
-function getTimestampMs(value){
- if(!value) return 0;
- if(typeof value === 'number') return value > 1e12 ? value : value * 1000;
- if(typeof value === 'string'){
-   const t = Date.parse(value);
-   return Number.isFinite(t) ? t : 0;
- }
- if(typeof value === 'object'){
-   if(typeof value.toMillis === 'function') return Number(value.toMillis()) || 0;
-   if(typeof value.toDate === 'function'){
-     const d = value.toDate();
-     return d instanceof Date ? d.getTime() : 0;
-   }
-   if('seconds' in value) return Number(value.seconds) * 1000 + Math.round(Number(value.nanoseconds || 0) / 1e6);
-   if('_seconds' in value) return Number(value._seconds) * 1000 + Math.round(Number(value._nanoseconds || 0) / 1e6);
- }
- return 0;
-}
-
-function getRecentActionBoost(item={}, now=Date.now()){
- const stat = getBenefitStatsRow(item) || {};
- const candidates = [
-   'lastClickAt','lastDetailViewAt','lastViewedAt','lastCardClickAt','updatedAt',
-   'lastMapClickAt','lastMapViewAt','lastRouteClickAt','lastDirectionClickAt','lastDirectionsAt',
-   'lastPhoneClickAt','lastCallClickAt','lastFavoriteAt','lastSavedAt','lastSharedAt'
- ];
- const latest = Math.max(...candidates.map((key)=>Math.max(getTimestampMs(item[key]), getTimestampMs(stat[key]))), 0);
- const pulse = getDecayedCrowdPulseFromStat(stat, now);
- const historical = getCrowdHistoricalSignal(stat, getSeoulNow());
- let points = Math.min(24, pulse * 0.42);
- let reason = points >= 12 ? '최근 실시간 관심 급증' : (points >= 6 ? '최근 실시간 관심 증가' : '');
-
- // 평소 같은 요일·시간대보다 지금 반응이 강하면 추가 보정합니다.
- if(pulse >= 10 && historical.signal >= 12){
-   const ratio = pulse / Math.max(6, historical.signal * 0.22);
-   if(ratio >= 2.4){ points += 8; reason = '평소 대비 관심 급상승'; }
-   else if(ratio >= 1.6){ points += 5; reason = reason || '평소 대비 관심 증가'; }
- }
-
- if(latest){
-   const minutes = Math.max(0, (now - latest) / 60000);
-   if(minutes <= 10){ points += 8; reason = reason || '최근 10분 관심 증가'; }
-   else if(minutes <= 30){ points += 5; reason = reason || '최근 30분 관심 증가'; }
-   else if(minutes <= 60){ points += 2; reason = reason || '최근 1시간 관심 증가'; }
- }
- points = Math.min(30, Math.round(points));
- return { points, reason };
-}
-
-function getHistoricalTimePatternBoost(item={}, now=getSeoulNow()){
- const stat = getBenefitStatsRow(item) || {};
- const hour = now.getHours();
- const day = now.getDay();
- const isWeekend = day === 0 || day === 6;
- const total = numberFromAny(stat.popularScore, stat.detailViewCount, stat.cardClickCount, item.popularScore, item.detailViewCount);
- const historical = getCrowdHistoricalSignal(stat, now);
- if(total < 20 && historical.total < 15) return { points:0, reason:'' };
- let points = 0;
- const hay = [item.category,item.type,item.name,item.storeName,item.title,item.tags,item.aiTags].flat().join(' ').toLowerCase();
- const foodLike = /맛집|음식|식당|고기|치킨|피자|분식|카페|디저트|베이커리|레스토랑|초밥|라멘|파스타|버거|술집|호프|cafe|coffee|pizza|떡볶|밥|국수|샐러드|브런치/.test(hay);
- const cafeLike = /카페|커피|디저트|베이커리|브런치|cafe|coffee|bakery/.test(hay);
- if(foodLike && ((hour >= 11 && hour <= 13) || (hour >= 17 && hour <= 20))) points += Math.min(8, Math.floor(total / 80) + 3);
- if(cafeLike && hour >= 13 && hour <= 18) points += Math.min(7, Math.floor(total / 90) + 2);
- if(isWeekend && total >= 80) points += 5;
-
- // 실제 입주민 행동이 쌓인 시간대라면 업종 추정치보다 우선 보정합니다.
- if(historical.signal >= 60) points += 9;
- else if(historical.signal >= 30) points += 6;
- else if(historical.signal >= 14) points += 3;
-
- if(historical.concentration >= 0.18 && historical.total >= 30) points += 4;
- points = Math.min(16, Math.round(points));
- return points ? { points, reason: historical.signal >= 14 ? '매장별 시간대 이용 패턴' : '요일·시간대 누적 패턴' } : { points:0, reason:'' };
-}
-
-function clampCrowdScore(score){
- return Math.max(0, Math.min(100, Math.round(score)));
-}
-
-function classifyCrowdScore(score){
- if(score >= 85) return { level:'very_high', label:'매우 혼잡', waitLabel:'웨이팅 가능성 높음' };
- if(score >= 66) return { level:'busy', label:'혼잡 예상', waitLabel:'웨이팅 가능' };
- if(score >= 36) return { level:'normal', label:'보통', waitLabel:'대기 가능성 보통' };
- return { level:'low', label:'여유', waitLabel:'웨이팅 가능성 낮음' };
-}
-
-function getSeoulNow(){
- try{ return new Date(new Date().toLocaleString('en-US', { timeZone:'Asia/Seoul' })); }
- catch(_){ return new Date(); }
-}
-
-
-function timeTextToMinutes(value){
- const text = String(value || '').trim();
- let m = text.match(/^(\d{1,2})\s*:\s*(\d{2})$/);
- if(m) return Number(m[1]) * 60 + Number(m[2]);
- m = text.match(/^(\d{1,2})\s*시\s*(\d{1,2})?\s*분?$/);
- if(m) return Number(m[1]) * 60 + Number(m[2] || 0);
- return null;
-}
-
-function isMinuteInRange(nowMin, startText, endText){
- const start = timeTextToMinutes(startText);
- const end = timeTextToMinutes(endText);
- if(start == null || end == null || nowMin == null) return false;
- if(start <= end) return nowMin >= start && nowMin < end;
- return nowMin >= start || nowMin < end;
-}
-
-function formatMinutesAsTime(min){
- if(min == null || !Number.isFinite(min)) return '';
- const normalized = ((Math.round(min) % 1440) + 1440) % 1440;
- return `${String(Math.floor(normalized / 60)).padStart(2,'0')}:${String(normalized % 60).padStart(2,'0')}`;
-}
-
-function extractTimeRangesFromText(text=''){
- const source = String(text || '').replace(/오전\s*/g,'').replace(/오후\s*/g,'');
- const ranges = [];
- const re = /(\d{1,2})(?:\s*[:시]\s*(\d{2})\s*분?)?\s*(?:~|-|–|—|부터|to)\s*(\d{1,2})(?:\s*[:시]\s*(\d{2})\s*분?)?/gi;
- let match;
- while((match = re.exec(source))){
-   const start = `${String(match[1]).padStart(2,'0')}:${String(match[2] || '00').padStart(2,'0')}`;
-   const end = `${String(match[3]).padStart(2,'0')}:${String(match[4] || '00').padStart(2,'0')}`;
-   if(timeTextToMinutes(start) != null && timeTextToMinutes(end) != null) ranges.push({ start, end });
- }
- return ranges;
-}
-
-function getSeoulDayKey(now=getSeoulNow()){
- return ['sun','mon','tue','wed','thu','fri','sat'][now.getDay()] || 'mon';
-}
-
-function getTodayHoursRowFromObject(obj={}, dayKey=getSeoulDayKey()){
- if(!obj || typeof obj !== 'object' || Array.isArray(obj)) return null;
- const ko = { sun:'일', mon:'월', tue:'화', wed:'수', thu:'목', fri:'금', sat:'토' }[dayKey];
- const long = { sun:'sunday', mon:'monday', tue:'tuesday', wed:'wednesday', thu:'thursday', fri:'friday', sat:'saturday' }[dayKey];
- const candidates = [dayKey, long, ko, `${ko}요일`, String(['sun','mon','tue','wed','thu','fri','sat'].indexOf(dayKey)), 'daily', 'everyday', '매일', 'all'];
- for(const key of candidates){
-   const row = obj[key];
-   if(row) return Array.isArray(row) ? (row[0] || null) : row;
- }
- return null;
-}
-
-function getBenefitHoursSources(item={}){
- const objectSources = [
-   item.openingHoursManual, item.businessHoursManual, item.manualBusinessHours, item.adminBusinessHours,
-   item.openingHours, item.businessHours, item.hours, item.storeHours, item.operatingHours,
-   item.naverMapHours?.openingHours, item.naverSearchHours?.openingHours
- ].filter(v => v && typeof v === 'object' && !Array.isArray(v));
- const textSources = [
-   item.todayOpenText, item.openStatusText, item.adminHoursText, item.hoursText, item.openHoursText,
-   item.businessHoursText, item.openingHoursText, item.operatingHoursText, item.businessHoursManual,
-   item.manualBusinessHours, item.adminBusinessHours, item.openingHoursManual,
-   item.naverMapHours?.todayOpenText, item.naverMapHours?.openStatusText,
-   item.naverSearchHours?.todayOpenText, item.naverSearchHours?.openStatusText
- ].filter(v => typeof v === 'string' && v.trim());
- return { objectSources, textSources };
-}
-
-function normalizeHoursRow(row){
- if(!row) return null;
- if(typeof row === 'string'){
-   const ranges = extractTimeRangesFromText(row);
-   return {
-     closed: /휴무|정기\s*휴무|closed|쉬는\s*날/i.test(row),
-     open: ranges[0]?.start || '',
-     close: ranges[0]?.end || '',
-     breakStart: (/브레이크|break/i.test(row) ? ranges[1]?.start : '') || '',
-     breakEnd: (/브레이크|break/i.test(row) ? ranges[1]?.end : '') || '',
-     note: row
-   };
- }
- if(typeof row === 'object'){
-   return {
-     closed: row.closed === true || row.isClosed === true || row.holiday === true || row.isHoliday === true || /휴무|closed/i.test(String(row.status || row.openStatus || row.note || '')),
-     open: String(row.open || row.start || row.from || row.openTime || row.openingTime || '').trim(),
-     close: String(row.close || row.end || row.to || row.closeTime || row.closingTime || '').trim(),
-     breakStart: String(row.breakStart || row.break_start || row.breakOpen || row.breakFrom || '').trim(),
-     breakEnd: String(row.breakEnd || row.break_end || row.breakClose || row.breakTo || '').trim(),
-     lastOrder: String(row.lastOrder || row.last_order || row.orderEnd || '').trim(),
-     note: String(row.note || row.memo || row.remark || row.description || row.status || '').trim()
-   };
- }
- return null;
-}
-
-function evaluateBenefitOpenState(item={}, now=getSeoulNow()){
- const dayKey = getSeoulDayKey(now);
- const dayLabel = { sun:'일', mon:'월', tue:'화', wed:'수', thu:'목', fri:'금', sat:'토' }[dayKey] || '오늘';
- const nowMin = now.getHours() * 60 + now.getMinutes();
- const { objectSources, textSources } = getBenefitHoursSources(item);
- let row = null;
- for(const source of objectSources){
-   row = normalizeHoursRow(getTodayHoursRowFromObject(source, dayKey));
-   if(row) break;
- }
- if(!row){
-   const joined = textSources.join('\n');
-   if(joined) row = normalizeHoursRow(joined);
- }
- const manualOpen = String(item.openTime || item.open || item.startTime || '').trim();
- const manualClose = String(item.closeTime || item.close || item.endTime || '').trim();
- if(!row && manualOpen && manualClose) row = normalizeHoursRow({ open: manualOpen, close: manualClose, breakStart:item.breakStart, breakEnd:item.breakEnd, lastOrder:item.lastOrder, note:item.hoursNote });
- if(!row) return { status:'unknown', canVisitNow:null, label:'영업정보 없음', message:'영업시간 정보가 없어 혼잡도만 예상합니다.' };
- const note = row.note || '';
- const openMin = timeTextToMinutes(row.open);
- const closeMin = timeTextToMinutes(row.close);
- if(row.closed){
-   return { status:'closed', canVisitNow:false, label:'휴무', message:`오늘(${dayLabel})은 휴무로 표시되어 혼잡도 예측보다 휴무 안내를 우선합니다.${note ? ` (${note})` : ''}` };
- }
- if(openMin != null && closeMin != null && !isMinuteInRange(nowMin, row.open, row.close)){
-   if(openMin > closeMin ? (nowMin < openMin && nowMin >= closeMin) : nowMin < openMin){
-     return { status:'before_open', canVisitNow:false, label:'영업 전', message:`아직 영업 시작 전입니다. 오늘 영업시간은 ${formatMinutesAsTime(openMin)} - ${formatMinutesAsTime(closeMin)}입니다.` };
-   }
-   return { status:'closed_now', canVisitNow:false, label:'영업 종료', message:`현재는 영업시간이 아닙니다. 오늘 영업시간은 ${formatMinutesAsTime(openMin)} - ${formatMinutesAsTime(closeMin)}입니다.` };
- }
- if(row.breakStart && row.breakEnd && isMinuteInRange(nowMin, row.breakStart, row.breakEnd)){
-   return { status:'break_time', canVisitNow:false, label:'브레이크', message:`지금은 브레이크타임입니다. 브레이크타임은 ${row.breakStart} - ${row.breakEnd}입니다.` };
- }
- if(row.lastOrder && timeTextToMinutes(row.lastOrder) != null && nowMin >= timeTextToMinutes(row.lastOrder)){
-   return { status:'last_order_passed', canVisitNow:false, label:'주문 마감', message:`라스트오더(${row.lastOrder})가 지난 시간입니다. 방문 전 확인을 추천드립니다.` };
- }
- if(openMin != null && closeMin != null){
-   return { status:'open_now', canVisitNow:true, label:'영업 중', message:`현재 영업 중입니다. 오늘 영업시간은 ${formatMinutesAsTime(openMin)} - ${formatMinutesAsTime(closeMin)}입니다.` };
- }
- return { status:'unknown', canVisitNow:null, label:'영업정보 확인', message:'영업시간 형식을 확인할 수 없어 혼잡도만 예상합니다.' };
-}
-
-function getBenefitCrowdInfo(item={}){
- const openState = evaluateBenefitOpenState(item);
- if(openState && openState.canVisitNow === false){
-   return {
-     level:'closed',
-     label:openState.label || '영업시간 외',
-     waitLabel:'방문 전 확인 권장',
-     score:0,
-     dynamic:true,
-     openState,
-     updatedAtText: `${String(getSeoulNow().getHours()).padStart(2,'0')}:${String(getSeoulNow().getMinutes()).padStart(2,'0')} 기준`,
-     reason:openState.message || '영업시간 기준'
-   };
- }
- const manual = String(item.crowdLevel || item.crowdStatus || item.waitingLevel || '').trim().toLowerCase();
- const manualMap = {
-   low:{level:'low', label:'여유', waitLabel:'웨이팅 가능성 낮음', score:25},
-   normal:{level:'normal', label:'보통', waitLabel:'대기 가능성 보통', score:50},
-   medium:{level:'normal', label:'보통', waitLabel:'대기 가능성 보통', score:50},
-   busy:{level:'busy', label:'혼잡 예상', waitLabel:'웨이팅 가능', score:72},
-   high:{level:'busy', label:'혼잡 예상', waitLabel:'웨이팅 가능', score:72},
-   very_high:{level:'very_high', label:'매우 혼잡', waitLabel:'웨이팅 가능성 높음', score:90},
-   waiting_likely:{level:'very_high', label:'매우 혼잡', waitLabel:'웨이팅 가능성 높음', score:90}
- };
- if(manualMap[manual]) return { ...manualMap[manual], reason:String(item.crowdReason || '관리자 등록 기준'), dynamic:false };
-
- const now = getSeoulNow();
- const nowMs = now.getTime();
- const day = now.getDay();
- const hour = now.getHours();
- const minute = now.getMinutes();
- const isWeekend = day === 0 || day === 6;
- const isFriday = day === 5;
- const hay = [item.category,item.type,item.name,item.storeName,item.title,item.tags,item.aiTags].flat().join(' ').toLowerCase();
- const foodLike = /맛집|음식|식당|고기|치킨|피자|분식|카페|디저트|베이커리|레스토랑|초밥|라멘|파스타|버거|술집|호프|pub|bar|cafe|coffee|pizza|떡볶|밥|국수|샐러드|브런치/.test(hay);
- const cafeLike = /카페|커피|디저트|베이커리|브런치|cafe|coffee|bakery/.test(hay);
- const educationMedicalLike = /학원|영어|수학|교육|병원|의원|약국|치과|피부|관리|케어/.test(hay);
- const zone = getBenefitZoneInfo(item);
- const rank = getBenefitPopularRank(item);
- const score = getBenefitEngagementScore(item);
- const detailCount = getBenefitActionMetric(item, ['detailViewCount','viewCount','clickCount','cardClickCount']);
- const mapCount = getBenefitActionMetric(item, ['mapClickCount','mapViewCount','routeClickCount','directionClickCount','directionsClickCount','naverMapClickCount','naverDirectionClickCount']);
- const phoneCount = getBenefitActionMetric(item, ['phoneClickCount','callClickCount','telClickCount']);
- const favoriteCount = getBenefitActionMetric(item, ['favoriteCount','saveCount','savedCount']);
- const shareCount = getBenefitActionMetric(item, ['shareClickCount','shareCount','sharedCount']);
- const recent = getRecentActionBoost(item, nowMs);
- const pattern = getHistoricalTimePatternBoost(item, now);
- const peakLunch = hour >= 11 && hour <= 13;
- const peakCafe = cafeLike && ((hour >= 13 && hour <= 17) || (isWeekend && hour >= 11 && hour <= 18));
- const peakDinner = hour >= 17 && hour <= 20;
- const lateEvening = hour >= 21 || hour < 8;
- let crowdScore = 18;
- const reasons = [];
-
- if(foodLike){ crowdScore += 10; reasons.push(cafeLike ? '카페/디저트 업종' : '외식 업종'); }
- if(educationMedicalLike){ crowdScore -= 5; }
- if(zone.type === 'starfield_inside'){ crowdScore += isWeekend ? 8 : 4; reasons.push(zone.shortLabel + ' 상권'); }
- if(isWeekend){ crowdScore += 13; reasons.push('주말'); }
- else if(isFriday && hour >= 17){ crowdScore += 8; reasons.push('금요일 저녁'); }
- if(peakLunch){ crowdScore += foodLike ? 18 : 8; reasons.push('점심 피크 시간대'); }
- if(peakDinner){ crowdScore += foodLike ? 22 : 9; reasons.push('저녁 피크 시간대'); }
- if(peakCafe){ crowdScore += 14; reasons.push('카페 이용 집중 시간대'); }
- if(lateEvening){ crowdScore -= foodLike ? 12 : 18; reasons.push('늦은 시간대'); }
- if(rank && rank <= 3){ crowdScore += 14; reasons.push('인기 TOP3'); }
- else if(rank && rank <= 5){ crowdScore += 9; reasons.push('인기 TOP5'); }
- if(score >= 250){ crowdScore += 13; reasons.push('누적 관심도 높음'); }
- else if(score >= 100){ crowdScore += 8; reasons.push('누적 관심도 있음'); }
- else if(score >= 40){ crowdScore += 4; }
- if(detailCount >= 100){ crowdScore += 8; reasons.push('상세 조회 많음'); }
- else if(detailCount >= 30){ crowdScore += 4; }
- if(mapCount >= 20){ crowdScore += 13; reasons.push('길찾기/지도 관심 높음'); }
- else if(mapCount >= 5){ crowdScore += 7; reasons.push('지도 관심 있음'); }
- if(phoneCount >= 10){ crowdScore += 9; reasons.push('전화 문의 많음'); }
- else if(phoneCount >= 3){ crowdScore += 4; }
- if(favoriteCount >= 20){ crowdScore += 7; reasons.push('즐겨찾기 많음'); }
- else if(favoriteCount >= 5){ crowdScore += 3; }
- if(shareCount >= 10){ crowdScore += 5; }
- if(recent.points){ crowdScore += recent.points; reasons.push(recent.reason); }
- if(pattern.points){ crowdScore += pattern.points; reasons.push(pattern.reason); }
- // 분 단위 미세 변화를 둬서 현재 시간 기준으로 자연스럽게 갱신되도록 합니다.
- crowdScore += Math.sin((hour * 60 + minute) / 32) * 2;
- crowdScore = clampCrowdScore(crowdScore);
- const classified = classifyCrowdScore(crowdScore);
- const mainReasons = reasons.filter(Boolean).slice(0, 4);
- return {
-   ...classified,
-   score: crowdScore,
-   dynamic: true,
-   updatedAtText: `${String(hour).padStart(2,'0')}:${String(minute).padStart(2,'0')} 기준`,
-   reason: mainReasons.join(' · ') || '현재 시간대 기준'
- };
-}
-function mapMarkerInlineBadgesHtml(item={}){
- const zone = getBenefitZoneInfo(item);
- const crowd = getBenefitCrowdInfo(item);
- const crowdLabel = String(crowd.label || '').replace(' 예상','');
- return `<span class="map-marker-zone-badge ${zone.type}">${escapeHtml(zone.shortLabel || zone.label)}</span><span class="map-marker-crowd-badge ${crowd.level}">${escapeHtml(crowdLabel)}</span>`;
-}
-
-function benefitContextBadgesHtml(item={}, {compact=false}={}){
- const zone = getBenefitZoneInfo(item);
- const crowd = getBenefitCrowdInfo(item);
- const crowdLabel = compact ? String(crowd.label || '').replace(' 예상','') : String(crowd.label || '');
- return `<span class="benefit-context-badges${compact?' compact':''}" aria-label="상권 및 혼잡도 안내"><span class="benefit-context-badge combined ${zone.type} ${crowd.level}">${escapeHtml(zone.shortLabel || zone.label)} · ${escapeHtml(crowdLabel)}</span></span>`;
-}
-
-function benefitContextPanelHtml(item={}){
- const zone = getBenefitZoneInfo(item);
- const crowd = getBenefitCrowdInfo(item);
- const isClosedState = crowd.openState && crowd.openState.canVisitNow === false;
- return `<div class="benefit-context-panel" aria-label="상권 및 예상 혼잡도"><div class="benefit-context-main"><span class="benefit-context-badge zone ${zone.type}">${escapeHtml(zone.label)}</span><span class="benefit-context-badge crowd ${crowd.level}">${escapeHtml(crowd.label)}</span><span class="benefit-context-wait">${escapeHtml(crowd.waitLabel)}</span></div><p>${escapeHtml(crowd.reason)}${isClosedState ? '' : ' 기준의 예상입니다. 실제 웨이팅은 매장 상황에 따라 달라질 수 있어요.'}</p></div>`;
+ return '<div class="map-marker-store" title="'+escapeAttr(String(item?.name || label))+'"><img class="upick-svg-icon" src="/icons/internal/pin.svg" alt="" loading="lazy"> '+escapeHtml(label)+'</div>';
 }
  function clusterHtml(count){return '<div class="map-marker-cluster">'+count+'</div>';}
  function normalizeMapCoord(value){const n=Number(value); return Number.isFinite(n)?n.toFixed(6):'';}
@@ -4525,7 +3794,7 @@ function getDistanceSpreadMapPosition(nm, center, item, index, count, clusterIte
 function getSpreadMapPosition(nm, center, index, count){const fakeItem={lat:center.lat,lng:center.lng}; return getDistanceSpreadMapPosition(nm, center, fakeItem, index, count, []);}
  function renderSpreadClusterMarkers(nm, cluster){const center={lat:Number(cluster.lat),lng:Number(cluster.lng)}; const count=cluster.items.length; const sortedItems=[...(cluster.items||[])].sort((a,b)=>{const pa=getBenefitLatLng(a)||center; const pb=getBenefitLatLng(b)||center; const da=getDistanceMeters(center.lat,center.lng,pa.lat,pa.lng); const db=getDistanceMeters(center.lat,center.lng,pb.lat,pb.lng); return da-db;}); sortedItems.forEach((item,index)=>{const spreadPosition=getDistanceSpreadMapPosition(nm, center, item, index, count, sortedItems); const marker=new nm.Marker({position:spreadPosition,map:benefitMapInstance,icon:{content:markerHtmlForItem(item),anchor:new nm.Point(18,34)},zIndex:180+index}); nm.Event.addListener(marker,'click',()=>openDetail(item)); benefitMapMarkers.push(marker);});}
  function renderSpreadSamePositionMarkers(nm, cluster){renderSpreadClusterMarkers(nm, cluster);}
- function renderMapPlaceList(items=[]){const el=qs('#mapPlaceList'); if(!el)return; if(!items.length){el.innerHTML='<div class="panel empty">지도에 표시할 혜택이 없습니다.</div>';return;} const sorted=[...items].sort((a,b)=>{const da=getItemDistance(a),db=getItemDistance(b); if(Number.isFinite(da)&&Number.isFinite(db))return da-db; if(Number.isFinite(da))return -1; if(Number.isFinite(db))return 1; return String(a.name||'').localeCompare(String(b.name||''),'ko');}).slice(0,20); el.innerHTML=sorted.map(item=>{const d=getItemDistance(item); return '<div class="map-place-card" data-map-benefit-id="'+escapeHtml(item.id)+'"><div><strong>'+escapeHtml(item.name||'매장')+'</strong><span>'+escapeHtml(item.category||'기타')+(Number.isFinite(d)?' · '+formatDistance(d):'')+'</span>'+benefitContextBadgesHtml(item,{compact:true})+'</div><span>보기</span></div>';}).join(''); qsa('[data-map-benefit-id]').forEach(card=>{card.addEventListener('click',()=>{const item=state.benefits.find(b=>b.id===card.dataset.mapBenefitId); if(item)openDetail(item);});});}
+ function renderMapPlaceList(items=[]){const el=qs('#mapPlaceList'); if(!el)return; if(!items.length){el.innerHTML='<div class="panel empty">지도에 표시할 혜택이 없습니다.</div>';return;} const sorted=[...items].sort((a,b)=>{const da=getItemDistance(a),db=getItemDistance(b); if(Number.isFinite(da)&&Number.isFinite(db))return da-db; if(Number.isFinite(da))return -1; if(Number.isFinite(db))return 1; return String(a.name||'').localeCompare(String(b.name||''),'ko');}).slice(0,20); el.innerHTML=sorted.map(item=>{const d=getItemDistance(item); return '<div class="map-place-card" data-map-benefit-id="'+escapeHtml(item.id)+'"><div><strong>'+escapeHtml(item.name||'매장')+'</strong><span>'+escapeHtml(item.category||'기타')+(Number.isFinite(d)?' · '+formatDistance(d):'')+'</span></div><span>보기</span></div>';}).join(''); qsa('[data-map-benefit-id]').forEach(card=>{card.addEventListener('click',()=>{const item=state.benefits.find(b=>b.id===card.dataset.mapBenefitId); if(item)openDetail(item);});});}
  async function renderMapMode({ fitBounds=false } = {}){if(state.view!=='map')return; const countEl=qs('#mapModeCount'), mapEl=qs('#benefitMap'); if(!mapEl)return; const items=getMapModeItems(); if(countEl)countEl.textContent=items.length+'건'; renderMapPlaceList(items); if(!items.length){benefitMapExpandedClusterKey=''; setMapModeStatus('좌표가 등록된 혜택이 없습니다. 관리자 페이지에서 주소→좌표 자동 조회 후 저장해 주세요.','muted');return;} if(!NAVER_MAP_CLIENT_ID){setMapModeStatus('NAVER_MAP_CLIENT_ID를 입력하면 지도 모드를 사용할 수 있습니다.','error');return;} setMapModeStatus('지도를 준비하는 중입니다...','muted'); try{await loadNaverMapsSdk(); const nm=window.naver.maps; const first=getBenefitLatLng(items[0]); const center=state.userLocation?new nm.LatLng(state.userLocation.lat,state.userLocation.lng):new nm.LatLng(first.lat,first.lng); if(!benefitMapInstance){benefitMapInstance=new nm.Map('benefitMap',{center,zoom:15,minZoom:10,zoomControl:true,zoomControlOptions:{position:nm.Position.TOP_RIGHT}}); nm.Event.addListener(benefitMapInstance,'idle',()=>renderMapMarkers(false)); nm.Event.addListener(benefitMapInstance,'click',()=>{if(benefitMapExpandedClusterKey){benefitMapExpandedClusterKey=''; renderMapMarkers(false); setMapModeStatus('지도에 여러 매장을 표시했습니다. 가까운 매장은 숫자 묶음으로 표시됩니다.','muted');}});}else{benefitMapInstance.setCenter(center);} renderMapMarkers(fitBounds); setMapModeStatus('지도에 여러 매장을 표시했습니다. 가까운 매장은 숫자 묶음으로 표시됩니다.','muted');}catch(e){console.error('지도 모드 렌더링 실패',e); setMapModeStatus('지도 로딩에 실패했습니다. Client ID와 네이버 콘솔 Web 서비스 URL을 확인해 주세요.','error');}}
  function renderMapMarkers(fitBounds=false){if(!benefitMapInstance||!window.naver?.maps)return; const nm=window.naver.maps; const items=getMapModeItems(); clearNaverMarkers(); const bounds=new nm.LatLngBounds(); const fitPoints=[]; const zoom=benefitMapInstance.getZoom?Number(benefitMapInstance.getZoom()||15):15; const autoSpreadZoom=zoom>=17; if(state.userLocation){const userPos=new nm.LatLng(state.userLocation.lat,state.userLocation.lng); fitPoints.push(userPos); bounds.extend(userPos); benefitMapUserMarker=new nm.Marker({position:userPos,map:benefitMapInstance,icon:{content:'<div class="map-marker-user" title="현재 위치"></div>',anchor:new nm.Point(9,9)},zIndex:200});} const clusters=clusterMapItems(items,zoom); const hasExpandedCluster=clusters.some(c=>getSamePositionClusterKey(c.items)===benefitMapExpandedClusterKey); if(benefitMapExpandedClusterKey&&!hasExpandedCluster) benefitMapExpandedClusterKey=''; clusters.forEach(c=>{const position=new nm.LatLng(c.lat,c.lng); fitPoints.push(position); bounds.extend(position); const samePositionKey=getSamePositionClusterKey(c.items); if(c.items.length>1 && (autoSpreadZoom || (samePositionKey&&benefitMapExpandedClusterKey===samePositionKey))){renderSpreadClusterMarkers(nm,c); return;} const marker=new nm.Marker({position,map:benefitMapInstance,icon:{content:c.items.length>1?clusterHtml(c.items.length):markerHtmlForItem(c.items[0]),anchor:new nm.Point(c.items.length>1?22:18,c.items.length>1?22:34)},zIndex:c.items.length>1?120:100}); nm.Event.addListener(marker,'click',()=>{if(c.items.length>1){benefitMapExpandedClusterKey=samePositionKey||''; benefitMapInstance.setCenter(position); benefitMapInstance.setZoom(Math.max(17, Math.min(19, Number(benefitMapInstance.getZoom()||15)+1))); renderMapMarkers(false); setMapModeStatus('확대된 지도에서는 모든 클러스터가 실제 거리와 방향을 기준으로 자동으로 펼쳐집니다.','muted');}else openDetail(c.items[0]);}); benefitMapMarkers.push(marker);}); if(fitBounds&&fitPoints.length){if(fitPoints.length===1){benefitMapInstance.setCenter(fitPoints[0]); benefitMapInstance.setZoom(16);}else{try{benefitMapInstance.fitBounds(bounds,{top:50,right:36,bottom:50,left:36});}catch(_){benefitMapInstance.fitBounds(bounds);}}}}
  async function centerMapToMyLocation(){try{setMapModeStatus('현재 위치를 확인하는 중입니다...','muted'); await getReliableCurrentPosition({forceRefresh:false}); recalculateBenefitDistances(); if(benefitMapInstance&&state.userLocation&&window.naver?.maps){benefitMapInstance.setCenter(new window.naver.maps.LatLng(state.userLocation.lat,state.userLocation.lng)); benefitMapInstance.setZoom(15);} renderAll(); setTimeout(()=>renderMapMode({fitBounds:true}),60);}catch(e){console.warn('지도 현재 위치 확인 실패',e); setMapModeStatus('현재 위치 권한을 허용하면 내 주변 혜택을 지도에서 볼 수 있습니다.','error');}}
@@ -4798,13 +4067,6 @@ stationAccessText:item.stationAccessText||item.transitText||item.stationGuide||i
  facebookUrl:item.facebookUrl||item.externalLinks?.facebook||'',
  smartstoreUrl:item.smartstoreUrl||item.externalLinks?.smartstore||item.externalLinks?.smartStore||'',
  bandUrl:item.bandUrl||item.externalLinks?.band||'',
- naverReservationEnabled:!!(item.naverReservationEnabled||item.naverBookingEnabled||item.reservationEnabled||item.reservation?.enabled||item.naverReservationUrl||item.naverBookingUrl||item.reservationUrl||item.reservation?.url),
- naverBookingEnabled:!!(item.naverReservationEnabled||item.naverBookingEnabled||item.reservationEnabled||item.reservation?.enabled||item.naverReservationUrl||item.naverBookingUrl||item.reservationUrl||item.reservation?.url),
- reservationEnabled:!!(item.naverReservationEnabled||item.naverBookingEnabled||item.reservationEnabled||item.reservation?.enabled||item.naverReservationUrl||item.naverBookingUrl||item.reservationUrl||item.reservation?.url),
- naverReservationUrl:item.naverReservationUrl||item.naverBookingUrl||item.reservationUrl||item.reservation?.url||item.externalLinks?.naverReservation||'',
- naverBookingUrl:item.naverBookingUrl||item.naverReservationUrl||item.reservationUrl||item.reservation?.url||item.externalLinks?.naverReservation||'',
- reservationUrl:item.reservationUrl||item.naverReservationUrl||item.naverBookingUrl||item.reservation?.url||item.externalLinks?.naverReservation||'',
- reservation:item.reservation||{},
  deliveryAvailable:!!(item.deliveryAvailable||item.serviceTags?.delivery),
  takeoutAvailable:!!(item.takeoutAvailable||item.serviceTags?.takeout),
  serviceMemo:item.serviceMemo||item.serviceTags?.memo||'',
@@ -5186,20 +4448,14 @@ function getShareTrackingParams(){
 
  if(event === 'kakao_share_open' && type === 'benefit' && item?.id){
  const statRef = doc(db, BENEFIT_STATS_COLLECTION, item.id);
- await runTransaction(db, async (tx) => {
-   const snap = await tx.get(statRef);
-   const prev = snap.exists() ? (snap.data() || {}) : {};
-   tx.set(statRef, {
-     benefitId: item.id,
-     name: item.name || item.title || prev.name || '',
-     ...buildSafeStatNumberUpdates(prev, {
-       shareClickCount: 1,
-       popularScore: 5
-     }),
-     lastSharedAt: serverTimestamp(),
-     updatedAt: serverTimestamp()
-   }, { merge:true });
- });
+ await setDoc(statRef, {
+ benefitId: item.id,
+ name: item.name || item.title || '',
+ shareClickCount: increment(1),
+ popularScore: increment(5),
+ lastSharedAt: serverTimestamp(),
+ updatedAt: serverTimestamp()
+ }, { merge:true });
  await recordResidentActivity('share', 5, item.id);
  }
  }catch(error){
@@ -5909,12 +5165,7 @@ ${item.content || ''}`);
  const likeCount = Number(data.likeCount || 0);
  const recommendCount = Number(data.recommendCount || 0);
  const hotCount = Number(data.hotCount || 0);
- const mapClickCount = Number(data.mapClickCount || 0);
- const directionClickCount = Number(data.directionClickCount || data.routeClickCount || 0);
- const callClickCount = Number(data.callClickCount || data.phoneClickCount || 0);
- const smartstoreClickCount = Number(data.smartstoreClickCount || 0);
- const bandClickCount = Number(data.bandClickCount || 0);
- return detailViewCount + clickCount + cardClickCount + favoriteCount * 3 + shareClickCount * 5 + likeCount * 2 + recommendCount * 4 + hotCount * 6 + mapClickCount * 2 + directionClickCount * 4 + callClickCount * 3 + smartstoreClickCount * 4 + bandClickCount * 3;
+ return detailViewCount + clickCount + cardClickCount + favoriteCount * 3 + shareClickCount * 5 + likeCount * 2 + recommendCount * 4 + hotCount * 6;
  }
 
  function getShareBestItemId(items = []) {
@@ -5934,11 +5185,10 @@ ${item.content || ''}`);
  const popularQuery = query(
  collection(db, BENEFIT_STATS_COLLECTION),
  orderBy('popularScore', 'desc'),
- limit(300)
+ limit(80)
  );
 
  popularStatsUnsubscribe = onSnapshot(popularQuery, (snapshot) => {
- state.benefitStatsMap = Object.fromEntries(snapshot.docs.map((d) => [d.id, { id:d.id, ...(d.data() || {}) }]));
  const runtimePreviousRanks = new Map(
  (state.popularItems || []).map((item, index) => [item.id, index + 1])
  );
@@ -5967,18 +5217,6 @@ ${item.content || ''}`);
  clickCount,
  favoriteCount,
  shareClickCount,
- mapClickCount: Number(data.mapClickCount || 0),
- directionClickCount: Number(data.directionClickCount || 0),
- callClickCount: Number(data.callClickCount || data.phoneClickCount || 0),
- recentCrowdPulse: Number(data.recentCrowdPulse || 0),
- recentCrowdLastAt: data.recentCrowdLastAt || null,
- lastDetailViewAt: data.lastDetailViewAt || null,
- lastCardClickAt: data.lastCardClickAt || null,
- lastMapClickAt: data.lastMapClickAt || null,
- lastDirectionClickAt: data.lastDirectionClickAt || null,
- lastCallClickAt: data.lastCallClickAt || null,
- lastFavoriteAt: data.lastFavoriteAt || null,
- lastSharedAt: data.lastSharedAt || null,
  likeCount: Number(data.likeCount || 0),
  recommendCount: Number(data.recommendCount || 0),
  hotCount: Number(data.hotCount || 0),
@@ -6828,7 +6066,6 @@ ${item.content || ''}`);
  </div>
  <div class="card-tags">
  <span class="tag category-text-tag">${item.category}</span>
- ${naverServiceBadgesHtml(item)}
  ${benefitOperationBadgesHtml(item)}
  ${distanceTag}
 
@@ -7646,7 +6883,7 @@ function renderCalendarDayModal(){
  function benefitDetailHeroHtml(item = {}){
  const imageHtml = benefitDetailImageSliderHtml(item);
  const isFavClass = imageHtml ? '' : ' no-photo';
- return `<div class="benefit-detail-hero${isFavClass}"><div class="benefit-detail-main"><div class="${getBadgeClass(item)}" style="display:inline-block;min-width:auto;padding:12px 16px;">${item.discountText}</div><h3 style="margin:12px 0 6px;font-size:26px;letter-spacing:-.04em;">${item.name}</h3><div class="tags" style="margin-top:0;margin-bottom:10px;">${item.recommended?'<span class="tag rec">추천 혜택</span>':''}<span class="tag">${item.category}</span>${naverServiceBadgesHtml(item)}${benefitOperationBadgesHtml(item)}${benefitDateTag(item)}</div>${benefitStatusChipsHtml(item,{includeDate:true})}${benefitStatusReasonHtml(item)}</div>${imageHtml}</div>`;
+ return `<div class="benefit-detail-hero${isFavClass}"><div class="benefit-detail-main"><div class="${getBadgeClass(item)}" style="display:inline-block;min-width:auto;padding:12px 16px;">${item.discountText}</div><h3 style="margin:12px 0 6px;font-size:26px;letter-spacing:-.04em;">${item.name}</h3><div class="tags" style="margin-top:0;margin-bottom:10px;">${item.recommended?'<span class="tag rec">추천 혜택</span>':''}<span class="tag">${item.category}</span>${benefitOperationBadgesHtml(item)}${benefitDateTag(item)}</div>${benefitStatusChipsHtml(item,{includeDate:true})}${benefitStatusReasonHtml(item)}</div>${imageHtml}</div>`;
  }
 
  function getPointerClient(event){
@@ -8088,7 +7325,7 @@ function renderCalendarDayModal(){
  increaseStat(item.id, item.name, 'detailViewCount');
  logBenefitEvent(item.id, 'detail_view');
  const isFav=getFavorites().includes(item.id);
- qs('#modalBody').innerHTML=`${benefitDetailHeroHtml(item)}<div style="display:grid;gap:10px;margin:16px 0;"><div class="panel benefit-condition-panel"><strong class="benefit-detail-panel-title">혜택 조건</strong><div class="benefit-detail-body-text">${escapeHtml(item.condition || '혜택 조건은 상세보기에서 확인해 주세요.')}</div></div>${supportProgramsPanelHtml(item)}${naverReservationPanelHtml(item)}${couponLinksPanelHtml(item)}${newsItemsPanelHtml(item)}${benefitPriceDetailsHtml(item)}${locationPanelHtml(item)}${benefitExtraInfoHtml(item)}<div class="panel benefit-contact-panel"><strong style="display:block;margin-bottom:8px;font-size:13px;color:var(--muted);">연락처</strong>${benefitContactHtml(item)}</div>${benefitDetailDateHtml(item)}</div>${residentReactionHtml(item)}${shareActionsHtml('benefit')}`;
+ qs('#modalBody').innerHTML=`${benefitDetailHeroHtml(item)}<div style="display:grid;gap:10px;margin:16px 0;"><div class="panel benefit-condition-panel"><strong class="benefit-detail-panel-title">혜택 조건</strong><div class="benefit-detail-body-text">${escapeHtml(item.condition || '혜택 조건은 상세보기에서 확인해 주세요.')}</div></div>${supportProgramsPanelHtml(item)}${couponLinksPanelHtml(item)}${newsItemsPanelHtml(item)}${benefitPriceDetailsHtml(item)}${locationPanelHtml(item)}${benefitExtraInfoHtml(item)}<div class="panel benefit-contact-panel"><strong style="display:block;margin-bottom:8px;font-size:13px;color:var(--muted);">연락처</strong>${benefitContactHtml(item)}</div>${benefitDetailDateHtml(item)}</div>${residentReactionHtml(item)}${shareActionsHtml('benefit')}`;
  const modal=qs('#detailModal');
  if(modal.open)modal.close();
  modal.showModal();
@@ -8126,7 +7363,6 @@ function renderCalendarDayModal(){
  qs('#benefitKakaoShareBtn')?.addEventListener('click', (event) => withShareButtonFeedback(event.currentTarget, 'benefit', () => shareKakaoItem('benefit', item)));
  qs('#benefitQrShareBtn')?.addEventListener('click', () => showQrCode('benefit', item));
  bindResidentReactionButtons(item);
- bindNaverReservationButtons(qs('#modalBody'));
  updateDistanceText(item);
  setTimeout(() => renderDetailMiniMap(item), 120);
  setTimeout(() => {
@@ -8151,7 +7387,7 @@ function renderCalendarDayModal(){
    link.addEventListener('click', () => { increaseStat(item.id, item.name, 'callClickCount'); logBenefitEvent(item.id, 'call_click'); });
  });
  qs('#mapBtn').onclick=()=>{increaseStat(item.id, item.name, 'mapClickCount');logBenefitEvent(item.id, 'map_click');};
- qs('#directionBtn').onclick=()=>{increaseStat(item.id, item.name, 'directionClickCount');logBenefitEvent(item.id, 'direction_click');};
+ qs('#directionBtn').onclick=()=>{increaseStat(item.id, item.name, 'mapClickCount');logBenefitEvent(item.id, 'direction_click');};
  bindBenefitSocialLinks(item);
  }
 
@@ -9276,7 +8512,7 @@ function getAiAttachmentType(item={}){
  function mapAiBenefitsForQuestion(question='', answerText='', maxCount=4){
  try{
  return (state.benefits || [])
- .filter(item => item && item.id && (typeof isRecommendableBenefit !== 'function' || isRecommendableBenefit(item)))
+ .filter(item => item && item.visible !== false && item.id)
  .map(item => scoreAiBenefitMatch(item, question, answerText))
  .filter(v => v.score >= 3)
  .sort((a,b) => b.score - a.score)
@@ -9302,7 +8538,7 @@ function getAiAttachmentType(item={}){
  const tokens = getAiSearchTokens(question);
  const qNorm = normalizeAiSearchText(question);
  const pool = [];
- (state.benefits || []).filter(item => !item || typeof isRecommendableBenefit !== 'function' || isRecommendableBenefit(item)).forEach(item => pool.push({ type:'benefit', item }));
+ (state.benefits || []).forEach(item => pool.push({ type:'benefit', item }));
  (state.notices || []).forEach(item => pool.push({ type:'notice', item }));
  (state.aiKnowledge || []).forEach(item => pool.push({ type:item.type || 'ai', item }));
 
@@ -9339,16 +8575,6 @@ function getAiAttachmentType(item={}){
  roadAddress: item.roadAddress || '',
  phone: pickAiPhone(item),
  link: item.link || item.url || item.naverUrl || '',
- naverReservationEnabled: hasNaverReservation(item),
- naverReservationUrl: getNaverReservationInfo(item).url,
- naverServices: getEnabledNaverServices(item).map(v => ({ key:v.key, label:v.label, url:v.url || '' })),
- naverOrderEnabled: getNaverServiceInfo(item, NAVER_SERVICE_CONFIGS[1]).enabled,
- naverOrderUrl: getNaverServiceInfo(item, NAVER_SERVICE_CONFIGS[1]).url,
- naverDeliveryEnabled: getNaverServiceInfo(item, NAVER_SERVICE_CONFIGS[2]).enabled,
- naverDeliveryUrl: getNaverServiceInfo(item, NAVER_SERVICE_CONFIGS[2]).url,
- naverTalkEnabled: getNaverServiceInfo(item, NAVER_SERVICE_CONFIGS[3]).enabled,
- naverTalkUrl: getNaverServiceInfo(item, NAVER_SERVICE_CONFIGS[3]).url,
- reservationText: getEnabledNaverServices(item).map(v => v.label).join(' · '),
  lat: pos.lat ?? item.lat ?? item.latitude ?? null,
  lng: pos.lng ?? item.lng ?? item.lon ?? item.longitude ?? null,
  isOpenNow: item.isOpenNow,
@@ -9404,7 +8630,7 @@ function getAiAttachmentType(item={}){
  const explicitRecommendation = /(혜택|할인|매장|가게|상가|추천|데이트|아이와|아이랑|아이하고|아이들과|자녀|키즈|부모님|부모|어르신|어른|시니어|노인|10대|십대|청소년|학생|20대|이십대|청년|젊은|30대|삼십대|40대|사십대|50대|오십대|60대|육십대|70대|칠십대|80대|팔십대|고령|데이트|혼밥|혼자|운동|헬스|필라테스|요가|스포츠|미용|헤어|네일|피부|뷰티|갈만한|갈만한곳|가기좋은|가기 좋은|점심|저녁|밥|카페|맛집|디저트|비오는날|비올때|눈|눈올때|눈이|비|맑음|흐림|추울때|더울때|날씨|가까운|근처|TOP5|TOP\s*5|탑5)/.test(qNorm);
  if(explicitRecommendation){
    const fallback = (state.benefits || [])
-     .filter(item => item && item.id && (typeof isRecommendableBenefit !== 'function' || isRecommendableBenefit(item)))
+     .filter(item => item && item.visible !== false && item.id)
      .map(item => {
        const score = Number(item.popularScore || item.score || item.recommendScore || 0)
          + Number(item.favoriteCount || 0) * 2
@@ -9425,7 +8651,7 @@ function getAiAttachmentType(item={}){
  const text = normalizeAiSearchText(finalText);
  if(!text) return [];
  return (state.benefits || [])
- .filter(item => item && item.id && (typeof isRecommendableBenefit !== 'function' || isRecommendableBenefit(item)))
+ .filter(item => item && item.visible !== false && item.id)
  .map(item => {
  const name = item.name || item.storeName || item.title || '';
  const n = normalizeAiSearchText(name);
@@ -9621,7 +8847,6 @@ function getAiAttachmentType(item={}){
  <div class="location-title"><strong>위치 안내</strong></div>
  <div class="location-address">${escapeHtml(address)}</div>
  ${renderStationAccessBadges(item)}
- ${benefitContextPanelHtml(item)}
  ${directionText ? `<div class="location-guide">${escapeHtml(directionText)}</div>` : ''}
  ${buildAiSocialHintHtml(item)}
  <div class="detail-map-box">
@@ -9726,27 +8951,18 @@ function getAiAttachmentType(item={}){
  const map = new nm.Map(mapEl, {
  center: store,
  zoom: 16,
- // AI 미니지도도 상세 페이지 지도처럼 네이버 기본 줌 컨트롤을 끄고
- // 박스 내부 커스텀 컨트롤을 사용합니다. 기본 컨트롤은 모바일/좁은 카드에서 잘릴 수 있습니다.
- zoomControl: false,
+ zoomControl: true,
+ zoomControlOptions: { position: nm.Position.TOP_RIGHT },
  scrollWheel: true,
  draggable: true,
  pinchZoom: true
  });
- ensureDetailMiniMapZoomControls(mapEl, map);
 
- const markerName = item.name || item.storeName || item.title || '매장';
- const markerHtml = `<div class="map-marker-store ai-map-marker-store" role="button" tabindex="0" title="${escapeAttr(markerName)}"><img class="upick-svg-icon ai-map-marker-pin" src="/icons/internal/pin.svg" alt="" loading="lazy"><span>${escapeHtml(markerName)}</span></div>`;
- const storeMarker = new nm.Marker({
+ new nm.Marker({
  position: store,
  map,
- // AI 지도에서는 매장 좌표를 말풍선 왼쪽 기준에 맞춰 매장명 말풍선이 매장 기준 오른쪽으로 펼쳐지되 너무 밀리지 않게 보정합니다.
- // 긴 매장명은 내부 span에서만 말줄임 처리하고, 앞쪽에는 위치 마커 아이콘을 함께 표시합니다.
- icon: { content: markerHtml, anchor: new nm.Point(0,16) },
+ icon: { content: '<div class="map-marker-store">매장</div>', anchor: new nm.Point(20,34) },
  zIndex: 100
- });
- nm.Event.addListener(storeMarker, 'click', () => {
-   if(item?.id && typeof openDetail === 'function') openDetail(item);
  });
 
  const distanceEl = root.querySelector?.(`[data-ai-distance-benefit-id="${CSS.escape(String(benefitId))}"]`);
@@ -10356,12 +9572,6 @@ function isAiDialogRejectAnswer(question='', answer=''){
  return negativeQuestion && rejectAnswer;
 }
 
-
-function isAiNoResultAnswerText(answer=''){
- const compact = String(answer || '').replace(/\s+/g, '');
- return /현재등록된안내에서찾지못했습니다|등록된안내를찾지못했어요|등록된안내에서찾지못했습니다|찾지못했습니다|찾지못했어요|검색결과가없습니다|답변을준비하는중문제가발생했습니다|잠시후다시질문해/i.test(compact);
-}
-
 function buildAiEnhancedAnswerHtml(finalText='', question=''){
  const parsedDialog = extractAiDialogActions(finalText);
  const downloadPayload = extractAiDownloadPayload(String(parsedDialog.text || '답변을 생성하지 못했습니다.'));
@@ -10371,16 +9581,8 @@ function buildAiEnhancedAnswerHtml(finalText='', question=''){
  const isDialogRejectAnswer = isAiDialogRejectAnswer(question, cleaned);
  const isRecentNoticeGuideAnswer = isAiRecentNoticeGuideQuestion(question, cleaned);
  const isNotificationGuideAnswer = isAiNotificationTroubleshootingQuestion(question, cleaned);
- const isNoResultAnswer = isAiNoResultAnswerText(cleaned);
- const aiDownloadButtonsHtml = isNoResultAnswer ? '' : buildAiDownloadButtonsHtml(downloadPayload.downloads);
+ const aiDownloadButtonsHtml = buildAiDownloadButtonsHtml(downloadPayload.downloads);
  const safe = escapeHtml(cleaned).replace(/\n/g, '<br>');
- if(isNoResultAnswer){
- return `
- <div class="ai-answer ai-answer-upgrade ai-answer-no-result" data-ai-no-result="true">
- <div class="ai-answer-summary">${safe}</div>
- <span class="ai-mode-pill upgraded">등록된 안내를 찾지 못했어요.</span>
- </div>`;
- }
  if(isAiDialogCandidateConfirmAnswer(cleaned, question)){
  return `
  <div class="ai-answer ai-answer-upgrade">
@@ -10403,16 +9605,14 @@ function buildAiEnhancedAnswerHtml(finalText='', question=''){
  <span class="ai-mode-pill upgraded">관리자 생활정보 기준으로 안내했어요.</span>
  </div>`;
  }
- const dialogButtons = (isAppInstallGuideAnswer || isDialogRejectAnswer || isRecentNoticeGuideAnswer || isNotificationGuideAnswer || isNoResultAnswer)
-   ? ''
-   : buildAiDialogActionButtons(parsedDialog.actions);
- const mappedCards = (isAppInstallGuideAnswer || isDialogRejectAnswer || isRecentNoticeGuideAnswer || isNotificationGuideAnswer || isNoResultAnswer) ? [] : extractAiBenefitCards(cleaned, 4, question);
+ const dialogButtons = buildAiDialogActionButtons(parsedDialog.actions);
+ const mappedCards = (isAppInstallGuideAnswer || isDialogRejectAnswer || isRecentNoticeGuideAnswer || isNotificationGuideAnswer) ? [] : extractAiBenefitCards(cleaned, 4, question);
  const apartmentPhoneCard = buildAiApartmentLifePhoneCardHtml(question, cleaned);
- const matchedPhoneCard = (!isNoResultAnswer && !apartmentPhoneCard && isAiPhoneQuestion(question)) ? buildAiMatchedBenefitPhoneCardHtml(mappedCards, question) : '';
- const phoneCards = isNoResultAnswer ? '' : (apartmentPhoneCard || matchedPhoneCard || (isApartmentLifePhoneQuestion(question) ? '' : buildAiPhoneCardHtml(extractAiPhoneCards(cleaned))));
+ const matchedPhoneCard = (!apartmentPhoneCard && isAiPhoneQuestion(question)) ? buildAiMatchedBenefitPhoneCardHtml(mappedCards, question) : '';
+ const phoneCards = apartmentPhoneCard || matchedPhoneCard || (isApartmentLifePhoneQuestion(question) ? '' : buildAiPhoneCardHtml(extractAiPhoneCards(cleaned)));
  const personalSummary = getAiPersonalSummary();
- const locationMapCard = isNoResultAnswer ? '' : buildAiLocationMapCardHtml(mappedCards, question, cleaned);
- const aiAttachmentHtml = (!isNoResultAnswer && shouldShowAiKnowledgeAttachments(question, cleaned)) ? buildAiAttachmentsHtml(getMatchedAiKnowledgeAttachmentsStrict(question, cleaned)) : '';
+ const locationMapCard = buildAiLocationMapCardHtml(mappedCards, question, cleaned);
+ const aiAttachmentHtml = shouldShowAiKnowledgeAttachments(question, cleaned) ? buildAiAttachmentsHtml(getMatchedAiKnowledgeAttachmentsStrict(question, cleaned)) : '';
  const benefitCards = mappedCards.map(({item, score, reason, reasons}) => `
  <div class="ai-benefit-card-auto enhanced">
  <div class="ai-card-top">
@@ -10446,7 +9646,6 @@ function buildAiEnhancedAnswerHtml(finalText='', question=''){
    !isDialogRejectAnswer &&
    !isRecentNoticeGuideAnswer &&
    !isNotificationGuideAnswer &&
-   !isNoResultAnswer &&
    !isApartmentLifePhoneQuestion(question, cleaned) &&
    !isMultimodalAnalysisAnswer &&
    !shouldHideBenefitCardsForKnowledge &&
@@ -10456,14 +9655,14 @@ function buildAiEnhancedAnswerHtml(finalText='', question=''){
  <div class="ai-answer ai-answer-upgrade">
  <div class="ai-answer-summary">${safe}</div>
  ${buildAiTtsControlsHtml(isMultimodalAnalysisAnswer ? 'file' : (isExplicitBenefitCardIntent ? 'benefit' : 'default'))}
- ${!isAppInstallGuideAnswer && !isRecentNoticeGuideAnswer && !isNotificationGuideAnswer && !isNoResultAnswer && !isApartmentLifePhoneQuestion(question, cleaned) && inferAiWeatherTag(question, cleaned) ? `<div class="ai-weather-chip">${escapeHtml(inferAiWeatherTag(question, cleaned))}</div>` : ''}
+ ${!isAppInstallGuideAnswer && !isRecentNoticeGuideAnswer && !isNotificationGuideAnswer && !isApartmentLifePhoneQuestion(question, cleaned) && inferAiWeatherTag(question, cleaned) ? `<div class="ai-weather-chip">${escapeHtml(inferAiWeatherTag(question, cleaned))}</div>` : ''}
  ${phoneCards}
  ${dialogButtons}
  ${locationMapCard}
  ${aiAttachmentHtml}
  ${shouldShowBenefitCards ? `<div class="ai-answer-section"><div class="ai-answer-section-title"><span>자동 매칭된 혜택 카드</span><small>${mappedCards.length}개 추천</small></div>${benefitCards}</div>` : ''}
  ${aiDownloadButtonsHtml}
- <span class="ai-mode-pill upgraded">${isDialogRejectAnswer ? '후보 선택을 취소했어요.' : (isAppInstallGuideAnswer ? '앱 설치 방법을 안내했어요.' : (isNotificationGuideAnswer ? '알림 설정 방법을 안내했어요.' : (isRecentNoticeGuideAnswer ? '최근 공지를 안내했어요.' : (isNoResultAnswer ? '등록된 안내를 찾지 못했어요.' : '상황에 맞는 정보를 준비했어요.'))))}</span>
+ <span class="ai-mode-pill upgraded">${isDialogRejectAnswer ? '후보 선택을 취소했어요.' : (isAppInstallGuideAnswer ? '앱 설치 방법을 안내했어요.' : (isNotificationGuideAnswer ? '알림 설정 방법을 안내했어요.' : (isRecentNoticeGuideAnswer ? '최근 공지를 안내했어요.' : '상황에 맞는 정보를 준비했어요.')))}</span>
  </div>`;
  }
 
@@ -10533,24 +9732,8 @@ function buildAiEnhancedAnswerHtml(finalText='', question=''){
  const root = scope || qs('#aiChatWindow');
  if(!root) return;
  try{
-   const looksLikeNoResultOrServerError = (node) => {
-     const text = String(node?.innerText || node?.textContent || '').replace(/\s+/g, '');
-     return /등록된안내를찾지못했어요|현재등록된안내에서찾지못했습니다|답변을준비하는중문제가발생했습니다|잠시후다시질문해/.test(text)
-       || !!node?.querySelector?.('[data-ai-no-result="true"]');
-   };
-   const targets = root.matches?.('.ai-bubble,.ai-answer') ? [root] : Array.from(root.querySelectorAll('.ai-bubble,.ai-answer'));
-   targets.forEach((node) => {
-     if(!looksLikeNoResultOrServerError(node)) return;
-     node.querySelectorAll('[data-ai-error-retry], .ai-error-retry-btn').forEach((btn) => btn.remove());
-     node.querySelectorAll('[data-ai-tts-actions], .ai-tts-actions').forEach((el) => el.remove());
-   });
-   const retryButtons = Array.from(root.querySelectorAll('[data-ai-error-retry], .ai-error-retry-btn'));
-   const seenByBubble = new Set();
-   retryButtons.forEach((btn) => {
-     const bubble = btn.closest('.ai-bubble') || btn.parentElement || root;
-     if(seenByBubble.has(bubble)) btn.remove();
-     else seenByBubble.add(bubble);
-   });
+   const retryButtons = Array.from(root.querySelectorAll('[data-ai-error-retry]'));
+   retryButtons.forEach((btn, idx) => { if(idx > 0) btn.remove(); });
  }catch(_error){}
  bindAiDownloadButtons(root);
  root.querySelectorAll('[data-ai-error-retry]').forEach(btn => {
@@ -11900,13 +11083,19 @@ async function askAiAssistant(rawQuestion=''){
  if(aiWaitTimer1) clearTimeout(aiWaitTimer1);
  if(aiWaitTimer2) clearTimeout(aiWaitTimer2);
  console.error('AI Cloud Run 스트리밍 실패', error);
- const fallbackText = '등록된 안내를 찾지 못했어요.\n다른 표현으로 다시 질문해 주세요.';
+ const backgroundInterrupted = isAiLikelyBackgroundInterruption(error);
+ const errorMessageHtml = backgroundInterrupted
+ ? '앱이 백그라운드로 이동하면서 답변 연결이 잠시 끊겼습니다.<br><small>다시 질문해 주시면 이어서 확인해드릴게요.</small>'
+ : '답변을 준비하는 중 문제가 발생했습니다.<br><small>잠시 후 다시 질문해 주세요.</small>';
+ const retryQuestion = String(displayQuestion || question || '').trim();
+ const retryButtonHtml = retryQuestion
+   ? `<button class="ai-error-retry-btn" type="button" data-ai-error-retry="true" data-ai-retry-question="${escapeAttr(retryQuestion)}">↻ 다시 보내기</button>`
+   : '';
  if(pendingBubble){
-   pendingBubble.innerHTML = buildAiEnhancedAnswerHtml(fallbackText, question);
+   pendingBubble.innerHTML = `${errorMessageHtml}${retryButtonHtml}`;
    bindAiAnswerActions(pendingBubble);
  } else {
-   const fallbackRow = appendAiMessage('bot', buildAiEnhancedAnswerHtml(fallbackText, question));
-   bindAiAnswerActions(fallbackRow || qs('#aiChatWindow'));
+   appendAiMessage('bot', `${backgroundInterrupted ? '앱 전환 중 답변 연결이 끊겼습니다. 다시 질문해 주세요.' : '답변 생성 중 오류가 발생했습니다.'}${retryButtonHtml}`);
  }
  }finally{
  setAiAssistantBusy(false);
@@ -11931,20 +11120,6 @@ async function askAiAssistant(rawQuestion=''){
  qs('#gnbOverlay')?.classList.remove('show');
 }
  const renderAll=()=>{createChips();enableHorizontalDragScroll('#chips');enableHorizontalDragScroll('#aiQuickRow');enableHorizontalDragScroll('#communityCategoryFilter');renderStats();bindFilterIconPopovers();renderHome();setupBenefitFilterFixed();renderFavorites();renderPopularTop5();renderNotices();renderCalendarReservations();updateView();setTimeout(setupBenefitFilterFixed, 80);updateGnbActive();updateDistanceFilterHelp();if(state.view==='map') setTimeout(() => renderMapMode(), 60);if(state.view==='community') setTimeout(()=>loadCommunityPosts(communityState.category||'전체', true), 60);if(state.view==='shareinsights' && isAdminRole()) setTimeout(() => renderShareInsights(), 60);setTimeout(() => handleCleanDeepLink(), 80);};
-
-// 혼잡도는 현재 시각에 따라 계속 변하므로 지도/혜택 상세 표시를 주기적으로 가볍게 갱신합니다.
-let __upickCrowdRefreshTimer = null;
-function startCrowdDynamicRefresh(){
- if(__upickCrowdRefreshTimer) return;
- __upickCrowdRefreshTimer = setInterval(()=>{
-   try{
-     if(state.view === 'map') renderMapMode();
-     const modal = qs('#detailModal');
-     if(modal?.open && state.selectedBenefit) openDetail(state.selectedBenefit);
-   }catch(error){ console.warn('혼잡도 동적 갱신 실패', error); }
- }, 5 * 60 * 1000);
-}
-startCrowdDynamicRefresh();
  qs('#searchInput').addEventListener('input',(e)=>{state.keyword=e.target.value;renderAll();});
  qs('#resetBtn').onclick=()=>{state.category='전체';localStorage.setItem(LAST_CATEGORY_KEY,'전체');state.keyword='';state.filter='all';state.benefitSortMode='default';state.distanceRadius='all';qs('#searchInput').value='';if(qs('#benefitSortSelect'))qs('#benefitSortSelect').value='default';if(qs('#distanceRadiusSelect'))qs('#distanceRadiusSelect').value='all';updateFilterIconLabels();changeView('benefits');};
  qs('#benefitCardModeBtn')?.addEventListener('click', () => setBenefitViewMode('card'));

@@ -6187,3 +6187,24 @@ img.brand-icon[src*="home.svg"],
   cursor:not-allowed;
   box-shadow:none;
 }
+
+
+/* 네이버 예약 입력 영역 */
+.naver-reservation-field{
+  border:1px solid rgba(3,199,90,.18);
+  border-radius:16px;
+  padding:14px;
+  background:linear-gradient(135deg, rgba(3,199,90,.06), rgba(255,255,255,.9));
+}
+.naver-reservation-field .check-row{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  font-weight:800;
+  color:#0f5132;
+}
+.naver-reservation-field input[type="checkbox"]{
+  width:18px;
+  height:18px;
+  accent-color:#03c75a;
+}

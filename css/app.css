@@ -24714,3 +24714,151 @@ dialog.benefit-image-preview-overlay .benefit-image-preview-close * ,
 .benefit-image-preview-overlay .benefit-image-preview-close *{
   pointer-events:none!important;
 }
+
+
+/* v20260524 AI 생활도우미 미니지도 보정: 확대/축소 버튼 잘림 방지 + 매장명 마커 */
+.ai-location-detail-card .detail-map-box{
+  overflow:hidden!important;
+  padding-right:8px;
+  box-sizing:border-box;
+}
+.ai-location-detail-card .ai-location-map-canvas{
+  width:100%!important;
+  border-radius:20px;
+}
+.ai-location-detail-card .ai-location-map-canvas [class*="zoom"],
+.ai-location-detail-card .ai-location-map-canvas [class*="Zoom"],
+.ai-location-detail-card .ai-location-map-canvas [class*="control"],
+.ai-location-detail-card .ai-location-map-canvas [class*="Control"]{
+  right:8px!important;
+}
+.ai-map-marker-store{
+  max-width:132px;
+  min-width:auto;
+  height:auto;
+  min-height:30px;
+  padding:6px 10px;
+  border-radius:999px;
+  font-size:12px;
+  line-height:1.2;
+  cursor:pointer;
+  text-overflow:ellipsis;
+}
+
+
+/* ===== AI 생활도우미 미니지도 안정화: 상세 지도와 동일한 컨트롤/마커 기준 ===== */
+.ai-location-detail-card .detail-map-box{
+  position:relative!important;
+  overflow:hidden!important;
+  padding-right:0!important;
+  border-radius:20px!important;
+  contain:layout paint!important;
+}
+.ai-location-detail-card .ai-location-map-canvas{
+  width:100%!important;
+  height:178px!important;
+  min-height:178px!important;
+  max-height:178px!important;
+  display:block!important;
+  overflow:hidden!important;
+  border-radius:20px!important;
+  background:#eef2f7!important;
+}
+.ai-location-detail-card .detail-mini-zoom-controls{
+  top:10px!important;
+  right:10px!important;
+  z-index:60!important;
+}
+.ai-location-detail-card .ai-map-marker-store{
+  width:132px!important;
+  max-width:132px!important;
+  min-width:0!important;
+  height:32px!important;
+  min-height:32px!important;
+  padding:0 10px!important;
+  box-sizing:border-box!important;
+  justify-content:flex-start!important;
+  gap:5px!important;
+  overflow:hidden!important;
+  white-space:nowrap!important;
+  cursor:pointer!important;
+  transform:translateX(-8px)!important;
+}
+.ai-location-detail-card .ai-map-marker-store .ai-map-marker-pin{
+  flex:0 0 auto!important;
+  width:13px!important;
+  height:13px!important;
+  filter:none!important;
+  opacity:1!important;
+}
+.ai-location-detail-card .ai-map-marker-store span{
+  display:block!important;
+  min-width:0!important;
+  flex:1 1 auto!important;
+  overflow:hidden!important;
+  white-space:nowrap!important;
+  text-overflow:ellipsis!important;
+  text-align:left!important;
+}
+@media(max-width:420px){
+  .ai-location-detail-card .ai-map-marker-store{
+    width:132px!important;
+    max-width:132px!important;
+    font-size:11px!important;
+    padding:0 8px!important;
+  }
+}
+
+
+/* ===== AI 오류 재전송 버튼 단일 표시 보정 v15 ===== */
+.ai-message .ai-bubble .ai-error-retry-btn{
+  margin-top:14px;
+}
+.ai-message.user .ai-error-retry-btn,
+.ai-chat-window > .ai-error-retry-btn{
+  display:none!important;
+}
+.ai-message.bot .ai-bubble .ai-error-retry-btn + .ai-error-retry-btn{
+  display:none!important;
+}
+
+
+/* ===== 스타필드 내/외부 + 혼잡도/웨이팅 예상 배지 ===== */
+.benefit-context-badges{display:flex;align-items:center;gap:4px;flex-wrap:wrap;margin-top:5px;line-height:1}.benefit-context-badges.compact{margin-top:4px}.benefit-context-badge{display:inline-flex;align-items:center;justify-content:center;min-height:20px;padding:0 8px;border-radius:999px;font-size:11px;font-weight:900;letter-spacing:-.03em;border:1px solid rgba(148,163,184,.32);background:#f8fafc;color:#334155;white-space:nowrap}.benefit-context-badge.zone.starfield_inside{background:#eef6ff;color:#1d4ed8;border-color:#bfdbfe}.benefit-context-badge.zone.outside_area{background:#f8fafc;color:#475569;border-color:#e2e8f0}.benefit-context-badge.crowd.low{background:#ecfdf3;color:#15803d;border-color:#bbf7d0}.benefit-context-badge.crowd.normal{background:#fff7ed;color:#c2410c;border-color:#fed7aa}.benefit-context-badge.crowd.busy{background:#fff1f2;color:#be123c;border-color:#fecdd3}.benefit-context-badge.crowd.very_high{background:#7f1d1d;color:#fff;border-color:#fecaca;box-shadow:0 7px 16px rgba(127,29,29,.18)}.benefit-context-panel{margin:10px 0 0;padding:12px 13px;border-radius:16px;background:linear-gradient(135deg,#f8fbff 0%,#fff 100%);border:1px solid rgba(191,219,254,.9);box-shadow:0 8px 20px rgba(15,23,42,.04)}.benefit-context-main{display:flex;align-items:center;gap:6px;flex-wrap:wrap}.benefit-context-wait{display:inline-flex;align-items:center;min-height:20px;padding:0 8px;border-radius:999px;background:#0f172a;color:#fff;font-size:11px;font-weight:900;letter-spacing:-.03em}.benefit-context-panel p{margin:8px 0 0;color:#64748b;font-size:12px;line-height:1.55;font-weight:700}
+.map-marker-store{height:34px;min-height:34px;max-width:190px;padding:0 8px;gap:4px;flex-direction:row;align-items:center;justify-content:flex-start;line-height:1;overflow:hidden;white-space:nowrap}.map-marker-store .map-marker-title{display:inline-flex;align-items:center;gap:3px;min-width:0;max-width:104px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.map-marker-store .map-marker-title .upick-svg-icon{width:1em;height:1em;flex:0 0 auto}.map-marker-zone-badge,.map-marker-crowd-badge{display:inline-flex;align-items:center;justify-content:center;flex:0 0 auto;min-height:17px;padding:0 6px;border-radius:999px;font-size:10px;font-weight:1000;letter-spacing:-.04em;border:1px solid rgba(255,255,255,.68);line-height:1;white-space:nowrap}.map-marker-zone-badge.starfield_inside{background:#eff6ff;color:#1d4ed8}.map-marker-zone-badge.outside_area{background:#f8fafc;color:#475569}.map-marker-crowd-badge.low{background:#ecfdf3;color:#15803d}.map-marker-crowd-badge.normal{background:#fff7ed;color:#c2410c}.map-marker-crowd-badge.busy{background:#fff1f2;color:#be123c}.map-marker-crowd-badge.very_high{background:#7f1d1d;color:#fff}.map-place-card .benefit-context-badges{margin-top:6px;flex-wrap:nowrap}.map-place-card .benefit-context-badge{min-height:18px;font-size:10px;padding:0 9px;min-width:0}.benefit-context-badge.combined{gap:3px;max-width:100%;justify-content:center;background:#f8fafc;color:#334155;border-color:#dbeafe}.benefit-context-badge.combined.starfield_inside{background:#eef6ff;color:#1d4ed8;border-color:#bfdbfe}.benefit-context-badge.combined.outside_area{background:#f8fafc;color:#475569;border-color:#e2e8f0}.benefit-context-badge.combined.low{box-shadow:inset 0 -2px 0 rgba(34,197,94,.25)}.benefit-context-badge.combined.normal{box-shadow:inset 0 -2px 0 rgba(249,115,22,.24)}.benefit-context-badge.combined.busy{box-shadow:inset 0 -2px 0 rgba(244,63,94,.24)}.benefit-context-badge.combined.very_high{background:#111827;color:#fff;border-color:#fecaca;box-shadow:0 7px 16px rgba(127,29,29,.16)}@media(max-width:520px){.map-marker-store{max-width:172px}.map-marker-store .map-marker-title{max-width:82px}.map-marker-zone-badge,.map-marker-crowd-badge{padding:0 5px;font-size:9.5px}.benefit-context-panel{padding:11px 12px}.benefit-context-main{gap:5px}}
+
+.benefit-context-badge.crowd.closed{background:#f1f5f9;color:#475569;border-color:#cbd5e1}.map-marker-crowd-badge.closed{background:#f1f5f9;color:#475569}.benefit-context-badge.combined.closed{background:#f1f5f9;color:#475569;border-color:#cbd5e1;box-shadow:inset 0 -2px 0 rgba(100,116,139,.22)}
+
+
+/* 네이버 예약 가능 표시 */
+.naver-reservation-tag{
+  background:rgba(3,199,90,.10);
+  border:1px solid rgba(3,199,90,.24);
+  color:#047857;
+  font-weight:800;
+}
+.naver-reservation-tag .upick-svg-icon{
+  width:14px;
+  height:14px;
+}
+.naver-reservation-panel{
+  border:1px solid rgba(3,199,90,.18);
+  background:linear-gradient(135deg, rgba(3,199,90,.08), rgba(255,255,255,.92));
+}
+.naver-reservation-actions{
+  margin-top:12px;
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+}
+.naver-reservation-btn{
+  text-decoration:none;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+}
+.naver-reservation-muted{
+  color:var(--muted);
+  font-size:13px;
+  font-weight:700;
+}
