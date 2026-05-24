@@ -23557,3 +23557,105 @@ dialog.benefit-image-preview-overlay .benefit-image-preview-close * ,
 
 /* Loading UI styles are centralized in /common/common-loading.css.
    Page-specific loader overrides were removed to keep app/admin/index/signup/phone-verify consistent. */
+
+
+/* ===== 혜택 상세 영업시간 패널 ===== */
+.business-hours-panel{
+  border:1px solid rgba(191,219,254,.9);
+  background:linear-gradient(180deg, rgba(255,255,255,.96), rgba(248,251,255,.94));
+}
+.business-hours-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  margin-bottom:10px;
+}
+.business-hours-status{
+  display:inline-flex;
+  align-items:center;
+  min-height:24px;
+  padding:4px 9px;
+  border-radius:999px;
+  font-size:12px;
+  font-weight:900;
+  letter-spacing:-.02em;
+  border:1px solid rgba(148,163,184,.35);
+  background:#f8fafc;
+  color:#475569;
+  white-space:nowrap;
+}
+.business-hours-status.open{
+  border-color:rgba(34,197,94,.25);
+  background:#ecfdf5;
+  color:#047857;
+}
+.business-hours-status.closed{
+  border-color:rgba(248,113,113,.25);
+  background:#fff1f2;
+  color:#be123c;
+}
+.business-hours-summary{
+  margin:0 0 12px;
+  padding:12px 14px;
+  border-radius:16px;
+  border:1px solid rgba(226,232,240,.95);
+  background:rgba(255,255,255,.9);
+  color:#334155;
+  font-size:13px;
+  font-weight:750;
+  line-height:1.55;
+}
+.business-hours-list{
+  display:grid;
+  gap:7px;
+}
+.business-hours-row{
+  display:grid;
+  grid-template-columns:34px 1fr;
+  gap:10px;
+  align-items:start;
+  padding:10px 11px;
+  border-radius:15px;
+  background:rgba(248,250,252,.82);
+  border:1px solid rgba(226,232,240,.78);
+}
+.business-hours-row.today{
+  background:rgba(239,246,255,.92);
+  border-color:rgba(147,197,253,.95);
+  box-shadow:0 8px 20px rgba(37,99,235,.07);
+}
+.business-hours-day{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  width:30px;
+  height:30px;
+  border-radius:12px;
+  background:#fff;
+  color:#2563eb;
+  font-size:12px;
+  font-weight:900;
+  border:1px solid rgba(191,219,254,.9);
+}
+.business-hours-copy b{
+  display:block;
+  color:#0f172a;
+  font-size:13px;
+  line-height:1.35;
+}
+.business-hours-copy em{
+  display:block;
+  margin-top:4px;
+  color:#64748b;
+  font-size:12px;
+  font-style:normal;
+  line-height:1.4;
+}
+.business-hours-note{
+  margin-top:10px;
+  color:#64748b;
+  font-size:12px;
+  line-height:1.45;
+}
+

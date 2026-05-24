@@ -3866,6 +3866,46 @@ function renderStationAccessBadges(item={}){
  return `<div class="location-transit-wrap">${stations.map(st=>`<div class="location-transit"><img class="upick-svg-icon upick-inline-icon" src="/icons/internal/location-pin.svg" alt="" loading="lazy" decoding="async">${escapeHtml(formatStationAccessText(st))}</div>`).join('')}</div>`;
 }
 
+
+function formatBenefitHoursRange(row={}){
+ if(!row) return '';
+ if(row.closed) return '휴무';
+ const open = String(row.open || '').trim();
+ const close = String(row.close || '').trim();
+ if(!open || !close) return '';
+ const openMin = timeTextToMinutes(open);
+ const closeMin = timeTextToMinutes(close);
+ const suffix = openMin != null && closeMin != null && closeMin <= openMin ? ' 익일' : '';
+ return `${open} - ${close}${suffix}`;
+}
+
+function benefitBusinessHoursPanelHtml(item = {}){
+ const todayState = evaluateBenefitOpenState(item);
+ const dayKey = getSeoulDayKey();
+ const keys = ['mon','tue','wed','thu','fri','sat','sun'];
+ const labels = { mon:'월', tue:'화', wed:'수', thu:'목', fri:'금', sat:'토', sun:'일' };
+ const rows = keys.map((key) => {
+   const row = findBenefitHoursRow(item, key);
+   if(!row) return '';
+   const main = formatBenefitHoursRange(row) || '영업시간 확인 필요';
+   const meta = [];
+   if(!row.closed && row.breakStart && row.breakEnd) meta.push(`브레이크 ${row.breakStart} - ${row.breakEnd}${timeTextToMinutes(row.breakEnd) <= timeTextToMinutes(row.breakStart) ? ' 익일' : ''}`);
+   if(!row.closed && row.lastOrder) meta.push(`라스트오더 ${row.lastOrder}${isOvernightHoursRow(row) && timeTextToMinutes(row.lastOrder) < timeTextToMinutes(row.open) ? ' 익일' : ''}`);
+   if(row.note) meta.push(row.note);
+   return `<div class="business-hours-row ${key === dayKey ? 'today' : ''}"><span class="business-hours-day">${labels[key]}</span><div class="business-hours-copy"><b>${escapeHtml(main)}</b>${meta.length ? `<em>${escapeHtml(meta.join(' · '))}</em>` : ''}</div></div>`;
+ }).filter(Boolean).join('');
+ const hasAny = !!rows || (todayState && todayState.status !== 'unknown');
+ if(!hasAny) return '';
+ const stateClass = todayState?.canVisitNow === true ? 'open' : (todayState?.canVisitNow === false ? 'closed' : 'unknown');
+ return `<div class="panel business-hours-panel">
+ <div class="business-hours-head"><strong class="benefit-detail-panel-title">영업시간</strong><span class="business-hours-status ${stateClass}">${escapeHtml(todayState?.label || '영업시간 확인')}</span></div>
+ <div class="business-hours-summary">${escapeHtml(todayState?.message || '방문 전 영업시간을 확인해 주세요.')}</div>
+ ${rows ? `<div class="business-hours-list">${rows}</div>` : ''}
+ <div class="business-hours-note">오후에 열어 오전에 종료되는 매장은 종료 시간을 익일로 표시합니다. 매장 사정에 따라 실제 운영시간은 달라질 수 있습니다.</div>
+ </div>`;
+}
+
+
  function locationPanelHtml(item = {}){
  const address = String(getBenefitDisplayAddress(item) || '').trim();
  const directionText = String(item.directionText || item.directionGuide || item.locationGuide || item.guideText || '').trim();
@@ -4334,46 +4374,100 @@ function normalizeHoursRow(row){
  return null;
 }
 
-function evaluateBenefitOpenState(item={}, now=getSeoulNow()){
- const dayKey = getSeoulDayKey(now);
- const dayLabel = { sun:'일', mon:'월', tue:'화', wed:'수', thu:'목', fri:'금', sat:'토' }[dayKey] || '오늘';
- const nowMin = now.getHours() * 60 + now.getMinutes();
+function getPreviousSeoulDayKey(dayKey=getSeoulDayKey()){
+ const keys = ['sun','mon','tue','wed','thu','fri','sat'];
+ const idx = keys.indexOf(dayKey);
+ return keys[(idx + 6) % 7] || 'sun';
+}
+
+function getKoreanDayLabel(dayKey=''){
+ return { sun:'일', mon:'월', tue:'화', wed:'수', thu:'목', fri:'금', sat:'토' }[dayKey] || '오늘';
+}
+
+function findBenefitHoursRow(item={}, dayKey=getSeoulDayKey()){
  const { objectSources, textSources } = getBenefitHoursSources(item);
- let row = null;
  for(const source of objectSources){
-   row = normalizeHoursRow(getTodayHoursRowFromObject(source, dayKey));
-   if(row) break;
+   const row = normalizeHoursRow(getTodayHoursRowFromObject(source, dayKey));
+   if(row) return row;
  }
- if(!row){
+ if(dayKey === getSeoulDayKey()){
    const joined = textSources.join('\n');
-   if(joined) row = normalizeHoursRow(joined);
+   if(joined){
+     const row = normalizeHoursRow(joined);
+     if(row) return row;
+   }
+   const manualOpen = String(item.openTime || item.open || item.startTime || '').trim();
+   const manualClose = String(item.closeTime || item.close || item.endTime || '').trim();
+   if(manualOpen && manualClose) return normalizeHoursRow({ open: manualOpen, close: manualClose, breakStart:item.breakStart, breakEnd:item.breakEnd, lastOrder:item.lastOrder, note:item.hoursNote });
  }
- const manualOpen = String(item.openTime || item.open || item.startTime || '').trim();
- const manualClose = String(item.closeTime || item.close || item.endTime || '').trim();
- if(!row && manualOpen && manualClose) row = normalizeHoursRow({ open: manualOpen, close: manualClose, breakStart:item.breakStart, breakEnd:item.breakEnd, lastOrder:item.lastOrder, note:item.hoursNote });
- if(!row) return { status:'unknown', canVisitNow:null, label:'영업정보 없음', message:'영업시간 정보가 없어 혼잡도만 예상합니다.' };
+ return null;
+}
+
+function isOvernightHoursRow(row={}){
+ const openMin = timeTextToMinutes(row.open);
+ const closeMin = timeTextToMinutes(row.close);
+ return openMin != null && closeMin != null && closeMin <= openMin;
+}
+
+function toServiceWindowMinute(timeText='', openMin=0, closeMin=0, { forPreviousOvernight=false } = {}){
+ let min = timeTextToMinutes(timeText);
+ if(min == null) return null;
+ if(forPreviousOvernight) return min <= closeMin ? min + 1440 : min;
+ if(closeMin <= openMin && min < openMin) return min + 1440;
+ return min;
+}
+
+function evaluateHoursRowState(row, { nowMin, dayLabel='오늘', previousOvernight=false } = {}){
+ if(!row) return null;
  const note = row.note || '';
  const openMin = timeTextToMinutes(row.open);
  const closeMin = timeTextToMinutes(row.close);
  if(row.closed){
-   return { status:'closed', canVisitNow:false, label:'휴무', message:`오늘(${dayLabel})은 휴무로 표시되어 혼잡도 예측보다 휴무 안내를 우선합니다.${note ? ` (${note})` : ''}` };
+   return { status:'closed', canVisitNow:false, label:'휴무', message:`오늘(${dayLabel})은 휴무로 표시되어 혼잡도 예측보다 휴무 안내를 우선합니다.${note ? ` (${note})` : ''}`, row, dayLabel };
  }
- if(openMin != null && closeMin != null && !isMinuteInRange(nowMin, row.open, row.close)){
-   if(openMin > closeMin ? (nowMin < openMin && nowMin >= closeMin) : nowMin < openMin){
-     return { status:'before_open', canVisitNow:false, label:'영업 전', message:`아직 영업 시작 전입니다. 오늘 영업시간은 ${formatMinutesAsTime(openMin)} - ${formatMinutesAsTime(closeMin)}입니다.` };
+ if(openMin == null || closeMin == null){
+   return { status:'unknown', canVisitNow:null, label:'영업정보 확인', message:'영업시간 형식을 확인할 수 없어 혼잡도만 예상합니다.', row, dayLabel };
+ }
+ const adjustedNow = previousOvernight ? nowMin + 1440 : nowMin;
+ const adjustedOpen = openMin;
+ const adjustedClose = closeMin <= openMin ? closeMin + 1440 : closeMin;
+ const displayHours = `${formatMinutesAsTime(openMin)} - ${formatMinutesAsTime(closeMin)}${closeMin <= openMin ? ' (익일)' : ''}`;
+ if(adjustedNow < adjustedOpen){
+   return { status:'before_open', canVisitNow:false, label:'영업 전', message:`아직 영업 시작 전입니다. 오늘 영업시간은 ${displayHours}입니다.`, row, dayLabel };
+ }
+ if(adjustedNow >= adjustedClose){
+   return { status:'closed_now', canVisitNow:false, label:'영업 종료', message:`현재는 영업시간이 아닙니다. 영업시간은 ${displayHours}입니다.`, row, dayLabel };
+ }
+ const breakStart = toServiceWindowMinute(row.breakStart, openMin, closeMin, { forPreviousOvernight:previousOvernight });
+ const breakEnd = toServiceWindowMinute(row.breakEnd, openMin, closeMin, { forPreviousOvernight:previousOvernight });
+ if(breakStart != null && breakEnd != null){
+   const adjustedBreakEnd = breakEnd <= breakStart ? breakEnd + 1440 : breakEnd;
+   if(adjustedNow >= breakStart && adjustedNow < adjustedBreakEnd){
+     return { status:'break_time', canVisitNow:false, label:'브레이크', message:`지금은 브레이크타임입니다. 브레이크타임은 ${row.breakStart} - ${row.breakEnd}${timeTextToMinutes(row.breakEnd) <= timeTextToMinutes(row.breakStart) ? ' (익일)' : ''}입니다.`, row, dayLabel };
    }
-   return { status:'closed_now', canVisitNow:false, label:'영업 종료', message:`현재는 영업시간이 아닙니다. 오늘 영업시간은 ${formatMinutesAsTime(openMin)} - ${formatMinutesAsTime(closeMin)}입니다.` };
  }
- if(row.breakStart && row.breakEnd && isMinuteInRange(nowMin, row.breakStart, row.breakEnd)){
-   return { status:'break_time', canVisitNow:false, label:'브레이크', message:`지금은 브레이크타임입니다. 브레이크타임은 ${row.breakStart} - ${row.breakEnd}입니다.` };
+ const lastOrderMin = toServiceWindowMinute(row.lastOrder, openMin, closeMin, { forPreviousOvernight:previousOvernight });
+ if(lastOrderMin != null && adjustedNow >= lastOrderMin){
+   return { status:'last_order_passed', canVisitNow:false, label:'주문 마감', message:`라스트오더(${row.lastOrder}${timeTextToMinutes(row.lastOrder) < openMin ? ' 익일' : ''})가 지난 시간입니다. 방문 전 확인을 추천드립니다.`, row, dayLabel };
  }
- if(row.lastOrder && timeTextToMinutes(row.lastOrder) != null && nowMin >= timeTextToMinutes(row.lastOrder)){
-   return { status:'last_order_passed', canVisitNow:false, label:'주문 마감', message:`라스트오더(${row.lastOrder})가 지난 시간입니다. 방문 전 확인을 추천드립니다.` };
+ return { status:'open_now', canVisitNow:true, label:'영업 중', message:`현재 영업 중입니다. 영업시간은 ${displayHours}입니다.`, row, dayLabel };
+}
+
+function evaluateBenefitOpenState(item={}, now=getSeoulNow()){
+ const dayKey = getSeoulDayKey(now);
+ const prevDayKey = getPreviousSeoulDayKey(dayKey);
+ const nowMin = now.getHours() * 60 + now.getMinutes();
+ const prevRow = findBenefitHoursRow(item, prevDayKey);
+ if(prevRow && !prevRow.closed && isOvernightHoursRow(prevRow)){
+   const prevCloseMin = timeTextToMinutes(prevRow.close);
+   if(prevCloseMin != null && nowMin < prevCloseMin){
+     const state = evaluateHoursRowState(prevRow, { nowMin, dayLabel:getKoreanDayLabel(prevDayKey), previousOvernight:true });
+     if(state) return state;
+   }
  }
- if(openMin != null && closeMin != null){
-   return { status:'open_now', canVisitNow:true, label:'영업 중', message:`현재 영업 중입니다. 오늘 영업시간은 ${formatMinutesAsTime(openMin)} - ${formatMinutesAsTime(closeMin)}입니다.` };
- }
- return { status:'unknown', canVisitNow:null, label:'영업정보 확인', message:'영업시간 형식을 확인할 수 없어 혼잡도만 예상합니다.' };
+ const row = findBenefitHoursRow(item, dayKey);
+ if(!row) return { status:'unknown', canVisitNow:null, label:'영업정보 없음', message:'영업시간 정보가 없어 혼잡도만 예상합니다.' };
+ return evaluateHoursRowState(row, { nowMin, dayLabel:getKoreanDayLabel(dayKey), previousOvernight:false });
 }
 
 function getBenefitCrowdInfo(item={}){
@@ -4806,6 +4900,17 @@ stationAccessText:item.stationAccessText||item.transitText||item.stationGuide||i
  reservation:item.reservation||{},
  deliveryAvailable:!!(item.deliveryAvailable||item.serviceTags?.delivery),
  takeoutAvailable:!!(item.takeoutAvailable||item.serviceTags?.takeout),
+ // 관리자에 등록된 요일별 영업시간/휴무/브레이크타임/라스트오더를 공개앱에서도 그대로 사용합니다.
+ openingHoursManual:item.openingHoursManual||item.openingHours||item.businessHours||null,
+ openingHours:item.openingHoursManual||item.openingHours||item.businessHours||null,
+ businessHours:item.businessHours||item.openingHoursManual||item.openingHours||null,
+ businessHoursManual:item.businessHoursManual||item.manualBusinessHours||item.adminBusinessHours||item.adminHoursText||'',
+ manualBusinessHours:item.manualBusinessHours||item.businessHoursManual||item.adminBusinessHours||item.adminHoursText||'',
+ todayOpenText:item.todayOpenText||item.hoursText||item.openHoursText||item.businessHoursManual||item.manualBusinessHours||item.adminBusinessHours||item.adminHoursText||'',
+ openStatusText:item.openStatusText||'',
+ breakStart:item.breakStart||'',
+ breakEnd:item.breakEnd||'',
+ lastOrder:item.lastOrder||'',
  serviceMemo:item.serviceMemo||item.serviceTags?.memo||'',
  directionText:item.directionText||item.directionGuide||item.locationGuide||item.guideText||'',
  externalLinks:item.externalLinks||{},
@@ -8087,7 +8192,7 @@ function renderCalendarDayModal(){
  increaseStat(item.id, item.name, 'detailViewCount');
  logBenefitEvent(item.id, 'detail_view');
  const isFav=getFavorites().includes(item.id);
- qs('#modalBody').innerHTML=`${benefitDetailHeroHtml(item)}<div style="display:grid;gap:10px;margin:16px 0;"><div class="panel benefit-condition-panel"><strong class="benefit-detail-panel-title">혜택 조건</strong><div class="benefit-detail-body-text">${escapeHtml(item.condition || '혜택 조건은 상세보기에서 확인해 주세요.')}</div></div>${supportProgramsPanelHtml(item)}${naverReservationPanelHtml(item)}${couponLinksPanelHtml(item)}${newsItemsPanelHtml(item)}${benefitPriceDetailsHtml(item)}${locationPanelHtml(item)}${benefitExtraInfoHtml(item)}<div class="panel benefit-contact-panel"><strong style="display:block;margin-bottom:8px;font-size:13px;color:var(--muted);">연락처</strong>${benefitContactHtml(item)}</div>${benefitDetailDateHtml(item)}</div>${residentReactionHtml(item)}${shareActionsHtml('benefit')}`;
+ qs('#modalBody').innerHTML=`${benefitDetailHeroHtml(item)}<div style="display:grid;gap:10px;margin:16px 0;"><div class="panel benefit-condition-panel"><strong class="benefit-detail-panel-title">혜택 조건</strong><div class="benefit-detail-body-text">${escapeHtml(item.condition || '혜택 조건은 상세보기에서 확인해 주세요.')}</div></div>${benefitBusinessHoursPanelHtml(item)}${supportProgramsPanelHtml(item)}${naverReservationPanelHtml(item)}${couponLinksPanelHtml(item)}${newsItemsPanelHtml(item)}${benefitPriceDetailsHtml(item)}${locationPanelHtml(item)}${benefitExtraInfoHtml(item)}<div class="panel benefit-contact-panel"><strong style="display:block;margin-bottom:8px;font-size:13px;color:var(--muted);">연락처</strong>${benefitContactHtml(item)}</div>${benefitDetailDateHtml(item)}</div>${residentReactionHtml(item)}${shareActionsHtml('benefit')}`;
  const modal=qs('#detailModal');
  if(modal.open)modal.close();
  modal.showModal();
