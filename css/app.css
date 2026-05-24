@@ -23659,3 +23659,20 @@ dialog.benefit-image-preview-overlay .benefit-image-preview-close * ,
   line-height:1.45;
 }
 
+
+/* v66: 지도 하단 매장 목록의 위치/영업상태 배지가 카드 폭까지 늘어나지 않도록 보정 */
+.map-place-card .benefit-context-badges{
+  display:inline-flex;
+  width:auto;
+  max-width:100%;
+  align-items:center;
+  justify-content:flex-start;
+}
+.map-place-card .benefit-context-badge,
+.map-place-card .benefit-context-badge.combined{
+  display:inline-flex;
+  width:auto;
+  flex:0 0 auto;
+  align-self:flex-start;
+  justify-content:center;
+}
