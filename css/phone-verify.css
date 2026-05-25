@@ -850,3 +850,39 @@ body.gnb-open .bottom-nav,body.gnb-open .admin-bottom-nav,body.gnb-open .mobile-
   white-space: nowrap !important;
   border-radius: 999px !important;
 }
+
+
+
+/* v82: 운영계 DEV 배지 숨김, 개발계에서만 표시 */
+.env-badge,
+.hero-env,
+.dev-badge,
+.dev-env,
+#globalEnvBadge,
+#envBadge,
+#signupEnvBadge,
+#loginEnvBadge,
+[id$="EnvBadge"] {
+  display: none !important;
+}
+
+html.env-dev .env-badge,
+html.env-dev .hero-env,
+html.env-dev .dev-badge,
+html.env-dev .dev-env,
+html.env-dev #globalEnvBadge,
+html.env-dev #envBadge,
+html.env-dev #signupEnvBadge,
+html.env-dev #loginEnvBadge,
+html.env-dev [id$="EnvBadge"],
+body.env-dev .env-badge,
+body.env-dev .hero-env,
+body.env-dev .dev-badge,
+body.env-dev .dev-env,
+body.env-dev #globalEnvBadge,
+body.env-dev #envBadge,
+body.env-dev #signupEnvBadge,
+body.env-dev #loginEnvBadge,
+body.env-dev [id$="EnvBadge"] {
+  display: inline-flex !important;
+}
