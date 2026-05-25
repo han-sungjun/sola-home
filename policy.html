@@ -97,36 +97,12 @@
   <p class="footer-note">더운정픽은 입주민 생활 편의를 위해 지속적으로 개선됩니다.</p>
 </main>
 
-<script>
-(function(){
-  function closePolicyPage(){
-    window.close();
-    window.setTimeout(function(){
-      if(!window.closed){
-        window.location.replace('/app');
-      }
-    }, 180);
-  }
-  document.querySelectorAll('[data-policy-close]').forEach(function(btn){
-    btn.addEventListener('click', function(event){
-      event.preventDefault();
-      closePolicyPage();
-    });
-  });
-  document.querySelectorAll('[data-policy-route]').forEach(function(link){
-    link.addEventListener('click', function(event){
-      var target = link.getAttribute('data-policy-route');
-      if(!target) return;
-      event.preventDefault();
-      window.location.replace(target);
-    });
-  });
-})();
-</script>
+<script defer src="/js/html-inline/policy-inline-1-21a78ccd.js"></script>
 
 
 
   <script defer src="/common/policy-env-detect.js"></script>
+  
   <script defer src="/common/dev-badge-visibility.js"></script>
 </body>
 </html>

@@ -1,4 +1,3 @@
-
 (function () {
   'use strict';
 
@@ -13,6 +12,13 @@
     );
   }
 
+  function getBadges() {
+    return document.querySelectorAll(
+      '#globalEnvBadge, #envBadge, #signupEnvBadge, #loginEnvBadge, #policyPillEnvBadge, ' +
+      '.env-badge, .hero-env, .dev-badge, .dev-env, [id$="EnvBadge"]'
+    );
+  }
+
   function syncDevBadge() {
     var isDev = isDevHost();
 
@@ -22,23 +28,51 @@
       document.body.classList.toggle('env-dev', isDev);
     }
 
-    document.querySelectorAll(
-      '#globalEnvBadge, #envBadge, #signupEnvBadge, #loginEnvBadge, #policyPillEnvBadge, .env-badge, .hero-env, .dev-badge, .dev-env'
-    ).forEach(function (badge) {
+    getBadges().forEach(function (badge) {
       badge.classList.toggle('show', isDev);
       badge.hidden = !isDev;
       badge.setAttribute('aria-hidden', isDev ? 'false' : 'true');
-      badge.style.display = isDev ? 'inline-flex' : 'none';
+
+      if (isDev) {
+        badge.style.removeProperty('display');
+      } else {
+        badge.style.setProperty('display', 'none', 'important');
+      }
+    });
+  }
+
+  function startObserver() {
+    if (!document.body || window.__devBadgeVisibilityObserver) return;
+
+    window.__devBadgeVisibilityObserver = new MutationObserver(function () {
+      syncDevBadge();
+    });
+
+    window.__devBadgeVisibilityObserver.observe(document.body, {
+      childList: true,
+      subtree: true,
+      attributes: true,
+      attributeFilter: ['class', 'style', 'hidden']
     });
   }
 
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', syncDevBadge);
+    document.addEventListener('DOMContentLoaded', function () {
+      syncDevBadge();
+      startObserver();
+    });
   } else {
     syncDevBadge();
+    startObserver();
   }
 
   window.addEventListener('pageshow', syncDevBadge);
-  setTimeout(syncDevBadge, 0);
-  setTimeout(syncDevBadge, 300);
+  window.addEventListener('load', function () {
+    syncDevBadge();
+    startObserver();
+  });
+
+  [0, 100, 300, 800, 1500, 3000].forEach(function (delay) {
+    setTimeout(syncDevBadge, delay);
+  });
 })();

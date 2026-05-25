@@ -515,3 +515,39 @@ body.env-dev #loginEnvBadge,
 body.env-dev #policyPillEnvBadge {
   display: inline-flex !important;
 }
+
+
+
+/* v91: 운영계 공개앱 DEV 배지 최종 숨김 */
+html:not(.env-dev) #globalEnvBadge,
+html:not(.env-dev) #envBadge,
+html:not(.env-dev) #signupEnvBadge,
+html:not(.env-dev) #loginEnvBadge,
+html:not(.env-dev) #policyPillEnvBadge,
+html:not(.env-dev) .env-badge,
+html:not(.env-dev) .hero-env,
+html:not(.env-dev) .dev-badge,
+html:not(.env-dev) .dev-env,
+body:not(.env-dev) #globalEnvBadge,
+body:not(.env-dev) #envBadge,
+body:not(.env-dev) #signupEnvBadge,
+body:not(.env-dev) #loginEnvBadge,
+body:not(.env-dev) #policyPillEnvBadge,
+body:not(.env-dev) .env-badge,
+body:not(.env-dev) .hero-env,
+body:not(.env-dev) .dev-badge,
+body:not(.env-dev) .dev-env {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+html.env-dev #globalEnvBadge,
+html.env-dev .env-badge.hero-env,
+body.env-dev #globalEnvBadge,
+body.env-dev .env-badge.hero-env {
+  visibility: visible !important;
+  opacity: 1 !important;
+  pointer-events: auto !important;
+}
