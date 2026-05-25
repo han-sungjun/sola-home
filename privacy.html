@@ -22,7 +22,13 @@
       </button>
     </div>
     <div class="policy-hero-card">
-      <div class="policy-pill">개인정보 보호 기준</div>
+      <div class="policy-badge-row">
+        <div class="policy-pill">개인정보 보호 기준</div>
+        <div class="env-badge hero-env policy-env-badge" id="policyPillEnvBadge" aria-hidden="true">
+          <span class="env-badge-dot"></span>
+          <span>DEV</span>
+        </div>
+      </div>
       <h1>개인정보처리방침</h1>
       <p>더운정픽이 서비스 제공을 위해 처리하는 개인정보 항목과 보호 기준을 안내합니다.</p>
       <div class="policy-actions policy-actions--links"><a class="secondary" href="/guide" data-policy-route="/guide">사용가이드</a><a class="secondary" href="/policy" data-policy-route="/policy">운영정책</a><a class="secondary" href="/terms" data-policy-route="/terms">이용약관</a><a class="secondary" href="/privacy" data-policy-route="/privacy">개인정보처리방침</a></div>
@@ -131,5 +137,9 @@
   });
 })();
 </script>
+
+
+
+  <script defer src="/common/policy-env-detect.js"></script>
 </body>
 </html>

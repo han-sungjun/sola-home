@@ -22,7 +22,13 @@
       </button>
     </div>
     <div class="policy-hero-card">
-      <div class="policy-pill">서비스 운영 기준</div>
+      <div class="policy-badge-row">
+        <div class="policy-pill">서비스 운영 기준</div>
+        <div class="env-badge hero-env policy-env-badge" id="policyPillEnvBadge" aria-hidden="true">
+          <span class="env-badge-dot"></span>
+          <span>DEV</span>
+        </div>
+      </div>
       <h1>운영정책</h1>
       <p>더운정픽을 안정적으로 운영하기 위한 기준과 이용자 안내 사항을 한곳에서 확인할 수 있습니다.</p>
       <div class="policy-actions policy-actions--links"><a class="secondary" href="/guide" data-policy-route="/guide">사용가이드</a><a class="secondary" href="/policy" data-policy-route="/policy">운영정책</a><a class="secondary" href="/terms" data-policy-route="/terms">이용약관</a><a class="secondary" href="/privacy" data-policy-route="/privacy">개인정보처리방침</a></div>
@@ -117,5 +123,9 @@
   });
 })();
 </script>
+
+
+
+  <script defer src="/common/policy-env-detect.js"></script>
 </body>
 </html>
