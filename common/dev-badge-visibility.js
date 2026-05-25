@@ -5,7 +5,7 @@
     var host = (location.hostname || '').toLowerCase();
 
     return (
-      host.includes('dev') ||
+      host.indexOf('dev') > -1 ||
       host === 'localhost' ||
       host === '127.0.0.1' ||
       host === '0.0.0.0'
@@ -24,9 +24,14 @@
     document.querySelectorAll(
       '.env-badge, .hero-env, .dev-badge, .dev-env, [id$="EnvBadge"]'
     ).forEach(function (badge) {
-      badge.hidden = !isDev;
-      badge.classList.toggle('show', isDev);
-      badge.setAttribute('aria-hidden', isDev ? 'false' : 'true');
+      if (!isDev) {
+        badge.remove();
+        return;
+      }
+
+      badge.hidden = false;
+      badge.classList.add('show');
+      badge.setAttribute('aria-hidden', 'false');
       badge.style.removeProperty('display');
       badge.style.removeProperty('visibility');
       badge.style.removeProperty('opacity');
