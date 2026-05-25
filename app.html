@@ -90,7 +90,7 @@
                       입장 확인 중
                     </strong>
 <span class="user-sub" id="userUnitInfo">
-                      입주민 계정
+                      입주민
                     </span>
 </div>
 </div>
@@ -1179,14 +1179,17 @@
 </div>
 </div>
 <div class="gnb-body">
-<div class="gnb-banner">
-<span>
+<button class="gnb-banner gnb-personal-banner" id="gnbPersonalBanner" type="button" data-view-link="all" aria-label="맞춤 메뉴 바로가기">
+<span class="gnb-banner-icon" aria-hidden="true">
+<img alt="" class="upick-svg-icon" loading="lazy" src="/icons/internal/user.svg"/>
+</span>
+<span class="gnb-banner-text" id="gnbPersonalBannerText">
             입주민 혜택을 한 번에 찾아보세요!
           </span>
-<span>
+<span class="gnb-banner-arrow" aria-hidden="true">
             ›
           </span>
-</div>
+</button>
 <section class="gnb-section gnb-search-section">
 <h3 class="gnb-section-title premium-section-title section-animate">
 <span class="title-icon">
@@ -1208,7 +1211,7 @@
 <img alt="" class="upick-svg-icon" loading="lazy" src="/icons/internal/clock.svg"/>
 </span>
 <span class="title-text">
-              최근에 봤어요
+              최근 메뉴
             </span>
 </h3>
 <div class="gnb-chip-row" id="gnbRecentMenus">
@@ -1232,12 +1235,15 @@
             </div>
 </div>
 </section>
-<section class="gnb-section">
-<div class="gnb-menu-group">
-<h4 class="gnb-menu-group-title">
-<img alt="" class="upick-inline-icon" loading="lazy" src="/icons/internal/pin-blue.svg"/>
-              새로 나왔어요
-            </h4>
+<section class="gnb-section gnb-new-menu-section">
+<h3 class="gnb-section-title premium-section-title section-animate">
+<span class="title-icon">
+<img alt="" class="upick-svg-icon" loading="lazy" src="/icons/internal/pin-blue.svg"/>
+</span>
+<span class="title-text">
+              새로 나온 메뉴
+            </span>
+</h3>
 <div class="gnb-new-section">
 <div class="gnb-menu-list" id="gnbNewMenus">
 <div class="gnb-empty">
@@ -1245,17 +1251,20 @@
                 </div>
 </div>
 </div>
-</div>
-<div class="gnb-menu-group">
-<h4 class="gnb-menu-group-title">
-<img alt="" class="upick-inline-icon" loading="lazy" src="/icons/internal/home.svg"/>
+</section>
+<section class="gnb-section gnb-main-menu-section">
+<h3 class="gnb-section-title premium-section-title section-animate">
+<span class="title-icon">
+<img alt="" class="upick-svg-icon" loading="lazy" src="/icons/internal/home.svg"/>
+</span>
+<span class="title-text">
               더운정픽
-            </h4>
+            </span>
+</h3>
 <div class="gnb-menu-sublist" id="gnbMainMenus">
 <div class="gnb-empty">
                 메뉴를 불러오는 중입니다.
               </div>
-</div>
 </div>
 </section>
 <section aria-label="관리자 전용 메뉴" class="gnb-section admin-only-menu gnb-admin-section-source">
@@ -1291,23 +1300,17 @@
                 Root 전용 숨겨진 기능 패널
               </h4>
 <p>
-                최고 관리자 계정에서만 보이는 운영 보조 영역입니다.
+                최고 관리자에서만 보이는 운영 보조 영역입니다.
               </p>
 <div class="gnb-root-actions">
 <button class="gnb-action-btn primary" id="rootOpenAdminBtn" type="button">
 <span>
                     관리자 열기
                   </span>
-<span class="desc">
-                    Root
-                  </span>
 </button>
 <button class="gnb-action-btn outline" id="rootRefreshStateBtn" type="button">
 <span>
                     화면 새로고침
-                  </span>
-<span class="desc">
-                    상태 갱신
                   </span>
 </button>
 </div>
@@ -1315,7 +1318,7 @@
 </div>
 </section>
 <section class="gnb-section">
-<h3 class="premium-section-title section-animate">
+<h3 class="gnb-section-title premium-section-title section-animate">
 <span class="title-icon">
 <img alt="" class="upick-svg-icon" loading="lazy" src="/icons/internal/settings.svg"/>
 </span>
@@ -1325,7 +1328,7 @@
 </h3>
 <div class="gnb-settings-wrap">
 <div class="gnb-settings-section" id="gnbSettingsAccountSummary">
-<div class="gnb-settings-section-header">
+<div class="gnb-settings-section-header gnb-account-summary-header">
 <div>
 <h4 class="gnb-settings-section-title">
                     계정 요약
@@ -1334,9 +1337,14 @@
                     현재 입장한 계정과 기기 상태를 한눈에 확인할 수 있도록 정리했습니다.
                   </p>
 </div>
-<div class="gnb-status-pill" id="gnbPushStatusPill">
-                  상태 확인 중
-                </div>
+<div class="gnb-account-summary-actions">
+  <button class="gnb-status-pill gnb-status-pill--button" id="gnbPushStatusPill" type="button" aria-label="푸시 알림 상태 변경">
+                    상태 확인 중
+                  </button>
+  <button class="gnb-action-btn outline gnb-summary-settings-btn" id="openSettingsSuiteBtn" type="button">
+    <span>설정 모음</span>
+  </button>
+</div>
 </div>
 <div class="gnb-account-card">
 <div class="gnb-account">
@@ -1344,20 +1352,62 @@
 <img alt="" class="upick-svg-icon" loading="lazy" src="/icons/internal/user.svg"/>
 </div>
 <div class="gnb-account-meta">
-<span class="gnb-account-label">
-                      계정
-                    </span>
 <strong class="gnb-account-name" id="gnbAccountName">
                       입장 확인 중
                     </strong>
 <span class="gnb-account-sub" id="gnbAccountUnit">
-                      입주민 계정
+                      입주민
                     </span>
 </div>
 </div>
 </div>
+
 </div>
-<div class="gnb-settings-section" id="fontSizeSettingsSection">
+
+
+
+
+<div class="gnb-settings-section gnb-policy-section" aria-label="더운정픽 운영 안내">
+  <div class="gnb-policy-kicker">
+    더운정픽 운영 안내
+  </div>
+  <div class="gnb-policy-links">
+    <a class="gnb-policy-link" href="/guide" target="_blank" rel="noopener noreferrer">
+      <span>사용가이드</span>
+      <small>처음 이용할 때</small>
+    </a>
+    <a class="gnb-policy-link" href="/policy" target="_blank" rel="noopener noreferrer">
+      <span>운영정책</span>
+      <small>서비스 운영 기준</small>
+    </a>
+    <a class="gnb-policy-link" href="/terms" target="_blank" rel="noopener noreferrer">
+      <span>이용약관</span>
+      <small>서비스 이용 규칙</small>
+    </a>
+    <a class="gnb-policy-link" href="/privacy" target="_blank" rel="noopener noreferrer">
+      <span>개인정보처리방침</span>
+      <small>개인정보 보호 기준</small>
+    </a>
+  </div>
+</div>
+</div>
+
+</section>
+</div>
+</aside>
+
+<dialog id="settingsSuiteModal" class="gnb-management-dialog settings-suite-dialog">
+  <div class="gnb-management-shell">
+    <div class="gnb-management-head">
+      <div>
+        <span class="gnb-management-kicker">설정</span>
+        <h3>설정 모음</h3>
+        <p>글자 크기, 하단 네비바, 계정 관련 설정을 한 화면에서 관리합니다.</p>
+      </div>
+      <button class="gnb-management-close" id="closeSettingsSuiteBtn" type="button" aria-label="설정 모음 닫기">×</button>
+    </div>
+    <div class="gnb-management-body settings-suite-body">
+      <div class="gnb-settings-section" id="fontSizeSettingsSection">
 <div class="gnb-settings-section-header">
 <div>
 <h4 class="gnb-settings-section-title">
@@ -1408,7 +1458,7 @@
                 </div>
 </div>
 </div>
-<div class="gnb-settings-section" id="userBottomNavSettingsSection">
+      <div class="gnb-settings-section" id="userBottomNavSettingsSection">
 <div class="gnb-settings-section-header">
 <div>
 <h4 class="gnb-settings-section-title">
@@ -1457,20 +1507,14 @@
 </div>
 </div>
 <div class="user-bottom-nav-actions">
-<button class="gnb-action-btn primary" id="saveUserBottomNavBtn" type="button">
+<button class="gnb-action-btn primary user-bottom-nav-save" id="saveUserBottomNavBtn" type="button" aria-label="저장">
 <span>
                       저장
                     </span>
-<span class="desc">
-                      내 설정
-                    </span>
 </button>
-<button class="gnb-action-btn outline" id="resetUserBottomNavBtn" type="button">
+<button class="gnb-action-btn outline user-bottom-nav-reset" id="resetUserBottomNavBtn" type="button" aria-label="기본값 사용">
 <span>
                       기본값 사용
-                    </span>
-<span class="desc">
-                      개인화 해제
                     </span>
 </button>
 </div>
@@ -1479,157 +1523,43 @@
                 </div>
 </div>
 </div>
-<div class="gnb-settings-section">
+      <div class="gnb-settings-section gnb-account-actions-section">
 <div class="gnb-settings-section-header">
 <div>
 <h4 class="gnb-settings-section-title">
-                    알림
+                    계정 설정
                   </h4>
 <p class="gnb-settings-section-desc">
-                    이 브라우저에서 공지와 주요 안내를 바로 받을 수 있도록 기기 기준으로 관리합니다.
+                    계정 정보, 비밀번호, 나가기와 삭제를 관리합니다.
                   </p>
 </div>
 </div>
-<div class="gnb-info-grid">
-<div class="gnb-info-item">
-<div class="gnb-info-icon">
-<img alt="" class="upick-svg-icon" loading="lazy" src="/icons/internal/notification.svg"/>
-</div>
-<div class="gnb-info-copy">
-<strong>
-                      푸시 알림 상태
-                    </strong>
-<p id="gnbPushStatusText">
-                      현재 브라우저의 알림 수신 상태를 확인하고 있습니다.
-                    </p>
-</div>
-</div>
-</div>
-<div class="gnb-action-grid" style="margin-top:12px;">
-<button class="gnb-action-btn primary" id="gnbEnablePushBtn" type="button">
-<span>
-                    알림 받기
-                  </span>
-<span class="desc">
-                    이 기기 등록
-                  </span>
-</button>
-<button class="gnb-action-btn soft hidden" id="gnbDisablePushBtn" type="button">
-<span>
-                    알림 해제
-                  </span>
-<span class="desc">
-                    이 기기 해제
-                  </span>
-</button>
-</div>
-</div>
-<div class="gnb-settings-section">
-<div class="gnb-settings-section-header">
-<div>
-<h4 class="gnb-settings-section-title">
-                    계정 관리
-                  </h4>
-<p class="gnb-settings-section-desc">
-                    복잡한 입력 부담을 줄이고, 필요한 계정 상태만 간단하게 관리합니다.
-                  </p>
-</div>
-</div>
-<div class="gnb-info-grid">
-<div class="gnb-info-item">
-<div class="gnb-info-icon">
-<img alt="" class="upick-svg-icon" loading="lazy" src="/icons/internal/shield-check.svg"/>
-</div>
-<div class="gnb-info-copy">
-<strong>
-                      표시 정보 관리
-                    </strong>
-<p>
-                      앱 화면에 표시되는 닉네임 중심으로 계정 정보를 관리합니다.
-                    </p>
-</div>
-</div>
-</div>
-<div class="gnb-action-grid" style="margin-top:12px;">
+<div class="gnb-action-grid gnb-account-action-grid">
 <button class="account-edit-trigger" id="openAccountEditBtn" type="button">
 <span>
                     계정 정보 수정
-                  </span>
-<span class="desc">
-                    닉네임 중심
                   </span>
 </button>
 <button class="gnb-action-btn outline" id="openPasswordChangeBtn" type="button">
 <span>
                     비밀번호 변경
                   </span>
-<span class="desc">
-                    재입장 필요
-                  </span>
 </button>
-<button class="gnb-action-btn outline" id="logoutBtn" type="button">
+<button class="gnb-action-btn outline logout-action" id="logoutBtn" type="button">
 <span>
                     나가기
                   </span>
-<span class="desc">
-                    현재 공간 나가기
-                  </span>
 </button>
-</div>
-</div>
-<div class="gnb-settings-section">
-<div class="gnb-settings-section-header">
-<div>
-<h4 class="gnb-settings-section-title">
-                    계정 삭제 안내
-                  </h4>
-<p class="gnb-settings-section-desc">
-                    계정 삭제 시 계정 정보와 일부 설정이 삭제되며 복구가 어렵습니다. 진행 전 내용을 다시 확인해 주세요.
-                  </p>
-</div>
-</div>
-<div class="gnb-action-grid">
-<button class="gnb-action-btn danger" id="withdrawBtn" type="button">
+<button class="gnb-action-btn danger withdraw-action" id="withdrawBtn" type="button">
 <span>
                     계정 삭제
                   </span>
-<span class="desc">
-                    복구 불가
-                  </span>
 </button>
 </div>
-<div class="gnb-danger-note">
-                계정 삭제 시 계정 정보, 즐겨찾기, 현재 기기의 알림 설정이 함께 삭제됩니다.
-              </div>
 </div>
-<div class="gnb-settings-section gnb-policy-section" aria-label="더운정픽 운영 안내">
-  <div class="gnb-policy-kicker">
-    더운정픽 운영 안내
+    </div>
   </div>
-  <div class="gnb-policy-links">
-    <a class="gnb-policy-link" href="/guide" target="_blank" rel="noopener noreferrer">
-      <span>사용가이드</span>
-      <small>처음 이용할 때</small>
-    </a>
-    <a class="gnb-policy-link" href="/policy" target="_blank" rel="noopener noreferrer">
-      <span>운영정책</span>
-      <small>서비스 운영 기준</small>
-    </a>
-    <a class="gnb-policy-link" href="/terms" target="_blank" rel="noopener noreferrer">
-      <span>이용약관</span>
-      <small>서비스 이용 규칙</small>
-    </a>
-    <a class="gnb-policy-link" href="/privacy" target="_blank" rel="noopener noreferrer">
-      <span>개인정보처리방침</span>
-      <small>개인정보 보호 기준</small>
-    </a>
-  </div>
-</div>
-</div>
-
-</section>
-</div>
-</aside>
+</dialog>
 <dialog id="accountEditModal">
 <div class="modal-head">
 <div class="pill">

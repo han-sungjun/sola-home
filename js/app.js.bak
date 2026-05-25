@@ -1577,7 +1577,7 @@ window.addEventListener('keydown', (event) => {
  return {
  role,
  label: '최고 관리자',
- chip: '최고 관리자 계정',
+ chip: '최고 관리자',
  className: 'role-root',
  avatar: ''
  };
@@ -1587,7 +1587,7 @@ window.addEventListener('keydown', (event) => {
  return {
  role,
  label: '일반 관리자',
- chip: '일반 관리자 계정',
+ chip: '일반 관리자',
  className: 'role-admin',
  avatar: ''
  };
@@ -1595,8 +1595,8 @@ window.addEventListener('keydown', (event) => {
 
  return {
  role: 'resident',
- label: '입주민 계정',
- chip: '입주민 계정',
+ label: '입주민',
+ chip: '입주민',
  className: 'role-resident',
  avatar: ''
  };
