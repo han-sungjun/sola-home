@@ -1,4 +1,4 @@
-/* ===== admin.html inline style #1 ===== */
+/* ====== admin.html inline style #1 ====== */
 :root{--surface:rgba(255,255,255,.82);--line:#e5e7eb;--text:#0f172a;--muted:#64748b;--primary:#0f172a;--accent:#ef4444;--blue:#2563eb;--danger:#dc2626;--shadow:0 20px 40px rgba(15,23,42,.08);--radius-xl:28px;--app-max:560px}
     *{box-sizing:border-box}html,body{margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Noto Sans KR","Segoe UI",sans-serif;background:linear-gradient(180deg,#f8fafc 0%,#eef2ff 100%);color:var(--text);overflow-x:hidden}body{max-width:none;margin:0}button,input,select,textarea{font:inherit}
     .app{min-height:100dvh;width:min(100%,var(--app-max));margin:0 auto;padding:16px 16px 110px;overflow-x:clip}.shell{display:flex;flex-direction:column;gap:14px;width:100%}.topbar{display:flex;justify-content:space-between;align-items:center}.brand{display:flex;align-items:center;gap:12px}.brand .logo{width:48px;height:48px;border-radius:16px;display:grid;place-items:center;background:#fff;box-shadow:var(--shadow);font-size:22px}.brand h1{margin:0;font-size:24px;letter-spacing:-.05em}.brand p{margin:4px 0 0;color:var(--muted);font-size:13px}.icon-btn{width:44px;height:44px;border:none;border-radius:16px;cursor:pointer;background:rgba(255,255,255,.8);box-shadow:var(--shadow);color:var(--text)}
@@ -730,10 +730,13 @@ body.gnb-open .admin-bottom-nav{
 .member-summary-main{min-width:0;flex:1}
 .member-summary-main strong{display:block;font-size:15px;color:#0f172a;letter-spacing:-.02em}
 .member-summary-main span{display:block;margin-top:4px;color:#64748b;font-size:12px;line-height:1.35;word-break:break-word}
-.member-summary-side{display:flex;align-items:flex-start;gap:8px;flex:0 0 auto}
+.member-summary-side{display:flex;align-items:center;justify-content:flex-end;gap:8px;flex:0 0 auto;align-self:center}
 .member-summary-side .tags{margin-top:0;justify-content:flex-end;max-width:190px}
-.accordion-arrow{width:28px;height:28px;border-radius:999px;display:grid;place-items:center;color:#64748b;background:#f8fafc;border:1px solid #e2e8f0;font-size:14px;transition:transform .18s ease;flex:0 0 auto}
-.member-accordion[open] .accordion-arrow{transform:rotate(180deg)}
+.accordion-arrow{width:32px;height:32px;border-radius:999px;display:inline-flex;align-items:center;justify-content:center;color:#64748b;background:#f8fafc;border:1px solid #e2e8f0;line-height:1;padding:0;transition:background .18s ease,border-color .18s ease,color .18s ease,box-shadow .18s ease;flex:0 0 32px}
+.accordion-arrow svg{display:block;width:14px;height:14px;stroke:currentColor;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round;pointer-events:none}
+.member-summary:hover .accordion-arrow{background:#eff6ff;border-color:#bfdbfe;color:#2563eb}
+.member-accordion[open] .accordion-arrow{background:#eff6ff;border-color:#bfdbfe;color:#2563eb}
+
 .member-detail{padding:0 14px 14px}
 .member-meta{display:grid;gap:14px;margin-top:4px;color:#475569;font-size:13px;line-height:1.55}
 .meta-group{display:grid;gap:10px}
@@ -5126,10 +5129,11 @@ img.brand-icon[src*="home.svg"],
 
 
 /* v20260520 정부지원금 종류별 유효기간 행 입력 */
-.support-program-rows{display:grid;gap:10px;margin-top:10px;}
-.support-program-row{display:grid;grid-template-columns:minmax(160px,1.2fr) minmax(130px,.8fr) minmax(130px,.8fr) auto;gap:8px;align-items:end;padding:10px;border:1px solid #dbeafe;border-radius:16px;background:#f8fbff;}
+.support-program-rows{display:grid;gap:10px;margin-top:10px;max-width:100%;overflow:visible;}
+.support-program-row{display:grid;grid-template-columns:minmax(0,1fr) minmax(145px,.82fr) minmax(145px,.82fr) 46px;gap:6px;align-items:end;max-width:100%;box-sizing:border-box;padding:8px;border:1px solid #dbeafe;border-radius:16px;background:#f8fbff;}
 .support-program-row .sub-field-label{display:block;margin:0 0 6px;font-size:12px;font-weight:900;color:#64748b;}
-.support-program-row input{width:100%;}
+.support-program-row input{width:100%;min-width:0;box-sizing:border-box;}
+.support-program-row input[type="date"]{font-size:14px;padding-left:10px;padding-right:6px;letter-spacing:-.03em;}
 .support-program-name-input{
   -webkit-appearance:none;
   appearance:none;
@@ -5141,12 +5145,23 @@ img.brand-icon[src*="home.svg"],
   opacity:0;
 }
 
-.support-program-remove-btn{height:40px;border:1px solid #fecaca;background:#fff;color:#b91c1c;border-radius:12px;font-weight:900;padding:0 10px;cursor:pointer;}
+.support-program-remove-btn{width:46px;height:48px;border:1px solid #fecaca;background:#fff;color:#b91c1c;border-radius:12px;font-weight:900;padding:0;cursor:pointer;line-height:1.15;white-space:normal;display:inline-flex;align-items:center;justify-content:center;text-align:center;}
 .support-program-add-btn{margin-top:10px;width:100%;justify-content:center;}
 .support-program-chip em{font-style:normal;font-weight:800;opacity:.78;margin-left:2px;}
 .support-program-chip.scheduled{background:#eff6ff;border-color:#bfdbfe;color:#1d4ed8;}
 .support-program-chip.expired{background:#fef2f2;border-color:#fecaca;color:#b91c1c;}
-@media (max-width:720px){.support-program-row{grid-template-columns:1fr;}.support-program-remove-btn{width:100%;}}
+@media (max-width:900px){
+  .support-program-row{grid-template-columns:minmax(0,1fr) minmax(145px,.9fr) minmax(145px,.9fr) 46px;}
+}
+@media (max-width:560px){
+  .support-program-row{grid-template-columns:1fr 1fr;}
+  .support-program-name-cell{grid-column:1 / -1;}
+  .support-program-remove-btn{grid-column:1 / -1;width:100%;height:40px;white-space:nowrap;}
+}
+@media (max-width:420px){
+  .support-program-row{grid-template-columns:1fr;}
+  .support-program-name-cell,.support-program-remove-btn{grid-column:auto;}
+}
 
 
 /* ===== v60 혜택 상세 추가 사진 관리자 UI ===== */
@@ -5720,3 +5735,228 @@ select:focus{
   background-image:url("data:image/svg+xml,%3Csvg width='18' height='18' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M7 10l5 5 5-5' stroke='%232563EB' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E"),linear-gradient(180deg,#ffffff,#eff6ff) !important;
 }
 select::-ms-expand{display:none;}
+
+
+.accordion-arrow .chevron-up-icon{display:none}
+.member-accordion[open] .accordion-arrow .chevron-down-icon{display:none}
+.member-accordion[open] .accordion-arrow .chevron-up-icon{display:block}
+
+/* ===== v69: GNB menu form option groups alignment cleanup ===== */
+#menusView .menu-section-row,
+#menusView .menu-badge-row,
+#menusView .menu-role-row,
+#menusView .check-row{
+  width:100%;
+  box-sizing:border-box;
+  align-items:stretch;
+}
+
+#menusView .menu-section-row,
+#menusView .menu-role-row{
+  display:grid !important;
+  grid-template-columns:repeat(2, minmax(0, 1fr));
+  gap:10px;
+  padding:12px;
+  border:1px solid rgba(191,219,254,.9);
+  border-radius:16px;
+  background:rgba(255,255,255,.78);
+}
+
+#menusView .menu-badge-row{
+  display:grid !important;
+  grid-template-columns:repeat(4, minmax(0, 1fr));
+  gap:10px;
+  margin-top:8px;
+}
+
+#menusView .menu-section-row label,
+#menusView .menu-role-row label,
+#menusView .menu-badge-row label,
+#menusView .check-row label{
+  min-width:0 !important;
+  width:100%;
+  box-sizing:border-box;
+  display:flex !important;
+  align-items:center;
+  justify-content:flex-start;
+  gap:8px;
+  line-height:1.25;
+  white-space:normal;
+  word-break:keep-all;
+  overflow-wrap:normal;
+  text-align:left;
+}
+
+#menusView .menu-section-row label,
+#menusView .menu-role-row label{
+  min-height:42px;
+  padding:10px 12px;
+  border:1px solid rgba(226,232,240,.95);
+  border-radius:14px;
+  background:linear-gradient(180deg, rgba(248,250,252,.96), rgba(255,255,255,.98));
+  color:#334155;
+  font-size:13px;
+  font-weight:800;
+}
+
+#menusView .menu-badge-row label{
+  min-height:44px;
+  padding:10px 12px;
+  border:1px solid rgba(226,232,240,.95);
+  border-radius:16px;
+  background:linear-gradient(180deg, rgba(248,250,252,.96), rgba(255,255,255,.98));
+  color:#334155;
+  font-size:13px;
+  font-weight:900;
+}
+
+#menusView .menu-section-row input[type="checkbox"],
+#menusView .menu-role-row input[type="checkbox"],
+#menusView .menu-badge-row input[type="checkbox"],
+#menusView .check-row input[type="checkbox"]{
+  flex:0 0 auto;
+  width:16px;
+  height:16px;
+  margin:0;
+  accent-color:#1d4ed8;
+}
+
+#menusView .menu-badge-row label span,
+#menusView .menu-section-row label span,
+#menusView .menu-role-row label span{
+  min-width:0;
+}
+
+@media (max-width:560px){
+  #menusView .menu-section-row,
+  #menusView .menu-role-row{
+    grid-template-columns:repeat(2, minmax(0, 1fr));
+    gap:8px;
+    padding:10px;
+  }
+  #menusView .menu-badge-row{
+    grid-template-columns:repeat(2, minmax(0, 1fr));
+    gap:8px;
+  }
+  #menusView .menu-section-row label,
+  #menusView .menu-role-row label,
+  #menusView .menu-badge-row label{
+    min-height:40px;
+    padding:9px 10px;
+    font-size:12.5px;
+  }
+}
+
+@media (max-width:380px){
+  #menusView .menu-section-row,
+  #menusView .menu-role-row,
+  #menusView .menu-badge-row{
+    grid-template-columns:1fr;
+  }
+}
+
+/* ===== v69-gnb-fix2: GNB 메뉴 관리 체크 옵션 정렬 실제 적용 ===== */
+#view-menus .menu-section-row,
+#view-menus .menu-role-row,
+#view-menus .menu-badge-row{
+  display:grid !important;
+  align-items:stretch !important;
+  width:100% !important;
+  box-sizing:border-box !important;
+  margin-top:8px !important;
+}
+
+#view-menus .menu-section-row,
+#view-menus .menu-role-row{
+  grid-template-columns:repeat(3, minmax(0, 1fr)) !important;
+  gap:10px !important;
+  padding:12px !important;
+  border:1px solid var(--line) !important;
+  border-radius:16px !important;
+  background:#fff !important;
+}
+
+#view-menus .menu-badge-row{
+  grid-template-columns:repeat(4, minmax(0, 1fr)) !important;
+  gap:10px !important;
+}
+
+#view-menus .menu-section-row label,
+#view-menus .menu-role-row label,
+#view-menus .menu-badge-row label,
+#view-menus .check-row label{
+  box-sizing:border-box !important;
+  min-width:0 !important;
+  width:100% !important;
+  display:flex !important;
+  align-items:center !important;
+  justify-content:flex-start !important;
+  gap:8px !important;
+  line-height:1.25 !important;
+  white-space:nowrap !important;
+  word-break:keep-all !important;
+  overflow-wrap:normal !important;
+  text-align:left !important;
+}
+
+#view-menus .menu-section-row label,
+#view-menus .menu-role-row label{
+  min-height:44px !important;
+  padding:10px 12px !important;
+  border:1px solid rgba(226,232,240,.95) !important;
+  border-radius:14px !important;
+  background:linear-gradient(180deg, rgba(248,250,252,.96), rgba(255,255,255,.98)) !important;
+  color:#334155 !important;
+  font-size:13px !important;
+  font-weight:800 !important;
+}
+
+#view-menus .menu-badge-row label{
+  min-height:44px !important;
+  padding:10px 12px !important;
+  border:1px solid rgba(226,232,240,.95) !important;
+  border-radius:16px !important;
+  background:linear-gradient(180deg, rgba(248,250,252,.96), rgba(255,255,255,.98)) !important;
+  color:#334155 !important;
+  font-size:13px !important;
+  font-weight:900 !important;
+}
+
+#view-menus .menu-section-row input[type="checkbox"],
+#view-menus .menu-role-row input[type="checkbox"],
+#view-menus .menu-badge-row input[type="checkbox"],
+#view-menus .check-row input[type="checkbox"]{
+  flex:0 0 auto !important;
+  width:16px !important;
+  height:16px !important;
+  margin:0 !important;
+  accent-color:#1d4ed8 !important;
+}
+
+@media (max-width:560px){
+  #view-menus .menu-section-row,
+  #view-menus .menu-role-row,
+  #view-menus .menu-badge-row{
+    grid-template-columns:repeat(2, minmax(0, 1fr)) !important;
+    gap:8px !important;
+  }
+  #view-menus .menu-section-row,
+  #view-menus .menu-role-row{
+    padding:10px !important;
+  }
+  #view-menus .menu-section-row label,
+  #view-menus .menu-role-row label,
+  #view-menus .menu-badge-row label{
+    min-height:42px !important;
+    padding:9px 10px !important;
+    font-size:12.5px !important;
+  }
+}
+
+@media (max-width:380px){
+  #view-menus .menu-section-row,
+  #view-menus .menu-role-row,
+  #view-menus .menu-badge-row{
+    grid-template-columns:1fr !important;
+  }
+}

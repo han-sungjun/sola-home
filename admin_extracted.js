@@ -2339,7 +2339,14 @@ function fillForm(item){
               </div>
               <div class="member-summary-side">
                 <div class="tags">${statusTags.join('')}</div>
-                <span class="accordion-arrow">⌄</span>
+                <span class="accordion-arrow" aria-hidden="true">
+                  <svg class="chevron-down-icon" viewBox="0 0 24 24" fill="none">
+                    <path d="M6 9l6 6 6-6"></path>
+                  </svg>
+                  <svg class="chevron-up-icon" viewBox="0 0 24 24" fill="none">
+                    <path d="M6 15l6-6 6 6"></path>
+                  </svg>
+                </span>
               </div>
             </summary>
 
