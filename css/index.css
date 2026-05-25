@@ -3518,3 +3518,39 @@ body.env-dev #loginEnvBadge,
 body.env-dev [id$="EnvBadge"] {
   display: inline-flex !important;
 }
+
+
+
+/* v89: DEV 배지는 개발계 도메인에서만 최종 표시 */
+.env-badge,
+.hero-env,
+.dev-badge,
+.dev-env,
+#globalEnvBadge,
+#envBadge,
+#signupEnvBadge,
+#loginEnvBadge,
+#policyPillEnvBadge {
+  display: none !important;
+}
+
+html.env-dev .env-badge,
+html.env-dev .hero-env,
+html.env-dev .dev-badge,
+html.env-dev .dev-env,
+html.env-dev #globalEnvBadge,
+html.env-dev #envBadge,
+html.env-dev #signupEnvBadge,
+html.env-dev #loginEnvBadge,
+html.env-dev #policyPillEnvBadge,
+body.env-dev .env-badge,
+body.env-dev .hero-env,
+body.env-dev .dev-badge,
+body.env-dev .dev-env,
+body.env-dev #globalEnvBadge,
+body.env-dev #envBadge,
+body.env-dev #signupEnvBadge,
+body.env-dev #loginEnvBadge,
+body.env-dev #policyPillEnvBadge {
+  display: inline-flex !important;
+}
