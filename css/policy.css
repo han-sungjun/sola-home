@@ -1461,3 +1461,27 @@ body.env-dev .dev-env,
 body.env-dev [id$="EnvBadge"] {
   display: inline-flex !important;
 }
+
+
+
+/* v94: DEV 배지는 개발계에서만 생성/표시, 운영계는 DOM 제거 대상 */
+.env-badge,
+.hero-env,
+.dev-badge,
+.dev-env,
+[id$="EnvBadge"] {
+  display: none !important;
+}
+
+html.env-dev .env-badge,
+html.env-dev .hero-env,
+html.env-dev .dev-badge,
+html.env-dev .dev-env,
+html.env-dev [id$="EnvBadge"],
+body.env-dev .env-badge,
+body.env-dev .hero-env,
+body.env-dev .dev-badge,
+body.env-dev .dev-env,
+body.env-dev [id$="EnvBadge"] {
+  display: inline-flex !important;
+}
