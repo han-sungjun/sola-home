@@ -23736,3 +23736,338 @@ dialog.benefit-image-preview-overlay .benefit-image-preview-close * ,
 @media (max-width:380px){
   .gnb-policy-links{grid-template-columns:1fr;}
 }
+
+
+
+/* DEV 배지 높이 정렬 */
+.hero-top-row,
+.hero-chip-row,
+.hero-header-row {
+    align-items: center !important;
+}
+
+.dev-env-badge,
+.dev-badge,
+.hero-dev-badge {
+    min-height: 42px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 0 16px !important;
+    line-height: 1 !important;
+    font-weight: 700 !important;
+}
+
+
+
+/* v73: Hero 상단 보조 배지와 DEV 배지 높이/정렬 통일 */
+.hero-panel .hero-meta,
+.hero-panel .hero-kicker,
+.hero-panel .hero-badge,
+.hero-panel .hero-chip,
+.hero-panel .dev-env,
+.hero-panel .dev-env-badge,
+.hero-panel .dev-badge,
+.hero-panel .env-badge,
+.auth-hero .hero-meta,
+.auth-hero .hero-kicker,
+.auth-hero .hero-badge,
+.auth-hero .hero-chip,
+.auth-hero .dev-env,
+.auth-hero .dev-env-badge,
+.auth-hero .dev-badge,
+.auth-hero .env-badge {
+  height: 36px !important;
+  min-height: 36px !important;
+  box-sizing: border-box !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  line-height: 1 !important;
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+}
+
+.hero-panel .dev-env,
+.hero-panel .dev-env-badge,
+.hero-panel .dev-badge,
+.hero-panel .env-badge,
+.auth-hero .dev-env,
+.auth-hero .dev-env-badge,
+.auth-hero .dev-badge,
+.auth-hero .env-badge {
+  padding-left: 14px !important;
+  padding-right: 14px !important;
+  white-space: nowrap !important;
+  align-self: center !important;
+  transform: none !important;
+}
+
+.hero-panel .hero-card-top,
+.hero-panel .hero-head,
+.hero-panel .hero-top,
+.hero-panel .hero-row,
+.hero-panel .hero-meta-row,
+.auth-hero .hero-card-top,
+.auth-hero .hero-head,
+.auth-hero .hero-top,
+.auth-hero .hero-row,
+.auth-hero .hero-meta-row {
+  align-items: center !important;
+}
+
+
+
+/* v74: Hero 보조 배지와 DEV 배지를 하나의 행으로 통합 */
+.hero-badge-row {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 12px !important;
+  width: 100% !important;
+  margin-bottom: 18px !important;
+}
+
+.hero-badge-row .eyebrow,
+.hero-badge-row .env-badge,
+.hero-badge-row .hero-env,
+.hero-badge-row .dev-env,
+.hero-badge-row .dev-badge {
+  height: 36px !important;
+  min-height: 36px !important;
+  box-sizing: border-box !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  margin: 0 !important;
+  line-height: 1 !important;
+  transform: none !important;
+  align-self: center !important;
+}
+
+.hero-badge-row .eyebrow {
+  flex: 0 1 auto !important;
+}
+
+.hero-badge-row .env-badge,
+.hero-badge-row .hero-env,
+.hero-badge-row .dev-env,
+.hero-badge-row .dev-badge {
+  flex: 0 0 auto !important;
+  padding: 0 14px !important;
+  white-space: nowrap !important;
+}
+
+
+
+/* v75: 공개앱/입장/계정 만들기 Hero DEV 배지 위치 방식 통일 */
+.hero-badge-row .hero-env,
+.hero-badge-row .env-badge.hero-env,
+.hero-badge-row .env-badge,
+.hero-badge-row .dev-env,
+.hero-badge-row .dev-badge {
+  position: static !important;
+  top: auto !important;
+  right: auto !important;
+  left: auto !important;
+  bottom: auto !important;
+  margin: 0 !important;
+  transform: none !important;
+  z-index: auto !important;
+  width: auto !important;
+  min-width: auto !important;
+  height: 36px !important;
+  min-height: 36px !important;
+  max-height: 36px !important;
+  padding: 0 14px !important;
+  box-sizing: border-box !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  line-height: 1 !important;
+  white-space: nowrap !important;
+  flex: 0 0 auto !important;
+}
+
+.hero-badge-row .eyebrow,
+.hero-badge-row .hero-kicker,
+.hero-badge-row .hero-chip,
+.hero-badge-row .hero-meta {
+  height: 36px !important;
+  min-height: 36px !important;
+  max-height: 36px !important;
+  margin: 0 !important;
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+  box-sizing: border-box !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  line-height: 1 !important;
+  flex: 0 1 auto !important;
+}
+
+.hero-badge-row {
+  position: relative !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 12px !important;
+  width: 100% !important;
+}
+
+
+
+/* v76: 공개앱 홈 Hero 배지 행 통합 및 DEV 배지 absolute 해제 */
+#upickGlobalHero .hero-badge-row {
+  position: relative !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 12px !important;
+  width: 100% !important;
+  margin: 0 0 18px !important;
+}
+
+#upickGlobalHero .hero-badge-row .eyebrow,
+#upickGlobalHero .hero-badge-row .env-badge,
+#upickGlobalHero .hero-badge-row .hero-env,
+#upickGlobalHero .hero-badge-row #globalEnvBadge {
+  position: static !important;
+  inset: auto !important;
+  top: auto !important;
+  right: auto !important;
+  bottom: auto !important;
+  left: auto !important;
+  width: auto !important;
+  min-width: auto !important;
+  height: 36px !important;
+  min-height: 36px !important;
+  max-height: 36px !important;
+  margin: 0 !important;
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+  box-sizing: border-box !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  align-self: center !important;
+  line-height: 1 !important;
+  transform: none !important;
+}
+
+#upickGlobalHero .hero-badge-row .env-badge,
+#upickGlobalHero .hero-badge-row .hero-env,
+#upickGlobalHero .hero-badge-row #globalEnvBadge {
+  flex: 0 0 auto !important;
+  padding-left: 14px !important;
+  padding-right: 14px !important;
+  white-space: nowrap !important;
+}
+
+
+
+/* v77: 공개앱 홈 Hero 배지 DOM 통합 후 정렬 고정 */
+#upickGlobalHero .hero > .hero-badge-row {
+  position: relative !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 12px !important;
+  width: 100% !important;
+  margin: 0 0 18px !important;
+}
+
+#upickGlobalHero .hero > .hero-badge-row .eyebrow,
+#upickGlobalHero .hero > .hero-badge-row #globalEnvBadge {
+  position: static !important;
+  inset: auto !important;
+  width: auto !important;
+  height: 36px !important;
+  min-height: 36px !important;
+  max-height: 36px !important;
+  margin: 0 !important;
+  box-sizing: border-box !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  line-height: 1 !important;
+  transform: none !important;
+}
+
+#upickGlobalHero .hero > .hero-badge-row #globalEnvBadge {
+  padding: 0 14px !important;
+  flex: 0 0 auto !important;
+}
+
+#upickGlobalHero .hero > .hero-badge-row .eyebrow {
+  flex: 0 1 auto !important;
+}
+
+
+
+/* v78: 공개앱 JS 렌더 Hero 배지 행 통합 */
+#upickGlobalHero .hero .hero-badge-row {
+  position: relative !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 12px !important;
+  width: 100% !important;
+  margin: 0 0 18px !important;
+}
+
+#upickGlobalHero .hero .hero-badge-row .eyebrow,
+#upickGlobalHero .hero .hero-badge-row #globalEnvBadge {
+  position: static !important;
+  inset: auto !important;
+  width: auto !important;
+  height: 36px !important;
+  min-height: 36px !important;
+  max-height: 36px !important;
+  margin: 0 !important;
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+  box-sizing: border-box !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  align-self: center !important;
+  line-height: 1 !important;
+  transform: none !important;
+}
+
+#upickGlobalHero .hero .hero-badge-row #globalEnvBadge {
+  padding-left: 14px !important;
+  padding-right: 14px !important;
+  flex: 0 0 auto !important;
+  white-space: nowrap !important;
+}
+
+
+
+/* v81: 공개앱 DEV 배지 로그인/회원가입 스타일과 통일 */
+#upickGlobalHero .hero .hero-badge-row #globalEnvBadge.hero-env {
+  position: static !important;
+  inset: auto !important;
+  top: auto !important;
+  right: auto !important;
+  left: auto !important;
+  bottom: auto !important;
+  width: auto !important;
+  min-width: auto !important;
+  height: 36px !important;
+  min-height: 36px !important;
+  max-height: 36px !important;
+  margin: 0 !important;
+  padding: 0 14px !important;
+  box-sizing: border-box !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  line-height: 1 !important;
+  transform: none !important;
+  flex: 0 0 auto !important;
+  white-space: nowrap !important;
+  border-radius: 999px !important;
+}
