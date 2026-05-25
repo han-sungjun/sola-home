@@ -25790,3 +25790,24 @@ input[type="radio"]:not(:checked):focus-visible{
     transform:translate(-58%,-50%) rotate(45deg)!important;
   }
 }
+
+/* ===== 2026-05-25 계정 요약 입주민 카드 영역 통일 ===== */
+#gnbSettingsAccountSummary .gnb-account-card.role-resident{
+  border:1px solid rgba(37,99,235,.18)!important;
+  background:linear-gradient(90deg,#eff6ff 0%,#ffffff 68%,#f8fbff 100%)!important;
+  box-shadow:0 10px 24px rgba(37,99,235,.08), inset 0 0 0 1px rgba(255,255,255,.78)!important;
+}
+#gnbSettingsAccountSummary .gnb-account-card.role-resident .gnb-account-sub{
+  color:#64748b!important;
+  font-weight:900!important;
+}
+#gnbSettingsAccountSummary .gnb-account-card.role-resident .gnb-account-avatar:not(.has-photo){
+  background:linear-gradient(135deg,#eff6ff,#dbeafe)!important;
+  color:#1d4ed8!important;
+  box-shadow:0 0 0 3px rgba(37,99,235,.10),0 10px 22px rgba(37,99,235,.10), inset 0 0 0 1px rgba(255,255,255,.72)!important;
+}
+@media (max-width:520px){
+  #gnbSettingsAccountSummary .gnb-account-card.role-resident{
+    border-radius:20px!important;
+  }
+}
