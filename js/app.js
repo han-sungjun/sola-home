@@ -14006,3 +14006,17 @@ document.addEventListener('keydown', (event) => {
 
 
 try { window.syncDevBadgeVisibility && window.syncDevBadgeVisibility(); } catch (e) {}
+
+;(()=>{try{
+  const bind=()=>{
+    document.querySelectorAll('.gnb-search-box').forEach(box=>{
+      if(box.__gnbSearchFocusBound) return;
+      box.__gnbSearchFocusBound=true;
+      box.addEventListener('click',e=>{
+        const input=box.querySelector('input');
+        if(input && e.target!==input) input.focus();
+      });
+    });
+  };
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',bind,{once:true}); else bind();
+}catch(_){}})();

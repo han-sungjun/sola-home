@@ -25499,3 +25499,294 @@ body.env-dev [id$="EnvBadge"] {
     font-size:13px!important;
   }
 }
+
+/* ===== v26: 입력란 블루 톤 + 선택 박스 V 아이콘 고급화 ===== */
+:root{
+  --upick-field-bg:#f0f7ff;
+  --upick-field-bg-focus:#ffffff;
+  --upick-field-line:#bfdbfe;
+  --upick-field-line-focus:#60a5fa;
+  --upick-field-shadow:0 0 0 4px rgba(37,99,235,.12);
+  --upick-field-text:#0f172a;
+  --upick-field-muted:#64748b;
+}
+input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]),
+textarea,
+select:not(.sr-only-filter){
+  background-color:var(--upick-field-bg) !important;
+  border-color:var(--upick-field-line) !important;
+  color:var(--upick-field-text) !important;
+}
+input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]):focus,
+textarea:focus,
+select:not(.sr-only-filter):focus{
+  background-color:var(--upick-field-bg-focus) !important;
+  border-color:var(--upick-field-line-focus) !important;
+  box-shadow:var(--upick-field-shadow) !important;
+}
+input::placeholder,
+textarea::placeholder{color:#8aa0bd !important;opacity:1;}
+select:not(.sr-only-filter){
+  appearance:none !important;
+  -webkit-appearance:none !important;
+  padding-right:46px !important;
+  background-image:url("data:image/svg+xml,%3Csvg width='18' height='18' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M7 10l5 5 5-5' stroke='%230B2A60' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E"),linear-gradient(180deg,rgba(255,255,255,.78),rgba(239,246,255,.78)) !important;
+  background-repeat:no-repeat,no-repeat !important;
+  background-position:right 16px center,0 0 !important;
+  background-size:18px 18px,100% 100% !important;
+}
+select:not(.sr-only-filter):focus{
+  background-image:url("data:image/svg+xml,%3Csvg width='18' height='18' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M7 10l5 5 5-5' stroke='%232563EB' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E"),linear-gradient(180deg,#ffffff,#eff6ff) !important;
+}
+select:not(.sr-only-filter)::-ms-expand{display:none;}
+.calendar-field select,
+.community-write-form select,
+.distance-select-wrap select{padding-right:46px !important;}
+
+/* ===== v27: GNB 검색/개인화 배너/AI 질문 영역 입력 UX 보정 ===== */
+.gnb-search-box{
+  position:relative!important;
+  width:100%!important;
+  min-height:52px!important;
+  padding:0!important;
+  overflow:hidden!important;
+  background:#f8fbff!important;
+  border-color:rgba(147,197,253,.55)!important;
+  cursor:text!important;
+}
+.gnb-search-box::before{
+  position:absolute!important;
+  left:16px!important;
+  top:50%!important;
+  transform:translateY(-50%)!important;
+  z-index:2!important;
+  pointer-events:none!important;
+}
+.gnb-search-box input{
+  display:block!important;
+  width:100%!important;
+  height:52px!important;
+  min-height:52px!important;
+  padding:0 16px 0 46px!important;
+  margin:0!important;
+  border:0!important;
+  outline:0!important;
+  background:transparent!important;
+  box-shadow:none!important;
+  color:#0f172a!important;
+  font-weight:900!important;
+  border-radius:20px!important;
+}
+.gnb-search-box input:focus,
+.gnb-search-box:focus-within{
+  background:#eff6ff!important;
+  border-color:#93c5fd!important;
+  box-shadow:0 0 0 4px rgba(59,130,246,.10)!important;
+}
+.gnb-search-box input:-webkit-autofill,
+.gnb-search-box input:-webkit-autofill:hover,
+.gnb-search-box input:-webkit-autofill:focus{
+  -webkit-box-shadow:0 0 0 1000px transparent inset!important;
+  transition:background-color 9999s ease-out 0s!important;
+}
+.gnb-personal-banner{
+  min-height:54px!important;
+  padding:0 12px!important;
+  display:grid!important;
+  grid-template-columns:auto minmax(0,1fr) 36px!important;
+  align-items:center!important;
+  gap:10px!important;
+}
+.gnb-personal-banner .gnb-banner-arrow{
+  width:34px!important;
+  height:34px!important;
+  min-width:34px!important;
+  border-radius:14px!important;
+  display:grid!important;
+  place-items:center!important;
+  margin-left:auto!important;
+  background:#ffffff!important;
+  border:1px solid rgba(191,219,254,.9)!important;
+  color:#1d4ed8!important;
+  font-size:0!important;
+  line-height:1!important;
+  box-shadow:0 8px 18px rgba(37,99,235,.08)!important;
+}
+.gnb-personal-banner .gnb-banner-arrow::before{
+  content:''!important;
+  width:8px!important;
+  height:8px!important;
+  border-top:2px solid currentColor!important;
+  border-right:2px solid currentColor!important;
+  transform:rotate(45deg)!important;
+  margin-left:-2px!important;
+}
+.gnb-personal-banner:hover .gnb-banner-arrow,
+.gnb-personal-banner:focus-visible .gnb-banner-arrow{
+  background:#eff6ff!important;
+  border-color:#93c5fd!important;
+}
+.ai-composer-row{
+  background:linear-gradient(180deg,#f8fbff 0%,#eef6ff 100%)!important;
+  border-color:rgba(147,197,253,.62)!important;
+}
+.ai-composer-row #aiQuestionInput{
+  background:transparent!important;
+  border:0!important;
+  box-shadow:none!important;
+}
+.ai-composer-row:focus-within{
+  background:#eff6ff!important;
+  border-color:#93c5fd!important;
+  box-shadow:0 0 0 4px rgba(59,130,246,.10),0 14px 30px rgba(15,23,42,.07)!important;
+}
+.ai-composer-row .ai-composer-icon{
+  background:#f8fbff!important;
+  border-color:#dbeafe!important;
+}
+.ai-composer-row #aiAskBtn,
+.ai-composer-row .ai-send-btn{
+  box-shadow:0 10px 22px rgba(37,99,235,.16)!important;
+}
+
+/* ===== v28: 입력 계열 색상/검색 아이콘 유지 보정 ===== */
+.gnb-search-box::before{
+  z-index:4!important;
+}
+.gnb-search-box input,
+.gnb-search-box input:focus{
+  background:transparent!important;
+  -webkit-box-shadow:none!important;
+  box-shadow:none!important;
+}
+.gnb-search-box:focus-within{
+  background:#eff6ff!important;
+  border-color:#93c5fd!important;
+  box-shadow:0 0 0 4px rgba(59,130,246,.10)!important;
+}
+input[type="checkbox"]:not(:checked),
+input[type="radio"]:not(:checked){
+  background:#eff6ff!important;
+  border-color:#bfdbfe!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.72),0 6px 14px rgba(37,99,235,.06)!important;
+}
+input[type="checkbox"]:not(:checked):focus-visible,
+input[type="radio"]:not(:checked):focus-visible{
+  outline:0!important;
+  border-color:#93c5fd!important;
+  box-shadow:0 0 0 4px rgba(59,130,246,.14),inset 0 1px 0 rgba(255,255,255,.75)!important;
+}
+
+/* ===== v29: GNB 검색 아이콘/개인화 배너 화살표 정렬 보정 ===== */
+.gnb-search-box{
+  position:relative !important;
+  overflow:hidden !important;
+}
+.gnb-search-box::before{
+  content:'' !important;
+  position:absolute !important;
+  left:16px !important;
+  top:50% !important;
+  width:18px !important;
+  height:18px !important;
+  transform:translateY(-50%) !important;
+  z-index:5 !important;
+  opacity:.95 !important;
+  pointer-events:none !important;
+  background:url('/icons/internal/search.svg') center/contain no-repeat !important;
+}
+.gnb-search-box input{
+  position:relative !important;
+  z-index:1 !important;
+  padding-left:46px !important;
+  background:transparent !important;
+}
+.gnb-search-box input:focus{
+  background:transparent !important;
+}
+.gnb-personal-banner{
+  grid-template-columns:auto minmax(0,1fr) 32px !important;
+  padding:0 10px 0 12px !important;
+  column-gap:10px !important;
+}
+.gnb-personal-banner .gnb-banner-arrow{
+  width:32px !important;
+  height:32px !important;
+  min-width:32px !important;
+  justify-self:end !important;
+  align-self:center !important;
+  margin:0 !important;
+  transform:none !important;
+}
+.gnb-personal-banner .gnb-banner-arrow::before{
+  margin-left:-1px !important;
+}
+@media (max-width:520px){
+  .gnb-personal-banner{
+    padding-right:9px !important;
+  }
+  .gnb-personal-banner .gnb-banner-arrow{
+    width:30px !important;
+    height:30px !important;
+    min-width:30px !important;
+    border-radius:13px !important;
+  }
+}
+
+/* ===== v30: GNB 검색 아이콘 z-index / 개인화 배너 화살표 중앙 정렬 최종 보정 ===== */
+.gnb-search-box{
+  position:relative!important;
+}
+.gnb-search-box::before{
+  z-index:20!important;
+  pointer-events:none!important;
+}
+.gnb-search-box input,
+.gnb-search-box input:focus{
+  position:relative!important;
+  z-index:1!important;
+  background:transparent!important;
+}
+.gnb-personal-banner{
+  grid-template-columns:auto minmax(0,1fr) 32px!important;
+  align-items:center!important;
+}
+.gnb-personal-banner .gnb-banner-arrow{
+  position:relative!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  width:32px!important;
+  height:32px!important;
+  min-width:32px!important;
+  padding:0!important;
+  margin:0!important;
+  line-height:1!important;
+  font-size:0!important;
+  text-indent:-9999px!important;
+  overflow:hidden!important;
+}
+.gnb-personal-banner .gnb-banner-arrow::before{
+  content:''!important;
+  position:absolute!important;
+  left:50%!important;
+  top:50%!important;
+  width:7px!important;
+  height:7px!important;
+  margin:0!important;
+  border-top:2px solid currentColor!important;
+  border-right:2px solid currentColor!important;
+  transform:translate(-58%,-50%) rotate(45deg)!important;
+}
+@media (max-width:520px){
+  .gnb-personal-banner .gnb-banner-arrow{
+    width:30px!important;
+    height:30px!important;
+    min-width:30px!important;
+  }
+  .gnb-personal-banner .gnb-banner-arrow::before{
+    width:7px!important;
+    height:7px!important;
+    transform:translate(-58%,-50%) rotate(45deg)!important;
+  }
+}
