@@ -271,7 +271,7 @@ function replaceBaseUrlInDist() {
     ? 'https://theunjeongpick.com'
     : 'https://www.sola-home-dev.kr');
 
-  const files = ['index.html', 'app.html', 'signup.html', 'phone-verify.html', 'error.html', 'admin.html'];
+  const files = ['index.html', 'app.html', 'signup.html', 'phone-verify.html', 'error.html', 'admin.html', 'guide.html', 'policy.html', 'terms.html', 'privacy.html'];
   for (const file of files) {
     const target = path.join(DIST, file);
     if (!fs.existsSync(target)) continue;
