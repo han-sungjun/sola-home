@@ -49,6 +49,38 @@
       "dest": "/phone-verify.html"
     },
     {
+      "src": "/guide",
+      "dest": "/guide.html"
+    },
+    {
+      "src": "/guide.html",
+      "dest": "/guide.html"
+    },
+    {
+      "src": "/policy",
+      "dest": "/policy.html"
+    },
+    {
+      "src": "/policy.html",
+      "dest": "/policy.html"
+    },
+    {
+      "src": "/terms",
+      "dest": "/terms.html"
+    },
+    {
+      "src": "/terms.html",
+      "dest": "/terms.html"
+    },
+    {
+      "src": "/privacy",
+      "dest": "/privacy.html"
+    },
+    {
+      "src": "/privacy.html",
+      "dest": "/privacy.html"
+    },
+    {
       "src": "/share/notice/([^/]+)",
       "dest": "/app.html?open=notice&id=$1&from=share"
     },
