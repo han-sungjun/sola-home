@@ -1,4 +1,3 @@
-
 (function () {
   'use strict';
 
@@ -13,32 +12,34 @@
     );
   }
 
+  var isDev = isDevHost();
+
+  document.documentElement.classList.toggle('env-dev', isDev);
+
   function syncDevBadge() {
-    var isDev = isDevHost();
-
-    document.documentElement.classList.toggle('env-dev', isDev);
-
     if (document.body) {
       document.body.classList.toggle('env-dev', isDev);
     }
 
     document.querySelectorAll(
-      '#globalEnvBadge, #envBadge, #signupEnvBadge, #loginEnvBadge, #policyPillEnvBadge, .env-badge, .hero-env, .dev-badge, .dev-env'
+      '.env-badge, .hero-env, .dev-badge, .dev-env, [id$="EnvBadge"]'
     ).forEach(function (badge) {
-      badge.classList.toggle('show', isDev);
       badge.hidden = !isDev;
+      badge.classList.toggle('show', isDev);
       badge.setAttribute('aria-hidden', isDev ? 'false' : 'true');
-      badge.style.display = isDev ? 'inline-flex' : 'none';
+      badge.style.removeProperty('display');
+      badge.style.removeProperty('visibility');
+      badge.style.removeProperty('opacity');
+      badge.style.removeProperty('pointer-events');
     });
   }
 
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', syncDevBadge);
+    document.addEventListener('DOMContentLoaded', syncDevBadge, { once: true });
   } else {
     syncDevBadge();
   }
 
   window.addEventListener('pageshow', syncDevBadge);
-  setTimeout(syncDevBadge, 0);
-  setTimeout(syncDevBadge, 300);
+  window.syncDevBadgeVisibility = syncDevBadge;
 })();

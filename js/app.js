@@ -13841,3 +13841,6 @@ document.addEventListener('keydown', (event) => {
   setTimeout(run, 500);
   setTimeout(run, 1200);
 })();
+
+
+try { window.syncDevBadgeVisibility && window.syncDevBadgeVisibility(); } catch (e) {}

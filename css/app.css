@@ -24143,3 +24143,31 @@ body.env-dev #loginEnvBadge,
 body.env-dev #policyPillEnvBadge {
   display: inline-flex !important;
 }
+
+
+
+
+
+
+
+/* v92: DEV 배지 표시 제어 경량화 */
+.env-badge,
+.hero-env,
+.dev-badge,
+.dev-env,
+[id$="EnvBadge"] {
+  display: none !important;
+}
+
+html.env-dev .env-badge,
+html.env-dev .hero-env,
+html.env-dev .dev-badge,
+html.env-dev .dev-env,
+html.env-dev [id$="EnvBadge"],
+body.env-dev .env-badge,
+body.env-dev .hero-env,
+body.env-dev .dev-badge,
+body.env-dev .dev-env,
+body.env-dev [id$="EnvBadge"] {
+  display: inline-flex !important;
+}
