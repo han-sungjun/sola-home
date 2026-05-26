@@ -1,0 +1,80 @@
+/* 더운정픽 공통 모션 시스템 v20260526-common-motion
+   Alert / Modal / Dialog / GNB / BottomSheet가 같은 open-close lifecycle을 사용하도록 기준값을 통일합니다. */
+:root{
+  --upick-motion-fast:160ms;
+  --upick-motion-normal:220ms;
+  --upick-motion-close:240ms;
+  --upick-motion-slow:280ms;
+  --upick-motion-ease:cubic-bezier(.22,.61,.36,1);
+  --upick-motion-ease-out:cubic-bezier(.16,1,.3,1);
+  --upick-motion-panel-y:10px;
+  --upick-motion-panel-scale:.98;
+}
+
+.upick-motion-layer{
+  opacity:0!important;
+  visibility:hidden!important;
+  pointer-events:none!important;
+  transition:
+    opacity var(--upick-motion-normal) var(--upick-motion-ease),
+    visibility 0s linear var(--upick-motion-normal)!important;
+  will-change:opacity!important;
+}
+
+.upick-motion-layer.show,
+.upick-motion-layer.is-open,
+.upick-motion-layer.upick-motion-open{
+  opacity:1!important;
+  visibility:visible!important;
+  pointer-events:auto!important;
+  transition:
+    opacity var(--upick-motion-normal) var(--upick-motion-ease),
+    visibility 0s linear 0s!important;
+}
+
+.upick-motion-layer.is-closing,
+.upick-motion-layer.upick-motion-closing{
+  opacity:0!important;
+  visibility:visible!important;
+  pointer-events:none!important;
+}
+
+.upick-motion-panel{
+  opacity:0!important;
+  transform:translateY(var(--upick-motion-panel-y)) scale(var(--upick-motion-panel-scale))!important;
+  transition:
+    opacity var(--upick-motion-normal) var(--upick-motion-ease-out),
+    transform var(--upick-motion-normal) var(--upick-motion-ease-out)!important;
+  will-change:opacity,transform!important;
+}
+
+.show .upick-motion-panel,
+.is-open .upick-motion-panel,
+.upick-motion-open .upick-motion-panel,
+.upick-motion-panel.show,
+.upick-motion-panel.is-open,
+.upick-motion-panel.upick-motion-open{
+  opacity:1!important;
+  transform:translateY(0) scale(1)!important;
+}
+
+.is-closing .upick-motion-panel,
+.upick-motion-closing .upick-motion-panel,
+.upick-motion-panel.is-closing,
+.upick-motion-panel.upick-motion-closing{
+  opacity:0!important;
+  transform:translateY(var(--upick-motion-panel-y)) scale(var(--upick-motion-panel-scale))!important;
+}
+
+@media (prefers-reduced-motion: reduce){
+  :root{
+    --upick-motion-fast:1ms;
+    --upick-motion-normal:1ms;
+    --upick-motion-close:1ms;
+    --upick-motion-slow:1ms;
+  }
+  .upick-motion-layer,
+  .upick-motion-panel{
+    transition-duration:1ms!important;
+  }
+}

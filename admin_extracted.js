@@ -184,8 +184,15 @@
       document.querySelectorAll('dialog[open]').forEach((dialog)=>{
         try{ dialog.close(); }catch(_){ dialog.removeAttribute('open'); }
       });
-      document.querySelectorAll('.app-alert.show,.gnb-overlay.show,.gnb-sheet.show').forEach((el)=>el.classList.remove('show'));
-      document.body.classList.remove('gnb-open');
+      document.querySelectorAll('.app-alert.show,.gnb-overlay.show,.gnb-sheet.show').forEach((el)=>{
+        el.classList.add('is-closing');
+        el.classList.remove('show');
+        el.setAttribute('aria-hidden','true');
+        setTimeout(()=>el.classList.remove('is-closing'), 280);
+      });
+      setTimeout(()=>{
+        document.body.classList.remove('gnb-open');
+      }, 280);
     }
 
     function resetAdminRuntimeState(){
@@ -379,10 +386,14 @@ function resetAdminSensitiveUI(){
       alertConfirmEl.textContent = confirmText;
       alertCancelEl.textContent = cancelText;
       alertCancelEl.classList.toggle('hidden', mode !== 'confirm');
-      alertEl.classList.add('show');
+      alertEl.classList.remove('show', 'is-closing');
       alertEl.setAttribute('aria-hidden', 'false');
+      alertEl.offsetHeight;
       requestAnimationFrame(() => {
-        (mode === 'confirm' ? alertCancelEl : alertConfirmEl).focus();
+        requestAnimationFrame(() => {
+          alertEl.classList.add('show');
+          (mode === 'confirm' ? alertCancelEl : alertConfirmEl).focus();
+        });
       });
       return new Promise((resolve) => {
         alertResolver = resolve;
@@ -413,7 +424,12 @@ function resetAdminSensitiveUI(){
       return openModalBase({ title, message, focusTarget, mode:'confirm', confirmText, cancelText, icon:'' });
     }
 
+    let adminAlertCloseTimer = null;
+    let adminAlertClosing = false;
     function closeModal(result=false){
+      if(adminAlertClosing) return;
+      adminAlertClosing = true;
+      alertEl.classList.add('is-closing');
       alertEl.classList.remove('show');
       alertEl.setAttribute('aria-hidden', 'true');
       const focusTarget = alertFocusTarget;
@@ -421,13 +437,16 @@ function resetAdminSensitiveUI(){
       alertResolver = null;
       alertFocusTarget = null;
 
-      if (focusTarget) {
-        setTimeout(() => {
-          try { focusTarget.focus(); } catch (_) {}
-        }, 30);
-      }
-
-      if(resolver) resolver(result);
+      if(adminAlertCloseTimer) clearTimeout(adminAlertCloseTimer);
+      adminAlertCloseTimer = setTimeout(() => {
+        alertEl.classList.remove('is-closing');
+        adminAlertClosing = false;
+        adminAlertCloseTimer = null;
+        if (focusTarget) {
+          try { focusTarget.focus({preventScroll:true}); } catch (_) { try { focusTarget.focus(); } catch(__){} }
+        }
+        if(resolver) resolver(result);
+      }, 280);
     }
 
     alertConfirmEl?.addEventListener('click', () => closeModal(true));
@@ -474,10 +493,7 @@ const setTextAll = (selector, text) => qsa(selector).forEach(el => el.textConten
       qsa('.admin-view').forEach(el => el.classList.remove('active'));
       (qs(`#view-${view}`) || qs('#view-dashboard'))?.classList.add('active');
       syncAdminNavActive(view);
-      qs('#adminGnbSheet')?.classList.remove('show');
-      qs('#adminGnbOverlay')?.classList.remove('show');
-      document.body.style.overflow = '';
-      document.body.classList.remove('gnb-open');
+      if(document.body.classList.contains('gnb-open')) closeAdminGnb();
       window.scrollTo({ top: 0, behavior: 'auto' });
       if(view === 'community') setTimeout(() => loadAdminCommunityPosts('active'), 80);
       if(view === 'ai') setTimeout(() => openAIManager(aiAdminState.tab || 'faq'), 80);
@@ -3071,6 +3087,8 @@ function fillForm(item){
     const adminGnbOverlay = qs('#adminGnbOverlay');
     const adminGnbCloseBtn = qs('#adminGnbCloseBtn');
     function openAdminGnb(){
+      adminGnbSheet?.classList.remove('is-closing');
+      adminGnbOverlay?.classList.remove('is-closing');
       adminGnbSheet?.classList.add('show');
       adminGnbOverlay?.classList.add('show');
       adminGnbSheet?.setAttribute('aria-hidden','false');
@@ -3091,11 +3109,18 @@ function fillForm(item){
         [{ transform:'scale(1) rotate(0deg)' }, { transform:'scale(.94) rotate(-8deg)' }, { transform:'scale(1) rotate(0deg)' }],
         { duration:180, easing:'ease-out' }
       );
+      if(!document.body.classList.contains('gnb-open') && !adminGnbSheet?.classList.contains('show')) return;
+      adminGnbSheet?.classList.add('is-closing');
+      adminGnbOverlay?.classList.add('is-closing');
       adminGnbSheet?.classList.remove('show');
       adminGnbOverlay?.classList.remove('show');
       adminGnbSheet?.setAttribute('aria-hidden','true');
-      document.body.style.overflow='';
-      document.body.classList.remove('gnb-open');
+      setTimeout(() => {
+        adminGnbSheet?.classList.remove('is-closing');
+        adminGnbOverlay?.classList.remove('is-closing');
+        document.body.style.overflow='';
+        document.body.classList.remove('gnb-open');
+      }, 280);
     }
     adminGnbToggleBtn?.addEventListener('click', openAdminGnb);
     adminGnbCloseBtn?.addEventListener('click', closeAdminGnb);
@@ -4213,7 +4238,7 @@ function fillForm(item){
 
     async function deleteAiDoc(collectionName, id){
       if(!collectionName || !id) return;
-      const ok = window.confirm('정말 삭제하시겠습니까?');
+      const ok = await openModalConfirm('정말 삭제하시겠습니까?', null, '삭제 확인', '삭제', '취소');
       if(!ok) return;
       await deleteDoc(doc(db, collectionName, id));
       openModalAlert('선택한 AI 데이터가 삭제되었습니다.', null, '삭제 완료');

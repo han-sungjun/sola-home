@@ -10,6 +10,8 @@
   var confirmBtn = null;
   var cancelBtn = null;
   var actionsEl = null;
+  var closeTimer = null;
+  var isClosing = false;
 
   function qs(sel, root){ return (root || document).querySelector(sel); }
   function escapeText(value){ return String(value == null ? '' : value); }
@@ -19,10 +21,10 @@
     if(!alertEl){
       alertEl = document.createElement('div');
       alertEl.id = 'appAlert';
-      alertEl.className = 'app-alert';
+      alertEl.className = 'app-alert upick-motion-layer';
       alertEl.setAttribute('aria-hidden','true');
       alertEl.innerHTML = ''+
-        '<div class="app-alert-card" role="alertdialog" aria-modal="true" aria-labelledby="appAlertTitle" aria-describedby="appAlertMessage">'+
+        '<div class="app-alert-card upick-motion-panel" role="alertdialog" aria-modal="true" aria-labelledby="appAlertTitle" aria-describedby="appAlertMessage">'+
           '<div class="app-alert-head">'+
             '<div class="app-alert-icon" id="appAlertIcon" aria-hidden="true"></div>'+
             '<h3 class="app-alert-title" id="appAlertTitle">안내</h3>'+
@@ -86,32 +88,81 @@
     }
   }
 
+  function getMotionPanel(){
+    return alertEl ? qs('.app-alert-card', alertEl) : null;
+  }
+
   function openLayer(){
     ensureAlert();
     lastFocus = document.activeElement;
-    alertEl.classList.add('show');
-    alertEl.setAttribute('aria-hidden','false');
+    if(closeTimer){ window.clearTimeout(closeTimer); closeTimer = null; }
+    isClosing = false;
     setOpenLock(true);
 
     if(typeof alertEl.showModal === 'function' && alertEl.tagName === 'DIALOG' && !alertEl.open){
       try{ alertEl.showModal(); }catch(_){ alertEl.setAttribute('open',''); }
     }
+
+    if(window.UpickMotion){
+      window.UpickMotion.open(alertEl, {
+        activeClass:'show',
+        panel:getMotionPanel(),
+        duration:240,
+        afterOpen:function(){
+          try{ confirmBtn && confirmBtn.focus({preventScroll:true}); }catch(_){ try{ confirmBtn && confirmBtn.focus(); }catch(__){} }
+        }
+      });
+      return;
+    }
+
+    alertEl.classList.remove('show', 'is-closing');
+    alertEl.setAttribute('aria-hidden','false');
+    alertEl.offsetHeight;
     requestAnimationFrame(function(){
-      try{ confirmBtn && confirmBtn.focus({preventScroll:true}); }catch(_){ try{ confirmBtn && confirmBtn.focus(); }catch(__){} }
+      requestAnimationFrame(function(){
+        if(!alertEl) return;
+        alertEl.classList.add('show');
+        try{ confirmBtn && confirmBtn.focus({preventScroll:true}); }catch(_){ try{ confirmBtn && confirmBtn.focus(); }catch(__){} }
+      });
     });
   }
 
   function closeLayer(){
-    if(!alertEl) return;
+    if(!alertEl || isClosing) return;
+    isClosing = true;
+    var focusTarget = lastFocus;
+    var finish = function(){
+      if(!alertEl || alertEl.classList.contains('show')) return;
+      if(alertEl.tagName === 'DIALOG' && alertEl.open){
+        try{ alertEl.close(); }catch(_){ alertEl.removeAttribute('open'); }
+      }
+      setOpenLock(false);
+      isClosing = false;
+      closeTimer = null;
+      if(focusTarget && typeof focusTarget.focus === 'function'){
+        try{ focusTarget.focus({preventScroll:true}); }catch(_){ try{ focusTarget.focus(); }catch(__){} }
+      }
+    };
+
+    if(window.UpickMotion){
+      window.UpickMotion.close(alertEl, {
+        activeClass:'show',
+        panel:getMotionPanel(),
+        duration:240,
+        afterClose:finish
+      });
+      lastFocus = null;
+      return;
+    }
+
+    alertEl.classList.add('is-closing');
     alertEl.classList.remove('show');
     alertEl.setAttribute('aria-hidden','true');
-    if(alertEl.tagName === 'DIALOG' && alertEl.open){
-      try{ alertEl.close(); }catch(_){ alertEl.removeAttribute('open'); }
-    }
-    setOpenLock(false);
-    if(lastFocus && typeof lastFocus.focus === 'function'){
-      try{ lastFocus.focus({preventScroll:true}); }catch(_){ try{ lastFocus.focus(); }catch(__){} }
-    }
+    if(closeTimer) window.clearTimeout(closeTimer);
+    closeTimer = window.setTimeout(function(){
+      alertEl.classList.remove('is-closing');
+      finish();
+    }, 280);
     lastFocus = null;
   }
 

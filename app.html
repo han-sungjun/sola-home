@@ -35,14 +35,42 @@
 <link href="/icons/splash-ios-828x1792.png" media="(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2)" rel="apple-touch-startup-image"/>
 <link href="/icons/splash-ios-1170x2532.png" media="(device-width: 390px) and (device-height: 844px) and (-webkit-device-pixel-ratio: 3)" rel="apple-touch-startup-image"/>
 <link href="/icons/splash-ios-1290x2796.png" media="(device-width: 430px) and (device-height: 932px) and (-webkit-device-pixel-ratio: 3)" rel="apple-touch-startup-image"/>
-<link href="/css/app.css?v=photo-popup-index-sync-v6" rel="stylesheet"/>
+<link href="/css/app.css?v=20260526-input-full-area-v1" rel="stylesheet"/>
 <link href="/common/accessibility.css?v=2026051401" rel="stylesheet"/>
-<link href="/common/common-alert.css?v=2026051601" rel="stylesheet"/>
+<link href="/common/common-motion.css?v=20260526-modal-scroll-v72-2" rel="stylesheet"/>
+<link href="/common/common-alert.css?v=20260526-modal-scroll-v72-2" rel="stylesheet"/>
 <link href="/common/common-loading.css?v=2026052405" rel="stylesheet"/>
-<link href="/common/common-modal.css?v=2026051604" rel="stylesheet"/>
-<script defer="" src="/common/common-alert.js?v=2026051601"></script>
+<link href="/common/common-modal.css?v=20260526-modal-scroll-v72-2" rel="stylesheet"/>
+<script defer="" src="/common/common-motion.js?v=20260526-modal-scroll-v72-2"></script>
+<script defer="" src="/common/common-alert.js?v=20260526-modal-scroll-v72-2"></script>
 <script defer="" src="/common/common-loading.js?v=2026052405"></script>
-<script defer="" src="/common/common-modal.js?v=2026051604"></script>
+<script defer="" src="/common/common-modal.js?v=20260526-modal-scroll-v72-2"></script>
+<style>
+
+/* ===== Benefit tab search focus/blur background fix =====
+   기본 상태는 연한 필드 배경, 포커스 상태는 흰색으로 전환.
+   GNB 메뉴 검색과 동일한 UX 흐름을 혜택 탭 검색창에만 적용합니다. */
+#view-benefits .filter-sticky .panel.searchbox {
+    background: var(--upick-field-bg) !important;
+    transition:
+        background-color .18s ease,
+        border-color .18s ease,
+        box-shadow .18s ease !important;
+}
+
+#view-benefits .filter-sticky .panel.searchbox:focus-within {
+    background: #fff !important;
+}
+
+#view-benefits .filter-sticky .panel.searchbox input,
+#view-benefits .filter-sticky .panel.searchbox input:not(:focus) {
+    background: transparent !important;
+}
+
+#view-benefits .filter-sticky .panel.searchbox input:focus {
+    background: transparent !important;
+}
+</style>
 </head>
 <body data-loading-mode="public">
 <div aria-hidden="false" class="global-loading show" data-initial-app-loading="1" id="globalLoadingBar">
@@ -1738,17 +1766,17 @@
 </div>
 </dialog>
 <script id="upick-benefit-photo-drag-click-guard" src="app-inline-init.js"></script>
-<script src="/js/app.js?v=20260524-business-hours-visible-v65" type="module">
+<script src="/js/app.js?v=20260526-modal-scroll-v72-2" type="module">
 </script> <script defer="" src="/common/password-field-enhance.js?v=2026051501"></script>
 <script defer="" src="/common/modal-backdrop-lock.js?v=2026051401"></script>
 <script defer="" src="/common/accessibility.js?v=2026051401"></script>
 <script src="./js/app.inline.1.js"></script>
-<script src="./js/app.inline.2.js"></script>
+<script src="./js/app.inline.2.js?v=20260526-modal-scroll-v72-2"></script>
 <script src="./js/app.inline.3.js"></script>
 <script src="./js/app.inline.4.js"></script>
-<link href="./css/app.inline.1.css" rel="stylesheet"/>
+<link href="./css/app.inline.1.css?v=20260526-input-full-area-v1" rel="stylesheet"/>
 <script src="./js/app.inline.5.js"></script>
-<link href="./css/app.inline.2.css" rel="stylesheet"/>
+<link href="./css/app.inline.2.css?v=20260526-input-full-area-v1" rel="stylesheet"/>
 
 <script defer src="/js/html-inline/app-inline-1-54a53359.js"></script>
   
