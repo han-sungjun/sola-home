@@ -82,7 +82,6 @@ const fields = {
 };
 
 let lastFocus = null;
-let sheetCloseTimer = null;
 let alertResolver = null;
 
 function normalizeLoginId(value = '') {
@@ -135,10 +134,6 @@ function openSheet(mode) {
 
   // display:none 상태에서 show를 바로 붙이면 시작 프레임이 생략되어 정적으로 보일 수 있습니다.
   // 먼저 렌더링 가능한 상태로 만든 뒤, 다음 프레임에 show를 붙여 아래→위 애니메이션을 확실히 실행합니다.
-  if (sheetCloseTimer) {
-    clearTimeout(sheetCloseTimer);
-    sheetCloseTimer = null;
-  }
   modal.classList.remove('show', 'closing');
   modal.classList.add('ready');
   modal.setAttribute('aria-hidden', 'false');
@@ -201,13 +196,11 @@ function closeSheet() {
   modal.classList.add('closing');
   modal.setAttribute('aria-hidden', 'true');
 
-  if (sheetCloseTimer) clearTimeout(sheetCloseTimer);
-  sheetCloseTimer = window.setTimeout(() => {
+  window.setTimeout(() => {
     modal.classList.remove('ready', 'closing');
     resetAccountRecoveryForm();
     lastFocus?.focus?.();
-    sheetCloseTimer = null;
-  }, 380);
+  }, 360);
 }
 function getSheetBody() {
   return modal?.querySelector('.sheet-body') || null;
@@ -301,7 +294,7 @@ async function showAppAlert({
   }
 
   if (!alertEl || !alertTitleEl || !alertMsgEl || !alertConfirmEl || !alertCancelEl) {
-    window.showCommonAlert ? window.showCommonAlert({ title, message, confirmText: normalizedConfirmText }) : window.alert(message);
+    window.alert(message);
     if (typeof onConfirm === 'function') onConfirm();
     else if (closeSheetOnConfirm) closeSheet();
     return Promise.resolve({ action: 'confirm', value: true });
@@ -321,20 +314,8 @@ async function showAppAlert({
   alertCancelEl.setAttribute('aria-label', normalizedCancelText || '취소');
   alertCancelEl.classList.toggle('hidden', !hasCancel);
 
-  if (window.UpickMotion) {
-    window.UpickMotion.open(alertEl, {
-      activeClass: 'show',
-      panel: alertEl.querySelector?.('.app-alert-card'),
-      duration: 240
-    });
-  } else {
-    alertEl.classList.remove('show', 'is-closing');
-    alertEl.setAttribute('aria-hidden', 'false');
-    alertEl.offsetHeight;
-    requestAnimationFrame(() => {
-      requestAnimationFrame(() => alertEl.classList.add('show'));
-    });
-  }
+  alertEl.classList.add('show');
+  alertEl.setAttribute('aria-hidden', 'false');
 
   alertConfirmEl.onclick = null;
   alertCancelEl.onclick = null;
@@ -350,37 +331,21 @@ async function showAppAlert({
       const callback = isConfirm ? onConfirm : onCancel;
       const shouldCloseSheet = isConfirm ? closeSheetOnConfirm : closeSheetOnCancel;
 
+      alertEl.classList.remove('show');
+      alertEl.setAttribute('aria-hidden', 'true');
+
       // 현재 알럿 버튼 핸들러를 먼저 비워 다음 알럿과 충돌하지 않게 합니다.
       alertConfirmEl.onclick = null;
       alertCancelEl.onclick = null;
 
-      const afterClose = async () => {
-        try {
-          if (typeof callback === 'function') {
-            await callback();
-          } else if (shouldCloseSheet) {
-            closeSheet();
-          }
-        } finally {
-          resolve({ action, value: isConfirm });
+      try {
+        if (typeof callback === 'function') {
+          await callback();
+        } else if (shouldCloseSheet) {
+          closeSheet();
         }
-      };
-
-      if (window.UpickMotion) {
-        window.UpickMotion.close(alertEl, {
-          activeClass: 'show',
-          panel: alertEl.querySelector?.('.app-alert-card'),
-          duration: 240,
-          afterClose
-        });
-      } else {
-        alertEl.classList.add('is-closing');
-        alertEl.classList.remove('show');
-        alertEl.setAttribute('aria-hidden', 'true');
-        setTimeout(async () => {
-          alertEl.classList.remove('is-closing');
-          await afterClose();
-        }, 280);
+      } finally {
+        resolve({ action, value: isConfirm });
       }
     };
 
