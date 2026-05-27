@@ -1125,3 +1125,53 @@ body.env-dev .dev-env,
 body.env-dev [id$="EnvBadge"] {
   display: inline-flex !important;
 }
+
+/* ===== v20260527: calendar day modal / benefit detail stack order hard fix =====
+   common-loading.css is loaded after app.css and has a broad [role="dialog"][aria-modal="true"] z-index rule.
+   Re-apply the stacked modal order here so calendar day detail opens above the day popup. */
+#calendarDayModal.upick-div-dialog,
+#calendarDayModal.upick-div-dialog[open],
+#calendarDayModal.upick-div-dialog.show,
+#calendarDayModal.upick-div-dialog.upick-motion-open,
+#calendarDayModal[role="dialog"][aria-modal="true"]{
+  z-index:2147483200!important;
+}
+#calendarReservationModal.upick-div-dialog,
+#calendarReservationModal.upick-div-dialog[open],
+#calendarReservationModal.upick-div-dialog.show,
+#calendarReservationModal.upick-div-dialog.upick-motion-open,
+#calendarReservationModal[role="dialog"][aria-modal="true"]{
+  z-index:2147483300!important;
+}
+#detailModal.upick-div-dialog.upick-over-calendar-day,
+#detailModal.upick-div-dialog.upick-over-calendar-day[open],
+#detailModal.upick-div-dialog.upick-over-calendar-day.show,
+#detailModal.upick-div-dialog.upick-over-calendar-day.upick-motion-open,
+#detailModal.upick-over-calendar-day[role="dialog"][aria-modal="true"]{
+  z-index:2147483590!important;
+}
+#detailModal.upick-div-dialog.upick-over-calendar-day .upick-div-modal-backdrop,
+#detailModal.upick-over-calendar-day .upick-div-modal-backdrop{
+  z-index:0!important;
+}
+#detailModal.upick-div-dialog.upick-over-calendar-day > .upick-div-modal-panel,
+#detailModal.upick-div-dialog.upick-over-calendar-day > .upick-div-dialog-panel,
+#detailModal.upick-over-calendar-day > .upick-div-modal-panel,
+#detailModal.upick-over-calendar-day > .upick-div-dialog-panel{
+  position:relative!important;
+  z-index:1!important;
+}
+
+/* ===== v20260527: keep reservation modal above detail when opened from calendar day stack ===== */
+#calendarReservationModal.upick-div-dialog.upick-from-calendar-day-stack,
+#calendarReservationModal.upick-div-dialog.upick-from-calendar-day-stack[open],
+#calendarReservationModal.upick-div-dialog.upick-from-calendar-day-stack.show,
+#calendarReservationModal.upick-div-dialog.upick-from-calendar-day-stack.upick-motion-open,
+#calendarReservationModal.upick-from-calendar-day-stack[role="dialog"][aria-modal="true"]{
+  z-index:2147483595!important;
+}
+#calendarReservationModal.upick-div-dialog.upick-from-calendar-day-stack > .upick-div-dialog-panel{
+  position:relative!important;
+  z-index:2!important;
+  pointer-events:auto!important;
+}

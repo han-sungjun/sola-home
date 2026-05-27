@@ -3,6 +3,7 @@ async function upickSessionAlert(message) {
     await window.showCommonAlert({ message });
     return;
   }
+  if (typeof window !== "undefined" && typeof window.showAppAlert === "function") { await window.showAppAlert({ message }); return; }
   alert(message);
 }
 

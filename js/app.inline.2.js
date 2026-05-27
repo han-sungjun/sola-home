@@ -17,12 +17,22 @@
   function closeGnbOnly(){
     var overlay = document.querySelector('#gnbOverlay, .gnb-overlay');
     var sheet = document.querySelector('#gnbSheet, .gnb-sheet');
-    if(overlay) overlay.classList.remove('show');
     if(sheet){
+      sheet.classList.add('is-closing','upick-motion-closing');
       sheet.classList.remove('show');
       sheet.setAttribute('aria-hidden', 'true');
     }
-    document.body.classList.remove('gnb-open');
+    function finish(){
+      if(sheet) sheet.classList.remove('is-closing','upick-motion-closing','gnb-enter');
+      document.body.classList.remove('gnb-open');
+      document.body.style.overflow = '';
+    }
+    if(window.UpickMotion && overlay){
+      window.UpickMotion.close(overlay, { duration:240, afterClose:finish });
+    }else{
+      if(overlay) overlay.classList.remove('show');
+      setTimeout(finish, 240);
+    }
   }
 
   document.addEventListener('click', function(event){

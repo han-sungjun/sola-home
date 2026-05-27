@@ -130,14 +130,30 @@ function openSheet(mode) {
   if (!modal) return;
 
   const nextMode = mode || 'nickname';
+  const panel = modal.querySelector('.sheet-panel');
   lastFocus = document.activeElement;
 
-  // display:none 상태에서 show를 바로 붙이면 시작 프레임이 생략되어 정적으로 보일 수 있습니다.
-  // 먼저 렌더링 가능한 상태로 만든 뒤, 다음 프레임에 show를 붙여 아래→위 애니메이션을 확실히 실행합니다.
-  modal.classList.remove('show', 'closing');
+  modal.classList.remove('show', 'closing', 'is-closing', 'upick-motion-closing');
+  panel?.classList.remove('show', 'closing', 'is-closing', 'upick-motion-closing');
   modal.classList.add('ready');
   modal.setAttribute('aria-hidden', 'false');
   switchTab(nextMode);
+
+  if (window.UpickMotion) {
+    window.UpickMotion.open(modal, {
+      activeClass: 'show',
+      closingClass: 'closing',
+      panel,
+      duration: 260,
+      afterOpen: () => {
+        window.setTimeout(() => {
+          const first = sections[nextMode]?.querySelector('input, button');
+          first?.focus?.();
+        }, 80);
+      }
+    });
+    return;
+  }
 
   requestAnimationFrame(() => {
     requestAnimationFrame(() => {
@@ -192,15 +208,31 @@ function resetAccountRecoveryForm() {
 function closeSheet() {
   if (!modal) return;
 
+  const panel = modal.querySelector('.sheet-panel');
+
+  const afterClose = () => {
+    modal.classList.remove('ready', 'closing', 'is-closing', 'upick-motion-layer', 'upick-motion-open', 'upick-motion-closing');
+    panel?.classList.remove('upick-motion-panel', 'upick-motion-open', 'upick-motion-closing', 'closing', 'is-closing');
+    resetAccountRecoveryForm();
+    lastFocus?.focus?.();
+  };
+
+  if (window.UpickMotion) {
+    window.UpickMotion.close(modal, {
+      activeClass: 'show',
+      closingClass: 'closing',
+      panel,
+      duration: 280,
+      afterClose
+    });
+    return;
+  }
+
   modal.classList.remove('show');
   modal.classList.add('closing');
   modal.setAttribute('aria-hidden', 'true');
 
-  window.setTimeout(() => {
-    modal.classList.remove('ready', 'closing');
-    resetAccountRecoveryForm();
-    lastFocus?.focus?.();
-  }, 360);
+  window.setTimeout(afterClose, 360);
 }
 function getSheetBody() {
   return modal?.querySelector('.sheet-body') || null;
@@ -280,17 +312,30 @@ async function showAppAlert({
   const normalizedCancelText = cancelText || '';
 
   if (typeof window.showCommonConfirm === 'function' && typeof window.showCommonAlert === 'function') {
+    const runConfirm = async () => {
+      if (typeof onConfirm === 'function') await onConfirm();
+      else if (closeSheetOnConfirm) closeSheet();
+    };
+    const runCancel = async () => {
+      if (typeof onCancel === 'function') await onCancel();
+      else if (closeSheetOnCancel) closeSheet();
+    };
     const ok = hasCancel
-      ? await window.showCommonConfirm({ title, message, confirmText: normalizedConfirmText, cancelText: normalizedCancelText || '취소' })
-      : await window.showCommonAlert({ title, message, confirmText: normalizedConfirmText });
-    try {
-      if (ok && typeof onConfirm === 'function') await onConfirm();
-      else if (!ok && typeof onCancel === 'function') await onCancel();
-      else if (ok && closeSheetOnConfirm) closeSheet();
-      else if (!ok && closeSheetOnCancel) closeSheet();
-    } finally {
-      return { action: ok ? 'confirm' : 'cancel', value: !!ok };
-    }
+      ? await window.showCommonConfirm({
+          title,
+          message,
+          confirmText: normalizedConfirmText,
+          cancelText: normalizedCancelText || '취소',
+          onConfirm: runConfirm,
+          onCancel: runCancel
+        })
+      : await window.showCommonAlert({
+          title,
+          message,
+          confirmText: normalizedConfirmText,
+          onConfirm: runConfirm
+        });
+    return { action: ok ? 'confirm' : 'cancel', value: !!ok };
   }
 
   if (!alertEl || !alertTitleEl || !alertMsgEl || !alertConfirmEl || !alertCancelEl) {
@@ -331,20 +376,34 @@ async function showAppAlert({
       const callback = isConfirm ? onConfirm : onCancel;
       const shouldCloseSheet = isConfirm ? closeSheetOnConfirm : closeSheetOnCancel;
 
-      alertEl.classList.remove('show');
-      alertEl.setAttribute('aria-hidden', 'true');
-
       // 현재 알럿 버튼 핸들러를 먼저 비워 다음 알럿과 충돌하지 않게 합니다.
       alertConfirmEl.onclick = null;
       alertCancelEl.onclick = null;
+      alertConfirmEl.disabled = true;
+      alertCancelEl.disabled = true;
 
       try {
+        if (window.UpickMotion && typeof window.UpickMotion.close === 'function') {
+          await window.UpickMotion.close(alertEl, {
+            activeClass: 'show',
+            panel: alertEl.querySelector('.app-alert-card'),
+            duration: 360,
+            afterClose: () => alertEl.setAttribute('aria-hidden', 'true')
+          });
+        } else {
+          alertEl.classList.remove('show');
+          alertEl.setAttribute('aria-hidden', 'true');
+          await new Promise((done) => setTimeout(done, 360));
+        }
+
         if (typeof callback === 'function') {
           await callback();
         } else if (shouldCloseSheet) {
           closeSheet();
         }
       } finally {
+        alertConfirmEl.disabled = false;
+        alertCancelEl.disabled = false;
         resolve({ action, value: isConfirm });
       }
     };

@@ -2731,6 +2731,15 @@ body {
 .account-recovery-panel {
   max-height: min(86vh, 760px);
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+.account-recovery-panel .sheet-body {
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  padding-right: 2px;
 }
 .account-recovery-tabs {
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -3665,4 +3674,34 @@ input[type="radio"]:not(:checked):focus-visible{
   outline:0 !important;
   border-color:#93c5fd !important;
   box-shadow:0 0 0 4px rgba(59,130,246,.14),inset 0 1px 0 rgba(255,255,255,.75) !important;
+}
+
+
+/* ===== v20260527-final: 계정 찾기 내부 스크롤/포커스링 보정 ===== */
+.account-recovery-panel{
+  max-height:min(88dvh,760px)!important;
+  overflow:hidden!important;
+}
+.account-recovery-panel .sheet-body{
+  min-height:0!important;
+  overflow-y:auto!important;
+  overflow-x:hidden!important;
+  overscroll-behavior:contain!important;
+  -webkit-overflow-scrolling:touch!important;
+  scrollbar-gutter:stable!important;
+  padding:10px 8px 18px!important;
+  margin:0 -4px!important;
+  scroll-padding-top:18px!important;
+  scroll-padding-bottom:18px!important;
+}
+.account-recovery-panel .sheet-section{
+  padding:0 2px 2px!important;
+}
+.account-recovery-panel .field{
+  scroll-margin-top:18px!important;
+}
+.account-recovery-panel input:focus,
+.account-recovery-panel button:focus-visible{
+  scroll-margin-top:18px!important;
+  scroll-margin-bottom:18px!important;
 }

@@ -1,21 +1,45 @@
-/* 더운정픽 공통 알럿/컨펌 v2026051602 */
+/* 더운정픽 공통 알럿/컨펌 - lightweight lock fix v20260527 */
 (function(){
   'use strict';
 
   var queue = Promise.resolve();
+  var ALERT_OPEN_DURATION = 280;
+  var ALERT_CLOSE_DURATION = 360;
   var lastFocus = null;
-  var alertEl = null;
-  var titleEl = null;
-  var messageEl = null;
-  var confirmBtn = null;
-  var cancelBtn = null;
-  var actionsEl = null;
+  var alertEl, titleEl, messageEl, confirmBtn, cancelBtn, actionsEl;
+  var scrollLock = {
+    active:false,
+    x:0,
+    y:0,
+    reasons:{},
+    ticking:false
+  };
+  var SCROLL_KEYS = {
+    'ArrowUp':true,'ArrowDown':true,'PageUp':true,'PageDown':true,
+    'Home':true,'End':true,' ':true,'Spacebar':true
+  };
 
   function qs(sel, root){ return (root || document).querySelector(sel); }
   function escapeText(value){ return String(value == null ? '' : value); }
+  function hasReason(){ return Object.keys(scrollLock.reasons).some(function(key){ return scrollLock.reasons[key]; }); }
+
+  function getAlertPanel(){ return alertEl ? qs('.app-alert-card', alertEl) : null; }
 
   function ensureAlert(){
     alertEl = qs('#appAlert');
+    // 공통 알럿은 <dialog>를 쓰지 않습니다.
+    // dialog는 브라우저 top-layer/close/focus 복귀가 섞여 fade-out 전에 콜백처럼 보이는 현상이 생겨
+    // 모든 페이지에서 div 기반 레이어로 통일합니다.
+    if(alertEl && alertEl.tagName === 'DIALOG'){
+      var div = document.createElement('div');
+      div.id = alertEl.id || 'appAlert';
+      div.className = alertEl.className || 'app-alert';
+      div.setAttribute('aria-hidden', alertEl.getAttribute('aria-hidden') || 'true');
+      div.innerHTML = alertEl.innerHTML;
+      try{ alertEl.close && alertEl.close(); }catch(_){}
+      alertEl.replaceWith(div);
+      alertEl = div;
+    }
     if(!alertEl){
       alertEl = document.createElement('div');
       alertEl.id = 'appAlert';
@@ -36,88 +60,222 @@
       document.body.appendChild(alertEl);
     }
 
+    if(alertEl.parentElement !== document.body) document.body.appendChild(alertEl);
+
     titleEl = qs('#appAlertTitle', alertEl) || qs('#appAlertTitle');
     messageEl = qs('#appAlertMessage', alertEl) || qs('#appAlertMessage');
     confirmBtn = qs('#appAlertConfirm', alertEl) || qs('#appAlertConfirm');
     cancelBtn = qs('#appAlertCancel', alertEl) || qs('#appAlertCancel');
+    actionsEl = qs('.app-alert-actions', alertEl);
 
-    var actions = qs('.app-alert-actions', alertEl);
-    actionsEl = actions;
-    if(actions && !cancelBtn){
+    if(actionsEl && !cancelBtn){
       cancelBtn = document.createElement('button');
       cancelBtn.className = 'app-alert-cancel hidden';
       cancelBtn.id = 'appAlertCancel';
       cancelBtn.type = 'button';
       cancelBtn.textContent = '취소';
-      actions.insertBefore(cancelBtn, actions.firstChild);
+      actionsEl.insertBefore(cancelBtn, actionsEl.firstChild);
     }
-    if(actions && !confirmBtn){
+    if(actionsEl && !confirmBtn){
       confirmBtn = document.createElement('button');
       confirmBtn.className = 'app-alert-confirm';
       confirmBtn.id = 'appAlertConfirm';
       confirmBtn.type = 'button';
       confirmBtn.textContent = '확인';
-      actions.appendChild(confirmBtn);
+      actionsEl.appendChild(confirmBtn);
     }
 
-    if(alertEl.parentElement !== document.body){
-      document.body.appendChild(alertEl);
+    // 바깥 클릭으로 닫히지 않도록 오버레이에서 이벤트를 삼킵니다.
+    if(!alertEl.__upickBackdropGuard){
+      ['click','pointerdown','mousedown','touchstart'].forEach(function(type){
+        alertEl.addEventListener(type, function(event){
+          if(event.target === alertEl){
+            event.preventDefault();
+            event.stopPropagation();
+            if(event.stopImmediatePropagation) event.stopImmediatePropagation();
+          }
+        }, true);
+      });
+      alertEl.__upickBackdropGuard = true;
     }
-
-    alertEl.addEventListener('click', blockBackdropClose, true);
-    alertEl.addEventListener('pointerdown', blockBackdropClose, true);
-
     return alertEl;
   }
 
-  function blockBackdropClose(event){
-    if(event.target === alertEl){
-      event.preventDefault();
-      event.stopPropagation();
-      if(event.stopImmediatePropagation) event.stopImmediatePropagation();
+  function isAlertOpen(){
+    var el = alertEl || qs('#appAlert');
+    return !!(el && el.classList && el.classList.contains('show'));
+  }
+  window.__upickHasVisibleAppAlert = isAlertOpen;
+
+  function isScrollable(el){
+    if(!el || el === document || el === document.body || el === document.documentElement) return false;
+    var style = window.getComputedStyle ? window.getComputedStyle(el) : null;
+    if(!style) return false;
+    var y = style.overflowY;
+    return /(auto|scroll|overlay)/.test(y) && el.scrollHeight > el.clientHeight + 1;
+  }
+
+  function allowInnerScroll(target){
+    if(!target || !target.closest) return false;
+    var panel = target.closest('.app-alert-card,.common-modal-overlay,.sheet-modal.show,.sheet-modal.is-open,.bottom-sheet.show,.bottom-sheet.is-open,.auth-bottom-sheet.show,.auth-bottom-sheet.is-open,.account-recovery-sheet.show,.account-recovery-sheet.is-open,.admin-modal.show,.admin-modal.is-open,.admin-dialog.show,.admin-dialog.is-open,.modal.show,.modal.is-open,dialog[open],#gnbSheet.show,.gnb-sheet.show');
+    if(!panel) return false;
+    var node = target;
+    while(node && node !== panel.parentElement){
+      if(isScrollable(node)) return true;
+      if(node === panel) break;
+      node = node.parentElement;
+    }
+    // 알럿 카드 자체는 내부 스크롤을 허용합니다.
+    return !!target.closest('.app-alert-card');
+  }
+
+  function preventBackgroundScroll(event){
+    if(!scrollLock.active) return;
+    if(allowInnerScroll(event.target)) return;
+    event.preventDefault();
+    event.stopPropagation();
+    if(event.stopImmediatePropagation) event.stopImmediatePropagation();
+  }
+
+  function preventScrollKeys(event){
+    if(!scrollLock.active || !SCROLL_KEYS[event.key]) return;
+    if(allowInnerScroll(event.target)) return;
+    preventBackgroundScroll(event);
+  }
+
+  function restoreScrollPosition(){
+    if(!scrollLock.active || scrollLock.ticking) return;
+    var x = window.pageXOffset || document.documentElement.scrollLeft || document.body.scrollLeft || 0;
+    var y = window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop || 0;
+    if(x === scrollLock.x && y === scrollLock.y) return;
+    scrollLock.ticking = true;
+    requestAnimationFrame(function(){
+      window.scrollTo(scrollLock.x, scrollLock.y);
+      scrollLock.ticking = false;
+    });
+  }
+
+  function setScrollLock(reason, active){
+    reason = reason || 'default';
+    if(active) scrollLock.reasons[reason] = true;
+    else delete scrollLock.reasons[reason];
+
+    var shouldLock = hasReason();
+    if(scrollLock.active === shouldLock) return;
+
+    scrollLock.active = shouldLock;
+    document.documentElement.classList.toggle('upick-layer-scroll-lock', shouldLock);
+    document.body.classList.toggle('upick-layer-scroll-lock', shouldLock);
+
+    if(shouldLock){
+      scrollLock.x = window.pageXOffset || document.documentElement.scrollLeft || document.body.scrollLeft || 0;
+      scrollLock.y = window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop || 0;
+      document.documentElement.style.scrollbarGutter = document.documentElement.style.scrollbarGutter || 'stable';
+      document.body.style.scrollbarGutter = document.body.style.scrollbarGutter || 'stable';
     }
   }
+
+  window.__upickHardScrollFreeze = {
+    lock:function(reason){ setScrollLock(reason, true); },
+    unlock:function(reason){ setScrollLock(reason, false); },
+    sync:function(reason, active){ setScrollLock(reason, !!active); },
+    isLocked:function(){ return scrollLock.active; },
+    forceUnlock:function(){ scrollLock.reasons = {}; setScrollLock('force', false); }
+  };
+
+  document.addEventListener('wheel', preventBackgroundScroll, {capture:true, passive:false});
+  document.addEventListener('touchmove', preventBackgroundScroll, {capture:true, passive:false});
+  document.addEventListener('keydown', preventScrollKeys, true);
+  window.addEventListener('scroll', restoreScrollPosition, {capture:true, passive:true});
 
   function setOpenLock(open){
     document.documentElement.classList.toggle('upick-alert-open', !!open);
     document.body.classList.toggle('upick-alert-open', !!open);
+    setScrollLock('alert', !!open);
     if(typeof window.__upickSyncModalScrollLock === 'function'){
       setTimeout(window.__upickSyncModalScrollLock, 0);
     }
   }
 
-  function openLayer(){
-    ensureAlert();
-    lastFocus = document.activeElement;
-    alertEl.classList.add('show');
-    alertEl.setAttribute('aria-hidden','false');
-    setOpenLock(true);
+  function forceClearAlertLockIfClosed(){
+    if(isAlertOpen()) return;
+    document.documentElement.classList.remove('upick-alert-open');
+    document.body.classList.remove('upick-alert-open');
+    setScrollLock('alert', false);
+    if(typeof window.__upickSyncModalScrollLock === 'function') window.__upickSyncModalScrollLock();
+  }
 
-    if(typeof alertEl.showModal === 'function' && alertEl.tagName === 'DIALOG' && !alertEl.open){
-      try{ alertEl.showModal(); }catch(_){ alertEl.setAttribute('open',''); }
-    }
+  function openNativeDialogIfNeeded(){
+    // div 기반 공통 알럿으로 통일했기 때문에 native dialog 동작은 사용하지 않습니다.
+  }
+  function closeNativeDialogIfNeeded(){
+    // div 기반 공통 알럿으로 통일했기 때문에 native dialog close 동작은 사용하지 않습니다.
+  }
+  function focusConfirm(){
     requestAnimationFrame(function(){
       try{ confirmBtn && confirmBtn.focus({preventScroll:true}); }catch(_){ try{ confirmBtn && confirmBtn.focus(); }catch(__){} }
     });
   }
 
+  function openLayer(){
+    ensureAlert();
+    lastFocus = document.activeElement;
+    if(window.UpickMotion && typeof window.UpickMotion.open === 'function'){
+      return window.UpickMotion.open(alertEl, {
+        activeClass:'show', panel:getAlertPanel(), duration:ALERT_OPEN_DURATION,
+        beforeOpen:function(){ openNativeDialogIfNeeded(); setOpenLock(true); },
+        afterOpen:focusConfirm
+      });
+    }
+    alertEl.classList.add('show');
+    alertEl.setAttribute('aria-hidden','false');
+    openNativeDialogIfNeeded();
+    setOpenLock(true);
+    focusConfirm();
+    return Promise.resolve(true);
+  }
+
   function closeLayer(){
-    if(!alertEl) return;
+    if(!alertEl) return Promise.resolve(false);
+    function afterClose(){
+      closeNativeDialogIfNeeded();
+      alertEl.setAttribute('aria-hidden','true');
+      setOpenLock(false);
+      forceClearAlertLockIfClosed();
+      if(lastFocus && typeof lastFocus.focus === 'function'){
+        try{ lastFocus.focus({preventScroll:true}); }catch(_){ try{ lastFocus.focus(); }catch(__){} }
+      }
+      lastFocus = null;
+    }
+    if(window.UpickMotion && typeof window.UpickMotion.close === 'function'){
+      return window.UpickMotion.close(alertEl, {
+        activeClass:'show', panel:getAlertPanel(), duration:ALERT_CLOSE_DURATION,
+        afterClose:afterClose
+      });
+    }
     alertEl.classList.remove('show');
-    alertEl.setAttribute('aria-hidden','true');
-    if(alertEl.tagName === 'DIALOG' && alertEl.open){
-      try{ alertEl.close(); }catch(_){ alertEl.removeAttribute('open'); }
-    }
-    setOpenLock(false);
-    if(lastFocus && typeof lastFocus.focus === 'function'){
-      try{ lastFocus.focus({preventScroll:true}); }catch(_){ try{ lastFocus.focus(); }catch(__){} }
-    }
-    lastFocus = null;
+    setTimeout(afterClose, ALERT_CLOSE_DURATION);
+    return Promise.resolve(true);
   }
 
   function normalizeOptions(input, maybeOptions){
-    if(typeof input === 'string') return Object.assign({ message: input }, maybeOptions || {});
-    return Object.assign({}, input || {});
+    var extra = {};
+    if(typeof maybeOptions === 'function') extra.callback = maybeOptions;
+    else if(maybeOptions && typeof maybeOptions === 'object') extra = maybeOptions;
+    if(typeof input === 'string') return Object.assign({message:input}, extra);
+    return Object.assign({}, input || {}, extra);
+  }
+
+  function runAlertCallback(options, value){
+    var callback = value === true ? (options.onConfirm || options.callback || options.onClose) : (options.onCancel || options.callback || options.onClose);
+    if(typeof callback !== 'function') return Promise.resolve();
+    try{ return Promise.resolve(callback(value)); }
+    catch(error){ return Promise.reject(error); }
+  }
+
+  function restoreAlertButtons(){
+    if(confirmBtn) confirmBtn.disabled = false;
+    if(cancelBtn) cancelBtn.disabled = false;
   }
 
   function showCommonAlert(input, maybeOptions){
@@ -131,19 +289,20 @@
       cancelBtn.textContent = escapeText(options.cancelText || '취소');
       cancelBtn.classList.add('hidden');
       cancelBtn.setAttribute('aria-hidden','true');
-      if(actionsEl){
-        actionsEl.classList.add('is-alert');
-        actionsEl.classList.remove('is-confirm');
-      }
+      if(actionsEl){ actionsEl.classList.add('is-alert'); actionsEl.classList.remove('is-confirm'); }
       confirmBtn.onclick = null;
       cancelBtn.onclick = null;
-      var finish = function(){
-        confirmBtn.onclick = null;
-        cancelBtn.onclick = null;
-        closeLayer();
-        resolve(true);
+      var closing = false;
+      confirmBtn.onclick = function(){
+        if(closing) return;
+        closing = true;
+        confirmBtn.disabled = true;
+        if(cancelBtn) cancelBtn.disabled = true;
+        Promise.resolve(closeLayer()).catch(function(){ return true; })
+          .then(function(){ return runAlertCallback(options, true).catch(function(error){ console.warn('[UpickAlert] callback failed:', error); }); })
+          .then(function(){ resolve(true); })
+          .finally(function(){ restoreAlertButtons(); setTimeout(forceClearAlertLockIfClosed, 0); });
       };
-      confirmBtn.onclick = finish;
       openLayer();
     });
   }
@@ -160,18 +319,21 @@
       cancelBtn.setAttribute('aria-label', cancelBtn.textContent);
       cancelBtn.classList.remove('hidden');
       cancelBtn.removeAttribute('aria-hidden');
-      if(actionsEl){
-        actionsEl.classList.add('is-confirm');
-        actionsEl.classList.remove('is-alert');
-      }
+      if(actionsEl){ actionsEl.classList.add('is-confirm'); actionsEl.classList.remove('is-alert'); }
       confirmBtn.onclick = null;
       cancelBtn.onclick = null;
-      var finish = function(value){
-        confirmBtn.onclick = null;
-        cancelBtn.onclick = null;
-        closeLayer();
-        resolve(!!value);
-      };
+      var closing = false;
+      function finish(value){
+        if(closing) return;
+        closing = true;
+        var result = !!value;
+        confirmBtn.disabled = true;
+        if(cancelBtn) cancelBtn.disabled = true;
+        Promise.resolve(closeLayer()).catch(function(){ return true; })
+          .then(function(){ return runAlertCallback(options, result).catch(function(error){ console.warn('[UpickAlert] callback failed:', error); }); })
+          .then(function(){ resolve(result); })
+          .finally(function(){ restoreAlertButtons(); setTimeout(forceClearAlertLockIfClosed, 0); });
+      }
       confirmBtn.onclick = function(){ finish(true); };
       cancelBtn.onclick = function(){ finish(false); };
       openLayer();
@@ -179,14 +341,12 @@
   }
 
   function enqueue(job){
-    queue = queue.catch(function(){}).then(function(){
-      return new Promise(job);
-    });
+    queue = queue.catch(function(){}).then(function(){ return new Promise(job); });
     return queue;
   }
 
   document.addEventListener('keydown', function(event){
-    if(!alertEl || !alertEl.classList.contains('show')) return;
+    if(!isAlertOpen()) return;
     if(event.key === 'Escape'){
       event.preventDefault();
       event.stopPropagation();
@@ -196,94 +356,102 @@
     }
   }, true);
 
+  function focusAfterClose(target){
+    if(target && typeof target.focus === 'function'){
+      try{ target.focus({preventScroll:true}); }catch(_){ try{ target.focus(); }catch(__){} }
+    }
+  }
+  function openModalAlertCompat(message, focusTarget, title){
+    return showCommonAlert({ title:title || '안내', message:message || '', confirmText:'확인', onClose:function(){ focusAfterClose(focusTarget); } });
+  }
+  function openModalConfirmCompat(message, focusTarget, title, confirmText, cancelText){
+    return showCommonConfirm({ title:title || '확인', message:message || '', confirmText:confirmText || '확인', cancelText:cancelText || '취소', onCancel:function(){ focusAfterClose(focusTarget); } });
+  }
+
+  window.UpickAlert = Object.assign(window.UpickAlert || {}, {
+    alert:showCommonAlert,
+    confirm:showCommonConfirm,
+    openModalAlert:openModalAlertCompat,
+    openModalConfirm:openModalConfirmCompat,
+    closeDuration:ALERT_CLOSE_DURATION,
+    openDuration:ALERT_OPEN_DURATION
+  });
   window.showCommonAlert = showCommonAlert;
   window.showCommonConfirm = showCommonConfirm;
-  window.showAppAlert = window.showAppAlert || showCommonAlert;
-  window.showAppConfirm = window.showAppConfirm || showCommonConfirm;
+  window.showAppAlert = showCommonAlert;
+  window.showAppConfirm = showCommonConfirm;
+  window.showAlert = showCommonAlert;
+  window.showConfirm = showCommonConfirm;
+  window.openModalAlert = openModalAlertCompat;
+  window.openModalConfirm = openModalConfirmCompat;
+
+  // 로딩바가 남아 있어도 알럿 레이어가 항상 위에 오도록 최소 보정만 수행합니다.
+  window.upickAlertOverLoadingFix = function(){
+    document.querySelectorAll('#globalLoadingBar,.global-loading,.page-loader').forEach(function(el){
+      el.style.pointerEvents = 'none';
+      el.style.zIndex = '2147483000';
+    });
+  };
 
   if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', ensureAlert, {once:true});
   else ensureAlert();
 })();
 
-
-/* upickAlertOverLoadingFix: 알럿이 로딩바와 동시에 떠도 확인 버튼 클릭 가능 */
+/* 더운정픽 모달/바텀시트 스크롤 잠금 - lightweight sync */
 (function(){
-  window.upickAlertOverLoadingFix = function(){
-    var loaders = document.querySelectorAll('#globalLoadingBar,.global-loading,.page-loader');
-    loaders.forEach(function(el){
-      el.style.pointerEvents = 'none';
-      el.style.zIndex = '2147483000';
-    });
-    document.querySelectorAll('dialog[open], #appAlert, .common-alert, .app-alert, .modal-alert, .alert-backdrop, .common-alert-backdrop').forEach(function(el){
-      el.style.zIndex = '2147483600';
-      el.style.pointerEvents = 'auto';
-    });
-  };
-  document.addEventListener('click', function(e){
-    if(e.target && e.target.closest && e.target.closest('dialog[open], #appAlert, .common-alert, .app-alert, .modal-alert')){
-      window.upickAlertOverLoadingFix();
-    }
-  }, true);
-})();
-
-
-/* ===== Fix v4: 알럿 표시 중 로딩 잠금 클래스가 확인 버튼을 막지 않도록 강제 해제 ===== */
-(function(){
-  const LOCK_CLASSES = [
-    'upick-loading-lock',
-    'ui-loading-lock',
-    'upick-modal-lock',
-    'upick-modal-hard-lock',
-    'upick-alert-open'
+  'use strict';
+  var selectors = [
+    '.common-modal-overlay.show','.common-modal-overlay.is-open','.common-modal-overlay[open]',
+    '.modal-backdrop.show','.modal-backdrop.is-open','dialog[open]:not(#appAlert)',
+    '.sheet-modal.show','.sheet-modal.is-open','.bottom-sheet.show','.bottom-sheet.is-open',
+    '.auth-bottom-sheet.show','.auth-bottom-sheet.is-open','.account-recovery-sheet.show','.account-recovery-sheet.is-open',
+    '.admin-modal.show','.admin-modal.is-open','.admin-dialog.show','.admin-dialog.is-open',
+    '.modal.show','.modal.is-open','.modal-overlay.show','.modal-overlay.is-open',
+    '#gnbSheet.show','.gnb-sheet.show'
   ];
+  var active = false;
+  var scheduled = false;
 
-  function hasVisibleAlert(){
-    return !!document.querySelector(
-      'dialog[open], #appAlert[open], #appAlert.show, .common-alert.show, .app-alert.show, .modal-alert.show, [data-upick-common-alert][open]'
-    );
+  function isVisible(el){
+    if(!el || el.closest('[aria-hidden="true"]')) return false;
+    if(el.hidden) return false;
+    var style = window.getComputedStyle ? window.getComputedStyle(el) : null;
+    if(style && (style.display === 'none' || style.visibility === 'hidden')) return false;
+    return !!(el.offsetWidth || el.offsetHeight || (el.getClientRects && el.getClientRects().length));
   }
-
-  function unlockForAlertClick(){
-    if(!hasVisibleAlert()) return;
-
-    LOCK_CLASSES.forEach(function(cls){
-      document.body && document.body.classList.remove(cls);
-      document.documentElement && document.documentElement.classList.remove(cls);
-    });
-
-    document.querySelectorAll('#globalLoadingBar,.global-loading,.page-loader').forEach(function(loader){
-      loader.style.pointerEvents = 'none';
-      loader.style.zIndex = '2147483000';
-      loader.classList.remove('show');
-      loader.setAttribute('aria-hidden', 'true');
-    });
-
-    document.querySelectorAll('dialog[open], #appAlert, .common-alert, .app-alert, .modal-alert').forEach(function(alertEl){
-      alertEl.style.pointerEvents = 'auto';
-      alertEl.style.zIndex = '2147483600';
-    });
-
-    document.querySelectorAll('dialog[open] button, #appAlert button, .common-alert button, .app-alert button, .modal-alert button').forEach(function(btn){
-      btn.style.pointerEvents = 'auto';
-      btn.disabled = false;
-      btn.removeAttribute('aria-disabled');
-    });
-  }
-
-  window.__upickUnlockForAlertClick = unlockForAlertClick;
-
-  document.addEventListener('click', function(event){
-    if(event.target && event.target.closest && event.target.closest('dialog[open], #appAlert, .common-alert, .app-alert, .modal-alert')){
-      unlockForAlertClick();
+  function hasOpenLayer(){
+    for(var i=0;i<selectors.length;i++){
+      var list = document.querySelectorAll(selectors[i]);
+      for(var j=0;j<list.length;j++) if(isVisible(list[j])) return true;
     }
-  }, true);
-
-  document.addEventListener('keydown', function(event){
-    if(event.key === 'Enter' || event.key === ' ' || event.key === 'Escape') unlockForAlertClick();
-  }, true);
-
-  const timer = setInterval(unlockForAlertClick, 180);
-  window.addEventListener('beforeunload', function(){ clearInterval(timer); });
-  document.addEventListener('DOMContentLoaded', unlockForAlertClick);
-  window.addEventListener('load', unlockForAlertClick);
+    return false;
+  }
+  function set(activeNext){
+    activeNext = !!activeNext;
+    if(active === activeNext) return;
+    active = activeNext;
+    if(window.__upickHardScrollFreeze) window.__upickHardScrollFreeze.sync('layer', active);
+    document.documentElement.classList.toggle('upick-layer-scroll-lock', active || (window.__upickHardScrollFreeze && window.__upickHardScrollFreeze.isLocked()));
+    document.body.classList.toggle('upick-layer-scroll-lock', active || (window.__upickHardScrollFreeze && window.__upickHardScrollFreeze.isLocked()));
+  }
+  function sync(){
+    scheduled = false;
+    set(hasOpenLayer());
+  }
+  function requestSync(){
+    if(scheduled) return;
+    scheduled = true;
+    requestAnimationFrame(sync);
+  }
+  window.__upickSyncModalScrollLock = requestSync;
+  ['click','pointerdown','transitionend','animationend','keyup'].forEach(function(type){
+    document.addEventListener(type, requestSync, true);
+  });
+  if(window.MutationObserver){
+    // 전체 DOM subtree 감시는 공개앱에서 비용이 커서 body/html의 class 변경 중심으로만 감지합니다.
+    new MutationObserver(requestSync).observe(document.body || document.documentElement, {attributes:true, attributeFilter:['class','style','open','hidden']});
+    new MutationObserver(requestSync).observe(document.documentElement, {attributes:true, attributeFilter:['class','style']});
+  }
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', requestSync, {once:true});
+  else requestSync();
 })();

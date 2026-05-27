@@ -35,12 +35,14 @@
 <link href="/icons/splash-ios-828x1792.png" media="(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2)" rel="apple-touch-startup-image"/>
 <link href="/icons/splash-ios-1170x2532.png" media="(device-width: 390px) and (device-height: 844px) and (-webkit-device-pixel-ratio: 3)" rel="apple-touch-startup-image"/>
 <link href="/icons/splash-ios-1290x2796.png" media="(device-width: 430px) and (device-height: 932px) and (-webkit-device-pixel-ratio: 3)" rel="apple-touch-startup-image"/>
-<link href="/css/app.css?v=20260527-modal-dialog-center-v90" rel="stylesheet"/>
+<link href="/css/app.css?v=20260527-image-preview-final-v99" rel="stylesheet"/>
 <link href="/common/accessibility.css?v=2026051401" rel="stylesheet"/>
-<link href="/common/common-alert.css?v=2026051601" rel="stylesheet"/>
-<link href="/common/common-loading.css?v=2026052405" rel="stylesheet"/>
+<link href="/common/common-motion.css?v=20260527fadefix" rel="stylesheet"/>
+<link href="/common/common-alert.css?v=20260527fadefix" rel="stylesheet"/>
+<link href="/common/common-loading.css?v=20260527-stack-fix" rel="stylesheet"/>
 <link href="/common/common-modal.css?v=2026051604" rel="stylesheet"/>
-<script defer="" src="/common/common-alert.js?v=2026051601"></script>
+<script defer="" src="/common/common-motion.js?v=20260527fadefix"></script>
+<script defer="" src="/common/common-alert.js?v=20260527fadefix"></script>
 <script defer="" src="/common/common-loading.js?v=2026052405"></script>
 <script defer="" src="/common/common-modal.js?v=2026051604"></script>
 </head>
@@ -851,7 +853,9 @@
         </span>
 </button>
 </nav>
-<dialog id="detailModal">
+<div id="detailModal" class="upick-div-dialog upick-detail-div-modal" role="dialog" aria-modal="true" aria-hidden="true">
+<div class="upick-div-modal-backdrop" aria-hidden="true"></div>
+<div class="upick-div-modal-panel" role="document">
 <div class="modal-head">
 <div class="pill">
           혜택 상세
@@ -868,8 +872,10 @@
 </div>
 <div class="modal-body" id="modalBody">
 </div>
-</dialog>
-<dialog id="calendarReservationModal">
+</div>
+</div>
+<div id="calendarReservationModal" class="upick-div-dialog upick-nested-modal" aria-hidden="true" role="dialog" aria-modal="true">
+<div class="upick-div-dialog-panel" role="document">
 <div class="modal-head">
 <div class="pill">
           방문 알림 추가
@@ -934,8 +940,9 @@
 </div>
 </form>
 </div>
-</dialog>
-<dialog id="calendarDayModal">
+</div>
+</div>
+<div id="calendarDayModal" class="upick-div-dialog" aria-hidden="true" role="dialog" aria-modal="true">
 <div class="calendar-day-modal-head">
 <button aria-label="이전 날짜" class="calendar-day-modal-arrow" id="calendarDayPrevBtn" type="button">
           ‹
@@ -963,8 +970,10 @@
           </button>
 </div>
 </div>
-</dialog>
-<dialog id="noticeModal">
+</div>
+<div id="noticeModal" class="upick-div-dialog upick-notice-div-modal" role="dialog" aria-modal="true" aria-hidden="true">
+<div class="upick-div-modal-backdrop" aria-hidden="true"></div>
+<div class="upick-div-modal-panel" role="document">
 <div class="modal-head">
 <div class="pill">
           공지 상세
@@ -975,8 +984,9 @@
 </div>
 <div class="modal-body" id="noticeModalBody">
 </div>
-</dialog>
-<dialog id="communityEditorModal">
+</div>
+</div>
+<div id="communityEditorModal" class="upick-div-dialog" aria-hidden="true" role="dialog" aria-modal="true">
 <div class="modal-head">
 <div class="pill" id="communityEditorTitle">
           커뮤니티 글쓰기
@@ -1011,8 +1021,8 @@
           </button>
 </div>
 </div>
-</dialog>
-<dialog id="communityDetailModal">
+</div>
+<div id="communityDetailModal" class="upick-div-dialog" aria-hidden="true" role="dialog" aria-modal="true">
 <div class="modal-head">
 <div class="pill">
           커뮤니티
@@ -1033,8 +1043,8 @@
           </button>
 </div>
 </div>
-</dialog>
-<dialog id="communityReportModal">
+</div>
+<div id="communityReportModal" class="upick-div-dialog" aria-hidden="true" role="dialog" aria-modal="true">
 <div class="modal-head">
 <div class="pill">
           신고 사유 선택
@@ -1110,8 +1120,8 @@
           </button>
 </div>
 </div>
-</dialog>
-<dialog id="qrModal">
+</div>
+<div id="qrModal" class="upick-div-dialog" aria-hidden="true" role="dialog" aria-modal="true">
 <div class="modal-head">
 <div class="pill">
           공유 QR
@@ -1133,7 +1143,7 @@
           </button>
 </div>
 </div>
-</dialog>
+</div>
 <script crossorigin="anonymous" integrity="sha384-OL+ylM/iuPLtW5U3XcvLSGhE8JzReKDank5InqlHGWPhb4140/yrBw0bg0y7+C9J" src="https://t1.kakaocdn.net/kakao_js_sdk/2.8.1/kakao.min.js">
 </script>
 <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.1/build/qrcode.min.js">
@@ -1396,7 +1406,7 @@
 </div>
 </aside>
 
-<dialog id="settingsSuiteModal" class="gnb-management-dialog settings-suite-dialog">
+<div id="settingsSuiteModal" class="gnb-management-dialog settings-suite-dialog upick-div-dialog" aria-hidden="true" role="dialog" aria-modal="true">
   <div class="gnb-management-shell">
     <div class="gnb-management-head">
       <div>
@@ -1559,8 +1569,10 @@
 </div>
     </div>
   </div>
-</dialog>
-<dialog id="accountEditModal">
+</div>
+<div id="accountEditModal" class="upick-div-modal" role="dialog" aria-modal="true" aria-hidden="true">
+<div class="upick-div-modal-backdrop" aria-hidden="true"></div>
+<div class="upick-div-modal-panel" role="document">
 <div class="modal-head">
 <div class="pill">
           계정 정보 수정
@@ -1636,8 +1648,11 @@
 </div>
 </form>
 </div>
-</dialog>
-<dialog id="passwordChangeModal">
+</div>
+</div>
+<div id="passwordChangeModal" class="upick-div-modal" role="dialog" aria-modal="true" aria-hidden="true">
+<div class="upick-div-modal-backdrop" aria-hidden="true"></div>
+<div class="upick-div-modal-panel" role="document">
 <div class="modal-head">
 <div class="pill">
           비밀번호 변경
@@ -1681,8 +1696,9 @@
 </div>
 </form>
 </div>
-</dialog>
-<dialog aria-hidden="true" class="app-alert" id="appAlert">
+</div>
+</div>
+<div aria-hidden="true" class="app-alert" id="appAlert">
 <div aria-describedby="appAlertMessage" aria-labelledby="appAlertTitle" aria-modal="true" class="app-alert-card" role="alertdialog">
 <div class="app-alert-head">
 <div aria-hidden="true" class="app-alert-icon" id="appAlertIcon">
@@ -1700,6 +1716,7 @@
 <button class="app-alert-confirm" id="appAlertConfirm" type="button">
             확인
           </button>
+</div>
 </div>
 </div>
 <div aria-hidden="true" aria-live="polite" class="ai-daily-nudge-toast" id="aiDailyNudgeToast" role="status">
@@ -1726,19 +1743,20 @@
 </div>
 </div>
 <div aria-hidden="true" class="ai-image-zoom-backdrop" id="aiImageZoomBackdrop">
-<div class="ai-image-zoom-title" id="aiImageZoomTitle">
+  <div class="ai-image-zoom-card" role="document">
+    <div class="ai-image-zoom-title" id="aiImageZoomTitle">
           이미지 확대 보기
         </div>
-<button aria-label="닫기" class="ai-image-zoom-close" id="aiImageZoomCloseBtn" onclick="window.closeAiImageZoom &amp;&amp; window.closeAiImageZoom()" type="button">
+    <button aria-label="닫기" class="ai-image-zoom-close" id="aiImageZoomCloseBtn" onclick="window.closeAiImageZoom &amp;&amp; window.closeAiImageZoom()" type="button">
           ×
         </button>
-<div class="ai-image-zoom-scroll" id="aiImageZoomScroll">
-<img alt="확대 이미지" class="ai-image-zoom-img" id="aiImageZoomImg" src=""/>
+    <div class="ai-image-zoom-scroll" id="aiImageZoomScroll">
+      <img alt="확대 이미지" class="ai-image-zoom-img" id="aiImageZoomImg" src=""/>
+    </div>
+  </div>
 </div>
-</div>
-</dialog>
 <script id="upick-benefit-photo-drag-click-guard" src="app-inline-init.js"></script>
-<script src="/js/app.js?v=20260527-modal-dialog-center-v90" type="module">
+<script src="/js/app.js?v=20260527-mobile-image-modal-redesign-v2" type="module">
 </script> <script defer="" src="/common/password-field-enhance.js?v=2026051501"></script>
 <script defer="" src="/common/modal-backdrop-lock.js?v=2026051401"></script>
 <script defer="" src="/common/accessibility.js?v=2026051401"></script>

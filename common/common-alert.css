@@ -115,8 +115,11 @@ dialog.app-alert[open].show .app-alert-card{
 .app-alert-cancel.hidden,.app-alert-confirm.hidden{display:none!important;}
 
 html.upick-alert-open,
-body.upick-alert-open{overflow:hidden!important;overscroll-behavior:none!important;}
-body.upick-alert-open{touch-action:none!important;}
+body.upick-alert-open{
+  /* 성능/튐 방지를 위해 overflow:hidden/fixed를 쓰지 않습니다.
+     알럿 레이어와 JS 이벤트 가드가 배경 클릭/스크롤만 차단합니다. */
+  scrollbar-gutter:stable!important;
+}
 body.upick-alert-open .app-alert-card{touch-action:auto!important;}
 
 @media (max-width:420px){
@@ -205,61 +208,32 @@ dialog[open],
 }
 
 
-/* ===== Fix v4: 알럿 표시 중 body/html 잠금이 확인 버튼을 막지 않도록 해제 ===== */
-html:has(dialog[open]),
-body:has(dialog[open]),
-html:has(#appAlert[open]),
-body:has(#appAlert[open]),
-html:has(.common-alert.show),
-body:has(.common-alert.show),
-html:has(.app-alert.show),
-body:has(.app-alert.show),
-html:has(.modal-alert.show),
-body:has(.modal-alert.show) {
-  overflow: auto !important;
-  overscroll-behavior: auto !important;
-  touch-action: auto !important;
-  pointer-events: auto !important;
+/* ===== Fix v4 replaced: 알럿/모달 잠금 중 스크롤 해제 금지 =====
+   이전 버전의 :has(dialog[open]) overflow:auto 보정은 알럿/바텀팝업 표시 중
+   페이지 스크롤이 살아나는 원인이 되어 제거했습니다. 버튼 클릭 보장은 z-index/pointer-events만 담당합니다. */
+#globalLoadingBar,
+.global-loading,
+.page-loader{
+  pointer-events:none!important;
+  z-index:2147483000!important;
 }
-
-html:has(dialog[open]) #globalLoadingBar,
-body:has(dialog[open]) #globalLoadingBar,
-html:has(#appAlert[open]) #globalLoadingBar,
-body:has(#appAlert[open]) #globalLoadingBar,
-html:has(.common-alert.show) #globalLoadingBar,
-body:has(.common-alert.show) #globalLoadingBar,
-html:has(.app-alert.show) #globalLoadingBar,
-body:has(.app-alert.show) #globalLoadingBar,
-html:has(.modal-alert.show) #globalLoadingBar,
-body:has(.modal-alert.show) #globalLoadingBar,
-html:has(dialog[open]) .global-loading,
-body:has(dialog[open]) .global-loading,
-html:has(.common-alert.show) .global-loading,
-body:has(.common-alert.show) .global-loading {
-  display: none !important;
-  pointer-events: none !important;
-  z-index: 1 !important;
-}
-
-dialog[open],
-#appAlert[open],
+#appAlert,
 #appAlert.show,
-.common-alert.show,
+.app-alert,
 .app-alert.show,
-.modal-alert.show {
-  pointer-events: auto !important;
-  z-index: 2147483600 !important;
+dialog.app-alert,
+dialog.app-alert[open],
+.common-alert.show,
+.modal-alert.show{
+  z-index:2147483600!important;
 }
-
-dialog[open] button,
 #appAlert button,
-.common-alert button,
 .app-alert button,
-.modal-alert button {
-  pointer-events: auto !important;
+dialog.app-alert button,
+.common-alert.show button,
+.modal-alert.show button{
+  pointer-events:auto!important;
 }
-
-
 
 /* DEV 배지 높이 정렬 */
 .hero-top-row,
@@ -716,4 +690,288 @@ body.env-dev .dev-badge,
 body.env-dev .dev-env,
 body.env-dev [id$="EnvBadge"] {
   display: inline-flex !important;
+}
+
+/* v2026052701: 1차 공통 페이드 적용 - 알럿/컨펌만 연결
+   display:none 상태에서 바로 show를 붙이면 첫 페인트가 생략될 수 있어,
+   UpickMotion이 준비 중인 레이어는 display:flex 상태로 먼저 배치한 뒤 opacity만 전환합니다. */
+.app-alert.upick-motion-layer,
+dialog.app-alert.upick-motion-layer[open]{
+  display:flex!important;
+}
+.app-alert.upick-motion-layer:not(.show){
+  opacity:0!important;
+  visibility:hidden!important;
+  pointer-events:none!important;
+}
+.app-alert.upick-motion-layer.show{
+  opacity:1!important;
+  visibility:visible!important;
+  pointer-events:auto!important;
+}
+.app-alert.upick-motion-layer.is-closing,
+.app-alert.upick-motion-layer.upick-motion-closing{
+  display:flex!important;
+  opacity:0!important;
+  visibility:visible!important;
+  pointer-events:none!important;
+}
+.app-alert .app-alert-card.upick-motion-panel{
+  opacity:0!important;
+  transform:translateY(10px) scale(.98)!important;
+}
+.app-alert.show .app-alert-card.upick-motion-panel,
+.app-alert .app-alert-card.upick-motion-panel.upick-motion-open{
+  opacity:1!important;
+  transform:translateY(0) scale(1)!important;
+}
+.app-alert.is-closing .app-alert-card.upick-motion-panel,
+.app-alert.upick-motion-closing .app-alert-card.upick-motion-panel{
+  opacity:0!important;
+  transform:translateY(10px) scale(.98)!important;
+}
+
+
+/* v2026052702: 콜백 알럿 fade-out 보정
+   확인/취소 콜백이 있는 알럿도 닫힘 모션이 끝난 뒤 후속 로직이 실행되도록 JS duration과 CSS 전환 시간을 맞춥니다. */
+.app-alert.upick-motion-layer,
+dialog.app-alert.upick-motion-layer[open]{
+  transition:
+    opacity 360ms cubic-bezier(.22,.61,.36,1),
+    background-color 360ms cubic-bezier(.22,.61,.36,1),
+    backdrop-filter 360ms cubic-bezier(.22,.61,.36,1),
+    visibility 0s linear 360ms!important;
+}
+.app-alert.upick-motion-layer.show,
+dialog.app-alert.upick-motion-layer[open].show{
+  transition:
+    opacity 280ms cubic-bezier(.22,.61,.36,1),
+    background-color 280ms cubic-bezier(.22,.61,.36,1),
+    backdrop-filter 280ms cubic-bezier(.22,.61,.36,1),
+    visibility 0s linear 0s!important;
+}
+.app-alert.upick-motion-layer.is-closing,
+.app-alert.upick-motion-layer.upick-motion-closing,
+dialog.app-alert.upick-motion-layer[open].is-closing,
+dialog.app-alert.upick-motion-layer[open].upick-motion-closing{
+  opacity:0!important;
+  visibility:visible!important;
+  background:rgba(15,23,42,0)!important;
+  -webkit-backdrop-filter:blur(0)!important;
+  backdrop-filter:blur(0)!important;
+  transition:
+    opacity 360ms cubic-bezier(.22,.61,.36,1),
+    background-color 360ms cubic-bezier(.22,.61,.36,1),
+    backdrop-filter 360ms cubic-bezier(.22,.61,.36,1),
+    visibility 0s linear 360ms!important;
+}
+.app-alert .app-alert-card.upick-motion-panel{
+  transition:
+    opacity 280ms cubic-bezier(.16,1,.3,1),
+    transform 280ms cubic-bezier(.16,1,.3,1),
+    box-shadow 280ms cubic-bezier(.16,1,.3,1)!important;
+}
+.app-alert.is-closing .app-alert-card.upick-motion-panel,
+.app-alert.upick-motion-closing .app-alert-card.upick-motion-panel{
+  opacity:0!important;
+  transform:translateY(16px) scale(.975)!important;
+  transition:
+    opacity 360ms cubic-bezier(.22,.61,.36,1),
+    transform 360ms cubic-bezier(.22,.61,.36,1),
+    box-shadow 360ms cubic-bezier(.22,.61,.36,1)!important;
+}
+
+
+/* ===== v20260527-light: 알럿/모달 lock 성능 보정 =====
+   전체 DOM에 pointer-events:none을 거는 방식은 공개앱 성능을 떨어뜨리므로 사용하지 않습니다.
+   알럿/모달의 실제 레이어와 JS 이벤트 가드가 배경 클릭/스크롤만 차단합니다. */
+html{
+  overflow-y:scroll;
+  scrollbar-gutter:stable;
+}
+body{
+  overflow-x:hidden;
+  scrollbar-gutter:stable;
+}
+html.upick-alert-open,
+body.upick-alert-open,
+html.upick-layer-scroll-lock,
+body.upick-layer-scroll-lock,
+html.upick-hard-scroll-lock,
+body.upick-hard-scroll-lock{
+  overflow-y:scroll!important;
+  overflow-x:hidden!important;
+  scrollbar-gutter:stable!important;
+  overscroll-behavior:none!important;
+  scroll-behavior:auto!important;
+  position:static!important;
+  top:auto!important;
+  left:auto!important;
+  right:auto!important;
+}
+#appAlert,
+.app-alert,
+dialog.app-alert{
+  cursor:default!important;
+  pointer-events:auto!important;
+}
+#appAlert > *:not(.app-alert-card),
+.app-alert > *:not(.app-alert-card){
+  pointer-events:none!important;
+  cursor:default!important;
+}
+#appAlert .app-alert-card,
+#appAlert .app-alert-card *,
+.app-alert .app-alert-card,
+.app-alert .app-alert-card *{
+  pointer-events:auto!important;
+}
+#globalLoadingBar,
+.global-loading,
+.page-loader{
+  pointer-events:none!important;
+  z-index:2147483000!important;
+}
+
+
+/* ===== v20260527-stable-scrollbar-width: 페이지 가로폭 흔들림 방지 =====
+   알럿/바텀팝업이 열리고 닫힐 때 스크롤바 레일을 항상 유지합니다. */
+html{
+  overflow-y:scroll!important;
+  scrollbar-gutter:stable!important;
+}
+body{
+  overflow-x:hidden!important;
+  scrollbar-gutter:stable!important;
+}
+html.upick-alert-open,
+body.upick-alert-open,
+html.upick-layer-scroll-lock,
+body.upick-layer-scroll-lock{
+  overflow-y:scroll!important;
+  overflow-x:hidden!important;
+  position:static!important;
+  scrollbar-gutter:stable!important;
+}
+
+
+/* ===== v20260527-final: 알럿/레이어 lock 중 페이지 폭 보존 =====
+   body/html의 width/max-width는 건드리지 않고 스크롤바 레일만 유지합니다. */
+html,
+body{
+  scrollbar-gutter:stable!important;
+}
+html.upick-alert-open,
+html.upick-layer-scroll-lock,
+html.upick-hard-scroll-lock,
+body.upick-alert-open,
+body.upick-layer-scroll-lock,
+body.upick-hard-scroll-lock{
+  overflow-y:scroll!important;
+  overflow-x:hidden!important;
+  position:static!important;
+  top:auto!important;
+  left:auto!important;
+  right:auto!important;
+  scrollbar-gutter:stable!important;
+}
+body[data-loading-mode="signup"],
+body[data-loading-mode="signup"].upick-alert-open,
+body[data-loading-mode="signup"].upick-layer-scroll-lock,
+body[data-loading-mode="signup"].upick-hard-scroll-lock{
+  max-width:480px!important;
+  margin-left:auto!important;
+  margin-right:auto!important;
+}
+
+
+/* ===== v20260527-left-edge-safe: 좌측 잘림 방지 =====
+   both-edges gutter는 일부 PC/DevTools 조합에서 좌측 레일을 만들어 페이지가 잘려 보일 수 있어 사용하지 않습니다. */
+html,
+body{
+  scrollbar-gutter:stable!important;
+}
+html.upick-alert-open,
+html.upick-layer-scroll-lock,
+html.upick-hard-scroll-lock,
+body.upick-alert-open,
+body.upick-layer-scroll-lock,
+body.upick-hard-scroll-lock{
+  scrollbar-gutter:stable!important;
+}
+body[data-loading-mode="admin"],
+body[data-loading-mode="signup"],
+body[data-loading-mode="login"]{
+  overflow-x:hidden!important;
+}
+
+
+/* v75: 공통 알럿은 dialog가 아닌 div 기반 레이어로 고정합니다. */
+#appAlert.app-alert{
+  position:fixed!important;
+  inset:0!important;
+  display:none!important;
+}
+#appAlert.app-alert.show{
+  display:flex!important;
+}
+#appAlert.app-alert:not(.show){
+  pointer-events:none!important;
+}
+#appAlert.app-alert.show{
+  pointer-events:auto!important;
+}
+#appAlert.app-alert .app-alert-card{
+  pointer-events:auto!important;
+}
+
+
+/* ===== v20260527 final: div 기반 공통 알럿 fade 복구 =====
+   display:none 기반이면 dialog->div 전환 후 첫 프레임/닫힘 프레임이 바로 끊겨
+   페이드가 사라져 보입니다. 레이어는 항상 flex로 두고 opacity/visibility로만 제어합니다. */
+#appAlert.app-alert,
+.app-alert{
+  display:flex!important;
+  opacity:0!important;
+  visibility:hidden!important;
+  pointer-events:none!important;
+  transition:opacity .32s ease, visibility 0s linear .32s, backdrop-filter .32s ease!important;
+}
+#appAlert.app-alert.show,
+#appAlert.app-alert.upick-motion-open,
+.app-alert.show,
+.app-alert.upick-motion-open{
+  opacity:1!important;
+  visibility:visible!important;
+  pointer-events:auto!important;
+  transition:opacity .32s ease, visibility 0s linear 0s, backdrop-filter .32s ease!important;
+}
+#appAlert.app-alert.is-closing,
+#appAlert.app-alert.upick-motion-closing,
+.app-alert.is-closing,
+.app-alert.upick-motion-closing{
+  display:flex!important;
+  opacity:0!important;
+  visibility:visible!important;
+  pointer-events:auto!important;
+}
+#appAlert.app-alert .app-alert-card,
+.app-alert .app-alert-card{
+  opacity:0!important;
+  transform:translateY(18px) scale(.965)!important;
+  transition:opacity .32s ease, transform .32s ease, box-shadow .32s ease!important;
+}
+#appAlert.app-alert.show .app-alert-card,
+#appAlert.app-alert.upick-motion-open .app-alert-card,
+.app-alert.show .app-alert-card,
+.app-alert.upick-motion-open .app-alert-card{
+  opacity:1!important;
+  transform:translateY(0) scale(1)!important;
+}
+#appAlert.app-alert.is-closing .app-alert-card,
+#appAlert.app-alert.upick-motion-closing .app-alert-card,
+.app-alert.is-closing .app-alert-card,
+.app-alert.upick-motion-closing .app-alert-card{
+  opacity:0!important;
+  transform:translateY(18px) scale(.965)!important;
 }

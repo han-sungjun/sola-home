@@ -134,6 +134,8 @@ export async function handleInvalidSession({ auth, api, reason, signOutFn, redir
     try{ await alertFn(message); }catch(_e){}
   } else if (typeof window !== 'undefined' && typeof window.showCommonAlert === 'function') {
     try{ await window.showCommonAlert({ message }); }catch(_e){}
+  } else if (typeof window !== 'undefined' && typeof window.showAppAlert === 'function') {
+    try{ await window.showAppAlert({ message }); }catch(_e){}
   } else if (typeof window !== 'undefined') {
     alert(message);
   }

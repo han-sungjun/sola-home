@@ -2352,3 +2352,21 @@ input[type="radio"]:not(:checked):focus-visible{
   border-color:#93c5fd!important;
   box-shadow:0 0 0 4px rgba(59,130,246,.14),inset 0 1px 0 rgba(255,255,255,.75)!important;
 }
+
+
+/* ===== v20260527-final: 계정 만들기 알럿 표시 중 가로폭 흔들림 방지 ===== */
+html,
+body{
+  scrollbar-gutter:stable both-edges!important;
+}
+body[data-loading-mode="signup"],
+body[data-loading-mode="signup"].upick-alert-open,
+body[data-loading-mode="signup"].upick-layer-scroll-lock,
+body[data-loading-mode="signup"].upick-hard-scroll-lock{
+  max-width:480px!important;
+  margin-left:auto!important;
+  margin-right:auto!important;
+  overflow-y:scroll!important;
+  overflow-x:hidden!important;
+  scrollbar-gutter:stable both-edges!important;
+}

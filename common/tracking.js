@@ -273,6 +273,11 @@ async function showAppModalAlert(message, title = "안내") {
     return true;
   }
 
+  if (typeof window !== "undefined" && typeof window.showAppAlert === "function") {
+    await window.showAppAlert({ title, message });
+    return true;
+  }
+
   alert(message);
   return true;
 }
