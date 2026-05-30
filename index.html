@@ -1,271 +1,265 @@
 <!DOCTYPE html>
+
 <html lang="ko">
-  <head>
-    <script src="/common/console-guard.js?v=2026051401"></script>
-    <meta content="no-store, no-cache, must-revalidate, max-age=0" http-equiv="Cache-Control">
-    <meta content="no-cache" http-equiv="Pragma">
-    <meta content="0" http-equiv="Expires">
-    <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
-    <link href="/manifest.json" rel="manifest">
-    <meta content="width=device-width, initial-scale=1, viewport-fit=cover" name="viewport">
-    <meta content="#0f172a" name="theme-color">
-    <meta content="yes" name="apple-mobile-web-app-capable">
-    <meta content="yes" name="mobile-web-app-capable">
-    <meta content="default" name="apple-mobile-web-app-status-bar-style">
-    <meta content="더운정픽" name="apple-mobile-web-app-title">
-    <link href="/icons/icon-180.png" rel="apple-touch-icon">
-    <meta content="입주민 전용 혜택 플랫폼" name="description">
-    <meta content="index,follow" name="robots">
-    <title>
+<head>
+<script src="/common/console-guard.js?v=2026051401"></script>
+<meta content="no-store, no-cache, must-revalidate, max-age=0" http-equiv="Cache-Control"/>
+<meta content="no-cache" http-equiv="Pragma"/>
+<meta content="0" http-equiv="Expires"/>
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+<link href="/manifest.json" rel="manifest"/>
+<meta content="width=device-width, initial-scale=1, viewport-fit=cover" name="viewport"/>
+<meta content="#0f172a" name="theme-color"/>
+<meta content="yes" name="apple-mobile-web-app-capable"/>
+<meta content="yes" name="mobile-web-app-capable"/>
+<meta content="default" name="apple-mobile-web-app-status-bar-style"/>
+<meta content="더운정픽" name="apple-mobile-web-app-title"/>
+<link href="/icons/icon-180.png" rel="apple-touch-icon"/>
+<meta content="입주민 전용 혜택 플랫폼" name="description"/>
+<meta content="index,follow" name="robots"/>
+<title>
       더운정픽 - 입장하기
     </title>
-    <meta content="website" property="og:type">
-    <meta content="더운정픽" property="og:site_name">
-    <meta content="더운정픽" property="og:title">
-    <meta content="더운정픽 - 입장하기" property="og:description">
-    <meta content="__BASE_URL__/icons/og-icon.png?v=20260511" property="og:image">
-    <meta content="__BASE_URL__/app" property="og:url">
-    <meta content="summary_large_image" name="twitter:card">
-    <meta content="더운정픽" name="twitter:title">
-    <meta content="더운정픽 - 입장하기" name="twitter:description">
-    <meta content="__BASE_URL__/icons/og-icon.png?v=20260511" name="twitter:image">
-    <link href="/icons/favicon.ico?v=20260511" rel="icon">
-    <link href="/icons/splash-ios-750x1334.png" media="(device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2)" rel="apple-touch-startup-image">
-    <link href="/icons/splash-ios-828x1792.png" media="(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2)" rel="apple-touch-startup-image">
-    <link href="/icons/splash-ios-1170x2532.png" media="(device-width: 390px) and (device-height: 844px) and (-webkit-device-pixel-ratio: 3)" rel="apple-touch-startup-image">
-    <link href="/icons/splash-ios-1290x2796.png" media="(device-width: 430px) and (device-height: 932px) and (-webkit-device-pixel-ratio: 3)" rel="apple-touch-startup-image">
-    <link href="/css/index.css" rel="stylesheet">
-      <link href="/common/accessibility.css?v=2026051401" rel="stylesheet">
-    <link href="/common/common-motion.css?v=20260527fadefix" rel="stylesheet">
-    <link href="/common/common-alert.css?v=20260527fadefix" rel="stylesheet">
-    <link href="/common/common-loading.css?v=2026052405" rel="stylesheet">
-    <link href="/common/common-modal.css?v=2026051603" rel="stylesheet">
-    <script defer src="/common/common-motion.js?v=20260527fadefix"></script>
-    <script defer src="/common/common-alert.js?v=20260527fadefix"></script>
-    <script defer src="/common/common-loading.js?v=2026052405"></script>
-    <script defer src="/common/common-modal.js?v=2026051603"></script>
-  </head>
-  <body data-loading-mode="entrance">
-    <div class="wrap">
-      <section class="login-premium-hero-shell login-premium-hero-shell-structural">
-        <header class="login-unified-header">
-          <div class="login-brand-block">
-            <div class="logo">
-              <img alt="더운정픽" loading="lazy" src="/icons/internal/brand-symbol-real.png">
-            </div>
-            <div>
-              <strong>
+<meta content="website" property="og:type"/>
+<meta content="더운정픽" property="og:site_name"/>
+<meta content="더운정픽" property="og:title"/>
+<meta content="더운정픽 - 입장하기" property="og:description"/>
+<meta content="__BASE_URL__/icons/og-icon.png?v=20260511" property="og:image"/>
+<meta content="__BASE_URL__/app" property="og:url"/>
+<meta content="summary_large_image" name="twitter:card"/>
+<meta content="더운정픽" name="twitter:title"/>
+<meta content="더운정픽 - 입장하기" name="twitter:description"/>
+<meta content="__BASE_URL__/icons/og-icon.png?v=20260511" name="twitter:image"/>
+<link href="/icons/favicon.ico?v=20260511" rel="icon"/>
+<link href="/icons/splash-ios-750x1334.png" media="(device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2)" rel="apple-touch-startup-image"/>
+<link href="/icons/splash-ios-828x1792.png" media="(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2)" rel="apple-touch-startup-image"/>
+<link href="/icons/splash-ios-1170x2532.png" media="(device-width: 390px) and (device-height: 844px) and (-webkit-device-pixel-ratio: 3)" rel="apple-touch-startup-image"/>
+<link href="/icons/splash-ios-1290x2796.png" media="(device-width: 430px) and (device-height: 932px) and (-webkit-device-pixel-ratio: 3)" rel="apple-touch-startup-image"/>
+<link href="/css/index.css" rel="stylesheet"/>
+<link href="/common/accessibility.css?v=2026051401" rel="stylesheet"/>
+<link href="/common/common-motion.css?v=20260527fadefix" rel="stylesheet"/>
+<link href="/common/common-alert.css?v=20260529-phase4" rel="stylesheet"/>
+<link href="/common/common-loading.css?v=2026052405" rel="stylesheet"/>
+<link href="/common/du-layer.css?v=20260529-phase4" rel="stylesheet">
+<link href="/common/common-modal.css?v=20260529-phase4" rel="stylesheet"/>
+<script defer="" src="/common/common-motion.js?v=20260527fadefix"></script>
+<script defer="" src="/common/common-alert.js?v=20260529-phase4"></script>
+<script defer="" src="/common/common-loading.js?v=2026052405"></script>
+<script defer="" src="/common/du-layer.js?v=20260529-phase4"></script>
+<script defer="" src="/common/common-modal.js?v=20260529-phase4"></script>
+</link></head>
+<body data-loading-mode="entrance">
+<div class="wrap">
+<section class="login-premium-hero-shell login-premium-hero-shell-structural">
+<header class="login-unified-header">
+<div class="login-brand-block">
+<div class="logo">
+<img alt="더운정픽" loading="lazy" src="/icons/internal/brand-symbol-real.png"/>
+</div>
+<div>
+<strong>
                 더운정픽
               </strong>
-              <span>
+<span>
                 입주민 전용 혜택 플랫폼
               </span>
-            </div>
-          </div>
-        </header>
-        <section class="hero">
-          <div class="hero-badge-row">
-
-            <div class="eyebrow">
-            <img alt class="eyebrow-icon" loading="lazy" src="/icons/internal/lock.svg">
+</div>
+</div>
+</header>
+<section class="hero">
+<div class="hero-badge-row">
+<div class="eyebrow">
+<img alt="" class="eyebrow-icon" loading="lazy" src="/icons/internal/lock.svg"/>
             입주민 전용 입장
           </div>
-
-            <div class="env-badge hero-env" id="envBadge">
-            <span class="env-badge-dot">
-            </span>
-            <span>
+<div class="env-badge hero-env" id="envBadge">
+<span class="env-badge-dot">
+</span>
+<span>
               DEV
             </span>
-          </div>
-
-          </div>
-          <img alt aria-hidden="true" class="hero-ghost-logo" loading="lazy" src="/icons/internal/brand-symbol-real.png">
-          <h1>
+</div>
+</div>
+<img alt="" aria-hidden="true" class="hero-ghost-logo" loading="lazy" src="/icons/internal/brand-symbol-real.png"/>
+<h1>
             더운정픽
-            <br>
+            <br/>
             입장하기
           </h1>
-          <p>
+<p>
             입주민 혜택을 더 편리하게 이용해보세요.
           </p>
-        </section>
-        <section class="panel">
-          <form id="loginForm">
-            <div class="field">
-              <label for="loginId">
+</section>
+<section class="panel">
+<form id="loginForm">
+<div class="field">
+<label for="loginId">
                 아이디
               </label>
-              <input autocomplete="username" class="input" id="loginId" inputmode="text" placeholder="아이디 입력" type="text">
-            </div>
-            <div class="field">
-              <label for="password">
+<input autocomplete="username" class="input" id="loginId" inputmode="text" placeholder="아이디 입력" type="text"/>
+</div>
+<div class="field">
+<label for="password">
                 비밀번호
               </label>
-              <input autocomplete="current-password" class="input" id="password" placeholder="비밀번호 입력" type="password">
-            </div>
-            <div class="login-support-row">
-              <div class="login-check-group" aria-label="입장 옵션">
-                <label class="save-id-check" for="saveLoginId">
-                  <input id="saveLoginId" type="checkbox">
-                  <span>아이디 저장</span>
-                </label>
-                <label class="save-id-check" for="keepLoginState">
-                  <input id="keepLoginState" type="checkbox">
-                  <span>입장 상태 유지</span>
-                </label>
-              </div>
-              <button class="login-help-link account-find-link" id="openAccountFindBtn" type="button" aria-haspopup="dialog" aria-controls="accountRecoveryModal">계정 찾기</button>
-            </div>
-            <div class="btn-row">
-              <button class="btn btn-primary" id="loginBtn" type="submit">
+<input autocomplete="current-password" class="input" id="password" placeholder="비밀번호 입력" type="password"/>
+</div>
+<div class="login-support-row">
+<div aria-label="입장 옵션" class="login-check-group">
+<label class="save-id-check" for="saveLoginId">
+<input id="saveLoginId" type="checkbox"/>
+<span>아이디 저장</span>
+</label>
+<label class="save-id-check" for="keepLoginState">
+<input id="keepLoginState" type="checkbox"/>
+<span>입장 상태 유지</span>
+</label>
+</div>
+<button aria-controls="accountRecoveryModal" aria-haspopup="dialog" class="login-help-link account-find-link" id="openAccountFindBtn" type="button">계정 찾기</button>
+</div>
+<div class="btn-row">
+<button class="btn btn-primary" id="loginBtn" type="submit">
                 입장하기
               </button>
-              <button class="btn btn-soft" id="signupBtn" onclick="if(window.__LOGIN_SAFE_SIGNUP__ && !window.__LOGIN_MODULE_READY__){window.__LOGIN_SAFE_SIGNUP__();}" type="button">
+<button class="btn btn-soft" id="signupBtn" onclick="if(window.__LOGIN_SAFE_SIGNUP__ &amp;&amp; !window.__LOGIN_MODULE_READY__){window.__LOGIN_SAFE_SIGNUP__();}" type="button">
                 계정 만들기
               </button>
-            </div>
-            <button class="btn btn-install" hidden id="installAppBtn" type="button">
-              <img alt class="btn-icon" loading="lazy" src="/icons/internal/install.svg">
+</div>
+<button class="btn btn-install" hidden="" id="installAppBtn" type="button">
+<img alt="" class="btn-icon" loading="lazy" src="/icons/internal/install.svg"/>
               앱으로 빠르게 이용하기
             </button>
-          </form>
-          <div class="notice info" id="notice">
-          </div>
-        </section>
-      </section>
-      <div aria-hidden="true" class="footer hidden">
-      </div>
-    </div>
-    <div aria-hidden="true" class="app-alert" id="appAlert">
-      <div aria-describedby="appAlertMessage" aria-labelledby="appAlertTitle" aria-modal="true" class="app-alert-card" role="alertdialog">
-        <div class="app-alert-head">
-          <div aria-hidden="true" class="app-alert-icon" id="appAlertIcon">
-          </div>
-          <h3 class="app-alert-title" id="appAlertTitle">
+</form>
+<div class="notice info" id="notice">
+</div>
+</section>
+</section>
+<div aria-hidden="true" class="footer hidden">
+</div>
+</div>
+<div aria-hidden="true" class="app-alert" id="appAlert">
+<div aria-describedby="appAlertMessage" aria-labelledby="appAlertTitle" aria-modal="true" class="app-alert-card" role="alertdialog">
+<div class="app-alert-head">
+<div aria-hidden="true" class="app-alert-icon" id="appAlertIcon">
+</div>
+<h3 class="app-alert-title" id="appAlertTitle">
             안내
           </h3>
-        </div>
-        <p class="app-alert-message" id="appAlertMessage">
-        </p>
-        <div class="app-alert-actions">
-          <button class="app-alert-cancel hidden" id="appAlertCancel" type="button">
+</div>
+<p class="app-alert-message" id="appAlertMessage">
+</p>
+<div class="app-alert-actions">
+<button class="app-alert-cancel hidden" id="appAlertCancel" type="button">
             취소
           </button>
-          <button class="app-alert-confirm" id="appAlertConfirm" type="button">
+<button class="app-alert-confirm" id="appAlertConfirm" type="button">
             확인
           </button>
-        </div>
-      </div>
-    </div>
-    <div aria-hidden="true" class="sheet-modal" id="accountHelpModal">
-      <div aria-labelledby="accountHelpTitle" aria-modal="true" class="sheet-panel account-recovery-panel" role="dialog">
-        <div class="sheet-handle"></div>
-        <div class="sheet-head">
-          <div>
-            <h3 class="sheet-title" id="accountHelpTitle">계정 찾기</h3>
-            <p class="sheet-desc" id="accountHelpDesc">계정 정보를 확인하거나 비밀번호를 재설정할 수 있습니다.</p>
-          </div>
-          <button aria-label="닫기" class="sheet-close" id="accountHelpCloseBtn" type="button">✕</button>
-        </div>
-        <div class="sheet-tabs account-recovery-tabs" role="tablist" aria-label="계정 찾기 탭">
-          <button class="sheet-tab active" id="tabFindNickname" type="button" role="tab" aria-controls="findNicknameSection" aria-selected="true">닉네임 찾기</button>
-          <button class="sheet-tab" id="tabFindId" type="button" role="tab" aria-controls="findIdSection" aria-selected="false">아이디 찾기</button>
-          <button class="sheet-tab" id="tabResetPw" type="button" role="tab" aria-controls="resetPwSection" aria-selected="false">비밀번호 재설정</button>
-        </div>
-        <div class="sheet-body">
-          <section class="sheet-section active" id="findNicknameSection" role="tabpanel" aria-labelledby="tabFindNickname">
-            <ul class="sheet-note-list">
-              <li>아이디는 알고 있지만 닉네임이 기억나지 않을 때 사용합니다.</li>
-              <li>아이디도 기억나지 않는 경우 관리자에게 문의해주세요.</li>
-            </ul>
-            <div class="field">
-              <label for="findNicknameLoginId">아이디</label>
-              <input autocomplete="username" class="input" id="findNicknameLoginId" inputmode="text" placeholder="아이디 입력" type="text">
-            </div>
-            <div class="sheet-inline-actions">
-              <button class="btn btn-primary" id="findNicknameBtn" type="button">닉네임 찾기</button>
-            </div>
-            <div class="sheet-result info" id="findNicknameResult"></div>
-          </section>
-          <section class="sheet-section" id="findIdSection" role="tabpanel" aria-labelledby="tabFindId">
-            <ul class="sheet-note-list">
-              <li>닉네임은 알고 있지만 아이디가 기억나지 않을 때 사용합니다.</li>
-              <li>닉네임도 기억나지 않는 경우 관리자에게 문의해주세요.</li>
-            </ul>
-            <div class="field">
-              <label for="findIdNickname">닉네임</label>
-              <input autocomplete="nickname" class="input" id="findIdNickname" inputmode="text" placeholder="닉네임 입력" type="text">
-            </div>
-            <div class="sheet-inline-actions">
-              <button class="btn btn-primary" id="findIdBtn" type="button">아이디 찾기</button>
-            </div>
-            <div class="sheet-result info" id="findIdResult"></div>
-          </section>
-          <section class="sheet-section" id="resetPwSection" role="tabpanel" aria-labelledby="tabResetPw">
-            <ul class="sheet-note-list">
-              <li>새로운 비밀번호로 다시 설정할 수 있습니다.</li>
-              <li>안전한 이용을 위해 아이디와 닉네임 확인 후 진행해주세요.</li>
-            </ul>
-            <div class="field">
-              <label for="resetPwLoginId">아이디</label>
-              <input autocomplete="username" class="input" id="resetPwLoginId" inputmode="text" placeholder="아이디 입력" type="text">
-            </div>
-            <div class="field">
-              <label for="resetPwNickname">닉네임</label>
-              <input autocomplete="nickname" class="input" id="resetPwNickname" inputmode="text" placeholder="닉네임 입력" type="text">
-            </div>
-            <div class="field">
-              <label for="resetPwNewPassword">새 비밀번호</label>
-              <input autocomplete="new-password" class="input" id="resetPwNewPassword" placeholder="새 비밀번호 입력" type="password">
-            </div>
-            <div class="field">
-              <label for="resetPwNewPasswordConfirm">새 비밀번호 확인</label>
-              <input autocomplete="new-password" class="input" id="resetPwNewPasswordConfirm" placeholder="새 비밀번호 다시 입력" type="password">
-              <p class="password-live-message" id="resetPwMatchMessage" aria-live="polite"></p>
-            </div>
-            <div class="sheet-inline-actions">
-              <button class="btn btn-primary" id="resetPwSubmitBtn" type="button">비밀번호 재설정</button>
-            </div>
-            <div class="sheet-result info" id="resetPwResult"></div>
-          </section>
-        </div>
-      </div>
-    </div>
-    <div aria-hidden="true" class="page-loader" id="pageLoader">
-      <div aria-live="polite" class="loader-content" role="status">
-        <div aria-label="로딩 중" class="loader-mark">
-          <span aria-hidden="true" class="loader-orbit">
-          </span>
-          <img alt aria-hidden="true" src="/icons/internal/brand-symbol-real.png">
-          <span class="arm top">
-          </span>
-          <span class="arm left">
-          </span>
-          <span class="arm mid">
-          </span>
-          <span class="arm bot">
-          </span>
-          <span class="arm bot2">
-          </span>
-        </div>
-        <div aria-hidden="true" class="loader-copy">
-          <p class="loader-message" id="loaderMessage">
+</div>
+</div>
+</div>
+<div aria-hidden="true" class="sheet-modal du-layer du-layer--sheet" data-close-on-backdrop="false" data-du-close-on-backdrop="false" data-du-close-on-esc="false" data-du-layer="sheet" id="accountHelpModal">
+<div aria-labelledby="accountHelpTitle" aria-modal="true" class="sheet-panel account-recovery-panel du-layer__panel" data-du-layer-panel="" role="dialog">
+<div class="sheet-handle"></div>
+<div class="sheet-head du-layer__header" data-du-header-normalized="1" data-du-layer-header=""><div class="du-layer__header-main"><div>
+<h3 class="sheet-title du-layer__title" id="accountHelpTitle">계정 찾기</h3>
+<p class="sheet-desc du-layer__subtitle" id="accountHelpDesc">계정 정보를 확인하거나 비밀번호를 재설정할 수 있습니다.</p>
+</div></div><div class="du-layer__header-actions"><button aria-label="닫기" class="sheet-close du-layer__close" data-du-layer-close="" id="accountHelpCloseBtn" type="button">✕</button></div></div>
+<div aria-label="계정 찾기 탭" class="sheet-tabs account-recovery-tabs" role="tablist">
+<button aria-controls="findNicknameSection" aria-selected="true" class="sheet-tab active" id="tabFindNickname" role="tab" type="button">닉네임 찾기</button>
+<button aria-controls="findIdSection" aria-selected="false" class="sheet-tab" id="tabFindId" role="tab" type="button">아이디 찾기</button>
+<button aria-controls="resetPwSection" aria-selected="false" class="sheet-tab" id="tabResetPw" role="tab" type="button">비밀번호 재설정</button>
+</div>
+<div class="sheet-body du-layer__body" data-du-layer-body="">
+<section aria-labelledby="tabFindNickname" class="sheet-section active" id="findNicknameSection" role="tabpanel">
+<ul class="sheet-note-list">
+<li>아이디는 알고 있지만 닉네임이 기억나지 않을 때 사용합니다.</li>
+<li>아이디도 기억나지 않는 경우 관리자에게 문의해주세요.</li>
+</ul>
+<div class="field">
+<label for="findNicknameLoginId">아이디</label>
+<input autocomplete="username" class="input" id="findNicknameLoginId" inputmode="text" placeholder="아이디 입력" type="text"/>
+</div>
+<div class="sheet-inline-actions">
+<button class="btn btn-primary" id="findNicknameBtn" type="button">닉네임 찾기</button>
+</div>
+<div class="sheet-result info" id="findNicknameResult"></div>
+</section>
+<section aria-labelledby="tabFindId" class="sheet-section" id="findIdSection" role="tabpanel">
+<ul class="sheet-note-list">
+<li>닉네임은 알고 있지만 아이디가 기억나지 않을 때 사용합니다.</li>
+<li>닉네임도 기억나지 않는 경우 관리자에게 문의해주세요.</li>
+</ul>
+<div class="field">
+<label for="findIdNickname">닉네임</label>
+<input autocomplete="nickname" class="input" id="findIdNickname" inputmode="text" placeholder="닉네임 입력" type="text"/>
+</div>
+<div class="sheet-inline-actions">
+<button class="btn btn-primary" id="findIdBtn" type="button">아이디 찾기</button>
+</div>
+<div class="sheet-result info" id="findIdResult"></div>
+</section>
+<section aria-labelledby="tabResetPw" class="sheet-section" id="resetPwSection" role="tabpanel">
+<ul class="sheet-note-list">
+<li>새로운 비밀번호로 다시 설정할 수 있습니다.</li>
+<li>안전한 이용을 위해 아이디와 닉네임 확인 후 진행해주세요.</li>
+</ul>
+<div class="field">
+<label for="resetPwLoginId">아이디</label>
+<input autocomplete="username" class="input" id="resetPwLoginId" inputmode="text" placeholder="아이디 입력" type="text"/>
+</div>
+<div class="field">
+<label for="resetPwNickname">닉네임</label>
+<input autocomplete="nickname" class="input" id="resetPwNickname" inputmode="text" placeholder="닉네임 입력" type="text"/>
+</div>
+<div class="field">
+<label for="resetPwNewPassword">새 비밀번호</label>
+<input autocomplete="new-password" class="input" id="resetPwNewPassword" placeholder="새 비밀번호 입력" type="password"/>
+</div>
+<div class="field">
+<label for="resetPwNewPasswordConfirm">새 비밀번호 확인</label>
+<input autocomplete="new-password" class="input" id="resetPwNewPasswordConfirm" placeholder="새 비밀번호 다시 입력" type="password"/>
+<p aria-live="polite" class="password-live-message" id="resetPwMatchMessage"></p>
+</div>
+<div class="sheet-inline-actions">
+<button class="btn btn-primary" id="resetPwSubmitBtn" type="button">비밀번호 재설정</button>
+</div>
+<div class="sheet-result info" id="resetPwResult"></div>
+</section>
+</div>
+</div>
+</div>
+<div aria-hidden="true" class="page-loader" id="pageLoader">
+<div aria-live="polite" class="loader-content" role="status">
+<div aria-label="로딩 중" class="loader-mark">
+<span aria-hidden="true" class="loader-orbit">
+</span>
+<img alt="" aria-hidden="true" src="/icons/internal/brand-symbol-real.png"/>
+<span class="arm top">
+</span>
+<span class="arm left">
+</span>
+<span class="arm mid">
+</span>
+<span class="arm bot">
+</span>
+<span class="arm bot2">
+</span>
+</div>
+<div aria-hidden="true" class="loader-copy">
+<p class="loader-message" id="loaderMessage">
             입주민 전용 서비스를 연결하고 있어요
           </p>
-          <p class="loader-sub-message" id="loaderSubMessage">
+<p class="loader-sub-message" id="loaderSubMessage">
             잠시만 기다려주세요
           </p>
-        </div>
-      </div>
-    </div>
-    <script src="/js/index.js?v=20260520-keep-entry-guard01"></script>
-    <script type="module" src="/js/account-recovery.js?v=2026052702"></script>    <script defer src="/common/password-field-enhance.js?v=2026051501"></script>
-    <script defer src="/common/modal-backdrop-lock.js?v=2026051401"></script>
-
-      <script defer src="/common/accessibility.js?v=2026051401"></script>
-    
-  
-  <script defer src="/common/dev-badge-visibility.js"></script>
+</div>
+</div>
+</div>
+<script src="/js/index.js?v=20260520-keep-entry-guard01"></script>
+<script src="/js/account-recovery.js?v=2026052702" type="module"></script> <script defer="" src="/common/password-field-enhance.js?v=2026051501"></script>
+<script defer="" src="/common/modal-backdrop-lock.js?v=2026051401"></script>
+<script defer="" src="/common/accessibility.js?v=2026051401"></script>
+<script defer="" src="/common/dev-badge-visibility.js"></script>
 </body>
 </html>

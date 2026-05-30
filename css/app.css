@@ -28872,3 +28872,309 @@ body > #accountEditModal.upick-div-modal.upick-motion-open,
 body > #passwordChangeModal.upick-div-modal.upick-motion-open{
   z-index:2147483560!important;
 }
+
+
+/* v20260529 혜택 상세 이미지 확대 팝업 비율 보정
+   - 소식 이미지/혜택 상세 이미지는 헤더 구분선을 유지
+   - 혜택 상세 이미지 확대는 사진 비율에 맞춰 body 높이를 줄여 위/아래 빈 여백을 최소화 */
+.benefit-image-preview-overlay:not(dialog) .benefit-image-preview-head,
+.benefit-image-preview-overlay .benefit-image-preview-head,
+.news-image-preview-head{
+  border-bottom:1px solid rgba(226,232,240,.95) !important;
+}
+.benefit-image-preview-overlay:not(dialog) .benefit-image-preview-body{
+  height:var(--benefit-preview-body-h, auto) !important;
+  max-height:calc(100dvh - 82px) !important;
+  padding:0 !important;
+  background:#fff !important;
+}
+.benefit-image-preview-overlay:not(dialog) .benefit-image-preview-track,
+.benefit-image-preview-overlay:not(dialog) .benefit-image-preview-slide,
+.benefit-image-preview-overlay:not(dialog) .benefit-image-preview-frame{
+  height:var(--benefit-preview-h, 100%) !important;
+  background:#fff !important;
+}
+.benefit-image-preview-overlay:not(dialog) .benefit-image-preview-frame img,
+.benefit-image-preview-overlay:not(dialog) .benefit-image-preview-slide img{
+  width:100% !important;
+  height:100% !important;
+  object-fit:contain !important;
+  background:#fff !important;
+}
+.benefit-image-preview-overlay:not(dialog) .benefit-image-preview-count{
+  left:14px !important;
+  right:auto !important;
+  bottom:14px !important;
+}
+.benefit-image-preview-overlay:not(dialog) .benefit-image-preview-dots{
+  bottom:18px !important;
+}
+/* AI 이미지 확대만 구분선을 제거 */
+.ai-image-zoom-backdrop .ai-image-zoom-title,
+.ai-image-zoom-backdrop .ai-image-zoom-head,
+#aiImageZoomBackdrop .du-layer__header{
+  border-bottom:0 !important;
+}
+
+/* v20260529 혜택 상세 이미지 확대 팝업: 고정 높이 + 반투명 여백 보정
+   - 사진 비율에 따라 팝업/본문 높이가 줄어들지 않도록 다시 고정 프레임으로 복구
+   - 스와이프 영역 높이를 일정하게 유지
+   - 이미지 외곽 여백은 순백색 대신 은은한 반투명 유리 배경으로 처리 */
+.benefit-image-preview-overlay:not(dialog) .benefit-image-preview-dialog,
+.benefit-image-preview-overlay .benefit-image-preview-dialog{
+  height:min(92dvh, 920px) !important;
+  max-height:calc(100dvh - 24px) !important;
+  background:rgba(255,255,255,.94) !important;
+}
+.benefit-image-preview-overlay:not(dialog) .benefit-image-preview-body,
+.benefit-image-preview-overlay .benefit-image-preview-body{
+  flex:1 1 auto !important;
+  height:auto !important;
+  min-height:0 !important;
+  max-height:none !important;
+  padding:0 !important;
+  overflow:hidden !important;
+  background:linear-gradient(180deg, rgba(248,251,255,.74), rgba(238,245,255,.66)) !important;
+  -webkit-backdrop-filter:blur(10px) !important;
+  backdrop-filter:blur(10px) !important;
+}
+.benefit-image-preview-overlay:not(dialog) .benefit-image-preview-track,
+.benefit-image-preview-overlay:not(dialog) .benefit-image-preview-slide,
+.benefit-image-preview-overlay:not(dialog) .benefit-image-preview-frame,
+.benefit-image-preview-overlay .benefit-image-preview-track,
+.benefit-image-preview-overlay .benefit-image-preview-slide,
+.benefit-image-preview-overlay .benefit-image-preview-frame{
+  width:100% !important;
+  height:100% !important;
+  min-height:0 !important;
+  max-height:none !important;
+  background:transparent !important;
+}
+.benefit-image-preview-overlay:not(dialog) .benefit-image-preview-slide,
+.benefit-image-preview-overlay .benefit-image-preview-slide{
+  flex:0 0 100% !important;
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+}
+.benefit-image-preview-overlay:not(dialog) .benefit-image-preview-frame,
+.benefit-image-preview-overlay .benefit-image-preview-frame{
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  overflow:hidden !important;
+  box-shadow:none !important;
+}
+.benefit-image-preview-overlay:not(dialog) .benefit-image-preview-frame img,
+.benefit-image-preview-overlay:not(dialog) .benefit-image-preview-slide img,
+.benefit-image-preview-overlay .benefit-image-preview-frame img,
+.benefit-image-preview-overlay .benefit-image-preview-slide img{
+  width:100% !important;
+  height:100% !important;
+  max-width:100% !important;
+  max-height:100% !important;
+  object-fit:contain !important;
+  background:transparent !important;
+  box-shadow:none !important;
+}
+.benefit-image-preview-overlay:not(dialog) .benefit-image-preview-count,
+.benefit-image-preview-overlay .benefit-image-preview-count{
+  left:18px !important;
+  right:auto !important;
+  bottom:18px !important;
+}
+.benefit-image-preview-overlay:not(dialog) .benefit-image-preview-dots,
+.benefit-image-preview-overlay .benefit-image-preview-dots{
+  bottom:23px !important;
+}
+@media(max-width:560px){
+  .benefit-image-preview-overlay:not(dialog) .benefit-image-preview-dialog,
+  .benefit-image-preview-overlay .benefit-image-preview-dialog{
+    height:calc(100dvh - 24px) !important;
+    max-height:calc(100dvh - 24px) !important;
+  }
+  .benefit-image-preview-overlay:not(dialog) .benefit-image-preview-count,
+  .benefit-image-preview-overlay .benefit-image-preview-count{
+    left:18px !important;
+    bottom:18px !important;
+  }
+  .benefit-image-preview-overlay:not(dialog) .benefit-image-preview-dots,
+  .benefit-image-preview-overlay .benefit-image-preview-dots{
+    bottom:23px !important;
+  }
+}
+
+/* ===== v20260529-du-layer-phase3 image popup final =====
+   - 혜택 상세 이미지 확대: 고정 높이 유지 + 반투명 여백 유지 + du-layer header 적용
+   - 소식 이미지 확대: du-layer header/body 구조 적용, 헤더 선 유지
+   - 바깥 영역 클릭 닫힘 금지 정책과 충돌하지 않도록 overlay 클릭 닫힘 제거 */
+.news-image-preview-overlay.du-layer,
+.benefit-image-preview-overlay.du-layer{
+  background:rgba(15,23,42,.62) !important;
+  -webkit-backdrop-filter:blur(12px) !important;
+  backdrop-filter:blur(12px) !important;
+}
+.news-image-preview-overlay.du-layer .news-image-preview-dialog,
+.benefit-image-preview-overlay.du-layer .benefit-image-preview-dialog{
+  display:flex !important;
+  flex-direction:column !important;
+  overflow:hidden !important;
+}
+.news-image-preview-overlay.du-layer .news-image-preview-head,
+.benefit-image-preview-overlay.du-layer .benefit-image-preview-head{
+  flex:0 0 64px !important;
+  min-height:64px !important;
+  padding:0 12px 0 24px !important;
+  display:flex !important;
+  align-items:center !important;
+  justify-content:space-between !important;
+  gap:12px !important;
+  background:rgba(255,255,255,.98) !important;
+  border-bottom:1px solid rgba(226,232,240,.95) !important;
+}
+.news-image-preview-overlay.du-layer .news-image-preview-title,
+.benefit-image-preview-overlay.du-layer .benefit-image-preview-head strong{
+  color:#0f172a !important;
+  font-size:18px !important;
+  font-weight:900 !important;
+  line-height:1.2 !important;
+  white-space:nowrap !important;
+  overflow:hidden !important;
+  text-overflow:ellipsis !important;
+}
+.news-image-preview-overlay.du-layer .news-image-preview-close,
+.benefit-image-preview-overlay.du-layer .benefit-image-preview-close{
+  flex:0 0 54px !important;
+  width:54px !important;
+  height:54px !important;
+  border-radius:18px !important;
+  border:1px solid rgba(191,219,254,.78) !important;
+  background:rgba(248,251,255,.98) !important;
+  color:#0f172a !important;
+  font-size:30px !important;
+  box-shadow:0 14px 34px rgba(15,23,42,.08) !important;
+}
+.benefit-image-preview-overlay.du-layer .benefit-image-preview-dialog{
+  width:min(var(--benefit-preview-w, 920px), calc(100vw - 24px)) !important;
+  height:min(var(--benefit-preview-dialog-h, 92dvh), calc(100dvh - 24px)) !important;
+  max-height:calc(100dvh - 24px) !important;
+  background:rgba(255,255,255,.94) !important;
+}
+.benefit-image-preview-overlay.du-layer .benefit-image-preview-body{
+  flex:1 1 auto !important;
+  min-height:0 !important;
+  height:auto !important;
+  overflow:hidden !important;
+  background:linear-gradient(180deg, rgba(248,251,255,.74), rgba(238,245,255,.66)) !important;
+}
+.benefit-image-preview-overlay.du-layer .benefit-image-preview-track,
+.benefit-image-preview-overlay.du-layer .benefit-image-preview-slide,
+.benefit-image-preview-overlay.du-layer .benefit-image-preview-frame{
+  height:100% !important;
+  background:transparent !important;
+}
+.benefit-image-preview-overlay.du-layer .benefit-image-preview-frame img{
+  width:100% !important;
+  height:100% !important;
+  object-fit:contain !important;
+  background:transparent !important;
+}
+@media(max-width:560px){
+  .news-image-preview-overlay.du-layer .news-image-preview-head,
+  .benefit-image-preview-overlay.du-layer .benefit-image-preview-head{
+    flex-basis:60px !important;
+    min-height:60px !important;
+    padding-left:20px !important;
+  }
+  .news-image-preview-overlay.du-layer .news-image-preview-close,
+  .benefit-image-preview-overlay.du-layer .benefit-image-preview-close{
+    flex-basis:50px !important;
+    width:50px !important;
+    height:50px !important;
+  }
+}
+
+
+/* ===== DU Layer Phase9: detail/notice share footer unification ===== */
+#detailModal .du-detail-footer,
+#noticeModal .du-detail-footer{
+  display:block !important;
+  width:100% !important;
+  margin:2px 0 0 !important;
+  padding:0 !important;
+  border-top:0 !important;
+  background:transparent !important;
+  box-shadow:none !important;
+  position:relative !important;
+  inset:auto !important;
+}
+#detailModal .du-detail-footer .notice-detail-actions,
+#noticeModal .du-detail-footer .notice-detail-actions,
+#detailModal .du-detail-footer .share-actions,
+#noticeModal .du-detail-footer .share-actions{
+  display:grid !important;
+  grid-template-columns:repeat(3,minmax(0,1fr)) !important;
+  gap:10px !important;
+  width:100% !important;
+  max-width:100% !important;
+  margin:0 !important;
+  padding:0 !important;
+  overflow:visible !important;
+  align-items:stretch !important;
+}
+#detailModal .du-detail-footer .notice-detail-actions > *,
+#noticeModal .du-detail-footer .notice-detail-actions > *,
+#detailModal .du-detail-footer .share-actions > *,
+#noticeModal .du-detail-footer .share-actions > *{
+  min-width:0 !important;
+  width:100% !important;
+  max-width:100% !important;
+}
+#detailModal .du-detail-footer .btn,
+#noticeModal .du-detail-footer .btn,
+#detailModal .du-detail-footer button,
+#noticeModal .du-detail-footer button{
+  width:100% !important;
+  min-width:0 !important;
+  max-width:100% !important;
+  height:48px !important;
+  min-height:48px !important;
+  padding:0 10px !important;
+  border-radius:16px !important;
+  display:inline-flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  gap:7px !important;
+  font-size:13px !important;
+  font-weight:900 !important;
+  line-height:1 !important;
+  letter-spacing:-.035em !important;
+  white-space:nowrap !important;
+  box-sizing:border-box !important;
+}
+#detailModal .du-detail-footer :is(img,svg,.upick-inline-icon),
+#noticeModal .du-detail-footer :is(img,svg,.upick-inline-icon){
+  width:16px !important;
+  height:16px !important;
+  flex:0 0 16px !important;
+  margin:0 !important;
+  display:block !important;
+}
+@media(max-width:420px){
+  #detailModal .du-detail-footer .notice-detail-actions,
+  #noticeModal .du-detail-footer .notice-detail-actions,
+  #detailModal .du-detail-footer .share-actions,
+  #noticeModal .du-detail-footer .share-actions{
+    gap:8px !important;
+  }
+  #detailModal .du-detail-footer .btn,
+  #noticeModal .du-detail-footer .btn,
+  #detailModal .du-detail-footer button,
+  #noticeModal .du-detail-footer button{
+    height:46px !important;
+    min-height:46px !important;
+    padding:0 6px !important;
+    font-size:12px !important;
+    gap:5px !important;
+  }
+}

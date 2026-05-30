@@ -1,0 +1,9 @@
+/* 더운정픽 공통 레이어 정책 v20260529-safe2
+   기존 팝업 디자인/배치에는 손대지 않고, 바깥 클릭 닫힘만 공통 차단합니다. */
+:root{
+  --du-layer-policy-version: "20260529-safe2";
+}
+html.du-layer-open,
+body.du-layer-open{
+  overscroll-behavior: contain;
+}

@@ -1,0 +1,1193 @@
+/* 더운정픽 공통 레이어 DOM 정리 v20260529
+   - 기존 팝업 DOM을 무리하게 교체하지 않고 du-layer 규격 클래스를 함께 부여합니다.
+   - 최종 목표: sheet / modal / fullscreen 3종 레이어 + header/body/footer 슬롯 통일
+*/
+:root{
+  --du-layer-backdrop: rgba(15,23,42,.52);
+  --du-layer-radius: 28px;
+  --du-layer-radius-sheet: 30px 30px 0 0;
+  --du-layer-line: rgba(148,163,184,.26);
+  --du-layer-text: #0f172a;
+  --du-layer-muted: #64748b;
+  --du-layer-panel-bg: rgba(255,255,255,.96);
+  --du-layer-shadow: 0 28px 80px rgba(15,23,42,.30);
+  --du-layer-z-sheet: 50000;
+  --du-layer-z-modal: 50100;
+  --du-layer-z-fullscreen: 50200;
+}
+
+.du-layer{
+  --du-layer-z: var(--du-layer-z-modal);
+  position: fixed;
+  inset: 0;
+  z-index: var(--du-layer-z);
+  box-sizing: border-box;
+}
+.du-layer[aria-hidden="true"]{ pointer-events:none; }
+.du-layer[aria-hidden="false"],
+.du-layer.show,
+.du-layer.is-open,
+.du-layer.open{ pointer-events:auto; }
+
+.du-layer--sheet{ --du-layer-z: var(--du-layer-z-sheet); }
+.du-layer--modal{ --du-layer-z: var(--du-layer-z-modal); }
+.du-layer--fullscreen{ --du-layer-z: var(--du-layer-z-fullscreen); }
+
+.du-layer__backdrop,
+.du-layer .upick-div-modal-backdrop{
+  position: fixed;
+  inset: 0;
+  background: var(--du-layer-backdrop);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+}
+
+.du-layer__panel,
+.du-layer .upick-div-modal-panel,
+.du-layer .upick-div-dialog-panel,
+.du-layer .gnb-management-shell,
+.du-layer .sheet-panel,
+.du-layer .ai-image-zoom-card{
+  box-sizing: border-box;
+  background: var(--du-layer-panel-bg);
+  color: var(--du-layer-text);
+  box-shadow: var(--du-layer-shadow);
+  border: 1px solid rgba(191,219,254,.75);
+  overflow: hidden;
+}
+
+/* 공통 헤더 슬롯 */
+.du-layer__header,
+.du-layer .modal-head,
+.du-layer .gnb-management-head,
+.du-layer .sheet-head{
+  box-sizing: border-box;
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:14px;
+  border-bottom:1px solid var(--du-layer-line);
+}
+.du-layer .modal-head,
+.du-layer .gnb-management-head{
+  padding:20px 22px 16px;
+}
+.du-layer .sheet-head{
+  padding: 0 0 16px;
+  border-bottom:0;
+}
+
+.du-layer__title,
+.du-layer .gnb-management-head h3,
+.du-layer .sheet-title{
+  margin: 8px 0 0;
+  color: var(--du-layer-text);
+  font-weight: 900;
+  letter-spacing: -0.045em;
+}
+.du-layer__subtitle,
+.du-layer .gnb-management-head p,
+.du-layer .sheet-desc{
+  margin: 8px 0 0;
+  color: var(--du-layer-muted);
+  font-weight: 750;
+  line-height: 1.55;
+  letter-spacing: -0.03em;
+}
+.du-layer__badge,
+.du-layer .pill,
+.du-layer .gnb-management-kicker{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  width:max-content;
+  max-width:100%;
+  min-height:38px;
+  padding:8px 16px;
+  border-radius:999px;
+  border:1px solid rgba(147,197,253,.75);
+  background:rgba(248,251,255,.95);
+  color:#334155;
+  font-weight:850;
+  letter-spacing:-.03em;
+  box-shadow:0 10px 22px rgba(15,23,42,.06);
+}
+.du-layer .gnb-management-kicker{
+  min-height:28px;
+  padding:5px 11px;
+  color:#2563eb;
+  background:rgba(219,234,254,.85);
+  border-color:rgba(191,219,254,.8);
+  box-shadow:none;
+}
+
+.du-layer__close,
+.du-layer .close-btn,
+.du-layer .gnb-management-close,
+.du-layer .sheet-close,
+.du-layer .ai-image-zoom-close{
+  flex:0 0 auto;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  width:54px;
+  height:54px;
+  border-radius:18px;
+  border:1px solid rgba(191,219,254,.72);
+  background:rgba(248,251,255,.94);
+  color:#0f172a;
+  font-size:24px;
+  font-weight:800;
+  line-height:1;
+  cursor:pointer;
+  box-shadow:0 14px 34px rgba(15,23,42,.08);
+}
+
+.du-layer__body,
+.du-layer .modal-body,
+.du-layer .gnb-management-body,
+.du-layer .sheet-body{
+  box-sizing:border-box;
+  min-height:0;
+  -webkit-overflow-scrolling:touch;
+}
+
+.du-layer--modal .du-layer__panel,
+.du-layer--modal .upick-div-modal-panel,
+.du-layer--modal .upick-div-dialog-panel,
+.du-layer--modal .gnb-management-shell{
+  border-radius: var(--du-layer-radius);
+}
+.du-layer--sheet .du-layer__panel,
+.du-layer--sheet .sheet-panel{
+  border-radius: var(--du-layer-radius-sheet);
+}
+.du-layer--fullscreen .du-layer__panel,
+.du-layer--fullscreen .ai-image-zoom-card{
+  border-radius: 0;
+  width:100%;
+  height:100%;
+}
+
+/* 기존 계정 찾기 바텀시트에 공통 규격 표시만 추가 */
+#accountHelpModal.du-layer--sheet .sheet-panel{
+  max-height:min(86dvh, 760px);
+}
+
+@media (max-width: 640px){
+  .du-layer .modal-head,
+  .du-layer .gnb-management-head{
+    padding:18px 18px 14px;
+  }
+  .du-layer__close,
+  .du-layer .close-btn,
+  .du-layer .gnb-management-close,
+  .du-layer .sheet-close,
+  .du-layer .ai-image-zoom-close{
+    width:50px;
+    height:50px;
+    border-radius:17px;
+  }
+}
+
+/* v20260529-header-markup: 실제 헤더 마크업 공통화 보정 */
+.du-layer__header-main{
+  min-width:0;
+  flex:1 1 auto;
+  display:flex;
+  flex-direction:column;
+  align-items:flex-start;
+  justify-content:center;
+  gap:6px;
+}
+.du-layer__header-main--calendar{
+  flex-direction:row;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+}
+.du-layer__header-actions{
+  flex:0 0 auto;
+  display:flex;
+  align-items:center;
+  justify-content:flex-end;
+  gap:10px;
+  min-width:0;
+}
+.du-layer__header-actions .detail-head-actions{
+  display:inline-flex;
+  align-items:center;
+  gap:10px;
+}
+.du-layer__header-actions .detail-head-actions[hidden]{
+  display:none!important;
+}
+.du-layer__header .du-layer__badge,
+.du-layer__header .pill,
+.du-layer__header .gnb-management-kicker{
+  margin:0;
+}
+.du-layer__header .du-layer__close,
+.du-layer__header .close-btn,
+.du-layer__header .gnb-management-close,
+.du-layer__header .sheet-close,
+.du-layer__header .calendar-day-modal-close{
+  margin-left:0;
+}
+.du-layer > .upick-div-dialog-panel{
+  width:min(560px, calc(100vw - 28px));
+  max-height:min(88dvh, 760px);
+}
+#qrModal.du-layer > .upick-div-dialog-panel{
+  width:min(540px, calc(100vw - 28px));
+}
+#calendarDayModal.du-layer > .upick-div-dialog-panel{
+  width:min(560px, calc(100vw - 28px));
+}
+@media(max-width:640px){
+  .du-layer__header-main--calendar{gap:8px;}
+  .du-layer__header-actions{gap:8px;}
+}
+
+/* v20260529-header-unify2: header/body/footer 2차 통합 */
+.du-layer__footer,
+.du-layer .calendar-form-actions,
+.du-layer .calendar-day-modal-footer,
+.du-layer .community-report-actions,
+.du-layer .account-edit-actions,
+.du-layer .qr-modal-footer{
+  box-sizing:border-box;
+  display:flex;
+  align-items:center;
+  justify-content:flex-end;
+  gap:12px;
+  padding:16px 22px 20px;
+  border-top:1px solid var(--du-layer-line);
+  background:linear-gradient(180deg, rgba(255,255,255,.78), rgba(248,251,255,.96));
+}
+.du-layer__footer .block,
+.du-layer .qr-modal-footer .block{width:auto; min-width:160px;}
+.du-layer__header .du-layer__title.du-layer__badge,
+.du-layer__header .pill.du-layer__title{
+  margin:0;
+  font-size:clamp(15px, 1.8vw, 18px);
+}
+.du-layer__header .du-layer__subtitle{max-width:100%;}
+
+/* AI 이미지 확대도 풀팝업 레이어 슬롯을 사용 */
+#aiImageZoomBackdrop.du-layer--fullscreen{
+  align-items:stretch;
+  justify-content:center;
+  padding:0;
+}
+#aiImageZoomBackdrop.du-layer--fullscreen .ai-image-zoom-card.du-layer__panel{
+  width:min(920px, 100vw);
+  height:100dvh;
+  max-height:100dvh;
+  border-radius:0;
+  display:flex;
+  flex-direction:column;
+}
+#aiImageZoomBackdrop .ai-image-zoom-head.du-layer__header{
+  flex:0 0 auto;
+  padding:16px 20px;
+  background:rgba(255,255,255,.96);
+}
+#aiImageZoomBackdrop .ai-image-zoom-scroll.du-layer__body{
+  flex:1 1 auto;
+  min-height:0;
+  overflow:auto;
+  padding:18px;
+}
+@media (min-width: 760px){
+  #aiImageZoomBackdrop.du-layer--fullscreen{
+    padding:24px;
+    align-items:center;
+  }
+  #aiImageZoomBackdrop.du-layer--fullscreen .ai-image-zoom-card.du-layer__panel{
+    height:min(92dvh, 980px);
+    border-radius:28px;
+  }
+}
+@media (max-width:640px){
+  .du-layer__footer,
+  .du-layer .calendar-form-actions,
+  .du-layer .calendar-day-modal-footer,
+  .du-layer .community-report-actions,
+  .du-layer .account-edit-actions,
+  .du-layer .qr-modal-footer{
+    padding:14px 18px 18px;
+    gap:10px;
+  }
+  .du-layer__footer > .btn,
+  .du-layer__footer > button,
+  .du-layer .qr-modal-footer > button{flex:1 1 0; min-width:0;}
+}
+
+
+/* v20260529: AI 이미지 확대는 문서형 헤더 구분선 제거 */
+#aiImageZoomBackdrop.du-layer--fullscreen .ai-image-zoom-head.du-layer__header,
+#aiImageZoomBackdrop.du-layer--fullscreen .du-layer__header{
+  border-bottom:0 !important;
+  box-shadow:none !important;
+}
+#aiImageZoomBackdrop.du-layer--fullscreen .ai-image-zoom-head.du-layer__header::after,
+#aiImageZoomBackdrop.du-layer--fullscreen .du-layer__header::after{
+  content:none !important;
+  display:none !important;
+}
+
+/* v20260529-ai-image-compact-guard: AI 이미지 확대 전용 최종 보정
+   - 기존 app.css의 fixed 전체화면 이미지 뷰어 스타일을 du-layer 구조 안에서는 해제합니다.
+   - 헤더 여백을 줄이고, 바깥 영역 클릭 닫힘은 JS guard와 함께 차단합니다. */
+#aiImageZoomBackdrop.du-layer--fullscreen{
+  display:none !important;
+  background:rgba(15,23,42,.66) !important;
+  backdrop-filter:blur(14px) !important;
+  -webkit-backdrop-filter:blur(14px) !important;
+  overflow:hidden !important;
+}
+#aiImageZoomBackdrop.du-layer--fullscreen.show{
+  display:flex !important;
+}
+#aiImageZoomBackdrop.du-layer--fullscreen .ai-image-zoom-card.du-layer__panel{
+  position:relative !important;
+  gap:0 !important;
+  padding:0 !important;
+  background:rgba(255,255,255,.98) !important;
+  border:1px solid rgba(191,219,254,.72) !important;
+  box-shadow:0 30px 80px rgba(15,23,42,.38) !important;
+  overflow:hidden !important;
+}
+#aiImageZoomBackdrop.du-layer--fullscreen .ai-image-zoom-head.du-layer__header{
+  position:relative !important;
+  flex:0 0 64px !important;
+  min-height:64px !important;
+  height:64px !important;
+  padding:0 12px 0 22px !important;
+  display:flex !important;
+  align-items:center !important;
+  justify-content:space-between !important;
+  gap:12px !important;
+  background:rgba(255,255,255,.98) !important;
+  border-bottom:0 !important;
+}
+#aiImageZoomBackdrop.du-layer--fullscreen .ai-image-zoom-title.du-layer__title,
+#aiImageZoomBackdrop.du-layer--fullscreen .ai-image-zoom-title{
+  position:static !important;
+  inset:auto !important;
+  left:auto !important;
+  right:auto !important;
+  top:auto !important;
+  z-index:auto !important;
+  flex:1 1 auto !important;
+  min-width:0 !important;
+  margin:0 !important;
+  color:#0f172a !important;
+  font-size:clamp(17px, 2vw, 21px) !important;
+  font-weight:900 !important;
+  line-height:1.2 !important;
+  white-space:nowrap !important;
+  overflow:hidden !important;
+  text-overflow:ellipsis !important;
+}
+#aiImageZoomBackdrop.du-layer--fullscreen .ai-image-zoom-close.du-layer__close,
+#aiImageZoomBackdrop.du-layer--fullscreen .ai-image-zoom-close{
+  position:static !important;
+  inset:auto !important;
+  top:auto !important;
+  right:auto !important;
+  z-index:auto !important;
+  flex:0 0 54px !important;
+  width:54px !important;
+  height:54px !important;
+  border-radius:18px !important;
+  border:1px solid rgba(191,219,254,.72) !important;
+  background:rgba(248,251,255,.96) !important;
+  color:#0f172a !important;
+  font-size:30px !important;
+  box-shadow:0 14px 34px rgba(15,23,42,.08) !important;
+}
+#aiImageZoomBackdrop.du-layer--fullscreen .ai-image-zoom-scroll.du-layer__body,
+#aiImageZoomBackdrop.du-layer--fullscreen .ai-image-zoom-scroll{
+  position:relative !important;
+  inset:auto !important;
+  flex:1 1 auto !important;
+  min-height:0 !important;
+  max-height:none !important;
+  overflow:auto !important;
+  padding:14px 16px 18px !important;
+  display:grid !important;
+  place-items:center !important;
+  background:rgba(248,251,255,.72) !important;
+  border-radius:0 !important;
+}
+#aiImageZoomBackdrop.du-layer--fullscreen .ai-image-zoom-img{
+  width:auto !important;
+  min-width:0 !important;
+  max-width:100% !important;
+  height:auto !important;
+  max-height:100% !important;
+  object-fit:contain !important;
+  border-radius:18px !important;
+  background:#fff !important;
+  box-shadow:none !important;
+}
+@media (min-width:760px){
+  #aiImageZoomBackdrop.du-layer--fullscreen .ai-image-zoom-card.du-layer__panel{
+    width:min(720px, calc(100vw - 48px)) !important;
+    height:min(88dvh, 860px) !important;
+    max-height:calc(100dvh - 48px) !important;
+    border-radius:26px !important;
+  }
+}
+@media (max-width:640px){
+  #aiImageZoomBackdrop.du-layer--fullscreen .ai-image-zoom-head.du-layer__header{
+    flex-basis:60px !important;
+    min-height:60px !important;
+    height:60px !important;
+    padding:0 10px 0 18px !important;
+  }
+  #aiImageZoomBackdrop.du-layer--fullscreen .ai-image-zoom-close.du-layer__close,
+  #aiImageZoomBackdrop.du-layer--fullscreen .ai-image-zoom-close{
+    flex-basis:50px !important;
+    width:50px !important;
+    height:50px !important;
+    border-radius:17px !important;
+  }
+}
+
+/* ===== v20260529-du-layer-phase3 =====
+   Header 실제 통합 3차: 동적 이미지 팝업(소식/혜택 사진)까지 du-layer header/body 규격으로 정리합니다. */
+.du-layer__header-main{
+  min-width:0;
+  flex:1 1 auto;
+  display:flex;
+  flex-direction:column;
+  gap:5px;
+}
+.du-layer__header-actions{
+  flex:0 0 auto;
+  display:flex;
+  align-items:center;
+  justify-content:flex-end;
+  gap:10px;
+}
+.du-layer__header .du-layer__title{
+  min-width:0;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.du-layer__footer{
+  flex:0 0 auto;
+  padding:14px 20px 18px;
+  border-top:1px solid rgba(226,232,240,.72);
+  background:linear-gradient(180deg, rgba(255,255,255,.86), rgba(248,251,255,.96));
+}
+.du-layer--fullscreen .du-layer__panel{
+  display:flex;
+  flex-direction:column;
+}
+/* 이미지 계열 중 AI만 헤더 선 제거, 소식/혜택 이미지는 선 유지 */
+#aiImageZoomBackdrop .du-layer__header{ border-bottom:0 !important; }
+.news-image-preview-overlay .du-layer__header,
+.benefit-image-preview-overlay .du-layer__header{ border-bottom:1px solid rgba(226,232,240,.95) !important; }
+/* dialog 내부 클릭만 허용하고 바깥 클릭은 시각적 변화 없이 무시 */
+.news-image-preview-overlay.du-layer,
+.benefit-image-preview-overlay.du-layer{ touch-action:auto; }
+.news-image-preview-dialog.du-layer__panel,
+.benefit-image-preview-dialog.du-layer__panel{ isolation:isolate; }
+
+/* v20260529-phase4: 알럿/컨펌, CommonModal, 작은 액션 팝업까지 du-layer 슬롯에 편입 */
+#appAlert.du-layer{
+  --du-layer-z:2147483600;
+}
+#appAlert.du-layer .app-alert-card.du-layer__panel{
+  width:min(100%,380px) !important;
+  max-height:calc(100dvh - 48px) !important;
+}
+#appAlert.du-layer .app-alert-head.du-layer__header{
+  padding:0 !important;
+  min-height:auto !important;
+  border-bottom:0 !important;
+  background:transparent !important;
+  align-items:center !important;
+  justify-content:flex-start !important;
+}
+#appAlert.du-layer .app-alert-message.du-layer__body{
+  padding:0 !important;
+  overflow:visible !important;
+}
+#appAlert.du-layer .app-alert-actions.du-layer__footer{
+  margin-top:22px !important;
+  padding:0 !important;
+  border-top:0 !important;
+  background:transparent !important;
+}
+
+.common-modal-overlay.du-layer{
+  --du-layer-z:var(--du-layer-z-modal);
+  display:grid !important;
+  place-items:center !important;
+}
+.common-modal-overlay.du-layer .common-modal-stage.du-layer__panel{
+  background:transparent !important;
+  box-shadow:none !important;
+  border:0 !important;
+  padding:0 !important;
+  border-radius:0 !important;
+  overflow:visible !important;
+}
+.common-modal-overlay.du-layer .gnb-management-head.du-layer__header,
+.common-modal-overlay.du-layer .modal-head.du-layer__header{
+  border-bottom:1px solid rgba(226,232,240,.74) !important;
+}
+
+/* 작은 액션형 팝업 footer 버튼 배열 통일 */
+.du-layer__footer,
+.du-layer .calendar-form-actions,
+.du-layer .calendar-day-modal-footer,
+.du-layer .community-report-actions,
+.du-layer .account-edit-actions,
+.du-layer .password-change-actions,
+.du-layer .qr-modal-footer,
+.du-layer .modal-actions,
+.du-layer .sheet-actions{
+  box-sizing:border-box;
+}
+.du-layer .community-report-actions,
+.du-layer .account-edit-actions,
+.du-layer .password-change-actions,
+.du-layer .qr-modal-footer{
+  display:flex;
+  gap:12px;
+  align-items:center;
+  justify-content:stretch;
+}
+.du-layer .community-report-actions > *,
+.du-layer .account-edit-actions > *,
+.du-layer .password-change-actions > *,
+.du-layer .qr-modal-footer > *{
+  flex:1 1 0;
+}
+
+/* 바텀시트 계열은 공통 핸들/헤더 여백 유지 */
+.du-layer--sheet .du-layer__panel{
+  border-radius:var(--du-layer-radius-sheet) !important;
+}
+.du-layer--sheet .du-layer__header{
+  border-bottom:0 !important;
+}
+
+/* ESC/바깥 클릭 비활성 정책을 시각적으로도 일관 유지 */
+.du-layer[data-du-close-on-backdrop="false"] .du-layer__backdrop,
+.du-layer[data-close-on-backdrop="false"] .du-layer__backdrop{
+  cursor:default;
+}
+
+
+/* v20260529-phase5-small-actions: 계정 삭제 / 신고 / 공유 작은 팝업 공통 규격 */
+.du-layer--small-action .du-layer__panel,
+.du-layer--small-action .upick-div-dialog-panel,
+.du-layer--small-action .app-alert-card{
+  width:min(92vw, 480px)!important;
+  border-radius:28px!important;
+  overflow:hidden!important;
+}
+.du-layer--small-action .du-layer__header,
+.du-layer--small-action .modal-head,
+.du-layer--small-action .app-alert-head{
+  padding:18px 20px 14px!important;
+  border-bottom:1px solid rgba(148,163,184,.22)!important;
+}
+.du-layer--small-action .du-layer__body,
+.du-layer--small-action .modal-body,
+.du-layer--small-action .app-alert-message{
+  padding:18px 20px!important;
+}
+.du-layer--small-action .du-layer__footer,
+.du-layer--small-action .app-alert-actions,
+.du-layer--small-action .community-report-actions,
+.du-layer--small-action .qr-modal-footer{
+  display:grid!important;
+  grid-template-columns:1fr 1fr!important;
+  gap:12px!important;
+  padding:0 20px 20px!important;
+  margin-top:0!important;
+}
+.du-layer--small-action.du-layer--alert .app-alert-actions,
+.du-layer--small-action.du-layer--share .qr-modal-footer{
+  grid-template-columns:1fr!important;
+}
+.du-layer--small-action .app-alert-confirm,
+.du-layer--small-action .app-alert-cancel,
+.du-layer--small-action .btn,
+.du-layer--small-action .qr-modal-footer .btn{
+  min-height:56px!important;
+  border-radius:18px!important;
+  font-weight:900!important;
+}
+.du-layer--small-action.du-layer--danger .app-alert-card::before{
+  background:linear-gradient(90deg,#fb7185 0%,#ef4444 55%,#b91c1c 100%)!important;
+}
+.du-layer--small-action.du-layer--danger .app-alert-icon{
+  color:#dc2626!important;
+  background:linear-gradient(180deg,#fff1f2 0%,#ffe4e6 100%)!important;
+  border-color:#fecdd3!important;
+}
+.du-layer--small-action.du-layer--danger .app-alert-confirm{
+  background:linear-gradient(135deg,#991b1b 0%,#dc2626 100%)!important;
+  box-shadow:0 14px 28px rgba(220,38,38,.18)!important;
+}
+.du-layer--small-action.du-layer--report .du-layer__badge,
+.du-layer--small-action.du-layer--report .pill{
+  color:#b45309!important;
+  background:rgba(255,251,235,.96)!important;
+  border-color:rgba(253,186,116,.72)!important;
+}
+.du-layer--small-action.du-layer--share .du-layer__badge,
+.du-layer--small-action.du-layer--share .pill{
+  color:#1d4ed8!important;
+  background:rgba(239,246,255,.96)!important;
+  border-color:rgba(147,197,253,.78)!important;
+}
+#communityReportModal.du-layer--small-action .community-report-reasons{
+  display:grid!important;
+  gap:10px!important;
+}
+#communityReportModal.du-layer--small-action .community-report-modal-copy{
+  margin:0 0 14px!important;
+  color:#64748b!important;
+  font-weight:750!important;
+  line-height:1.55!important;
+}
+#qrModal.du-layer--small-action .qr-modal-card{
+  padding:0!important;
+}
+#qrModal.du-layer--small-action .qr-share-url{
+  margin-top:14px!important;
+  font-size:13px!important;
+  color:#64748b!important;
+  word-break:break-all!important;
+  text-align:center!important;
+}
+@media (max-width:480px){
+  .du-layer--small-action .du-layer__footer,
+  .du-layer--small-action .app-alert-actions,
+  .du-layer--small-action .community-report-actions{
+    grid-template-columns:1fr 1fr!important;
+  }
+  .du-layer--small-action.du-layer--alert .app-alert-actions,
+  .du-layer--small-action.du-layer--share .qr-modal-footer{
+    grid-template-columns:1fr!important;
+  }
+}
+
+/* ===== v20260530-du-layer-phase6-calendar =====
+   방문 예약 일자 팝업 헤더/본문/푸터를 공통 레이어 규격으로 정리합니다. */
+#calendarDayModal.du-layer{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:18px;
+}
+#calendarDayModal.du-layer > .du-layer__panel,
+#calendarDayModal.du-layer > .upick-div-dialog-panel{
+  width:min(560px, calc(100vw - 28px));
+  max-height:min(92dvh, 820px);
+  display:flex !important;
+  flex-direction:column !important;
+  overflow:hidden !important;
+  border-radius:30px;
+}
+#calendarDayModal.du-layer .calendar-day-modal-head.du-layer__header{
+  flex:0 0 auto;
+  display:flex !important;
+  flex-direction:row !important;
+  align-items:center !important;
+  justify-content:space-between !important;
+  gap:12px;
+  padding:18px 20px 16px;
+  border-bottom:1px solid var(--du-layer-line);
+}
+#calendarDayModal.du-layer .du-layer__header-main--calendar{
+  flex:1 1 auto;
+  min-width:0;
+  display:grid !important;
+  grid-template-columns:46px minmax(0, 1fr) 46px;
+  align-items:center;
+  gap:10px;
+}
+#calendarDayModal.du-layer .du-layer__header-main--calendar .calendar-day-modal-arrow,
+#calendarDayModal.du-layer .du-layer__header-main--calendar .calendar-day-modal-date{
+  margin:0 !important;
+  align-self:center;
+}
+#calendarDayModal.du-layer .calendar-day-modal-arrow{
+  width:46px;
+  height:46px;
+  border-radius:16px;
+}
+#calendarDayModal.du-layer .calendar-day-modal-date{
+  width:100%;
+  min-width:0;
+  height:46px;
+  padding:0 12px;
+  border-radius:17px;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+#calendarDayModal.du-layer .du-layer__header-actions{
+  flex:0 0 auto;
+  display:flex;
+  align-items:center;
+  justify-content:flex-end;
+}
+#calendarDayModal.du-layer .calendar-day-modal-close.du-layer__close{
+  width:54px;
+  height:54px;
+  border-radius:18px;
+  margin:0 !important;
+}
+#calendarDayModal.du-layer .calendar-day-modal-body.du-layer__body{
+  flex:1 1 auto;
+  min-height:0;
+  display:flex !important;
+  flex-direction:column !important;
+  padding:14px 20px 12px;
+  overflow:hidden !important;
+}
+#calendarDayModal.du-layer .calendar-day-modal-list{
+  flex:1 1 auto;
+  min-height:0;
+  max-height:none !important;
+  overflow-y:auto !important;
+  overscroll-behavior:contain;
+  -webkit-overflow-scrolling:touch;
+  padding:2px 4px 10px 0;
+}
+#calendarDayModal.du-layer .calendar-day-modal-footer.du-layer__footer{
+  flex:0 0 auto;
+  display:grid !important;
+  grid-template-columns:1fr 1fr;
+  gap:12px;
+  padding:14px 20px 20px;
+  border-top:1px solid var(--du-layer-line);
+  background:linear-gradient(180deg, rgba(255,255,255,.82), rgba(255,255,255,.98));
+}
+#calendarDayModal.du-layer .calendar-day-modal-footer .btn{
+  min-height:48px;
+}
+@media(max-width:480px){
+  #calendarDayModal.du-layer{padding:10px;}
+  #calendarDayModal.du-layer .calendar-day-modal-head.du-layer__header{padding:16px 14px 14px;gap:8px;}
+  #calendarDayModal.du-layer .du-layer__header-main--calendar{grid-template-columns:42px minmax(0, 1fr) 42px;gap:8px;}
+  #calendarDayModal.du-layer .calendar-day-modal-arrow{width:42px;height:42px;border-radius:15px;}
+  #calendarDayModal.du-layer .calendar-day-modal-date{height:42px;font-size:14px;}
+  #calendarDayModal.du-layer .calendar-day-modal-close.du-layer__close{width:50px;height:50px;border-radius:17px;}
+  #calendarDayModal.du-layer .calendar-day-modal-body.du-layer__body{padding:12px 14px 10px;}
+  #calendarDayModal.du-layer .calendar-day-modal-footer.du-layer__footer{padding:12px 14px 16px;}
+}
+
+/* ===== DU Layer phase7: benefit/notice body structure ===== */
+.du-detail-layout{
+  display:grid;
+  gap:16px;
+  width:100%;
+}
+.du-detail-summary{
+  min-width:0;
+}
+.du-detail-meta{
+  display:flex;
+  flex-wrap:wrap;
+  align-items:center;
+  gap:8px;
+}
+.du-detail-title{
+  margin:0;
+  word-break:keep-all;
+  overflow-wrap:anywhere;
+}
+.du-detail-section-stack{
+  display:grid;
+  gap:12px;
+  margin:0;
+}
+.du-detail-section{
+  min-width:0;
+}
+.du-detail-card{
+  box-sizing:border-box;
+  width:100%;
+}
+.du-detail-card-title{
+  display:block;
+  margin-bottom:8px;
+  font-size:13px;
+  color:var(--muted, #64748b);
+}
+.du-detail-text{
+  white-space:pre-wrap;
+  word-break:keep-all;
+  overflow-wrap:anywhere;
+  line-height:1.72;
+}
+.du-detail-footer{
+  margin-top:2px;
+  padding-top:0;
+  border-top:0;
+}
+.du-benefit-detail-layout .du-detail-footer,
+.du-notice-detail-layout .du-detail-footer{
+  position:relative;
+  inset:auto;
+  width:100%;
+  background:transparent;
+  box-shadow:none;
+}
+.du-benefit-detail-layout .share-actions,
+.du-notice-detail-layout .share-actions{
+  margin:0;
+}
+.du-benefit-detail-layout .benefit-detail-section-stack > .panel,
+.du-benefit-detail-layout .benefit-detail-section-stack > .du-detail-section,
+.du-notice-detail-layout .du-detail-section{
+  min-width:0;
+}
+.du-reaction-section:empty{
+  display:none;
+}
+#detailModal .modal-body.du-layer__body,
+#noticeModal .modal-body.du-layer__body{
+  display:block;
+}
+@media (max-width: 640px){
+  .du-detail-layout{gap:14px;}
+  .du-detail-section-stack{gap:10px;}
+}
+
+
+/* v20260529-phase8 scroll/body tune */
+.du-layer .du-layer__body,
+.du-layer .modal-body,
+.du-layer .calendar-day-modal-body,
+.du-layer .calendar-day-modal-list{
+  min-height:0 !important;
+  -webkit-overflow-scrolling:touch !important;
+  overscroll-behavior:contain !important;
+}
+#detailModal.du-layer .du-layer__body,
+#detailModal.du-layer .modal-body,
+#noticeModal.du-layer .du-layer__body,
+#noticeModal.du-layer .modal-body,
+#calendarDayModal.du-layer .calendar-day-modal-list,
+#calendarReservationModal.du-layer .du-layer__body,
+#calendarReservationModal.du-layer .modal-body{
+  overflow-y:auto !important;
+  overflow-x:hidden !important;
+}
+html.upick-layer-scroll-lock,
+body.upick-layer-scroll-lock{
+  overscroll-behavior:none !important;
+}
+
+
+/* ===== DU Layer Phase9: detail/notice share footer unification ===== */
+#detailModal .du-detail-footer,
+#noticeModal .du-detail-footer{
+  display:block !important;
+  width:100% !important;
+  margin:2px 0 0 !important;
+  padding:0 !important;
+  border-top:0 !important;
+  background:transparent !important;
+  box-shadow:none !important;
+  position:relative !important;
+  inset:auto !important;
+}
+#detailModal .du-detail-footer .notice-detail-actions,
+#noticeModal .du-detail-footer .notice-detail-actions,
+#detailModal .du-detail-footer .share-actions,
+#noticeModal .du-detail-footer .share-actions{
+  display:grid !important;
+  grid-template-columns:repeat(3,minmax(0,1fr)) !important;
+  gap:10px !important;
+  width:100% !important;
+  max-width:100% !important;
+  margin:0 !important;
+  padding:0 !important;
+  overflow:visible !important;
+  align-items:stretch !important;
+}
+#detailModal .du-detail-footer .notice-detail-actions > *,
+#noticeModal .du-detail-footer .notice-detail-actions > *,
+#detailModal .du-detail-footer .share-actions > *,
+#noticeModal .du-detail-footer .share-actions > *{
+  min-width:0 !important;
+  width:100% !important;
+  max-width:100% !important;
+}
+#detailModal .du-detail-footer .btn,
+#noticeModal .du-detail-footer .btn,
+#detailModal .du-detail-footer button,
+#noticeModal .du-detail-footer button{
+  width:100% !important;
+  min-width:0 !important;
+  max-width:100% !important;
+  height:48px !important;
+  min-height:48px !important;
+  padding:0 10px !important;
+  border-radius:16px !important;
+  display:inline-flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  gap:7px !important;
+  font-size:13px !important;
+  font-weight:900 !important;
+  line-height:1 !important;
+  letter-spacing:-.035em !important;
+  white-space:nowrap !important;
+  box-sizing:border-box !important;
+}
+#detailModal .du-detail-footer :is(img,svg,.upick-inline-icon),
+#noticeModal .du-detail-footer :is(img,svg,.upick-inline-icon){
+  width:16px !important;
+  height:16px !important;
+  flex:0 0 16px !important;
+  margin:0 !important;
+  display:block !important;
+}
+@media(max-width:420px){
+  #detailModal .du-detail-footer .notice-detail-actions,
+  #noticeModal .du-detail-footer .notice-detail-actions,
+  #detailModal .du-detail-footer .share-actions,
+  #noticeModal .du-detail-footer .share-actions{
+    gap:8px !important;
+  }
+  #detailModal .du-detail-footer .btn,
+  #noticeModal .du-detail-footer .btn,
+  #detailModal .du-detail-footer button,
+  #noticeModal .du-detail-footer button{
+    height:46px !important;
+    min-height:46px !important;
+    padding:0 6px !important;
+    font-size:12px !important;
+    gap:5px !important;
+  }
+}
+
+/* v20260530-phase10-bottom-sheet: 바텀시트 계열 공통화 */
+.du-layer--sheet{
+  align-items:flex-end!important;
+  justify-content:center!important;
+  padding:0 14px max(14px, env(safe-area-inset-bottom))!important;
+}
+.du-layer--sheet .du-layer__panel,
+.du-layer--sheet .sheet-panel,
+.du-filter-sheet__panel{
+  width:min(640px, calc(100vw - 28px))!important;
+  max-height:min(86dvh, 760px)!important;
+  overflow:hidden!important;
+  border-radius:32px 32px 24px 24px!important;
+  background:rgba(255,255,255,.98)!important;
+  box-shadow:0 -22px 58px rgba(15,23,42,.24), 0 0 0 1px rgba(219,234,254,.75)!important;
+}
+.du-sheet-handle,
+.du-layer--sheet .sheet-handle{
+  width:84px!important;
+  height:7px!important;
+  border-radius:999px!important;
+  background:#dbe3ec!important;
+  margin:16px auto 10px!important;
+}
+.du-layer--sheet .du-layer__header,
+.du-filter-sheet__header{
+  border-bottom:0!important;
+  padding:0 22px 14px!important;
+}
+.du-layer--sheet .du-layer__body,
+.du-layer--sheet .sheet-body,
+.du-filter-sheet__body{
+  overflow-y:auto!important;
+  -webkit-overflow-scrolling:touch!important;
+  padding:0 22px 22px!important;
+}
+.du-filter-sheet{
+  position:fixed!important;
+  inset:0!important;
+  z-index:50600!important;
+  display:flex!important;
+  background:rgba(15,23,42,.48)!important;
+  backdrop-filter:blur(10px)!important;
+  -webkit-backdrop-filter:blur(10px)!important;
+  opacity:0!important;
+  visibility:hidden!important;
+  pointer-events:none!important;
+  transition:opacity .24s ease, visibility 0s linear .24s!important;
+}
+.du-filter-sheet.show,
+.du-filter-sheet[aria-hidden="false"]{
+  opacity:1!important;
+  visibility:visible!important;
+  pointer-events:auto!important;
+  transition:opacity .24s ease, visibility 0s linear 0s!important;
+}
+.du-filter-sheet__panel{
+  transform:translateY(18px)!important;
+  transition:transform .28s cubic-bezier(.22,.61,.36,1)!important;
+}
+.du-filter-sheet.show .du-filter-sheet__panel,
+.du-filter-sheet[aria-hidden="false"] .du-filter-sheet__panel{
+  transform:translateY(0)!important;
+}
+.du-filter-sheet__badge{
+  min-height:30px!important;
+  padding:5px 12px!important;
+  color:#2563eb!important;
+  background:rgba(219,234,254,.86)!important;
+  border-color:rgba(191,219,254,.9)!important;
+  box-shadow:none!important;
+}
+.du-filter-sheet__title{
+  margin:2px 0 0!important;
+  font-size:26px!important;
+  line-height:1.18!important;
+}
+.du-filter-sheet__subtitle{
+  margin:2px 0 0!important;
+  font-size:15px!important;
+}
+.du-filter-sheet__list{
+  display:grid!important;
+  gap:10px!important;
+}
+.du-filter-sheet__option{
+  width:100%!important;
+  min-height:70px!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:space-between!important;
+  gap:14px!important;
+  padding:14px 16px!important;
+  border-radius:20px!important;
+  border:1px solid rgba(191,219,254,.84)!important;
+  background:rgba(248,251,255,.96)!important;
+  color:#0f172a!important;
+  text-align:left!important;
+  cursor:pointer!important;
+  box-shadow:0 12px 24px rgba(15,23,42,.055)!important;
+}
+.du-filter-sheet__option.active{
+  border-color:rgba(37,99,235,.82)!important;
+  background:linear-gradient(135deg, rgba(239,246,255,.98), rgba(219,234,254,.96))!important;
+  box-shadow:0 16px 30px rgba(37,99,235,.14)!important;
+}
+.du-filter-sheet__option-text{
+  display:flex!important;
+  flex-direction:column!important;
+  gap:4px!important;
+  min-width:0!important;
+}
+.du-filter-sheet__option-text strong{
+  font-size:16px!important;
+  font-weight:950!important;
+  letter-spacing:-.04em!important;
+}
+.du-filter-sheet__option-text small{
+  font-size:13px!important;
+  font-weight:800!important;
+  color:#64748b!important;
+  line-height:1.35!important;
+}
+.du-filter-sheet__option-check{
+  width:28px!important;
+  height:28px!important;
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  border-radius:999px!important;
+  background:rgba(226,232,240,.9)!important;
+  color:#94a3b8!important;
+  font-weight:1000!important;
+  flex:0 0 auto!important;
+}
+.du-filter-sheet__option.active .du-filter-sheet__option-check{
+  background:#1d4ed8!important;
+  color:#fff!important;
+}
+@media(min-width:641px) and (pointer:fine){
+  .du-filter-sheet{display:none!important;}
+}
+@media(max-width:480px){
+  .du-layer--sheet{padding-left:10px!important;padding-right:10px!important;}
+  .du-layer--sheet .du-layer__panel,
+  .du-layer--sheet .sheet-panel,
+  .du-filter-sheet__panel{width:calc(100vw - 20px)!important;border-radius:28px 28px 22px 22px!important;}
+  .du-filter-sheet__title{font-size:24px!important;}
+}
+
+/* v20260530-phase12-bottom-sheet-anchor: 계정 찾기/바텀시트 하단 연결 및 폭 정렬 보정 */
+.du-layer--sheet,
+.sheet-modal.du-layer--sheet{
+  align-items:flex-end!important;
+  justify-content:center!important;
+  padding:0!important;
+}
+.du-layer--sheet .du-layer__panel,
+.du-layer--sheet .sheet-panel,
+#accountHelpModal.du-layer--sheet .sheet-panel{
+  width:min(640px, 100vw)!important;
+  max-width:100vw!important;
+  margin:0!important;
+  border-radius:32px 32px 0 0!important;
+  box-sizing:border-box!important;
+}
+#accountHelpModal.du-layer--sheet .sheet-panel.account-recovery-panel{
+  width:min(640px, 100vw)!important;
+  padding:18px 24px calc(18px + env(safe-area-inset-bottom))!important;
+}
+#accountHelpModal .sheet-head.du-layer__header,
+#accountHelpModal .account-recovery-tabs,
+#accountHelpModal .sheet-body.du-layer__body{
+  width:100%!important;
+  max-width:100%!important;
+  box-sizing:border-box!important;
+}
+#accountHelpModal .account-recovery-tabs{
+  display:grid!important;
+  grid-template-columns:repeat(3, minmax(0, 1fr))!important;
+  gap:8px!important;
+  margin:14px 0 16px!important;
+}
+#accountHelpModal .account-recovery-tabs .sheet-tab{
+  width:100%!important;
+  min-width:0!important;
+  box-sizing:border-box!important;
+  white-space:nowrap!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  text-align:center!important;
+}
+#accountHelpModal .sheet-body.du-layer__body{
+  padding:0 0 18px!important;
+  margin:0!important;
+}
+@media (max-width:520px){
+  #accountHelpModal.du-layer--sheet .sheet-panel.account-recovery-panel{
+    width:100vw!important;
+    padding-left:20px!important;
+    padding-right:20px!important;
+  }
+  #accountHelpModal .account-recovery-tabs{
+    gap:7px!important;
+  }
+  #accountHelpModal .account-recovery-tabs .sheet-tab{
+    padding-left:4px!important;
+    padding-right:4px!important;
+    font-size:12.5px!important;
+    letter-spacing:-.04em!important;
+  }
+}

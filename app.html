@@ -38,13 +38,15 @@
 <link href="/css/app.css?v=20260527-image-preview-final-v99" rel="stylesheet"/>
 <link href="/common/accessibility.css?v=2026051401" rel="stylesheet"/>
 <link href="/common/common-motion.css?v=20260527fadefix" rel="stylesheet"/>
-<link href="/common/common-alert.css?v=20260527fadefix" rel="stylesheet"/>
+<link href="/common/common-alert.css?v=20260529-phase4" rel="stylesheet"/>
 <link href="/common/common-loading.css?v=20260527-stack-fix" rel="stylesheet"/>
-<link href="/common/common-modal.css?v=2026051604" rel="stylesheet"/>
+<link href="/common/du-layer.css?v=20260530-phase10-sheet" rel="stylesheet"/>
+<link href="/common/common-modal.css?v=20260529-phase4" rel="stylesheet"/>
 <script defer="" src="/common/common-motion.js?v=20260527fadefix"></script>
-<script defer="" src="/common/common-alert.js?v=20260527fadefix"></script>
+<script defer="" src="/common/common-alert.js?v=20260529-scrollfix"></script>
 <script defer="" src="/common/common-loading.js?v=2026052405"></script>
-<script defer="" src="/common/common-modal.js?v=2026051604"></script>
+<script defer="" src="/common/du-layer.js?v=20260530-phase10-sheet"></script>
+<script defer="" src="/common/common-modal.js?v=20260529-phase4"></script>
 </head>
 <body data-loading-mode="public">
 <div aria-hidden="false" class="global-loading show" data-initial-app-loading="1" id="globalLoadingBar">
@@ -111,24 +113,21 @@
 </header>
 <div class="hero">
 <div class="hero-badge-row">
-
-  <div class="eyebrow">
+<div class="eyebrow">
 <img alt="" class="upick-svg-icon upick-inline-icon" loading="lazy" src="/icons/internal/lock.svg"/>
                 간단 확인 후 입주민 혜택
               </div>
-        <div class="env-badge hero-env policy-env-badge" id="policyEnvBadge" aria-hidden="true">
-          <span class="env-badge-dot"></span>
-          <span>DEV</span>
-        </div>
-
-  <div class="env-badge hero-env" id="envBadge">
+<div aria-hidden="true" class="env-badge hero-env policy-env-badge" id="policyEnvBadge">
+<span class="env-badge-dot"></span>
+<span>DEV</span>
+</div>
+<div class="env-badge hero-env" id="envBadge">
 <span class="env-badge-dot">
 </span>
 <span>
                   DEV
                 </span>
 </div>
-
 </div>
 <h2>
                 입주민 혜택과 생활 정보를
@@ -853,38 +852,31 @@
         </span>
 </button>
 </nav>
-<div id="detailModal" class="upick-div-dialog upick-detail-div-modal" role="dialog" aria-modal="true" aria-hidden="true">
-<div class="upick-div-modal-backdrop" aria-hidden="true"></div>
-<div class="upick-div-modal-panel" role="document">
-<div class="modal-head">
-<div class="pill">
+<div aria-hidden="true" aria-modal="true" class="upick-div-dialog upick-detail-div-modal du-layer du-layer--modal" data-close-on-backdrop="false" data-du-close-on-backdrop="false" data-du-close-on-esc="false" data-du-layer="modal" id="detailModal" role="dialog">
+<div aria-hidden="true" class="upick-div-modal-backdrop du-layer__backdrop" data-du-layer-backdrop=""></div>
+<div class="upick-div-modal-panel du-layer__panel" data-du-layer-panel="" role="document">
+<div class="modal-head du-layer__header" data-du-header-normalized="1" data-du-layer-header=""><div class="du-layer__header-main"><div class="pill du-layer__badge du-layer__title">
           혜택 상세
-        </div>
-<div class="detail-head-actions" hidden="" id="detailHeadActions">
+        </div></div><div class="du-layer__header-actions"><div class="detail-head-actions" hidden="" id="detailHeadActions">
 <button aria-label="즐겨찾기 추가" aria-pressed="false" class="detail-icon-action" id="modalFavBtn" title="즐겨찾기 추가" type="button"></button>
 <button aria-label="방문 알림 추가" class="detail-icon-action" id="openCalendarReservationBtn" title="방문 알림 추가" type="button">
 <img alt="" class="upick-svg-icon" decoding="async" loading="lazy" src="/icons/internal/calendar.svg"/>
 </button>
-</div>
-<button class="close-btn" id="closeModal">
+</div><button aria-label="닫기" class="close-btn du-layer__close" data-du-layer-close="" id="closeModal">
           ✕
-        </button>
-</div>
-<div class="modal-body" id="modalBody">
-</div>
+        </button></div></div>
+<div class="modal-body du-layer__body" data-du-layer-body="" id="modalBody">
 </div>
 </div>
-<div id="calendarReservationModal" class="upick-div-dialog upick-nested-modal" aria-hidden="true" role="dialog" aria-modal="true">
-<div class="upick-div-dialog-panel" role="document">
-<div class="modal-head">
-<div class="pill">
+</div>
+<div aria-hidden="true" aria-modal="true" class="upick-div-dialog upick-nested-modal du-layer du-layer--modal" data-close-on-backdrop="false" data-du-close-on-backdrop="false" data-du-close-on-esc="false" data-du-layer="modal" id="calendarReservationModal" role="dialog">
+<div class="upick-div-dialog-panel du-layer__panel" data-du-layer-panel="" role="document">
+<div class="modal-head du-layer__header" data-du-header-normalized="1" data-du-layer-header=""><div class="du-layer__header-main"><div class="pill du-layer__badge du-layer__title">
           방문 알림 추가
-        </div>
-<button class="close-btn" id="closeCalendarReservationModal">
+        </div></div><div class="du-layer__header-actions"><button aria-label="닫기" class="close-btn du-layer__close" data-du-layer-close="" id="closeCalendarReservationModal">
           ✕
-        </button>
-</div>
-<div class="modal-body">
+        </button></div></div>
+<div class="modal-body du-layer__body" data-du-layer-body="">
 <form class="calendar-form" id="calendarReservationForm">
 <p class="calendar-form-help">
             방문 예정일과 알림 시간을 선택해 주세요. 등록된 일정은 캘린더 메뉴에서 확인할 수 있습니다.
@@ -930,7 +922,7 @@
             </label>
 <textarea id="calendarReservationMemo" maxlength="200" placeholder="예: 가족과 방문, 전화 확인 필요 등"></textarea>
 </div>
-<div class="calendar-form-actions">
+<div class="calendar-form-actions du-layer__footer" data-du-layer-footer="">
 <button class="btn btn-primary" type="submit">
               알림 등록
             </button>
@@ -942,60 +934,43 @@
 </div>
 </div>
 </div>
-<div id="calendarDayModal" class="upick-div-dialog" aria-hidden="true" role="dialog" aria-modal="true">
-<div class="calendar-day-modal-head">
-<button aria-label="이전 날짜" class="calendar-day-modal-arrow" id="calendarDayPrevBtn" type="button">
+<div aria-hidden="true" aria-modal="true" class="upick-div-dialog du-layer du-layer--modal" data-close-on-backdrop="false" data-du-close-on-backdrop="false" data-du-close-on-esc="false" data-du-layer="modal" id="calendarDayModal" role="dialog"><div class="upick-div-dialog-panel du-layer__panel" data-du-layer-panel="" role="document"><div class="calendar-day-modal-head du-layer__header" data-du-header-normalized="1" data-du-layer-header=""><div class="du-layer__header-main du-layer__header-main--calendar"><button aria-label="이전 날짜" class="calendar-day-modal-arrow" id="calendarDayPrevBtn" type="button">
           ‹
-        </button>
-<button class="calendar-day-modal-date" id="calendarDayDateBtn" type="button">
+        </button><button class="calendar-day-modal-date du-layer__title" id="calendarDayDateBtn" type="button">
           -
-        </button>
-<button aria-label="다음 날짜" class="calendar-day-modal-arrow" id="calendarDayNextBtn" type="button">
+        </button><button aria-label="다음 날짜" class="calendar-day-modal-arrow" id="calendarDayNextBtn" type="button">
           ›
-        </button>
-<button aria-label="닫기" class="calendar-day-modal-close" id="calendarDayCloseBtn" type="button">
+        </button></div><div class="du-layer__header-actions"><button aria-label="닫기" class="calendar-day-modal-close du-layer__close" data-du-layer-close="" id="calendarDayCloseBtn" type="button">
           ✕
-        </button>
-</div>
-<div class="calendar-day-modal-body">
+        </button></div></div><div class="calendar-day-modal-body du-layer__body" data-du-layer-body="">
 <input class="calendar-hidden-date-picker" id="calendarDayDatePicker" type="date"/>
 <div class="calendar-day-modal-list" id="calendarDayModalList">
 </div>
-<div class="calendar-day-modal-footer">
+</div><div class="calendar-day-modal-footer du-layer__footer" data-du-layer-footer="">
 <button class="btn btn-soft" id="calendarDayTodayBtn" type="button">
             오늘로 이동
           </button>
 <button class="btn btn-primary" id="calendarDayCloseBottomBtn" type="button">
             닫기
           </button>
-</div>
-</div>
-</div>
-<div id="noticeModal" class="upick-div-dialog upick-notice-div-modal" role="dialog" aria-modal="true" aria-hidden="true">
-<div class="upick-div-modal-backdrop" aria-hidden="true"></div>
-<div class="upick-div-modal-panel" role="document">
-<div class="modal-head">
-<div class="pill">
+</div></div></div>
+<div aria-hidden="true" aria-modal="true" class="upick-div-dialog upick-notice-div-modal du-layer du-layer--modal" data-close-on-backdrop="false" data-du-close-on-backdrop="false" data-du-close-on-esc="false" data-du-layer="modal" id="noticeModal" role="dialog">
+<div aria-hidden="true" class="upick-div-modal-backdrop du-layer__backdrop" data-du-layer-backdrop=""></div>
+<div class="upick-div-modal-panel du-layer__panel" data-du-layer-panel="" role="document">
+<div class="modal-head du-layer__header" data-du-header-normalized="1" data-du-layer-header=""><div class="du-layer__header-main"><div class="pill du-layer__badge du-layer__title">
           공지 상세
-        </div>
-<button class="close-btn" id="closeNoticeModal">
+        </div></div><div class="du-layer__header-actions"><button aria-label="닫기" class="close-btn du-layer__close" data-du-layer-close="" id="closeNoticeModal">
           ✕
-        </button>
-</div>
-<div class="modal-body" id="noticeModalBody">
-</div>
+        </button></div></div>
+<div class="modal-body du-layer__body" data-du-layer-body="" id="noticeModalBody">
 </div>
 </div>
-<div id="communityEditorModal" class="upick-div-dialog" aria-hidden="true" role="dialog" aria-modal="true">
-<div class="modal-head">
-<div class="pill" id="communityEditorTitle">
+</div>
+<div aria-hidden="true" aria-modal="true" class="upick-div-dialog du-layer du-layer--modal" data-close-on-backdrop="false" data-du-close-on-backdrop="false" data-du-close-on-esc="false" data-du-layer="modal" id="communityEditorModal" role="dialog"><div class="upick-div-dialog-panel du-layer__panel" data-du-layer-panel="" role="document"><div class="modal-head du-layer__header" data-du-header-normalized="1" data-du-layer-header=""><div class="du-layer__header-main"><div class="pill du-layer__badge du-layer__title" id="communityEditorTitle">
           커뮤니티 글쓰기
-        </div>
-<button class="close-btn" id="closeCommunityEditor">
+        </div></div><div class="du-layer__header-actions"><button aria-label="닫기" class="close-btn du-layer__close" data-du-layer-close="" id="closeCommunityEditor">
           ✕
-        </button>
-</div>
-<div class="modal-body">
+        </button></div></div><div class="modal-body du-layer__body" data-du-layer-body="">
 <div class="community-write-form">
 <select id="communityPostCategory">
 <option value="자유">
@@ -1020,18 +995,12 @@
             게시글 등록
           </button>
 </div>
-</div>
-</div>
-<div id="communityDetailModal" class="upick-div-dialog" aria-hidden="true" role="dialog" aria-modal="true">
-<div class="modal-head">
-<div class="pill">
+</div></div></div>
+<div aria-hidden="true" aria-modal="true" class="upick-div-dialog du-layer du-layer--modal" data-close-on-backdrop="false" data-du-close-on-backdrop="false" data-du-close-on-esc="false" data-du-layer="modal" id="communityDetailModal" role="dialog"><div class="upick-div-dialog-panel du-layer__panel" data-du-layer-panel="" role="document"><div class="modal-head du-layer__header" data-du-header-normalized="1" data-du-layer-header=""><div class="du-layer__header-main"><div class="pill du-layer__badge du-layer__title">
           커뮤니티
-        </div>
-<button class="close-btn" id="closeCommunityDetail">
+        </div></div><div class="du-layer__header-actions"><button aria-label="닫기" class="close-btn du-layer__close" data-du-layer-close="" id="closeCommunityDetail">
           ✕
-        </button>
-</div>
-<div class="modal-body">
+        </button></div></div><div class="modal-body du-layer__body" data-du-layer-body="">
 <div id="communityDetailBody">
 </div>
 <div class="comment-list" id="communityCommentList">
@@ -1042,18 +1011,12 @@
             댓글 등록
           </button>
 </div>
-</div>
-</div>
-<div id="communityReportModal" class="upick-div-dialog" aria-hidden="true" role="dialog" aria-modal="true">
-<div class="modal-head">
-<div class="pill">
+</div></div></div>
+<div aria-hidden="true" aria-modal="true" class="upick-div-dialog du-layer du-layer--modal du-layer--small-action du-layer--report" data-close-on-backdrop="false" data-du-close-on-backdrop="false" data-du-close-on-esc="false" data-du-layer="modal" id="communityReportModal" role="dialog" data-du-small-modal="report"><div class="upick-div-dialog-panel du-layer__panel" data-du-layer-panel="" role="document"><div class="modal-head du-layer__header" data-du-header-normalized="1" data-du-layer-header=""><div class="du-layer__header-main"><div class="pill du-layer__badge du-layer__title">
           신고 사유 선택
-        </div>
-<button class="close-btn" id="closeCommunityReportModal">
+        </div></div><div class="du-layer__header-actions"><button aria-label="닫기" class="close-btn du-layer__close" data-du-layer-close="" id="closeCommunityReportModal">
           ✕
-        </button>
-</div>
-<div class="modal-body">
+        </button></div></div><div class="modal-body du-layer__body" data-du-layer-body="">
 <p class="community-report-modal-copy">
           신고 사유를 선택해 주세요. 동일한 게시글/댓글은 한 번만 신고할 수 있습니다.
         </p>
@@ -1111,7 +1074,7 @@
             </span>
 </button>
 </div>
-<div class="community-report-actions">
+<div class="community-report-actions du-layer__footer" data-du-layer-footer="">
 <button class="btn btn-soft" id="cancelCommunityReportBtn" type="button">
             취소
           </button>
@@ -1119,18 +1082,12 @@
             신고 접수
           </button>
 </div>
-</div>
-</div>
-<div id="qrModal" class="upick-div-dialog" aria-hidden="true" role="dialog" aria-modal="true">
-<div class="modal-head">
-<div class="pill">
+</div></div></div>
+<div aria-hidden="true" aria-modal="true" class="upick-div-dialog du-layer du-layer--modal du-layer--small-action du-layer--share" data-close-on-backdrop="false" data-du-close-on-backdrop="false" data-du-close-on-esc="false" data-du-layer="modal" id="qrModal" role="dialog" data-du-small-modal="share"><div class="upick-div-dialog-panel du-layer__panel" data-du-layer-panel="" role="document"><div class="modal-head du-layer__header" data-du-header-normalized="1" data-du-layer-header=""><div class="du-layer__header-main"><div class="pill du-layer__badge du-layer__title">
           공유 QR
-        </div>
-<button class="close-btn" id="closeQrModal">
+        </div></div><div class="du-layer__header-actions"><button aria-label="닫기" class="close-btn du-layer__close" data-du-layer-close="" id="closeQrModal">
           ✕
-        </button>
-</div>
-<div class="modal-body">
+        </button></div></div><div class="modal-body du-layer__body" data-du-layer-body="">
 <div class="qr-modal-card">
 <div class="qr-canvas-wrap">
 <canvas height="220" id="qrCanvas" width="220">
@@ -1138,12 +1095,11 @@
 </div>
 <div class="qr-share-url" id="qrShareUrl">
 </div>
-<button class="btn btn-primary block" id="qrCopyBtn" type="button">
+
+</div>
+</div><div class="qr-modal-footer du-layer__footer" data-du-layer-footer=""><button class="btn btn-primary block" id="qrCopyBtn" type="button">
             URL 복사
-          </button>
-</div>
-</div>
-</div>
+          </button></div></div></div>
 <script crossorigin="anonymous" integrity="sha384-OL+ylM/iuPLtW5U3XcvLSGhE8JzReKDank5InqlHGWPhb4140/yrBw0bg0y7+C9J" src="https://t1.kakaocdn.net/kakao_js_sdk/2.8.1/kakao.min.js">
 </script>
 <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.1/build/qrcode.min.js">
@@ -1189,14 +1145,14 @@
 </div>
 </div>
 <div class="gnb-body">
-<button class="gnb-banner gnb-personal-banner" id="gnbPersonalBanner" type="button" data-view-link="all" aria-label="맞춤 메뉴 바로가기">
-<span class="gnb-banner-icon" aria-hidden="true">
+<button aria-label="맞춤 메뉴 바로가기" class="gnb-banner gnb-personal-banner" data-view-link="all" id="gnbPersonalBanner" type="button">
+<span aria-hidden="true" class="gnb-banner-icon">
 <img alt="" class="upick-svg-icon" loading="lazy" src="/icons/internal/user.svg"/>
 </span>
 <span class="gnb-banner-text" id="gnbPersonalBannerText">
             입주민 혜택을 한 번에 찾아보세요!
           </span>
-<span class="gnb-banner-arrow" aria-hidden="true">
+<span aria-hidden="true" class="gnb-banner-arrow">
             ›
           </span>
 </button>
@@ -1348,12 +1304,12 @@
                   </p>
 </div>
 <div class="gnb-account-summary-actions">
-  <button class="gnb-status-pill gnb-status-pill--button" id="gnbPushStatusPill" type="button" aria-label="푸시 알림 상태 변경">
+<button aria-label="푸시 알림 상태 변경" class="gnb-status-pill gnb-status-pill--button" id="gnbPushStatusPill" type="button">
                     상태 확인 중
                   </button>
-  <button class="gnb-action-btn outline gnb-summary-settings-btn" id="openSettingsSuiteBtn" type="button">
-    <span>설정 모음</span>
-  </button>
+<button class="gnb-action-btn outline gnb-summary-settings-btn" id="openSettingsSuiteBtn" type="button">
+<span>설정 모음</span>
+</button>
 </div>
 </div>
 <div class="gnb-account-card">
@@ -1371,53 +1327,43 @@
 </div>
 </div>
 </div>
-
 </div>
-
-
-
-
-<div class="gnb-settings-section gnb-policy-section" aria-label="더운정픽 운영 안내">
-  <div class="gnb-policy-kicker">
+<div aria-label="더운정픽 운영 안내" class="gnb-settings-section gnb-policy-section">
+<div class="gnb-policy-kicker">
     더운정픽 운영 안내
   </div>
-  <div class="gnb-policy-links">
-    <a class="gnb-policy-link" href="/guide" target="_blank" rel="noopener noreferrer">
-      <span>사용가이드</span>
-      <small>처음 이용할 때</small>
-    </a>
-    <a class="gnb-policy-link" href="/policy" target="_blank" rel="noopener noreferrer">
-      <span>운영정책</span>
-      <small>서비스 운영 기준</small>
-    </a>
-    <a class="gnb-policy-link" href="/terms" target="_blank" rel="noopener noreferrer">
-      <span>이용약관</span>
-      <small>서비스 이용 규칙</small>
-    </a>
-    <a class="gnb-policy-link" href="/privacy" target="_blank" rel="noopener noreferrer">
-      <span>개인정보처리방침</span>
-      <small>개인정보 보호 기준</small>
-    </a>
-  </div>
+<div class="gnb-policy-links">
+<a class="gnb-policy-link" href="/guide" rel="noopener noreferrer" target="_blank">
+<span>사용가이드</span>
+<small>처음 이용할 때</small>
+</a>
+<a class="gnb-policy-link" href="/policy" rel="noopener noreferrer" target="_blank">
+<span>운영정책</span>
+<small>서비스 운영 기준</small>
+</a>
+<a class="gnb-policy-link" href="/terms" rel="noopener noreferrer" target="_blank">
+<span>이용약관</span>
+<small>서비스 이용 규칙</small>
+</a>
+<a class="gnb-policy-link" href="/privacy" rel="noopener noreferrer" target="_blank">
+<span>개인정보처리방침</span>
+<small>개인정보 보호 기준</small>
+</a>
 </div>
 </div>
-
+</div>
 </section>
 </div>
 </aside>
-
-<div id="settingsSuiteModal" class="gnb-management-dialog settings-suite-dialog upick-div-dialog" aria-hidden="true" role="dialog" aria-modal="true">
-  <div class="gnb-management-shell">
-    <div class="gnb-management-head">
-      <div>
-        <span class="gnb-management-kicker">설정</span>
-        <h3>설정 모음</h3>
-        <p>글자 크기, 하단 네비바, 계정 관련 설정을 한 화면에서 관리합니다.</p>
-      </div>
-      <button class="gnb-management-close" id="closeSettingsSuiteBtn" type="button" aria-label="설정 모음 닫기">×</button>
-    </div>
-    <div class="gnb-management-body settings-suite-body">
-      <div class="gnb-settings-section" id="fontSizeSettingsSection">
+<div aria-hidden="true" aria-modal="true" class="gnb-management-dialog settings-suite-dialog upick-div-dialog du-layer du-layer--modal" data-close-on-backdrop="false" data-du-close-on-backdrop="false" data-du-close-on-esc="false" data-du-layer="modal" id="settingsSuiteModal" role="dialog">
+<div class="gnb-management-shell du-layer__panel" data-du-layer-panel="">
+<div class="gnb-management-head du-layer__header" data-du-header-normalized="1" data-du-layer-header=""><div class="du-layer__header-main"><div>
+<span class="gnb-management-kicker du-layer__badge">설정</span>
+<h3 class="du-layer__title">설정 모음</h3>
+<p class="du-layer__subtitle">글자 크기, 하단 네비바, 계정 관련 설정을 한 화면에서 관리합니다.</p>
+</div></div><div class="du-layer__header-actions"><button aria-label="설정 모음 닫기" class="gnb-management-close du-layer__close" data-du-layer-close="" id="closeSettingsSuiteBtn" type="button">×</button></div></div>
+<div class="gnb-management-body settings-suite-body du-layer__body" data-du-layer-body="">
+<div class="gnb-settings-section" id="fontSizeSettingsSection">
 <div class="gnb-settings-section-header">
 <div>
 <h4 class="gnb-settings-section-title">
@@ -1468,7 +1414,7 @@
                 </div>
 </div>
 </div>
-      <div class="gnb-settings-section" id="userBottomNavSettingsSection">
+<div class="gnb-settings-section" id="userBottomNavSettingsSection">
 <div class="gnb-settings-section-header">
 <div>
 <h4 class="gnb-settings-section-title">
@@ -1517,12 +1463,12 @@
 </div>
 </div>
 <div class="user-bottom-nav-actions">
-<button class="gnb-action-btn primary user-bottom-nav-save" id="saveUserBottomNavBtn" type="button" aria-label="저장">
+<button aria-label="저장" class="gnb-action-btn primary user-bottom-nav-save" id="saveUserBottomNavBtn" type="button">
 <span>
                       저장
                     </span>
 </button>
-<button class="gnb-action-btn outline user-bottom-nav-reset" id="resetUserBottomNavBtn" type="button" aria-label="기본값 사용">
+<button aria-label="기본값 사용" class="gnb-action-btn outline user-bottom-nav-reset" id="resetUserBottomNavBtn" type="button">
 <span>
                       기본값 사용
                     </span>
@@ -1533,7 +1479,7 @@
                 </div>
 </div>
 </div>
-      <div class="gnb-settings-section gnb-account-actions-section">
+<div class="gnb-settings-section gnb-account-actions-section">
 <div class="gnb-settings-section-header">
 <div>
 <h4 class="gnb-settings-section-title">
@@ -1567,21 +1513,18 @@
 </button>
 </div>
 </div>
-    </div>
-  </div>
 </div>
-<div id="accountEditModal" class="upick-div-modal" role="dialog" aria-modal="true" aria-hidden="true">
-<div class="upick-div-modal-backdrop" aria-hidden="true"></div>
-<div class="upick-div-modal-panel" role="document">
-<div class="modal-head">
-<div class="pill">
+</div>
+</div>
+<div aria-hidden="true" aria-modal="true" class="upick-div-modal du-layer du-layer--modal" data-close-on-backdrop="false" data-du-close-on-backdrop="false" data-du-close-on-esc="false" data-du-layer="modal" id="accountEditModal" role="dialog">
+<div aria-hidden="true" class="upick-div-modal-backdrop du-layer__backdrop" data-du-layer-backdrop=""></div>
+<div class="upick-div-modal-panel du-layer__panel" data-du-layer-panel="" role="document">
+<div class="modal-head du-layer__header" data-du-header-normalized="1" data-du-layer-header=""><div class="du-layer__header-main"><div class="pill du-layer__badge du-layer__title">
           계정 정보 수정
-        </div>
-<button class="close-btn" id="closeAccountEditModal" type="button">
+        </div></div><div class="du-layer__header-actions"><button aria-label="닫기" class="close-btn du-layer__close" data-du-layer-close="" id="closeAccountEditModal" type="button">
           ✕
-        </button>
-</div>
-<div class="modal-body">
+        </button></div></div>
+<div class="modal-body du-layer__body" data-du-layer-body="">
 <ul aria-label="계정 정보 수정 안내" class="account-edit-note-list">
 <li>입장한 계정의 표시 정보를 수정합니다.</li>
 <li>닉네임을 변경한 경우 중복 확인을 완료해야 저장됩니다.</li>
@@ -1638,7 +1581,7 @@
             </label>
 <input id="accountUnitInput" inputmode="numeric" maxlength="10" name="unit" placeholder="예: 1203" type="text"/>
 </div>
-<div class="account-edit-actions">
+<div class="account-edit-actions du-layer__footer" data-du-layer-footer="">
 <button class="btn btn-soft block" id="cancelAccountEditBtn" type="button">
               취소
             </button>
@@ -1650,18 +1593,15 @@
 </div>
 </div>
 </div>
-<div id="passwordChangeModal" class="upick-div-modal" role="dialog" aria-modal="true" aria-hidden="true">
-<div class="upick-div-modal-backdrop" aria-hidden="true"></div>
-<div class="upick-div-modal-panel" role="document">
-<div class="modal-head">
-<div class="pill">
+<div aria-hidden="true" aria-modal="true" class="upick-div-modal du-layer du-layer--modal" data-close-on-backdrop="false" data-du-close-on-backdrop="false" data-du-close-on-esc="false" data-du-layer="modal" id="passwordChangeModal" role="dialog">
+<div aria-hidden="true" class="upick-div-modal-backdrop du-layer__backdrop" data-du-layer-backdrop=""></div>
+<div class="upick-div-modal-panel du-layer__panel" data-du-layer-panel="" role="document">
+<div class="modal-head du-layer__header" data-du-header-normalized="1" data-du-layer-header=""><div class="du-layer__header-main"><div class="pill du-layer__badge du-layer__title">
           비밀번호 변경
-        </div>
-<button class="close-btn" id="closePasswordChangeModal" type="button">
+        </div></div><div class="du-layer__header-actions"><button aria-label="닫기" class="close-btn du-layer__close" data-du-layer-close="" id="closePasswordChangeModal" type="button">
           ✕
-        </button>
-</div>
-<div class="modal-body">
+        </button></div></div>
+<div class="modal-body du-layer__body" data-du-layer-body="">
 <ul aria-label="비밀번호 변경 안내" class="password-change-note-list">
 <li>현재 비밀번호 확인 후 새 비밀번호로 변경합니다.</li>
 <li>변경 완료 후 보안을 위해 입장 화면으로 이동됩니다.</li>
@@ -1686,7 +1626,7 @@
 <input autocomplete="new-password" id="newPasswordConfirmInput" name="newPasswordConfirm" placeholder="8자 이상 다시 입력" type="password"/>
 <p aria-live="polite" class="password-live-message" id="passwordChangeMatchMessage"></p>
 </div>
-<div class="account-edit-actions">
+<div class="account-edit-actions du-layer__footer" data-du-layer-footer="">
 <button class="btn btn-soft block" id="cancelPasswordChangeBtn" type="button">
               취소
             </button>
@@ -1709,7 +1649,7 @@
 </div>
 <p class="app-alert-message" id="appAlertMessage">
 </p>
-<div class="app-alert-actions">
+<div class="app-alert-actions du-layer__footer" data-du-layer-footer="">
 <button class="app-alert-cancel hidden" id="appAlertCancel" type="button">
             취소
           </button>
@@ -1742,21 +1682,21 @@
           </button>
 </div>
 </div>
-<div aria-hidden="true" class="ai-image-zoom-backdrop" id="aiImageZoomBackdrop">
-  <div class="ai-image-zoom-card" role="document">
-    <div class="ai-image-zoom-title" id="aiImageZoomTitle">
+<div aria-hidden="true" aria-modal="true" class="ai-image-zoom-backdrop du-layer du-layer--fullscreen" data-close-on-backdrop="false" data-du-close-on-backdrop="false" data-du-close-on-esc="false" data-du-layer="fullscreen" id="aiImageZoomBackdrop" role="dialog">
+<div class="ai-image-zoom-card du-layer__panel" data-du-layer-panel="" role="document"><div class="ai-image-zoom-head du-layer__header" data-du-layer-header=""><div class="du-layer__header-main"><div class="ai-image-zoom-title du-layer__title" id="aiImageZoomTitle">
           이미지 확대 보기
-        </div>
-    <button aria-label="닫기" class="ai-image-zoom-close" id="aiImageZoomCloseBtn" onclick="window.closeAiImageZoom &amp;&amp; window.closeAiImageZoom()" type="button">
+        </div></div><div class="du-layer__header-actions"><button aria-label="닫기" class="ai-image-zoom-close du-layer__close" data-du-layer-close="" id="aiImageZoomCloseBtn" onclick="window.closeAiImageZoom &amp;&amp; window.closeAiImageZoom()" type="button">
           ×
-        </button>
-    <div class="ai-image-zoom-scroll" id="aiImageZoomScroll">
-      <img alt="확대 이미지" class="ai-image-zoom-img" id="aiImageZoomImg" src=""/>
-    </div>
-  </div>
+        </button></div></div>
+
+
+<div class="ai-image-zoom-scroll du-layer__body" data-du-layer-body="" id="aiImageZoomScroll">
+<img alt="확대 이미지" class="ai-image-zoom-img" id="aiImageZoomImg" src=""/>
+</div>
+</div>
 </div>
 <script id="upick-benefit-photo-drag-click-guard" src="app-inline-init.js"></script>
-<script src="/js/app.js?v=20260527-mobile-image-modal-redesign-v2" type="module">
+<script src="/js/app.js?v=20260530-phase11-scrollfix" type="module">
 </script> <script defer="" src="/common/password-field-enhance.js?v=2026051501"></script>
 <script defer="" src="/common/modal-backdrop-lock.js?v=2026051401"></script>
 <script defer="" src="/common/accessibility.js?v=2026051401"></script>
@@ -1767,10 +1707,7 @@
 <link href="./css/app.inline.1.css" rel="stylesheet"/>
 <script src="./js/app.inline.5.js"></script>
 <link href="./css/app.inline.2.css" rel="stylesheet"/>
-
-<script defer src="/js/html-inline/app-inline-1-54a53359.js"></script>
-  
-  
-  <script defer src="/common/dev-badge-visibility.js"></script>
+<script defer="" src="/js/html-inline/app-inline-1-54a53359.js"></script>
+<script defer="" src="/common/dev-badge-visibility.js"></script>
 </body>
 </html>

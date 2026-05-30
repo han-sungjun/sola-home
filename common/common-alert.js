@@ -43,7 +43,7 @@
     if(!alertEl){
       alertEl = document.createElement('div');
       alertEl.id = 'appAlert';
-      alertEl.className = 'app-alert';
+      alertEl.className = 'app-alert du-layer du-layer--modal';
       alertEl.setAttribute('aria-hidden','true');
       alertEl.innerHTML = ''+
         '<div class="app-alert-card" role="alertdialog" aria-modal="true" aria-labelledby="appAlertTitle" aria-describedby="appAlertMessage">'+
@@ -67,6 +67,19 @@
     confirmBtn = qs('#appAlertConfirm', alertEl) || qs('#appAlertConfirm');
     cancelBtn = qs('#appAlertCancel', alertEl) || qs('#appAlertCancel');
     actionsEl = qs('.app-alert-actions', alertEl);
+
+    alertEl.classList.add('du-layer','du-layer--modal');
+    alertEl.setAttribute('data-du-layer','modal');
+    alertEl.setAttribute('data-close-on-backdrop','false');
+    alertEl.setAttribute('data-du-close-on-backdrop','false');
+    alertEl.setAttribute('data-du-close-on-esc','false');
+    var cardEl = qs('.app-alert-card', alertEl);
+    if(cardEl){ cardEl.classList.add('du-layer__panel'); cardEl.setAttribute('data-du-layer-panel',''); }
+    var headEl = qs('.app-alert-head', alertEl);
+    if(headEl){ headEl.classList.add('du-layer__header'); headEl.setAttribute('data-du-layer-header',''); }
+    if(messageEl){ messageEl.classList.add('du-layer__body'); messageEl.setAttribute('data-du-layer-body',''); }
+    if(actionsEl){ actionsEl.classList.add('du-layer__footer'); actionsEl.setAttribute('data-du-layer-footer',''); }
+    if(titleEl){ titleEl.classList.add('du-layer__title'); }
 
     if(actionsEl && !cancelBtn){
       cancelBtn = document.createElement('button');
@@ -117,8 +130,9 @@
 
   function allowInnerScroll(target){
     if(!target || !target.closest) return false;
-    var panel = target.closest('.app-alert-card,.common-modal-overlay,.sheet-modal.show,.sheet-modal.is-open,.bottom-sheet.show,.bottom-sheet.is-open,.auth-bottom-sheet.show,.auth-bottom-sheet.is-open,.account-recovery-sheet.show,.account-recovery-sheet.is-open,.admin-modal.show,.admin-modal.is-open,.admin-dialog.show,.admin-dialog.is-open,.modal.show,.modal.is-open,dialog[open],#gnbSheet.show,.gnb-sheet.show');
+    var panel = target.closest('.app-alert-card,.du-layer.show,.du-layer[open],.du-layer[aria-hidden="false"],.upick-div-modal.show,.upick-div-modal[open],.upick-div-modal[aria-hidden="false"],.upick-div-dialog.show,.upick-div-dialog[open],.upick-div-dialog[aria-hidden="false"],#settingsSuiteModal.show,#settingsSuiteModal[open],.settings-suite-dialog.show,.settings-suite-dialog[open],.gnb-management-dialog.show,.gnb-management-dialog[open],.common-modal-overlay,.sheet-modal.show,.sheet-modal.is-open,.bottom-sheet.show,.bottom-sheet.is-open,.auth-bottom-sheet.show,.auth-bottom-sheet.is-open,.account-recovery-sheet.show,.account-recovery-sheet.is-open,.admin-modal.show,.admin-modal.is-open,.admin-dialog.show,.admin-dialog.is-open,.modal.show,.modal.is-open,dialog[open],#gnbSheet.show,.gnb-sheet.show');
     if(!panel) return false;
+    if(target.closest('.du-layer__body,.du-layer__panel,.modal-body,.calendar-day-modal-list,.calendar-day-modal-body,.upick-div-modal-panel,.upick-div-dialog-panel')) return true;
     var node = target;
     while(node && node !== panel.parentElement){
       if(isScrollable(node)) return true;
@@ -223,7 +237,7 @@
     if(window.UpickMotion && typeof window.UpickMotion.open === 'function'){
       return window.UpickMotion.open(alertEl, {
         activeClass:'show', panel:getAlertPanel(), duration:ALERT_OPEN_DURATION,
-        beforeOpen:function(){ openNativeDialogIfNeeded(); setOpenLock(true); },
+        beforeOpen:function(){ openNativeDialogIfNeeded(); setOpenLock(true); try{ document.dispatchEvent(new CustomEvent('upick:alert-opened')); }catch(_){} },
         afterOpen:focusConfirm
       });
     }
@@ -231,6 +245,7 @@
     alertEl.setAttribute('aria-hidden','false');
     openNativeDialogIfNeeded();
     setOpenLock(true);
+    try{ document.dispatchEvent(new CustomEvent('upick:alert-opened')); }catch(_){}
     focusConfirm();
     return Promise.resolve(true);
   }
@@ -278,10 +293,27 @@
     if(cancelBtn) cancelBtn.disabled = false;
   }
 
+  function applyAlertVariant(options, mode){
+    ensureAlert();
+    var title = String(options && options.title || '');
+    var confirmText = String(options && options.confirmText || '');
+    var message = String(options && options.message || '');
+    var explicit = String(options && (options.variant || options.tone || options.type) || '').toLowerCase();
+    var danger = explicit === 'danger' || /삭제|탈퇴|블라인드/.test(title + ' ' + confirmText + ' ' + message);
+    var report = explicit === 'report' || /신고/.test(title + ' ' + confirmText);
+    var share = explicit === 'share' || /공유|QR|링크|URL/.test(title + ' ' + confirmText);
+    alertEl.classList.remove('du-layer--small-action','du-layer--danger','du-layer--report','du-layer--share','du-layer--confirm','du-layer--alert');
+    alertEl.classList.add('du-layer--small-action', mode === 'confirm' ? 'du-layer--confirm' : 'du-layer--alert');
+    if(danger) alertEl.classList.add('du-layer--danger');
+    else if(report) alertEl.classList.add('du-layer--report');
+    else if(share) alertEl.classList.add('du-layer--share');
+  }
+
   function showCommonAlert(input, maybeOptions){
     var options = normalizeOptions(input, maybeOptions);
     return enqueue(function(resolve){
       ensureAlert();
+      applyAlertVariant(options, 'alert');
       titleEl.textContent = escapeText(options.title || '안내');
       messageEl.textContent = escapeText(options.message || '');
       confirmBtn.textContent = escapeText(options.confirmText || '확인');
@@ -311,6 +343,7 @@
     var options = normalizeOptions(input, maybeOptions);
     return enqueue(function(resolve){
       ensureAlert();
+      applyAlertVariant(options, 'confirm');
       titleEl.textContent = escapeText(options.title || '확인');
       messageEl.textContent = escapeText(options.message || '');
       confirmBtn.textContent = escapeText(options.confirmText || '확인');
@@ -351,8 +384,7 @@
       event.preventDefault();
       event.stopPropagation();
       if(event.stopImmediatePropagation) event.stopImmediatePropagation();
-      if(cancelBtn && !cancelBtn.classList.contains('hidden')) cancelBtn.click();
-      else if(confirmBtn) confirmBtn.click();
+      return false;
     }
   }, true);
 
@@ -407,6 +439,12 @@
     '.auth-bottom-sheet.show','.auth-bottom-sheet.is-open','.account-recovery-sheet.show','.account-recovery-sheet.is-open',
     '.admin-modal.show','.admin-modal.is-open','.admin-dialog.show','.admin-dialog.is-open',
     '.modal.show','.modal.is-open','.modal-overlay.show','.modal-overlay.is-open',
+    '#settingsSuiteModal.show','#settingsSuiteModal[open]',
+    '.settings-suite-dialog.show','.settings-suite-dialog[open]',
+    '.gnb-management-dialog.show','.gnb-management-dialog[open]',
+    '.upick-div-modal.show','.upick-div-modal[open]',
+    '.upick-div-dialog.show','.upick-div-dialog[open]',
+    '.du-layer.show','.du-layer[open]',
     '#gnbSheet.show','.gnb-sheet.show'
   ];
   var active = false;
@@ -447,10 +485,21 @@
   ['click','pointerdown','transitionend','animationend','keyup'].forEach(function(type){
     document.addEventListener(type, requestSync, true);
   });
+  document.addEventListener('upick:layer-opened', requestSync, true);
+  document.addEventListener('upick:layer-closed', requestSync, true);
   if(window.MutationObserver){
     // 전체 DOM subtree 감시는 공개앱에서 비용이 커서 body/html의 class 변경 중심으로만 감지합니다.
     new MutationObserver(requestSync).observe(document.body || document.documentElement, {attributes:true, attributeFilter:['class','style','open','hidden']});
     new MutationObserver(requestSync).observe(document.documentElement, {attributes:true, attributeFilter:['class','style']});
+    var bindLayerObservers = function(){
+      document.querySelectorAll('#settingsSuiteModal,#accountEditModal,#passwordChangeModal,#detailModal,#noticeModal,#calendarDayModal,#calendarReservationModal,#qrModal,#communityEditorModal,#communityDetailModal,#communityReportModal,#appAlert,.app-alert,.sheet-modal,.du-layer').forEach(function(el){
+        if(!el || el.__upickLayerLockObserved) return;
+        el.__upickLayerLockObserved = '1';
+        new MutationObserver(requestSync).observe(el,{attributes:true,attributeFilter:['class','open','aria-hidden','style','hidden']});
+      });
+    };
+    bindLayerObservers();
+    new MutationObserver(bindLayerObservers).observe(document.body || document.documentElement,{childList:true,subtree:true});
   }
   if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', requestSync, {once:true});
   else requestSync();

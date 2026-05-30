@@ -79,11 +79,16 @@
     if(!content) return null;
 
     overlay = document.createElement('div');
-    overlay.className = 'common-modal-overlay' + (options.overlayClass ? ' ' + options.overlayClass : '');
+    overlay.className = 'common-modal-overlay du-layer du-layer--modal' + (options.overlayClass ? ' ' + options.overlayClass : '');
+    overlay.setAttribute('data-du-layer','modal');
+    overlay.setAttribute('data-close-on-backdrop','false');
+    overlay.setAttribute('data-du-close-on-backdrop','false');
+    overlay.setAttribute('data-du-close-on-esc','false');
     overlay.setAttribute('role','presentation');
 
     stage = document.createElement('div');
-    stage.className = 'common-modal-stage' + (options.stageClass ? ' ' + options.stageClass : '');
+    stage.className = 'common-modal-stage du-layer__panel' + (options.stageClass ? ' ' + options.stageClass : '');
+    stage.setAttribute('data-du-layer-panel','');
     stage.setAttribute('role','dialog');
     stage.setAttribute('aria-modal','true');
     if(options.labelledby) stage.setAttribute('aria-labelledby', options.labelledby);
@@ -95,6 +100,7 @@
     stage.appendChild(content);
     overlay.appendChild(stage);
     root.appendChild(overlay);
+    try{ document.dispatchEvent(new CustomEvent('upick:layer-opened', { detail:{ id:'commonModalRoot', type:'modal' } })); }catch(_){ }
 
     overlay.addEventListener('click', function(event){
       if(event.target === overlay){

@@ -3705,3 +3705,61 @@ input[type="radio"]:not(:checked):focus-visible{
   scroll-margin-top:18px!important;
   scroll-margin-bottom:18px!important;
 }
+
+/* v20260530-phase12-bottom-sheet-anchor: 계정 찾기/바텀시트 하단 연결 및 폭 정렬 보정 */
+#accountHelpModal.sheet-modal.du-layer--sheet{
+  align-items:flex-end!important;
+  justify-content:center!important;
+  padding:0!important;
+}
+#accountHelpModal.du-layer--sheet .sheet-panel.account-recovery-panel{
+  width:min(640px, 100vw)!important;
+  max-width:100vw!important;
+  margin:0!important;
+  border-radius:32px 32px 0 0!important;
+  padding:18px 24px calc(18px + env(safe-area-inset-bottom))!important;
+  box-sizing:border-box!important;
+}
+#accountHelpModal .sheet-head.du-layer__header,
+#accountHelpModal .account-recovery-tabs,
+#accountHelpModal .sheet-body.du-layer__body{
+  width:100%!important;
+  max-width:100%!important;
+  box-sizing:border-box!important;
+}
+#accountHelpModal .account-recovery-tabs{
+  display:grid!important;
+  grid-template-columns:repeat(3, minmax(0, 1fr))!important;
+  gap:8px!important;
+  margin:14px 0 16px!important;
+}
+#accountHelpModal .account-recovery-tabs .sheet-tab{
+  width:100%!important;
+  min-width:0!important;
+  box-sizing:border-box!important;
+  white-space:nowrap!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  text-align:center!important;
+}
+#accountHelpModal .sheet-body.du-layer__body{
+  padding:0 0 18px!important;
+  margin:0!important;
+}
+@media (max-width:520px){
+  #accountHelpModal.du-layer--sheet .sheet-panel.account-recovery-panel{
+    width:100vw!important;
+    padding-left:20px!important;
+    padding-right:20px!important;
+  }
+  #accountHelpModal .account-recovery-tabs{
+    gap:7px!important;
+  }
+  #accountHelpModal .account-recovery-tabs .sheet-tab{
+    padding-left:4px!important;
+    padding-right:4px!important;
+    font-size:12.5px!important;
+    letter-spacing:-.04em!important;
+  }
+}
