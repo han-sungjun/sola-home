@@ -1,1 +1,0 @@
-v89: AI 이미지 확대 팝업만 수정. 바깥영역 클릭 시 document capture 단계에서 closeAiImageZoom()이 먼저 호출되던 부분을 제거하고, X 버튼 닫기는 유지했습니다.
