@@ -29178,3 +29178,321 @@ body > #passwordChangeModal.upick-div-modal.upick-motion-open{
     gap:5px !important;
   }
 }
+
+/* ===== v20260531-root3-dynamic-fix12: 혜택 이미지 확대 다중 이미지 슬라이드 폭 보정 ===== */
+.benefit-image-preview-overlay.du-layer .benefit-image-preview-track{
+  display:flex !important;
+  flex-wrap:nowrap !important;
+  align-items:stretch !important;
+  min-width:100% !important;
+}
+.benefit-image-preview-overlay.du-layer .benefit-image-preview-slide{
+  min-width:0 !important;
+  flex-shrink:0 !important;
+}
+.benefit-image-preview-overlay.du-layer .benefit-image-preview-slide.active{
+  visibility:visible !important;
+  opacity:1 !important;
+}
+.benefit-image-preview-overlay.du-layer .benefit-image-preview-frame,
+.benefit-image-preview-overlay.du-layer .benefit-image-preview-frame img{
+  min-width:0 !important;
+}
+
+
+/* v20260531-root3-dynamic-fix13: 혜택 사진 확대 슬라이드는 표준 100% 슬라이드 폭으로 고정 */
+.benefit-image-preview-overlay .benefit-image-preview-track{
+  width:100% !important;
+  display:flex !important;
+}
+.benefit-image-preview-overlay .benefit-image-preview-slide{
+  flex:0 0 100% !important;
+  width:100% !important;
+  max-width:100% !important;
+}
+.benefit-image-preview-overlay .benefit-image-preview-frame{
+  width:100% !important;
+  height:100% !important;
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+}
+
+/* ===== v20260531-root3-dynamic-fix16: 혜택 확대 팝업 단일 이미지 렌더 안정화 ===== */
+.benefit-image-preview-overlay.du-layer .benefit-image-preview-track,
+.benefit-image-preview-overlay:not(dialog) .benefit-image-preview-track{
+  width:100% !important;
+  min-width:100% !important;
+  height:100% !important;
+  display:flex !important;
+  transform:translate3d(0,0,0);
+}
+.benefit-image-preview-overlay.du-layer .benefit-image-preview-slide,
+.benefit-image-preview-overlay:not(dialog) .benefit-image-preview-slide{
+  flex:0 0 100% !important;
+  width:100% !important;
+  max-width:100% !important;
+  min-width:0 !important;
+  height:100% !important;
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  visibility:visible !important;
+  opacity:1 !important;
+}
+.benefit-image-preview-overlay.du-layer .benefit-image-preview-frame,
+.benefit-image-preview-overlay:not(dialog) .benefit-image-preview-frame{
+  width:100% !important;
+  height:100% !important;
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  overflow:hidden !important;
+}
+.benefit-image-preview-overlay .benefit-image-preview-error{
+  color:#fff;
+  font-size:13px;
+  font-weight:800;
+  opacity:.8;
+}
+
+/* ===== v20260531-root3-overflow-fix: 공개앱 우측 빈 스크롤 영역 제거 =====
+   Root3 팝업/스크롤락 공통 CSS의 scrollbar-gutter: stable 이 모바일 폭 계산에 남아
+   body max-width(480px) 바깥에 빈 gutter가 생기는 현상을 막습니다. */
+html,
+body{
+  max-width:100% !important;
+  overflow-x:hidden !important;
+}
+body[data-loading-mode="public"]{
+  width:min(100%, 480px) !important;
+  max-width:480px !important;
+  margin-left:auto !important;
+  margin-right:auto !important;
+  overflow-x:hidden !important;
+}
+body[data-loading-mode="public"] .app,
+body[data-loading-mode="public"] #mainContent,
+body[data-loading-mode="public"] .shell,
+body[data-loading-mode="public"] main{
+  max-width:100% !important;
+  overflow-x:clip !important;
+}
+@media (max-width:640px){
+  html,
+  body,
+  html.upick-alert-open,
+  html.upick-layer-scroll-lock,
+  html.upick-hard-scroll-lock,
+  body.upick-alert-open,
+  body.upick-layer-scroll-lock,
+  body.upick-hard-scroll-lock{
+    scrollbar-gutter:auto !important;
+  }
+  body[data-loading-mode="public"]{
+    width:100% !important;
+    max-width:480px !important;
+  }
+}
+
+/* ===== 2026-05-31 Root3 운영 관리 팝업 표시/이동 보정 ===== */
+.gnb-operation-dialog--unified .gnb-management-head.operation,
+.gnb-operation-dialog--unified .gnb-management-head.operation *:not(.gnb-manage-close){
+  color:#fff!important;
+}
+.gnb-operation-dialog--unified .gnb-management-head.operation h3,
+.gnb-operation-dialog--unified .gnb-management-head.operation #gnbOperationManageTitle{
+  color:#fff!important;
+  text-shadow:0 1px 2px rgba(15,23,42,.22);
+}
+.gnb-operation-dialog--unified .gnb-management-head.operation p{
+  color:rgba(255,255,255,.82)!important;
+}
+.gnb-operation-dialog--unified .gnb-management-head.operation .gnb-management-kicker{
+  color:#fff!important;
+  border:1px solid rgba(255,255,255,.62)!important;
+  background:rgba(255,255,255,.14)!important;
+}
+
+/* ===== v20260531-fix23: 이미지/AI 확대 팝업 fade lifecycle 재보정 =====
+   하단 hard override의 :not(.show) 규칙이 closing 상태까지 visibility:hidden 으로 만들어
+   일부 팝업의 fade-out 이 즉시 사라지는 문제를 막습니다. */
+.benefit-image-preview-overlay,
+.news-image-preview-overlay,
+.ai-image-zoom-backdrop{
+  transition:
+    opacity .32s var(--upick-motion-ease-out, cubic-bezier(.22,1,.36,1)),
+    visibility 0s linear .32s,
+    background-color .32s var(--upick-motion-ease-out, cubic-bezier(.22,1,.36,1)),
+    backdrop-filter .32s var(--upick-motion-ease-out, cubic-bezier(.22,1,.36,1)) !important;
+}
+.benefit-image-preview-overlay.show,
+.news-image-preview-overlay.show,
+.ai-image-zoom-backdrop.show{
+  opacity:1 !important;
+  visibility:visible !important;
+  pointer-events:auto !important;
+  transition:
+    opacity .32s var(--upick-motion-ease-out, cubic-bezier(.22,1,.36,1)),
+    visibility 0s linear 0s,
+    background-color .32s var(--upick-motion-ease-out, cubic-bezier(.22,1,.36,1)),
+    backdrop-filter .32s var(--upick-motion-ease-out, cubic-bezier(.22,1,.36,1)) !important;
+}
+.benefit-image-preview-overlay.closing,
+.news-image-preview-overlay.closing,
+.ai-image-zoom-backdrop.closing,
+.benefit-image-preview-overlay.upick-motion-closing,
+.news-image-preview-overlay.upick-motion-closing,
+.ai-image-zoom-backdrop.upick-motion-closing{
+  display:flex !important;
+  opacity:0 !important;
+  visibility:visible !important;
+  pointer-events:none !important;
+  transition:
+    opacity .32s var(--upick-motion-ease-out, cubic-bezier(.22,1,.36,1)),
+    visibility 0s linear .32s,
+    background-color .32s var(--upick-motion-ease-out, cubic-bezier(.22,1,.36,1)),
+    backdrop-filter .32s var(--upick-motion-ease-out, cubic-bezier(.22,1,.36,1)) !important;
+}
+.benefit-image-preview-overlay.closing .benefit-image-preview-dialog,
+.news-image-preview-overlay.closing .news-image-preview-dialog,
+.ai-image-zoom-backdrop.closing .ai-image-zoom-card,
+.ai-image-zoom-backdrop.closing .du-layer__panel,
+.benefit-image-preview-overlay.upick-motion-closing .benefit-image-preview-dialog,
+.news-image-preview-overlay.upick-motion-closing .news-image-preview-dialog,
+.ai-image-zoom-backdrop.upick-motion-closing .ai-image-zoom-card,
+.ai-image-zoom-backdrop.upick-motion-closing .du-layer__panel{
+  opacity:0 !important;
+  transform:translateY(16px) scale(.985) !important;
+  transition:opacity .32s var(--upick-motion-ease-out, cubic-bezier(.22,1,.36,1)), transform .32s var(--upick-motion-ease-out, cubic-bezier(.22,1,.36,1)) !important;
+}
+.news-image-preview-overlay.show .news-image-preview-dialog,
+.benefit-image-preview-overlay.show .benefit-image-preview-dialog,
+.ai-image-zoom-backdrop.show .ai-image-zoom-card,
+.ai-image-zoom-backdrop.show .du-layer__panel{
+  opacity:1 !important;
+  transform:translateY(0) scale(1) !important;
+}
+
+
+/* ===== root3 dynamic fade restore fix25: settings / visit reservation / AI image zoom ===== */
+/* [open] 또는 .show display 강제 규칙이 공통 motion을 덮지 않도록, 실제 표시 상태는 show/upick-motion-open으로만 결정합니다. */
+#settingsSuiteModal.gnb-management-dialog.upick-motion-layer,
+#settingsSuiteModal.settings-suite-dialog.upick-motion-layer,
+#calendarReservationModal.upick-div-dialog.upick-motion-layer,
+#aiImageZoomBackdrop.ai-image-zoom-backdrop.upick-ai-image-fade-layer{
+  opacity:0!important;
+  visibility:visible!important;
+  pointer-events:none!important;
+  transition:opacity 320ms cubic-bezier(.22,.61,.36,1), background-color 320ms cubic-bezier(.22,.61,.36,1), backdrop-filter 320ms cubic-bezier(.22,.61,.36,1), visibility 0s linear 320ms!important;
+}
+#settingsSuiteModal.gnb-management-dialog.upick-motion-layer.show,
+#settingsSuiteModal.gnb-management-dialog.upick-motion-layer.upick-motion-open,
+#settingsSuiteModal.settings-suite-dialog.upick-motion-layer.show,
+#settingsSuiteModal.settings-suite-dialog.upick-motion-layer.upick-motion-open,
+#calendarReservationModal.upick-div-dialog.upick-motion-layer.show,
+#calendarReservationModal.upick-div-dialog.upick-motion-layer.upick-motion-open,
+#aiImageZoomBackdrop.ai-image-zoom-backdrop.upick-ai-image-fade-layer.show,
+#aiImageZoomBackdrop.ai-image-zoom-backdrop.upick-ai-image-fade-layer.upick-motion-open{
+  opacity:1!important;
+  visibility:visible!important;
+  pointer-events:auto!important;
+  transition:opacity 320ms cubic-bezier(.22,.61,.36,1), background-color 320ms cubic-bezier(.22,.61,.36,1), backdrop-filter 320ms cubic-bezier(.22,.61,.36,1), visibility 0s linear 0s!important;
+}
+#settingsSuiteModal.gnb-management-dialog.upick-motion-layer.is-closing,
+#settingsSuiteModal.gnb-management-dialog.upick-motion-layer.upick-motion-closing,
+#settingsSuiteModal.settings-suite-dialog.upick-motion-layer.is-closing,
+#settingsSuiteModal.settings-suite-dialog.upick-motion-layer.upick-motion-closing,
+#calendarReservationModal.upick-div-dialog.upick-motion-layer.is-closing,
+#calendarReservationModal.upick-div-dialog.upick-motion-layer.upick-motion-closing,
+#aiImageZoomBackdrop.ai-image-zoom-backdrop.upick-ai-image-fade-layer.closing,
+#aiImageZoomBackdrop.ai-image-zoom-backdrop.upick-ai-image-fade-layer.upick-motion-closing{
+  opacity:0!important;
+  visibility:visible!important;
+  pointer-events:none!important;
+}
+#settingsSuiteModal.gnb-management-dialog.upick-motion-layer > .gnb-management-shell,
+#settingsSuiteModal.settings-suite-dialog.upick-motion-layer > .gnb-management-shell,
+#calendarReservationModal.upick-div-dialog.upick-motion-layer > .upick-div-dialog-panel,
+#aiImageZoomBackdrop.ai-image-zoom-backdrop.upick-ai-image-fade-layer .ai-image-zoom-card{
+  opacity:0!important;
+  transform:translateY(14px) scale(.975)!important;
+  transition:opacity 320ms cubic-bezier(.16,1,.3,1), transform 320ms cubic-bezier(.16,1,.3,1)!important;
+}
+#settingsSuiteModal.gnb-management-dialog.upick-motion-layer.show > .gnb-management-shell,
+#settingsSuiteModal.gnb-management-dialog.upick-motion-layer.upick-motion-open > .gnb-management-shell,
+#settingsSuiteModal.settings-suite-dialog.upick-motion-layer.show > .gnb-management-shell,
+#settingsSuiteModal.settings-suite-dialog.upick-motion-layer.upick-motion-open > .gnb-management-shell,
+#calendarReservationModal.upick-div-dialog.upick-motion-layer.show > .upick-div-dialog-panel,
+#calendarReservationModal.upick-div-dialog.upick-motion-layer.upick-motion-open > .upick-div-dialog-panel,
+#aiImageZoomBackdrop.ai-image-zoom-backdrop.upick-ai-image-fade-layer.show .ai-image-zoom-card,
+#aiImageZoomBackdrop.ai-image-zoom-backdrop.upick-ai-image-fade-layer.upick-motion-open .ai-image-zoom-card{
+  opacity:1!important;
+  transform:translateY(0) scale(1)!important;
+}
+#settingsSuiteModal.gnb-management-dialog.upick-motion-layer.is-closing > .gnb-management-shell,
+#settingsSuiteModal.gnb-management-dialog.upick-motion-layer.upick-motion-closing > .gnb-management-shell,
+#settingsSuiteModal.settings-suite-dialog.upick-motion-layer.is-closing > .gnb-management-shell,
+#settingsSuiteModal.settings-suite-dialog.upick-motion-layer.upick-motion-closing > .gnb-management-shell,
+#calendarReservationModal.upick-div-dialog.upick-motion-layer.is-closing > .upick-div-dialog-panel,
+#calendarReservationModal.upick-div-dialog.upick-motion-layer.upick-motion-closing > .upick-div-dialog-panel,
+#aiImageZoomBackdrop.ai-image-zoom-backdrop.upick-ai-image-fade-layer.closing .ai-image-zoom-card,
+#aiImageZoomBackdrop.ai-image-zoom-backdrop.upick-ai-image-fade-layer.upick-motion-closing .ai-image-zoom-card{
+  opacity:0!important;
+  transform:translateY(14px) scale(.975)!important;
+}
+/* AI 확대는 display:none/display:block 토글이 fade를 끊으므로 motion 상태에서는 항상 레이아웃을 유지합니다. */
+#aiImageZoomBackdrop.ai-image-zoom-backdrop.upick-ai-image-fade-layer,
+#aiImageZoomBackdrop.ai-image-zoom-backdrop.upick-ai-image-fade-layer.show,
+#aiImageZoomBackdrop.ai-image-zoom-backdrop.upick-ai-image-fade-layer.closing,
+#aiImageZoomBackdrop.ai-image-zoom-backdrop.upick-ai-image-fade-layer.upick-motion-closing{
+  display:block!important;
+}
+#aiImageZoomBackdrop.ai-image-zoom-backdrop.upick-ai-image-fade-layer[aria-hidden="true"]:not(.closing):not(.upick-motion-closing):not(.show):not(.upick-motion-open){
+  display:none!important;
+}
+
+
+/* v20260531-root3-dynamic-fix28: 소식 이미지 확대 팝업 fade lifecycle 보정 */
+#newsImagePreviewOverlay.news-image-preview-overlay.du-layer.upick-motion-layer:not(.show):not(.upick-motion-open):not(.is-open):not(.closing):not(.upick-motion-closing):not(.is-closing){
+  opacity:0!important;
+  visibility:hidden!important;
+  pointer-events:none!important;
+  transition:opacity .32s cubic-bezier(.22,.61,.36,1), visibility 0s linear .32s!important;
+}
+#newsImagePreviewOverlay.news-image-preview-overlay.du-layer.upick-motion-layer:not(.show):not(.upick-motion-open):not(.is-open):not(.closing):not(.upick-motion-closing):not(.is-closing) .news-image-preview-dialog{
+  opacity:0!important;
+  transform:translateY(14px) scale(.985)!important;
+  transition:opacity .32s cubic-bezier(.16,1,.3,1), transform .32s cubic-bezier(.16,1,.3,1)!important;
+}
+#newsImagePreviewOverlay.news-image-preview-overlay.du-layer.upick-motion-layer.show,
+#newsImagePreviewOverlay.news-image-preview-overlay.du-layer.upick-motion-layer.upick-motion-open,
+#newsImagePreviewOverlay.news-image-preview-overlay.du-layer.upick-motion-layer.is-open{
+  opacity:1!important;
+  visibility:visible!important;
+  pointer-events:auto!important;
+  transition:opacity .32s cubic-bezier(.22,.61,.36,1), visibility 0s linear 0s!important;
+}
+#newsImagePreviewOverlay.news-image-preview-overlay.du-layer.upick-motion-layer.show .news-image-preview-dialog,
+#newsImagePreviewOverlay.news-image-preview-overlay.du-layer.upick-motion-layer.upick-motion-open .news-image-preview-dialog,
+#newsImagePreviewOverlay.news-image-preview-overlay.du-layer.upick-motion-layer.is-open .news-image-preview-dialog{
+  opacity:1!important;
+  transform:translateY(0) scale(1)!important;
+  transition:opacity .32s cubic-bezier(.16,1,.3,1), transform .32s cubic-bezier(.16,1,.3,1)!important;
+}
+#newsImagePreviewOverlay.news-image-preview-overlay.du-layer.upick-motion-layer.closing,
+#newsImagePreviewOverlay.news-image-preview-overlay.du-layer.upick-motion-layer.upick-motion-closing,
+#newsImagePreviewOverlay.news-image-preview-overlay.du-layer.upick-motion-layer.is-closing{
+  display:flex!important;
+  opacity:0!important;
+  visibility:visible!important;
+  pointer-events:none!important;
+  transition:opacity .28s cubic-bezier(.22,.61,.36,1), visibility 0s linear .28s!important;
+}
+#newsImagePreviewOverlay.news-image-preview-overlay.du-layer.upick-motion-layer.closing .news-image-preview-dialog,
+#newsImagePreviewOverlay.news-image-preview-overlay.du-layer.upick-motion-layer.upick-motion-closing .news-image-preview-dialog,
+#newsImagePreviewOverlay.news-image-preview-overlay.du-layer.upick-motion-layer.is-closing .news-image-preview-dialog{
+  opacity:0!important;
+  transform:translateY(14px) scale(.985)!important;
+  transition:opacity .28s cubic-bezier(.22,.61,.36,1), transform .28s cubic-bezier(.22,.61,.36,1)!important;
+}

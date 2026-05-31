@@ -975,3 +975,55 @@ body[data-loading-mode="login"]{
   opacity:0!important;
   transform:translateY(18px) scale(.965)!important;
 }
+
+
+/* v20260531-fix21: 공통 알럿 fade-in/out 복구
+   기본 .app-alert display:none 규칙을 motion lifecycle에서는 사용하지 않습니다. */
+.app-alert.upick-motion-layer,
+dialog.app-alert.upick-motion-layer{
+  display:flex!important;
+  opacity:0!important;
+  visibility:hidden!important;
+  pointer-events:none!important;
+  background:rgba(15,23,42,0)!important;
+  -webkit-backdrop-filter:blur(0)!important;
+  backdrop-filter:blur(0)!important;
+}
+.app-alert.upick-motion-layer.show,
+.app-alert.upick-motion-layer.upick-motion-open,
+dialog.app-alert.upick-motion-layer.show,
+dialog.app-alert.upick-motion-layer.upick-motion-open{
+  display:flex!important;
+  opacity:1!important;
+  visibility:visible!important;
+  pointer-events:auto!important;
+  background:rgba(15,23,42,.46)!important;
+  -webkit-backdrop-filter:blur(6px)!important;
+  backdrop-filter:blur(6px)!important;
+}
+.app-alert.upick-motion-layer.is-closing,
+.app-alert.upick-motion-layer.upick-motion-closing,
+dialog.app-alert.upick-motion-layer.is-closing,
+dialog.app-alert.upick-motion-layer.upick-motion-closing{
+  display:flex!important;
+  opacity:0!important;
+  visibility:visible!important;
+  pointer-events:none!important;
+  background:rgba(15,23,42,0)!important;
+  -webkit-backdrop-filter:blur(0)!important;
+  backdrop-filter:blur(0)!important;
+}
+.app-alert.upick-motion-layer .app-alert-card.upick-motion-panel{
+  opacity:0!important;
+  transform:translateY(12px) scale(.97)!important;
+}
+.app-alert.upick-motion-layer.show .app-alert-card.upick-motion-panel,
+.app-alert.upick-motion-layer.upick-motion-open .app-alert-card.upick-motion-panel{
+  opacity:1!important;
+  transform:translateY(0) scale(1)!important;
+}
+.app-alert.upick-motion-layer.is-closing .app-alert-card.upick-motion-panel,
+.app-alert.upick-motion-layer.upick-motion-closing .app-alert-card.upick-motion-panel{
+  opacity:0!important;
+  transform:translateY(12px) scale(.97)!important;
+}

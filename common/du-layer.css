@@ -2,6 +2,21 @@
    - 기존 팝업 DOM을 무리하게 교체하지 않고 du-layer 규격 클래스를 함께 부여합니다.
    - 최종 목표: sheet / modal / fullscreen 3종 레이어 + header/body/footer 슬롯 통일
 */
+
+/* v20260531-root3: 고정 Root 3만 HTML에 두고 실제 팝업은 JS로 Root 내부에 동적 주입 */
+.du-layer-root{
+  position:relative;
+  z-index:auto;
+}
+.du-layer-root:empty{
+  display:contents;
+}
+#duSheetRoot,
+#duModalRoot,
+#duFullPopupRoot{
+  display:contents;
+}
+
 :root{
   --du-layer-backdrop: rgba(15,23,42,.52);
   --du-layer-radius: 28px;
@@ -23,7 +38,7 @@
   z-index: var(--du-layer-z);
   box-sizing: border-box;
 }
-.du-layer[aria-hidden="true"]{ pointer-events:none; }
+.du-layer[aria-hidden="true"]:not(.is-closing):not(.upick-motion-closing){ display:none!important; pointer-events:none; }
 .du-layer[aria-hidden="false"],
 .du-layer.show,
 .du-layer.is-open,
@@ -32,6 +47,54 @@
 .du-layer--sheet{ --du-layer-z: var(--du-layer-z-sheet); }
 .du-layer--modal{ --du-layer-z: var(--du-layer-z-modal); }
 .du-layer--fullscreen{ --du-layer-z: var(--du-layer-z-fullscreen); }
+
+.du-layer--modal{
+  display:grid;
+  place-items:center;
+  padding:24px;
+}
+.du-layer--modal > .du-layer__panel{
+  position:relative;
+  width:min(560px, calc(100vw - 28px));
+  max-height:min(88dvh, 760px);
+  display:flex;
+  flex-direction:column;
+}
+.du-layer--modal > .du-layer__panel > .du-layer__body{
+  overflow:auto;
+}
+.du-layer--sheet{
+  display:flex;
+  align-items:flex-end;
+  justify-content:center;
+}
+.du-layer--sheet > .du-layer__panel{
+  position:relative;
+  width:min(720px, 100vw);
+  max-height:min(86dvh, 760px);
+  display:flex;
+  flex-direction:column;
+}
+.du-layer--sheet > .du-layer__panel > .du-layer__body{
+  overflow:auto;
+}
+.du-layer--fullscreen{
+  display:flex;
+  align-items:stretch;
+  justify-content:center;
+}
+.du-layer--fullscreen > .du-layer__panel{
+  position:relative;
+  width:100%;
+  height:100%;
+  display:flex;
+  flex-direction:column;
+}
+.du-layer--fullscreen > .du-layer__panel > .du-layer__body{
+  flex:1 1 auto;
+  overflow:auto;
+}
+
 
 .du-layer__backdrop,
 .du-layer .upick-div-modal-backdrop{
@@ -1464,4 +1527,702 @@ body.upick-layer-scroll-lock{
   width:20px!important;
   height:20px!important;
   display:block!important;
+}
+
+
+/* v20260531-root3-dynamic-fix6: Root3 동적 주입 후 설정 모음 body/페이드/AI 확대 보정 */
+#settingsSuiteModal.du-layer--modal.show,
+#settingsSuiteModal.du-layer--modal.is-open,
+#settingsSuiteModal.du-layer--modal[aria-hidden="false"]{
+  display:grid !important;
+  place-items:center !important;
+  padding:24px !important;
+}
+#settingsSuiteModal .gnb-management-shell.du-layer__panel{
+  width:min(560px, calc(100vw - 28px)) !important;
+  max-height:min(88dvh, 760px) !important;
+  display:flex !important;
+  flex-direction:column !important;
+}
+#settingsSuiteModal .gnb-management-body.du-layer__body{
+  flex:1 1 auto !important;
+  min-height:0 !important;
+  overflow:auto !important;
+  padding:18px 20px 22px !important;
+}
+#settingsSuiteModal .gnb-management-body.du-layer__body:empty::before{
+  content:'설정 항목을 불러오는 중입니다.';
+  display:block;
+  color:#64748b;
+  font-weight:800;
+}
+
+.du-layer.show,
+.du-layer.is-open,
+.du-layer[aria-hidden="false"]{
+  animation:duLayerFadeIn .18s ease-out both;
+}
+.du-layer.show > .du-layer__panel,
+.du-layer.is-open > .du-layer__panel,
+.du-layer[aria-hidden="false"] > .du-layer__panel,
+.du-layer.show .du-layer__panel,
+.du-layer.is-open .du-layer__panel,
+.du-layer[aria-hidden="false"] .du-layer__panel{
+  animation:duPanelFadeIn .22s cubic-bezier(.2,.8,.2,1) both;
+}
+.du-layer.upick-motion-closing{
+  animation:duLayerFadeOut .16s ease-in both !important;
+}
+.du-layer.upick-motion-closing > .du-layer__panel,
+.du-layer.upick-motion-closing .du-layer__panel{
+  animation:duPanelFadeOut .16s ease-in both !important;
+}
+@keyframes duLayerFadeIn{from{opacity:0;}to{opacity:1;}}
+@keyframes duLayerFadeOut{from{opacity:1;}to{opacity:0;}}
+@keyframes duPanelFadeIn{from{opacity:0;transform:translateY(12px) scale(.985);}to{opacity:1;transform:translateY(0) scale(1);}}
+@keyframes duPanelFadeOut{from{opacity:1;transform:translateY(0) scale(1);}to{opacity:0;transform:translateY(8px) scale(.985);}}
+
+#aiImageZoomBackdrop.du-layer--fullscreen .ai-image-zoom-scroll.du-layer__body,
+#aiImageZoomBackdrop.du-layer--fullscreen .ai-image-zoom-scroll{
+  overflow:hidden !important;
+  padding:0 !important;
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  background:rgba(248,251,255,.72) !important;
+}
+#aiImageZoomBackdrop.du-layer--fullscreen .ai-image-zoom-img{
+  display:block !important;
+  width:100% !important;
+  max-width:100% !important;
+  height:auto !important;
+  max-height:calc(100dvh - 64px) !important;
+  object-fit:contain !important;
+  border-radius:0 !important;
+}
+@media (min-width:760px){
+  #aiImageZoomBackdrop.du-layer--fullscreen .ai-image-zoom-img{
+    width:auto !important;
+    max-height:calc(min(88dvh, 860px) - 64px) !important;
+    border-radius:18px !important;
+  }
+}
+
+
+/* v20260531-root3-dynamic-fix7: 설정 모음/페이드/이미지 확대 최종 보정
+   - 설정 모음의 outer layer에 남아 있던 gnb-management-dialog 폭/그림자/overflow 스타일을 제거
+   - 닫힘 중 aria-hidden 때문에 fade-out이 즉시 끊기는 문제 보정
+   - AI/혜택 이미지 확대에서 불필요한 내부 스크롤/배경 스크롤을 줄임 */
+#settingsSuiteModal.du-layer.gnb-management-dialog,
+#settingsSuiteModal.du-layer.settings-suite-dialog{
+  position:fixed !important;
+  inset:0 !important;
+  width:100vw !important;
+  height:100dvh !important;
+  max-width:none !important;
+  max-height:none !important;
+  margin:0 !important;
+  padding:24px !important;
+  border:0 !important;
+  border-radius:0 !important;
+  background:rgba(15,23,42,.52) !important;
+  box-shadow:none !important;
+  overflow:hidden !important;
+  display:grid !important;
+  place-items:center !important;
+  opacity:0;
+  transform:none !important;
+  transition:opacity .18s ease !important;
+}
+#settingsSuiteModal.du-layer.gnb-management-dialog[aria-hidden="true"]:not(.upick-motion-closing),
+#settingsSuiteModal.du-layer.settings-suite-dialog[aria-hidden="true"]:not(.upick-motion-closing){
+  display:none !important;
+}
+#settingsSuiteModal.du-layer.gnb-management-dialog.show,
+#settingsSuiteModal.du-layer.gnb-management-dialog.is-open,
+#settingsSuiteModal.du-layer.gnb-management-dialog[aria-hidden="false"],
+#settingsSuiteModal.du-layer.settings-suite-dialog.show,
+#settingsSuiteModal.du-layer.settings-suite-dialog.is-open,
+#settingsSuiteModal.du-layer.settings-suite-dialog[aria-hidden="false"]{
+  opacity:1 !important;
+}
+#settingsSuiteModal.du-layer.gnb-management-dialog.upick-motion-closing,
+#settingsSuiteModal.du-layer.settings-suite-dialog.upick-motion-closing{
+  display:grid !important;
+  opacity:0 !important;
+  pointer-events:none !important;
+}
+#settingsSuiteModal.du-layer .gnb-management-shell.du-layer__panel{
+  width:min(560px, calc(100vw - 48px)) !important;
+  height:min(720px, calc(100dvh - 72px)) !important;
+  max-height:calc(100dvh - 72px) !important;
+  border-radius:28px !important;
+  background:rgba(255,255,255,.98) !important;
+  overflow:hidden !important;
+  display:flex !important;
+  flex-direction:column !important;
+  transform:translateY(10px) scale(.985);
+  transition:transform .22s cubic-bezier(.2,.8,.2,1), opacity .18s ease !important;
+}
+#settingsSuiteModal.du-layer.show .gnb-management-shell.du-layer__panel,
+#settingsSuiteModal.du-layer.is-open .gnb-management-shell.du-layer__panel,
+#settingsSuiteModal.du-layer[aria-hidden="false"] .gnb-management-shell.du-layer__panel{
+  opacity:1 !important;
+  transform:translateY(0) scale(1) !important;
+}
+#settingsSuiteModal.du-layer.upick-motion-closing .gnb-management-shell.du-layer__panel{
+  opacity:0 !important;
+  transform:translateY(8px) scale(.985) !important;
+}
+#settingsSuiteModal.du-layer .gnb-management-head.du-layer__header{
+  flex:0 0 auto !important;
+  padding:20px 20px 16px !important;
+}
+#settingsSuiteModal.du-layer .gnb-management-body.du-layer__body{
+  flex:1 1 auto !important;
+  min-height:0 !important;
+  overflow-y:auto !important;
+  overflow-x:hidden !important;
+  padding:18px 20px 22px !important;
+  scrollbar-gutter:auto !important;
+}
+@media(max-width:640px){
+  #settingsSuiteModal.du-layer.gnb-management-dialog,
+  #settingsSuiteModal.du-layer.settings-suite-dialog{
+    padding:12px !important;
+  }
+  #settingsSuiteModal.du-layer .gnb-management-shell.du-layer__panel{
+    width:calc(100vw - 24px) !important;
+    height:min(700px, calc(100dvh - 24px)) !important;
+    max-height:calc(100dvh - 24px) !important;
+    border-radius:26px !important;
+  }
+  #settingsSuiteModal.du-layer .gnb-management-head.du-layer__header{
+    padding:18px 18px 14px !important;
+  }
+  #settingsSuiteModal.du-layer .gnb-management-body.du-layer__body{
+    padding:16px 18px 20px !important;
+  }
+}
+
+/* 기존 keyframe이 계속 재시작되며 페이드가 깨지는 현상 방지: 설정 모음은 transition으로만 처리 */
+#settingsSuiteModal.du-layer.show,
+#settingsSuiteModal.du-layer.is-open,
+#settingsSuiteModal.du-layer[aria-hidden="false"],
+#settingsSuiteModal.du-layer.show .du-layer__panel,
+#settingsSuiteModal.du-layer.is-open .du-layer__panel,
+#settingsSuiteModal.du-layer[aria-hidden="false"] .du-layer__panel{
+  animation:none !important;
+}
+
+#aiImageZoomBackdrop.du-layer--fullscreen.show,
+#aiImageZoomBackdrop.du-layer--fullscreen[aria-hidden="false"]{
+  overflow:hidden !important;
+}
+#aiImageZoomBackdrop.du-layer--fullscreen .ai-image-zoom-card.du-layer__panel{
+  overflow:hidden !important;
+}
+#aiImageZoomBackdrop.du-layer--fullscreen .ai-image-zoom-scroll.du-layer__body,
+#aiImageZoomBackdrop.du-layer--fullscreen .ai-image-zoom-scroll{
+  overflow:hidden !important;
+  scrollbar-gutter:auto !important;
+  overscroll-behavior:contain !important;
+}
+#aiImageZoomBackdrop.du-layer--fullscreen .ai-image-zoom-img{
+  max-height:calc(100dvh - 64px) !important;
+  object-fit:contain !important;
+}
+body.upick-layer-open #aiImageZoomBackdrop.du-layer--fullscreen,
+body.upick-modal-open #aiImageZoomBackdrop.du-layer--fullscreen{
+  touch-action:none;
+}
+
+
+/* v20260531-root3-dynamic-fix9: 설정 모음 위에 계정 정보/비밀번호 팝업을 확실히 올림 */
+#settingsSuiteModal.du-layer.is-under-account-popup{
+  z-index:2147483500 !important;
+}
+#settingsSuiteModal.du-layer.is-under-account-popup .gnb-management-shell.du-layer__panel{
+  pointer-events:none !important;
+}
+#accountEditModal.du-layer,
+#passwordChangeModal.du-layer{
+  z-index:2147483560 !important;
+}
+#accountEditModal.du-layer.show,
+#accountEditModal.du-layer[open],
+#accountEditModal.du-layer[aria-hidden="false"],
+#passwordChangeModal.du-layer.show,
+#passwordChangeModal.du-layer[open],
+#passwordChangeModal.du-layer[aria-hidden="false"]{
+  z-index:2147483560 !important;
+  display:grid !important;
+  place-items:center !important;
+  padding:24px !important;
+}
+#accountEditModal.du-layer.show > .du-layer__panel,
+#accountEditModal.du-layer[open] > .du-layer__panel,
+#accountEditModal.du-layer[aria-hidden="false"] > .du-layer__panel,
+#passwordChangeModal.du-layer.show > .du-layer__panel,
+#passwordChangeModal.du-layer[open] > .du-layer__panel,
+#passwordChangeModal.du-layer[aria-hidden="false"] > .du-layer__panel{
+  position:relative !important;
+  z-index:1 !important;
+}
+
+
+/* v20260531-root3-dynamic-fix10: 이미지 확대 스크롤 제거 + Root3 공통 페이드 복구 */
+.du-layer.upick-motion-layer,
+.du-layer.du-layer--modal,
+.du-layer.du-layer--sheet,
+.du-layer.du-layer--fullscreen,
+.benefit-image-preview-overlay.du-layer,
+.news-image-preview-overlay.du-layer{
+  opacity:0 !important;
+  visibility:hidden !important;
+  pointer-events:none !important;
+  transition:opacity .24s cubic-bezier(.22,.61,.36,1), visibility 0s linear .24s !important;
+  will-change:opacity !important;
+}
+.du-layer.upick-motion-layer.show,
+.du-layer.upick-motion-layer.is-open,
+.du-layer.upick-motion-layer.upick-motion-open,
+.du-layer.upick-motion-layer[open],
+.du-layer.upick-motion-layer[aria-hidden="false"],
+.du-layer.du-layer--modal.show,
+.du-layer.du-layer--sheet.show,
+.du-layer.du-layer--fullscreen.show,
+.du-layer.du-layer--modal[open],
+.du-layer.du-layer--sheet[open],
+.du-layer.du-layer--fullscreen[open],
+.du-layer.du-layer--modal[aria-hidden="false"],
+.du-layer.du-layer--sheet[aria-hidden="false"],
+.du-layer.du-layer--fullscreen[aria-hidden="false"],
+.benefit-image-preview-overlay.du-layer.show,
+.benefit-image-preview-overlay.du-layer[open],
+.benefit-image-preview-overlay.du-layer[aria-hidden="false"],
+.news-image-preview-overlay.du-layer.show,
+.news-image-preview-overlay.du-layer[open],
+.news-image-preview-overlay.du-layer[aria-hidden="false"]{
+  opacity:1 !important;
+  visibility:visible !important;
+  pointer-events:auto !important;
+  transition:opacity .24s cubic-bezier(.22,.61,.36,1), visibility 0s linear 0s !important;
+}
+.du-layer.upick-motion-closing,
+.benefit-image-preview-overlay.du-layer.upick-motion-closing,
+.news-image-preview-overlay.du-layer.upick-motion-closing{
+  opacity:0 !important;
+  visibility:visible !important;
+  pointer-events:none !important;
+  transition:opacity .18s ease !important;
+}
+.du-layer .upick-motion-panel,
+.du-layer .du-layer__panel,
+.benefit-image-preview-overlay.du-layer .benefit-image-preview-dialog,
+.news-image-preview-overlay.du-layer .news-image-preview-dialog{
+  opacity:0 !important;
+  transform:translateY(12px) scale(.985) !important;
+  transition:opacity .26s cubic-bezier(.16,1,.3,1), transform .26s cubic-bezier(.16,1,.3,1) !important;
+  will-change:opacity, transform !important;
+}
+.du-layer.show .upick-motion-panel,
+.du-layer.is-open .upick-motion-panel,
+.du-layer.upick-motion-open .upick-motion-panel,
+.du-layer[open] .upick-motion-panel,
+.du-layer[aria-hidden="false"] .upick-motion-panel,
+.du-layer.show .du-layer__panel,
+.du-layer.is-open .du-layer__panel,
+.du-layer.upick-motion-open .du-layer__panel,
+.du-layer[open] .du-layer__panel,
+.du-layer[aria-hidden="false"] .du-layer__panel,
+.benefit-image-preview-overlay.du-layer.show .benefit-image-preview-dialog,
+.benefit-image-preview-overlay.du-layer[open] .benefit-image-preview-dialog,
+.benefit-image-preview-overlay.du-layer[aria-hidden="false"] .benefit-image-preview-dialog,
+.news-image-preview-overlay.du-layer.show .news-image-preview-dialog,
+.news-image-preview-overlay.du-layer[open] .news-image-preview-dialog,
+.news-image-preview-overlay.du-layer[aria-hidden="false"] .news-image-preview-dialog{
+  opacity:1 !important;
+  transform:translateY(0) scale(1) !important;
+}
+.du-layer.upick-motion-closing .upick-motion-panel,
+.du-layer.upick-motion-closing .du-layer__panel,
+.benefit-image-preview-overlay.du-layer.upick-motion-closing .benefit-image-preview-dialog,
+.news-image-preview-overlay.du-layer.upick-motion-closing .news-image-preview-dialog{
+  opacity:0 !important;
+  transform:translateY(8px) scale(.985) !important;
+  transition-duration:.18s !important;
+}
+
+/* 혜택 상세 이미지 확대 팝업: 카드 안쪽 세로 스크롤 영역 제거 */
+.benefit-image-preview-overlay.du-layer,
+dialog.benefit-image-preview-overlay.du-layer{
+  overflow:hidden !important;
+}
+.benefit-image-preview-overlay.du-layer .benefit-image-preview-dialog,
+dialog.benefit-image-preview-overlay.du-layer .benefit-image-preview-dialog{
+  display:flex !important;
+  flex-direction:column !important;
+  overflow:hidden !important;
+  max-height:calc(100dvh - 36px) !important;
+}
+.benefit-image-preview-overlay.du-layer .benefit-image-preview-body,
+dialog.benefit-image-preview-overlay.du-layer .benefit-image-preview-body{
+  flex:1 1 auto !important;
+  min-height:0 !important;
+  overflow:hidden !important;
+  scrollbar-gutter:auto !important;
+}
+.benefit-image-preview-overlay.du-layer .benefit-image-preview-track,
+.benefit-image-preview-overlay.du-layer .benefit-image-preview-slide,
+.benefit-image-preview-overlay.du-layer .benefit-image-preview-frame,
+dialog.benefit-image-preview-overlay.du-layer .benefit-image-preview-track,
+dialog.benefit-image-preview-overlay.du-layer .benefit-image-preview-slide,
+dialog.benefit-image-preview-overlay.du-layer .benefit-image-preview-frame{
+  height:100% !important;
+  min-height:0 !important;
+  overflow:hidden !important;
+}
+.benefit-image-preview-overlay.du-layer .benefit-image-preview-frame img,
+dialog.benefit-image-preview-overlay.du-layer .benefit-image-preview-frame img,
+.benefit-image-preview-overlay.du-layer .benefit-image-preview-body img,
+dialog.benefit-image-preview-overlay.du-layer .benefit-image-preview-body img{
+  max-height:100% !important;
+  object-fit:contain !important;
+}
+
+/* AI 이미지 확대도 동일하게 내부 스크롤바가 보이지 않도록 고정 */
+#aiImageZoomBackdrop.du-layer--fullscreen .ai-image-zoom-scroll.du-layer__body,
+#aiImageZoomBackdrop.du-layer--fullscreen .ai-image-zoom-scroll{
+  overflow:hidden !important;
+  scrollbar-width:none !important;
+}
+#aiImageZoomBackdrop.du-layer--fullscreen .ai-image-zoom-scroll::-webkit-scrollbar,
+.benefit-image-preview-overlay.du-layer .benefit-image-preview-body::-webkit-scrollbar,
+dialog.benefit-image-preview-overlay.du-layer .benefit-image-preview-body::-webkit-scrollbar{
+  width:0 !important;
+  height:0 !important;
+  display:none !important;
+}
+
+
+/* v20260531-fix21: Root3 동적 팝업 공통 fade 복구 */
+.du-layer.upick-motion-layer{
+  opacity:0!important;
+  visibility:hidden!important;
+  pointer-events:none!important;
+}
+.du-layer.upick-motion-layer.show,
+.du-layer.upick-motion-layer.is-open,
+.du-layer.upick-motion-layer.upick-motion-open{
+  opacity:1!important;
+  visibility:visible!important;
+  pointer-events:auto!important;
+}
+.du-layer.upick-motion-layer.is-closing,
+.du-layer.upick-motion-layer.upick-motion-closing{
+  opacity:0!important;
+  visibility:visible!important;
+  pointer-events:none!important;
+}
+.du-layer .du-layer__panel.upick-motion-panel,
+.du-layer .upick-motion-panel.du-layer__panel{
+  opacity:0!important;
+  transform:translateY(12px) scale(.985)!important;
+}
+.du-layer.show .du-layer__panel.upick-motion-panel,
+.du-layer.is-open .du-layer__panel.upick-motion-panel,
+.du-layer.upick-motion-open .du-layer__panel.upick-motion-panel{
+  opacity:1!important;
+  transform:translateY(0) scale(1)!important;
+}
+.du-layer.is-closing .du-layer__panel.upick-motion-panel,
+.du-layer.upick-motion-closing .du-layer__panel.upick-motion-panel{
+  opacity:0!important;
+  transform:translateY(12px) scale(.985)!important;
+}
+.du-layer--sheet .du-layer__panel.upick-motion-panel,
+.du-layer--sheet .sheet-panel.upick-motion-panel{
+  --upick-motion-panel-y: 26px;
+  transform:translateY(26px) scale(1)!important;
+}
+.du-layer--sheet.show .du-layer__panel.upick-motion-panel,
+.du-layer--sheet.is-open .du-layer__panel.upick-motion-panel,
+.du-layer--sheet.upick-motion-open .du-layer__panel.upick-motion-panel{
+  transform:translateY(0) scale(1)!important;
+}
+.du-layer--fullscreen .du-layer__panel.upick-motion-panel{
+  transform:translateY(0) scale(.99)!important;
+}
+.du-layer--fullscreen.show .du-layer__panel.upick-motion-panel,
+.du-layer--fullscreen.is-open .du-layer__panel.upick-motion-panel,
+.du-layer--fullscreen.upick-motion-open .du-layer__panel.upick-motion-panel{
+  transform:translateY(0) scale(1)!important;
+}
+
+
+/* v20260531-root3-dynamic-fix22: fade lifecycle 보정
+   aria-hidden=false는 접근성 상태값으로만 사용하고, 시각적 open 상태는 show/is-open/upick-motion-open으로만 판단합니다.
+   이전 규칙의 [aria-hidden="false"] 오픈 판정 때문에 첫 페인트 전에 opacity:1이 되어 fade-in/out이 사라지는 문제를 막습니다. */
+.du-layer.upick-motion-layer[aria-hidden="false"]:not(.show):not(.is-open):not(.open):not([open]):not(.upick-motion-open):not(.upick-motion-closing):not(.is-closing),
+.common-modal-overlay.du-layer.upick-motion-layer[aria-hidden="false"]:not(.show):not(.is-open):not(.open):not([open]):not(.upick-motion-open):not(.upick-motion-closing):not(.is-closing),
+.app-alert.du-layer.upick-motion-layer[aria-hidden="false"]:not(.show):not(.is-open):not(.open):not([open]):not(.upick-motion-open):not(.upick-motion-closing):not(.is-closing){
+  opacity:0 !important;
+  visibility:hidden !important;
+  pointer-events:none !important;
+  animation:none !important;
+}
+.du-layer.upick-motion-layer[aria-hidden="false"]:not(.show):not(.is-open):not(.open):not([open]):not(.upick-motion-open):not(.upick-motion-closing):not(.is-closing) .upick-motion-panel,
+.du-layer.upick-motion-layer[aria-hidden="false"]:not(.show):not(.is-open):not(.open):not([open]):not(.upick-motion-open):not(.upick-motion-closing):not(.is-closing) .du-layer__panel,
+.common-modal-overlay.du-layer.upick-motion-layer[aria-hidden="false"]:not(.show):not(.is-open):not(.open):not([open]):not(.upick-motion-open):not(.upick-motion-closing):not(.is-closing) .du-layer__panel,
+.app-alert.du-layer.upick-motion-layer[aria-hidden="false"]:not(.show):not(.is-open):not(.open):not([open]):not(.upick-motion-open):not(.upick-motion-closing):not(.is-closing) .app-alert-card{
+  opacity:0 !important;
+  transform:translateY(12px) scale(.985) !important;
+  animation:none !important;
+}
+.du-layer.upick-motion-layer.show,
+.du-layer.upick-motion-layer.is-open,
+.du-layer.upick-motion-layer.open,
+.du-layer.upick-motion-layer[open],
+.du-layer.upick-motion-layer.upick-motion-open,
+.common-modal-overlay.du-layer.upick-motion-layer.show,
+.common-modal-overlay.du-layer.upick-motion-layer.upick-motion-open,
+.app-alert.du-layer.upick-motion-layer.show,
+.app-alert.du-layer.upick-motion-layer.upick-motion-open{
+  opacity:1 !important;
+  visibility:visible !important;
+  pointer-events:auto !important;
+  animation:none !important;
+  transition:opacity .24s cubic-bezier(.22,.61,.36,1), visibility 0s linear 0s !important;
+}
+.du-layer.upick-motion-layer.show .upick-motion-panel,
+.du-layer.upick-motion-layer.is-open .upick-motion-panel,
+.du-layer.upick-motion-layer.open .upick-motion-panel,
+.du-layer.upick-motion-layer[open] .upick-motion-panel,
+.du-layer.upick-motion-layer.upick-motion-open .upick-motion-panel,
+.du-layer.upick-motion-layer.show .du-layer__panel,
+.du-layer.upick-motion-layer.is-open .du-layer__panel,
+.du-layer.upick-motion-layer.open .du-layer__panel,
+.du-layer.upick-motion-layer[open] .du-layer__panel,
+.du-layer.upick-motion-layer.upick-motion-open .du-layer__panel,
+.app-alert.du-layer.upick-motion-layer.show .app-alert-card,
+.app-alert.du-layer.upick-motion-layer.upick-motion-open .app-alert-card{
+  opacity:1 !important;
+  transform:translateY(0) scale(1) !important;
+  animation:none !important;
+  transition:opacity .24s cubic-bezier(.16,1,.3,1), transform .24s cubic-bezier(.16,1,.3,1) !important;
+}
+.du-layer.upick-motion-layer.upick-motion-closing,
+.du-layer.upick-motion-layer.is-closing,
+.common-modal-overlay.du-layer.upick-motion-layer.upick-motion-closing,
+.common-modal-overlay.du-layer.upick-motion-layer.is-closing,
+.app-alert.du-layer.upick-motion-layer.upick-motion-closing,
+.app-alert.du-layer.upick-motion-layer.is-closing{
+  opacity:0 !important;
+  visibility:visible !important;
+  pointer-events:none !important;
+  animation:none !important;
+  transition:opacity .22s cubic-bezier(.22,.61,.36,1), visibility 0s linear .22s !important;
+}
+.du-layer.upick-motion-layer.upick-motion-closing .upick-motion-panel,
+.du-layer.upick-motion-layer.is-closing .upick-motion-panel,
+.du-layer.upick-motion-layer.upick-motion-closing .du-layer__panel,
+.du-layer.upick-motion-layer.is-closing .du-layer__panel,
+.app-alert.du-layer.upick-motion-layer.upick-motion-closing .app-alert-card,
+.app-alert.du-layer.upick-motion-layer.is-closing .app-alert-card{
+  opacity:0 !important;
+  transform:translateY(12px) scale(.985) !important;
+  animation:none !important;
+  transition:opacity .22s cubic-bezier(.22,.61,.36,1), transform .22s cubic-bezier(.22,.61,.36,1) !important;
+}
+
+
+/* v20260531-fix24: Root3/알럿/확대팝업 fade 최종 보정
+   [open]이나 aria-hidden=false 자체를 시각적 open 조건으로 쓰면 첫 프레임이 opacity:1로 고정되어
+   fade-in이 사라집니다. 실제 표시 상태는 show/is-open/upick-motion-open만 사용합니다. */
+.du-layer.upick-motion-layer:not(.show):not(.is-open):not(.open):not(.upick-motion-open):not(.upick-motion-closing):not(.is-closing):not(.closing),
+.common-modal-overlay.du-layer.upick-motion-layer:not(.show):not(.is-open):not(.open):not(.upick-motion-open):not(.upick-motion-closing):not(.is-closing):not(.closing),
+.app-alert.du-layer.upick-motion-layer:not(.show):not(.is-open):not(.open):not(.upick-motion-open):not(.upick-motion-closing):not(.is-closing):not(.closing),
+.benefit-image-preview-overlay.du-layer.upick-motion-layer:not(.show):not(.is-open):not(.open):not(.upick-motion-open):not(.upick-motion-closing):not(.is-closing):not(.closing),
+.news-image-preview-overlay.du-layer.upick-motion-layer:not(.show):not(.is-open):not(.open):not(.upick-motion-open):not(.upick-motion-closing):not(.is-closing):not(.closing){
+  opacity:0!important;
+  visibility:hidden!important;
+  pointer-events:none!important;
+  animation:none!important;
+  transition:opacity .28s cubic-bezier(.22,.61,.36,1), visibility 0s linear .28s!important;
+}
+.du-layer.upick-motion-layer:not(.show):not(.is-open):not(.open):not(.upick-motion-open):not(.upick-motion-closing):not(.is-closing):not(.closing) .upick-motion-panel,
+.du-layer.upick-motion-layer:not(.show):not(.is-open):not(.open):not(.upick-motion-open):not(.upick-motion-closing):not(.is-closing):not(.closing) .du-layer__panel,
+.common-modal-overlay.du-layer.upick-motion-layer:not(.show):not(.is-open):not(.open):not(.upick-motion-open):not(.upick-motion-closing):not(.is-closing):not(.closing) .common-modal-stage,
+.app-alert.du-layer.upick-motion-layer:not(.show):not(.is-open):not(.open):not(.upick-motion-open):not(.upick-motion-closing):not(.is-closing):not(.closing) .app-alert-card,
+.benefit-image-preview-overlay.du-layer.upick-motion-layer:not(.show):not(.is-open):not(.open):not(.upick-motion-open):not(.upick-motion-closing):not(.is-closing):not(.closing) .benefit-image-preview-dialog,
+.news-image-preview-overlay.du-layer.upick-motion-layer:not(.show):not(.is-open):not(.open):not(.upick-motion-open):not(.is-closing):not(.closing) .news-image-preview-dialog{
+  opacity:0!important;
+  transform:translateY(14px) scale(.985)!important;
+  animation:none!important;
+  transition:opacity .28s cubic-bezier(.16,1,.3,1), transform .28s cubic-bezier(.16,1,.3,1)!important;
+}
+.du-layer.upick-motion-layer.show,
+.du-layer.upick-motion-layer.is-open,
+.du-layer.upick-motion-layer.upick-motion-open,
+.common-modal-overlay.du-layer.upick-motion-layer.show,
+.common-modal-overlay.du-layer.upick-motion-layer.is-open,
+.common-modal-overlay.du-layer.upick-motion-layer.upick-motion-open,
+.app-alert.du-layer.upick-motion-layer.show,
+.app-alert.du-layer.upick-motion-layer.is-open,
+.app-alert.du-layer.upick-motion-layer.upick-motion-open,
+.benefit-image-preview-overlay.du-layer.upick-motion-layer.show,
+.benefit-image-preview-overlay.du-layer.upick-motion-layer.is-open,
+.benefit-image-preview-overlay.du-layer.upick-motion-layer.upick-motion-open,
+.news-image-preview-overlay.du-layer.upick-motion-layer.show,
+.news-image-preview-overlay.du-layer.upick-motion-layer.is-open,
+.news-image-preview-overlay.du-layer.upick-motion-layer.upick-motion-open{
+  opacity:1!important;
+  visibility:visible!important;
+  pointer-events:auto!important;
+  animation:none!important;
+  transition:opacity .28s cubic-bezier(.22,.61,.36,1), visibility 0s linear 0s!important;
+}
+.du-layer.upick-motion-layer.show .upick-motion-panel,
+.du-layer.upick-motion-layer.is-open .upick-motion-panel,
+.du-layer.upick-motion-layer.upick-motion-open .upick-motion-panel,
+.du-layer.upick-motion-layer.show .du-layer__panel,
+.du-layer.upick-motion-layer.is-open .du-layer__panel,
+.du-layer.upick-motion-layer.upick-motion-open .du-layer__panel,
+.common-modal-overlay.du-layer.upick-motion-layer.show .common-modal-stage,
+.common-modal-overlay.du-layer.upick-motion-layer.is-open .common-modal-stage,
+.common-modal-overlay.du-layer.upick-motion-layer.upick-motion-open .common-modal-stage,
+.app-alert.du-layer.upick-motion-layer.show .app-alert-card,
+.app-alert.du-layer.upick-motion-layer.is-open .app-alert-card,
+.app-alert.du-layer.upick-motion-layer.upick-motion-open .app-alert-card,
+.benefit-image-preview-overlay.du-layer.upick-motion-layer.show .benefit-image-preview-dialog,
+.benefit-image-preview-overlay.du-layer.upick-motion-layer.is-open .benefit-image-preview-dialog,
+.benefit-image-preview-overlay.du-layer.upick-motion-layer.upick-motion-open .benefit-image-preview-dialog,
+.news-image-preview-overlay.du-layer.upick-motion-layer.show .news-image-preview-dialog,
+.news-image-preview-overlay.du-layer.upick-motion-layer.is-open .news-image-preview-dialog,
+.news-image-preview-overlay.du-layer.upick-motion-layer.upick-motion-open .news-image-preview-dialog{
+  opacity:1!important;
+  transform:translateY(0) scale(1)!important;
+  animation:none!important;
+  transition:opacity .28s cubic-bezier(.16,1,.3,1), transform .28s cubic-bezier(.16,1,.3,1)!important;
+}
+.du-layer.upick-motion-layer.upick-motion-closing,
+.du-layer.upick-motion-layer.is-closing,
+.du-layer.upick-motion-layer.closing,
+.common-modal-overlay.du-layer.upick-motion-layer.upick-motion-closing,
+.common-modal-overlay.du-layer.upick-motion-layer.is-closing,
+.common-modal-overlay.du-layer.upick-motion-layer.closing,
+.app-alert.du-layer.upick-motion-layer.upick-motion-closing,
+.app-alert.du-layer.upick-motion-layer.is-closing,
+.app-alert.du-layer.upick-motion-layer.closing,
+.benefit-image-preview-overlay.du-layer.upick-motion-layer.upick-motion-closing,
+.benefit-image-preview-overlay.du-layer.upick-motion-layer.is-closing,
+.benefit-image-preview-overlay.du-layer.upick-motion-layer.closing,
+.news-image-preview-overlay.du-layer.upick-motion-layer.upick-motion-closing,
+.news-image-preview-overlay.du-layer.upick-motion-layer.is-closing,
+.news-image-preview-overlay.du-layer.upick-motion-layer.closing{
+  opacity:0!important;
+  visibility:visible!important;
+  pointer-events:none!important;
+  animation:none!important;
+  transition:opacity .24s cubic-bezier(.22,.61,.36,1), visibility 0s linear .24s!important;
+}
+.du-layer.upick-motion-layer.upick-motion-closing .upick-motion-panel,
+.du-layer.upick-motion-layer.is-closing .upick-motion-panel,
+.du-layer.upick-motion-layer.closing .upick-motion-panel,
+.du-layer.upick-motion-layer.upick-motion-closing .du-layer__panel,
+.du-layer.upick-motion-layer.is-closing .du-layer__panel,
+.du-layer.upick-motion-layer.closing .du-layer__panel,
+.common-modal-overlay.du-layer.upick-motion-layer.upick-motion-closing .common-modal-stage,
+.common-modal-overlay.du-layer.upick-motion-layer.is-closing .common-modal-stage,
+.common-modal-overlay.du-layer.upick-motion-layer.closing .common-modal-stage,
+.app-alert.du-layer.upick-motion-layer.upick-motion-closing .app-alert-card,
+.app-alert.du-layer.upick-motion-layer.is-closing .app-alert-card,
+.app-alert.du-layer.upick-motion-layer.closing .app-alert-card,
+.benefit-image-preview-overlay.du-layer.upick-motion-layer.upick-motion-closing .benefit-image-preview-dialog,
+.benefit-image-preview-overlay.du-layer.upick-motion-layer.is-closing .benefit-image-preview-dialog,
+.benefit-image-preview-overlay.du-layer.upick-motion-layer.closing .benefit-image-preview-dialog,
+.news-image-preview-overlay.du-layer.upick-motion-layer.upick-motion-closing .news-image-preview-dialog,
+.news-image-preview-overlay.du-layer.upick-motion-layer.is-closing .news-image-preview-dialog,
+.news-image-preview-overlay.du-layer.upick-motion-layer.closing .news-image-preview-dialog{
+  opacity:0!important;
+  transform:translateY(14px) scale(.985)!important;
+  animation:none!important;
+  transition:opacity .24s cubic-bezier(.22,.61,.36,1), transform .24s cubic-bezier(.22,.61,.36,1)!important;
+}
+
+/* v20260531-root3-dynamic-fix27: 설정 모음/방문 알림 fade lifecycle hard override
+   [open] / aria-hidden="false"가 먼저 붙어도 show/upick-motion-open 전까지는 초기 opacity 0 상태를 유지합니다. */
+#settingsSuiteModal.du-layer.upick-motion-layer:not(.show):not(.upick-motion-open):not(.is-closing):not(.upick-motion-closing),
+#settingsSuiteModal.gnb-management-dialog.upick-motion-layer:not(.show):not(.upick-motion-open):not(.is-closing):not(.upick-motion-closing),
+#settingsSuiteModal.settings-suite-dialog.upick-motion-layer:not(.show):not(.upick-motion-open):not(.is-closing):not(.upick-motion-closing),
+#calendarReservationModal.upick-div-dialog.upick-motion-layer:not(.show):not(.upick-motion-open):not(.is-closing):not(.upick-motion-closing),
+#calendarReservationModal.upick-div-dialog.upick-motion-dialog:not(.show):not(.upick-motion-open):not(.is-closing):not(.upick-motion-closing){
+  opacity:0!important;
+  visibility:visible!important;
+  pointer-events:none!important;
+  display:flex!important;
+}
+#settingsSuiteModal.du-layer.upick-motion-layer:not(.show):not(.upick-motion-open):not(.is-closing):not(.upick-motion-closing),
+#settingsSuiteModal.gnb-management-dialog.upick-motion-layer:not(.show):not(.upick-motion-open):not(.is-closing):not(.upick-motion-closing),
+#settingsSuiteModal.settings-suite-dialog.upick-motion-layer:not(.show):not(.upick-motion-open):not(.is-closing):not(.upick-motion-closing){
+  display:grid!important;
+  place-items:center!important;
+}
+#settingsSuiteModal.du-layer.upick-motion-layer:not(.show):not(.upick-motion-open):not(.is-closing):not(.upick-motion-closing) .gnb-management-shell,
+#settingsSuiteModal.gnb-management-dialog.upick-motion-layer:not(.show):not(.upick-motion-open):not(.is-closing):not(.upick-motion-closing) .gnb-management-shell,
+#settingsSuiteModal.settings-suite-dialog.upick-motion-layer:not(.show):not(.upick-motion-open):not(.is-closing):not(.upick-motion-closing) .gnb-management-shell,
+#calendarReservationModal.upick-div-dialog.upick-motion-layer:not(.show):not(.upick-motion-open):not(.is-closing):not(.upick-motion-closing) > .upick-div-dialog-panel,
+#calendarReservationModal.upick-div-dialog.upick-motion-dialog:not(.show):not(.upick-motion-open):not(.is-closing):not(.upick-motion-closing) > .upick-div-dialog-panel{
+  opacity:0!important;
+  transform:translateY(14px) scale(.975)!important;
+  pointer-events:auto!important;
+}
+#settingsSuiteModal.du-layer.upick-motion-layer.show,
+#settingsSuiteModal.du-layer.upick-motion-layer.upick-motion-open,
+#settingsSuiteModal.gnb-management-dialog.upick-motion-layer.show,
+#settingsSuiteModal.gnb-management-dialog.upick-motion-layer.upick-motion-open,
+#settingsSuiteModal.settings-suite-dialog.upick-motion-layer.show,
+#settingsSuiteModal.settings-suite-dialog.upick-motion-layer.upick-motion-open,
+#calendarReservationModal.upick-div-dialog.upick-motion-layer.show,
+#calendarReservationModal.upick-div-dialog.upick-motion-layer.upick-motion-open,
+#calendarReservationModal.upick-div-dialog.upick-motion-dialog.show,
+#calendarReservationModal.upick-div-dialog.upick-motion-dialog.upick-motion-open{
+  opacity:1!important;
+  visibility:visible!important;
+  pointer-events:auto!important;
+  transition:opacity 320ms cubic-bezier(.22,.61,.36,1), background-color 320ms cubic-bezier(.22,.61,.36,1), backdrop-filter 320ms cubic-bezier(.22,.61,.36,1), visibility 0s linear 0s!important;
+}
+#settingsSuiteModal.du-layer.upick-motion-layer.show .gnb-management-shell,
+#settingsSuiteModal.du-layer.upick-motion-layer.upick-motion-open .gnb-management-shell,
+#settingsSuiteModal.gnb-management-dialog.upick-motion-layer.show .gnb-management-shell,
+#settingsSuiteModal.gnb-management-dialog.upick-motion-layer.upick-motion-open .gnb-management-shell,
+#settingsSuiteModal.settings-suite-dialog.upick-motion-layer.show .gnb-management-shell,
+#settingsSuiteModal.settings-suite-dialog.upick-motion-layer.upick-motion-open .gnb-management-shell,
+#calendarReservationModal.upick-div-dialog.upick-motion-layer.show > .upick-div-dialog-panel,
+#calendarReservationModal.upick-div-dialog.upick-motion-layer.upick-motion-open > .upick-div-dialog-panel,
+#calendarReservationModal.upick-div-dialog.upick-motion-dialog.show > .upick-div-dialog-panel,
+#calendarReservationModal.upick-div-dialog.upick-motion-dialog.upick-motion-open > .upick-div-dialog-panel{
+  opacity:1!important;
+  transform:translateY(0) scale(1)!important;
+  transition:opacity 320ms cubic-bezier(.16,1,.3,1), transform 320ms cubic-bezier(.16,1,.3,1)!important;
+}
+#settingsSuiteModal.du-layer.upick-motion-layer.is-closing,
+#settingsSuiteModal.du-layer.upick-motion-layer.upick-motion-closing,
+#calendarReservationModal.upick-div-dialog.upick-motion-layer.is-closing,
+#calendarReservationModal.upick-div-dialog.upick-motion-layer.upick-motion-closing,
+#calendarReservationModal.upick-div-dialog.upick-motion-dialog.is-closing,
+#calendarReservationModal.upick-div-dialog.upick-motion-dialog.upick-motion-closing{
+  opacity:0!important;
+  visibility:visible!important;
+  pointer-events:none!important;
+}
+#settingsSuiteModal.du-layer.upick-motion-layer.is-closing .gnb-management-shell,
+#settingsSuiteModal.du-layer.upick-motion-layer.upick-motion-closing .gnb-management-shell,
+#calendarReservationModal.upick-div-dialog.upick-motion-layer.is-closing > .upick-div-dialog-panel,
+#calendarReservationModal.upick-div-dialog.upick-motion-layer.upick-motion-closing > .upick-div-dialog-panel,
+#calendarReservationModal.upick-div-dialog.upick-motion-dialog.is-closing > .upick-div-dialog-panel,
+#calendarReservationModal.upick-div-dialog.upick-motion-dialog.upick-motion-closing > .upick-div-dialog-panel{
+  opacity:0!important;
+  transform:translateY(14px) scale(.975)!important;
 }

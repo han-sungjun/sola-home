@@ -83,7 +83,8 @@
       opts.panel.classList.add(opts.closingClass, 'upick-motion-closing');
       opts.panel.classList.remove(opts.motionOpenClass, opts.activeClass);
     }
-    if(opts.ariaHidden) el.setAttribute('aria-hidden','true');
+    // 닫힘 애니메이션이 보이도록 aria-hidden은 transition 이후에 적용합니다.
+    // 기존처럼 즉시 true를 주면 .du-layer[aria-hidden="true"] { display:none } 규칙 때문에 fade-out이 사라집니다.
 
     state.promise = new Promise(function(resolve){
       state.timer = setTimeout(function(){
@@ -91,6 +92,7 @@
         state.closing = false;
         el.classList.remove(opts.closingClass, 'upick-motion-closing');
         if(opts.panel) opts.panel.classList.remove(opts.closingClass, 'upick-motion-closing');
+        if(opts.ariaHidden) el.setAttribute('aria-hidden','true');
         if(typeof opts.afterClose === 'function') opts.afterClose(el);
         resolve(true);
       }, opts.duration);

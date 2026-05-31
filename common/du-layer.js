@@ -24,6 +24,262 @@
 
   function addClass(el, cls){ if(el && !el.classList.contains(cls)) el.classList.add(cls); }
   function setAttr(el, name, value){ if(el && el.getAttribute(name) !== String(value)) el.setAttribute(name, String(value)); }
+  function normalizeType(type){
+    if(type === 'bottomSheet' || type === 'bottom-sheet') return 'sheet';
+    if(type === 'full' || type === 'fullPopup' || type === 'full-popup') return 'fullscreen';
+    return type || 'modal';
+  }
+
+  function rootIdFor(type){
+    type = normalizeType(type);
+    if(type === 'sheet') return 'duSheetRoot';
+    if(type === 'fullscreen') return 'duFullPopupRoot';
+    return 'duModalRoot';
+  }
+
+  function ensureRoot(type){
+    var id = rootIdFor(type);
+    var root = document.getElementById(id);
+    if(!root){
+      root = document.createElement('div');
+      root.id = id;
+      root.className = 'du-layer-root';
+      root.setAttribute('data-du-root', normalizeType(type));
+      document.body.appendChild(root);
+    }
+    return root;
+  }
+
+  function getRoot(type){ return ensureRoot(type || 'modal'); }
+
+  function mount(layer, type){
+    if(!layer) return null;
+    type = normalizeType(type || layer.getAttribute('data-du-layer') || (layer.classList && layer.classList.contains('du-layer--fullscreen') ? 'fullscreen' : (layer.classList && layer.classList.contains('du-layer--sheet') ? 'sheet' : 'modal')));
+    var root = ensureRoot(type);
+    if(layer.parentNode !== root) root.appendChild(layer);
+
+    // root3-dynamic-fix10: template에서 꺼낸 레이어도 기존 공통 페이드 시스템을 그대로 탑니다.
+    try{
+      addClass(layer, 'upick-motion-layer');
+      var panel = layer.querySelector('.du-layer__panel,[data-du-layer-panel],.upick-div-modal-panel,.upick-div-dialog-panel,.gnb-management-shell,.sheet-panel,.ai-image-zoom-card,.benefit-image-preview-dialog,.news-image-preview-dialog');
+      addClass(panel, 'upick-motion-panel');
+    }catch(_){}
+    return layer;
+  }
+
+  function isLegacyLayer(layer){
+    if(!layer || !layer.id) return false;
+    return LAYERS.some(function(cfg){ return cfg.id === layer.id; });
+  }
+
+  function unmount(layer){
+    if(typeof layer === 'string') layer = document.getElementById(layer);
+    if(!layer || !layer.parentNode) return false;
+    if(layer.dataset && layer.dataset.duDynamic === '1'){
+      layer.parentNode.removeChild(layer);
+      return true;
+    }
+    if(!isLegacyLayer(layer)){
+      if(layer.closest && layer.closest('.du-layer-root')){
+        layer.parentNode.removeChild(layer);
+        return true;
+      }
+      return false;
+    }
+    var tpl = document.getElementById('duLayerLegacyTemplate');
+    if(!tpl || !tpl.content) return false;
+    try{ layer.removeAttribute('open'); }catch(_){}
+    try{ layer.classList.remove('show','is-open','open','upick-motion-open','upick-motion-dialog','upick-motion-layer','upick-motion-panel'); }catch(_){}
+    try{ layer.setAttribute('aria-hidden','true'); }catch(_){}
+    tpl.content.appendChild(layer);
+    return true;
+  }
+
+  function syncRoots(){
+    ensureRoot('sheet'); ensureRoot('modal'); ensureRoot('fullscreen');
+    document.querySelectorAll('.du-layer').forEach(function(layer){
+      if(layer.closest('.du-layer-root')) return;
+      if(layer.id === 'appAlert') return;
+      mount(layer);
+    });
+  }
+
+  function mountLegacyTemplates(){
+    /* root3-dynamic-fix2: 기존처럼 모든 템플릿 팝업을 초기 로드 때 Root로 꺼내지 않습니다.
+       개별 팝업 DOM은 template 안에 보관하고, 실제로 필요할 때만 ensureLegacyLayer(id)로 Root에 주입합니다. */
+    syncRoots();
+  }
+
+  function ensureLegacyLayer(id){
+    if(!id) return null;
+    var exists = document.getElementById(id);
+    if(exists) return mount(exists);
+    var tpl = document.getElementById('duLayerLegacyTemplate');
+    if(!tpl || !tpl.content) return null;
+    var found = tpl.content.querySelector('#' + String(id).replace(/([ #;?%&,.+*~\':"!^$[\]()=>|\/])/g,'\\$1'));
+    if(!found) return null;
+    var mounted = mount(found);
+    try{
+      var cfg = LAYERS.filter(function(item){ return item.id === id; })[0];
+      if(cfg) enhanceLayer(cfg);
+    }catch(_){}
+    return mounted;
+  }
+
+  function toNode(content){
+    if(!content) return document.createTextNode('');
+    if(content.nodeType) return content;
+    var wrap = document.createElement('div');
+    wrap.innerHTML = String(content);
+    if(wrap.childNodes.length === 1) return wrap.firstChild;
+    return wrap;
+  }
+
+  function buildLayer(options){
+    options = options || {};
+    var type = normalizeType(options.type || 'modal');
+    var layer = document.createElement('div');
+    layer.className = 'du-layer du-layer--' + type + (options.className ? ' ' + options.className : '');
+    layer.setAttribute('data-du-layer', type);
+    layer.setAttribute('data-du-close-on-backdrop', options.closeOnBackdrop ? 'true' : 'false');
+    layer.setAttribute('data-close-on-backdrop', options.closeOnBackdrop ? 'true' : 'false');
+    layer.setAttribute('data-du-close-on-esc', options.closeOnEsc ? 'true' : 'false');
+    layer.setAttribute('aria-hidden', 'false');
+    layer.setAttribute('aria-modal', 'true');
+    layer.setAttribute('role', 'dialog');
+    if(options.id) layer.id = options.id;
+
+    var backdrop = document.createElement('div');
+    backdrop.className = 'du-layer__backdrop';
+    backdrop.setAttribute('data-du-layer-backdrop', '');
+
+    var panel = document.createElement('div');
+    panel.className = 'du-layer__panel';
+    panel.setAttribute('data-du-layer-panel', '');
+    panel.setAttribute('role', 'document');
+
+    var header = document.createElement('div');
+    header.className = 'du-layer__header';
+    header.setAttribute('data-du-layer-header', '');
+    var headerMain = document.createElement('div');
+    headerMain.className = 'du-layer__header-main';
+    if(options.title){
+      var title = document.createElement('div');
+      title.className = 'du-layer__title';
+      title.textContent = options.title;
+      headerMain.appendChild(title);
+    }
+    if(options.subtitle){
+      var subtitle = document.createElement('p');
+      subtitle.className = 'du-layer__subtitle';
+      subtitle.textContent = options.subtitle;
+      headerMain.appendChild(subtitle);
+    }
+    var headerActions = document.createElement('div');
+    headerActions.className = 'du-layer__header-actions';
+    var close = document.createElement('button');
+    close.type = 'button';
+    close.className = 'du-layer__close';
+    close.setAttribute('data-du-layer-close', '');
+    close.setAttribute('aria-label', options.closeLabel || '닫기');
+    close.textContent = options.closeText || '✕';
+    close.addEventListener('click', function(){ closeLayer(layer); });
+    headerActions.appendChild(close);
+    header.appendChild(headerMain);
+    header.appendChild(headerActions);
+
+    var body = document.createElement('div');
+    body.className = 'du-layer__body';
+    body.setAttribute('data-du-layer-body', '');
+    if(options.body) body.appendChild(toNode(options.body));
+
+    panel.appendChild(header);
+    panel.appendChild(body);
+    if(options.footer){
+      var footer = document.createElement('div');
+      footer.className = 'du-layer__footer';
+      footer.setAttribute('data-du-layer-footer', '');
+      footer.appendChild(toNode(options.footer));
+      panel.appendChild(footer);
+    }
+    layer.appendChild(backdrop);
+    layer.appendChild(panel);
+    return layer;
+  }
+
+
+  function isLayerOpenForCleanup(layer){
+    if(!layer || layer.hidden) return false;
+    if(layer.classList && (layer.classList.contains('show') || layer.classList.contains('is-open') || layer.classList.contains('open') || layer.classList.contains('upick-motion-open'))) return true;
+    if(layer.hasAttribute && layer.hasAttribute('open')) return true;
+    if(layer.getAttribute && layer.getAttribute('aria-hidden') === 'false') return true;
+    return false;
+  }
+
+  function cleanupInactiveLegacyLayers(){
+    var tpl = document.getElementById('duLayerLegacyTemplate');
+    if(!tpl || !tpl.content) return;
+    LAYERS.forEach(function(cfg){
+      var layer = document.getElementById(cfg.id);
+      if(!layer || !layer.closest || !layer.closest('.du-layer-root')) return;
+      if(layer.dataset && layer.dataset.duDynamic === '1') return;
+      if(isLayerOpenForCleanup(layer)) return;
+      try{ unmount(layer); }catch(_){ }
+    });
+    ['#gnbOperationManageModal'].forEach(function(selector){
+      document.querySelectorAll(selector).forEach(function(el){
+        if(el.closest && el.closest('.common-modal-overlay')) return;
+        if(el.parentNode) el.parentNode.removeChild(el);
+      });
+    });
+  }
+
+  function closeLayer(layer){
+    if(typeof layer === 'string') layer = document.getElementById(layer);
+    if(!layer) return false;
+    var panel = layer.querySelector('.du-layer__panel,[data-du-layer-panel],.upick-div-modal-panel,.upick-div-dialog-panel,.gnb-management-shell,.sheet-panel,.ai-image-zoom-card,.benefit-image-preview-dialog,.news-image-preview-dialog');
+    function finish(){
+      layer.setAttribute('aria-hidden', 'true');
+      unmount(layer);
+      document.dispatchEvent(new CustomEvent('upick:layer-closed', { detail:{ layer:layer } }));
+      cleanupInactiveLegacyLayers();
+      if(window.DuLayerStackManager && typeof window.DuLayerStackManager.requestSync === 'function') window.DuLayerStackManager.requestSync();
+      if(typeof window.__upickSyncModalScrollLock === 'function') setTimeout(window.__upickSyncModalScrollLock, 0);
+    }
+    if(window.UpickMotion && typeof window.UpickMotion.close === 'function'){
+      window.UpickMotion.close(layer, {
+        activeClass:'show',
+        panel:panel,
+        duration:240,
+        ariaHidden:false,
+        afterClose:finish
+      });
+    }else{
+      layer.classList.remove('show','is-open','open','upick-motion-open');
+      layer.classList.add('upick-motion-closing');
+      setTimeout(function(){ layer.classList.remove('upick-motion-closing'); finish(); }, 240);
+    }
+    return true;
+  }
+
+  function openLayer(options){
+    var layer = buildLayer(options || {});
+    layer.dataset.duDynamic = '1';
+    layer.setAttribute('aria-hidden','true');
+    mount(layer, options && options.type);
+    enhanceLayer({ id:layer.id, type:normalizeType(options && options.type), panel:'.du-layer__panel', header:'.du-layer__header', body:'.du-layer__body', close:'.du-layer__close' });
+    var panel = layer.querySelector('.du-layer__panel,[data-du-layer-panel]');
+    if(window.UpickMotion && typeof window.UpickMotion.open === 'function'){
+      window.UpickMotion.open(layer, { activeClass:'show', panel:panel, duration:240 });
+    }else{
+      layer.classList.add('show','is-open');
+      layer.setAttribute('aria-hidden','false');
+    }
+    document.dispatchEvent(new CustomEvent('upick:layer-opened', { detail:{ layer:layer, options:options || {} } }));
+    if(window.DuLayerStackManager && typeof window.DuLayerStackManager.requestSync === 'function') window.DuLayerStackManager.requestSync();
+    return layer;
+  }
+
   function closestLayer(el){ return el && el.closest && el.closest('.du-layer'); }
   function isPanelOrControl(target, layer){
     if(!target || !layer) return false;
@@ -107,10 +363,58 @@
 
 
 
-  function openSettingsSuiteSafe(){ return false; }
-  function closeSettingsSuiteSafe(){ return false; }
+  function openSettingsSuiteSafe(opener){
+    var layer = ensureLegacyLayer('settingsSuiteModal');
+    if(!layer) return false;
+    layer.__duLastOpener = opener || document.activeElement || null;
+    layer.hidden = false;
+    layer.removeAttribute('hidden');
+    try{ layer.showModal && layer.tagName === 'DIALOG' && !layer.open && layer.showModal(); }catch(_){ try{ layer.setAttribute('open',''); }catch(__){} }
+    layer.setAttribute('aria-hidden','true');
+    layer.classList.add('upick-motion-layer');
+    enhanceLayer({ id:'settingsSuiteModal', type:'modal', panel:'.gnb-management-shell', header:'.gnb-management-head', body:'.gnb-management-body', close:'.gnb-management-close' });
+    var settingsPanel = layer.querySelector('.gnb-management-shell,.du-layer__panel,[data-du-layer-panel]');
+    if(window.UpickMotion && typeof window.UpickMotion.open === 'function'){
+      window.UpickMotion.open(layer, { activeClass:'show', panel:settingsPanel, duration:240 });
+    }else{
+      layer.setAttribute('aria-hidden','false');
+      layer.classList.add('show','is-open','upick-motion-open');
+    }
+    document.dispatchEvent(new CustomEvent('upick:layer-opened', { detail:{ layer:layer, source:'settings-suite' } }));
+    if(window.DuLayerStackManager && typeof window.DuLayerStackManager.requestSync === 'function') window.DuLayerStackManager.requestSync();
+    setTimeout(function(){
+      var body = layer.querySelector('.gnb-management-body');
+      if(body) body.scrollTop = 0;
+      var close = layer.querySelector('#closeSettingsSuiteBtn,.gnb-management-close');
+      try{ (close || layer).focus && (close || layer).focus({ preventScroll:true }); }catch(_){ }
+    }, 0);
+    return layer;
+  }
+  function closeSettingsSuiteSafe(){
+    var layer = document.getElementById('settingsSuiteModal');
+    if(!layer) return false;
+    var opener = layer.__duLastOpener;
+    var settingsPanel = layer.querySelector('.gnb-management-shell,.du-layer__panel,[data-du-layer-panel]');
+    function finishSettingsClose(){
+      layer.setAttribute('aria-hidden','true');
+      try{ layer.close && layer.open && layer.close(); }catch(_){ try{ layer.removeAttribute('open'); }catch(__){} }
+      unmount(layer);
+      document.dispatchEvent(new CustomEvent('upick:layer-closed', { detail:{ layer:layer, source:'settings-suite' } }));
+      if(window.DuLayerStackManager && typeof window.DuLayerStackManager.requestSync === 'function') window.DuLayerStackManager.requestSync();
+      try{ opener && opener.focus && opener.focus({ preventScroll:true }); }catch(_){ }
+    }
+    if(window.UpickMotion && typeof window.UpickMotion.close === 'function'){
+      window.UpickMotion.close(layer, { activeClass:'show', panel:settingsPanel, duration:240, ariaHidden:false, afterClose:finishSettingsClose });
+    }else{
+      layer.classList.remove('show','is-open','upick-motion-open');
+      layer.classList.add('upick-motion-closing');
+      setTimeout(function(){ layer.classList.remove('upick-motion-closing'); finishSettingsClose(); }, 240);
+    }
+    return true;
+  }
 
   function init(){
+    mountLegacyTemplates();
     enhanceOpenLayers();
     // 바깥 클릭 닫힘 전면 금지: 패널/버튼 내부 클릭은 절대 막지 않습니다.
     document.addEventListener('click', function(e){
@@ -133,12 +437,40 @@
         e.stopPropagation();
       }
     }, true);
+
+    // 설정 모음은 Root3/template 구조에서 열릴 때만 Root로 올립니다.
+    document.addEventListener('click', function(e){
+      var openBtn = e.target && e.target.closest && e.target.closest('#openSettingsSuiteBtn,.gnb-summary-settings-btn,[data-open-settings-suite]');
+      if(openBtn){
+        e.preventDefault();
+        e.stopPropagation();
+        openSettingsSuiteSafe(openBtn);
+        return;
+      }
+      var closeBtn = e.target && e.target.closest && e.target.closest('#closeSettingsSuiteBtn');
+      if(closeBtn){
+        e.preventDefault();
+        e.stopPropagation();
+        closeSettingsSuiteSafe();
+      }
+    }, true);
   }
 
   if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init, { once:true });
   else init();
 
-  window.DuLayerAdapter = { init:init, enhanceLayer:enhanceLayer, enhanceOpenLayers:enhanceOpenLayers, openSettingsSuite:openSettingsSuiteSafe, closeSettingsSuite:closeSettingsSuiteSafe, layers:LAYERS.slice() };
+  window.DuLayer = window.DuLayer || {};
+  window.DuLayer.open = openLayer;
+  window.DuLayer.openSettingsSuite = openSettingsSuiteSafe;
+  window.DuLayer.closeSettingsSuite = closeSettingsSuiteSafe;
+  window.DuLayer.close = closeLayer;
+  window.DuLayer.getRoot = getRoot;
+  window.DuLayer.mount = mount;
+  window.DuLayer.syncRoots = syncRoots;
+  window.DuLayer.cleanupInactive = cleanupInactiveLegacyLayers;
+  window.DuLayer.unmount = unmount;
+  window.DuLayer.ensure = ensureLegacyLayer;
+  window.DuLayerAdapter = { init:init, enhanceLayer:enhanceLayer, enhanceOpenLayers:enhanceOpenLayers, getRoot:getRoot, mount:mount, syncRoots:syncRoots, cleanupInactive:cleanupInactiveLegacyLayers, unmount:unmount, mountLegacyTemplates:mountLegacyTemplates, ensure:ensureLegacyLayer, open:openLayer, close:closeLayer, openSettingsSuite:openSettingsSuiteSafe, closeSettingsSuite:closeSettingsSuiteSafe, layers:LAYERS.slice() };
   document.addEventListener('upick:layer-opened', enhanceOpenLayers);
   document.addEventListener('upick:alert-opened', enhanceOpenLayers);
 })();

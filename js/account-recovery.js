@@ -347,7 +347,7 @@ async function showAppAlert({
 
   // 전역 resolver 1개에 의존하면 알럿 안에서 다음 알럿을 띄울 때 상태가 꼬일 수 있습니다.
   // 알럿이 열릴 때마다 버튼별 전용 핸들러를 직접 바인딩합니다.
-  document.body.appendChild(alertEl);
+  (window.DuLayer && typeof window.DuLayer.mount === 'function' ? window.DuLayer.mount(alertEl, 'modal') : (document.getElementById('duModalRoot') || document.body).appendChild(alertEl));
 
   alertTitleEl.textContent = title;
   alertMsgEl.textContent = message;
@@ -359,8 +359,17 @@ async function showAppAlert({
   alertCancelEl.setAttribute('aria-label', normalizedCancelText || '취소');
   alertCancelEl.classList.toggle('hidden', !hasCancel);
 
-  alertEl.classList.add('show');
-  alertEl.setAttribute('aria-hidden', 'false');
+  const alertPanel = alertEl.querySelector('.app-alert-card');
+  if (window.UpickMotion && typeof window.UpickMotion.open === 'function') {
+    window.UpickMotion.open(alertEl, {
+      activeClass: 'show',
+      panel: alertPanel,
+      duration: 320
+    });
+  } else {
+    alertEl.setAttribute('aria-hidden', 'false');
+    requestAnimationFrame(() => requestAnimationFrame(() => alertEl.classList.add('show')));
+  }
 
   alertConfirmEl.onclick = null;
   alertCancelEl.onclick = null;

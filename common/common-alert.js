@@ -57,10 +57,13 @@
             '<button class="app-alert-confirm" id="appAlertConfirm" type="button">확인</button>'+
           '</div>'+
         '</div>';
-      document.body.appendChild(alertEl);
+      (window.DuLayer && typeof window.DuLayer.mount === 'function' ? window.DuLayer.mount(alertEl, 'modal') : (document.getElementById('duModalRoot') || document.body).appendChild(alertEl));
     }
 
-    if(alertEl.parentElement !== document.body) document.body.appendChild(alertEl);
+    if(!alertEl.closest || !alertEl.closest('#duModalRoot')){
+      if(window.DuLayer && typeof window.DuLayer.mount === 'function') window.DuLayer.mount(alertEl, 'modal');
+      else if(alertEl.parentElement !== (document.getElementById('duModalRoot') || document.body)) (document.getElementById('duModalRoot') || document.body).appendChild(alertEl);
+    }
 
     titleEl = qs('#appAlertTitle', alertEl) || qs('#appAlertTitle');
     messageEl = qs('#appAlertMessage', alertEl) || qs('#appAlertMessage');
@@ -265,6 +268,7 @@
     if(window.UpickMotion && typeof window.UpickMotion.close === 'function'){
       return window.UpickMotion.close(alertEl, {
         activeClass:'show', panel:getAlertPanel(), duration:ALERT_CLOSE_DURATION,
+        ariaHidden:false,
         afterClose:afterClose
       });
     }
