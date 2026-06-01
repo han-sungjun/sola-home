@@ -8568,7 +8568,9 @@ function openCalendarReservationModal(item={}){
  const track = slider.querySelector('.benefit-detail-photo-track');
  if(track){
    track.style.transition = options.animate === false ? 'none' : '';
-   track.style.transform = 'translate3d(0,0,0)';
+   // 혜택 상세 원본 사진도 확대 팝업의 현재 인덱스와 같은 위치로 이동시킵니다.
+   // 기존처럼 0으로 고정하면 확대 팝업에서 2/2로 넘긴 뒤 닫아도 상세 사진은 1/2 위치에 남습니다.
+   track.style.transform = `translate3d(${(-index * getBenefitPhotoSlidePercent())}%,0,0)`;
  }
  slides.forEach((slide, i) => {
    const active = i === index;

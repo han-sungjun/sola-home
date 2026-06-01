@@ -18,8 +18,37 @@
     'ArrowUp':true,'ArrowDown':true,'PageUp':true,'PageDown':true,
     'Home':true,'End':true,' ':true,'Spacebar':true
   };
+  var ALERT_TOP_Z = '2147483647';
+  var MODAL_BELOW_ALERT_Z = '2147483000';
 
   function qs(sel, root){ return (root || document).querySelector(sel); }
+
+  function raiseAlertLayer(){
+    if(!alertEl) return;
+    var root = document.getElementById('duModalRoot') || document.body;
+    // 같은 Root 안에서 설정 모음과 같은 z-index가 잡히면 DOM 순서상 뒤 레이어가 위에 보일 수 있어,
+    // 알럿을 항상 마지막 자식으로 재배치하고 브라우저 최대 z-index로 고정합니다.
+    try{
+      if(alertEl.parentNode !== root) root.appendChild(alertEl);
+      else if(root.lastElementChild !== alertEl) root.appendChild(alertEl);
+    }catch(_){ }
+    try{
+      alertEl.style.setProperty('--du-layer-z', ALERT_TOP_Z, 'important');
+      alertEl.style.setProperty('z-index', ALERT_TOP_Z, 'important');
+      var panel = getAlertPanel();
+      if(panel){
+        panel.style.setProperty('z-index', ALERT_TOP_Z, 'important');
+        panel.style.setProperty('position', 'relative', 'important');
+      }
+    }catch(_){ }
+    try{
+      document.querySelectorAll('.common-modal-overlay.du-layer,#settingsSuiteModal.du-layer,#accountEditModal.du-layer,#passwordChangeModal.du-layer').forEach(function(el){
+        if(el === alertEl) return;
+        el.style.setProperty('--du-layer-z', MODAL_BELOW_ALERT_Z, 'important');
+        el.style.setProperty('z-index', MODAL_BELOW_ALERT_Z, 'important');
+      });
+    }catch(_){ }
+  }
   function escapeText(value){ return String(value == null ? '' : value); }
   function hasReason(){ return Object.keys(scrollLock.reasons).some(function(key){ return scrollLock.reasons[key]; }); }
 
@@ -72,6 +101,10 @@
     actionsEl = qs('.app-alert-actions', alertEl);
 
     alertEl.classList.add('du-layer','du-layer--modal');
+    // CommonModal(설정 모음) 위에서도 알럿/컨펌이 항상 최상단에 오도록
+    // CSS 변수와 inline z-index를 함께 고정합니다.
+    alertEl.style.setProperty('--du-layer-z', ALERT_TOP_Z, 'important');
+    alertEl.style.setProperty('z-index', ALERT_TOP_Z, 'important');
     alertEl.setAttribute('data-du-layer','modal');
     alertEl.setAttribute('data-close-on-backdrop','false');
     alertEl.setAttribute('data-du-close-on-backdrop','false');
@@ -236,16 +269,20 @@
 
   function openLayer(){
     ensureAlert();
+    // 열리는 순간에도 CommonModal/로딩바보다 위에 재고정합니다.
+    alertEl.style.setProperty('--du-layer-z', ALERT_TOP_Z, 'important');
+    alertEl.style.setProperty('z-index', ALERT_TOP_Z, 'important');
     lastFocus = document.activeElement;
     if(window.UpickMotion && typeof window.UpickMotion.open === 'function'){
       return window.UpickMotion.open(alertEl, {
         activeClass:'show', panel:getAlertPanel(), duration:ALERT_OPEN_DURATION,
-        beforeOpen:function(){ openNativeDialogIfNeeded(); setOpenLock(true); try{ document.dispatchEvent(new CustomEvent('upick:alert-opened')); }catch(_){} },
-        afterOpen:focusConfirm
+        beforeOpen:function(){ raiseAlertLayer(); openNativeDialogIfNeeded(); setOpenLock(true); try{ document.dispatchEvent(new CustomEvent('upick:alert-opened')); }catch(_){} },
+        afterOpen:function(){ raiseAlertLayer(); focusConfirm(); }
       });
     }
     alertEl.classList.add('show');
     alertEl.setAttribute('aria-hidden','false');
+    raiseAlertLayer();
     openNativeDialogIfNeeded();
     setOpenLock(true);
     try{ document.dispatchEvent(new CustomEvent('upick:alert-opened')); }catch(_){}
