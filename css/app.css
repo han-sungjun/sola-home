@@ -29496,3 +29496,51 @@ body[data-loading-mode="public"] main{
   transform:translateY(14px) scale(.985)!important;
   transition:opacity .28s cubic-bezier(.22,.61,.36,1), transform .28s cubic-bezier(.22,.61,.36,1)!important;
 }
+
+/* ===== v20260601: 캘린더 날짜 팝업 스크롤/높이 안정화 =====
+   - 날짜 팝업을 닫을 때 본문이 선택 날짜로 스크롤 이동하지 않도록 JS에서 scroll:false 처리
+   - 예약이 없는 날짜도 같은 높이를 유지해 상단 이전/다음/날짜 버튼 위치가 흔들리지 않도록 패널 높이 고정
+*/
+#calendarDayModal.upick-div-dialog > .upick-div-dialog-panel{
+  width:min(430px, calc(100vw - 24px))!important;
+  height:min(82dvh, 720px)!important;
+  max-height:min(82dvh, 720px)!important;
+  min-height:min(560px, calc(100dvh - 56px))!important;
+}
+#calendarDayModal.upick-div-dialog .calendar-day-modal-head{
+  flex:0 0 auto!important;
+}
+#calendarDayModal.upick-div-dialog .calendar-day-modal-body{
+  flex:1 1 auto!important;
+  min-height:0!important;
+  overflow:hidden!important;
+  display:flex!important;
+  flex-direction:column!important;
+}
+#calendarDayModal.upick-div-dialog .calendar-day-modal-list{
+  flex:1 1 auto!important;
+  min-height:0!important;
+  overflow-y:auto!important;
+  align-content:start!important;
+}
+#calendarDayModal.upick-div-dialog .calendar-empty{
+  min-height:100%!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  text-align:center!important;
+  padding:28px 14px!important;
+  box-sizing:border-box!important;
+}
+#calendarDayModal.upick-div-dialog .calendar-day-modal-footer{
+  flex:0 0 auto!important;
+}
+@media(max-width:520px){
+  #calendarDayModal.upick-div-dialog{padding:10px!important;}
+  #calendarDayModal.upick-div-dialog > .upick-div-dialog-panel{
+    width:calc(100vw - 20px)!important;
+    height:min(82dvh, 720px)!important;
+    min-height:min(560px, calc(100dvh - 36px))!important;
+    border-radius:26px!important;
+  }
+}

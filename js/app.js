@@ -8059,9 +8059,18 @@ ${item.content || ''}`);
  if(calendarUiState.mode === 'week') renderCalendarWeekBoard(board);
  else if(calendarUiState.mode === 'day') renderCalendarDayBoard(board);
  else renderCalendarMonthBoard(board);
- qsa('[data-calendar-date]').forEach(btn => btn.addEventListener('click', () => openCalendarDayModal(btn.dataset.calendarDate)));
+ qsa('[data-calendar-date]').forEach(btn => {
+ btn.addEventListener('pointerdown', () => { window.__upickCalendarPointerScrollSnapshot = getCalendarScrollSnapshot(); }, {passive:true});
+ btn.addEventListener('click', (event) => {
+  event.preventDefault();
+  window.__upickCalendarPointerScrollSnapshot = window.__upickCalendarPointerScrollSnapshot || getCalendarScrollSnapshot();
+  openCalendarDayModal(btn.dataset.calendarDate);
+ });
+});
  qsa('[data-calendar-date-card]').forEach(card => card.addEventListener('click', (event) => {
  if(event.target.closest('button,a')) return;
+ event.preventDefault();
+ window.__upickCalendarPointerScrollSnapshot = getCalendarScrollSnapshot();
  openCalendarDayModal(card.dataset.calendarDateCard);
  }));
  bindCalendarReservationActions(board);
@@ -8146,12 +8155,62 @@ ${item.content || ''}`);
  const el = document.querySelector(`[data-calendar-date="${CSS.escape(dateKey)}"]`) || document.querySelector(`[data-calendar-date-card="${CSS.escape(dateKey)}"]`);
  if(!el) return;
  if(options.scroll !== false) el.scrollIntoView({ behavior:'smooth', block:'center' });
+ try{
+  if(typeof el.focus === 'function') el.focus({ preventScroll:true });
+ }catch(_){
+  try{ if(typeof el.focus === 'function') el.focus(); }catch(__){}
+ }
  el.classList.add('focus-highlight');
  setTimeout(() => el.classList.remove('focus-highlight'), 1100);
- }, 80);
+ }, Number.isFinite(Number(options.delay)) ? Number(options.delay) : 80);
+ }
+ function getCalendarScrollSnapshot(){
+ const nodes = [window, document.documentElement, document.body, qs('#mainContent'), qs('.app'), qs('#view-calendar')].filter(Boolean);
+ const seen = new Set();
+ return nodes.filter((node) => {
+  if(seen.has(node)) return false;
+  seen.add(node);
+  return true;
+ }).map((node) => ({
+  node,
+  x: node === window ? (window.scrollX || window.pageXOffset || 0) : (node.scrollLeft || 0),
+  y: node === window ? (window.scrollY || window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop || 0) : (node.scrollTop || 0)
+ }));
+ }
+ function restoreCalendarScrollSnapshot(snapshot){
+ if(!Array.isArray(snapshot)) return;
+ snapshot.forEach(({node,x,y}) => {
+  try{
+   if(node === window) window.scrollTo(Number(x)||0, Math.max(0, Number(y)||0));
+   else{ node.scrollLeft = Number(x)||0; node.scrollTop = Math.max(0, Number(y)||0); }
+  }catch(_){}
+ });
+ }
+ function holdCalendarScrollSnapshot(snapshot, duration = 1100){
+ const start = Date.now();
+ function restore(){
+  restoreCalendarScrollSnapshot(snapshot);
+  if(Date.now() - start < duration) requestAnimationFrame(restore);
+ }
+ restore();
+ requestAnimationFrame(restore);
+ [0, 16, 40, 90, 160, 260, 420, 700, 1000].forEach((delay) => setTimeout(restore, delay));
+ }
+ function holdCalendarPageScroll(x, y, duration = 900){
+ const snapshot = getCalendarScrollSnapshot();
+ if(snapshot.length){
+  snapshot[0].x = Number.isFinite(Number(x)) ? Number(x) : snapshot[0].x;
+  snapshot[0].y = Math.max(0, Number.isFinite(Number(y)) ? Number(y) : snapshot[0].y);
+ }
+ holdCalendarScrollSnapshot(snapshot, duration);
  }
  function openCalendarDayModal(dateKey){
  if(!dateKey) return;
+ const savedSnapshot = window.__upickCalendarPointerScrollSnapshot || getCalendarScrollSnapshot();
+ const pageX = savedSnapshot?.[0]?.x ?? (window.scrollX || window.pageXOffset || 0);
+ const pageY = savedSnapshot?.[0]?.y ?? (window.scrollY || window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop || 0);
+ blurCalendarActiveElement();
+ holdCalendarScrollSnapshot(savedSnapshot, 80);
  calendarUiState.dayModalDateKey = dateKey;
  calendarUiState.focusAfterModalDateKey = dateKey;
  renderCalendarDayModal();
@@ -8159,6 +8218,9 @@ ${item.content || ''}`);
  if(!modal) return;
  if(modal.open) closeDialogSafe(modal);
  openDialogSafe(modal, { initialFocusSelector:'#calendarDayCloseBtn' });
+ try{ window.__upickHardScrollFreeze?.lock?.('calendar-day-modal'); }catch(_){}
+ holdCalendarScrollSnapshot(savedSnapshot, 1400);
+ holdCalendarPageScroll(pageX, pageY, 1400);
  }
  function moveCalendarDayModal(offset){
  const d = addDays(dateFromKey(calendarUiState.dayModalDateKey || calendarUiState.selectedDateKey), offset);
@@ -8205,18 +8267,55 @@ function renderCalendarDayModal(){
  
  enforceCalendarDayModalTitleYear();
 }
+ function releaseCalendarDayModalScrollLock(){
+ const modal = qs('#calendarDayModal');
+ try{ window.__upickHardScrollFreeze?.unlock?.('calendar-day-modal'); }catch(_){}
+ const sync = () => {
+  try{ window.__upickSyncModalScrollLock?.(); }catch(_){}
+  try{ window.DuLayerStackManager?.requestSync?.(); }catch(_){}
+  try{ document.dispatchEvent(new CustomEvent('upick:layer-closed', { detail:{ layer: modal, source:'calendar-day-modal' } })); }catch(_){}
+  const stillOpen = !!document.querySelector([
+   'dialog[open]',
+   '.du-layer.show',
+   '.du-layer[open]',
+   '.du-layer[aria-hidden="false"]',
+   '.upick-div-dialog.show',
+   '.upick-div-modal.show',
+   '.sheet-modal.show',
+   '.app-alert.show'
+  ].join(','));
+  if(!stillOpen){
+   try{ window.__upickHardScrollFreeze?.forceUnlock?.(); }catch(_){}
+   document.documentElement.classList.remove('upick-layer-scroll-lock','upick-modal-scroll-event-lock','upick-modal-open','upick-alert-open');
+   document.body.classList.remove('upick-layer-scroll-lock','upick-modal-scroll-event-lock','upick-modal-open','upick-alert-open');
+  }
+ };
+ sync();
+ [0, 40, 120, 280, 520].forEach((delay) => setTimeout(sync, delay));
+ }
+ let calendarDayModalCloseFocusRunning = false;
  function closeCalendarDayModal(){
  const modal = qs('#calendarDayModal');
- if(isLayerOpenLike(modal)) closeDialogSafe(modal);
+ const afterClose = () => syncCalendarFocusFromDayModal({ source:'button' });
+ if(isLayerOpenLike(modal)) closeDialogSafe(modal, { afterClose });
+ else afterClose();
  }
- function syncCalendarFocusFromDayModal(){
+ function syncCalendarFocusFromDayModal(options={}){
+ if(calendarDayModalCloseFocusRunning) return;
+ calendarDayModalCloseFocusRunning = true;
+ setTimeout(() => { calendarDayModalCloseFocusRunning = false; }, 650);
  const key = calendarUiState.focusAfterModalDateKey || calendarUiState.dayModalDateKey;
- if(!key) return;
+ try{ window.__upickHardScrollFreeze?.unlock?.('calendar-day-modal'); }catch(_){}
+ if(!key){ releaseCalendarDayModalScrollLock(); return; }
  const d = dateFromKey(key);
  calendarUiState.selectedDateKey = key;
  calendarUiState.cursorDate = d;
  renderCalendarReservations();
- focusCalendarDate(key);
+ releaseCalendarDayModalScrollLock();
+ // 날짜 팝업 안에서 이전/다음/오늘/날짜 선택으로 변경한 최종 날짜를
+ // 닫힘 이후 실제 캘린더 셀로 이동·포커싱합니다.
+ focusCalendarDate(key, { scroll:true, delay:90 });
+ focusCalendarDate(key, { scroll:true, delay:260 });
  }
  function isCalendarDayDetailStackActive(){
  const dayModal = qs('#calendarDayModal');
