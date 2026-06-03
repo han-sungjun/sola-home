@@ -12,13 +12,13 @@
 
   function ensureRoot(){
     if(root && root.isConnected) return root;
-    var duRoot = document.getElementById('duModalRoot');
+    var duRoot = document.getElementById('duLayerRoot');
     root = duRoot || document.getElementById('commonModalRoot');
     if(!root){
       root = document.createElement('div');
       root.id = 'commonModalRoot';
       root.className = 'common-modal-root';
-      (document.getElementById('duModalRoot') || document.body).appendChild(root);
+      (document.getElementById('duLayerRoot') || document.body).appendChild(root);
     }else{
       root.classList.add('common-modal-root');
     }

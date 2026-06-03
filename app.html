@@ -35,18 +35,18 @@
 <link href="/icons/splash-ios-828x1792.png" media="(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2)" rel="apple-touch-startup-image"/>
 <link href="/icons/splash-ios-1170x2532.png" media="(device-width: 390px) and (device-height: 844px) and (-webkit-device-pixel-ratio: 3)" rel="apple-touch-startup-image"/>
 <link href="/icons/splash-ios-1290x2796.png" media="(device-width: 430px) and (device-height: 932px) and (-webkit-device-pixel-ratio: 3)" rel="apple-touch-startup-image"/>
-<link href="/css/app.css?v=20260531-root3-fade-fix28" rel="stylesheet"/>
+<link href="/css/app.css?v=20260531-root1-fade-fix28" rel="stylesheet"/>
 <link href="/common/accessibility.css?v=2026051401" rel="stylesheet"/>
-<link href="/common/common-motion.css?v=20260531-root3-fade-fix25" rel="stylesheet"/>
-<link href="/common/common-alert.css?v=20260531-root3-fade-fix25" rel="stylesheet"/>
+<link href="/common/common-motion.css?v=20260531-root1-fade-fix25" rel="stylesheet"/>
+<link href="/common/common-alert.css?v=20260531-root1-fade-fix25" rel="stylesheet"/>
 <link href="/common/common-loading.css?v=20260527-stack-fix" rel="stylesheet"/>
-<link href="/common/du-layer.css?v=20260531-root3-fade-fix28" rel="stylesheet"/>
+<link href="/common/du-layer.css?v=20260602-root1-calendar-actions-footer-design" rel="stylesheet"/>
 <link href="/common/common-modal.css?v=20260601-alert-over-commonmodal-fix36" rel="stylesheet"/>
-<script defer="" src="/common/common-motion.js?v=20260531-root3-fade-fix25"></script>
+<script defer="" src="/common/common-motion.js?v=20260531-root1-fade-fix25"></script>
 <script defer="" src="/common/common-alert.js?v=20260601-alert-over-commonmodal-fix36"></script>
 <script defer="" src="/common/common-loading.js?v=2026052405"></script>
-<script defer="" src="/common/du-layer.js?v=20260601-root3-cleanup-fix34"></script>
-<script defer="" src="/common/common-modal.js?v=20260601-root3-cleanup-fix34"></script>
+<script defer="" src="/common/du-layer.js?v=20260601-root1-cleanup-fix34"></script>
+<script defer="" src="/common/common-modal.js?v=20260601-root1-cleanup-fix34"></script>
 </head>
 <body data-loading-mode="public">
 <div aria-hidden="false" class="global-loading show" data-initial-app-loading="1" id="globalLoadingBar">
@@ -853,10 +853,8 @@
 </button>
 </nav>
 
-<!-- 더운정픽 공통 레이어 Root 3: HTML에는 Root만 고정하고, 개별 팝업 DOM은 template에 보관하고 필요할 때만 JS로 동적 주입합니다. -->
-<div class="du-layer-root" data-du-root="sheet" id="duSheetRoot"></div>
-<div class="du-layer-root" data-du-root="modal" id="duModalRoot"></div>
-<div class="du-layer-root" data-du-root="fullscreen" id="duFullPopupRoot"></div>
+<!-- 더운정픽 공통 레이어 1 Root: 모든 sheet/modal/fullscreen 팝업을 하나의 Root에서 관리합니다. -->
+<div class="du-layer-root" data-du-root="unified" id="duLayerRoot"></div>
 <template id="duLayerLegacyTemplate"><div aria-hidden="true" aria-modal="true" class="upick-div-dialog upick-detail-div-modal du-layer du-layer--modal" data-close-on-backdrop="false" data-du-close-on-backdrop="false" data-du-close-on-esc="false" data-du-layer="modal" id="detailModal" role="dialog">
 <div aria-hidden="true" class="upick-div-modal-backdrop du-layer__backdrop" data-du-layer-backdrop=""></div>
 <div class="upick-div-modal-panel du-layer__panel" data-du-layer-panel="" role="document">
@@ -881,10 +879,15 @@
           ✕
         </button></div></div>
 <div class="modal-body du-layer__body" data-du-layer-body="">
-<form class="calendar-form" id="calendarReservationForm">
-<p class="calendar-form-help">
-            방문 예정일과 알림 시간을 선택해 주세요. 등록된 일정은 캘린더 메뉴에서 확인할 수 있습니다.
-          </p>
+<form class="calendar-form" id="calendarReservationForm" novalidate>
+<div class="calendar-form-help calendar-help-box" aria-label="방문 알림 안내">
+            <div class="calendar-help-item">
+              방문 예정일과 시간을 선택해 주세요.
+            </div>
+            <div class="calendar-help-item">
+              등록된 일정은 캘린더 메뉴에서 확인할 수 있습니다.
+            </div>
+          </div>
 <div class="calendar-selected-store" id="calendarSelectedStore">
             혜택 매장 선택 중
           </div>
@@ -893,13 +896,13 @@
 <label for="calendarVisitDate">
               방문 예정일
             </label>
-<input id="calendarVisitDate" required="" type="date"/>
+<input id="calendarVisitDate" type="date"/>
 </div>
 <div class="calendar-field">
 <label for="calendarVisitTime">
               방문 예정 시간
             </label>
-<input id="calendarVisitTime" required="" type="time"/>
+<input id="calendarVisitTime" type="time"/>
 </div>
 <div class="calendar-field">
 <label for="calendarNotifyBefore">
@@ -926,15 +929,15 @@
             </label>
 <textarea id="calendarReservationMemo" maxlength="200" placeholder="예: 가족과 방문, 전화 확인 필요 등"></textarea>
 </div>
+</form>
+</div>
 <div class="calendar-form-actions du-layer__footer" data-du-layer-footer="">
-<button class="btn btn-primary" type="submit">
+<button class="btn btn-primary" form="calendarReservationForm" type="submit">
               알림 등록
             </button>
 <button class="btn btn-soft" id="cancelCalendarReservationBtn" type="button">
               취소
             </button>
-</div>
-</form>
 </div>
 </div>
 </div><div aria-hidden="true" aria-modal="true" class="upick-div-dialog du-layer du-layer--modal" data-close-on-backdrop="false" data-du-close-on-backdrop="false" data-du-close-on-esc="false" data-du-layer="modal" id="calendarDayModal" role="dialog"><div class="upick-div-dialog-panel du-layer__panel" data-du-layer-panel="" role="document"><div class="calendar-day-modal-head du-layer__header" data-du-header-normalized="1" data-du-layer-header=""><div class="du-layer__header-main du-layer__header-main--calendar"><button aria-label="이전 날짜" class="calendar-day-modal-arrow" id="calendarDayPrevBtn" type="button">
@@ -1390,10 +1393,10 @@
 <script>
 (function(){
   'use strict';
-  if(window.__duLayerRoot3Bootstrapped) return;
-  window.__duLayerRoot3Bootstrapped = true;
+  if(window.__duLayerRoot1Bootstrapped) return;
+  window.__duLayerRoot1Bootstrapped = true;
   function rootFor(type){
-    var key = type === 'sheet' ? 'duSheetRoot' : (type === 'fullscreen' || type === 'full' ? 'duFullPopupRoot' : 'duModalRoot');
+    var key = type === 'sheet' ? 'duLayerRoot' : (type === 'fullscreen' || type === 'full' ? 'duLayerRoot' : 'duLayerRoot');
     return document.getElementById(key);
   }
   function mountLegacyLayers(){
@@ -1408,7 +1411,7 @@
     });
     tpl.dataset.mounted = '1';
   }
-  window.__duLayerMountLegacyTemplates = function(){ return false; }; /* Root3 dynamic: 초기 일괄 주입 금지 */
+  window.__duLayerMountLegacyTemplates = function(){ return false; }; /* Root1 dynamic: 초기 일괄 주입 금지 */
 })();
 </script>
 
@@ -1727,12 +1730,12 @@
 </script> <script defer="" src="/common/password-field-enhance.js?v=2026051501"></script>
 <script defer="" src="/common/modal-backdrop-lock.js?v=2026051401"></script>
 <script defer="" src="/common/accessibility.js?v=2026051401"></script>
-<script src="./js/app.inline.1.js?v=20260531-root3-dynamic-fix29-bodyappend"></script>
-<script src="./js/app.inline.2.js?v=20260601-root3-cleanup-fix34"></script>
+<script src="./js/app.inline.1.js?v=20260531-root1-dynamic-fix29-bodyappend"></script>
+<script src="./js/app.inline.2.js?v=20260601-root1-cleanup-fix34"></script>
 <script src="./js/app.inline.3.js"></script>
 <script src="./js/app.inline.4.js"></script>
 <link href="./css/app.inline.1.css" rel="stylesheet"/>
-<script src="./js/app.inline.5.js?v=20260531-root3-dynamic-fix29-bodyappend"></script>
+<script src="./js/app.inline.5.js?v=20260531-root1-dynamic-fix29-bodyappend"></script>
 <link href="./css/app.inline.2.css" rel="stylesheet"/>
 <script defer="" src="/js/html-inline/app-inline-1-54a53359.js"></script>
 <script defer="" src="/common/dev-badge-visibility.js"></script>

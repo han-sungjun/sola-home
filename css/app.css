@@ -901,6 +901,9 @@ html[data-font-size="xlarge"] .gnb-body{padding-bottom:136px;}
 .calendar-empty{padding:24px 16px;border-radius:24px;background:#fff;border:1px solid var(--line-soft);box-shadow:var(--shadow);text-align:center;color:#64748b;line-height:1.7;}
 .calendar-form{display:grid;gap:12px;}
 .calendar-form-help{margin:0 0 4px;color:#475569;font-size:13px;line-height:1.7;}
+.calendar-help-box{display:grid;gap:4px;padding:14px 16px;border-radius:18px;background:#f8fafc;border:1px solid #e2e8f0;color:#64748b;font-size:12px;line-height:1.65;font-weight:800;margin: 12px 0 16px;}
+.calendar-help-item{position:relative;padding-left:12px;}
+.calendar-help-item::before{content:'•';position:absolute;left:0;top:0;color:#64748b;font-weight:900;}
 .calendar-selected-store{padding:13px 14px;border-radius:18px;background:#eff6ff;border:1px solid #bfdbfe;color:#1d4ed8;font-weight:900;line-height:1.45;}
 .calendar-field{display:grid;gap:7px;}
 .calendar-field label{font-size:13px;font-weight:900;color:#334155;}
@@ -29179,7 +29182,7 @@ body > #passwordChangeModal.upick-div-modal.upick-motion-open{
   }
 }
 
-/* ===== v20260531-root3-dynamic-fix12: 혜택 이미지 확대 다중 이미지 슬라이드 폭 보정 ===== */
+/* ===== v20260531-root1-dynamic-fix12: 혜택 이미지 확대 다중 이미지 슬라이드 폭 보정 ===== */
 .benefit-image-preview-overlay.du-layer .benefit-image-preview-track{
   display:flex !important;
   flex-wrap:nowrap !important;
@@ -29200,7 +29203,7 @@ body > #passwordChangeModal.upick-div-modal.upick-motion-open{
 }
 
 
-/* v20260531-root3-dynamic-fix13: 혜택 사진 확대 슬라이드는 표준 100% 슬라이드 폭으로 고정 */
+/* v20260531-root1-dynamic-fix13: 혜택 사진 확대 슬라이드는 표준 100% 슬라이드 폭으로 고정 */
 .benefit-image-preview-overlay .benefit-image-preview-track{
   width:100% !important;
   display:flex !important;
@@ -29218,7 +29221,7 @@ body > #passwordChangeModal.upick-div-modal.upick-motion-open{
   justify-content:center !important;
 }
 
-/* ===== v20260531-root3-dynamic-fix16: 혜택 확대 팝업 단일 이미지 렌더 안정화 ===== */
+/* ===== v20260531-root1-dynamic-fix16: 혜택 확대 팝업 단일 이미지 렌더 안정화 ===== */
 .benefit-image-preview-overlay.du-layer .benefit-image-preview-track,
 .benefit-image-preview-overlay:not(dialog) .benefit-image-preview-track{
   width:100% !important;
@@ -29256,8 +29259,8 @@ body > #passwordChangeModal.upick-div-modal.upick-motion-open{
   opacity:.8;
 }
 
-/* ===== v20260531-root3-overflow-fix: 공개앱 우측 빈 스크롤 영역 제거 =====
-   Root3 팝업/스크롤락 공통 CSS의 scrollbar-gutter: stable 이 모바일 폭 계산에 남아
+/* ===== v20260531-root1-overflow-fix: 공개앱 우측 빈 스크롤 영역 제거 =====
+   Root1 팝업/스크롤락 공통 CSS의 scrollbar-gutter: stable 이 모바일 폭 계산에 남아
    body max-width(480px) 바깥에 빈 gutter가 생기는 현상을 막습니다. */
 html,
 body{
@@ -29295,7 +29298,7 @@ body[data-loading-mode="public"] main{
   }
 }
 
-/* ===== 2026-05-31 Root3 운영 관리 팝업 표시/이동 보정 ===== */
+/* ===== 2026-05-31 Root1 운영 관리 팝업 표시/이동 보정 ===== */
 .gnb-operation-dialog--unified .gnb-management-head.operation,
 .gnb-operation-dialog--unified .gnb-management-head.operation *:not(.gnb-manage-close){
   color:#fff!important;
@@ -29375,7 +29378,7 @@ body[data-loading-mode="public"] main{
 }
 
 
-/* ===== root3 dynamic fade restore fix25: settings / visit reservation / AI image zoom ===== */
+/* ===== root1 dynamic fade restore fix25: settings / visit reservation / AI image zoom ===== */
 /* [open] 또는 .show display 강제 규칙이 공통 motion을 덮지 않도록, 실제 표시 상태는 show/upick-motion-open으로만 결정합니다. */
 #settingsSuiteModal.gnb-management-dialog.upick-motion-layer,
 #settingsSuiteModal.settings-suite-dialog.upick-motion-layer,
@@ -29453,7 +29456,7 @@ body[data-loading-mode="public"] main{
 }
 
 
-/* v20260531-root3-dynamic-fix28: 소식 이미지 확대 팝업 fade lifecycle 보정 */
+/* v20260531-root1-dynamic-fix28: 소식 이미지 확대 팝업 fade lifecycle 보정 */
 #newsImagePreviewOverlay.news-image-preview-overlay.du-layer.upick-motion-layer:not(.show):not(.upick-motion-open):not(.is-open):not(.closing):not(.upick-motion-closing):not(.is-closing){
   opacity:0!important;
   visibility:hidden!important;

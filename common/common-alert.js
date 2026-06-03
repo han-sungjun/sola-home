@@ -25,7 +25,7 @@
 
   function raiseAlertLayer(){
     if(!alertEl) return;
-    var root = document.getElementById('duModalRoot') || document.body;
+    var root = document.getElementById('duLayerRoot') || document.body;
     // 같은 Root 안에서 설정 모음과 같은 z-index가 잡히면 DOM 순서상 뒤 레이어가 위에 보일 수 있어,
     // 알럿을 항상 마지막 자식으로 재배치하고 브라우저 최대 z-index로 고정합니다.
     try{
@@ -86,12 +86,12 @@
             '<button class="app-alert-confirm" id="appAlertConfirm" type="button">확인</button>'+
           '</div>'+
         '</div>';
-      (window.DuLayer && typeof window.DuLayer.mount === 'function' ? window.DuLayer.mount(alertEl, 'modal') : (document.getElementById('duModalRoot') || document.body).appendChild(alertEl));
+      (window.DuLayer && typeof window.DuLayer.mount === 'function' ? window.DuLayer.mount(alertEl, 'modal') : (document.getElementById('duLayerRoot') || document.body).appendChild(alertEl));
     }
 
-    if(!alertEl.closest || !alertEl.closest('#duModalRoot')){
+    if(!alertEl.closest || !alertEl.closest('#duLayerRoot')){
       if(window.DuLayer && typeof window.DuLayer.mount === 'function') window.DuLayer.mount(alertEl, 'modal');
-      else if(alertEl.parentElement !== (document.getElementById('duModalRoot') || document.body)) (document.getElementById('duModalRoot') || document.body).appendChild(alertEl);
+      else if(alertEl.parentElement !== (document.getElementById('duLayerRoot') || document.body)) (document.getElementById('duLayerRoot') || document.body).appendChild(alertEl);
     }
 
     titleEl = qs('#appAlertTitle', alertEl) || qs('#appAlertTitle');

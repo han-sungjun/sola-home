@@ -568,7 +568,7 @@ body.env-dev [id$="EnvBadge"] {
   display: inline-flex !important;
 }
 
-/* ===== v20260531-root3-overflow-fix: 마지막 로드 CSS에서 gutter 재보정 ===== */
+/* ===== v20260531-root1-overflow-fix: 마지막 로드 CSS에서 gutter 재보정 ===== */
 html,
 body{
   overflow-x:hidden !important;
@@ -603,7 +603,7 @@ body{
 }
 
 
-/* v20260531-fix21: CommonModal도 Root3 공통 fade lifecycle 사용 */
+/* v20260531-fix21: CommonModal도 Root1 공통 fade lifecycle 사용 */
 .common-modal-overlay.upick-motion-layer{
   opacity:0!important;
   visibility:hidden!important;

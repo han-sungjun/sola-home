@@ -31,22 +31,18 @@
   }
 
   function rootIdFor(type){
-    type = normalizeType(type);
-    if(type === 'sheet') return 'duSheetRoot';
-    if(type === 'fullscreen') return 'duFullPopupRoot';
-    return 'duModalRoot';
+    return 'duLayerRoot';
   }
 
   function ensureRoot(type){
-    var id = rootIdFor(type);
-    var root = document.getElementById(id);
+    var root = document.getElementById('duLayerRoot');
     if(!root){
       root = document.createElement('div');
-      root.id = id;
+      root.id = 'duLayerRoot';
       root.className = 'du-layer-root';
-      root.setAttribute('data-du-root', normalizeType(type));
       document.body.appendChild(root);
     }
+    root.setAttribute('data-du-root', 'unified');
     return root;
   }
 
@@ -58,7 +54,7 @@
     var root = ensureRoot(type);
     if(layer.parentNode !== root) root.appendChild(layer);
 
-    // root3-dynamic-fix10: template에서 꺼낸 레이어도 기존 공통 페이드 시스템을 그대로 탑니다.
+    // root1-dynamic-fix10: template에서 꺼낸 레이어도 기존 공통 페이드 시스템을 그대로 탑니다.
     try{
       addClass(layer, 'upick-motion-layer');
       var panel = layer.querySelector('.du-layer__panel,[data-du-layer-panel],.upick-div-modal-panel,.upick-div-dialog-panel,.gnb-management-shell,.sheet-panel,.ai-image-zoom-card,.benefit-image-preview-dialog,.news-image-preview-dialog');
@@ -96,7 +92,7 @@
   }
 
   function syncRoots(){
-    ensureRoot('sheet'); ensureRoot('modal'); ensureRoot('fullscreen');
+    ensureRoot('unified');
     document.querySelectorAll('.du-layer').forEach(function(layer){
       if(layer.closest('.du-layer-root')) return;
       if(layer.id === 'appAlert') return;
@@ -105,7 +101,7 @@
   }
 
   function mountLegacyTemplates(){
-    /* root3-dynamic-fix2: 기존처럼 모든 템플릿 팝업을 초기 로드 때 Root로 꺼내지 않습니다.
+    /* root1-dynamic-fix2: 기존처럼 모든 템플릿 팝업을 초기 로드 때 Root로 꺼내지 않습니다.
        개별 팝업 DOM은 template 안에 보관하고, 실제로 필요할 때만 ensureLegacyLayer(id)로 Root에 주입합니다. */
     syncRoots();
   }
@@ -438,7 +434,7 @@
       }
     }, true);
 
-    // 설정 모음은 Root3/template 구조에서 열릴 때만 Root로 올립니다.
+    // 설정 모음은 Root1/template 구조에서 열릴 때만 Root로 올립니다.
     document.addEventListener('click', function(e){
       var openBtn = e.target && e.target.closest && e.target.closest('#openSettingsSuiteBtn,.gnb-summary-settings-btn,[data-open-settings-suite]');
       if(openBtn){

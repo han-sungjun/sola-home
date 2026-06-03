@@ -5,7 +5,7 @@
   // 기존 포커스 복귀 로직은 중복 팝업을 만들 수 있어 비활성화합니다.
 })();
 
-/* v20260531 root3: 혜택 상세 이미지 확대 팝업 다중 사진 표시 안정화
+/* v20260531 root1: 혜택 상세 이미지 확대 팝업 다중 사진 표시 안정화
    - 기존 track translate 방식은 Root 이동/CSS 누적 상태에서 2번째 사진이 빈 화면처럼 보일 수 있어
      확대 팝업 내부는 현재 사진 1장만 실제 img에 렌더링하고, 스와이프 시 src를 교체합니다.
    - 상세 상단 썸네일 슬라이더는 기존처럼 동기화합니다. */
@@ -119,7 +119,7 @@
         '</div>'+
       '</div>';
     if(window.DuLayer && typeof window.DuLayer.mount === 'function') window.DuLayer.mount(overlay, 'fullscreen');
-    else (document.getElementById('duFullPopupRoot') || document.body).appendChild(overlay);
+    else (document.getElementById('duLayerRoot') || document.body).appendChild(overlay);
 
     var img = overlay.querySelector('.benefit-image-preview-single-img');
     var count = overlay.querySelector('.benefit-image-preview-frame-count');

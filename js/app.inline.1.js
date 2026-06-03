@@ -4,7 +4,7 @@
         function qsa(sel, root){ return Array.from((root || document).querySelectorAll(sel)); }
         function closestSection(sel){ var el = qs(sel); return el && el.closest('.gnb-settings-section'); }
         function makeEl(html){ var t=document.createElement('template'); t.innerHTML=html.trim(); return t.content.firstElementChild; }
-        function modalStash(){ var el=qs('#gnbCommonModalStash'); if(!el){ el=document.createElement('div'); el.id='gnbCommonModalStash'; el.className='common-modal-stash'; (document.getElementById('duModalRoot') || document.body).appendChild(el); } return el; }
+        function modalStash(){ var el=qs('#gnbCommonModalStash'); if(!el){ el=document.createElement('div'); el.id='gnbCommonModalStash'; el.className='common-modal-stash'; (document.getElementById('duLayerRoot') || document.body).appendChild(el); } return el; }
         function activateTab(scope, name){
           qsa('[data-manage-tab]', scope).forEach(function(btn){
             var on = btn.dataset.manageTab === name;
@@ -28,7 +28,7 @@
               initialFocusSelector: focusSelector || '[data-manage-tab].active, .gnb-manage-close'
             });
           }else{
-            (window.DuLayer && typeof window.DuLayer.mount === 'function' ? window.DuLayer.mount(panel, 'modal') : (document.getElementById('duModalRoot') || document.body).appendChild(panel));
+            (window.DuLayer && typeof window.DuLayer.mount === 'function' ? window.DuLayer.mount(panel, 'modal') : (document.getElementById('duLayerRoot') || document.body).appendChild(panel));
           }
         }
         function closeManageModal(){

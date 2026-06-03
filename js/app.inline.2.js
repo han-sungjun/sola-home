@@ -198,7 +198,7 @@
         initialFocusSelector: '.gnb-manage-close, #gnbShareActionSlot button, #gnbAdminActionSlot button'
       });
     }else{
-      (window.DuLayer && typeof window.DuLayer.mount === 'function' ? window.DuLayer.mount(panel, 'modal') : (document.getElementById('duModalRoot') || document.body).appendChild(panel));
+      (window.DuLayer && typeof window.DuLayer.mount === 'function' ? window.DuLayer.mount(panel, 'modal') : (document.getElementById('duLayerRoot') || document.body).appendChild(panel));
       panel.classList.add('du-layer','du-layer--modal','show');
       panel.setAttribute('data-du-layer','modal');
     }

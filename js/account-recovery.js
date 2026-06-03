@@ -347,7 +347,7 @@ async function showAppAlert({
 
   // 전역 resolver 1개에 의존하면 알럿 안에서 다음 알럿을 띄울 때 상태가 꼬일 수 있습니다.
   // 알럿이 열릴 때마다 버튼별 전용 핸들러를 직접 바인딩합니다.
-  (window.DuLayer && typeof window.DuLayer.mount === 'function' ? window.DuLayer.mount(alertEl, 'modal') : (document.getElementById('duModalRoot') || document.body).appendChild(alertEl));
+  (window.DuLayer && typeof window.DuLayer.mount === 'function' ? window.DuLayer.mount(alertEl, 'modal') : (document.getElementById('duLayerRoot') || document.body).appendChild(alertEl));
 
   alertTitleEl.textContent = title;
   alertMsgEl.textContent = message;
