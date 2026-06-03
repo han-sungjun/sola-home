@@ -595,10 +595,13 @@ body{
   }
   body[data-loading-mode="public"] .app,
   body[data-loading-mode="public"] #mainContent,
-  body[data-loading-mode="public"] .shell,
   body[data-loading-mode="public"] main{
     max-width:100% !important;
     overflow-x:clip !important;
+  }
+  body[data-loading-mode="public"] .shell{
+    max-width:100% !important;
+    overflow-x:visible !important;
   }
 }
 
