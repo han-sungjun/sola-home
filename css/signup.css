@@ -2370,3 +2370,130 @@ body[data-loading-mode="signup"].upick-hard-scroll-lock{
   overflow-x:hidden!important;
   scrollbar-gutter:stable both-edges!important;
 }
+
+/* ===== v20260604: PC 계정 만들기 화면 스크롤바/잘림 재보정 =====
+   이전 보정의 overflow-y:scroll + scrollbar-gutter 때문에 PC에서도 항상 세로바가 생기고
+   화면 폭이 좁아 보였습니다. PC에서는 카드가 화면 안에 들어오도록 세로 여백만 압축하고,
+   실제로 넘칠 때만 스크롤이 생기도록 되돌립니다. */
+html,
+body{
+  overflow-y:auto!important;
+  overflow-x:hidden!important;
+  scrollbar-gutter:auto!important;
+}
+body[data-loading-mode="signup"],
+body[data-loading-mode="signup"].upick-alert-open,
+body[data-loading-mode="signup"].upick-layer-scroll-lock,
+body[data-loading-mode="signup"].upick-hard-scroll-lock{
+  overflow-y:auto!important;
+  overflow-x:hidden!important;
+  scrollbar-gutter:auto!important;
+}
+
+@media (min-width:768px) and (min-height:760px){
+  body[data-loading-mode="signup"] .page{
+    min-height:100dvh!important;
+    padding-top:14px!important;
+    padding-bottom:14px!important;
+  }
+  body[data-loading-mode="signup"] .signup-premium-hero-shell{
+    margin-top:0!important;
+    margin-bottom:0!important;
+  }
+  body[data-loading-mode="signup"] .signup-premium-hero-shell > .brand{
+    margin-bottom:10px!important;
+    padding:8px 14px 8px 10px!important;
+  }
+  body[data-loading-mode="signup"] .signup-premium-hero-shell > .brand .logo{
+    width:44px!important;
+    height:44px!important;
+  }
+  body[data-loading-mode="signup"] .signup-premium-hero-shell > .brand h1{
+    font-size:20px!important;
+    line-height:1.12!important;
+  }
+  body[data-loading-mode="signup"] .signup-premium-hero-shell > .brand p{
+    font-size:11px!important;
+    margin-top:2px!important;
+  }
+  body[data-loading-mode="signup"] .signup-premium-hero-shell > .hero{
+    padding:16px 18px!important;
+    margin-bottom:10px!important;
+    border-radius:26px!important;
+  }
+  body[data-loading-mode="signup"] .hero .eyebrow,
+  body[data-loading-mode="signup"] .hero-env{
+    padding:7px 10px!important;
+    font-size:11px!important;
+  }
+  body[data-loading-mode="signup"] .hero h2{
+    margin:12px 0 6px!important;
+    font-size:24px!important;
+    line-height:1.12!important;
+  }
+  body[data-loading-mode="signup"] .hero p{
+    font-size:12.5px!important;
+    line-height:1.55!important;
+  }
+  body[data-loading-mode="signup"] .panel{
+    margin-top:0!important;
+    padding:16px 20px!important;
+    border-radius:24px!important;
+  }
+  body[data-loading-mode="signup"] .panel h3{
+    margin-bottom:6px!important;
+    font-size:20px!important;
+  }
+  body[data-loading-mode="signup"] .helper{
+    margin-top:0!important;
+    margin-bottom:8px!important;
+    font-size:12px!important;
+    line-height:1.45!important;
+  }
+  body[data-loading-mode="signup"] .form{
+    gap:7px!important;
+    margin-top:8px!important;
+  }
+  body[data-loading-mode="signup"] .field{
+    gap:4px!important;
+  }
+  body[data-loading-mode="signup"] .field label{
+    font-size:12px!important;
+  }
+  body[data-loading-mode="signup"] .field input,
+  body[data-loading-mode="signup"] .field select,
+  body[data-loading-mode="signup"] .check-btn{
+    height:40px!important;
+    border-radius:14px!important;
+    font-size:13px!important;
+  }
+  body[data-loading-mode="signup"] .field-msg{
+    min-height:14px!important;
+    font-size:11px!important;
+    line-height:1.25!important;
+  }
+  body[data-loading-mode="signup"] .agree{
+    padding:9px 12px!important;
+    border-radius:15px!important;
+    font-size:12px!important;
+    line-height:1.4!important;
+  }
+  body[data-loading-mode="signup"] .signup-action-row{
+    gap:8px!important;
+    margin-top:2px!important;
+  }
+  body[data-loading-mode="signup"] .signup-action-row .btn,
+  body[data-loading-mode="signup"] .signup-action-row .btn-soft{
+    height:44px!important;
+    border-radius:15px!important;
+    font-size:13px!important;
+  }
+}
+
+/* 낮은 PC 화면에서는 잘림 방지가 우선이므로 스크롤 허용 */
+@media (min-width:768px) and (max-height:759px){
+  body[data-loading-mode="signup"] .page{
+    padding-top:14px!important;
+    padding-bottom:24px!important;
+  }
+}
