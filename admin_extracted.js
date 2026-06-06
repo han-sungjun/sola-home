@@ -527,6 +527,7 @@ const setTextAll = (selector, text) => qsa(selector).forEach(el => el.textConten
       window.scrollTo({ top: 0, behavior: 'auto' });
       if(view === 'community') setTimeout(() => loadAdminCommunityPosts('active'), 80);
       if(view === 'ai') setTimeout(() => openAIManager(aiAdminState.tab || 'faq'), 80);
+      if(view === 'ml-dashboard') setTimeout(() => loadMlDashboard(), 80);
     }
     window.changeAdminView = changeAdminView;
 
@@ -3112,6 +3113,7 @@ function fillForm(item){
       const view = btn.dataset.adminView;
       if(view && state.view !== view) changeAdminView(view);
     });
+    qs('#mlDashboardRefreshBtn')?.addEventListener('click', () => loadMlDashboard());
     const adminGnbToggleBtn = qs('#adminGnbToggleBtn');
     const adminGnbSheet = qs('#adminGnbSheet');
     const adminGnbOverlay = qs('#adminGnbOverlay');
@@ -3231,6 +3233,116 @@ function fillForm(item){
       if(tab === 'conversations') return loadAiConversations();
     }
     window.openAIManager = openAIManager;
+
+
+
+    function mlFormatDate(value){
+      try{
+        if(!value) return '-';
+        const date = typeof value?.toDate === 'function' ? value.toDate() : (value.seconds ? new Date(value.seconds * 1000) : new Date(value));
+        if(!Number.isFinite(date.getTime())) return '-';
+        return date.toLocaleString('ko-KR', { month:'2-digit', day:'2-digit', hour:'2-digit', minute:'2-digit' });
+      }catch(_error){ return '-'; }
+    }
+
+    function topMlEntries(map={}, count=3){
+      return Object.entries(map || {})
+        .filter(([,v]) => Number.isFinite(Number(v)))
+        .sort((a,b) => Number(b[1]) - Number(a[1]))
+        .slice(0, count);
+    }
+
+    function renderMlChips(map={}, count=3){
+      const entries = topMlEntries(map, count);
+      if(!entries.length) return '<span class="tag">데이터 없음</span>';
+      return entries.map(([key,value]) => `<span class="tag rec">${escapeHtml(key)} ${Number(value).toFixed(0)}</span>`).join('');
+    }
+
+    async function loadMlDashboard(){
+      if(!requireAdminDataAccess()) return;
+      const summaryEl = qs('#mlDashboardSummary');
+      const feedbackList = qs('#mlFeedbackList');
+      const profileList = qs('#mlProfileList');
+      const eventList = qs('#mlEventList');
+      if(summaryEl) summaryEl.innerHTML = '<div class="notice">ML 데이터를 불러오는 중입니다.</div>';
+      if(feedbackList) feedbackList.innerHTML = '<div class="notice">추천 피드백을 불러오는 중입니다.</div>';
+      if(profileList) profileList.innerHTML = '<div class="notice">사용자 프로필을 불러오는 중입니다.</div>';
+      if(eventList) eventList.innerHTML = '<div class="notice">학습 이벤트를 불러오는 중입니다.</div>';
+      try{
+        const [profileSnap, eventSnap, feedbackSnap, answerFeedbackSnap] = await Promise.all([
+          getDocs(query(collection(db, 'ai_ml_profiles'), orderBy('updatedAt','desc'), limit(30))).catch(() => getDocs(query(collection(db, 'ai_ml_profiles'), limit(30)))),
+          getDocs(query(collection(db, 'ai_user_events'), orderBy('createdAt','desc'), limit(50))).catch(() => getDocs(query(collection(db, 'ai_user_events'), limit(50)))),
+          getDocs(query(collection(db, 'ai_recommendation_feedback'), orderBy('createdAt','desc'), limit(50))).catch(() => getDocs(query(collection(db, 'ai_recommendation_feedback'), limit(50)))),
+          getDocs(query(collection(db, 'ai_answer_feedback'), orderBy('createdAt','desc'), limit(50))).catch(() => getDocs(query(collection(db, 'ai_answer_feedback'), limit(50))))
+        ]);
+        const profiles = profileSnap.docs.map(d => ({ id:d.id, ...d.data() }));
+        const events = eventSnap.docs.map(d => ({ id:d.id, ...d.data() }));
+        const feedbacks = feedbackSnap.docs.map(d => ({ id:d.id, ...d.data() }));
+        const answerFeedbacks = answerFeedbackSnap.docs.map(d => ({ id:d.id, ...d.data() }));
+        const good = feedbacks.filter(v => String(v.feedback || '').toLowerCase() === 'good').length;
+        const bad = feedbacks.filter(v => String(v.feedback || '').toLowerCase() === 'bad').length;
+        const answerGood = answerFeedbacks.filter(v => ['good','helpful'].includes(String(v.feedback || v.rating || '').toLowerCase())).length;
+        const answerBad = answerFeedbacks.filter(v => ['bad','not_helpful'].includes(String(v.feedback || v.rating || '').toLowerCase())).length;
+        const answerTotal = answerGood + answerBad;
+        const answerRate = answerTotal ? Math.round((answerGood / answerTotal) * 100) : 0;
+        const totalProfileEvents = profiles.reduce((sum,row) => sum + Number(row.totalEvents || 0), 0);
+        if(qs('#mlFeedbackCount')) qs('#mlFeedbackCount').textContent = `추천 ${feedbacks.length}건 · 답변 ${answerFeedbacks.length}건`;
+        if(qs('#mlProfileCount')) qs('#mlProfileCount').textContent = `${profiles.length}명`;
+        if(qs('#mlEventCount')) qs('#mlEventCount').textContent = `${events.length}건`;
+        if(summaryEl){
+          summaryEl.innerHTML = `
+            <div class="ml-dashboard-metric"><strong>${profiles.length}</strong><span>학습 프로필</span></div>
+            <div class="ml-dashboard-metric"><strong>${totalProfileEvents}</strong><span>누적 이벤트</span></div>
+            <div class="ml-dashboard-metric"><strong>${answerRate}%</strong><span>답변 만족도</span></div>
+            <div class="ml-dashboard-metric"><strong>${answerBad}</strong><span>답변 부정</span></div>
+            <div class="ml-dashboard-metric"><strong>${good}</strong><span>추천 맞음</span></div>
+            <div class="ml-dashboard-metric"><strong>${bad}</strong><span>추천 별로</span></div>`;
+        }
+        if(feedbackList){
+          const combinedFeedbacks = [
+            ...answerFeedbacks.map(row => ({...row, __kind:'answer'})),
+            ...feedbacks.map(row => ({...row, __kind:'recommendation'}))
+          ].sort((a,b) => {
+            const getMs = (v) => { try{ return typeof v?.createdAt?.toMillis === 'function' ? v.createdAt.toMillis() : (v?.createdAt?.seconds ? v.createdAt.seconds * 1000 : Date.parse(v?.createdAt || 0)); }catch(_){ return 0; } };
+            return getMs(b) - getMs(a);
+          }).slice(0, 80);
+          feedbackList.innerHTML = combinedFeedbacks.length ? '' : '<div class="member-empty">AI 피드백이 없습니다.</div>';
+          combinedFeedbacks.forEach(row => {
+            const el=document.createElement('div');
+            el.className='mini-item ml-dashboard-item';
+            const rawFeedback = String(row.feedback || row.rating || '').toLowerCase();
+            const positive = ['good','helpful'].includes(rawFeedback);
+            const kindLabel = row.__kind === 'answer' ? '답변' : '추천';
+            const title = row.__kind === 'answer' ? (row.question || 'AI 답변') : (row.benefitName || row.targetName || row.targetId || '추천 항목');
+            const sub = row.__kind === 'answer' ? (row.answerText || '') : (row.question || row.buttonLabel || '');
+            el.innerHTML=`<div class="mini-item-head"><div><h5>${kindLabel} · ${positive ? '좋아요' : '별로예요'} · ${escapeHtml(title)}</h5><div class="tags"><span class="tag ${positive ? 'live-tag' : 'hidden-tag'}">${escapeHtml(rawFeedback || '-')}</span><span class="tag">${escapeHtml(row.category || kindLabel)}</span><span class="tag">${mlFormatDate(row.createdAt)}</span></div><div class="ml-dashboard-sub">${escapeHtml(String(sub || '').slice(0, 180))}</div></div></div>`;
+            feedbackList.appendChild(el);
+          });
+        }
+        if(profileList){
+          profileList.innerHTML = profiles.length ? '' : '<div class="member-empty">ML 프로필이 없습니다.</div>';
+          profiles.forEach(row => {
+            const el=document.createElement('div');
+            el.className='mini-item ml-dashboard-item';
+            el.innerHTML=`<div class="mini-item-head"><div><h5>${escapeHtml(row.nickname || row.uid || row.id)}</h5><div class="tags"><span class="tag">이벤트 ${Number(row.totalEvents || 0)}건</span><span class="tag">${mlFormatDate(row.updatedAt || row.lastEventAt)}</span></div><div class="ml-chip-row">${renderMlChips(row.categoryWeights, 4)}</div><div class="ml-chip-row">${renderMlChips(row.timeBandWeights, 4)}</div></div></div>`;
+            profileList.appendChild(el);
+          });
+        }
+        if(eventList){
+          eventList.innerHTML = events.length ? '' : '<div class="member-empty">학습 이벤트가 없습니다.</div>';
+          events.forEach(row => {
+            const el=document.createElement('div');
+            el.className='mini-item ml-dashboard-item';
+            el.innerHTML=`<div class="mini-item-head"><div><h5>${escapeHtml(row.eventType || row.action || 'event')} · ${escapeHtml(row.category || '기타')}</h5><div class="tags"><span class="tag">가중치 ${Number(row.weight || 0)}</span><span class="tag">${escapeHtml(row.timeBand || '-')}</span><span class="tag">${mlFormatDate(row.createdAt)}</span></div><div class="ml-dashboard-sub">${escapeHtml(row.keyword || row.question || row.targetId || '')}</div></div></div>`;
+            eventList.appendChild(el);
+          });
+        }
+      }catch(error){
+        console.error('ML 대시보드 로드 실패', error);
+        if(summaryEl) summaryEl.innerHTML = '<div class="member-empty">ML 데이터를 불러오지 못했습니다. Firestore 권한 또는 인덱스를 확인해주세요.</div>';
+      }
+    }
+    window.loadMlDashboard = loadMlDashboard;
 
     function renderAiFormHeader(title, desc){
       return `<div class="ai-admin-toolbar"><div><h3 style="margin:0;font-size:16px;">${escapeHtml(title)}</h3><small style="display:block;margin-top:4px;color:#64748b;line-height:1.45;">${escapeHtml(desc)}</small></div></div>`;

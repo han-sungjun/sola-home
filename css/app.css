@@ -29550,3 +29550,39 @@ body[data-loading-mode="public"] .shell{
     border-radius:26px!important;
   }
 }
+
+
+/* AI 추천 피드백 버튼 */
+.ai-rec-feedback-row{display:flex;gap:8px;margin-top:10px;padding-top:10px;border-top:1px solid rgba(15,23,42,.08)}
+.ai-rec-feedback-btn{border:1px solid rgba(15,23,42,.12);background:#fff;border-radius:999px;padding:7px 11px;font-size:12px;font-weight:800;color:#475569;cursor:pointer;transition:transform .16s ease,box-shadow .16s ease,background .16s ease}
+.ai-rec-feedback-btn:hover{transform:translateY(-1px);box-shadow:0 8px 18px rgba(15,23,42,.08)}
+.ai-rec-feedback-btn.good.selected{background:#ecfdf5;border-color:#86efac;color:#047857}
+.ai-rec-feedback-btn.bad.selected{background:#fff7ed;border-color:#fdba74;color:#c2410c}
+.ai-rec-feedback-btn:disabled{opacity:.75;cursor:default;transform:none;box-shadow:none}
+
+/* ===== AI 추천 피드백 아이콘형 ===== */
+.ai-rec-feedback-row.icon-only{display:flex;justify-content:flex-end;align-items:center;gap:6px;margin-top:8px;padding-top:8px;border-top:1px solid rgba(15,23,42,.08)}
+.ai-rec-feedback-label{margin-right:auto;font-size:11px;font-weight:800;color:#64748b;letter-spacing:-.02em;white-space:nowrap}
+.ai-rec-feedback-row.icon-only .ai-rec-feedback-btn{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;min-width:28px;min-height:28px;padding:0;border-radius:999px;font-size:14px;line-height:1;background:#fff;color:#334155}
+.ai-rec-feedback-row.icon-only .ai-rec-feedback-btn.good.selected{background:#ecfdf5;border-color:#86efac;color:#047857}
+.ai-rec-feedback-row.icon-only .ai-rec-feedback-btn.bad.selected{background:#fff7ed;border-color:#fdba74;color:#c2410c}
+.ai-rec-feedback-row.icon-only .ai-rec-feedback-btn:disabled:not(.selected){opacity:.45}
+
+/* ===== AI answer feedback icons ===== */
+.ai-answer-feedback-row{display:flex;justify-content:flex-end;align-items:center;gap:6px;margin-top:8px;padding-top:8px;border-top:1px solid rgba(15,23,42,.08)}
+.ai-answer-feedback-label{margin-right:auto;font-size:11px;font-weight:800;color:#64748b;letter-spacing:-.02em;white-space:nowrap}
+.ai-answer-feedback-btn{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;min-width:28px;min-height:28px;padding:0;border:1px solid rgba(15,23,42,.12);border-radius:999px;background:#fff;color:#334155;font-size:14px;line-height:1;cursor:pointer;transition:transform .16s ease,box-shadow .16s ease,background .16s ease}
+.ai-answer-feedback-btn:hover{transform:translateY(-1px);box-shadow:0 8px 18px rgba(15,23,42,.08)}
+.ai-answer-feedback-btn.good.selected{background:#ecfdf5;border-color:#86efac;color:#047857}
+.ai-answer-feedback-btn.bad.selected{background:#fff7ed;border-color:#fdba74;color:#c2410c}
+.ai-answer-feedback-btn:disabled:not(.selected){opacity:.45;cursor:default;transform:none;box-shadow:none}
+
+/* ===== AI feedback duplicate guard ===== */
+.ai-rec-feedback-row[data-ai-feedback-submitted="true"],
+.ai-answer-feedback-row[data-ai-feedback-submitted="true"]{
+  pointer-events:none;
+}
+.ai-rec-feedback-row[data-ai-feedback-submitted="true"] .ai-rec-feedback-btn:not(.selected),
+.ai-answer-feedback-row[data-ai-feedback-submitted="true"] .ai-answer-feedback-btn:not(.selected){
+  opacity:.45;
+}

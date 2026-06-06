@@ -77,6 +77,7 @@
  const AI_STREAM_SERVER_BASE_URL = AI_STREAM_SERVER_URL ? AI_STREAM_SERVER_URL.replace(/\/?stream\/?$/, '') : '';
  const AI_PROACTIVE_URL = AI_STREAM_SERVER_BASE_URL ? `${AI_STREAM_SERVER_BASE_URL}/assistant/proactive` : '';
  const AI_ASSISTANT_LOG_URL = AI_STREAM_SERVER_BASE_URL ? `${AI_STREAM_SERVER_BASE_URL}/assistant/log` : '';
+ const AI_RECOMMENDATION_FEEDBACK_URL = AI_STREAM_SERVER_BASE_URL ? `${AI_STREAM_SERVER_BASE_URL}/assistant/feedback` : '';
  const AI_TTS_SERVICE_URL = String((TTS_SERVICE_URL && TTS_SERVICE_URL[ENV]) || '').replace(/\/+$/, '');
  const CHECK_NICKNAME_URL = API_URL?.[ENV]?.checkNickname || '';
  const UPDATE_ACCOUNT_PROFILE_URL = API_URL?.[ENV]?.updateAccountProfile || '';
@@ -3078,6 +3079,19 @@ async function refreshPushStatus(){
  type,
  createdAt: serverTimestamp()
  });
+ const mlBenefit = (state.benefits || []).find(v => String(v.id) === String(benefitId)) || {};
+ if(typeof logPersonalAssistantEvent === 'function'){
+   logPersonalAssistantEvent({
+     action: type,
+     eventType: 'benefit_event',
+     targetType: 'benefit',
+     benefitId,
+     targetId: benefitId,
+     category: mlBenefit.category || '',
+     keyword: mlBenefit.name || mlBenefit.title || mlBenefit.benefit || '',
+     source: 'benefit_event'
+   }).catch(() => {});
+ }
  recordResidentActivity(type, residentActivityPoints(type), benefitId).catch(() => {});
  }catch(error){
  console.error('이벤트 기록 실패', type, benefitId, error);
@@ -4508,6 +4522,48 @@ function getBenefitZoneInfo(item={}){
  if(manual === 'starfield_inside') return { type:'starfield_inside', label:'스타필드 내부', shortLabel:'내부', reason:'관리자 등록 기준' };
  if(manual === 'outside_area') return { type:'outside_area', label:'외부 상권', shortLabel:'외부', reason:'관리자 등록 기준' };
  return { type:'outside_area', label:'외부 상권', shortLabel:'외부', reason:'기본 분류' };
+}
+
+
+function normalizeAiIntentSpacing(text=''){
+ const raw = String(text || '').trim().toLowerCase();
+ const compact = raw.replace(/\s+/g, '');
+ return { raw, compact };
+}
+
+function hasAnyIntentToken(source='', tokens=[]){
+ const value = String(source || '');
+ return tokens.some((token) => value.includes(token));
+}
+
+function getRequestedCommercialZone(question=''){
+ const { raw:q, compact } = normalizeAiIntentSpacing(question);
+ const outsideTokens = [
+   '외부상권', '외부매장', '외부상가', '외부추천', '외부쪽',
+   '외부혜택', '밖매장', '밖상권', '주변상권', '주변상가',
+   '상가거리', '상권매장', '단지밖', '단지외부', '밖에', '바깥'
+ ];
+ const insideTokens = [
+   '스타필드내부', '스타필드안', '스타필드내', '스타필드빌리지안',
+   '스타필드빌리지내', '내부매장', '내부상권', '몰안', '몰내부',
+   '건물안', '실내매장'
+ ];
+ const asksOutside = /외부\s*(상권|매장|상가|추천|혜택)|외부쪽|주변\s*(상권|상가)|상가\s*거리|상권\s*매장|단지\s*(밖|외부)|밖\s*매장|밖\s*상권|밖에|바깥/.test(q)
+   || hasAnyIntentToken(compact, outsideTokens);
+ const asksInside = /스타필드\s*(내부|안|내)|스타필드\s*빌리지\s*(안|내)|내부\s*(매장|상권)|몰\s*(안|내부)|건물\s*안|실내\s*매장/.test(q)
+   || hasAnyIntentToken(compact, insideTokens);
+ const mentionsStarfieldOnly = /스타필드|스타필드\s*빌리지/.test(q) || hasAnyIntentToken(compact, ['스타필드', '스타필드빌리지']);
+ // 외부 상권/외부 매장 요청은 "스타필드 외부 상권"처럼 스타필드라는 단어가 함께 있어도 외부를 우선합니다.
+ if(asksOutside) return 'outside_area';
+ if(asksInside) return 'starfield_inside';
+ if(mentionsStarfieldOnly) return 'starfield_inside';
+ return '';
+}
+
+function isBenefitInRequestedCommercialZone(item={}, question=''){
+ const requested = getRequestedCommercialZone(question);
+ if(!requested) return true;
+ return getBenefitZoneInfo(item).type === requested;
 }
 
 function getBenefitStatsRow(item={}){
@@ -9783,12 +9839,214 @@ function openCalendarReservationModal(item={}){
  const benefitId = typeof btn === 'object' && btn.benefitId ? ` data-ai-log-benefit-id="${escapeAttr(btn.benefitId)}"` : '';
  return `<button class="ai-dialog-action-btn" type="button" data-ai-dialog-question="${escapeAttr(question)}" data-ai-log-source="proactive-ai" data-ai-log-category="${escapeAttr(label)}"${benefitId}>${escapeHtml(label)}</button>`;
  }).join('')}</div>` : '';
- const recHtml = recs.length ? `<div class="ai-answer-section"><div class="ai-answer-section-title"><span>지금 잘 맞는 추천</span><small>${recs.length}개</small></div>${recs.map(item => `<div class="ai-benefit-card-auto enhanced"><div class="ai-card-top"><b>${escapeHtml(item.name || '추천 매장')}</b><span class="ai-match-score">맞춤 ${Math.min(99, Number(item.score || 0))}%</span></div><span>${escapeHtml(item.benefit || item.category || '등록된 혜택 정보를 확인해보세요.')}</span>${item.id ? `<div class="ai-card-actions"><button class="primary" type="button" data-ai-open-benefit-id="${escapeAttr(item.id)}">혜택 상세 보기</button></div>` : ''}</div>`).join('')}</div>` : '';
+ const safeRecs = (Array.isArray(recs) ? recs : []).filter(item => {
+   if(!item) return false;
+   if(typeof isRecommendableBenefit !== 'function') return true;
+   const local = item.id ? (state.benefits || []).find(v => String(v.id) === String(item.id)) : null;
+   return local ? isRecommendableBenefit(local) : isRecommendableBenefit(item);
+ });
+ const recHtml = safeRecs.length ? `<div class="ai-answer-section"><div class="ai-answer-section-title"><span>지금 잘 맞는 추천</span><small>${safeRecs.length}개</small></div>${safeRecs.map(item => `<div class="ai-benefit-card-auto enhanced"><div class="ai-card-top"><b>${escapeHtml(item.name || '추천 매장')}</b><span class="ai-match-score">맞춤 ${Math.min(99, Number(item.score || 0))}%</span></div><span>${escapeHtml(item.benefit || item.category || '등록된 혜택 정보를 확인해보세요.')}</span>${item.id ? `<div class="ai-card-actions"><button class="primary" type="button" data-ai-open-benefit-id="${escapeAttr(item.id)}">혜택 상세 보기</button></div>` : ''}${buildAiRecommendationFeedbackHtml(item)}</div>`).join('')}</div>` : '';
  const insightText = [insight.preference ? `관심 ${insight.preference}` : '', insight.timeLabel || '', insight.isRain ? '비오는날' : '', Number.isFinite(Number(insight.logCount)) ? `로그 ${Number(insight.logCount)}건` : ''].filter(Boolean).join(' · ');
  return `<div class="ai-answer ai-answer-upgrade"><div class="ai-answer-summary">${escapeHtml(message).replace(/\n/g,'<br>')}</div>${buttonHtml}${recHtml}<span class="ai-mode-pill upgraded">지금 상황에 맞는 정보를 준비했어요.</span></div>`;
  }
 
- async function logPersonalAssistantEvent(payload={}){
+ 
+async function sendAiRecommendationFeedback(payload={}){
+ if(!AI_RECOMMENDATION_FEEDBACK_URL && !AI_ASSISTANT_LOG_URL) return;
+ try{
+ const idToken = await getAiIdTokenSafe();
+ const body = { env: ENV, source:'ai_recommendation_card', ...payload };
+ const url = AI_RECOMMENDATION_FEEDBACK_URL || AI_ASSISTANT_LOG_URL;
+ await fetch(url, {
+ method:'POST',
+ headers:{ 'Content-Type':'application/json', ...(idToken ? { 'Authorization':`Bearer ${idToken}` } : {}) },
+ body: JSON.stringify(body)
+ });
+ }catch(error){
+ console.warn('AI 추천 피드백 저장 실패:', error);
+ }
+}
+
+
+function normalizeAiFeedbackKeyPart(value='', max=500){
+ return String(value || '').replace(/\s+/g, ' ').trim().slice(0, max);
+}
+
+function hashAiFeedbackKey(value=''){
+ const text = String(value || '');
+ let h1 = 0x811c9dc5;
+ let h2 = 0x01000193;
+ for(let i=0; i<text.length; i+=1){
+   const ch = text.charCodeAt(i);
+   h1 ^= ch;
+   h1 = Math.imul(h1, 16777619);
+   h2 = Math.imul(h2 ^ ch, 1597334677);
+ }
+ return `${(h1 >>> 0).toString(36)}${(h2 >>> 0).toString(36)}`;
+}
+
+function getAiFeedbackStorageKey(feedbackKey=''){
+ const uid = auth?.currentUser?.uid || 'guest';
+ return `dupick_ai_feedback_once_${uid}_${String(feedbackKey || '').slice(0, 160)}`;
+}
+
+function getAiSubmittedFeedbackValue(feedbackKey=''){
+ if(!feedbackKey) return '';
+ try{ return String(localStorage.getItem(getAiFeedbackStorageKey(feedbackKey)) || ''); }catch(_error){ return ''; }
+}
+
+function isAiFeedbackAlreadySubmitted(feedbackKey=''){
+ return !!getAiSubmittedFeedbackValue(feedbackKey);
+}
+
+function markAiFeedbackSubmittedOnce(feedbackKey='', feedback='submitted'){
+ if(!feedbackKey) return;
+ try{ localStorage.setItem(getAiFeedbackStorageKey(feedbackKey), String(feedback || 'submitted')); }catch(_error){}
+}
+
+function unmarkAiFeedbackSubmittedOnce(feedbackKey=''){
+ if(!feedbackKey) return;
+ try{ localStorage.removeItem(getAiFeedbackStorageKey(feedbackKey)); }catch(_error){}
+}
+
+function buildAiAnswerFeedbackKey(payload={}){
+ const user = auth?.currentUser;
+ const question = normalizeAiFeedbackKeyPart(payload.question || '', 700);
+ const answerText = normalizeAiFeedbackKeyPart(payload.answerText || '', 1200);
+ return `answer_${user?.uid || 'guest'}_${hashAiFeedbackKey(`${question}||${answerText}`)}`;
+}
+
+function buildAiRecommendationFeedbackKey(payload={}){
+ const user = auth?.currentUser;
+ const targetId = normalizeAiFeedbackKeyPart(payload.targetId || payload.benefitId || '', 160);
+ const name = normalizeAiFeedbackKeyPart(payload.benefitName || payload.name || '', 160);
+ const category = normalizeAiFeedbackKeyPart(payload.category || '', 80);
+ const question = normalizeAiFeedbackKeyPart(payload.question || '', 500);
+ return `recommendation_${user?.uid || 'guest'}_${hashAiFeedbackKey(`${targetId}||${name}||${category}||${question}`)}`;
+}
+
+function findAiFeedbackButtonByValue(row, fallbackBtn, feedback=''){
+ if(!row || !feedback) return fallbackBtn;
+ const attr = fallbackBtn?.dataset?.aiAnswerFeedback !== undefined ? 'data-ai-answer-feedback' : 'data-ai-rec-feedback';
+ return row.querySelector(`[${attr}="${CSS.escape(String(feedback))}"]`) || fallbackBtn;
+}
+
+function applyAiFeedbackSubmittedUi(row, selectedBtn, feedback=''){
+ if(row) row.dataset.aiFeedbackSubmitted = 'true';
+ const buttons = row ? row.querySelectorAll('[data-ai-answer-feedback],[data-ai-rec-feedback]') : selectedBtn?.parentElement?.querySelectorAll('[data-ai-answer-feedback],[data-ai-rec-feedback]');
+ buttons?.forEach(other => {
+   if(other !== selectedBtn) other.classList.remove('selected');
+   other.disabled = true;
+   other.dataset.aiFeedbackSubmitted = 'true';
+   other.setAttribute('aria-disabled', 'true');
+ });
+ if(selectedBtn){
+   selectedBtn.classList.add('selected');
+   selectedBtn.dataset.aiFeedbackSubmitted = 'true';
+   selectedBtn.disabled = true;
+   selectedBtn.setAttribute('aria-disabled', 'true');
+   selectedBtn.innerHTML = '<span aria-hidden="true">✓</span>';
+   const isGood = feedback === 'good';
+   const isAnswer = !!selectedBtn.dataset.aiAnswerFeedback;
+   selectedBtn.setAttribute('aria-label', isAnswer ? (isGood ? '좋은 답변으로 반영됨' : '별로예요 의견 반영됨') : (isGood ? '좋은 추천으로 반영됨' : '별로예요 의견 반영됨'));
+   selectedBtn.title = selectedBtn.getAttribute('aria-label') || '반영됨';
+ }
+}
+
+function getAiFeedbackQuestionFromButton(btn){
+ try{
+   const row = btn?.closest?.('.ai-message');
+   let cur = row?.previousElementSibling || null;
+   while(cur){
+     if(cur.classList?.contains('ai-message') && cur.classList?.contains('user')){
+       const clone = cur.cloneNode(true);
+       clone.querySelectorAll('small,button,a,script,style').forEach(el => el.remove());
+       const text = String(clone.innerText || clone.textContent || '').replace(/\s+/g, ' ').trim();
+       if(text) return text;
+     }
+     cur = cur.previousElementSibling;
+   }
+ }catch(_error){}
+ return (typeof getCurrentAiQuestionText === 'function') ? getCurrentAiQuestionText() : '';
+}
+
+function getAiFeedbackAnswerText(btn){
+ try{
+   const row = btn?.closest?.('.ai-message');
+   const bubble = row?.querySelector?.('.ai-bubble') || btn?.closest?.('.ai-bubble');
+   if(!bubble) return '';
+   const clone = bubble.cloneNode(true);
+   clone.querySelectorAll('.ai-answer-feedback-row,.ai-rec-feedback-row,button,a,script,style').forEach(el => el.remove());
+   return String(clone.innerText || clone.textContent || '').replace(/\s+/g, ' ').trim().slice(0, 3000);
+ }catch(_error){ return ''; }
+}
+
+function buildAiAnswerFeedbackHtml(){
+ return `<div class="ai-answer-feedback-row" aria-label="AI 답변 피드백">
+   <span class="ai-answer-feedback-label">답변 평가</span>
+   <button class="ai-answer-feedback-btn good" type="button" data-ai-answer-feedback="good" aria-label="좋은 답변이에요" title="좋은 답변이에요"><span aria-hidden="true">👍</span></button>
+   <button class="ai-answer-feedback-btn bad" type="button" data-ai-answer-feedback="bad" aria-label="별로인 답변이에요" title="별로인 답변이에요"><span aria-hidden="true">👎</span></button>
+ </div>`;
+}
+
+function ensureAiAnswerFeedback(scope){
+ const root = scope || qs('#aiChatWindow');
+ if(!root) return;
+ const bubbles = root.matches?.('.ai-bubble') ? [root] : Array.from(root.querySelectorAll('.ai-bubble'));
+ bubbles.forEach((bubble) => {
+   if(!bubble || bubble.querySelector('.ai-answer-feedback-row')) return;
+   if(bubble.querySelector('.ai-thinking')) return;
+   if(!bubble.closest('.ai-message.bot')) return;
+   const text = String(bubble.innerText || bubble.textContent || '').replace(/\s+/g, '').trim();
+   if(!text || text.length < 8) return;
+   if(/입주민전용AI생활도우미|무엇을도와드릴까요/.test(text) && !bubble.querySelector('.ai-answer')) return;
+   bubble.insertAdjacentHTML('beforeend', buildAiAnswerFeedbackHtml());
+ });
+}
+
+async function sendAiAnswerFeedback(payload={}){
+ const user = auth?.currentUser;
+ if(!user || !db) return { ok:false, reason:'not_authenticated' };
+ const feedback = String(payload.feedback || '').toLowerCase();
+ const feedbackKey = String(payload.feedbackKey || buildAiAnswerFeedbackKey(payload));
+ const safeDocId = feedbackKey.replace(/[^a-zA-Z0-9_-]/g, '_').slice(0, 180);
+ try{
+   await setDoc(doc(db, 'ai_answer_feedback', safeDocId), {
+     uid: user.uid,
+     feedback,
+     feedbackKey,
+     rating: feedback === 'good' ? 'helpful' : 'not_helpful',
+     question: String(payload.question || '').slice(0, 1000),
+     answerText: String(payload.answerText || '').slice(0, 3000),
+     source: 'ai_answer_bubble',
+     reviewStatus: 'new',
+     actionStatus: feedback === 'bad' ? 'needs_review' : 'none',
+     createdAt: serverTimestamp()
+   });
+   if(feedback === 'bad'){
+     try{
+       const failedDocId = `answer_bad_${safeDocId}`.slice(0, 190);
+       await setDoc(doc(db, 'ai_failed_questions', failedDocId), {
+         uid: user.uid,
+         question: String(payload.question || '').slice(0, 1000),
+         answerText: String(payload.answerText || '').slice(0, 3000),
+         source: 'answer_feedback_bad',
+         feedbackKey,
+         status: 'new',
+         reviewStatus: 'new',
+         actionStatus: 'faq_candidate',
+         createdAt: serverTimestamp()
+       });
+     }catch(error){ console.warn('AI 실패 질문 후보 저장 실패 또는 이미 반영됨:', error); }
+   }
+   return { ok:true, feedbackKey, docId:safeDocId };
+ }catch(error){
+   console.warn('AI 답변 피드백 저장 실패 또는 이미 반영됨:', error);
+   return { ok:false, duplicate:true, feedbackKey, error };
+ }
+}
+
+async function logPersonalAssistantEvent(payload={}){
  if(!AI_ASSISTANT_LOG_URL) return;
  try{
  const idToken = await getAiIdTokenSafe();
@@ -10508,7 +10766,7 @@ function getAiAttachmentType(item={}){
  function mapAiBenefitsForQuestion(question='', answerText='', maxCount=4){
  try{
  return (state.benefits || [])
- .filter(item => item && item.id && (typeof isRecommendableBenefit !== 'function' || isRecommendableBenefit(item)))
+ .filter(item => item && item.id && (typeof isRecommendableBenefit !== 'function' || isRecommendableBenefit(item)) && isBenefitInRequestedCommercialZone(item, question))
  .map(item => scoreAiBenefitMatch(item, question, answerText))
  .filter(v => v.score >= 3)
  .sort((a,b) => b.score - a.score)
@@ -10534,7 +10792,7 @@ function getAiAttachmentType(item={}){
  const tokens = getAiSearchTokens(question);
  const qNorm = normalizeAiSearchText(question);
  const pool = [];
- (state.benefits || []).filter(item => !item || typeof isRecommendableBenefit !== 'function' || isRecommendableBenefit(item)).forEach(item => pool.push({ type:'benefit', item }));
+ (state.benefits || []).filter(item => !item || ((typeof isRecommendableBenefit !== 'function' || isRecommendableBenefit(item)) && isBenefitInRequestedCommercialZone(item, question))).forEach(item => pool.push({ type:'benefit', item }));
  (state.notices || []).forEach(item => pool.push({ type:'notice', item }));
  (state.aiKnowledge || []).forEach(item => pool.push({ type:item.type || 'ai', item }));
 
@@ -10636,7 +10894,7 @@ function getAiAttachmentType(item={}){
  const explicitRecommendation = /(혜택|할인|매장|가게|상가|추천|데이트|아이와|아이랑|아이하고|아이들과|자녀|키즈|부모님|부모|어르신|어른|시니어|노인|10대|십대|청소년|학생|20대|이십대|청년|젊은|30대|삼십대|40대|사십대|50대|오십대|60대|육십대|70대|칠십대|80대|팔십대|고령|데이트|혼밥|혼자|운동|헬스|필라테스|요가|스포츠|미용|헤어|네일|피부|뷰티|갈만한|갈만한곳|가기좋은|가기 좋은|점심|저녁|밥|카페|맛집|디저트|비오는날|비올때|눈|눈올때|눈이|비|맑음|흐림|추울때|더울때|날씨|가까운|근처|TOP5|TOP\s*5|탑5)/.test(qNorm);
  if(explicitRecommendation){
    const fallback = (state.benefits || [])
-     .filter(item => item && item.id && (typeof isRecommendableBenefit !== 'function' || isRecommendableBenefit(item)))
+     .filter(item => item && item.id && (typeof isRecommendableBenefit !== 'function' || isRecommendableBenefit(item)) && isBenefitInRequestedCommercialZone(item, question))
      .map(item => {
        const score = Number(item.popularScore || item.score || item.recommendScore || 0)
          + Number(item.favoriteCount || 0) * 2
@@ -11607,15 +11865,11 @@ function buildAiEnhancedAnswerHtml(finalText='', question='', retrySourceQuestio
  const aiDownloadButtonsHtml = isNoResultAnswer ? '' : buildAiDownloadButtonsHtml(downloadPayload.downloads);
  const safe = escapeHtml(cleaned).replace(/\n/g, '<br>');
  if(isNoResultAnswer){
- const noResultText = '등록된 안내를 찾지 못했어요.\n다시 보내기 버튼을 클릭 하시거나, 다른 표현으로 다시 질문해 주세요.';
+ const noResultText = '등록된 안내를 찾지 못했어요.\n다른 표현으로 다시 질문해 주세요.';
  const noResultSafe = escapeHtml(noResultText).replace(/\n/g, '<br>');
- const retryQuestion = String(retrySourceQuestion || question || '').trim();
  return `
  <div class="ai-answer ai-answer-upgrade ai-answer-no-result" data-ai-no-result="true">
  <div class="ai-answer-summary">${noResultSafe}</div>
- <div class="ai-state-action-row ai-no-result-action-row">
- <button class="ai-error-retry-btn" type="button" data-ai-error-retry="true" data-ai-retry-question="${escapeAttr(retryQuestion)}">↻ 다시 보내기</button>
- </div>
  <span class="ai-mode-pill upgraded">등록된 안내를 찾지 못했어요.</span>
  </div>`;
  }
@@ -11672,6 +11926,7 @@ function buildAiEnhancedAnswerHtml(finalText='', question='', retrySourceQuestio
  <button class="primary" type="button" data-ai-open-benefit-id="${escapeAttr(item.id)}">혜택 상세 보기</button>
  <button class="soft" type="button" data-view-link="map">지도에서 보기</button>
  </div>
+ ${buildAiRecommendationFeedbackHtml(item)}
  </div>`).join('');
  const hasAiKnowledgeAttachments = /class="ai-attachment-section"/.test(aiAttachmentHtml || '');
  // 혜택/매장/날씨 기반 추천 질문은 답변 문장에 공지/생활 안내 표현이 섞여도 카드가 보여야 합니다.
@@ -11773,20 +12028,16 @@ function buildAiEnhancedAnswerHtml(finalText='', question='', retrySourceQuestio
  const root = chatRoot || scope || document;
  if(!root) return;
  try{
-   const retrySelector = '[data-ai-error-retry], .ai-error-retry-btn';
-   const retryButtons = Array.from(root.querySelectorAll(retrySelector));
-   const internalRetries = retryButtons.filter((btn) => !!btn.closest('.ai-answer-no-result[data-ai-no-result="true"]'));
-   const keeper = internalRetries.length ? internalRetries[internalRetries.length - 1] : (retryButtons.length ? retryButtons[retryButtons.length - 1] : null);
-   retryButtons.forEach((btn) => {
-     if(btn !== keeper) btn.remove();
-   });
+   // AI no-result / server-error bubbles should not expose a resend button.
+   // Keeping a singleton retry button caused a floating "다시 보내기" button to remain under the AI answer.
+   root.querySelectorAll('[data-ai-error-retry], .ai-error-retry-btn').forEach((btn) => btn.remove());
    root.querySelectorAll('.ai-state-action-row, .ai-error-action-row, .ai-actions, .ai-retry-action-row').forEach((row) => {
      if(!row.querySelector('button, a, input, select, textarea')) row.remove();
    });
  }catch(_error){}
- }
+}
 
- function scheduleAiRetryButtonNormalize(scope){
+function scheduleAiRetryButtonNormalize(scope){
  try{
    const target = scope || qs('#aiChatWindow');
    normalizeAiErrorRetryButtons(target);
@@ -11851,6 +12102,36 @@ function bindAiAnswerActions(scope){
    normalizeAiErrorRetryButtons(qs('#aiChatWindow') || root);
  }catch(_error){}
  bindAiDownloadButtons(root);
+ ensureAiAnswerFeedback(root);
+ root.querySelectorAll('[data-ai-answer-feedback]').forEach(btn => {
+ if(btn.dataset.aiAnswerFeedbackBound === 'true') return;
+ btn.dataset.aiAnswerFeedbackBound = 'true';
+ btn.addEventListener('click', async (event) => {
+ event.preventDefault();
+ event.stopPropagation();
+ const row = btn.closest('.ai-answer-feedback-row');
+ const feedback = btn.dataset.aiAnswerFeedback || '';
+ const payload = {
+   feedback,
+   question: getAiFeedbackQuestionFromButton(btn),
+   answerText: getAiFeedbackAnswerText(btn)
+ };
+ const feedbackKey = buildAiAnswerFeedbackKey(payload);
+ payload.feedbackKey = feedbackKey;
+ const storedFeedback = getAiSubmittedFeedbackValue(feedbackKey);
+ if(btn.disabled || btn.dataset.aiFeedbackSubmitted === 'true' || row?.dataset?.aiFeedbackSubmitted === 'true' || storedFeedback){
+   const reflectedFeedback = storedFeedback || feedback;
+   applyAiFeedbackSubmittedUi(row, findAiFeedbackButtonByValue(row, btn, reflectedFeedback), reflectedFeedback);
+   return;
+ }
+ markAiFeedbackSubmittedOnce(feedbackKey, feedback);
+ applyAiFeedbackSubmittedUi(row, btn, feedback);
+ const result = await sendAiAnswerFeedback(payload);
+ if(!result?.ok && !result?.duplicate){
+   unmarkAiFeedbackSubmittedOnce(feedbackKey);
+ }
+ });
+});
  root.querySelectorAll('[data-ai-error-retry]').forEach(btn => {
    if(btn.dataset.aiRetryBound === 'true') return;
    btn.dataset.aiRetryBound = 'true';
@@ -11864,7 +12145,46 @@ function bindAiAnswerActions(scope){
      askAiAssistant(retryQuestion);
    });
  });
- root.querySelectorAll('[data-ai-dialog-question]').forEach(btn => {
+ 
+root.querySelectorAll('[data-ai-rec-feedback]').forEach(btn => {
+ if(btn.dataset.aiRecFeedbackBound === 'true') return;
+ btn.dataset.aiRecFeedbackBound = 'true';
+ btn.addEventListener('click', async (event) => {
+ event.preventDefault();
+ event.stopPropagation();
+ const row = btn.closest('.ai-rec-feedback-row');
+ const feedback = btn.dataset.aiRecFeedback || '';
+ const card = btn.closest('.ai-auto-card, .ai-benefit-card-auto, .ai-answer-section');
+ const benefitId = btn.dataset.aiRecId || card?.dataset?.id || '';
+ const benefitName = btn.dataset.aiRecName || card?.dataset?.aiRecName || '';
+ const category = btn.dataset.aiRecCategory || card?.dataset?.aiRecCategory || '';
+ const payload = {
+ action: feedback === 'good' ? 'recommendation_feedback_good' : 'recommendation_feedback_bad',
+ feedback,
+ targetType:'benefit',
+ benefitId,
+ targetId: benefitId,
+ benefitName,
+ category,
+ question: (typeof getCurrentAiQuestionText === 'function') ? getCurrentAiQuestionText() : '',
+ buttonLabel: btn.getAttribute('aria-label') || btn.textContent || ''
+ };
+ const feedbackKey = buildAiRecommendationFeedbackKey(payload);
+ payload.feedbackKey = feedbackKey;
+ payload.feedbackDocId = feedbackKey.replace(/[^a-zA-Z0-9_-]/g, '_').slice(0, 180);
+ const storedFeedback = getAiSubmittedFeedbackValue(feedbackKey);
+ if(btn.disabled || btn.dataset.aiFeedbackSubmitted === 'true' || row?.dataset?.aiFeedbackSubmitted === 'true' || storedFeedback){
+   const reflectedFeedback = storedFeedback || feedback;
+   applyAiFeedbackSubmittedUi(row, findAiFeedbackButtonByValue(row, btn, reflectedFeedback), reflectedFeedback);
+   return;
+ }
+ markAiFeedbackSubmittedOnce(feedbackKey, feedback);
+ applyAiFeedbackSubmittedUi(row, btn, feedback);
+ await sendAiRecommendationFeedback(payload);
+ });
+});
+
+root.querySelectorAll('[data-ai-dialog-question]').forEach(btn => {
  if(btn.dataset.aiDialogBound === 'true') return;
  btn.dataset.aiDialogBound = 'true';
  btn.addEventListener('click', (event) => {
@@ -11894,17 +12214,19 @@ function bindAiAnswerActions(scope){
  const benefitId = btn.dataset.aiOpenBenefitId || '';
  const item = (state.benefits || []).find(v => String(v.id) === String(benefitId));
  if(item){
- openDetail(item);
+   if(typeof isRecommendableBenefit === 'function' && !isRecommendableBenefit(item)){
+     openModalAlert('현재 추천 가능한 혜택이 아닙니다.');
+     return;
+   }
+   openDetail(item);
+   return;
+ }
+ // AI 추천 카드에서는 Firestore 단건 조회를 다시 시도하지 않습니다.
+ // 숨김/폐점/종료/비공개 혜택은 보안 규칙상 읽기 자체가 차단될 수 있어
+ // getDoc을 호출하면 "Missing or insufficient permissions" 팝업이 발생합니다.
+ // 현재 공개 목록(state.benefits)에 없으면 추천 불가로 조용히 안내합니다.
+ openModalAlert('현재 추천 가능한 혜택이 아닙니다.');
  return;
- }
- try{
- const snap = await getDoc(doc(db, BENEFITS_COLLECTION, benefitId));
- if(snap.exists()) openDetail(sanitizeBenefit(snap.data(), snap.id));
- else openModalAlert('해당 혜택 정보를 찾지 못했습니다.');
- }catch(error){
- console.error('AI 혜택 딥링크 열기 실패', error);
- openModalAlert('혜택을 여는 중 오류가 발생했습니다.');
- }
  });
  });
  root.querySelectorAll('[data-social-link][data-benefit-id]').forEach(link => {
@@ -12250,6 +12572,18 @@ function bindAiAnswerActions(scope){
  return item.link || '#';
  }
 
+ function buildAiRecommendationFeedbackHtml(item = {}){
+ const id = item.id || item.docId || '';
+ const name = item.name || item.title || item.storeName || '';
+ const category = item.category || '';
+ return `
+ <div class="ai-rec-feedback-row icon-only" aria-label="AI 추천 피드백">
+ <span class="ai-rec-feedback-label">추천 평가</span>
+ <button class="ai-rec-feedback-btn good" type="button" data-ai-rec-feedback="good" data-ai-rec-id="${escapeAttr(id)}" data-ai-rec-name="${escapeAttr(name)}" data-ai-rec-category="${escapeAttr(category)}" aria-label="추천이 잘 맞았어요" title="추천이 잘 맞았어요"><span aria-hidden="true">👍</span></button>
+ <button class="ai-rec-feedback-btn bad" type="button" data-ai-rec-feedback="bad" data-ai-rec-id="${escapeAttr(id)}" data-ai-rec-name="${escapeAttr(name)}" data-ai-rec-category="${escapeAttr(category)}" aria-label="추천이 별로예요" title="추천이 별로예요"><span aria-hidden="true">👎</span></button>
+ </div>`;
+ }
+
  function renderAiAutoCard(rawItem){
  const item = normalizeAiCardItem(rawItem);
  const isExternal = item.source === 'naver_local' || item.sourceType === 'external_place' || item.type === '외부매장';
@@ -12267,7 +12601,7 @@ function bindAiAnswerActions(scope){
  const mapLink = buildNaverMapLink(item);
 
  return `
- <div class="ai-auto-card ${isExternal ? 'external' : 'internal'}" data-id="${escapeHtml(item.id)}">
+ <div class="ai-auto-card ${isExternal ? 'external' : 'internal'}" data-id="${escapeHtml(item.id)}" data-ai-rec-name="${escapeAttr(item.name)}" data-ai-rec-category="${escapeAttr(item.category)}">
  <div class="ai-auto-card-head">
  <div>
  <div class="ai-auto-card-title">${escapeHtml(item.name)}</div>
@@ -12303,6 +12637,7 @@ function bindAiAnswerActions(scope){
  <a class="ai-card-btn soft" href="${escapeHtml(mapLink)}" target="_blank" rel="noopener">지도 열기</a>
  ${item.link ? `<a class="ai-card-btn primary" href="${escapeHtml(item.link)}" target="_blank" rel="noopener">정보 보기</a>` : ''}
  </div>
+ ${buildAiRecommendationFeedbackHtml(item)}
  </div>`;
  }
 
@@ -13226,7 +13561,7 @@ async function askAiAssistant(rawQuestion=''){
  if(aiWaitTimer1) clearTimeout(aiWaitTimer1);
  if(aiWaitTimer2) clearTimeout(aiWaitTimer2);
  console.error('AI Cloud Run 스트리밍 실패', error);
- const fallbackText = '등록된 안내를 찾지 못했어요.\n다시 보내기 버튼을 클릭 하시거나, 다른 표현으로 다시 질문해 주세요.';
+ const fallbackText = '등록된 안내를 찾지 못했어요.\n다른 표현으로 다시 질문해 주세요.';
  if(pendingBubble){
    pendingBubble.innerHTML = buildAiEnhancedAnswerHtml(fallbackText, question, displayQuestion);
    bindAiAnswerActions(pendingBubble);

@@ -1555,6 +1555,46 @@
             </div>
           </div>
         </div>
+
+        <div class="admin-view" id="view-ml-dashboard">
+          <div class="admin-groups">
+            <div class="ai-admin-hero ml-admin-hero">
+              <small>ML PERSONALIZATION</small>
+              <h3>ML 개인화 대시보드</h3>
+              <p>AI 추천 피드백, 사용자별 선호 프로필, 최근 학습 이벤트를 확인합니다.</p>
+            </div>
+            <div class="admin-card">
+              <div class="section-head" style="margin-bottom:12px;">
+                <h3 style="font-size:16px;">ML 요약</h3>
+                <button class="btn btn-soft" id="mlDashboardRefreshBtn" type="button">새로고침</button>
+              </div>
+              <div class="ml-dashboard-summary" id="mlDashboardSummary">
+                <div class="notice">ML 데이터를 불러오려면 새로고침을 눌러주세요.</div>
+              </div>
+            </div>
+            <div class="admin-card">
+              <div class="section-head" style="margin-bottom:12px;">
+                <h3 style="font-size:16px;">추천 피드백</h3>
+                <small id="mlFeedbackCount">0건</small>
+              </div>
+              <div class="mini-list" id="mlFeedbackList"></div>
+            </div>
+            <div class="admin-card">
+              <div class="section-head" style="margin-bottom:12px;">
+                <h3 style="font-size:16px;">사용자 ML 프로필</h3>
+                <small id="mlProfileCount">0명</small>
+              </div>
+              <div class="mini-list" id="mlProfileList"></div>
+            </div>
+            <div class="admin-card">
+              <div class="section-head" style="margin-bottom:12px;">
+                <h3 style="font-size:16px;">최근 학습 이벤트</h3>
+                <small id="mlEventCount">0건</small>
+              </div>
+              <div class="mini-list" id="mlEventList"></div>
+            </div>
+          </div>
+        </div>
         <div class="admin-view" id="view-ai">
           <div class="admin-groups">
             <div class="ai-admin-hero">
@@ -1726,6 +1766,11 @@
                 <span>
                   FAQ, 전자책, 가이드, 질문 로그를 관리합니다.
                 </span>
+              </button>
+              <button class="admin-all-card ml" data-admin-view="ml-dashboard" type="button">
+                <span class="admin-all-card-icon">🧠</span>
+                <strong>ML 대시보드</strong>
+                <small>추천 피드백과 개인화 프로필을 확인합니다.</small>
               </button>
               <button class="admin-all-card data" data-admin-view="menus" type="button">
                 <span class="admin-all-card-icon">
@@ -1987,6 +2032,11 @@
                   &rsaquo;
                 </span>
               </span>
+            </button>
+            <button class="gnb-menu-subitem gnb-tone-ml" data-admin-view="ml-dashboard" type="button">
+              <span class="gnb-sub-icon">🧠</span>
+              <span class="gnb-sub-copy"><b>ML 대시보드</b><small>추천 반응 / 개인화 프로필</small></span>
+              <span class="gnb-active-badge" hidden>현재</span>
             </button>
             <button class="gnb-menu-subitem gnb-tone-data" data-admin-view="dashboard-data" type="button">
               <span class="gnb-active-badge" hidden>
