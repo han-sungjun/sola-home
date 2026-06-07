@@ -125,9 +125,17 @@ body.upick-alert-open .app-alert-card{touch-action:auto!important;}
 @media (max-width:420px){
   .app-alert,dialog.app-alert{padding:16px!important;}
   .app-alert-card,dialog.app-alert .app-alert-card{border-radius:26px!important;padding:22px!important;}
-  .app-alert-actions{display:grid!important;grid-template-columns:1fr 1fr!important;align-items:center!important;}
-  .app-alert-actions.is-alert .app-alert-cancel{display:block!important;visibility:hidden!important;pointer-events:none!important;}
-  .app-alert-actions.is-alert .app-alert-confirm{grid-column:2!important;}
+  .app-alert-actions{
+    width:100%!important;
+    display:grid!important;
+    grid-template-columns:1fr 1fr!important;
+    align-items:center!important;
+    gap:10px!important;
+  }
+  /* 일반 알럿은 PC와 동일하게 확인 버튼을 하단 전체폭으로 표시합니다. */
+  .app-alert-actions.is-alert{grid-template-columns:1fr!important;}
+  .app-alert-actions.is-alert .app-alert-cancel{display:none!important;}
+  .app-alert-actions.is-alert .app-alert-confirm{grid-column:1 / -1!important;width:100%!important;}
   .app-alert-actions.is-confirm .app-alert-cancel{grid-column:1!important;visibility:visible!important;pointer-events:auto!important;}
   .app-alert-actions.is-confirm .app-alert-confirm{grid-column:2!important;}
   .app-alert-cancel,.app-alert-confirm{width:100%!important;min-width:0!important;display:flex!important;align-items:center!important;justify-content:center!important;}

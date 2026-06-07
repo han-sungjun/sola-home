@@ -29568,6 +29568,14 @@ body[data-loading-mode="public"] .shell{
 .ai-rec-feedback-row.icon-only .ai-rec-feedback-btn.bad.selected{background:#fff7ed;border-color:#fdba74;color:#c2410c}
 .ai-rec-feedback-row.icon-only .ai-rec-feedback-btn:disabled:not(.selected){opacity:.45}
 
+
+
+/* ===== AI answer copy/share actions ===== */
+.ai-answer-actions-row{display:flex;justify-content:flex-end;align-items:center;gap:6px;margin-top:10px;padding-top:8px;border-top:1px solid rgba(15,23,42,.08)}
+.ai-answer-action-btn{display:inline-flex;align-items:center;justify-content:center;gap:4px;min-height:28px;padding:0 9px;border:1px solid rgba(37,99,235,.14);border-radius:999px;background:#f8fbff;color:#2563eb;font-size:11px;font-weight:800;letter-spacing:-.03em;line-height:1;cursor:pointer;transition:transform .16s ease,box-shadow .16s ease,background .16s ease}
+.ai-answer-action-btn:hover{transform:translateY(-1px);box-shadow:0 8px 18px rgba(37,99,235,.08);background:#eef6ff}
+.ai-answer-actions-row + .ai-answer-feedback-row{margin-top:6px;padding-top:6px}
+
 /* ===== AI answer feedback icons ===== */
 .ai-answer-feedback-row{display:flex;justify-content:flex-end;align-items:center;gap:6px;margin-top:8px;padding-top:8px;border-top:1px solid rgba(15,23,42,.08)}
 .ai-answer-feedback-label{margin-right:auto;font-size:11px;font-weight:800;color:#64748b;letter-spacing:-.02em;white-space:nowrap}

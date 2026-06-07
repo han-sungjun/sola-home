@@ -9976,17 +9976,88 @@ function getAiFeedbackAnswerText(btn){
    const bubble = row?.querySelector?.('.ai-bubble') || btn?.closest?.('.ai-bubble');
    if(!bubble) return '';
    const clone = bubble.cloneNode(true);
-   clone.querySelectorAll('.ai-answer-feedback-row,.ai-rec-feedback-row,button,a,script,style').forEach(el => el.remove());
+   clone.querySelectorAll('.ai-answer-actions-row,.ai-answer-feedback-row,.ai-rec-feedback-row,button,a,script,style').forEach(el => el.remove());
    return String(clone.innerText || clone.textContent || '').replace(/\s+/g, ' ').trim().slice(0, 3000);
  }catch(_error){ return ''; }
 }
 
+function buildAiAnswerActionHtml(){
+ return `<div class="ai-answer-actions-row" aria-label="AI 답변 작업">
+   <button class="ai-answer-action-btn" type="button" data-ai-answer-copy="true" aria-label="응답 복사" title="응답 복사"><span aria-hidden="true">📋</span><span>응답 복사</span></button>
+   <button class="ai-answer-action-btn" type="button" data-ai-answer-share="true" aria-label="공유하기" title="공유하기"><span aria-hidden="true">↗</span><span>공유하기</span></button>
+ </div>`;
+}
+
 function buildAiAnswerFeedbackHtml(){
- return `<div class="ai-answer-feedback-row" aria-label="AI 답변 피드백">
+ return `${buildAiAnswerActionHtml()}<div class="ai-answer-feedback-row" aria-label="AI 답변 피드백">
    <span class="ai-answer-feedback-label">답변 평가</span>
    <button class="ai-answer-feedback-btn good" type="button" data-ai-answer-feedback="good" aria-label="좋은 답변이에요" title="좋은 답변이에요"><span aria-hidden="true">👍</span></button>
    <button class="ai-answer-feedback-btn bad" type="button" data-ai-answer-feedback="bad" aria-label="별로인 답변이에요" title="별로인 답변이에요"><span aria-hidden="true">👎</span></button>
  </div>`;
+}
+
+function getAiAnswerActionText(btn){
+ try{
+   return getAiFeedbackAnswerText(btn);
+ }catch(_error){ return ''; }
+}
+
+async function copyTextToClipboardSafe(text){
+ const value = String(text || '').trim();
+ if(!value) return false;
+ try{
+   if(navigator.clipboard?.writeText){
+     await navigator.clipboard.writeText(value);
+     return true;
+   }
+ }catch(_error){}
+ try{
+   const textarea = document.createElement('textarea');
+   textarea.value = value;
+   textarea.setAttribute('readonly', 'readonly');
+   textarea.style.position = 'fixed';
+   textarea.style.left = '-9999px';
+   textarea.style.top = '-9999px';
+   document.body.appendChild(textarea);
+   textarea.select();
+   const ok = document.execCommand('copy');
+   textarea.remove();
+   return !!ok;
+ }catch(_error){ return false; }
+}
+
+function showAiAnswerActionToast(message){
+ try{
+   if(typeof showToast === 'function') return showToast(message);
+   if(typeof showCommonToast === 'function') return showCommonToast(message);
+   if(typeof showAlert === 'function') return showAlert(message);
+ }catch(_error){}
+ console.log(message);
+}
+
+async function handleAiAnswerCopy(btn){
+ const text = getAiAnswerActionText(btn);
+ const ok = await copyTextToClipboardSafe(text);
+ showAiAnswerActionToast(ok ? 'AI 응답을 복사했어요.' : '복사할 응답을 찾지 못했어요.');
+}
+
+async function handleAiAnswerShare(btn){
+ const text = getAiAnswerActionText(btn);
+ if(!text){
+   showAiAnswerActionToast('공유할 응답을 찾지 못했어요.');
+   return;
+ }
+ const shareText = `더운정픽 AI 생활도우미 답변\n\n${text}`;
+ try{
+   if(navigator.share){
+     await navigator.share({ title:'더운정픽 AI 생활도우미', text: shareText });
+     return;
+   }
+ }catch(error){
+   if(error?.name === 'AbortError') return;
+ }
+ const ok = await copyTextToClipboardSafe(shareText);
+ showAiAnswerActionToast(ok ? '공유할 내용을 복사했어요.' : '공유를 준비하지 못했어요.');
 }
 
 function ensureAiAnswerFeedback(scope){
@@ -12103,6 +12174,24 @@ function bindAiAnswerActions(scope){
  }catch(_error){}
  bindAiDownloadButtons(root);
  ensureAiAnswerFeedback(root);
+ root.querySelectorAll('[data-ai-answer-copy]').forEach(btn => {
+   if(btn.dataset.aiAnswerCopyBound === 'true') return;
+   btn.dataset.aiAnswerCopyBound = 'true';
+   btn.addEventListener('click', (event) => {
+     event.preventDefault();
+     event.stopPropagation();
+     handleAiAnswerCopy(btn);
+   });
+ });
+ root.querySelectorAll('[data-ai-answer-share]').forEach(btn => {
+   if(btn.dataset.aiAnswerShareBound === 'true') return;
+   btn.dataset.aiAnswerShareBound = 'true';
+   btn.addEventListener('click', (event) => {
+     event.preventDefault();
+     event.stopPropagation();
+     handleAiAnswerShare(btn);
+   });
+ });
  root.querySelectorAll('[data-ai-answer-feedback]').forEach(btn => {
  if(btn.dataset.aiAnswerFeedbackBound === 'true') return;
  btn.dataset.aiAnswerFeedbackBound = 'true';
