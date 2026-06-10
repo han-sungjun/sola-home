@@ -22,6 +22,9 @@
   var MODAL_BELOW_ALERT_Z = '2147483000';
 
   function qs(sel, root){ return (root || document).querySelector(sel); }
+  function qsa(sel, root){
+    try{ return Array.prototype.slice.call((root || document).querySelectorAll(sel)); }catch(_){ return []; }
+  }
 
   function raiseAlertLayer(){
     if(!alertEl) return;
@@ -42,7 +45,7 @@
       }
     }catch(_){ }
     try{
-      document.querySelectorAll('.common-modal-overlay.du-layer,#settingsSuiteModal.du-layer,#accountEditModal.du-layer,#passwordChangeModal.du-layer').forEach(function(el){
+      qsa('.common-modal-overlay.du-layer,#settingsSuiteModal.du-layer,#accountEditModal.du-layer,#passwordChangeModal.du-layer').forEach(function(el){
         if(el === alertEl) return;
         el.style.setProperty('--du-layer-z', MODAL_BELOW_ALERT_Z, 'important');
         el.style.setProperty('z-index', MODAL_BELOW_ALERT_Z, 'important');
@@ -460,7 +463,7 @@
 
   // 로딩바가 남아 있어도 알럿 레이어가 항상 위에 오도록 최소 보정만 수행합니다.
   window.upickAlertOverLoadingFix = function(){
-    document.querySelectorAll('#globalLoadingBar,.global-loading,.page-loader').forEach(function(el){
+    qsa('#globalLoadingBar,.global-loading,.page-loader').forEach(function(el){
       el.style.pointerEvents = 'none';
       el.style.zIndex = '2147483000';
     });
@@ -473,6 +476,9 @@
 /* 더운정픽 모달/바텀시트 스크롤 잠금 - lightweight sync */
 (function(){
   'use strict';
+  function qsa(sel, root){
+    try{ return Array.prototype.slice.call((root || document).querySelectorAll(sel)); }catch(_){ return []; }
+  }
   var selectors = [
     '.common-modal-overlay.show','.common-modal-overlay.is-open','.common-modal-overlay[open]',
     '.modal-backdrop.show','.modal-backdrop.is-open','dialog[open]:not(#appAlert)',
@@ -500,7 +506,7 @@
   }
   function hasOpenLayer(){
     for(var i=0;i<selectors.length;i++){
-      var list = document.querySelectorAll(selectors[i]);
+      var list = qsa(selectors[i]);
       for(var j=0;j<list.length;j++) if(isVisible(list[j])) return true;
     }
     return false;
@@ -532,15 +538,21 @@
     // 전체 DOM subtree 감시는 공개앱에서 비용이 커서 body/html의 class 변경 중심으로만 감지합니다.
     new MutationObserver(requestSync).observe(document.body || document.documentElement, {attributes:true, attributeFilter:['class','style','open','hidden']});
     new MutationObserver(requestSync).observe(document.documentElement, {attributes:true, attributeFilter:['class','style']});
+    var bindLayerObserversScheduled = false;
     var bindLayerObservers = function(){
-      document.querySelectorAll('#settingsSuiteModal,#accountEditModal,#passwordChangeModal,#detailModal,#noticeModal,#calendarDayModal,#calendarReservationModal,#qrModal,#communityEditorModal,#communityDetailModal,#communityReportModal,#appAlert,.app-alert,.sheet-modal,.du-layer').forEach(function(el){
+      bindLayerObserversScheduled = false;
+      qsa('#settingsSuiteModal,#accountEditModal,#passwordChangeModal,#detailModal,#noticeModal,#calendarDayModal,#calendarReservationModal,#qrModal,#communityEditorModal,#communityDetailModal,#communityReportModal,#appAlert,.app-alert,.sheet-modal,.du-layer').forEach(function(el){
         if(!el || el.__upickLayerLockObserved) return;
         el.__upickLayerLockObserved = '1';
         new MutationObserver(requestSync).observe(el,{attributes:true,attributeFilter:['class','open','aria-hidden','style','hidden']});
       });
     };
     bindLayerObservers();
-    new MutationObserver(bindLayerObservers).observe(document.body || document.documentElement,{childList:true,subtree:true});
+    new MutationObserver(function(){
+        if(bindLayerObserversScheduled) return;
+        bindLayerObserversScheduled = true;
+        requestAnimationFrame(bindLayerObservers);
+      }).observe(document.body || document.documentElement,{childList:true,subtree:true});
   }
   if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', requestSync, {once:true});
   else requestSync();

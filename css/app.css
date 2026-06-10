@@ -29684,3 +29684,71 @@ body[data-loading-mode="public"].gnb-open nav.bottom-nav{
     max-width:var(--du-public-shell-width)!important;
   }
 }
+
+/* ===== v20260610-safe-shell-align-rollback =====
+   배포 깨짐 방지용: JS 좌표 강제 보정 제거 후 CSS 기준만 통일합니다.
+   상단 혜택 필터는 기존 sticky/fixed 흐름을 유지하고, 하단 네비만 .app 쉘과 동일 폭/중앙 기준으로 맞춥니다. */
+:root{
+  --du-public-shell-width:480px;
+  --du-public-shell-side-gap:22px;
+}
+html,body{
+  overflow-x:hidden!important;
+}
+body > .app{
+  width:min(calc(100% - var(--du-public-shell-side-gap)), var(--du-public-shell-width))!important;
+  max-width:var(--du-public-shell-width)!important;
+  margin-left:auto!important;
+  margin-right:auto!important;
+  box-sizing:border-box!important;
+}
+.bottom-nav,
+nav.bottom-nav,
+.mobile-bottom-nav,
+#bottomNav{
+  position:fixed!important;
+  left:50%!important;
+  right:auto!important;
+  width:min(calc(100% - var(--du-public-shell-side-gap)), var(--du-public-shell-width))!important;
+  max-width:var(--du-public-shell-width)!important;
+  margin:0!important;
+  transform:translateX(-50%)!important;
+  box-sizing:border-box!important;
+}
+body.gnb-open .bottom-nav,
+body.gnb-open nav.bottom-nav,
+body.gnb-open .mobile-bottom-nav,
+body.gnb-open #bottomNav{
+  transform:translateX(-50%) translateY(18px)!important;
+}
+#view-benefits .filter-sticky.is-fixed{
+  left:50%!important;
+  right:auto!important;
+  width:min(calc(100% - var(--du-public-shell-side-gap)), var(--du-public-shell-width))!important;
+  max-width:var(--du-public-shell-width)!important;
+  transform:translateX(-50%)!important;
+  box-sizing:border-box!important;
+}
+
+/* ===== v20260610-bottom-nav-body-lock-v1 CSS fallback =====
+   JS 적용 전에도 하단 네비 기준을 본문 쉘과 동일한 폭으로 통일합니다. */
+:root{
+  --du-public-shell-width:480px;
+  --du-public-shell-side-gap:22px;
+}
+.bottom-nav,
+nav.bottom-nav,
+.mobile-bottom-nav,
+#bottomNav{
+  width:min(calc(100% - var(--du-public-shell-side-gap)), var(--du-public-shell-width))!important;
+  max-width:var(--du-public-shell-width)!important;
+  box-sizing:border-box!important;
+}
+
+/* ===== v20260610-top-filter-body-lock-v2-safe fallback =====
+   JS 적용 전 기본값도 하단 네비와 같은 쉘 기준 폭으로 맞춥니다. */
+#view-benefits .filter-sticky.is-fixed{
+  width:min(calc(100% - var(--du-public-shell-side-gap, 22px)), var(--du-public-shell-width, 480px))!important;
+  max-width:var(--du-public-shell-width, 480px)!important;
+  box-sizing:border-box!important;
+}
