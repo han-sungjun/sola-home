@@ -4383,7 +4383,7 @@ function markerHtmlForItem(item){
  const label = getMapMarkerLabel(item);
  // 지도 마커는 한 줄 캡슐 구조를 유지합니다.
  // 상권 구분 + 예상 혼잡도 + 매장명을 모두 inline으로 배치해 높이 증가로 인한 깨짐을 막습니다.
- return '<div class="map-marker-store" title="'+escapeAttr(String(item?.name || label))+'">'+mapMarkerInlineBadgesHtml(item)+'<span class="map-marker-title"><img class="upick-svg-icon" src="/icons/internal/pin.svg" alt="" loading="lazy"> '+escapeHtml(label)+'</span></div>';
+ return '<div class="map-marker-store" data-map-benefit-id="'+escapeAttr(String(item?.id || ''))+'" role="button" tabindex="0" title="'+escapeAttr(String(item?.name || label))+'" aria-label="'+escapeAttr((item?.name || label)+' 혜택 상세 보기')+'">'+mapMarkerInlineBadgesHtml(item)+'<span class="map-marker-title"><img class="upick-svg-icon" src="/icons/internal/pin.svg" alt="" loading="lazy"> '+escapeHtml(label)+'</span></div>';
 }
 
 
@@ -5032,7 +5032,7 @@ function getDistanceSpreadMapPosition(nm, center, item, index, count, clusterIte
 function getSpreadMapPosition(nm, center, index, count){const fakeItem={lat:center.lat,lng:center.lng}; return getDistanceSpreadMapPosition(nm, center, fakeItem, index, count, []);}
  function renderSpreadClusterMarkers(nm, cluster){const center={lat:Number(cluster.lat),lng:Number(cluster.lng)}; const count=cluster.items.length; const sortedItems=[...(cluster.items||[])].sort((a,b)=>{const pa=getBenefitLatLng(a)||center; const pb=getBenefitLatLng(b)||center; const da=getDistanceMeters(center.lat,center.lng,pa.lat,pa.lng); const db=getDistanceMeters(center.lat,center.lng,pb.lat,pb.lng); return da-db;}); sortedItems.forEach((item,index)=>{const spreadPosition=getDistanceSpreadMapPosition(nm, center, item, index, count, sortedItems); const marker=new nm.Marker({position:spreadPosition,map:benefitMapInstance,icon:{content:markerHtmlForItem(item),anchor:new nm.Point(18,34)},zIndex:180+index}); nm.Event.addListener(marker,'click',()=>openDetail(item)); benefitMapMarkers.push(marker);});}
  function renderSpreadSamePositionMarkers(nm, cluster){renderSpreadClusterMarkers(nm, cluster);}
- function renderMapPlaceList(items=[]){const el=qs('#mapPlaceList'); if(!el)return; if(!items.length){el.innerHTML='<div class="panel empty">지도에 표시할 혜택이 없습니다.</div>';return;} const sorted=[...items].sort((a,b)=>{const da=getItemDistance(a),db=getItemDistance(b); if(Number.isFinite(da)&&Number.isFinite(db))return da-db; if(Number.isFinite(da))return -1; if(Number.isFinite(db))return 1; return String(a.name||'').localeCompare(String(b.name||''),'ko');}).slice(0,20); el.innerHTML=sorted.map(item=>{const d=getItemDistance(item); return '<div class="map-place-card" data-map-benefit-id="'+escapeHtml(item.id)+'"><div><strong>'+escapeHtml(item.name||'매장')+'</strong><span>'+escapeHtml(item.category||'기타')+(Number.isFinite(d)?' · '+formatDistance(d):'')+'</span>'+benefitContextBadgesHtml(item,{compact:true})+'</div><span>보기</span></div>';}).join(''); qsa('[data-map-benefit-id]').forEach(card=>{card.addEventListener('click',()=>{const item=state.benefits.find(b=>b.id===card.dataset.mapBenefitId); if(item)openDetail(item);});});}
+ function renderMapPlaceList(items=[]){const el=qs('#mapPlaceList'); if(!el)return; if(!items.length){el.innerHTML='<div class="panel empty">지도에 표시할 혜택이 없습니다.</div>';return;} const sorted=[...items].sort((a,b)=>{const da=getItemDistance(a),db=getItemDistance(b); if(Number.isFinite(da)&&Number.isFinite(db))return da-db; if(Number.isFinite(da))return -1; if(Number.isFinite(db))return 1; return String(a.name||'').localeCompare(String(b.name||''),'ko');}).slice(0,20); el.innerHTML=sorted.map(item=>{const d=getItemDistance(item); return '<div class="map-place-card" data-map-benefit-id="'+escapeHtml(item.id)+'" tabindex="0" role="button" aria-label="'+escapeHtml((item.name||'매장')+' 혜택 상세 보기')+'"><div><strong>'+escapeHtml(item.name||'매장')+'</strong><span>'+escapeHtml(item.category||'기타')+(Number.isFinite(d)?' · '+formatDistance(d):'')+'</span>'+benefitContextBadgesHtml(item,{compact:true})+'</div><span aria-hidden="true">보기</span></div>';}).join(''); qsa('[data-map-benefit-id]').forEach(card=>{const openMapCardDetail=()=>{const item=state.benefits.find(b=>b.id===card.dataset.mapBenefitId); if(item)openDetail(item, { returnFocusEl: card });}; card.addEventListener('click',openMapCardDetail); card.addEventListener('keydown',(event)=>{if(event.key==='Enter'||event.key===' '){event.preventDefault();openMapCardDetail();}});});}
  async function renderMapMode({ fitBounds=false } = {}){if(state.view!=='map')return; const countEl=qs('#mapModeCount'), mapEl=qs('#benefitMap'); if(!mapEl)return; const items=getMapModeItems(); if(countEl)countEl.textContent=items.length+'건'; renderMapPlaceList(items); if(!items.length){benefitMapExpandedClusterKey=''; setMapModeStatus('좌표가 등록된 혜택이 없습니다. 관리자 페이지에서 주소→좌표 자동 조회 후 저장해 주세요.','muted');return;} if(!NAVER_MAP_CLIENT_ID){setMapModeStatus('NAVER_MAP_CLIENT_ID를 입력하면 지도 모드를 사용할 수 있습니다.','error');return;} setMapModeStatus('지도를 준비하는 중입니다...','muted'); try{await loadNaverMapsSdk(); const nm=window.naver.maps; const first=getBenefitLatLng(items[0]); const center=state.userLocation?new nm.LatLng(state.userLocation.lat,state.userLocation.lng):new nm.LatLng(first.lat,first.lng); if(!benefitMapInstance){benefitMapInstance=new nm.Map('benefitMap',{center,zoom:15,minZoom:10,zoomControl:true,zoomControlOptions:{position:nm.Position.TOP_RIGHT}}); nm.Event.addListener(benefitMapInstance,'idle',()=>renderMapMarkers(false)); nm.Event.addListener(benefitMapInstance,'click',()=>{if(benefitMapExpandedClusterKey){benefitMapExpandedClusterKey=''; renderMapMarkers(false); setMapModeStatus('지도에 여러 매장을 표시했습니다. 가까운 매장은 숫자 묶음으로 표시됩니다.','muted');}});}else{benefitMapInstance.setCenter(center);} renderMapMarkers(fitBounds); setMapModeStatus('지도에 여러 매장을 표시했습니다. 가까운 매장은 숫자 묶음으로 표시됩니다.','muted');}catch(e){console.error('지도 모드 렌더링 실패',e); setMapModeStatus('지도 로딩에 실패했습니다. Client ID와 네이버 콘솔 Web 서비스 URL을 확인해 주세요.','error');}}
  function renderMapMarkers(fitBounds=false){if(!benefitMapInstance||!window.naver?.maps)return; const nm=window.naver.maps; const items=getMapModeItems(); clearNaverMarkers(); const bounds=new nm.LatLngBounds(); const fitPoints=[]; const zoom=benefitMapInstance.getZoom?Number(benefitMapInstance.getZoom()||15):15; const autoSpreadZoom=zoom>=17; if(state.userLocation){const userPos=new nm.LatLng(state.userLocation.lat,state.userLocation.lng); fitPoints.push(userPos); bounds.extend(userPos); benefitMapUserMarker=new nm.Marker({position:userPos,map:benefitMapInstance,icon:{content:'<div class="map-marker-user" title="현재 위치"></div>',anchor:new nm.Point(9,9)},zIndex:200});} const clusters=clusterMapItems(items,zoom); const hasExpandedCluster=clusters.some(c=>getSamePositionClusterKey(c.items)===benefitMapExpandedClusterKey); if(benefitMapExpandedClusterKey&&!hasExpandedCluster) benefitMapExpandedClusterKey=''; clusters.forEach(c=>{const position=new nm.LatLng(c.lat,c.lng); fitPoints.push(position); bounds.extend(position); const samePositionKey=getSamePositionClusterKey(c.items); if(c.items.length>1 && (autoSpreadZoom || (samePositionKey&&benefitMapExpandedClusterKey===samePositionKey))){renderSpreadClusterMarkers(nm,c); return;} const marker=new nm.Marker({position,map:benefitMapInstance,icon:{content:c.items.length>1?clusterHtml(c.items.length):markerHtmlForItem(c.items[0]),anchor:new nm.Point(c.items.length>1?22:18,c.items.length>1?22:34)},zIndex:c.items.length>1?120:100}); nm.Event.addListener(marker,'click',()=>{if(c.items.length>1){benefitMapExpandedClusterKey=samePositionKey||''; benefitMapInstance.setCenter(position); benefitMapInstance.setZoom(Math.max(17, Math.min(19, Number(benefitMapInstance.getZoom()||15)+1))); renderMapMarkers(false); setMapModeStatus('확대된 지도에서는 모든 클러스터가 실제 거리와 방향을 기준으로 자동으로 펼쳐집니다.','muted');}else openDetail(c.items[0]);}); benefitMapMarkers.push(marker);}); if(fitBounds&&fitPoints.length){if(fitPoints.length===1){benefitMapInstance.setCenter(fitPoints[0]); benefitMapInstance.setZoom(16);}else{try{benefitMapInstance.fitBounds(bounds,{top:50,right:36,bottom:50,left:36});}catch(_){benefitMapInstance.fitBounds(bounds);}}}}
  async function centerMapToMyLocation(){try{setMapModeStatus('현재 위치를 확인하는 중입니다...','muted'); await getReliableCurrentPosition({forceRefresh:false}); recalculateBenefitDistances(); if(benefitMapInstance&&state.userLocation&&window.naver?.maps){benefitMapInstance.setCenter(new window.naver.maps.LatLng(state.userLocation.lat,state.userLocation.lng)); benefitMapInstance.setZoom(15);} renderAll(); setTimeout(()=>renderMapMode({fitBounds:true}),60);}catch(e){console.warn('지도 현재 위치 확인 실패',e); setMapModeStatus('현재 위치 권한을 허용하면 내 주변 혜택을 지도에서 볼 수 있습니다.','error');}}
@@ -6429,6 +6429,188 @@ function forceCloseTransientImagePreviewLayers(){
 }
 window.__upickForceCloseTransientImagePreviewLayers = forceCloseTransientImagePreviewLayers;
 
+
+
+let upickModalReturnFocusState = { benefit:null, notice:null, common:null };
+window.upickModalReturnFocusState = upickModalReturnFocusState;
+
+const UPICK_MODAL_RETURN_FOCUS_INTERACTIVE_SELECTOR = [
+ '[data-benefit-id]',
+ '[data-popular-id]',
+ '[data-map-benefit-id]',
+ '[data-notice-id]',
+ '[data-ai-rec-id]',
+ '[data-ai-open-benefit-id]',
+ '[data-calendar-open-benefit]',
+ '[data-focus-return-token]',
+ '[data-upick-return-focus-token]',
+ '.card',
+ '.popular-item',
+ '.hot-now-item',
+ '.notice-item',
+ '.map-place-card',
+ '.benefit-card',
+ '.favorite-card',
+ '.map-marker-store',
+ '[role="button"]',
+ 'button',
+ 'a[href]',
+ '[tabindex]:not([tabindex="-1"])'
+].join(',');
+
+function upickNormalizeReturnFocusEl(el){
+ if(!el || el.nodeType !== 1) return null;
+ try{
+   const target = el.closest ? (el.closest(UPICK_MODAL_RETURN_FOCUS_INTERACTIVE_SELECTOR) || el) : el;
+   return target && target.isConnected ? target : null;
+ }catch(_){ return el && el.isConnected ? el : null; }
+}
+
+function upickRememberCommonReturnFocus(explicitEl = null, meta = {}){
+ const target = upickNormalizeReturnFocusEl(explicitEl);
+ if(!target) return null;
+ let token = target.dataset?.upickReturnFocusToken || target.dataset?.focusReturnToken || '';
+ if(!token){
+   token = upickMakeReturnFocusToken();
+   try{ target.dataset.upickReturnFocusToken = token; }catch(_){ try{ target.setAttribute('data-upick-return-focus-token', token); }catch(__){} }
+ }
+ upickModalReturnFocusState.common = {
+   element: target,
+   token,
+   selector: '',
+   view: state?.view || '',
+   type: meta?.type || '',
+   id: String(meta?.id || '')
+ };
+ return target;
+}
+
+function upickGetLastUserReturnFocusEl(){
+ const info = upickModalReturnFocusState.common || null;
+ if(!info) return null;
+ if(info.element && info.element.isConnected) return info.element;
+ if(info.token) return upickGetReturnFocusTokenTarget(info.token);
+ return null;
+}
+
+(function upickBindCommonModalReturnFocusCapture(){
+ if(window.__upickCommonModalReturnFocusCaptureBound) return;
+ window.__upickCommonModalReturnFocusCaptureBound = true;
+ const rememberFromEvent = (event) => {
+   const target = upickNormalizeReturnFocusEl(event?.target);
+   if(target) upickRememberCommonReturnFocus(target, { type:'event' });
+ };
+ if(document && document.addEventListener){
+   document.addEventListener('pointerdown', rememberFromEvent, true);
+   document.addEventListener('click', rememberFromEvent, true);
+   document.addEventListener('keydown', (event) => {
+     if(event.key !== 'Enter' && event.key !== ' ' && event.key !== 'Spacebar') return;
+     rememberFromEvent(event);
+   }, true);
+   document.addEventListener('focusin', rememberFromEvent, true);
+ }
+})();
+
+function upickCssEscape(value = ''){
+ try{ if(window.CSS && typeof window.CSS.escape === 'function') return window.CSS.escape(String(value || '')); }catch(_){ }
+ return String(value || '').replace(/[^a-zA-Z0-9_-]/g, '\\$&');
+}
+
+function upickGetModalReturnFocusSelector(type, id){
+ const safeId = upickCssEscape(id);
+ if(!safeId) return '';
+ if(type === 'notice') return `[data-notice-id="${safeId}"]`;
+ return [
+   `[data-benefit-id="${safeId}"]`,
+   `.popular-item[data-benefit-id="${safeId}"]`,
+   `.hot-now-item[data-benefit-id="${safeId}"]`,
+   `[data-map-benefit-id="${safeId}"]`,
+   `[data-ai-rec-id="${safeId}"]`,
+   `[data-calendar-open-benefit="${safeId}"]`
+ ].join(',');
+}
+
+function upickFindModalReturnFocusEl(type, id, explicitEl){
+ const explicitTarget = upickNormalizeReturnFocusEl(explicitEl);
+ if(explicitTarget) return explicitTarget;
+ const lastUserTarget = upickGetLastUserReturnFocusEl();
+ if(lastUserTarget && lastUserTarget.isConnected) return lastUserTarget;
+ try{
+   const active = document.activeElement;
+   if(active && active !== document.body){
+     const activeCard = upickNormalizeReturnFocusEl(active);
+     if(activeCard && activeCard.isConnected) return activeCard;
+   }
+ }catch(_){ }
+ const selector = upickGetModalReturnFocusSelector(type, id);
+ return selector ? document.querySelector(selector) : null;
+}
+
+function upickGetReturnFocusTokenTarget(token){
+ const safeToken = upickCssEscape(token);
+ if(!safeToken) return null;
+ return document.querySelector('[data-upick-return-focus-token="' + safeToken + '"]');
+}
+
+function upickMakeReturnFocusToken(){
+ return 'rf-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 9);
+}
+
+function upickRememberModalReturnFocus(type, item = {}, explicitEl = null){
+ const modalType = type === 'notice' ? 'notice' : 'benefit';
+ const id = String(item?.id || '').trim();
+ // 실제로 상세를 띄운 DOM이 전달되면 그것을 최우선으로 고정합니다.
+ // TOP5처럼 같은 benefitId가 여러 DOM에 반복될 때 fallback selector가 다른 DOM을 잡는 것을 방지합니다.
+ const explicitTarget = upickNormalizeReturnFocusEl(explicitEl);
+ const target = explicitTarget || upickFindModalReturnFocusEl(modalType, id, null);
+ let token = '';
+ if(target && target.isConnected){
+   token = target.dataset?.upickReturnFocusToken || '';
+   if(!token){
+     token = upickMakeReturnFocusToken();
+     try{ target.dataset.upickReturnFocusToken = token; }catch(_){ try{ target.setAttribute('data-upick-return-focus-token', token); }catch(__){} }
+   }
+ }
+ upickModalReturnFocusState[modalType] = {
+   id,
+   selector: upickGetModalReturnFocusSelector(modalType, id),
+   element: target && target.isConnected ? target : null,
+   token,
+   view: state?.view || '',
+   explicit: !!explicitTarget
+ };
+ if(target && target.isConnected) upickRememberCommonReturnFocus(target, { type: modalType, id });
+}
+
+function upickRestoreModalReturnFocus(type){
+ const modalType = type === 'notice' ? 'notice' : 'benefit';
+ const info = upickModalReturnFocusState[modalType];
+ if(!info) return false;
+ const selector = info.selector || upickGetModalReturnFocusSelector(modalType, info.id);
+ let target = info.element && info.element.isConnected ? info.element : null;
+ if(!target && info.token) target = upickGetReturnFocusTokenTarget(info.token);
+ if(!target && selector) target = document.querySelector(selector);
+ if(!target) return false;
+ try{
+   if(!target.hasAttribute('tabindex')) target.setAttribute('tabindex','0');
+   if(!target.getAttribute('role')) target.setAttribute('role','button');
+ }catch(_){ }
+ const focusOnce = () => {
+   try{
+     target.classList.add('upick-force-focus-ring');
+     target.focus({ preventScroll:true });
+   }catch(_){ try{ target.focus(); }catch(__){} }
+   setTimeout(() => { try{ target.classList.remove('upick-force-focus-ring'); }catch(_){} }, 1400);
+ };
+ try{ target.scrollIntoView({ block:'nearest', inline:'nearest', behavior:'auto' }); }catch(_){ }
+ requestAnimationFrame(focusOnce);
+ setTimeout(focusOnce, 80);
+ return true;
+}
+
+window.upickRememberCommonReturnFocus = upickRememberCommonReturnFocus;
+window.upickRestoreModalReturnFocus = upickRestoreModalReturnFocus;
+
 function closeDetailDialogPreservingPage(modal, options = {}){
  // v97: 혜택 상세/공지 상세 div 모달 닫힘 완료 뒤 후속 동작을 실행할 수 있게 통일합니다.
  // 방문 알림 저장 후 '캘린더에서 확인'처럼 화면 전환이 필요한 흐름에서,
@@ -6468,6 +6650,16 @@ function closeDetailDialogPreservingPage(modal, options = {}){
      try{ renderAll(); }catch(_){}
    }
    if(Number.isFinite(y) && !extraAfterClose) holdStablePageScrollY(y, 700);
+   const restoreFocusType = modal.id === 'noticeModal' ? 'notice' : (modal.id === 'detailModal' ? 'benefit' : '');
+   if(restoreFocusType && !extraAfterClose){
+     setTimeout(() => { try{ upickRestoreModalReturnFocus(restoreFocusType); }catch(_){} }, 120);
+     // TOP5 화면은 일반 혜택 카드와 같은 benefit id를 공유하므로,
+     // 일반 복귀 로직 뒤에 TOP5 카드로 한 번 더 확정 복귀시킵니다.
+     if(modal.id === 'detailModal' && String(state?.view || '') === 'top5'){
+       setTimeout(() => { try{ window.__upickRestoreTop5ReturnFocus && window.__upickRestoreTop5ReturnFocus(); }catch(_){} }, 260);
+       setTimeout(() => { try{ window.__upickRestoreTop5ReturnFocus && window.__upickRestoreTop5ReturnFocus(); }catch(_){} }, 480);
+     }
+   }
    if(extraAfterClose){
      setTimeout(() => { try{ extraAfterClose(); }catch(_){} }, 0);
    }
@@ -6555,7 +6747,8 @@ function renderBenefitDetailBody(item = {}){
  function openNotice(item, options = {}){
  if(!item) return;
  const pageScrollY = getStablePageScrollY();
- const { skipUrlUpdate = false } = options;
+ const { skipUrlUpdate = false, returnFocusEl = null } = options;
+ upickRememberModalReturnFocus('notice', item, returnFocusEl);
  if(!skipUrlUpdate && item?.id) updateCleanDeepLinkUrl('notice', item.id);
 
  const modal = qs('#noticeModal');
@@ -6615,13 +6808,13 @@ ${item.content || ''}`);
 
  function openNoticeFromList(item, options = {}){
  if(!item) return;
- const { moveToNoticeView = false } = options;
+ const { moveToNoticeView = false, returnFocusEl = null } = options;
 
  if(moveToNoticeView && state.view !== 'notices'){
  changeView('notices');
  setTimeout(() => {
  scrollToNoticeCard(item.id);
- openNotice(item);
+ openNotice(item, { returnFocusEl });
  }, 120);
  return;
  }
@@ -6705,7 +6898,7 @@ ${item.content || ''}`);
  el.dataset.noticeId = item.id;
  el.innerHTML = noticeCardTemplate(item);
  makeKeyboardClickable(el, `공지 상세 열기: ${item.title || item.name || '공지'}`);
- el.onclick = () => openNoticeFromList(item);
+ el.onclick = () => openNoticeFromList(item, { returnFocusEl: el });
  listEl.appendChild(el);
  });
  }
@@ -6723,7 +6916,9 @@ ${item.content || ''}`);
  el.dataset.noticeId = item.id;
  el.innerHTML = noticeCardTemplate(item);
  makeKeyboardClickable(el, `공지 상세 열기: ${item.title || item.name || '공지'}`);
- el.onclick = () => openNoticeFromList(item, { moveToNoticeView:true });
+ // 홈의 최근 공지는 전체 공지 탭으로 이동하지 않고 현재 홈 DOM에서 바로 상세를 엽니다.
+ // 그래야 닫을 때 실제로 상세를 띄운 홈 최근 공지 카드로 포커스가 복귀합니다.
+ el.onclick = () => openNotice(item, { returnFocusEl: el });
  homeListEl.appendChild(el);
  });
  }
@@ -7496,7 +7691,7 @@ ${item.content || ''}`);
 
  panel.classList.remove('hidden');
  list.innerHTML = items.map((item, index) => `
- <article class="hot-now-item" data-benefit-id="${escapeHtml(item.id)}">
+ <article class="hot-now-item" data-benefit-id="${escapeHtml(item.benefit?.id || item.id)}" data-popular-id="${escapeHtml(item.id || '')}" data-return-focus-scope="top5" data-return-focus-key="${escapeHtml(item.benefit?.id || item.id || '')}">
  <div class="hot-now-left">
  <div class="hot-now-rank">${index + 1}</div>
  <div class="hot-now-copy">
@@ -7513,10 +7708,22 @@ ${item.content || ''}`);
 
  list.querySelectorAll('.hot-now-item').forEach((el) => {
  const id = el.dataset.benefitId;
- const item = items.find((v) => v.id === id);
+ const popularId = el.dataset.popularId;
+ const item = items.find((v) => String(v.benefit?.id || v.id || '') === String(id || '') || String(v.id || '') === String(popularId || ''));
  makeKeyboardClickable(el, `인기 혜택 상세 열기: ${item?.name || item?.benefit?.name || getMapMarkerLabel(item)}`);
  el.onclick = () => {
- if(item?.benefit) openDetail(item.benefit);
+ if(item?.benefit){
+   try{
+     window.__upickTop5ReturnFocusState = {
+       element: el,
+       benefitId: String(item.benefit?.id || item.id || ''),
+       popularId: String(item.id || ''),
+       returnFocusKey: String(item.benefit?.id || item.id || ''),
+       kind: 'hot-now-item'
+     };
+   }catch(_){ }
+   openDetail(item.benefit, { returnFocusEl: el });
+ }
  };
  });
  }
@@ -7535,6 +7742,12 @@ ${item.content || ''}`);
  const row = document.createElement('article');
  const motionClass = getPopularRowMotionClass(item);
  row.className = `popular-item rank-${rank} ${motionClass}`.trim();
+ // v86.1: TOP5는 popular stat id와 실제 benefit id가 다를 수 있어
+ // 상세 팝업 닫기 후 포커스 복귀 selector가 실제 혜택 id로 찾을 수 있게 benefit id를 우선 저장합니다.
+ row.dataset.benefitId = String(item.benefit?.id || item.id || '');
+ row.dataset.popularId = String(item.id || '');
+ row.dataset.returnFocusScope = 'top5';
+ row.dataset.returnFocusKey = String(item.benefit?.id || item.id || '');
  row.innerHTML = `
  <div class="popular-rank-wrap">
  ${getRankBadge(rank)}
@@ -7546,7 +7759,7 @@ ${item.content || ''}`);
  ${item.trendText ? `<span class="popular-trend ${item.trendClass || 'same'}">${escapeHtml(item.trendText)}</span>` : ''}
  ${item.isShareBest ? '<span class="share-best-badge"><img class="share-best-icon" src="/icons/internal/share-best.svg" alt="" loading="lazy" decoding="async"><span>공유 BEST</span></span>' : ''}
  </div>
- ${rank === 1 ? '<div class="top1-urgent">HOT 지금 클릭이 가장 많은 혜택입니다</div><div class="top1-cta"><button type="button" class="top1-btn">혜택 바로보기</button></div>' : ''}
+ ${rank === 1 ? '<div class="top1-urgent">HOT 지금 클릭이 가장 많은 혜택입니다</div><div class="top1-cta"><button type="button" class="top1-btn" data-benefit-id="'+escapeHtml(item.benefit?.id || item.id || '')+'" data-popular-id="'+escapeHtml(item.id || '')+'" data-return-focus-scope="top5" data-return-focus-kind="top1-button" data-return-focus-key="'+escapeHtml(item.benefit?.id || item.id || '')+'">혜택 바로보기</button></div>' : ''}
  ${renderPopularDetail(item)}
  </div>
  <div class="popular-score">
@@ -7555,12 +7768,37 @@ ${item.content || ''}`);
  </div>
  `;
  makeKeyboardClickable(row, `인기 매장 상세 열기: ${item.name || getMapMarkerLabel(item)}`);
- row.onclick = () => {
+ const rememberTop5ReturnFocus = (trigger) => {
+   try{
+     window.__upickTop5ReturnFocusState = {
+       element: trigger,
+       benefitId: String(item.benefit?.id || item.id || ''),
+       popularId: String(item.id || ''),
+       returnFocusKey: String(item.benefit?.id || item.id || ''),
+       kind: trigger?.classList?.contains('top1-btn') ? 'top1-button' : (trigger?.classList?.contains('hot-now-item') ? 'hot-now-item' : 'popular-card')
+     };
+   }catch(_){ }
+ };
+ row.onclick = (event) => {
  if(item.benefit){
- openDetail(item.benefit);
+   const trigger = event?.currentTarget || row;
+   rememberTop5ReturnFocus(trigger);
+   openDetail(item.benefit, { returnFocusEl: trigger });
  }
  };
  wrap.appendChild(row);
+ const top1Btn = row.querySelector('.top1-btn');
+ if(top1Btn){
+   top1Btn.addEventListener('click', (event) => {
+     event.preventDefault();
+     event.stopPropagation();
+     if(typeof event.stopImmediatePropagation === 'function') event.stopImmediatePropagation();
+     if(!item.benefit) return;
+     const trigger = event.currentTarget || top1Btn;
+     rememberTop5ReturnFocus(trigger);
+     openDetail(item.benefit, { returnFocusEl: trigger });
+   });
+ }
  const scoreTarget = Number(item.popularScore ?? item.score ?? 0);
  const countEl = row.querySelector('.popular-count');
  if(countEl){
@@ -7722,10 +7960,11 @@ ${item.content || ''}`);
  const card=document.createElement('article');
  const topRank=getBenefitTopRank(item);
  card.className=`card ${benefitCardStatusClass(item)} ${topRank ? `top-rank-${topRank}` : ''}`;
+ card.dataset.benefitId = String(item.id || '');
  card.innerHTML=cardTemplate(item,favorites.has(item.id));
  makeKeyboardClickable(card, `혜택 상세 열기: ${item.name || getMapMarkerLabel(item)}`);
- card.onclick=()=>{increaseStat(item.id, item.name, 'cardClickCount');logBenefitEvent(item.id, 'card_click');openDetail(item);};
- card.querySelector('.detail-btn')?.addEventListener('click',(e)=>{e.stopPropagation();openDetail(item);});
+ card.onclick=()=>{increaseStat(item.id, item.name, 'cardClickCount');logBenefitEvent(item.id, 'card_click');openDetail(item, { returnFocusEl: card });};
+ card.querySelector('.detail-btn')?.addEventListener('click',(e)=>{e.stopPropagation();openDetail(item, { returnFocusEl: card });});
  card.querySelectorAll('.fav-btn').forEach((btn)=>{
  btn.addEventListener('click',(e)=>{e.stopPropagation();toggleFavorite(item.id, item.name);});
  });
@@ -8039,7 +8278,7 @@ ${item.content || ''}`);
        detailModal.dataset.openedFromCalendarDay = '1';
      }
    }catch(_){}
-   openDetail(item);
+   openDetail(item, { returnFocusEl: btn });
    try{
      if(shouldStackOverDay && detailModal){
        requestAnimationFrame(() => {
@@ -9219,7 +9458,8 @@ function openCalendarReservationModal(item={}){
 
  function openDetail(item, options = {}){
  const pageScrollY = getStablePageScrollY();
- const { skipUrlUpdate = false } = options;
+ const { skipUrlUpdate = false, returnFocusEl = null } = options;
+ upickRememberModalReturnFocus('benefit', item, returnFocusEl);
  if(!skipUrlUpdate && item?.id) updateCleanDeepLinkUrl('benefit', item.id);
  increaseStat(item.id, item.name, 'detailViewCount');
  logBenefitEvent(item.id, 'detail_view');
@@ -15994,4 +16234,175 @@ try { window.syncDevBadgeVisibility && window.syncDevBadgeVisibility(); } catch 
     openFilterSheet:openDuFilterSheet,
     closeFilterSheet:closeDuFilterSheet
   });
+})();
+
+// v86.5: TOP5 detail modal return-focus hardening
+// TOP5 안에서 상세를 실제로 연 DOM(예: TOP1의 혜택 바로보기 버튼, 지금 뜨는 매장 행, 일반 TOP5 카드)을 그대로 저장하고 복귀합니다.
+(function upickTop5ModalReturnFocusHardening(){
+  const top5FocusState = { element:null, benefitId:'', popularId:'', returnFocusKey:'', kind:'', token:'', wasDetailOpen:false };
+
+  function cssEscape(value = ''){
+    try{ if(window.CSS && typeof window.CSS.escape === 'function') return window.CSS.escape(String(value || '')); }catch(_){ }
+    return String(value || '').replace(/[^a-zA-Z0-9_-]/g, '\\$&');
+  }
+
+  function isTop5VisibleTarget(el){
+    if(!el || !el.isConnected) return false;
+    const view = document.getElementById('view-top5');
+    if(view && view.classList.contains('hidden')) return false;
+    if(!el.closest || !el.closest('#view-top5, #popularList, #hotNowList')) return false;
+    try{ const rect = el.getBoundingClientRect(); if(rect.width <= 0 || rect.height <= 0) return false; }catch(_){ }
+    return true;
+  }
+
+  function getTop5Trigger(target){
+    if(!target || !target.closest) return null;
+    const buttonTrigger = target.closest('#view-top5 .top1-btn, #popularList .top1-btn');
+    if(buttonTrigger && isTop5VisibleTarget(buttonTrigger)) return buttonTrigger;
+    const card = target.closest('#hotNowList .hot-now-item, #popularList .popular-item, #view-top5 .hot-now-item, #view-top5 .popular-item');
+    return card && isTop5VisibleTarget(card) ? card : null;
+  }
+
+  function readIdsFromTop5Target(target){
+    const isButton = !!target?.closest?.('#view-top5 .top1-btn, #popularList .top1-btn');
+    const carrier = isButton ? target.closest('#view-top5 .top1-btn, #popularList .top1-btn') : (target?.closest?.('#hotNowList .hot-now-item, #popularList .popular-item, #view-top5 .hot-now-item, #view-top5 .popular-item') || target);
+    return {
+      benefitId: String(carrier?.dataset?.benefitId || carrier?.getAttribute?.('data-benefit-id') || '').trim(),
+      popularId: String(carrier?.dataset?.popularId || carrier?.getAttribute?.('data-popular-id') || '').trim(),
+      returnFocusKey: String(carrier?.dataset?.returnFocusKey || carrier?.getAttribute?.('data-return-focus-key') || '').trim(),
+      kind: isButton
+        ? 'top1-button'
+        : (String(carrier?.dataset?.returnFocusKind || carrier?.getAttribute?.('data-return-focus-kind') || '').trim()
+          || (carrier?.classList?.contains('hot-now-item') ? 'hot-now-item' : (carrier?.classList?.contains('popular-item') ? 'popular-card' : '')))
+    };
+  }
+
+  function rememberTop5Trigger(target){
+    const trigger = getTop5Trigger(target);
+    if(!trigger) return;
+    const ids = readIdsFromTop5Target(trigger);
+    top5FocusState.element = trigger;
+    top5FocusState.benefitId = ids.benefitId;
+    top5FocusState.popularId = ids.popularId;
+    top5FocusState.returnFocusKey = ids.returnFocusKey || ids.benefitId || ids.popularId;
+    top5FocusState.kind = ids.kind || (trigger.classList?.contains('top1-btn') ? 'top1-button' : '');
+    top5FocusState.token = String(trigger.dataset?.upickReturnFocusToken || trigger.dataset?.focusReturnToken || '').trim();
+    window.__upickTop5ReturnFocusState = {
+      element: trigger,
+      benefitId: top5FocusState.benefitId,
+      popularId: top5FocusState.popularId,
+      returnFocusKey: top5FocusState.returnFocusKey,
+      kind: top5FocusState.kind,
+      token: top5FocusState.token
+    };
+  }
+
+  function syncExternalState(){
+    const external = window.__upickTop5ReturnFocusState || null;
+    if(!external || typeof external !== 'object') return;
+    if(external.element && isTop5VisibleTarget(external.element)) top5FocusState.element = external.element;
+    if(external.benefitId) top5FocusState.benefitId = String(external.benefitId).trim();
+    if(external.popularId) top5FocusState.popularId = String(external.popularId).trim();
+    if(external.returnFocusKey) top5FocusState.returnFocusKey = String(external.returnFocusKey).trim();
+    if(external.kind) top5FocusState.kind = String(external.kind).trim();
+    if(external.token) top5FocusState.token = String(external.token).trim();
+  }
+
+  function findTop5Target(){
+    syncExternalState();
+    try{
+      const info = window.upickModalReturnFocusState?.benefit || upickModalReturnFocusState?.benefit || null;
+      if(info){
+        const exact = info.element && info.element.isConnected ? info.element : (info.token ? upickGetReturnFocusTokenTarget(info.token) : null);
+        const exactTrigger = getTop5Trigger(exact) || (isTop5VisibleTarget(exact) ? exact : null);
+        if(exactTrigger) return exactTrigger;
+      }
+    }catch(_){ }
+    if(isTop5VisibleTarget(top5FocusState.element)) return top5FocusState.element;
+    if(top5FocusState.token){
+      const byToken = document.querySelector('[data-upick-return-focus-token="' + cssEscape(top5FocusState.token) + '"]');
+      if(isTop5VisibleTarget(byToken)) return byToken;
+    }
+    const selectors = [];
+    const keys = [top5FocusState.returnFocusKey, top5FocusState.benefitId, top5FocusState.popularId].map((v) => String(v || '').trim()).filter(Boolean);
+    keys.forEach((key) => {
+      const id = cssEscape(key);
+      if(top5FocusState.kind === 'top1-button'){
+        selectors.push(`#popularList .top1-btn[data-return-focus-key="${id}"]`);
+        selectors.push(`#popularList .top1-btn[data-benefit-id="${id}"]`);
+        selectors.push(`#popularList .popular-item[data-return-focus-key="${id}"] .top1-btn`);
+        selectors.push(`#popularList .popular-item[data-benefit-id="${id}"] .top1-btn`);
+      }else if(top5FocusState.kind === 'popular-card'){
+        selectors.push(`#popularList .popular-item[data-return-focus-key="${id}"]`);
+        selectors.push(`#popularList .popular-item[data-benefit-id="${id}"]`);
+        selectors.push(`#popularList .popular-item[data-popular-id="${id}"]`);
+      }else if(top5FocusState.kind === 'hot-now-item'){
+        selectors.push(`#hotNowList .hot-now-item[data-return-focus-key="${id}"]`);
+        selectors.push(`#hotNowList .hot-now-item[data-benefit-id="${id}"]`);
+        selectors.push(`#hotNowList .hot-now-item[data-popular-id="${id}"]`);
+      }
+      // kind가 없거나 위 selector가 렌더링 변경으로 실패할 때만 전체 fallback을 사용합니다.
+      selectors.push(`#popularList .popular-item[data-return-focus-key="${id}"]`);
+      selectors.push(`#popularList .popular-item[data-benefit-id="${id}"]`);
+      selectors.push(`#popularList .popular-item[data-popular-id="${id}"]`);
+      selectors.push(`#hotNowList .hot-now-item[data-return-focus-key="${id}"]`);
+      selectors.push(`#hotNowList .hot-now-item[data-benefit-id="${id}"]`);
+      selectors.push(`#hotNowList .hot-now-item[data-popular-id="${id}"]`);
+    });
+    for(const selector of selectors){
+      const found = document.querySelector(selector);
+      if(isTop5VisibleTarget(found)) return found;
+    }
+    return null;
+  }
+
+  function restoreTop5Focus(){
+    const target = findTop5Target();
+    if(!target) return false;
+    try{
+      if(!target.hasAttribute('tabindex')) target.setAttribute('tabindex', '0');
+      if(!target.getAttribute('role') && target.tagName !== 'BUTTON') target.setAttribute('role', 'button');
+      target.classList.add('upick-force-focus-ring');
+      target.scrollIntoView({ block:'nearest', inline:'nearest', behavior:'auto' });
+    }catch(_){ }
+    const focusTarget = () => {
+      try{ target.classList.add('upick-force-focus-ring'); target.focus({ preventScroll:true }); }
+      catch(_){ try{ target.focus(); }catch(__){ } }
+    };
+    requestAnimationFrame(focusTarget);
+    setTimeout(focusTarget, 80);
+    setTimeout(focusTarget, 220);
+    setTimeout(() => { try{ target.classList.remove('upick-force-focus-ring'); }catch(_){ } }, 1600);
+    return true;
+  }
+
+  function isDetailModalOpen(){
+    const modal = document.getElementById('detailModal');
+    if(!modal) return false;
+    return modal.hasAttribute('open') || modal.classList.contains('show') || modal.classList.contains('is-open') || modal.getAttribute('aria-hidden') === 'false';
+  }
+
+  function handleDetailModalStateChange(){
+    const isOpen = isDetailModalOpen();
+    if(top5FocusState.wasDetailOpen && !isOpen && (top5FocusState.element || top5FocusState.benefitId || top5FocusState.popularId || window.__upickTop5ReturnFocusState)){
+      setTimeout(restoreTop5Focus, 120); setTimeout(restoreTop5Focus, 320); setTimeout(restoreTop5Focus, 520);
+    }
+    top5FocusState.wasDetailOpen = isOpen;
+  }
+
+  document.addEventListener('pointerdown', (event) => rememberTop5Trigger(event.target), true);
+  document.addEventListener('click', (event) => rememberTop5Trigger(event.target), true);
+  document.addEventListener('keydown', (event) => { if(event.key !== 'Enter' && event.key !== ' ') return; rememberTop5Trigger(event.target); }, true);
+  document.addEventListener('close', (event) => { if(event.target && event.target.id === 'detailModal'){ setTimeout(restoreTop5Focus, 120); setTimeout(restoreTop5Focus, 320); setTimeout(restoreTop5Focus, 520); } }, true);
+
+  function bindObserver(){
+    const modal = document.getElementById('detailModal');
+    if(!modal || modal.__upickTop5ReturnFocusObserved) return;
+    modal.__upickTop5ReturnFocusObserved = true;
+    top5FocusState.wasDetailOpen = isDetailModalOpen();
+    if(window.MutationObserver){ new MutationObserver(handleDetailModalStateChange).observe(modal, { attributes:true, attributeFilter:['open','class','aria-hidden','style'] }); }
+  }
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', bindObserver, { once:true });
+  else bindObserver();
+  window.__upickRestoreTop5ReturnFocus = restoreTop5Focus;
 })();

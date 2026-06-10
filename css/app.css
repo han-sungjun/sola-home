@@ -29594,3 +29594,93 @@ body[data-loading-mode="public"] .shell{
 .ai-answer-feedback-row[data-ai-feedback-submitted="true"] .ai-answer-feedback-btn:not(.selected){
   opacity:.45;
 }
+
+
+/* v86: 지도 탭 혜택 카드 접근성 포커스링 복구 */
+.map-place-card{
+  position:relative;
+  outline:none;
+}
+.map-place-card:focus{
+  outline:none;
+}
+.map-place-card:focus-visible,
+.map-place-card.upick-force-focus-ring{
+  border-color:#2563eb !important;
+  outline:3px solid rgba(37,99,235,.95) !important;
+  outline-offset:3px !important;
+  box-shadow:0 0 0 6px rgba(37,99,235,.14), var(--shadow) !important;
+  z-index:2;
+}
+.map-place-card:focus-visible > span:last-child,
+.map-place-card.upick-force-focus-ring > span:last-child{
+  color:#1d4ed8;
+  font-weight:900;
+}
+
+/* v86 focus restore: detail/notice modal close returns focus to the opener card */
+.card.upick-force-focus-ring,
+.notice-item.upick-force-focus-ring,
+.popular-item.upick-force-focus-ring,
+.hot-now-item.upick-force-focus-ring,
+.map-place-card.upick-force-focus-ring,
+[data-benefit-id].upick-force-focus-ring,
+[data-notice-id].upick-force-focus-ring,
+[data-map-benefit-id].upick-force-focus-ring {
+  outline: 3px solid #2563eb !important;
+  outline-offset: 3px !important;
+  box-shadow: 0 0 0 6px rgba(37, 99, 235, 0.14), var(--shadow) !important;
+}
+
+.card:focus-visible,
+.notice-item:focus-visible,
+.popular-item:focus-visible,
+.hot-now-item:focus-visible {
+  outline: 3px solid #2563eb !important;
+  outline-offset: 3px !important;
+  box-shadow: 0 0 0 6px rgba(37, 99, 235, 0.14), var(--shadow) !important;
+}
+
+/* ===== v20260609-public-shell-width-final-v2 =====
+   공개앱 외곽 쉘과 하단 네비 기준 폭을 동일하게 고정합니다.
+   body 폭 기준이 아니라 실제 .app 쉘 DOM 폭을 기준으로 맞춰서
+   PC 스크롤바/DevTools 환경에서도 오른쪽 빈 영역으로 인한 어긋남을 막습니다. */
+:root{
+  --du-public-shell-width:480px;
+  --du-public-shell-side-gap:22px;
+}
+body[data-loading-mode="public"]{
+  max-width:none!important;
+  width:100%!important;
+  margin:0!important;
+  overflow-x:hidden!important;
+}
+body[data-loading-mode="public"] > .app{
+  width:min(calc(100% - var(--du-public-shell-side-gap)), var(--du-public-shell-width))!important;
+  max-width:var(--du-public-shell-width)!important;
+  margin-left:auto!important;
+  margin-right:auto!important;
+  box-sizing:border-box!important;
+}
+body[data-loading-mode="public"] .bottom-nav,
+body[data-loading-mode="public"] nav.bottom-nav{
+  width:min(calc(100% - var(--du-public-shell-side-gap)), var(--du-public-shell-width))!important;
+  max-width:var(--du-public-shell-width)!important;
+  left:50%!important;
+  right:auto!important;
+  transform:translateX(-50%)!important;
+  margin:0!important;
+  box-sizing:border-box!important;
+}
+body[data-loading-mode="public"].gnb-open .bottom-nav,
+body[data-loading-mode="public"].gnb-open nav.bottom-nav{
+  transform:translateX(-50%) translateY(18px)!important;
+}
+@media(max-width:520px){
+  body[data-loading-mode="public"] > .app,
+  body[data-loading-mode="public"] .bottom-nav,
+  body[data-loading-mode="public"] nav.bottom-nav{
+    width:min(calc(100% - var(--du-public-shell-side-gap)), var(--du-public-shell-width))!important;
+    max-width:var(--du-public-shell-width)!important;
+  }
+}
