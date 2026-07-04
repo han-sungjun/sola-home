@@ -122,6 +122,35 @@ export function getSessionInvalidMessage(reason = ''){
   return '세션이 만료되었습니다.\n다시 입장해 주세요.';
 }
 
+
+export function safeSessionRedirect(url = '/'){
+  const target = url || '/';
+  let targetHref = target;
+
+  try{
+    targetHref = new URL(target, window.location.origin).href;
+  }catch(_e){}
+
+  try{
+    window.location.replace(target);
+  }catch(_e){
+    window.location.href = target;
+    return;
+  }
+
+  // 일부 인앱/외부 브라우저 전환 환경에서 replace() 호출 후 이동이 멈추는 경우가 있어
+  // replace() 설계는 유지하되, 실제 이동이 안 된 경우에만 href로 복구합니다.
+  window.setTimeout(() => {
+    try{
+      if (new URL(window.location.href).href !== targetHref) {
+        window.location.href = target;
+      }
+    }catch(_e){
+      window.location.href = target;
+    }
+  }, 450);
+}
+
 export async function handleInvalidSession({ auth, api, reason, signOutFn, redirectTo = '/', alertFn } = {}){
   if (forcedLogoutProcessing) return false;
   forcedLogoutProcessing = true;
@@ -146,7 +175,7 @@ export async function handleInvalidSession({ auth, api, reason, signOutFn, redir
   }
   try{ if (typeof signOutFn === 'function') await signOutFn(auth); }catch(_e){}
 
-  if (redirectTo) window.location.replace(redirectTo);
+  safeSessionRedirect(redirectTo || '/');
   return false;
 }
 

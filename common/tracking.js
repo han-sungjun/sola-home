@@ -7,6 +7,10 @@
 import {
   collection,
   addDoc,
+  doc,
+  getDoc,
+  setDoc,
+  increment,
   serverTimestamp,
   query,
   where,
@@ -56,6 +60,18 @@ function startOfToday() {
   const d = new Date();
   d.setHours(0, 0, 0, 0);
   return d;
+}
+
+function getDateKey(date = new Date()) {
+  const d = date instanceof Date ? date : new Date();
+  const pad = (n) => String(n).padStart(2, "0");
+  return `${d.getFullYear()}${pad(d.getMonth() + 1)}${pad(d.getDate())}`;
+}
+
+function formatDateLabelFromKey(dateKey) {
+  const key = String(dateKey || "");
+  if (!/^\d{8}$/.test(key)) return key || "-";
+  return `${key.slice(0, 4)}.${key.slice(4, 6)}.${key.slice(6, 8)}`;
 }
 
 function safeText(value, fallback = "-") {
@@ -114,6 +130,74 @@ export async function saveActivity(pageName, detail = "") {
   }
 }
 
+async function updateVisitStatsAggregate({ uid, email, pageName, detail }) {
+  if (!uid) return;
+
+  const now = new Date();
+  const dateKey = getDateKey(now);
+  const dailyStatsRef = doc(db, "visit_stats", dateKey);
+  const totalStatsRef = doc(db, "visit_stats", "__total__");
+  const dailyUserRef = doc(db, "visit_daily_users", `${dateKey}_${uid}`);
+  const uniqueUserRef = doc(db, "visit_unique_users", uid);
+
+  const basePayload = {
+    lastUid: uid,
+    lastEmail: email || null,
+    lastPage: pageName || "-",
+    lastDetail: detail || "",
+    updatedAt: serverTimestamp()
+  };
+
+  const [dailyUserSnap, uniqueUserSnap] = await Promise.all([
+    getDoc(dailyUserRef),
+    getDoc(uniqueUserRef)
+  ]);
+
+  const isFirstDailyVisit = !dailyUserSnap.exists();
+  const isFirstEverVisit = !uniqueUserSnap.exists();
+
+  const writes = [
+    setDoc(dailyStatsRef, {
+      dateKey,
+      dateLabel: formatDateLabelFromKey(dateKey),
+      visitCount: increment(1),
+      dailyVisitors: increment(isFirstDailyVisit ? 1 : 0),
+      ...basePayload
+    }, { merge: true }),
+    setDoc(totalStatsRef, {
+      totalVisits: increment(1),
+      totalVisitors: increment(isFirstEverVisit ? 1 : 0),
+      ...basePayload
+    }, { merge: true })
+  ];
+
+  if (isFirstDailyVisit) {
+    writes.push(setDoc(dailyUserRef, {
+      uid,
+      email: email || null,
+      dateKey,
+      page: pageName || "-",
+      path: location.pathname,
+      createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp()
+    }, { merge: true }));
+  }
+
+  if (isFirstEverVisit) {
+    writes.push(setDoc(uniqueUserRef, {
+      uid,
+      email: email || null,
+      firstDateKey: dateKey,
+      firstPage: pageName || "-",
+      firstPath: location.pathname,
+      createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp()
+    }, { merge: true }));
+  }
+
+  await Promise.all(writes);
+}
+
 
 // =========================
 // 방문 이력 저장
@@ -133,8 +217,11 @@ export async function saveVisit(pageName, detail = "") {
       url: location.href,
       referrer: document.referrer || null,
       userAgent: getDeviceInfo(),
+      dateKey: getDateKey(),
       createdAt: serverTimestamp()
     });
+
+    await updateVisitStatsAggregate({ uid, email, pageName, detail });
 
   } catch (e) {
     console.log("visit log error", e);
@@ -389,6 +476,7 @@ function ensureAutoLogoutAuthWatcher() {
 export async function getTodayStats() {
   try {
     const today = startOfToday();
+    const todayKey = getDateKey(today);
 
     const visitQuery = query(
       collection(db, "visit_history"),
@@ -402,9 +490,11 @@ export async function getTodayStats() {
       limit(TRACKING_STATS_LIMIT)
     );
 
-    const [visitSnap, loginSnap] = await Promise.all([
+    const [visitSnap, loginSnap, todayStatsSnap, totalStatsSnap] = await Promise.all([
       getDocs(visitQuery),
-      getDocs(loginQuery)
+      getDocs(loginQuery),
+      getDoc(doc(db, "visit_stats", todayKey)),
+      getDoc(doc(db, "visit_stats", "__total__"))
     ]);
 
     let successCount = 0;
@@ -418,8 +508,20 @@ export async function getTodayStats() {
       else if (d.status === "blocked") blockedCount++;
     });
 
+    const todayStats = todayStatsSnap.exists() ? todayStatsSnap.data() : {};
+    const totalStats = totalStatsSnap.exists() ? totalStatsSnap.data() : {};
+    const fallbackDailyVisitors = new Set();
+    visitSnap.forEach(doc => {
+      const d = doc.data();
+      const key = d.uid || d.email;
+      if (key) fallbackDailyVisitors.add(key);
+    });
+
     return {
-      visitCount: visitSnap.size,
+      visitCount: Number(todayStats.visitCount || visitSnap.size || 0),
+      dailyVisitors: Number(todayStats.dailyVisitors || fallbackDailyVisitors.size || 0),
+      totalVisits: Number(totalStats.totalVisits || 0),
+      totalVisitors: Number(totalStats.totalVisitors || 0),
       loginCount: loginSnap.size,
       successCount,
       failCount,
@@ -430,6 +532,9 @@ export async function getTodayStats() {
     console.log("stats error", e);
     return {
       visitCount: 0,
+      dailyVisitors: 0,
+      totalVisits: 0,
+      totalVisitors: 0,
       loginCount: 0,
       successCount: 0,
       failCount: 0,
@@ -444,6 +549,12 @@ export async function getTodayStats() {
 // =========================
 
 export async function getVisitPathStats() {
+  const pageMap = {};
+  const addPage = (page, count = 1) => {
+    const key = safeText(page, "unknown");
+    pageMap[key] = (pageMap[key] || 0) + count;
+  };
+
   try {
     const today = startOfToday();
 
@@ -454,23 +565,36 @@ export async function getVisitPathStats() {
     );
 
     const snap = await getDocs(visitQuery);
-
-    const pageMap = {};
-
     snap.forEach(doc => {
       const d = doc.data();
-      const page = safeText(d.page, "unknown");
-      pageMap[page] = (pageMap[page] || 0) + 1;
+      addPage(d.page || d.path || d.url);
     });
-
-    return Object.entries(pageMap)
-      .map(([page, count]) => ({ page, count }))
-      .sort((a, b) => b.count - a.count);
-
   } catch (e) {
-    console.log("visit path stats error", e);
-    return [];
+    console.log("visit path stats createdAt query error", e);
   }
+
+  // 배포 직후 createdAt 인덱스/권한 차이로 위 쿼리가 비는 경우를 대비해 dateKey 기준으로 한 번 더 보강합니다.
+  if (!Object.keys(pageMap).length) {
+    try {
+      const dateKey = getDateKey();
+      const fallbackQuery = query(
+        collection(db, "visit_history"),
+        where("dateKey", "==", dateKey),
+        limit(TRACKING_STATS_LIMIT)
+      );
+      const fallbackSnap = await getDocs(fallbackQuery);
+      fallbackSnap.forEach(doc => {
+        const d = doc.data();
+        addPage(d.page || d.path || d.url);
+      });
+    } catch (e) {
+      console.log("visit path stats dateKey query error", e);
+    }
+  }
+
+  return Object.entries(pageMap)
+    .map(([page, count]) => ({ page, count }))
+    .sort((a, b) => b.count - a.count);
 }
 
 
@@ -643,11 +767,14 @@ export async function renderAdminStatsUI({
 
   if (statsEl) {
     statsEl.innerHTML = `
-      <div class="summary-row"><strong>오늘 방문</strong><span>${stats.visitCount}건</span></div>
-      <div class="summary-row"><strong>오늘 입장 시도</strong><span>${stats.loginCount}건</span></div>
-      <div class="summary-row"><strong>오늘 입장 성공</strong><span>${stats.successCount}건</span></div>
-      <div class="summary-row"><strong>오늘 입장 실패</strong><span>${stats.failCount}건</span></div>
-      <div class="summary-row"><strong>오늘 차단</strong><span>${stats.blockedCount}건</span></div>
+      <div class="summary-row"><strong>하루 방문자 수</strong><span>${stats.dailyVisitors.toLocaleString()}명</span></div>
+      <div class="summary-row"><strong>오늘 방문 횟수</strong><span>${stats.visitCount.toLocaleString()}건</span></div>
+      <div class="summary-row"><strong>누적 방문자 수</strong><span>${stats.totalVisitors.toLocaleString()}명</span></div>
+      <div class="summary-row"><strong>누적 방문 횟수</strong><span>${stats.totalVisits.toLocaleString()}건</span></div>
+      <div class="summary-row"><strong>오늘 입장 시도</strong><span>${stats.loginCount.toLocaleString()}건</span></div>
+      <div class="summary-row"><strong>오늘 입장 성공</strong><span>${stats.successCount.toLocaleString()}건</span></div>
+      <div class="summary-row"><strong>오늘 입장 실패</strong><span>${stats.failCount.toLocaleString()}건</span></div>
+      <div class="summary-row"><strong>오늘 차단</strong><span>${stats.blockedCount.toLocaleString()}건</span></div>
     `;
   }
 

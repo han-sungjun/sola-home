@@ -418,7 +418,23 @@
   }
 
   function enqueue(job){
-    queue = queue.catch(function(){}).then(function(){ return new Promise(job); });
+    // 배포 난독화/브라우저 캐시가 섞인 상태에서도 Promise executor TypeError가 나지 않도록
+    // job을 직접 new Promise에 넘기지 않고 안전 래퍼에서 실행합니다.
+    if(typeof job !== 'function'){
+      console.warn('[UpickAlert] invalid alert job skipped');
+      return Promise.resolve(false);
+    }
+    queue = queue.catch(function(){}).then(function(){
+      return new Promise(function(resolve){
+        try{ job(resolve); }
+        catch(error){
+          console.warn('[UpickAlert] alert job failed:', error);
+          restoreAlertButtons();
+          forceClearAlertLockIfClosed();
+          resolve(false);
+        }
+      });
+    });
     return queue;
   }
 

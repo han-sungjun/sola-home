@@ -1,3 +1,31 @@
+function safeSessionRedirect(url) {
+  const target = url || "/";
+  let targetHref = target;
+
+  try {
+    targetHref = new URL(target, window.location.origin).href;
+  } catch (_e) {}
+
+  try {
+    window.location.replace(target);
+  } catch (_e) {
+    window.location.href = target;
+    return;
+  }
+
+  // history.back 방지를 위해 replace()를 우선 사용하고,
+  // 일부 인앱/외부 브라우저 전환 환경에서 이동이 멈출 때만 href로 복구합니다.
+  window.setTimeout(() => {
+    try {
+      if (new URL(window.location.href).href !== targetHref) {
+        window.location.href = target;
+      }
+    } catch (_e) {
+      window.location.href = target;
+    }
+  }, 450);
+}
+
 async function upickSessionAlert(message) {
   if (typeof window !== "undefined" && typeof window.showCommonAlert === "function") {
     await window.showCommonAlert({ message });
@@ -18,7 +46,7 @@ async function sessionCheck(options = {}) {
   const raw = localStorage.getItem("loginUser");
 
   if (!raw) {
-    location.replace("/");
+    safeSessionRedirect("/");
     return false;
   }
 
@@ -27,7 +55,7 @@ async function sessionCheck(options = {}) {
     parsed = JSON.parse(raw);
   } catch (e) {
     localStorage.removeItem("loginUser");
-    location.replace("/");
+    safeSessionRedirect("/");
     return false;
   }
 
@@ -36,7 +64,7 @@ async function sessionCheck(options = {}) {
 
   if (!uid) {
     localStorage.removeItem("loginUser");
-    location.replace("/");
+    safeSessionRedirect("/");
     return false;
   }
 
@@ -52,7 +80,7 @@ async function sessionCheck(options = {}) {
       }
 
       localStorage.removeItem("loginUser");
-      location.replace("/");
+      safeSessionRedirect("/");
       return false;
     }
 
@@ -73,7 +101,7 @@ async function sessionCheck(options = {}) {
 
       await upickSessionAlert("다른 기기에서 입장되어 현재 세션이 종료되었습니다.");
       localStorage.removeItem("loginUser");
-      location.replace("/");
+      safeSessionRedirect("/");
       return false;
     }
 
@@ -86,7 +114,7 @@ async function sessionCheck(options = {}) {
 
       await upickSessionAlert("탈퇴된 계정입니다.");
       localStorage.removeItem("loginUser");
-      location.replace("/");
+      safeSessionRedirect("/");
       return false;
     }
 
@@ -100,7 +128,7 @@ async function sessionCheck(options = {}) {
 
       await upickSessionAlert("보안 정책에 따라 차단된 계정입니다.");
       localStorage.removeItem("loginUser");
-      location.replace("/");
+      safeSessionRedirect("/");
       return false;
     }
 
@@ -113,12 +141,12 @@ async function sessionCheck(options = {}) {
 
       await upickSessionAlert("관리자 승인 후 이용 가능합니다.");
       localStorage.removeItem("loginUser");
-      location.replace("/");
+      safeSessionRedirect("/");
       return false;
     }
 
     if (user.phoneVerified !== true) {
-      location.replace("/phone-verify");
+      safeSessionRedirect("/phone-verify");
       return false;
     }
 
@@ -132,7 +160,7 @@ async function sessionCheck(options = {}) {
       }
 
       await upickSessionAlert("관리자 권한이 없습니다.");
-      location.replace("/app");
+      safeSessionRedirect("/app");
       return false;
     }
 
@@ -160,7 +188,7 @@ async function sessionCheck(options = {}) {
     }
 
     localStorage.removeItem("loginUser");
-    location.replace("/");
+    safeSessionRedirect("/");
     return false;
   }
 }
