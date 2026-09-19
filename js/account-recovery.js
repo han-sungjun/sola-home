@@ -506,20 +506,31 @@ qs('#findNicknameBtn')?.addEventListener('click', async (event) => {
     setResult(fields.findNicknameResult, `확인된 닉네임: ${data.nicknameMasked || data.nickname || ''}`, 'success');
     setButtonLoading(btn, false);
     await showAppAlert({
-      title: '닉네임 찾기',
-      message: `가입된 닉네임은 ${data.nicknameMasked || data.nickname} 입니다.\n전체 닉네임을 확인하시겠습니까?`,
-      confirmText: '확인',
-      cancelText: '전체 보기',
-      onConfirm: () => closeSheet(),
-      onCancel: async () => {
-        await showAppAlert({
-          title: '닉네임 찾기',
-          message: `전체 닉네임은 ${data.nickname} 입니다.`,
-          confirmText: '확인',
-          onConfirm: () => closeSheet(),
-        });
-      },
-    });
+	  title: '닉네임 찾기',
+	  message: `가입된 닉네임은 ${data.nicknameMasked || data.nickname} 입니다.\n전체 닉네임을 확인하시겠습니까?`,
+	  confirmText: '확인',
+	  cancelText: '전체 보기',
+
+	  onConfirm: () => {
+		closeSheet();
+	  },
+
+	  onCancel: () => {
+		// 기존 알럿의 close 처리가 완전히 끝난 다음
+		// 다음 알럿을 새 이벤트 루프에서 실행합니다.
+		window.setTimeout(() => {
+		  showAppAlert({
+			title: '닉네임 찾기',
+			message: `전체 닉네임은 ${data.nickname} 입니다.`,
+			confirmText: '확인',
+
+			onConfirm: () => {
+			  closeSheet();
+			},
+		  });
+		}, 50);
+	  },
+	});
   } catch (error) {
     setButtonLoading(btn, false);
     setResult(fields.findNicknameResult, error.message, 'error');
@@ -545,21 +556,35 @@ qs('#findIdBtn')?.addEventListener('click', async (event) => {
     setResult(fields.findIdResult, `확인된 아이디: ${data.loginIdMasked || data.loginId || ''}`, 'success');
     setButtonLoading(btn, false);
     await showAppAlert({
-      title: '아이디 찾기',
-      message: `가입된 아이디는 ${data.loginIdMasked || data.loginId} 입니다.\n전체 아이디를 확인하시겠습니까?`,
-      confirmText: '확인',
-      cancelText: '전체 보기',
-      onConfirm: () => closeSheet(),
-      onCancel: async () => {
-        if (loginIdEl && data.loginId) loginIdEl.value = data.loginId;
-        await showAppAlert({
-          title: '아이디 찾기',
-          message: `전체 아이디는 ${data.loginId} 입니다.`,
-          confirmText: '확인',
-          onConfirm: () => closeSheet(),
-        });
-      },
-    });
+	  title: '아이디 찾기',
+	  message: `가입된 아이디는 ${data.loginIdMasked || data.loginId} 입니다.\n전체 아이디를 확인하시겠습니까?`,
+	  confirmText: '확인',
+	  cancelText: '전체 보기',
+
+	  onConfirm: () => {
+		closeSheet();
+	  },
+
+	  onCancel: () => {
+		// 찾은 전체 아이디를 로그인 입력란에 넣습니다.
+		if (loginIdEl && data.loginId) {
+		  loginIdEl.value = data.loginId;
+		}
+
+		// 기존 알럿이 완전히 닫힌 뒤 전체 아이디 알럿 표시
+		window.setTimeout(() => {
+		  showAppAlert({
+			title: '아이디 찾기',
+			message: `전체 아이디는 ${data.loginId} 입니다.`,
+			confirmText: '확인',
+
+			onConfirm: () => {
+			  closeSheet();
+			},
+		  });
+		}, 50);
+	  },
+	});
   } catch (error) {
     setButtonLoading(btn, false);
     setResult(fields.findIdResult, error.message, 'error');
